@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>orcatrade – Asia Sourcing & Procurement</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="orcatrade is a Poland-based sourcing partner connecting European businesses with reliable manufacturers in Asia, specialising in China.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --navy: #0a1730;
+      --navy-soft: #101f3d;
+      --cream: #f5f2ea;
+      --cream-soft: #e7e2d4;
+      --gold: #d8b46a;
+      --gold-soft: #c7a259;
+      --error: #e15c5c;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   sans-serif;
+      background: radial-gradient(circle at top left, #172a52 0, var(--navy) 35%, #050914 100%);
+      color: var(--cream);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .page {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header / Navigation */
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(to bottom,
+        rgba(4, 9, 20, 0.92),
+        rgba(4, 9, 20, 0.80),
+        transparent
+      );
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .nav {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1.5rem;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .brand-logo {
+      width: 40px;
+      height: 40px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      background: radial-gradient(circle at 30% 0, #364a7a 0, #0c1527 55%, #020510 100%);
+    }
+
+    .brand-logo img {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+    }
+
+    .brand-text {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.1;
+    }
+
+    .brand-text span:first-child {
+      font-family: "Playfair Display", serif;
+      font-size: 1.35rem;
+      letter-spacing: 0.06em;
+      text-transform: lowercase;
+    }
+
+    .brand-text span:last-child {
+      font-size: 0.7rem;
+      opacity: 0.72;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .nav-links a {
+      opacity: 0.72;
+      position: relative;
+      padding-bottom: 0.2rem;
+    }
+
+    .nav-links a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      transition: width 0.18s ease-out;
+    }
+
+    .nav-links a:hover {
+      opacity: 1;
+    }
+
+    .nav-links a:hover::after {
+      width: 100%;
+    }
+
+    .nav-cta {
+      padding: 0.5rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(216, 180, 106, 0.6);
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      background: linear-gradient(
+        135deg,
+        rgba(216, 180, 106, 0.16),
+        rgba(216, 180, 106, 0.02)
+      );
+      cursor: pointer;
+      transition: all 0.18s ease-out;
+      white-space: nowrap;
+    }
+
+    .nav-cta:hover {
+      background: rgba(216, 180, 106, 0.26);
+      transform: translateY(-1px);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.45);
+    }
+
+    /* Layout */
+
+    main {
+      flex: 1;
+    }
+
+    .section {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 3.5rem 1.5rem;
+    }
+
+    .section--hero {
+      padding-top: 4.5rem;
+      padding-bottom: 4rem;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.6fr);
+      gap: 3rem;
+      align-items: center;
+    }
+
+    @media (max-width: 840px) {
+      .nav-links {
+        display: none;
+      }
+      .section--hero {
+        grid-template-columns: minmax(0, 1fr);
+        padding-top: 3.5rem;
+      }
+    }
+
+    .hero-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.24em;
+      color: var(--cream-soft);
+      margin-bottom: 0.9rem;
+    }
+
+    .hero-title {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(2.45rem, 3.3vw + 1.5rem, 3.6rem);
+      line-height: 1.06;
+      margin-bottom: 1.1rem;
+    }
+
+    .hero-title span {
+      color: var(--gold);
+    }
+
+    .hero-body {
+      font-size: 0.96rem;
+      max-width: 32rem;
+      color: rgba(245, 242, 234, 0.82);
+      line-height: 1.7;
+      margin-bottom: 1.4rem;
+    }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem 1.5rem;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .hero-tag {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      padding: 0.4rem 0.9rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.16);
+      background: rgba(6, 15, 35, 0.9);
+    }
+
+    .hero-divider {
+      width: 1px;
+      height: 26px;
+      background: rgba(255, 255, 255, 0.14);
+    }
+
+    .hero-detail {
+      font-size: 0.8rem;
+      opacity: 0.82;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.9rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.4rem;
+      padding: 0.8rem 1.4rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: all 0.18s ease-out;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      white-space: nowrap;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--gold), var(--gold-soft));
+      color: #0a0912;
+      border-color: rgba(0, 0, 0, 0.16);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+    }
+
+    .btn-primary:hover {
+      filter: brightness(1.06);
+      transform: translateY(-1px);
+      box-shadow: 0 16px 36px rgba(0, 0, 0, 0.6);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--cream-soft);
+      border-color: rgba(255, 255, 255, 0.16);
+    }
+
+    .btn-ghost:hover {
+      background: rgba(8, 20, 51, 0.96);
+      border-color: rgba(255, 255, 255, 0.3);
+      transform: translateY(-1px);
+    }
+
+    /* Hero right card */
+
+    .hero-card {
+      background: radial-gradient(circle at top left, #273962 0, #07101f 52%, #040813 100%);
+      border-radius: 1.6rem;
+      padding: 1.6rem 1.5rem 1.7rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6);
+    }
+
+    .hero-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      gap: 1rem;
+    }
+
+    .hero-card-title {
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.82;
+    }
+
+    .hero-card-badge {
+      font-size: 0.7rem;
+      padding: 0.35rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(5, 16, 41, 0.9);
+      border: 1px solid rgba(216, 180, 106, 0.55);
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.4rem;
+    }
+
+    .metric {
+      padding: 0.9rem 0.95rem;
+      border-radius: 1.1rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      background: radial-gradient(circle at top left, #1a2a4e 0, #050b17 55%, #050814 100%);
+    }
+
+    .metric-label {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.7;
+      margin-bottom: 0.55rem;
+    }
+
+    .metric-value {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .metric-sub {
+      font-size: 0.72rem;
+      opacity: 0.7;
+      margin-top: 0.1rem;
+    }
+
+    .hero-steps {
+      margin-top: 0.3rem;
+      padding-top: 1rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.1);
+      font-size: 0.8rem;
+      opacity: 0.9;
+    }
+
+    .hero-steps span {
+      display: inline-block;
+      margin-right: 0.4rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(9, 20, 48, 0.9);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.82;
+    }
+
+    /* Services */
+
+    .section-title {
+      font-family: "Playfair Display", serif;
+      font-size: 1.8rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-kicker {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      opacity: 0.7;
+      margin-bottom: 0.5rem;
+    }
+
+    .section-intro {
+      max-width: 40rem;
+      font-size: 0.92rem;
+      opacity: 0.82;
+      line-height: 1.7;
+      margin-bottom: 2.1rem;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 960px) {
+      .service-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border-radius: 1.4rem;
+      padding: 1.4rem 1.4rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.6);
+    }
+
+    .card-title {
+      font-size: 1.02rem;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .card-tag {
+      display: inline-block;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--gold);
+      opacity: 0.85;
+      margin-bottom: 0.55rem;
+    }
+
+    .card-body {
+      font-size: 0.88rem;
+      opacity: 0.82;
+      line-height: 1.6;
+    }
+
+    .card-list {
+      margin-top: 0.8rem;
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .card-list li {
+      position: relative;
+      padding-left: 1rem;
+      font-size: 0.86rem;
+      opacity: 0.9;
+      margin-bottom: 0.35rem;
+    }
+
+    .card-list li::before {
+      content: "•";
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+      font-size: 0.9rem;
+    }
+
+    /* Process */
+
+    .process-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.2fr) minmax(0, 1.1fr);
+      gap: 2.5rem;
+      margin-top: 1.5rem;
+      align-items: flex-start;
+    }
+
+    @media (max-width: 900px) {
+      .process-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .step-list {
+      list-style: none;
+      padding-left: 0;
+    }
+
+    .step-item {
+      padding: 1rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex;
+      gap: 1rem;
+    }
+
+    .step-number {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(216, 180, 106, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      color: var(--gold);
+      flex-shrink: 0;
+    }
+
+    .step-content h4 {
+      font-size: 0.98rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .step-content p {
+      font-size: 0.86rem;
+      opacity: 0.86;
+      line-height: 1.6;
+    }
+
+    .process-note {
+      font-size: 0.84rem;
+      opacity: 0.8;
+      margin-top: 0.8rem;
+    }
+
+    .process-card {
+      background: radial-gradient(circle at top left, #222f51 0, #050a17 55%, #040713 100%);
+      border-radius: 1.5rem;
+      padding: 1.4rem 1.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .process-card h4 {
+      font-size: 0.96rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.4rem;
+      margin-bottom: 0.7rem;
+    }
+
+    .badge {
+      font-size: 0.72rem;
+      padding: 0.25rem 0.7rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(8, 20, 49, 0.95);
+      opacity: 0.9;
+    }
+
+    /* Contact */
+
+    .contact-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+      gap: 2.2rem;
+      margin-top: 1.6rem;
+    }
+
+    @media (max-width: 900px) {
+      .contact-grid {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    form {
+      display: grid;
+      gap: 0.9rem;
+    }
+
+    label {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      margin-bottom: 0.1rem;
+      opacity: 0.86;
+    }
+
+    .field-group {
+      display: flex;
+      flex-direction: column;
+    }
+
+    input,
+    textarea {
+      background: rgba(4, 9, 22, 0.9);
+      border-radius: 0.7rem;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      color: var(--cream);
+      padding: 0.65rem 0.8rem;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+      font-family: inherit;
+      resize: vertical;
+      min-height: 0;
+    }
+
+    input:focus,
+    textarea:focus {
+      border-color: rgba(216, 180, 106, 0.9);
+      box-shadow: 0 0 0 1px rgba(216, 180, 106, 0.5);
+      background: rgba(6, 14, 32, 0.98);
+    }
+
+    textarea {
+      min-height: 130px;
+    }
+
+    .contact-details {
+      font-size: 0.9rem;
+      opacity: 0.86;
+      line-height: 1.7;
+    }
+
+    .contact-details p + p {
+      margin-top: 0.7rem;
+    }
+
+    .contact-grid a {
+      color: var(--gold);
+    }
+
+    /* Footer */
+
+    footer {
+      padding: 1.8rem 1.5rem 2.2rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 2rem;
+    }
+
+    .footer-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 1rem;
+      font-size: 0.78rem;
+      opacity: 0.72;
+    }
+
+    .footer-inner span {
+      white-space: nowrap;
+    }
+
+    .footer-inner a {
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <div class="brand-logo">
+            <!-- Replace src with your actual logo file name -->
+            <img src="orcatrade-logo.png" alt="orcatrade logo">
+          </div>
+          <div class="brand-text">
+            <span>orcatrade</span>
+            <span>asia sourcing partner</span>
+          </div>
+        </div>
+        <nav class="nav-links">
+          <a href="#services">Services</a>
+          <a href="#process">Process</a>
+          <a href="#contact">Contact</a>
+          <button class="nav-cta" onclick="window.location.href='#contact'">
+            Book Intro Call
+          </button>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="section section--hero" id="top">
+        <div>
+          <div class="hero-kicker">Poland ↔ Asia • China focused</div>
+          <h1 class="hero-title">
+            Precision sourcing between <span>Europe</span> and <span>Asia</span>.
+          </h1>
+          <p class="hero-body">
+            orcatrade connects European brands with vetted manufacturers in China and across Asia. 
+            We manage the full journey – from supplier scouting and sampling to quality control, 
+            consolidation and delivery – so you can scale without friction or surprises.
+          </p>
+
+          <div class="hero-meta">
+            <div class="hero-tag">End-to-end procurement</div>
+            <div class="hero-divider"></div>
+            <div class="hero-detail">
+              Based in Poland • Operating on China Standard Time & CET
+            </div>
+          </div>
+
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#contact">
+              Schedule discovery call
+            </a>
+            <a class="btn btn-ghost" href="#services">
+              View services
+            </a>
+          </div>
+        </div>
+
+        <!-- Right card -->
+        <aside class="hero-card" aria-label="Snapshot of orcatrade service">
+          <div class="hero-card-header">
+            <div class="hero-card-title">Orcatrade at a glance</div>
+            <div class="hero-card-badge">China first, Asia wide</div>
+          </div>
+
+          <div class="hero-metrics">
+            <div class="metric">
+              <div class="metric-label">Lead time</div>
+              <div class="metric-value">18–45 days</div>
+              <div class="metric-sub">From confirmed PO to FOB port</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Factory approval</div>
+              <div class="metric-value">&lt; 3 weeks</div>
+              <div class="metric-sub">Shortlisted, verified suppliers</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Quality control</div>
+              <div class="metric-value">3-step</div>
+              <div class="metric-sub">Pre-prod • mid-prod • pre-shipment</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Communication</div>
+              <div class="metric-value">1 partner</div>
+              <div class="metric-sub">We handle factories, freight & docs</div>
+            </div>
+          </div>
+
+          <div class="hero-steps">
+            <span>Brief</span><span>Factories</span><span>Samples</span>
+            <span>Production</span><span>QC</span><span>Shipment</span>
+          </div>
+        </aside>
+      </section>
+
+      <!-- SERVICES -->
+      <section class="section" id="services">
+        <div class="section-kicker">What we do</div>
+        <h2 class="section-title">Built for brands that take supply chains seriously.</h2>
+        <p class="section-intro">
+          orcatrade is your on-the-ground extension in Asia. 
+          We combine sourcing, quality assurance and logistics coordination into one 
+          aligned team, so your products land where they should, when they should – 
+          at the margin you planned.
+        </p>
+
+        <div class="service-grid">
+          <article class="card">
+            <div class="card-tag">Sourcing & procurement</div>
+            <h3 class="card-title">Supplier scouting with real filters.</h3>
+            <p class="card-body">
+              We identify, vet and negotiate with manufacturers that can truly deliver 
+              on spec, volume and compliance – not just quote aggressively.
+            </p>
+            <ul class="card-list">
+              <li>Supplier mapping across China & selected Asian hubs</li>
+              <li>Audit of certifications, capacity and export track record</li>
+              <li>Sample coordination and benchmarking</li>
+              <li>Price & payment term negotiation on your behalf</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card-tag">Quality & compliance</div>
+            <h3 class="card-title">From drawings to cartons – under control.</h3>
+            <p class="card-body">
+              We implement structured quality gates so issues are caught before 
+              they leave the factory floor – not at your warehouse dock.
+            </p>
+            <ul class="card-list">
+              <li>Spec sheets and golden sample definition</li>
+              <li>On-site inspections via accredited QC partners</li>
+              <li>Photo & video reporting from the production line</li>
+              <li>Packaging, labelling & documentation checks</li>
+            </ul>
+          </article>
+
+          <article class="card">
+            <div class="card-tag">Logistics coordination</div>
+            <h3 class="card-title">We sit between factory, forwarder & finance.</h3>
+            <p class="card-body">
+              You keep one contact – we orchestrate the rest. 
+              From EXW to FOB or DAP, we sync timelines, documents and stakeholders.
+            </p>
+            <ul class="card-list">
+              <li>Coordination with your freight forwarder or our network</li>
+              <li>Consolidation across multiple factories</li>
+              <li>Commercial invoice & packing list validation</li>
+              <li>Support on Incoterms, HS codes & customs basics</li>
+            </ul>
+          </article>
+        </div>
+      </section>
+
+      <!-- PROCESS -->
+      <section class="section" id="process">
+        <div class="section-kicker">How we work</div>
+        <h2 class="section-title">A simple 6-step sourcing flow.</h2>
+        <p class="section-intro">
+          Whether you are placing your first order from Asia or adding a new product line, 
+          our process stays the same: clear briefs, transparent communication, 
+          documented decisions.
+        </p>
+
+        <div class="process-grid">
+          <div>
+            <ol class="step-list">
+              <li class="step-item">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                  <h4>Discovery & product brief</h4>
+                  <p>
+                    We align on your product specs, target landed cost, volume and timelines. 
+                    If you’re early, we help translate ideas into factory-ready requirements.
+                  </p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                  <h4>Factory search & shortlist</h4>
+                  <p>
+                    We reach out to targeted manufacturers, filter for capability & reliability, 
+                    and return a curated shortlist with indicative pricing and MOQs.
+                  </p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                  <h4>Sampling & fine-tuning</h4>
+                  <p>
+                    Samples are produced, shipped and evaluated together with you. 
+                    We refine specs, finishes and packaging to lock in the golden sample.
+                  </p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                  <h4>Order placement & production</h4>
+                  <p>
+                    Once you approve, we confirm POs, payment terms and production slots. 
+                    You receive a clear timeline from deposit to shipment window.
+                  </p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">05</div>
+                <div class="step-content">
+                  <h4>Quality control & approvals</h4>
+                  <p>
+                    Inspections are booked according to risk level and product type. 
+                    Only after passing QC do we sign off on shipment.
+                  </p>
+                </div>
+              </li>
+              <li class="step-item">
+                <div class="step-number">06</div>
+                <div class="step-content">
+                  <h4>Logistics & after-shipment care</h4>
+                  <p>
+                    We liaise with forwarders, align documents and track the shipment. 
+                    If there are post-arrival issues, we help address them with the factory.
+                  </p>
+                </div>
+              </li>
+            </ol>
+            <p class="process-note">
+              Every project runs in shared channels & summary documents, 
+              so your team can plug in at any time without losing context.
+            </p>
+          </div>
+
+          <aside class="process-card">
+            <h4>Who we are a fit for</h4>
+            <p style="font-size:0.86rem; opacity:0.88; line-height:1.6; margin-bottom:0.8rem;">
+              orcatrade works with European brands and distributors who:
+            </p>
+            <div class="badge-row">
+              <span class="badge">Want a reliable Asia partner</span>
+              <span class="badge">Value transparency over “cheapest quote”</span>
+              <span class="badge">Order on repeat, not one-off</span>
+              <span class="badge">Care about quality & brand perception</span>
+            </div>
+
+            <h4 style="margin-top:1.1rem;">Sectors we focus on</h4>
+            <div class="badge-row">
+              <span class="badge">Consumer goods</span>
+              <span class="badge">Lifestyle & gifting</span>
+              <span class="badge">Accessories & small electronics</span>
+              <span class="badge">Food-adjacent packaging & POS</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- CONTACT -->
+      <section class="section" id="contact">
+        <div class="section-kicker">Contact</div>
+        <h2 class="section-title">Share your next product idea.</h2>
+        <p class="section-intro">
+          Send a short brief – even if it’s still rough – and we’ll come back with 
+          next steps, questions and an indicative sourcing roadmap.
+        </p>
+
+        <div class="contact-grid">
+          <form action="mailto:hello@orcatrade.com" method="post" enctype="text/plain">
+            <div class="field-group">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" placeholder="Your full name" required>
+            </div>
+
+            <div class="field-group">
+              <label for="company">Company</label>
+              <input id="company" name="company" type="text" placeholder="Brand / company name" required>
+            </div>
+
+            <div class="field-group">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@company.com" required>
+            </div>
+
+            <div class="field-group">
+              <label for="project">Project outline</label>
+              <textarea id="project" name="project" placeholder="Product type, target launch date, estimated volume, target market…"></textarea>
+            </div>
+
+            <button class="btn btn-primary" type="submit">
+              Send brief
+            </button>
+          </form>
+
+          <div class="contact-details">
+            <p>
+              Prefer to start with a call?<br>
+              Email us at <a href="mailto:hello@orcatrade.com">hello@orcatrade.com</a> 
+              with a few time slots and we’ll send a calendar invite.
+            </p>
+            <p>
+              Headquarters: Warsaw, Poland<br>
+              Operating hours: CET & China Standard Time
+            </p>
+            <p>
+              We typically reply within one business day on working briefs 
+              and within two days on more complex sourcing requests.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> orcatrade. All rights reserved.</span>
+        <span>Poland • Europe ↔ Asia sourcing partner</span>
+        <span><a href="#top">Back to top</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    // Auto-update footer year
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
