@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Contact – orcatrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Get in touch with orcatrade to discuss your Asia sourcing needs.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <a href="index.html">
+            <div class="brand-logo">
+              <img src="orcatrade_logo.png" alt="orcatrade logo">
+            </div>
+            <div class="brand-text">
+              <span>orcatrade</span>
+              <span>asia sourcing partner</span>
+            </div>
+          </a>
+        </div>
+        <nav class="nav-links">
+          <a href="index.html">Home</a>
+          <a href="services.html">Services</a>
+          <a href="process.html">Process</a>
+          <a href="contact.html">Contact</a>
+          <a href="contact.html" class="nav-cta">Book Intro Call</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <!-- CONTACT -->
+      <section class="section" id="contact">
+        <div class="section-kicker">Contact</div>
+        <h2 class="section-title">Share your next product idea.</h2>
+        <p class="section-intro">
+          Send a short brief – even if it's still rough – and we'll come back with 
+          next steps, questions and an indicative sourcing roadmap.
+        </p>
+
+        <div class="contact-grid">
+          <form id="contact-form" action="mailto:hello@orcatrade.com" method="post" enctype="text/plain">
+            <div class="field-group">
+              <label for="name">Name</label>
+              <input id="name" name="name" type="text" placeholder="Your full name" required>
+            </div>
+
+            <div class="field-group">
+              <label for="company">Company</label>
+              <input id="company" name="company" type="text" placeholder="Brand / company name" required>
+            </div>
+
+            <div class="field-group">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" placeholder="you@company.com" required>
+            </div>
+
+            <div class="field-group">
+              <label for="project">Project outline</label>
+              <textarea id="project" name="project" placeholder="Product type, target launch date, estimated volume, target market…"></textarea>
+            </div>
+
+            <button class="btn btn-primary" type="submit">
+              Send brief
+            </button>
+          </form>
+
+          <div class="contact-details">
+            <p>
+              Prefer to start with a call?<br>
+              You can call us directly at <a href="tel:+48123456789">+48 123 456 789</a> to go over your inquiry, 
+              or email us at <a href="mailto:hello@orcatrade.com">hello@orcatrade.com</a> 
+              with a few time slots and we'll send a calendar invite.
+            </p>
+            <p>
+              <strong>Our Offices:</strong><br>
+              Warsaw, Poland<br>
+              Hong Kong<br><br>
+              Operating hours: CET & China Standard Time<br>
+              As a sister company with operations in both Europe and Asia, we provide seamless coverage across time zones.
+            </p>
+            <p>
+              We typically reply within one business day on working briefs 
+              and within two days on more complex sourcing requests.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> orcatrade. All rights reserved.</span>
+        <span>Warsaw & Hong Kong • Europe ↔ Asia sourcing partner</span>
+        <span><a href="index.html">Back to home</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/main.js"></script>
+  <script src="js/form.js"></script>
+</body>
+</html>
+
