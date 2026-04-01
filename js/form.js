@@ -12,6 +12,13 @@ document.addEventListener('DOMContentLoaded', function() {
       const company = document.getElementById('company').value.trim();
       const email = document.getElementById('email').value.trim();
       const project = document.getElementById('project').value.trim();
+
+      // Optional order-specific fields
+      const productCategoryInput = document.getElementById('product-category');
+      const orderQuantityInput = document.getElementById('order-quantity');
+      const targetPriceInput = document.getElementById('target-price');
+      const incotermsInput = document.getElementById('incoterms');
+      const timelineInput = document.getElementById('timeline');
       
       // Basic validation
       if (!name || !company || !email) {
@@ -26,14 +33,45 @@ document.addEventListener('DOMContentLoaded', function() {
         return;
       }
       
-      // Create mailto link with form data
-      const subject = encodeURIComponent(`New Contact from ${name} at ${company}`);
-      const body = encodeURIComponent(
-        `Name: ${name}\n` +
-        `Company: ${company}\n` +
-        `Email: ${email}\n\n` +
-        `Project Outline:\n${project}`
-      );
+      // Build email subject and body
+      const subject = encodeURIComponent(`New Order Inquiry from ${name} at ${company}`);
+
+      const lines = [
+        `Name: ${name}`,
+        `Company: ${company}`,
+        `Email: ${email}`,
+        '',
+        `Product / Project Details:`,
+        project || 'N/A'
+      ];
+
+      const productCategory = productCategoryInput && productCategoryInput.value.trim();
+      const orderQuantity = orderQuantityInput && orderQuantityInput.value.trim();
+      const targetPrice = targetPriceInput && targetPriceInput.value.trim();
+      const incoterms = incotermsInput && incotermsInput.value.trim();
+      const timeline = timelineInput && timelineInput.value.trim();
+
+      if (productCategory || orderQuantity || targetPrice || incoterms || timeline) {
+        lines.push('', 'Order Parameters:');
+      }
+
+      if (productCategory) {
+        lines.push(`- Product category: ${productCategory}`);
+      }
+      if (orderQuantity) {
+        lines.push(`- Estimated order quantity: ${orderQuantity}`);
+      }
+      if (targetPrice) {
+        lines.push(`- Target price: ${targetPrice}`);
+      }
+      if (incoterms) {
+        lines.push(`- Preferred incoterms & destination: ${incoterms}`);
+      }
+      if (timeline) {
+        lines.push(`- Target delivery timeline: ${timeline}`);
+      }
+
+      const body = encodeURIComponent(lines.join('\n'));
       
       // Open email client
       window.location.href = `mailto:hello@orcatrade.com?subject=${subject}&body=${body}`;

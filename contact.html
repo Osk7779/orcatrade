@@ -41,11 +41,12 @@
     <main>
       <!-- CONTACT -->
       <section class="section" id="contact">
-        <div class="section-kicker">Contact</div>
-        <h2 class="section-title">Share your next product idea.</h2>
+        <div class="section-kicker">Order inquiry</div>
+        <h2 class="section-title">Share the details of your next order.</h2>
         <p class="section-intro">
-          Send a short brief – even if it's still rough – and we'll come back with 
-          next steps, questions and an indicative sourcing roadmap.
+          Tell us what you want to source, how many units you are planning to order and your target 
+          landed cost. We will review your brief and come back with clarifying questions, feasibility 
+          feedback and a proposed sourcing approach.
         </p>
 
         <div class="contact-grid">
@@ -66,12 +67,37 @@
             </div>
 
             <div class="field-group">
-              <label for="project">Project outline</label>
-              <textarea id="project" name="project" placeholder="Product type, target launch date, estimated volume, target market…"></textarea>
+              <label for="project">Product / project details</label>
+              <textarea id="project" name="project" placeholder="Product type, key specs, target market, packaging requirements…"></textarea>
+            </div>
+
+            <div class="field-group">
+              <label for="product-category">Product category</label>
+              <input id="product-category" name="product-category" type="text" placeholder="e.g. consumer electronics, gifting, accessories" />
+            </div>
+
+            <div class="field-group">
+              <label for="order-quantity">Estimated order quantity</label>
+              <input id="order-quantity" name="order-quantity" type="text" placeholder="e.g. 5,000 units for first order" />
+            </div>
+
+            <div class="field-group">
+              <label for="target-price">Target price</label>
+              <input id="target-price" name="target-price" type="text" placeholder="Target EXW / FOB or landed cost per unit, and currency" />
+            </div>
+
+            <div class="field-group">
+              <label for="incoterms">Preferred incoterms & destination</label>
+              <input id="incoterms" name="incoterms" type="text" placeholder="e.g. FOB Shenzhen to Gdańsk, DAP Berlin warehouse" />
+            </div>
+
+            <div class="field-group">
+              <label for="timeline">Target delivery timeline</label>
+              <input id="timeline" name="timeline" type="text" placeholder="Desired delivery month, any fixed launch or campaign dates" />
             </div>
 
             <button class="btn btn-primary" type="submit">
-              Send brief
+              Submit order inquiry
             </button>
           </form>
 
