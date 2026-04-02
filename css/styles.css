@@ -993,6 +993,157 @@ footer {
   text-underline-offset: 3px;
 }
 
+/* ===== Intro Overlay ===== */
+
+#intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.9s ease;
+}
+
+#intro-overlay.is-fading {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.intro-inner {
+  text-align: center;
+  user-select: none;
+}
+
+.intro-wordmark {
+  display: block;
+  font-family: "Cormorant Garamond", "Playfair Display", Georgia, serif;
+  font-weight: 300;
+  font-size: clamp(1.6rem, 5vw, 4.2rem);
+  letter-spacing: 0.42em;
+  text-indent: 0.42em;
+  color: #f5f0e8;
+  opacity: 0;
+  transition: opacity 1.2s ease;
+}
+
+.intro-wordmark.is-visible {
+  opacity: 1;
+}
+
+.intro-line {
+  width: 0;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #c9a84c, transparent);
+  margin: 1.4rem auto 0;
+  transition: width 0.9s ease 0.6s;
+}
+
+.intro-line.is-visible {
+  width: 120px;
+}
+
+/* ===== Trade News ===== */
+
+.news-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.4rem;
+  margin-top: 2rem;
+}
+
+.news-card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 1.6rem 1.5rem 1.3rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.news-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+}
+
+.news-tag {
+  display: inline-block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  padding: 0.22rem 0.65rem;
+  border-radius: 999px;
+  width: fit-content;
+}
+
+.news-tag--logistics { background: #e8f4f8; color: #1a6a8a; }
+.news-tag--policy    { background: #fdf3e3; color: #9a6a10; }
+.news-tag--sourcing  { background: #eaf5ee; color: #1d7a40; }
+.news-tag--planning  { background: #f0ecfb; color: #5b3fa0; }
+
+.news-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-size: 1.05rem;
+  font-weight: 500;
+  color: var(--navy);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.news-excerpt {
+  font-size: 0.84rem;
+  color: #4a4f5e;
+  line-height: 1.65;
+  flex: 1;
+  margin: 0;
+}
+
+.news-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f0f0f0;
+  margin-top: auto;
+}
+
+.news-read {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #1a6a8a;
+  text-decoration: none;
+  transition: opacity 0.15s;
+}
+
+.news-read:hover { opacity: 0.7; }
+
+.news-date {
+  font-size: 0.74rem;
+  color: #9a9fad;
+  font-style: italic;
+}
+
+.news-cta {
+  margin-top: 2rem;
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .news-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .news-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 /* ===== Chat Widget ===== */
 
 #chat-widget {

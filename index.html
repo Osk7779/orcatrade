@@ -9,11 +9,20 @@
   <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
 </head>
 
 <body>
+
+  <!-- INTRO OVERLAY -->
+  <div id="intro-overlay" aria-hidden="true">
+    <div class="intro-inner">
+      <span class="intro-wordmark">ORCATRADE GROUP</span>
+      <div class="intro-line"></div>
+    </div>
+  </div>
+
   <div class="page">
     <header>
       <div class="nav">
@@ -34,6 +43,7 @@
           <a href="#process">Process</a>
           <a href="#foundation">Foundation</a>
           <a href="#contact">Contact</a>
+          <a href="#news">News</a>
         </nav>
       </div>
     </header>
@@ -536,6 +546,57 @@
           </article>
         </div>
       </section>
+      <!-- TRADE NEWS -->
+      <section class="section" id="news">
+        <div class="section-kicker">Trade News</div>
+        <h2 class="section-title">Insights on global sourcing, logistics and Asia-Europe trade.</h2>
+
+        <div class="news-grid">
+          <article class="news-card">
+            <div class="news-tag news-tag--logistics">Logistics</div>
+            <h3 class="news-title">China Freight Rates Stabilise Ahead of Q3 Season</h3>
+            <p class="news-excerpt">Sea freight rates from Shanghai and Ningbo are normalising after months of volatility, offering importers a brief window before summer peak demand returns. Carriers are cautiously restoring capacity on Europe-bound lanes, with spot rates settling into a more predictable range.</p>
+            <div class="news-footer">
+              <a href="#" class="news-read">Read more →</a>
+              <span class="news-date">April 2025</span>
+            </div>
+          </article>
+
+          <article class="news-card">
+            <div class="news-tag news-tag--policy">Policy</div>
+            <h3 class="news-title">EU Deforestation Regulation: What Importers Need to Know</h3>
+            <p class="news-excerpt">The EUDR introduces strict due diligence requirements for goods linked to deforestation entering the EU market. Companies sourcing timber, soy, cocoa, and derived products must provide georeferenced data and compliance statements. Early preparation is critical.</p>
+            <div class="news-footer">
+              <a href="#" class="news-read">Read more →</a>
+              <span class="news-date">March 2025</span>
+            </div>
+          </article>
+
+          <article class="news-card">
+            <div class="news-tag news-tag--sourcing">Sourcing</div>
+            <h3 class="news-title">Sourcing Beyond China: Vietnam and Malaysia Gain Ground</h3>
+            <p class="news-excerpt">Supply chain diversification is accelerating as European buyers reduce single-country dependency. Vietnam leads in garments and electronics assembly while Malaysia strengthens in semiconductors and precision parts. Dual-sourcing strategies are becoming standard practice.</p>
+            <div class="news-footer">
+              <a href="#" class="news-read">Read more →</a>
+              <span class="news-date">March 2025</span>
+            </div>
+          </article>
+
+          <article class="news-card">
+            <div class="news-tag news-tag--planning">Planning</div>
+            <h3 class="news-title">Golden Week 2025: How to Plan Your Factory Calendar</h3>
+            <p class="news-excerpt">China's National Day Golden Week (1–7 October) brings factory shutdowns across major manufacturing hubs. Importers targeting Q4 deliveries should confirm orders by early August. Failure to account for the pre-holiday rush routinely leads to inflated lead times and missed windows.</p>
+            <div class="news-footer">
+              <a href="#" class="news-read">Read more →</a>
+              <span class="news-date">February 2025</span>
+            </div>
+          </article>
+        </div>
+
+        <div class="news-cta">
+          <a href="#" class="btn btn-ghost">View all articles →</a>
+        </div>
+      </section>
     </main>
 
     <footer>
@@ -547,6 +608,35 @@
     </footer>
   </div>
 
+  <script>
+    (function () {
+      var overlay  = document.getElementById('intro-overlay');
+      var wordmark = overlay.querySelector('.intro-wordmark');
+      var line     = overlay.querySelector('.intro-line');
+      var done     = false;
+
+      // Fade text in on first frame
+      requestAnimationFrame(function () {
+        wordmark.classList.add('is-visible');
+        line.classList.add('is-visible');
+      });
+
+      function dismiss() {
+        if (done) return;
+        done = true;
+        overlay.classList.add('is-fading');
+        overlay.addEventListener('transitionend', function () {
+          overlay.remove();
+          document.body.classList.add('intro-done');
+        }, { once: true });
+      }
+
+      // Auto-dismiss after 3.5 s
+      setTimeout(dismiss, 3500);
+      // Also dismiss immediately on scroll
+      window.addEventListener('scroll', dismiss, { once: true, passive: true });
+    })();
+  </script>
   <script src="js/main.js"></script>
   <script src="js/form.js"></script>
   <script src="js/chat.js"></script>
