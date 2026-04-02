@@ -1054,19 +1054,21 @@ footer {
 }
 
 .news-card {
-  background: #fff;
+  background: var(--navy-soft);
+  border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 10px;
   padding: 1.6rem 1.5rem 1.3rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.18);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .news-card:hover {
   transform: translateY(-3px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.28);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.55);
+  border-color: rgba(255, 255, 255, 0.13);
 }
 
 .news-tag {
@@ -1078,25 +1080,26 @@ footer {
   padding: 0.22rem 0.65rem;
   border-radius: 999px;
   width: fit-content;
+  border: 1px solid;
 }
 
-.news-tag--logistics { background: #e8f4f8; color: #1a6a8a; }
-.news-tag--policy    { background: #fdf3e3; color: #9a6a10; }
-.news-tag--sourcing  { background: #eaf5ee; color: #1d7a40; }
-.news-tag--planning  { background: #f0ecfb; color: #5b3fa0; }
+.news-tag--logistics { background: rgba(184, 190, 200, 0.08); color: #a8b4c0; border-color: rgba(168, 180, 192, 0.2); }
+.news-tag--policy    { background: rgba(201, 168, 76, 0.08);  color: #c9a84c; border-color: rgba(201, 168, 76, 0.2);  }
+.news-tag--sourcing  { background: rgba(184, 190, 200, 0.08); color: #9ab4a8; border-color: rgba(154, 180, 168, 0.2); }
+.news-tag--planning  { background: rgba(184, 190, 200, 0.08); color: #b4a8c8; border-color: rgba(180, 168, 200, 0.2); }
 
 .news-title {
   font-family: "Playfair Display", Georgia, serif;
   font-size: 1.05rem;
   font-weight: 500;
-  color: var(--navy);
+  color: var(--cream);
   line-height: 1.4;
   margin: 0;
 }
 
 .news-excerpt {
   font-size: 0.84rem;
-  color: #4a4f5e;
+  color: var(--cream-soft);
   line-height: 1.65;
   flex: 1;
   margin: 0;
@@ -1107,23 +1110,23 @@ footer {
   align-items: center;
   justify-content: space-between;
   padding-top: 0.5rem;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
   margin-top: auto;
 }
 
 .news-read {
   font-size: 0.8rem;
   font-weight: 500;
-  color: #1a6a8a;
+  color: var(--cream-soft);
   text-decoration: none;
-  transition: opacity 0.15s;
+  transition: color 0.15s;
 }
 
-.news-read:hover { opacity: 0.7; }
+.news-read:hover { color: var(--cream); }
 
 .news-date {
   font-size: 0.74rem;
-  color: #9a9fad;
+  color: var(--gold-soft);
   font-style: italic;
 }
 
