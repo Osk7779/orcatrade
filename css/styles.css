@@ -999,7 +999,7 @@ footer {
   position: fixed;
   inset: 0;
   z-index: 9999;
-  background: #000;
+  background: #050507;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1035,7 +1035,7 @@ footer {
 .intro-line {
   width: 0;
   height: 1px;
-  background: linear-gradient(to right, transparent, #c9a84c, transparent);
+  background: linear-gradient(to right, transparent, #ffffff, transparent);
   margin: 1.4rem auto 0;
   transition: width 0.9s ease 0.6s;
 }
