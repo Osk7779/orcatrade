@@ -1,0 +1,848 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaTrade Intelligence — AI Trade Operating System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="OrcaTrade Intelligence: AI-powered factory risk scoring, compliance automation, and supply chain disruption forecasting for global trade teams.">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <!-- Shared site styles -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <style>
+    /* ── Intelligence-page overrides & extensions ── */
+
+    /* Active nav link */
+    .nav-links a.nav-active {
+      opacity: 1;
+      font-weight: 500;
+    }
+    .nav-links a.nav-active::after {
+      width: 100%;
+    }
+
+    /* Intelligence hero — full-width two-col like main site */
+    .intel-hero {
+      padding-top: 4.5rem;
+      padding-bottom: 4rem;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.4fr);
+      gap: 3rem;
+      align-items: center;
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    .intel-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #c9a84c;
+      border: 1px solid rgba(201, 168, 76, 0.28);
+      background: rgba(201, 168, 76, 0.07);
+      padding: 0.32rem 0.85rem;
+      border-radius: 999px;
+      margin-bottom: 1.1rem;
+    }
+
+    .intel-status-badge::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #c9a84c;
+      animation: pulseDot 2s ease-in-out infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%       { opacity: 0.5; transform: scale(0.75); }
+    }
+
+    /* Intel hero right card */
+    .intel-snapshot {
+      background: radial-gradient(circle at top left, #1a2a4e 0, #07101f 52%, #040813 100%);
+      border-radius: 1.6rem;
+      padding: 1.6rem 1.5rem 1.7rem;
+      border: 1px solid rgba(201, 168, 76, 0.14);
+      box-shadow: 0 26px 60px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(201, 168, 76, 0.05) inset;
+    }
+
+    .intel-snapshot-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.2rem;
+      gap: 1rem;
+    }
+
+    .intel-snapshot-title {
+      font-size: 0.82rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      opacity: 0.75;
+    }
+
+    .intel-snapshot-badge {
+      font-size: 0.68rem;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(201, 168, 76, 0.1);
+      border: 1px solid rgba(201, 168, 76, 0.22);
+      color: #c9a84c;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+    }
+
+    /* ── Section: Problem ── */
+
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.3rem;
+      margin-top: 2rem;
+    }
+
+    .problem-card {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 1.2rem;
+      padding: 1.6rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.65rem;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .problem-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+    }
+
+    .problem-icon {
+      font-size: 1.4rem;
+      margin-bottom: 0.1rem;
+      line-height: 1;
+    }
+
+    .problem-title {
+      font-family: "Playfair Display", serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.3;
+    }
+
+    .problem-body {
+      font-size: 0.86rem;
+      color: var(--cream-soft);
+      line-height: 1.65;
+      opacity: 0.85;
+    }
+
+    /* ── Section: Platform Modules ── */
+
+    .modules-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.3rem;
+      margin-top: 2rem;
+    }
+
+    .module-card {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 1.2rem;
+      padding: 1.6rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+    }
+
+    .module-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+
+    .module-card--accent {
+      border-color: rgba(201, 168, 76, 0.2);
+      background: linear-gradient(145deg, #161e35, #090e1c);
+      box-shadow: 0 0 0 1px rgba(201, 168, 76, 0.05) inset;
+    }
+
+    .module-card--accent:hover {
+      border-color: rgba(201, 168, 76, 0.34);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(201, 168, 76, 0.08) inset;
+    }
+
+    .module-card--centered {
+      grid-column: 1 / -1;
+      max-width: 50%;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    .module-tag {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--gold-soft);
+      margin-bottom: 0.1rem;
+    }
+
+    .module-tag--accent {
+      color: #c9a84c;
+    }
+
+    .module-name {
+      font-family: "Playfair Display", serif;
+      font-size: 1.08rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.3;
+      margin: 0;
+    }
+
+    .module-desc {
+      font-size: 0.86rem;
+      color: var(--cream-soft);
+      line-height: 1.6;
+      opacity: 0.86;
+      margin: 0;
+    }
+
+    .module-list {
+      list-style: none;
+      padding: 0;
+      margin: 0.3rem 0 0;
+    }
+
+    .module-list li {
+      position: relative;
+      padding-left: 1rem;
+      font-size: 0.82rem;
+      color: var(--cream-soft);
+      opacity: 0.78;
+      margin-bottom: 0.26rem;
+      line-height: 1.5;
+    }
+
+    .module-list li::before {
+      content: "–";
+      position: absolute;
+      left: 0;
+      color: var(--gold);
+    }
+
+    /* ── Section: How it works ── */
+
+    .steps-row {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0;
+      margin-top: 2.2rem;
+      position: relative;
+    }
+
+    .steps-row::before {
+      content: "";
+      position: absolute;
+      top: 2rem;
+      left: calc(100% / 6);
+      right: calc(100% / 6);
+      height: 1px;
+      background: linear-gradient(to right,
+        transparent,
+        rgba(255, 255, 255, 0.12) 20%,
+        rgba(255, 255, 255, 0.12) 80%,
+        transparent
+      );
+      pointer-events: none;
+    }
+
+    .step-block {
+      padding: 0 1.4rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.8rem;
+    }
+
+    .step-block:first-child { padding-left: 0; text-align: left; align-items: flex-start; }
+    .step-block:last-child  { padding-right: 0; text-align: right; align-items: flex-end; }
+
+    .step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.78rem;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+      color: var(--cream-soft);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+
+    .step-heading {
+      font-family: "Playfair Display", serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.35;
+    }
+
+    .step-body {
+      font-size: 0.84rem;
+      color: var(--cream-soft);
+      line-height: 1.65;
+      opacity: 0.82;
+    }
+
+    /* ── Section: Data sources ── */
+
+    .data-pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin-top: 1.8rem;
+      margin-bottom: 1.6rem;
+    }
+
+    .data-pill {
+      font-size: 0.78rem;
+      padding: 0.4rem 1rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(255, 255, 255, 0.04);
+      color: var(--cream-soft);
+      letter-spacing: 0.04em;
+      transition: border-color 0.18s, background 0.18s;
+    }
+
+    .data-pill:hover {
+      border-color: rgba(255, 255, 255, 0.2);
+      background: rgba(255, 255, 255, 0.07);
+    }
+
+    .data-note {
+      font-size: 0.88rem;
+      color: var(--cream-soft);
+      line-height: 1.7;
+      max-width: 42rem;
+      opacity: 0.82;
+    }
+
+    /* ── Section: Who it's for ── */
+
+    .persona-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.3rem;
+      margin-top: 2rem;
+    }
+
+    .persona-card {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      border-radius: 1.2rem;
+      padding: 1.6rem 1.4rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
+
+    .persona-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.55);
+    }
+
+    .persona-tag {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--gold-soft);
+    }
+
+    .persona-title {
+      font-family: "Playfair Display", serif;
+      font-size: 1rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.35;
+    }
+
+    .persona-body {
+      font-size: 0.85rem;
+      color: var(--cream-soft);
+      line-height: 1.65;
+      opacity: 0.84;
+    }
+
+    /* ── Section: Early access CTA ── */
+
+    .intel-cta-section {
+      background: linear-gradient(145deg, #0e1a32, #060b17);
+      border: 1px solid rgba(201, 168, 76, 0.12);
+      border-radius: 1.6rem;
+      padding: 3rem 2.5rem;
+      margin-top: 1rem;
+    }
+
+    .intel-cta-section .section-title {
+      margin-bottom: 0.5rem;
+    }
+
+    .intel-cta-section .section-intro {
+      margin-bottom: 2rem;
+    }
+
+    .intel-form {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .intel-form .field-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+
+    .intel-form .field-group--full {
+      grid-column: 1 / -1;
+    }
+
+    .intel-form label {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      opacity: 0.7;
+    }
+
+    .intel-form input,
+    .intel-form textarea {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 0.7rem;
+      padding: 0.75rem 1rem;
+      color: var(--cream);
+      font-family: inherit;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s;
+      width: 100%;
+    }
+
+    .intel-form input:focus,
+    .intel-form textarea:focus {
+      border-color: rgba(201, 168, 76, 0.4);
+    }
+
+    .intel-form input::placeholder,
+    .intel-form textarea::placeholder {
+      color: var(--gold-soft);
+      opacity: 0.7;
+    }
+
+    .intel-form textarea {
+      resize: vertical;
+      min-height: 96px;
+    }
+
+    .intel-form-footer {
+      grid-column: 1 / -1;
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .intel-form-note {
+      font-size: 0.78rem;
+      color: var(--gold-soft);
+      opacity: 0.82;
+      line-height: 1.5;
+    }
+
+    /* ── Responsive ── */
+
+    @media (max-width: 840px) {
+      .intel-hero {
+        grid-template-columns: 1fr;
+        padding-top: 3rem;
+      }
+      .intel-snapshot { display: none; }
+    }
+
+    @media (max-width: 768px) {
+      .problem-grid   { grid-template-columns: 1fr; }
+      .modules-grid   { grid-template-columns: 1fr; }
+      .persona-grid   { grid-template-columns: 1fr; }
+      .intel-form     { grid-template-columns: 1fr; }
+      .module-card--centered { max-width: 100%; }
+
+      .steps-row {
+        grid-template-columns: 1fr;
+        gap: 2rem;
+      }
+      .steps-row::before { display: none; }
+      .step-block,
+      .step-block:first-child,
+      .step-block:last-child {
+        padding: 0;
+        text-align: left;
+        align-items: flex-start;
+        flex-direction: row;
+        gap: 1rem;
+      }
+      .step-num { flex-shrink: 0; margin-top: 0.1rem; }
+      .intel-cta-section { padding: 2rem 1.4rem; }
+    }
+
+    @media (max-width: 480px) {
+      .intel-cta-section { border-radius: 1rem; }
+      .data-pill { font-size: 0.74rem; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <a href="index.html">
+            <div class="brand-logo">
+              <img src="orcatrade_logo.png" alt="OrcaTrade logo">
+            </div>
+            <div class="brand-text">
+              <span>orcatrade</span>
+              <span>group</span>
+            </div>
+          </a>
+        </div>
+        <nav class="nav-links">
+          <a href="index.html#group">Group</a>
+          <a href="index.html#services">Sourcing</a>
+          <a href="intelligence.html" class="nav-active">Intelligence</a>
+          <a href="index.html#group">Search</a>
+          <a href="index.html#foundation">Foundation</a>
+          <a href="index.html#contact">Contact</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+
+      <!-- ── 1. HERO ── -->
+      <section class="section intel-hero" id="top">
+        <div>
+          <div class="intel-status-badge">In Development — Early Access Q3 2026</div>
+          <div class="hero-kicker">OrcaTrade Intelligence</div>
+          <h1 class="hero-title">
+            The AI operating system<br>for <span>global trade.</span>
+          </h1>
+          <p class="hero-body">
+            Factory risk. Compliance automation. Disruption forecasting.
+            All in one platform — built on OrcaTrade's operational network across Asia.
+          </p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="#early-access">Request Early Access</a>
+            <a class="btn btn-ghost" href="#how-it-works">See how it works</a>
+          </div>
+        </div>
+
+        <!-- Right snapshot card -->
+        <aside class="intel-snapshot" aria-label="Intelligence platform at a glance">
+          <div class="intel-snapshot-header">
+            <div class="intel-snapshot-title">Platform at a glance</div>
+            <div class="intel-snapshot-badge">AI-powered</div>
+          </div>
+          <div class="hero-metrics">
+            <div class="metric">
+              <div class="metric-label">Factories scored</div>
+              <div class="metric-value">50,000+</div>
+              <div class="metric-sub">Verified manufacturer profiles</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Data signals</div>
+              <div class="metric-value">200+</div>
+              <div class="metric-sub">Monitored continuously 24/7</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Compliance rules</div>
+              <div class="metric-value">40+</div>
+              <div class="metric-sub">EUDR, CBAM, CSDDD & more</div>
+            </div>
+            <div class="metric">
+              <div class="metric-label">Forecast horizon</div>
+              <div class="metric-value">60–90 days</div>
+              <div class="metric-sub">Disruption signals ahead of market</div>
+            </div>
+          </div>
+          <div class="hero-steps">
+            <span>Risk</span><span>Compliance</span><span>Forecasts</span>
+            <span>Sourcing</span><span>Finance</span>
+          </div>
+        </aside>
+      </section>
+
+      <!-- ── 2. PROBLEM ── -->
+      <section class="section" id="problem">
+        <div class="section-kicker">The problem</div>
+        <h2 class="section-title">Global trade runs on guesswork.</h2>
+        <p class="section-intro">Most companies find out something is wrong when it's already too late to act.</p>
+
+        <div class="problem-grid">
+          <article class="problem-card">
+            <div class="problem-icon">⚠</div>
+            <h3 class="problem-title">Supplier blindness</h3>
+            <p class="problem-body">You find out a factory is failing when your shipment doesn't arrive. By then, production delays, reorders, and penalties are already locked in.</p>
+          </article>
+
+          <article class="problem-card">
+            <div class="problem-icon">⚖</div>
+            <h3 class="problem-title">Compliance chaos</h3>
+            <p class="problem-body">EUDR, CBAM, CSDDD. Most brands don't know if they're compliant until they're fined. The regulatory landscape changes faster than any compliance team can track manually.</p>
+          </article>
+
+          <article class="problem-card">
+            <div class="problem-icon">📡</div>
+            <h3 class="problem-title">No early warning</h3>
+            <p class="problem-body">Port congestion, tariff changes, factory shutdowns. You hear about them weeks too late — after your freight is already booked and your customer is expecting delivery.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- ── 3. PLATFORM MODULES ── -->
+      <section class="section" id="platform">
+        <div class="section-kicker">The platform</div>
+        <h2 class="section-title">Five intelligence layers.</h2>
+        <p class="section-intro">Each module works standalone. Together, they give you full supply chain clarity.</p>
+
+        <div class="modules-grid">
+
+          <article class="module-card module-card--accent">
+            <div class="module-tag module-tag--accent">Factory Intelligence · Most mature</div>
+            <h3 class="module-name">Factory Intelligence</h3>
+            <p class="module-desc">Risk scores for 50,000+ verified manufacturers — updated weekly from financial, operational, and audit data.</p>
+            <ul class="module-list">
+              <li>Financial stress signals & blacklist checks</li>
+              <li>Audit history, capacity data & certifications</li>
+              <li>Week-on-week risk score delta alerts</li>
+            </ul>
+          </article>
+
+          <article class="module-card module-card--accent">
+            <div class="module-tag module-tag--accent">Compliance Engine · Most mature</div>
+            <h3 class="module-name">Compliance Engine</h3>
+            <p class="module-desc">Auto-check every order against EUDR, CBAM, CSDDD, and 40+ EU and global trade regulations.</p>
+            <ul class="module-list">
+              <li>Per-shipment compliance certificate generation</li>
+              <li>Regulatory change monitoring & alerts</li>
+              <li>Importer-of-record documentation support</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <div class="module-tag">Disruption Radar</div>
+            <h3 class="module-name">Disruption Radar</h3>
+            <p class="module-desc">AI forecasts port congestion, factory shutdowns, and tariff changes 60–90 days ahead of market consensus.</p>
+            <ul class="module-list">
+              <li>Satellite factory monitoring & AIS vessel tracking</li>
+              <li>News signal aggregation across 80+ sources</li>
+              <li>Plain-English daily briefings per trade lane</li>
+            </ul>
+          </article>
+
+          <article class="module-card">
+            <div class="module-tag">Sourcing Agent</div>
+            <h3 class="module-name">Sourcing Agent</h3>
+            <p class="module-desc">Describe a product. Get a shortlist of vetted, scored factories with pricing benchmarks, MOQs, and a negotiation brief.</p>
+            <ul class="module-list">
+              <li>Powered by OrcaTrade's verified Asia network</li>
+              <li>Comparable pricing & MOQ benchmarks</li>
+              <li>AI-generated negotiation brief per factory</li>
+            </ul>
+          </article>
+
+          <article class="module-card module-card--centered">
+            <div class="module-tag">Trade Finance Layer</div>
+            <h3 class="module-name">Trade Finance Layer</h3>
+            <p class="module-desc">AI-matched financing for cross-border orders — from credit assessment to FX hedging and escrow coordination.</p>
+            <ul class="module-list">
+              <li>Automated credit assessment per order</li>
+              <li>FX hedging recommendations by currency pair</li>
+              <li>Escrow coordination with verified counterparties</li>
+            </ul>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ── 4. HOW IT WORKS ── -->
+      <section class="section" id="how-it-works">
+        <div class="section-kicker">How it works</div>
+        <h2 class="section-title">From signal to action in minutes.</h2>
+
+        <div class="steps-row">
+          <div class="step-block">
+            <div class="step-num">01</div>
+            <div>
+              <h4 class="step-heading">Connect your supply chain</h4>
+              <p class="step-body">Link your suppliers, open orders, and shipping routes. OrcaTrade Intelligence maps your full exposure automatically.</p>
+            </div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-num">02</div>
+            <div>
+              <h4 class="step-heading">Intelligence runs continuously</h4>
+              <p class="step-body">Our AI monitors 200+ data signals across your supplier network 24/7. Risk scores update weekly. Alerts trigger in real time.</p>
+            </div>
+          </div>
+
+          <div class="step-block">
+            <div class="step-num">03</div>
+            <div>
+              <h4 class="step-heading">Act before problems arrive</h4>
+              <p class="step-body">Plain-English recommendations with one-click actions: find an alternative supplier, generate a compliance report, or flag a shipment for review.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── 5. DATA SOURCES ── -->
+      <section class="section" id="data">
+        <div class="section-kicker">Data infrastructure</div>
+        <h2 class="section-title">Built on data no competitor has.</h2>
+
+        <div class="data-pills">
+          <span class="data-pill">US &amp; EU Customs Records</span>
+          <span class="data-pill">AIS Vessel Tracking</span>
+          <span class="data-pill">Satellite Factory Monitoring</span>
+          <span class="data-pill">OrcaTrade Verified Network</span>
+          <span class="data-pill">Regulatory Databases (EUDR, CBAM, WTO)</span>
+          <span class="data-pill">Financial Stress Signals</span>
+        </div>
+
+        <p class="data-note">
+          OrcaTrade's sourcing operations across China, Vietnam, and Southeast Asia give us ground-truth factory data
+          that no data vendor can replicate. Every Intelligence score is anchored in real operational experience —
+          not scraped web data or self-reported profiles.
+        </p>
+      </section>
+
+      <!-- ── 6. WHO IT'S FOR ── -->
+      <section class="section" id="who">
+        <div class="section-kicker">Who it's for</div>
+        <h2 class="section-title">Built for teams that move physical goods.</h2>
+
+        <div class="persona-grid">
+
+          <article class="persona-card">
+            <div class="persona-tag">Procurement</div>
+            <h3 class="persona-title">Procurement teams at EU brands</h3>
+            <p class="persona-body">Monitor your full supplier portfolio for risk and compliance. Stop discovering problems at the warehouse dock — act on signals weeks in advance.</p>
+          </article>
+
+          <article class="persona-card">
+            <div class="persona-tag">Logistics</div>
+            <h3 class="persona-title">Freight forwarders</h3>
+            <p class="persona-body">White-label Intelligence as part of your service offering. Give clients live visibility on supplier risk and shipment compliance without building it yourself.</p>
+          </article>
+
+          <article class="persona-card">
+            <div class="persona-tag">Finance &amp; research</div>
+            <h3 class="persona-title">Hedge funds &amp; analysts</h3>
+            <p class="persona-body">Subscribe to supply chain disruption forecasts as alternative data. 60–90 day forward signals on port congestion, factory capacity, and tariff shifts.</p>
+          </article>
+
+        </div>
+      </section>
+
+      <!-- ── 7. EARLY ACCESS CTA ── -->
+      <section class="section" id="early-access">
+        <div class="intel-cta-section">
+          <div class="section-kicker">Early access</div>
+          <h2 class="section-title">Be first to the platform.</h2>
+          <p class="section-intro">
+            OrcaTrade Intelligence is in active development. Early access partners get 3 months free,
+            dedicated onboarding, and direct input into the product roadmap.
+          </p>
+
+          <form
+            class="intel-form"
+            action="mailto:hello@orcatrade.com"
+            method="post"
+            enctype="text/plain"
+          >
+            <div class="field-group">
+              <label for="ea-name">Name</label>
+              <input id="ea-name" name="name" type="text" placeholder="Your full name" required>
+            </div>
+
+            <div class="field-group">
+              <label for="ea-company">Company</label>
+              <input id="ea-company" name="company" type="text" placeholder="Company name" required>
+            </div>
+
+            <div class="field-group">
+              <label for="ea-email">Email</label>
+              <input id="ea-email" name="email" type="email" placeholder="you@company.com" required>
+            </div>
+
+            <div class="field-group">
+              <label for="ea-role">Your role</label>
+              <input id="ea-role" name="role" type="text" placeholder="e.g. Head of Procurement, Analyst">
+            </div>
+
+            <div class="field-group field-group--full">
+              <label for="ea-challenge">What's your biggest supply chain challenge?</label>
+              <textarea id="ea-challenge" name="challenge" placeholder="Tell us what you're trying to solve — supplier risk, compliance gaps, disruption visibility…"></textarea>
+            </div>
+
+            <div class="intel-form-footer">
+              <button class="btn btn-primary" type="submit">Request Early Access</button>
+              <p class="intel-form-note">
+                We respond within 1 business day.<br>
+                Warsaw &amp; Hong Kong time zones covered.
+              </p>
+            </div>
+          </form>
+        </div>
+      </section>
+
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span>Warsaw &amp; Hong Kong · OrcaTrade Intelligence</span>
+        <span><a href="#top">Back to top</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
