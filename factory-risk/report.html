@@ -1,0 +1,657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Intelligence Report - OrcaTrade OS</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@300;400;500&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #08111f;
+            --surface: #0d1a2e;
+            --surface-hover: #112240;
+            --gold: #c8a96e;
+            --muted: #7a91ad;
+            --off-white: #cdd6e8;
+            --border-gold: rgba(200, 169, 110, 0.2);
+            --border-subtle: rgba(255, 255, 255, 0.07);
+            
+            --success: #5cb88a;
+            --warning: #e8903a;
+            --danger: #dc5050;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Instrument Sans', sans-serif;
+            color: var(--off-white);
+        }
+
+        body {
+            background-color: var(--bg);
+            line-height: 1.6;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+            padding-bottom: 5rem;
+        }
+
+        h1, h2, h3, h4 {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+        }
+
+        a { text-decoration: none; color: inherit; }
+
+        /* Nav */
+        nav {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1.5rem 3rem;
+            border-bottom: 1px solid var(--border-subtle);
+            background: rgba(8, 17, 31, 0.8);
+            backdrop-filter: blur(12px);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .nav-logo {
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            font-size: 1.2rem;
+            letter-spacing: 1px;
+        }
+        .nav-links { display: flex; gap: 2rem; }
+        .nav-link {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--muted);
+            transition: color 0.2s;
+        }
+        .nav-link:hover, .nav-link.active { color: var(--gold); }
+        .nav-cta {
+            background: transparent;
+            border: 1px solid var(--border-gold);
+            color: var(--gold);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .nav-cta:hover { background: rgba(200, 169, 110, 0.1); }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 3rem 2rem;
+        }
+
+        /* Loading / Error States */
+        #loadingState, #errorState {
+            text-align: center;
+            padding: 5rem 0;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-subtle);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1.5rem;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        #reportContent { display: none; }
+
+        /* Report Header */
+        .back-link {
+            display: inline-block;
+            color: var(--gold);
+            font-size: 0.9rem;
+            margin-bottom: 2rem;
+            transition: opacity 0.2s;
+        }
+        .back-link:hover { opacity: 0.8; }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 4rem;
+            padding-bottom: 3rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .header-left h1 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            color: #fff;
+            line-height: 1.1;
+        }
+        .header-meta {
+            color: var(--muted);
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.4rem 1rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(255,255,255,0.05);
+            margin-bottom: 1rem;
+        }
+        .last-updated {
+            display: block;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        
+        .header-right {
+            text-align: right;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+        .overall-score-circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Syne', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            position: relative;
+            background: var(--surface);
+        }
+        .overall-score-circle::before {
+            content: '';
+            position: absolute;
+            top: -4px; left: -4px; right: -4px; bottom: -4px;
+            border-radius: 50%;
+            border: 4px solid;
+            opacity: 0.5;
+        }
+        .btn-print {
+            background: transparent;
+            border: 1px solid var(--border-subtle);
+            color: var(--off-white);
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: border-color 0.2s;
+            font-size: 0.9rem;
+        }
+        .btn-print:hover { border-color: var(--gold); }
+
+        /* Score Breakdown Grid */
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 4rem;
+        }
+        .metric-card {
+            background: var(--surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+        .metric-score {
+            font-family: 'Syne', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            line-height: 1;
+        }
+        .metric-label {
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--muted);
+            margin-bottom: 0.5rem;
+        }
+
+        /* Sections */
+        .section-label {
+            font-family: 'Syne', sans-serif;
+            font-size: 1.25rem;
+            color: #fff;
+            margin-bottom: 1.5rem;
+            letter-spacing: 1px;
+            border-left: 3px solid var(--gold);
+            padding-left: 1rem;
+        }
+
+        /* Findings Layout */
+        .findings-list, .actions-list {
+            background: var(--surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 4rem;
+        }
+        .finding-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .finding-item:last-child {
+            margin-bottom: 0; padding-bottom: 0; border-bottom: none;
+        }
+        .severity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 6px;
+            flex-shrink: 0;
+        }
+        .action-item {
+            margin-bottom: 0.5rem;
+            display: list-item;
+            list-style-position: inside;
+            color: var(--off-white);
+        }
+
+        /* Two Column Profile */
+        .profile-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            margin-bottom: 4rem;
+        }
+        .profile-card {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 2rem;
+        }
+        .profile-card h3 {
+            font-size: 1.1rem;
+            margin-bottom: 1.5rem;
+            color: var(--gold);
+        }
+        .data-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .data-row:last-child { border-bottom: none; }
+        .data-label { color: var(--muted); font-size: 0.9rem; }
+        .data-value { font-weight: 500; font-size: 0.95rem; text-align: right; max-width: 60%; }
+
+        /* Compliance Grid */
+        .compliance-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-bottom: 4rem;
+        }
+        .compliance-row {
+            background: var(--surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: 8px;
+            padding: 1.5rem 2rem;
+            display: flex;
+            align-items: center;
+        }
+        .comp-reg {
+            font-family: 'Syne', sans-serif;
+            font-weight: 700;
+            width: 100px;
+            font-size: 1.2rem;
+        }
+        .comp-status {
+            padding: 0.25rem 0.75rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            margin-right: 2rem;
+            width: 100px;
+            text-align: center;
+        }
+        .comp-desc { color: var(--muted); font-size: 0.95rem; flex-grow: 1; }
+
+        /* Bottom CTA */
+        .bottom-cta {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: linear-gradient(180deg, var(--surface) 0%, transparent 100%);
+            border-radius: 12px;
+            border-top: 1px solid var(--border-gold);
+        }
+        .bottom-cta h2 { font-size: 2rem; margin-bottom: 1rem; color: #fff; }
+        .bottom-cta p { color: var(--muted); margin-bottom: 2rem; }
+        .cta-btn {
+            background: var(--gold);
+            color: var(--bg);
+            border: none;
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        /* Helpers */
+        .text-green { color: var(--success); }
+        .text-amber { color: var(--warning); }
+        .text-red { color: var(--danger); }
+        .bg-green { background: var(--success); }
+        .bg-amber { background: var(--warning); }
+        .bg-red { background: var(--danger); }
+        
+        .border-green::before { border-color: var(--success); }
+        .border-amber::before { border-color: var(--warning); }
+        .border-red::before { border-color: var(--danger); }
+
+        @media (max-width: 768px) {
+            .report-header { flex-direction: column; }
+            .header-right { text-align: left; align-items: flex-start; margin-top: 2rem; }
+            .score-grid { grid-template-columns: 1fr 1fr; }
+            .profile-grid { grid-template-columns: 1fr; }
+            .compliance-row { flex-direction: column; align-items: flex-start; gap: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="nav-logo">ORCATRADE.OS</div>
+        <div class="nav-links">
+            <a href="#" class="nav-link">Holding</a>
+            <a href="#" class="nav-link">Sourcing</a>
+            <a href="#" class="nav-link active">Intelligence</a>
+            <a href="#" class="nav-link">Search</a>
+            <a href="#" class="nav-link">Foundation</a>
+        </div>
+        <button class="nav-cta" onclick="window.location.href='check.html'">Run Compliance Check &rarr;</button>
+    </nav>
+
+    <div class="container">
+        
+        <div id="loadingState">
+            <div class="spinner"></div>
+            <p style="color: var(--muted);">Loading factory report...</p>
+        </div>
+
+        <div id="errorState" style="display: none;">
+            <h2 style="color: var(--danger); margin-bottom: 1rem;">No Factory Selected</h2>
+            <p style="color: var(--muted); margin-bottom: 2rem;">Please initiate a search to select a factory for reporting.</p>
+            <a href="index.html" class="nav-cta">← Go to Search</a>
+        </div>
+
+        <div id="reportContent">
+            <a href="index.html" class="back-link">&larr; All factories</a>
+
+            <header class="report-header">
+                <div class="header-left">
+                    <h1 id="r-name">Loading...</h1>
+                    <p class="header-meta" id="r-meta">Location &middot; Speciality</p>
+                    <div class="status-badge" id="r-status-badge">RISK STATUS</div>
+                    <span class="last-updated">Scored April 2026</span>
+                </div>
+                <div class="header-right">
+                    <div class="overall-score-circle" id="r-overall">--</div>
+                    <button class="btn-print" onclick="window.print()">Download Report</button>
+                </div>
+            </header>
+
+            <div class="score-grid">
+                <div class="metric-card">
+                    <div class="metric-score" id="m-fin">--</div>
+                    <div class="metric-label">Financial Stability</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-score" id="m-com">--</div>
+                    <div class="metric-label">Compliance</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-score" id="m-cap">--</div>
+                    <div class="metric-label">Capacity</div>
+                </div>
+                <div class="metric-card">
+                    <div class="metric-score" id="m-aud">--</div>
+                    <div class="metric-label">Quality & Audit</div>
+                </div>
+            </div>
+
+            <h2 class="section-label">FINDINGS</h2>
+            <div class="findings-list" id="findingsList">
+                <!-- Injected via JS -->
+            </div>
+
+            <div id="actionRequiredSection" style="display: none;">
+                <h2 class="section-label" style="border-color: var(--warning);">ACTION REQUIRED</h2>
+                <div class="actions-list" id="actionsList" style="border-color: rgba(232, 144, 58, 0.2);">
+                    <!-- Injected via JS -->
+                </div>
+            </div>
+
+            <h2 class="section-label">FACTORY PROFILE</h2>
+            <div class="profile-grid">
+                <div class="profile-card">
+                    <h3>About</h3>
+                    <div class="data-row">
+                        <span class="data-label">Established</span>
+                        <span class="data-value" id="p-est">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Employees</span>
+                        <span class="data-value" id="p-emp">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Export Markets</span>
+                        <span class="data-value" id="p-exp">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Certifications</span>
+                        <span class="data-value" id="p-cert">--</span>
+                    </div>
+                </div>
+                <div class="profile-card">
+                    <h3>Sourcing Intel</h3>
+                    <div class="data-row">
+                        <span class="data-label">MOQ</span>
+                        <span class="data-value" id="p-moq">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Lead Time</span>
+                        <span class="data-value" id="p-lead">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Payment Terms</span>
+                        <span class="data-value" id="p-pay">--</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">OrcaTrade Status</span>
+                        <span class="data-value" id="p-orca" style="color: var(--gold);">--</span>
+                    </div>
+                </div>
+            </div>
+
+            <h2 class="section-label">COMPLIANCE STATUS</h2>
+            <div class="compliance-grid">
+                
+                <div class="compliance-row">
+                    <div class="comp-reg">EUDR</div>
+                    <div class="comp-status" id="c-eudr-status">--</div>
+                    <div class="comp-desc" id="c-eudr-reason">--</div>
+                </div>
+                
+                <div class="compliance-row">
+                    <div class="comp-reg">CBAM</div>
+                    <div class="comp-status" id="c-cbam-status">--</div>
+                    <div class="comp-desc" id="c-cbam-reason">--</div>
+                </div>
+
+                <div class="compliance-row">
+                    <div class="comp-reg">CSDDD</div>
+                    <div class="comp-status" id="c-csddd-status">--</div>
+                    <div class="comp-desc" id="c-csddd-reason">--</div>
+                </div>
+
+            </div>
+
+            <div class="bottom-cta">
+                <h2>Want to source from this factory?</h2>
+                <p>OrcaTrade can manage the full order &mdash; sourcing, QC, and delivery.</p>
+                <button class="cta-btn">Start a sourcing inquiry</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const rawData = localStorage.getItem('orcatrade_selected_factory');
+            
+            document.getElementById('loadingState').style.display = 'none';
+
+            if (!rawData) {
+                document.getElementById('errorState').style.display = 'block';
+                return;
+            }
+
+            try {
+                const factory = JSON.parse(rawData);
+                document.getElementById('reportContent').style.display = 'block';
+
+                // Helpers
+                const getColorClass = (score) => {
+                    if (score >= 70) return 'text-green';
+                    if (score >= 50) return 'text-amber';
+                    return 'text-red';
+                };
+                const getBorderClass = (score) => {
+                    if (score >= 70) return 'border-green';
+                    if (score >= 50) return 'border-amber';
+                    return 'border-red';
+                };
+                const getStatusColorClass = (status) => {
+                    if (!status) return '';
+                    if (status.includes('Compliant') || status.includes('Passed') || status.includes('Verified')) return 'text-green bg-green';
+                    if (status.includes('Risk') || status.includes('Medium')) return 'text-amber bg-amber';
+                    if (status.includes('High') || status.includes('Pending')) return 'text-red bg-red';
+                    return 'text-muted'; // N/A
+                };
+
+                // Header
+                document.getElementById('r-name').innerText = factory.name || 'Unknown Factory';
+                document.getElementById('r-meta').innerText = `${factory.city || ''}, ${factory.country || ''} · ${factory.speciality || ''}`;
+                
+                const score = factory.riskScore || 0;
+                const circle = document.getElementById('r-overall');
+                circle.innerText = score;
+                circle.className = `overall-score-circle ${getColorClass(score)} ${getBorderClass(score)}`;
+
+                const badge = document.getElementById('r-status-badge');
+                if (score >= 70) {
+                    badge.innerText = 'LOW RISK';
+                    badge.style.color = 'var(--success)';
+                    badge.style.background = 'rgba(92, 184, 138, 0.1)';
+                } else if (score >= 50) {
+                    badge.innerText = 'MEDIUM RISK';
+                    badge.style.color = 'var(--warning)';
+                    badge.style.background = 'rgba(232, 144, 58, 0.1)';
+                } else {
+                    badge.innerText = 'HIGH RISK';
+                    badge.style.color = 'var(--danger)';
+                    badge.style.background = 'rgba(220, 80, 80, 0.1)';
+                }
+
+                // Metrics
+                const mFin = document.getElementById('m-fin');
+                mFin.innerText = factory.financialScore || '--'; mFin.className = `metric-score ${getColorClass(factory.financialScore)}`;
+                
+                const mCom = document.getElementById('m-com');
+                mCom.innerText = factory.complianceScore || '--'; mCom.className = `metric-score ${getColorClass(factory.complianceScore)}`;
+                
+                const mCap = document.getElementById('m-cap');
+                mCap.innerText = factory.capacityScore || '--'; mCap.className = `metric-score ${getColorClass(factory.capacityScore)}`;
+                
+                const mAud = document.getElementById('m-aud');
+                mAud.innerText = factory.auditScore || '--'; mAud.className = `metric-score ${getColorClass(factory.auditScore)}`;
+
+                // Findings
+                const findingsContainer = document.getElementById('findingsList');
+                if (factory.findings && factory.findings.length > 0) {
+                    findingsContainer.innerHTML = factory.findings.map(f => `
+                        <div class="finding-item">
+                            <div class="severity-dot bg-${f.severity}"></div>
+                            <div style="flex:1;">
+                                <span style="color: #fff; font-weight: 500;">${f.text}</span>
+                            </div>
+                        </div>
+                    `).join('');
+                } else {
+                    findingsContainer.innerHTML = '<p class="text-muted">No specific findings logged.</p>';
+                }
+
+                // Action Required
+                if (score < 70 && factory.requiredActions && factory.requiredActions.length > 0) {
+                    document.getElementById('actionRequiredSection').style.display = 'block';
+                    document.getElementById('actionsList').innerHTML = factory.requiredActions.map(a => `
+                        <div class="action-item">${a}</div>
+                    `).join('');
+                }
+
+                // Profile
+                document.getElementById('p-est').innerText = factory.established || '--';
+                document.getElementById('p-emp').innerText = factory.employees || '--';
+                document.getElementById('p-exp').innerText = (factory.exportMarkets || []).join(', ') || '--';
+                document.getElementById('p-cert').innerText = (factory.certifications || []).join(', ') || '--';
+
+                document.getElementById('p-moq').innerText = factory.moq || '--';
+                document.getElementById('p-lead').innerText = factory.leadTime || '--';
+                document.getElementById('p-pay').innerText = (factory.paymentTerms || []).join(', ') || '--';
+                document.getElementById('p-orca').innerText = factory.orcatradeStatus || '--';
+
+                // Compliance
+                const setComp = (key, data) => {
+                    if (!data) return;
+                    const statusEl = document.getElementById(`c-${key}-status`);
+                    statusEl.innerText = data.status;
+                    
+                    if(data.status === 'Compliant') {
+                        statusEl.style.color = 'var(--success)';
+                        statusEl.style.background = 'rgba(92, 184, 138, 0.1)';
+                    } else if (data.status === 'At Risk') {
+                        statusEl.style.color = 'var(--danger)';
+                        statusEl.style.background = 'rgba(220, 80, 80, 0.1)';
+                    } else {
+                        statusEl.style.color = 'var(--muted)';
+                        statusEl.style.background = 'rgba(255, 255, 255, 0.05)';
+                    }
+
+                    document.getElementById(`c-${key}-reason`).innerText = data.reason;
+                };
+
+                setComp('eudr', factory.eudr);
+                setComp('cbam', factory.cbam);
+                setComp('csddd', factory.csddd);
+
+            } catch (err) {
+                console.error(err);
+                document.getElementById('errorState').style.display = 'block';
+                document.getElementById('errorState').innerHTML = '<h2 style="color:var(--danger)">Error loading report</h2><p>Data corrupted. Please search again.</p>';
+            }
+        });
+    </script>
+</body>
+</html>
