@@ -263,13 +263,20 @@ Return this exact JSON structure:
 
     const data = await response.json();
     let textResponse = data.content?.[0]?.text || '{}';
-    textResponse = textResponse.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+
+    // Strip any markdown code fences (```json ... ``` or ``` ... ```)
+    textResponse = textResponse.replace(/^```(?:json)?\s*/i, '').replace(/\s*```\s*$/, '').trim();
+
+    // If there's still non-JSON preamble, extract the first {...} block
+    const jsonMatch = textResponse.match(/\{[\s\S]*\}/);
+    if (jsonMatch) textResponse = jsonMatch[0];
 
     try {
       const parsed = JSON.parse(textResponse);
       return res.status(200).json(parsed);
     } catch (parseError) {
-      return res.status(500).json({ error: 'Failed to parse AI response' });
+      console.error('Parse error. Raw response:', textResponse.slice(0, 500));
+      return res.status(500).json({ error: 'Failed to parse AI response', raw: textResponse.slice(0, 300) });
     }
 
   } catch (err) {
