@@ -190,7 +190,7 @@ Return a JSON object with this exact structure:
 }`;
 
     const message = await client.messages.create({
-      model: 'claude-opus-4-6',
+      model: 'claude-sonnet-4-6',
       max_tokens: 4000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
@@ -202,12 +202,13 @@ Return a JSON object with this exact structure:
     try {
       const parsed = JSON.parse(textResponse);
       return res.status(200).json(parsed);
-    } catch (_) {
+    } catch (parseErr) {
+      console.error('Factory score parse error:', parseErr.message, 'Raw:', textResponse.slice(0, 200));
       return res.status(200).json(MOCK_RESPONSE);
     }
 
   } catch (err) {
     console.error('Factory score error:', err.message);
-    return res.status(200).json(MOCK_RESPONSE);
+    return res.status(500).json({ error: err.message });
   }
 };
