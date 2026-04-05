@@ -317,6 +317,10 @@
       border-color: rgba(200,169,110,0.2);
     }
 
+    @media (max-width: 720px) {
+      .cta-grid { grid-template-columns: 1fr !important; }
+    }
+
     /* ── COMPLIANCE CTA ── */
     .compliance-cta-section {
       background: linear-gradient(135deg, var(--os-bg-light), var(--os-bg));
@@ -533,24 +537,36 @@
 
   <!-- COMPLIANCE CTA -->
   <section class="os-section" id="compliance">
-    <div class="compliance-cta-section">
-      <div class="os-kicker" style="justify-content:center; display:flex;">Live Now · Pillar 03</div>
-      <h2 class="os-title">Is your order compliant?</h2>
-      <p class="os-subtitle">
-        Check any import order against EUDR, CBAM, and CSDDD in seconds.
-        Get a detailed compliance report with specific obligations and action steps —
-        powered by OrcaTrade Intelligence.
-      </p>
-      <a href="compliance/" class="btn-os-primary" style="font-size:1rem; padding:1rem 2rem;">
-        Run Compliance Check →
-      </a>
-      <div class="compliance-trust">
-        <span>✓ EUDR · CBAM · CSDDD</span>
-        <span>•</span>
-        <span>⏱ Results in under 10 seconds</span>
-        <span>•</span>
-        <span>🛡 Used by OrcaTrade sourcing team</span>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-top:1rem;">
+
+      <div class="compliance-cta-section" style="margin-top:0;">
+        <div class="os-kicker" style="justify-content:center; display:flex;">Live Now · Pillar 03</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Is your order compliant?</h2>
+        <p class="os-subtitle" style="font-size:0.88rem;">
+          Check any import order against EUDR, CBAM, and CSDDD in seconds. Get a detailed compliance report with action steps.
+        </p>
+        <a href="compliance/" class="btn-os-primary">Run Compliance Check →</a>
+        <div class="compliance-trust" style="margin-top:1.2rem;">
+          <span>✓ EUDR · CBAM · CSDDD</span>
+          <span>•</span>
+          <span>⏱ Under 10 seconds</span>
+        </div>
       </div>
+
+      <div class="compliance-cta-section" style="margin-top:0;">
+        <div class="os-kicker" style="justify-content:center; display:flex;">Live Now · Pillar 02</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Find & score any factory.</h2>
+        <p class="os-subtitle" style="font-size:0.88rem;">
+          Search OrcaTrade's verified manufacturer network. Every factory scored on risk, compliance, capacity, and stability.
+        </p>
+        <a href="factory-risk/" class="btn-os-primary">Run Factory Risk Scan →</a>
+        <div class="compliance-trust" style="margin-top:1.2rem;">
+          <span>✓ Risk · Compliance · Capacity</span>
+          <span>•</span>
+          <span>⏱ Instant scoring</span>
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -562,7 +578,7 @@
       <div class="os-kicker">Full platform</div>
       <h2 class="os-title" style="font-size:clamp(1.5rem,3vw,2.2rem);">Join the waitlist.</h2>
       <p style="font-size:0.92rem; color:var(--os-muted); max-width:44ch; margin:0 auto;">
-        Pillars 01 and 02 are in active development. Be among the first importers to access
+        Pillar 01 is in active development. Be among the first importers to access
         the full OrcaTrade Intelligence OS.
       </p>
     </div>
