@@ -12,6 +12,46 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/styles.css">
+  <style>
+    .section--hero-center {
+      padding-top: 6rem;
+      padding-bottom: 5rem;
+      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 1 !important;
+      transform: translateY(0) !important;
+    }
+
+    .hero-title-center {
+      font-family: "Playfair Display", serif;
+      font-size: clamp(2.8rem, 5vw + 1rem, 5rem);
+      line-height: 1.06;
+      margin-bottom: 1.2rem;
+      max-width: 16ch;
+    }
+
+    .hero-title-center span {
+      color: var(--gold);
+    }
+
+    .hero-body-center {
+      font-size: 1rem;
+      max-width: 52ch;
+      color: rgba(245, 242, 234, 0.82);
+      line-height: 1.72;
+      margin-bottom: 1.6rem;
+    }
+
+    .hero-meta--center {
+      justify-content: center;
+    }
+
+    .hero-actions--center {
+      justify-content: center;
+    }
+  </style>
 </head>
 
 <body>
@@ -60,65 +100,27 @@
 
     <main>
       <!-- HERO -->
-      <section class="section section--hero" id="top">
-        <div>
-          <div class="hero-kicker">Warsaw & Hong Kong • Europe ↔ Asia</div>
-          <h1 class="hero-title">
-            Five business units.<br><span>One holding.</span>
-          </h1>
-          <p class="hero-body">
-            OrcaTrade Holding connects European buyers with Asian manufacturers through sourcing,
-            intelligence, search, finance, and ocean-backed commerce — five focused units operating
-            under one vision: make global trade transparent, efficient, and trustworthy.
-          </p>
+      <section class="section section--hero-center" id="top">
+        <div class="hero-kicker">Warsaw & Hong Kong • Europe ↔ Asia</div>
+        <h1 class="hero-title-center">
+          Five business units.<br><span>One holding.</span>
+        </h1>
+        <p class="hero-body-center">
+          OrcaTrade Holding connects European buyers with Asian manufacturers through sourcing,
+          intelligence, search, finance, and ocean-backed commerce — five focused units operating
+          under one vision: make global trade transparent, efficient, and trustworthy.
+        </p>
 
-          <div class="hero-meta">
-            <div class="hero-tag">Holding Group</div>
-            <div class="hero-divider"></div>
-            <div class="hero-detail">Warsaw & Hong Kong • Operating on CET & China Standard Time</div>
-          </div>
-
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="#group">Explore our units</a>
-            <a class="btn btn-ghost" href="#contact">Get in touch</a>
-          </div>
+        <div class="hero-meta hero-meta--center">
+          <div class="hero-tag">Holding Group</div>
+          <div class="hero-divider"></div>
+          <div class="hero-detail">Warsaw & Hong Kong • CET & China Standard Time</div>
         </div>
 
-        <!-- Right card -->
-        <aside class="hero-card" aria-label="OrcaTrade Holding overview">
-          <div class="hero-card-header">
-            <div class="hero-card-title">OrcaTrade Holding at a glance</div>
-            <div class="hero-card-badge">5 business units</div>
-          </div>
-
-          <div class="hero-metrics">
-            <div class="metric">
-              <div class="metric-label">Sourcing</div>
-              <div class="metric-value">Live</div>
-              <div class="metric-sub">Asia procurement & QC</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Intelligence</div>
-              <div class="metric-value">In Dev</div>
-              <div class="metric-sub">AI-powered trade OS</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Search</div>
-              <div class="metric-value">Coming</div>
-              <div class="metric-sub">Factory discovery engine</div>
-            </div>
-            <div class="metric">
-              <div class="metric-label">Foundation</div>
-              <div class="metric-value">Active</div>
-              <div class="metric-sub">Ocean conservation</div>
-            </div>
-          </div>
-
-          <div class="hero-steps">
-            <span>Sourcing</span><span>Intelligence</span><span>Search</span>
-            <span>Finance</span><span>Foundation</span>
-          </div>
-        </aside>
+        <div class="hero-actions hero-actions--center">
+          <a class="btn btn-primary" href="#group">Explore our units</a>
+          <a class="btn btn-ghost" href="#contact">Get in touch</a>
+        </div>
       </section>
 
       <!-- GROUP MISSION -->
