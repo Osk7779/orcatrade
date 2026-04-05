@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaTrade Foundation — Ochrona Oceanów i Wpływ na Środowisko Morskie</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="OrcaTrade Foundation wspiera ochronę oceanów, ochronę orków i programy sprzątania mórz. Handel z długotrwałym wpływem na oceany.">
+  <meta property="og:title" content="OrcaTrade Foundation — Ochrona Oceanów i Wpływ na Środowisko Morskie" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/foundation.html" />
+  <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/foundation.html" />
+  <link rel="alternate" hreflang="de" href="https://www.orcatrade.pl/de/foundation.html" />
+  <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/foundation.html" />
+
+  <style>
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 840px) {
+      .impact-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .impact-grid { grid-template-columns: 1fr; }
+    }
+    .impact-card {
+      background: linear-gradient(145deg, #091b2e, #040d1a);
+      border: 1px solid rgba(94, 203, 135, 0.1);
+      border-radius: 1.2rem;
+      padding: 1.6rem 1.5rem 1.7rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      transition: transform 0.24s ease, box-shadow 0.24s ease;
+    }
+    .impact-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    .impact-num {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #5ecb87;
+      opacity: 0.8;
+    }
+    .impact-title {
+      font-family: "Playfair Display", serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.35;
+    }
+    .impact-desc {
+      font-size: 0.86rem;
+      color: var(--cream-soft);
+      line-height: 1.65;
+      opacity: 0.85;
+    }
+
+    .foundation-lead {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      background: radial-gradient(circle at top left, #0e1e30 0, #07101f 55%, #040813 100%);
+      border-radius: 1.6rem;
+      padding: 1.6rem 1.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 1.6rem;
+    }
+    .foundation-lead-photo {
+      width: 200px;
+      flex-shrink: 0;
+      border-radius: 1.2rem;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .foundation-lead-photo img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      object-position: center 18%;
+      display: block;
+      transform: scale(1.12);
+    }
+    .foundation-lead-info {
+      padding-top: 0.3rem;
+    }
+    .foundation-lead-name {
+      font-family: "Playfair Display", serif;
+      font-size: 1.4rem;
+      margin-bottom: 0.2rem;
+    }
+    .foundation-lead-role {
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: rgba(188, 195, 208, 0.9);
+      margin-bottom: 1rem;
+    }
+    .foundation-lead-bio {
+      font-size: 0.92rem;
+      opacity: 0.86;
+      line-height: 1.72;
+      max-width: 56ch;
+      margin-bottom: 1rem;
+    }
+    @media (max-width: 760px) {
+      .foundation-lead {
+        flex-direction: column;
+        gap: 1.2rem;
+      }
+      .foundation-lead-photo {
+        width: 100%;
+      }
+      .foundation-lead-photo img {
+        height: auto;
+        aspect-ratio: 4 / 3;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <a href="index.html">
+            <div class="brand-logo">
+              <img src="../orcatrade_logo.png" alt="OrcaTrade Holding logo">
+            </div>
+            <div class="brand-text">
+              <span>OrcaTrade Holding</span>
+              <span>holding</span>
+            </div>
+          </a>
+        </div>
+        <nav class="nav-links">
+          <a href="index.html">Strona główna</a>
+          <a href="index.html#group">Holding</a>
+          <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle">Jednostki ▾</button>
+            <div class="nav-dropdown-menu">
+              <a href="sourcing.html">Zaopatrzenie</a>
+              <a href="intelligence.html">Intelligence</a>
+              <a href="../search/">Wyszukiwanie</a>
+              <a href="finance.html">Finanse</a>
+              <a href="foundation.html">Fundacja</a>
+            </div>
+          </div>
+          <a href="index.html#representatives">Kierownictwo</a>
+          <a href="index.html#news">Aktualności</a>
+          <a href="index.html#contact">Kontakt</a>
+        </nav>
+        <div class="lang-switcher">
+          <a href="../foundation.html" class="lang-btn">EN</a>
+          <a href="foundation.html" class="lang-btn lang-active">PL</a>
+          <a href="../de/foundation.html" class="lang-btn">DE</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="section unit-hero" id="top">
+        <a href="index.html" class="back-link">← Powrót do OrcaTrade Holding</a>
+        <div class="hero-kicker">Jednostka biznesowa · Ochrona oceanów</div>
+        <div class="status-badge status-badge--active">Aktywna</div>
+        <h1 class="unit-hero-title">OrcaTrade Foundation —<br>Handel z sumieniem</h1>
+        <p class="unit-hero-body">
+          Finansujemy praktyczne programy chroniące ekosystemy morskie. Każdy program zaopatrzenia
+          realizowany przez OrcaTrade Holding może przyczynić się do ochrony orków, sprzątania linii brzegowych
+          i edukacji morskiej — zamieniając handel w siłę napędową długotrwałego dobra środowiskowego.
+        </p>
+        <div class="hero-actions" style="margin-top:1.4rem;">
+          <a class="btn btn-primary" href="mailto:hello@orcatrade.com">Porozmawiaj z nami o programach fundacji</a>
+          <a class="btn btn-ghost" href="#programs">Poznaj programy</a>
+        </div>
+      </section>
+
+      <!-- WHAT WE SUPPORT + HOW TO JOIN -->
+      <section class="section" id="programs">
+        <div class="section-kicker">Nasza praca</div>
+        <h2 class="section-title">Co wspiera Fundacja.</h2>
+        <p class="section-intro">Finansujemy praktyczne programy — nie tylko obietnice.</p>
+
+        <div class="foundation-grid">
+          <article class="foundation-card">
+            <h3>Co wspieramy</h3>
+            <ul class="foundation-list">
+              <li>Partnerstwa na rzecz ochrony orków i przywracania siedlisk</li>
+              <li>Programy sprzątania linii brzegowych i oceanów prowadzone przez społeczności</li>
+              <li>Inicjatywy edukacyjne dotyczące ochrony oceanów</li>
+              <li>Transparentne darowizny z rocznymi aktualizacjami wyników</li>
+            </ul>
+          </article>
+
+          <article class="foundation-card foundation-card--accent">
+            <h3>Jak klienci mogą dołączyć</h3>
+            <p>
+              Klienci mogą przystąpić do programów zaopatrzenia wspieranych przez fundację, w których określona część
+              przychodów z projektu trafia do partnerów ds. ochrony przyrody. Tworzymy również niestandardowe inicjatywy
+              wpływu dla długoterminowych współprac z markami.
+            </p>
+            <a class="btn btn-primary" href="mailto:hello@orcatrade.com">Porozmawiaj z nami o programach fundacji</a>
+          </article>
+        </div>
+      </section>
+
+      <!-- IMPACT PROGRAMS -->
+      <section class="section" id="impact">
+        <div class="section-kicker">Programy wpływu</div>
+        <h2 class="section-title">Trzy programy. Jeden ocean.</h2>
+        <p class="section-intro">Skoncentrowane inicjatywy, w których wkłady fundacji są wdrażane w działanie.</p>
+
+        <div class="impact-grid">
+          <article class="impact-card">
+            <div class="impact-num">Program 01</div>
+            <h3 class="impact-title">Ochrona siedlisk orków</h3>
+            <p class="impact-desc">
+              Współpraca z biologami morskimi i pozarządowymi organizacjami ochrony przyrody w celu ochrony kluczowych
+              siedlisk orków wzdłuż głównych szlaków handlowych. Finansowanie monitoringu akustycznego,
+              programów redukcji prędkości statków i mapowania siedlisk we współpracy z organami regionalnymi.
+            </p>
+          </article>
+
+          <article class="impact-card">
+            <div class="impact-num">Program 02</div>
+            <h3 class="impact-title">Sieć sprzątania oceanów</h3>
+            <p class="impact-desc">
+              Wspieranie prowadzonych przez społeczności operacji sprzątania linii brzegowych i oceanów
+              w regionach Azji i Pacyfiku oraz europejskich stref przybrzeżnych. Każdy program jest śledzony
+              z danymi o wpływie przed i po, a jego finansowanie jest współfinansowane przez wkłady klientów
+              powiązane z ich wolumenami zaopatrzenia.
+            </p>
+          </article>
+
+          <article class="impact-card">
+            <div class="impact-num">Program 03</div>
+            <h3 class="impact-title">Edukacja morska i rzecznictwo</h3>
+            <p class="impact-desc">
+              Programy edukacyjne dla społeczności przybrzeżnych, szkół i interesariuszy branżowych
+              na temat związku między globalnym handlem a zdrowiem oceanów. Budowanie następnego pokolenia
+              orędowników, którzy rozumieją, że handel i ochrona przyrody nie są przeciwieństwami.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- FOUNDATION LEAD -->
+      <section class="section" id="leadership">
+        <div class="section-kicker">Kierownictwo Fundacji</div>
+        <h2 class="section-title">Osoba stojąca za Fundacją.</h2>
+
+        <div class="foundation-lead">
+          <div class="foundation-lead-photo">
+            <img src="../assets/PHOTO-2026-03-20-00-27-11.jpg" alt="Portret Sir Timotheus Carrington">
+          </div>
+          <div class="foundation-lead-info">
+            <h3 class="foundation-lead-name">Sir Timotheus Carrington</h3>
+            <div class="foundation-lead-role">Lider OrcaTrade Foundation</div>
+            <p class="foundation-lead-bio">
+              Potomek historycznej linii Aristorcacry, Sir Timotheus Carrington wnosi do OrcaTrade Foundation
+              filantropijne podejście starej szkoły. Kieruje długoterminowymi programami ochrony orków
+              i przywracania siedlisk morskich, łącząc tradycję zarządzania dziedzictwem z nowoczesnymi
+              partnerstwami, finansowaniem ochrony przyrody i szeroko zakrojoną działalnością rzeczniczą
+              w celu tworzenia mierzalnego wpływu na ekosystemy oceaniczne.
+            </p>
+            <p class="foundation-lead-bio">
+              Sir Timotheus stosuje cierpliwe, zorientowane na dziedzictwo podejście do ochrony przyrody
+              — preferujące trwałe partnerstwa i mierzalne wyniki ponad filantropię nastawioną na rozgłos.
+              Pod jego kierownictwem Fundacja działa z taką samą dyscypliną i transparentnością,
+              jaką OrcaTrade Holding stosuje w każdym programie zaopatrzenia.
+            </p>
+            <div class="rep-chips">
+              <span class="rep-chip">Ochrona orków</span>
+              <span class="rep-chip">Partnerstwa fundacji</span>
+              <span class="rep-chip">Programy wpływu na środowisko morskie</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="section">
+        <div class="cta-box">
+          <div class="status-badge status-badge--active" style="margin:0 auto 1.2rem;">Aktywna</div>
+          <h2>Porozmawiaj z nami o programach fundacji.</h2>
+          <p>
+            Niezależnie od tego, czy są Państwo klientem chcącym dodać wymiar ochrony przyrody do zaopatrzenia,
+            czy organizacją zainteresowaną partnerstwem — chętnie usłyszymy od Państwa.
+          </p>
+          <div style="margin-top:1.4rem;">
+            <a class="btn btn-primary" href="mailto:hello@orcatrade.com">Skontaktuj się z Fundacją</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Holding. Wszelkie prawa zastrzeżone.</span>
+        <span>Warsaw & Hong Kong • Europa ↔ Azja</span>
+        <span><a href="#top">Powrót na górę</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/chat.js"></script>
+  <script src="../js/transitions.js"></script>
+</body>
+</html>

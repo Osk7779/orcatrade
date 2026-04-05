@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Find & Score Any Factory - OrcaTrade OS</title>
+    <title>Znajdź i oceń dowolną fabrykę - OrcaTrade OS</title>
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
     <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/factory-risk/" />
     <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/factory-risk/" />
@@ -61,7 +61,6 @@
 
         a { text-decoration: none; color: inherit; }
 
-        /* Nav */
         nav {
             display: flex;
             align-items: center;
@@ -110,7 +109,6 @@
             color: var(--cream);
         }
 
-        /* Page Layout */
         .container {
             max-width: 1160px;
             margin: 0 auto;
@@ -119,7 +117,6 @@
             z-index: 1;
         }
 
-        /* Header */
         .page-header { text-align: center; margin-bottom: 3rem; }
         .pillar-label {
             font-size: 0.72rem;
@@ -147,7 +144,6 @@
             line-height: 1.72;
         }
 
-        /* Search Area */
         .search-area {
             background: radial-gradient(circle at top left, #1a2a4e 0, #07101f 52%, #040813 100%);
             border: 1px solid var(--border);
@@ -222,7 +218,6 @@
             box-shadow: 0 22px 46px rgba(0,0,0,0.85);
         }
 
-        /* Loading */
         .loading-container { display: none; text-align: center; margin-bottom: 3rem; }
         .loading-text {
             color: var(--cream-soft);
@@ -249,7 +244,6 @@
         }
         @keyframes sweep { 0% { left: -30%; } 100% { left: 100%; } }
 
-        /* Results Grid */
         .results-grid {
             display: none;
             grid-template-columns: repeat(3, 1fr);
@@ -263,7 +257,6 @@
         @media (max-width: 600px) { .results-grid { grid-template-columns: 1fr; } }
         @media (max-width: 840px) { .nav-links { display: none; } }
 
-        /* Factory Card */
         .factory-card {
             background: linear-gradient(145deg, #111d3a, #060b17);
             border: 1px solid var(--border);
@@ -363,7 +356,6 @@
             color: var(--cream);
         }
 
-        /* Bottom CTA */
         .bottom-cta {
             text-align: center;
             padding: 2.8rem;
@@ -392,7 +384,6 @@
             color: var(--cream);
         }
 
-        /* Helpers */
         .text-green { color: var(--success); }
         .text-amber { color: var(--warning); }
         .text-red { color: var(--danger); }
@@ -403,49 +394,49 @@
     <nav>
         <div class="nav-logo">ORCATRADE.OS</div>
         <div class="nav-links">
-            <a href="/" class="nav-link">Holding</a>
-            <a href="/sourcing.html" class="nav-link">Sourcing</a>
-            <a href="/intelligence.html" class="nav-link active">Intelligence</a>
-            <a href="/search/" class="nav-link">Search</a>
-            <a href="/foundation.html" class="nav-link">Foundation</a>
+            <a href="../../pl/" class="nav-link">Holding</a>
+            <a href="../../pl/sourcing.html" class="nav-link">Zaopatrzenie</a>
+            <a href="../../pl/intelligence.html" class="nav-link active">Intelligence</a>
+            <a href="../../search/" class="nav-link">Wyszukiwanie</a>
+            <a href="../../pl/foundation.html" class="nav-link">Fundacja</a>
         </div>
         <div style="display:flex;gap:0.4rem;align-items:center;">
-          <a href="/factory-risk/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid transparent;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;text-decoration:none;">EN</a>
-          <a href="/pl/factory-risk/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">PL</a>
-          <a href="/de/factory-risk/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">DE</a>
+          <a href="../../factory-risk/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">EN</a>
+          <a href="/pl/factory-risk/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid transparent;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;text-decoration:none;">PL</a>
+          <a href="../../de/factory-risk/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">DE</a>
         </div>
-        <button class="nav-cta" onclick="window.location.href='/compliance/'">Run Compliance Check &rarr;</button>
+        <button class="nav-cta" onclick="window.location.href='../../pl/compliance/'">Sprawdź zgodność &rarr;</button>
     </nav>
 
     <div class="container">
         <div class="page-header">
-            <span class="pillar-label">PILLAR 02 &middot; FACTORY INTELLIGENCE</span>
-            <h1>Find & score any factory</h1>
-            <p class="header-subtext">Search OrcaTrade's verified manufacturer network. Every factory scored on risk, compliance, capacity, and financial stability.</p>
+            <span class="pillar-label">FILAR 02 &middot; INTELLIGENCE FABRYCZNA</span>
+            <h1>Znajdź i oceń dowolną fabrykę</h1>
+            <p class="header-subtext">Przeszukaj zweryfikowaną sieć producentów OrcaTrade. Każda fabryka oceniana pod kątem ryzyka, zgodności, przepustowości i stabilności finansowej.</p>
         </div>
 
         <form class="search-area" id="searchForm">
             <div class="search-input-group">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by factory name, product category, or location..." required>
+                <input type="text" id="searchInput" class="search-input" placeholder="Szukaj według nazwy fabryki, kategorii produktu lub lokalizacji..." required>
             </div>
-            
+
             <div class="filters-row">
                 <select id="categorySelect" class="filter-select">
-                    <option value="" disabled selected>Product Category</option>
-                    <option value="Electronics & Components">Electronics & Components</option>
-                    <option value="Textiles & Apparel">Textiles & Apparel</option>
-                    <option value="Food & Beverage">Food & Beverage</option>
-                    <option value="Packaging & Paper">Packaging & Paper</option>
-                    <option value="Furniture & Wood">Furniture & Wood</option>
-                    <option value="Steel & Metal Products">Steel & Metal Products</option>
-                    <option value="Chemicals & Materials">Chemicals & Materials</option>
-                    <option value="Ceramics & Glass">Ceramics & Glass</option>
-                    <option value="Rubber & Plastics">Rubber & Plastics</option>
-                    <option value="Other">Other</option>
+                    <option value="" disabled selected>Kategoria produktu</option>
+                    <option value="Electronics & Components">Elektronika i komponenty</option>
+                    <option value="Textiles & Apparel">Tekstylia i odzież</option>
+                    <option value="Food & Beverage">Żywność i napoje</option>
+                    <option value="Packaging & Paper">Opakowania i papier</option>
+                    <option value="Furniture & Wood">Meble i drewno</option>
+                    <option value="Steel & Metal Products">Stal i wyroby metalowe</option>
+                    <option value="Chemicals & Materials">Chemia i materiały</option>
+                    <option value="Ceramics & Glass">Ceramika i szkło</option>
+                    <option value="Rubber & Plastics">Guma i tworzywa sztuczne</option>
+                    <option value="Other">Inne</option>
                 </select>
 
                 <select id="countrySelect" class="filter-select">
-                    <option value="" disabled selected>Country</option>
+                    <option value="" disabled selected>Kraj</option>
                     <option value="China">China</option>
                     <option value="Vietnam">Vietnam</option>
                     <option value="Indonesia">Indonesia</option>
@@ -454,23 +445,23 @@
                     <option value="Thailand">Thailand</option>
                     <option value="Malaysia">Malaysia</option>
                     <option value="Taiwan">Taiwan</option>
-                    <option value="South Korea">South Korea</option>
-                    <option value="Other">Other</option>
+                    <option value="South Korea">Korea Południowa</option>
+                    <option value="Other">Inne</option>
                 </select>
 
                 <select id="riskSelect" class="filter-select">
-                    <option value="Any risk level">Any risk level</option>
-                    <option value="Low risk only (Score 70+)">Low risk only (Score 70+)</option>
-                    <option value="Medium risk (Score 50-70)">Medium risk (Score 50-70)</option>
-                    <option value="Flag high risk (Score below 50)">Flag high risk (Score below 50)</option>
+                    <option value="Any risk level">Dowolny poziom ryzyka</option>
+                    <option value="Low risk only (Score 70+)">Tylko niskie ryzyko (wynik 70+)</option>
+                    <option value="Medium risk (Score 50-70)">Średnie ryzyko (wynik 50-70)</option>
+                    <option value="Flag high risk (Score below 50)">Oznacz wysokie ryzyko (wynik poniżej 50)</option>
                 </select>
             </div>
 
-            <button type="submit" class="search-btn" id="searchBtn">Search Factories &rarr;</button>
+            <button type="submit" class="search-btn" id="searchBtn">Szukaj fabryk &rarr;</button>
         </form>
 
         <div class="loading-container" id="loadingState">
-            <p class="loading-text">Checking financial signals... &middot; Verifying compliance... &middot; Scoring risk...</p>
+            <p class="loading-text">Sprawdzanie sygnałów finansowych... &middot; Weryfikacja zgodności... &middot; Ocena ryzyka...</p>
             <div class="progress-bar">
                 <div class="progress-indicator"></div>
             </div>
@@ -479,13 +470,13 @@
         <div id="resultsContext" style="display:none; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--muted); margin-bottom:1.2rem; opacity:0.7;"></div>
 
         <div class="results-grid" id="resultsGrid">
-            <!-- Cards will be injected here -->
+            <!-- Karty zostaną wstrzyknięte tutaj -->
         </div>
 
         <div class="bottom-cta">
-            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff;">Can't find your supplier?</h3>
-            <p>Submit any factory for a custom due diligence report. OrcaTrade's Hong Kong team verifies on the ground within 3 weeks.</p>
-            <button class="bottom-btn">Submit a factory for review</button>
+            <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem; color: #fff;">Nie możesz znaleźć swojego dostawcy?</h3>
+            <p>Prześlij dowolną fabrykę do niestandardowego raportu due diligence. Zespół OrcaTrade w Hong Kong weryfikuje na miejscu w ciągu 3 tygodni.</p>
+            <button class="bottom-btn">Prześlij fabrykę do oceny</button>
         </div>
     </div>
 
@@ -512,31 +503,31 @@
                     </div>
                     <div class="score-box">
                         <span class="score-number ${scoreClass}">${factory.riskScore}</span>
-                        <span class="score-label">Risk Score</span>
+                        <span class="score-label">Wynik ryzyka</span>
                     </div>
                 </div>
-                
+
                 <div class="status-indicators">
                     <div class="status-item">
-                        <span class="status-label">Compliance</span>
+                        <span class="status-label">Zgodność</span>
                         <span class="status-value ${factory.complianceStatus === 'Verified' ? 'text-green' : (factory.complianceStatus === 'Pending' ? 'text-amber' : 'text-red')}">${factory.complianceStatus}</span>
                     </div>
                     <div class="status-item">
-                        <span class="status-label">Capacity</span>
+                        <span class="status-label">Przepustowość</span>
                         <span class="status-value">${factory.capacityStatus}</span>
                     </div>
                     <div class="status-item">
-                        <span class="status-label">Audit</span>
+                        <span class="status-label">Audyt</span>
                         <span class="status-value ${factory.auditStatus === 'Passed' ? 'text-green' : (factory.auditStatus === 'Due' ? 'text-amber' : 'text-red')}">${factory.auditStatus}</span>
                     </div>
                 </div>
 
-                <button class="card-btn">View Full Report &rarr;</button>
+                <button class="card-btn">Zobacz pełny raport &rarr;</button>
             `;
 
             card.querySelector('.card-btn').addEventListener('click', () => {
                 localStorage.setItem('orcatrade_selected_factory', JSON.stringify(factory));
-                window.location.href = 'report.html';
+                window.location.href = '../../factory-risk/report.html';
             });
 
             return card;
@@ -555,12 +546,11 @@
             const riskTolerance = document.getElementById('riskSelect').value;
             let   query        = document.getElementById('searchInput').value.trim();
 
-            // Fix 5: if no query typed, build a meaningful one from filters
             if (!query) {
                 query = `${category !== 'Any' ? category : 'manufacturer'} in ${country !== 'Any' ? country : 'Asia'}`;
             }
 
-            btn.innerHTML = 'Scoring factories...';
+            btn.innerHTML = 'Ocenianie fabryk...';
             btn.style.opacity = '0.7';
             btn.style.pointerEvents = 'none';
 
@@ -578,12 +568,11 @@
 
                 if (!response.ok) {
                     const errorText = await response.text();
-                    throw new Error(`API Error (${response.status}): ${errorText}`);
+                    throw new Error(`Błąd API (${response.status}): ${errorText}`);
                 }
 
                 const data = await response.json();
 
-                // Fix 2: filter out factories that don't match the selected country
                 if (country && country !== 'Any' && country !== 'Other' && data.factories) {
                     data.factories = data.factories.filter(f =>
                         f.country && f.country.toLowerCase().includes(country.toLowerCase())
@@ -591,9 +580,8 @@
                 }
 
                 if (data.factories && data.factories.length > 0) {
-                    // Fix 4: show search context line
                     const parts = [
-                        `${data.factories.length} factories`,
+                        `${data.factories.length} fabryk`,
                         category !== 'Any' ? category : null,
                         country  !== 'Any' ? country  : null
                     ].filter(Boolean);
@@ -605,22 +593,22 @@
                     });
                     grid.style.display = 'grid';
                 } else {
-                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No matching factories found. Try broadening your search.</p>';
+                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">Nie znaleziono pasujących fabryk. Spróbuj rozszerzyć wyszukiwanie.</p>';
                     grid.style.display = 'grid';
                 }
 
             } catch (err) {
                 console.error(err);
-                grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--danger);font-family:monospace;"><b>Error:</b> ${err.message}</p>`;
+                grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--danger);font-family:monospace;"><b>Błąd:</b> ${err.message}</p>`;
                 grid.style.display = 'grid';
             } finally {
                 loading.style.display = 'none';
-                btn.innerHTML = 'Search Factories &rarr;';
+                btn.innerHTML = 'Szukaj fabryk &rarr;';
                 btn.style.opacity = '1';
                 btn.style.pointerEvents = 'auto';
             }
         });
     </script>
-    <script src="../js/transitions.js"></script>
+    <script src="../../js/transitions.js"></script>
 </body>
 </html>

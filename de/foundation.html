@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaTrade Foundation — Meeresschutz &amp; Marine Wirkung</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="OrcaTrade Foundation unterstützt Meeresschutz, Orca-Schutz und marine Säuberungsprogramme. Handel mit Verantwortung.">
+  <meta property="og:title" content="OrcaTrade Foundation — Meeresschutz &amp; Marine Wirkung" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/foundation.html" />
+  <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/foundation.html" />
+  <link rel="alternate" hreflang="de" href="https://www.orcatrade.pl/de/foundation.html" />
+  <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/foundation.html" />
+
+  <style>
+    .impact-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+    @media (max-width: 840px) {
+      .impact-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 560px) {
+      .impact-grid { grid-template-columns: 1fr; }
+    }
+    .impact-card {
+      background: linear-gradient(145deg, #091b2e, #040d1a);
+      border: 1px solid rgba(94, 203, 135, 0.1);
+      border-radius: 1.2rem;
+      padding: 1.6rem 1.5rem 1.7rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      transition: transform 0.24s ease, box-shadow 0.24s ease;
+    }
+    .impact-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+    .impact-num {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      color: #5ecb87;
+      opacity: 0.8;
+    }
+    .impact-title {
+      font-family: "Playfair Display", serif;
+      font-size: 1.05rem;
+      font-weight: 500;
+      color: var(--cream);
+      line-height: 1.35;
+    }
+    .impact-desc {
+      font-size: 0.86rem;
+      color: var(--cream-soft);
+      line-height: 1.65;
+      opacity: 0.85;
+    }
+
+    .foundation-lead {
+      display: flex;
+      gap: 2rem;
+      align-items: flex-start;
+      background: radial-gradient(circle at top left, #0e1e30 0, #07101f 55%, #040813 100%);
+      border-radius: 1.6rem;
+      padding: 1.6rem 1.8rem;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      margin-top: 1.6rem;
+    }
+    .foundation-lead-photo {
+      width: 200px;
+      flex-shrink: 0;
+      border-radius: 1.2rem;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .foundation-lead-photo img {
+      width: 100%;
+      height: 260px;
+      object-fit: cover;
+      object-position: center 18%;
+      display: block;
+      transform: scale(1.12);
+    }
+    .foundation-lead-info { padding-top: 0.3rem; }
+    .foundation-lead-name { font-family: "Playfair Display", serif; font-size: 1.4rem; margin-bottom: 0.2rem; }
+    .foundation-lead-role { font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.18em; color: rgba(188, 195, 208, 0.9); margin-bottom: 1rem; }
+    .foundation-lead-bio { font-size: 0.92rem; opacity: 0.86; line-height: 1.72; max-width: 56ch; margin-bottom: 1rem; }
+    @media (max-width: 760px) {
+      .foundation-lead { flex-direction: column; gap: 1.2rem; }
+      .foundation-lead-photo { width: 100%; }
+      .foundation-lead-photo img { height: auto; aspect-ratio: 4 / 3; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div class="nav">
+        <div class="brand">
+          <a href="index.html">
+            <div class="brand-logo">
+              <img src="../orcatrade_logo.png" alt="OrcaTrade Holding logo">
+            </div>
+            <div class="brand-text">
+              <span>OrcaTrade Holding</span>
+              <span>holding</span>
+            </div>
+          </a>
+        </div>
+        <nav class="nav-links">
+          <a href="index.html">Startseite</a>
+          <a href="index.html#group">Holding</a>
+          <div class="nav-dropdown">
+            <button class="nav-dropdown-toggle">Einheiten ▾</button>
+            <div class="nav-dropdown-menu">
+              <a href="sourcing.html">Beschaffung</a>
+              <a href="intelligence.html">Intelligence</a>
+              <a href="../search/">Suche</a>
+              <a href="finance.html">Finanzen</a>
+              <a href="foundation.html">Stiftung</a>
+            </div>
+          </div>
+          <a href="index.html#representatives">Führung</a>
+          <a href="index.html#news">Neuigkeiten</a>
+          <a href="index.html#contact">Kontakt</a>
+        </nav>
+        <div class="lang-switcher">
+          <a href="../foundation.html" class="lang-btn">EN</a>
+          <a href="../pl/foundation.html" class="lang-btn">PL</a>
+          <a href="foundation.html" class="lang-btn lang-active">DE</a>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <!-- HERO -->
+      <section class="section unit-hero" id="top">
+        <a href="index.html" class="back-link">← Zurück zu OrcaTrade Holding</a>
+        <div class="hero-kicker">Geschäftsbereich · Meeresschutz</div>
+        <div class="status-badge status-badge--active">Aktiv</div>
+        <h1 class="unit-hero-title">OrcaTrade Foundation —<br>Handel mit Verantwortung</h1>
+        <p class="unit-hero-body">
+          Wir finanzieren praktische Programme zum Schutz mariner Ökosysteme. Jedes Beschaffungsprogramm
+          über OrcaTrade Holding kann zum Orca-Schutz, zur Küstensäuberung und zur maritimen Bildung
+          beitragen — Handel als Kraft für langfristiges Umweltgut.
+        </p>
+        <div class="hero-actions" style="margin-top:1.4rem;">
+          <a class="btn btn-primary" href="mailto:hello@orcatrade.com">Über Stiftungsprogramme sprechen</a>
+          <a class="btn btn-ghost" href="#programs">Programme erkunden</a>
+        </div>
+      </section>
+
+      <!-- WHAT WE SUPPORT + HOW TO JOIN -->
+      <section class="section" id="programs">
+        <div class="section-kicker">Unsere Arbeit</div>
+        <h2 class="section-title">Was die Stiftung unterstützt.</h2>
+        <p class="section-intro">Wir finanzieren praktische Programme — nicht nur Versprechen.</p>
+
+        <div class="foundation-grid">
+          <article class="foundation-card">
+            <h3>Was wir unterstützen</h3>
+            <ul class="foundation-list">
+              <li>Partnerschaften für Orca-Schutz und Lebensraumwiederherstellung</li>
+              <li>Gemeinschaftsgeführte Küsten- und Meeressäuberungsprogramme</li>
+              <li>Bildungsinitiativen rund um Meeresverwaltung</li>
+              <li>Transparentes Geben mit jährlichen Wirkungsberichten</li>
+            </ul>
+          </article>
+
+          <article class="foundation-card foundation-card--accent">
+            <h3>Wie Kunden teilnehmen können</h3>
+            <p>
+              Kunden können sich in stiftungsgestützte Beschaffungsprogramme einbringen, bei denen ein definierter
+              Anteil des Projektumsatzes Naturschutzpartnern zugute kommt. Wir entwickeln auch maßgeschneiderte
+              Wirkungsinitiativen für langfristige Markenkollaborationen.
+            </p>
+            <a class="btn btn-primary" href="mailto:hello@orcatrade.com">Über Stiftungsprogramme sprechen</a>
+          </article>
+        </div>
+      </section>
+
+      <!-- IMPACT PROGRAMS -->
+      <section class="section" id="impact">
+        <div class="section-kicker">Wirkungsprogramme</div>
+        <h2 class="section-title">Drei Programme. Ein Ozean.</h2>
+        <p class="section-intro">Fokussierte Initiativen, in denen Stiftungsbeiträge konkret wirken.</p>
+
+        <div class="impact-grid">
+          <article class="impact-card">
+            <div class="impact-num">Programm 01</div>
+            <h3 class="impact-title">Orca-Lebensraumschutz</h3>
+            <p class="impact-desc">
+              Zusammenarbeit mit Meeresbiologen und Naturschutz-NGOs zum Schutz kritischer Orca-Lebensräume
+              entlang wichtiger Handelsschifffahrtskorridore. Finanzierung von akustischem Monitoring,
+              Programmen zur Geschwindigkeitsreduzierung von Schiffen und Lebensraumkartierung
+              in Zusammenarbeit mit regionalen Behörden.
+            </p>
+          </article>
+
+          <article class="impact-card">
+            <div class="impact-num">Programm 02</div>
+            <h3 class="impact-title">Marine Säuberungsnetzwerk</h3>
+            <p class="impact-desc">
+              Unterstützung gemeinschaftsgeführter Küsten- und Ozean-Säuberungsaktionen in der Asien-Pazifik-Region
+              und europäischen Küstengebieten. Jedes Programm wird mit Vorher-/Nachher-Wirkungsdaten verfolgt
+              und durch Kundenbeiträge kofinanziert, die an ihr Beschaffungsvolumen gekoppelt sind.
+            </p>
+          </article>
+
+          <article class="impact-card">
+            <div class="impact-num">Programm 03</div>
+            <h3 class="impact-title">Meeresbildung &amp; Interessenvertretung</h3>
+            <p class="impact-desc">
+              Bildungsprogramme für Küstengemeinden, Schulen und Branchenstakeholder über den Zusammenhang
+              zwischen globalem Handel und Meeresgesundheit. Aufbau der nächsten Generation von Befürwortern,
+              die verstehen, dass Handel und Naturschutz keine Gegensätze sind.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <!-- FOUNDATION LEAD -->
+      <section class="section" id="leadership">
+        <div class="section-kicker">Stiftungsführung</div>
+        <h2 class="section-title">Die Person hinter der Stiftung.</h2>
+
+        <div class="foundation-lead">
+          <div class="foundation-lead-photo">
+            <img src="../assets/PHOTO-2026-03-20-00-27-11.jpg" alt="Porträt Sir Timotheus Carrington">
+          </div>
+          <div class="foundation-lead-info">
+            <h3 class="foundation-lead-name">Sir Timotheus Carrington</h3>
+            <div class="foundation-lead-role">Leiter OrcaTrade Foundation</div>
+            <p class="foundation-lead-bio">
+              Als Nachkomme der historischen Aristorcacry-Linie bringt Sir Timotheus Carrington der OrcaTrade Foundation
+              ein philanthropisches Ethos der alten Schule. Er leitet langfristige Programme zum Orca-Schutz
+              und zur Wiederherstellung mariner Lebensräume und verbindet dabei traditionelle Stewardship-Grundsätze
+              mit modernen Partnerschaften, Naturschutzfinanzierung und hochkarätiger Interessenvertretung,
+              um messbare Wirkung in Meeresökosystemen zu erzielen.
+            </p>
+            <p class="foundation-lead-bio">
+              Sir Timotheus verfolgt einen geduldigen, auf Vermächtnis ausgerichteten Ansatz für den Naturschutz —
+              einer, der dauerhafte Partnerschaften und messbare Ergebnisse gegenüber Schlagzeilen-Philanthropie bevorzugt.
+              Unter seiner Führung arbeitet die Stiftung mit derselben Disziplin und Transparenz,
+              die OrcaTrade Holding auf jedes Beschaffungsprogramm anwendet.
+            </p>
+            <div class="rep-chips">
+              <span class="rep-chip">Orca-Schutz</span>
+              <span class="rep-chip">Stiftungspartnerschaften</span>
+              <span class="rep-chip">Marine Wirkungsprogramme</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="section">
+        <div class="cta-box">
+          <div class="status-badge status-badge--active" style="margin:0 auto 1.2rem;">Aktiv</div>
+          <h2>Sprechen Sie mit uns über Stiftungsprogramme.</h2>
+          <p>
+            Ob Sie ein Kunde sind, der seiner Beschaffung eine Naturschutzdimension hinzufügen möchte,
+            oder eine Organisation, die an einer Partnerschaft interessiert ist — wir freuen uns von Ihnen zu hören.
+          </p>
+          <div style="margin-top:1.4rem;">
+            <a class="btn btn-primary" href="mailto:hello@orcatrade.com">Stiftung kontaktieren</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Holding. Alle Rechte vorbehalten.</span>
+        <span>Warsaw &amp; Hong Kong • Europa ↔ Asien</span>
+        <span><a href="#top">Nach oben</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../js/main.js"></script>
+  <script src="../js/chat.js"></script>
+  <script src="../js/transitions.js"></script>
+</body>
+</html>

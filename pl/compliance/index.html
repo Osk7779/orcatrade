@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Czy Państwa zamówienie jest zgodne? | OrcaTrade Intelligence</title>
+  <link rel="stylesheet" href="../../compliance/styles/main.css">
+  <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/compliance/" />
+  <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/compliance/" />
+  <link rel="alternate" hreflang="de" href="https://www.orcatrade.pl/de/compliance/" />
+  <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/compliance/" />
+  <style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <span class="logo-text">ORCATRADE.<span class="text-accent">OS</span></span>
+      </div>
+      <div class="nav-links">
+        <a href="../../pl/intelligence.html">Intelligence</a>
+        <a href="../../pl/sourcing.html">Zaopatrzenie</a>
+        <a href="../../pl/">OrcaTrade Holding</a>
+      </div>
+      <div class="nav-cta">
+        <a href="#" class="btn btn-outline" style="border-radius: 4px; padding: 0.5rem 1rem; border: 1px solid var(--accent-color); color: var(--accent-color);">Sprawdź zgodność</a>
+      </div>
+      <div style="display:flex;gap:0.4rem;align-items:center;">
+        <a href="../../compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">EN</a>
+        <a href="/pl/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid transparent;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;text-decoration:none;">PL</a>
+        <a href="../../de/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius:999px;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">DE</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <main class="main-content">
+    <section class="hero">
+      <div class="badge">Napędzane przez OrcaTrade Intelligence</div>
+      <h1 class="hero-title">Czy Państwa zamówienie jest zgodne?</h1>
+      <p class="hero-subtitle">Sprawdź każde zamówienie importowe pod kątem EUDR, CBAM i CSDDD w kilka sekund. Otrzymaj szczegółowy raport zgodności z krokami działania.</p>
+    </section>
+
+    <!-- Form Section -->
+    <section class="form-section">
+      <form id="complianceForm" class="compliance-form glass-panel">
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="productCategory">Kategoria produktu</label>
+            <select id="productCategory" name="productCategory" required>
+              <option value="" disabled selected>Wybierz kategorię...</option>
+              <option value="Electronics">Elektronika</option>
+              <option value="Textiles">Tekstylia</option>
+              <option value="Food & Beverage">Żywność i napoje</option>
+              <option value="Packaging">Opakowania</option>
+              <option value="Furniture & Wood">Meble i drewno</option>
+              <option value="Steel & Metal">Stal i metale</option>
+              <option value="Chemicals">Chemia</option>
+              <option value="Ceramics">Ceramika</option>
+              <option value="Other">Inne</option>
+            </select>
+          </div>
+          <div class="input-wrapper">
+            <label for="origin">Kraj pochodzenia</label>
+            <select id="origin" name="origin" required>
+              <option value="" disabled selected>Wybierz kraj...</option>
+              <option value="China">China</option>
+              <option value="Vietnam">Vietnam</option>
+              <option value="Indonesia">Indonesia</option>
+              <option value="India">India</option>
+              <option value="Bangladesh">Bangladesh</option>
+              <option value="Thailand">Thailand</option>
+              <option value="Malaysia">Malaysia</option>
+              <option value="Other">Inne</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="productDescription">Opis produktu</label>
+            <textarea id="productDescription" name="productDescription" rows="3" placeholder="Opisz szczegółowo swój produkt..." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="supplierName">Nazwa dostawcy (opcjonalnie)</label>
+            <input type="text" id="supplierName" name="supplierName" placeholder="Wpisz nazwę dostawcy...">
+          </div>
+          <div class="input-wrapper">
+            <label for="importValue">Roczna wartość importu</label>
+            <select id="importValue" name="importValue" required>
+              <option value="" disabled selected>Wybierz wartość...</option>
+              <option value="Under €50K">Poniżej 50 000 €</option>
+              <option value="€50K–€500K">50 000 € – 500 000 €</option>
+              <option value="€500K–€5M">500 000 € – 5 000 000 €</option>
+              <option value="Over €5M">Powyżej 5 000 000 €</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="companySize">Wielkość firmy</label>
+            <select id="companySize" name="companySize" required>
+              <option value="" disabled selected>Wybierz wielkość...</option>
+              <option value="Under 250 employees">Poniżej 250 pracowników</option>
+              <option value="250–1000 employees">250–1000 pracowników</option>
+              <option value="Over 1000 employees">Powyżej 1000 pracowników</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="euMarket" name="euMarket" checked>
+            <span class="custom-checkbox"></span>
+            Czy wprowadzają Państwo ten produkt na rynek UE?
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-large">Sprawdź zgodność &rarr;</button>
+      </form>
+
+      <div class="trust-signals">
+        <span>✓ EUDR · CBAM · CSDDD sprawdzone</span>
+        <span class="dot-separator">•</span>
+        <span>⏱ Wyniki w mniej niż 10 sekund</span>
+        <span class="dot-separator">•</span>
+        <span>🛡 Używane przez zespół zaopatrzenia OrcaTrade</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="../../compliance/js/app.js"></script>
+  <script src="../../js/transitions.js"></script>
+</body>
+</html>

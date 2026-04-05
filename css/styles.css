@@ -1826,3 +1826,9 @@ footer {
   margin-bottom: 0;
 }
 
+
+/* ── LANGUAGE SWITCHER ── */
+.lang-switcher { display: flex; gap: 0.4rem; align-items: center; }
+.lang-btn { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; padding: 0.28rem 0.6rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); transition: all 0.18s; text-decoration: none; }
+.lang-btn:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
+.lang-btn.lang-active { color: #0a0912; background: linear-gradient(135deg, #b8bec8, #6f7783); border-color: transparent; }
