@@ -1,7 +1,1 @@
-{
-  "functions": {
-    "api/chat.js": { "runtime": "nodejs20.x" },
-    "api/check.js": { "runtime": "edge" },
-    "api/factory-score.js": { "runtime": "edge" }
-  }
-}
+{}
