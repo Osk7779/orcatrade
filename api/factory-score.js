@@ -121,33 +121,48 @@ module.exports = async function handler(req, res) {
   try {
     const client = new Anthropic({ apiKey: process.env.ORCATRADE_OS_API });
 
-    const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine. You are an expert in Asian manufacturing, supply chain risk, and EU trade compliance. Generate realistic, detailed, plausible factory intelligence data based on the user's search query. Match the factories to what the user is actually searching for — product type, country, and category must be relevant. Scores should feel real — not all high, include genuine variation. Be specific with factory names, locations, and findings. Always return valid JSON only. No markdown, no explanation, just JSON.
+    const effectiveQuery = query || `${category} manufacturer in ${country}`;
+    const effectiveCategory = category || 'Any';
+    const effectiveCountry = country || 'Any';
+
+    const systemPrompt = `You are generating factory search results for OrcaTrade Intelligence. You are an expert in Asian manufacturing, supply chain risk, and EU trade compliance. Return only valid JSON. No markdown. No explanation.
+
+CRITICAL SEARCH RULES — the user's filters are HARD CONSTRAINTS, not suggestions:
+- Every factory MUST be located in the specified country. If country is "China", every factory.country must be "China". Never return factories from other countries.
+- Every factory MUST produce products in the specified category. If category is "Electronics & Components", every factory.speciality must be an electronics product. Never return factories from other industries.
+- Factory names, cities, and specialities must be realistic and consistent with the country and category.
 
 CRITICAL SCORING RULES:
-- ALL scores (riskScore, financialScore, complianceScore, capacityScore, auditScore) are SAFETY scores where 100 = best/safest and 0 = worst/most dangerous. High numbers are GOOD.
-- riskScore MUST be calculated as the weighted average of the four sub-scores using this exact formula: Math.round((financialScore * 0.3) + (complianceScore * 0.25) + (capacityScore * 0.25) + (auditScore * 0.2)). Never generate riskScore independently.
-- A factory with financialScore 90, complianceScore 88, capacityScore 85, auditScore 82 must have riskScore of Math.round(90*0.3 + 88*0.25 + 85*0.25 + 82*0.2) = Math.round(27+22+21.25+16.4) = 87.`;
+- ALL scores are SAFETY scores: 100 = best/safest, 0 = worst/most dangerous. High numbers are GOOD.
+- riskScore MUST equal Math.round((financialScore * 0.3) + (complianceScore * 0.25) + (capacityScore * 0.25) + (auditScore * 0.2)). Never generate riskScore independently.`;
 
-    const userPrompt = `Generate 6 factory results for a search with these parameters:
-Query: ${query || 'general manufacturing'}
-Product category: ${category || 'Any'}
-Country: ${country || 'Any'}
-Risk tolerance: ${riskTolerance || 'medium'}
+    const userPrompt = `The user has searched with these EXACT filters — respect all of them strictly:
 
-The factories MUST be relevant to the query above. If the query mentions a specific product (e.g. shoes, furniture, electronics), all factories should specialise in that product type. If a country is specified, factories should be in that country.
+Search query: "${effectiveQuery}"
+Product category: "${effectiveCategory}" — ALL factories must produce this exact category. Do not return factories from other industries.
+Country: "${effectiveCountry}" — ALL factories must be located in this country. Do not return factories from other countries.
+Risk tolerance: "${riskTolerance || 'Any risk level'}"
 
-Remember: riskScore = Math.round((financialScore * 0.3) + (complianceScore * 0.25) + (capacityScore * 0.25) + (auditScore * 0.2)). Calculate this for every factory before writing the JSON.
+Generate exactly 6 factory results that PRECISELY match the search.
+If the query contains a specific factory name, include that factory and 5 similar ones from the same country and category.
+If the query is a product type, return 6 factories that make that specific product in the specified country.
+
+VALIDATION — before writing each factory, confirm:
+✓ factory.country matches "${effectiveCountry}" exactly
+✓ factory.speciality is within the "${effectiveCategory}" category
+✓ factory.city is a real manufacturing city in "${effectiveCountry}"
+✓ riskScore = Math.round(financialScore*0.3 + complianceScore*0.25 + capacityScore*0.25 + auditScore*0.2)
 
 Return a JSON object with this exact structure:
 {
   "factories": [
     {
       "id": "unique string",
-      "name": "realistic factory name",
-      "city": "real city",
-      "country": "country",
-      "speciality": "specific product type matching the query",
-      "riskScore": number 0-100 (MUST equal Math.round(financialScore*0.3 + complianceScore*0.25 + capacityScore*0.25 + auditScore*0.2)),
+      "name": "realistic factory name matching country and category",
+      "city": "real manufacturing city in ${effectiveCountry}",
+      "country": "${effectiveCountry}",
+      "speciality": "specific product type within ${effectiveCategory}",
+      "riskScore": number 0-100 (calculated from formula above),
       "financialScore": number 0-100 (safety score, high = good),
       "complianceScore": number 0-100 (safety score, high = good),
       "capacityScore": number 0-100 (safety score, high = good),

@@ -467,6 +467,8 @@
             </div>
         </div>
 
+        <div id="resultsContext" style="display:none; font-size:0.78rem; text-transform:uppercase; letter-spacing:0.14em; color:var(--muted); margin-bottom:1.2rem; opacity:0.7;"></div>
+
         <div class="results-grid" id="resultsGrid">
             <!-- Cards will be injected here -->
         </div>
@@ -533,22 +535,29 @@
 
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const btn = document.getElementById('searchBtn');
-            const loading = document.getElementById('loadingState');
-            const grid = document.getElementById('resultsGrid');
-            
-            const query = document.getElementById('searchInput').value;
-            const category = document.getElementById('categorySelect').value || 'Any';
-            const country = document.getElementById('countrySelect').value || 'Any';
+
+            const btn      = document.getElementById('searchBtn');
+            const loading  = document.getElementById('loadingState');
+            const grid     = document.getElementById('resultsGrid');
+            const context  = document.getElementById('resultsContext');
+
+            const category     = document.getElementById('categorySelect').value || 'Any';
+            const country      = document.getElementById('countrySelect').value  || 'Any';
             const riskTolerance = document.getElementById('riskSelect').value;
+            let   query        = document.getElementById('searchInput').value.trim();
+
+            // Fix 5: if no query typed, build a meaningful one from filters
+            if (!query) {
+                query = `${category !== 'Any' ? category : 'manufacturer'} in ${country !== 'Any' ? country : 'Asia'}`;
+            }
 
             btn.innerHTML = 'Scoring factories...';
             btn.style.opacity = '0.7';
             btn.style.pointerEvents = 'none';
-            
+
             grid.style.display = 'none';
             grid.innerHTML = '';
+            context.style.display = 'none';
             loading.style.display = 'block';
 
             try {
@@ -558,28 +567,42 @@
                     body: JSON.stringify({ query, category, country, riskTolerance })
                 });
 
-                let errMessage = 'An error occurred while scoring factories.';
                 if (!response.ok) {
                     const errorText = await response.text();
-                    errMessage = `API Error (${response.status}): ${errorText}`;
-                    throw new Error(errMessage);
+                    throw new Error(`API Error (${response.status}): ${errorText}`);
                 }
 
                 const data = await response.json();
-                
+
+                // Fix 2: filter out factories that don't match the selected country
+                if (country && country !== 'Any' && country !== 'Other' && data.factories) {
+                    data.factories = data.factories.filter(f =>
+                        f.country && f.country.toLowerCase().includes(country.toLowerCase())
+                    );
+                }
+
                 if (data.factories && data.factories.length > 0) {
+                    // Fix 4: show search context line
+                    const parts = [
+                        `${data.factories.length} factories`,
+                        category !== 'Any' ? category : null,
+                        country  !== 'Any' ? country  : null
+                    ].filter(Boolean);
+                    context.textContent = parts.join(' · ');
+                    context.style.display = 'block';
+
                     data.factories.forEach((factory, i) => {
                         grid.appendChild(renderFactoryCard(factory, i));
                     });
                     grid.style.display = 'grid';
                 } else {
-                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--muted);">No factories found for these parameters.</p>';
+                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No matching factories found. Try broadening your search.</p>';
                     grid.style.display = 'grid';
                 }
 
             } catch (err) {
                 console.error(err);
-                grid.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--danger); font-family: monospace;"><b>Error:</b> ${err.message}</p>`;
+                grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--danger);font-family:monospace;"><b>Error:</b> ${err.message}</p>`;
                 grid.style.display = 'grid';
             } finally {
                 loading.style.display = 'none';
