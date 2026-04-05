@@ -47,7 +47,56 @@
     <script type="module" crossorigin src="/search/assets/index-XPwA_JsE.js"></script>
     <link rel="stylesheet" crossorigin href="/search/assets/index-Cn-Ki8KK.css">
   </head>
+  <style>
+    .search-back-bar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 9999;
+      background: rgba(5,5,7,0.92);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 0.7rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .search-back-link {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.76rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: rgba(255,255,255,0.5);
+      text-decoration: none;
+      transition: color 0.18s;
+    }
+    .search-back-link:hover { color: #fff; }
+    .search-back-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #ececec;
+      letter-spacing: 0.06em;
+    }
+    .search-back-badge {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.62rem;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 0.2rem 0.55rem;
+      border-radius: 999px;
+      border: 1px solid rgba(184,190,200,0.3);
+      color: rgba(184,190,200,0.8);
+    }
+    #root { padding-top: 44px; }
+  </style>
   <body>
+    <div class="search-back-bar">
+      <a href="/" class="search-back-link">← Back to OrcaTrade Holding</a>
+      <span class="search-back-brand">ORCATRADE HOLDING</span>
+      <span class="search-back-badge">Beta</span>
+    </div>
     <div id="root"></div>
   </body>
 </html>
