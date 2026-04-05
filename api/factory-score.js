@@ -8,7 +8,7 @@ const MOCK_RESPONSE = {
       city: "Shenzhen",
       country: "China",
       speciality: "Electronics & Components",
-      riskScore: 84,
+      riskScore: 86,
       financialScore: 92,
       complianceScore: 88,
       capacityScore: 78,
@@ -40,7 +40,7 @@ const MOCK_RESPONSE = {
       city: "Ho Chi Minh City",
       country: "Vietnam",
       speciality: "Textiles & Apparel",
-      riskScore: 62,
+      riskScore: 67,
       financialScore: 65,
       complianceScore: 50,
       capacityScore: 90,
@@ -75,7 +75,7 @@ const MOCK_RESPONSE = {
       city: "Pune",
       country: "India",
       speciality: "Steel & Metal Products",
-      riskScore: 41,
+      riskScore: 37,
       financialScore: 40,
       complianceScore: 35,
       capacityScore: 30,
@@ -121,7 +121,12 @@ module.exports = async function handler(req, res) {
   try {
     const client = new Anthropic({ apiKey: process.env.ORCATRADE_OS_API });
 
-    const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine. You are an expert in Asian manufacturing, supply chain risk, and EU trade compliance. Generate realistic, detailed, plausible factory intelligence data based on the user's search query. Match the factories to what the user is actually searching for — product type, country, and category must be relevant. Scores should feel real — not all high, include genuine variation. Be specific with factory names, locations, and findings. Always return valid JSON only. No markdown, no explanation, just JSON.`;
+    const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine. You are an expert in Asian manufacturing, supply chain risk, and EU trade compliance. Generate realistic, detailed, plausible factory intelligence data based on the user's search query. Match the factories to what the user is actually searching for — product type, country, and category must be relevant. Scores should feel real — not all high, include genuine variation. Be specific with factory names, locations, and findings. Always return valid JSON only. No markdown, no explanation, just JSON.
+
+CRITICAL SCORING RULES:
+- ALL scores (riskScore, financialScore, complianceScore, capacityScore, auditScore) are SAFETY scores where 100 = best/safest and 0 = worst/most dangerous. High numbers are GOOD.
+- riskScore MUST be calculated as the weighted average of the four sub-scores using this exact formula: Math.round((financialScore * 0.3) + (complianceScore * 0.25) + (capacityScore * 0.25) + (auditScore * 0.2)). Never generate riskScore independently.
+- A factory with financialScore 90, complianceScore 88, capacityScore 85, auditScore 82 must have riskScore of Math.round(90*0.3 + 88*0.25 + 85*0.25 + 82*0.2) = Math.round(27+22+21.25+16.4) = 87.`;
 
     const userPrompt = `Generate 6 factory results for a search with these parameters:
 Query: ${query || 'general manufacturing'}
@@ -130,6 +135,8 @@ Country: ${country || 'Any'}
 Risk tolerance: ${riskTolerance || 'medium'}
 
 The factories MUST be relevant to the query above. If the query mentions a specific product (e.g. shoes, furniture, electronics), all factories should specialise in that product type. If a country is specified, factories should be in that country.
+
+Remember: riskScore = Math.round((financialScore * 0.3) + (complianceScore * 0.25) + (capacityScore * 0.25) + (auditScore * 0.2)). Calculate this for every factory before writing the JSON.
 
 Return a JSON object with this exact structure:
 {
@@ -140,11 +147,11 @@ Return a JSON object with this exact structure:
       "city": "real city",
       "country": "country",
       "speciality": "specific product type matching the query",
-      "riskScore": number 0-100,
-      "financialScore": number 0-100,
-      "complianceScore": number 0-100,
-      "capacityScore": number 0-100,
-      "auditScore": number 0-100,
+      "riskScore": number 0-100 (MUST equal Math.round(financialScore*0.3 + complianceScore*0.25 + capacityScore*0.25 + auditScore*0.2)),
+      "financialScore": number 0-100 (safety score, high = good),
+      "complianceScore": number 0-100 (safety score, high = good),
+      "capacityScore": number 0-100 (safety score, high = good),
+      "auditScore": number 0-100 (safety score, high = good),
       "complianceStatus": "Verified" | "Pending" | "At Risk",
       "capacityStatus": "Full" | "Partial" | "Low",
       "auditStatus": "Passed" | "Due" | "Overdue",

@@ -395,6 +395,19 @@
 
             try {
                 const factory = JSON.parse(rawData);
+
+                // Safety guard: recalculate riskScore from sub-scores.
+                // If AI returned an inconsistent value (e.g. inverted scale), override it.
+                const recalculated = Math.round(
+                    (factory.financialScore * 0.3) +
+                    (factory.complianceScore * 0.25) +
+                    (factory.capacityScore  * 0.25) +
+                    (factory.auditScore     * 0.2)
+                );
+                if (!factory.riskScore || Math.abs(factory.riskScore - recalculated) > 15) {
+                    factory.riskScore = recalculated;
+                }
+
                 document.getElementById('reportContent').style.display = 'block';
 
                 // Helpers
