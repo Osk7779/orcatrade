@@ -222,8 +222,88 @@
             box-shadow: 0 22px 46px rgba(0,0,0,0.85);
         }
 
-        /* Loading */
-        .loading-container { display: none; text-align: center; margin-bottom: 3rem; }
+        /* Loading overlay */
+        #scanOverlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            z-index: 99999;
+            background: #050507;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            text-align: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        #scanOverlay.is-visible {
+            display: flex;
+            opacity: 1;
+        }
+        #scanOverlay.is-fading {
+            opacity: 0;
+            pointer-events: none;
+        }
+        .scan-wordmark {
+            font-family: 'Playfair Display', serif;
+            font-weight: 300;
+            font-size: clamp(1.4rem, 4vw, 3.6rem);
+            letter-spacing: 0.42em;
+            text-indent: 0.42em;
+            color: #f5f0e8;
+            opacity: 0;
+            transition: opacity 0.9s ease;
+            margin-bottom: 0;
+        }
+        .scan-wordmark.is-visible { opacity: 1; }
+        .scan-line {
+            width: 0;
+            height: 1px;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.6), transparent);
+            margin: 1.4rem auto 2.4rem;
+            transition: width 0.9s ease 0.4s;
+        }
+        .scan-line.is-visible { width: 120px; }
+        .scan-phase {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.72rem;
+            text-transform: uppercase;
+            letter-spacing: 0.2em;
+            color: var(--cream-soft);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            min-height: 1.2em;
+            margin-bottom: 0.9rem;
+        }
+        .scan-phase.is-visible { opacity: 0.7; }
+        .scan-timer {
+            font-family: 'Playfair Display', serif;
+            font-size: 0.82rem;
+            letter-spacing: 0.16em;
+            color: var(--gold);
+            opacity: 0;
+            transition: opacity 0.4s ease 0.8s;
+        }
+        .scan-timer.is-visible { opacity: 0.55; }
+        .scan-progress {
+            width: 180px;
+            height: 1px;
+            background: rgba(255,255,255,0.07);
+            margin: 1.6rem auto 0;
+            position: relative;
+            overflow: hidden;
+        }
+        .scan-progress-fill {
+            position: absolute;
+            top: 0; left: 0;
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(to right, transparent, var(--gold));
+            transition: width 0.6s ease;
+        }
+
+        /* Legacy loading container hidden — replaced by overlay */
+        .loading-container { display: none !important; }
         .loading-text {
             color: var(--cream-soft);
             font-size: 0.88rem;
@@ -417,6 +497,15 @@
         <button class="nav-cta" onclick="window.location.href='/compliance/'">Run Compliance Check &rarr;</button>
     </nav>
 
+    <!-- SCAN LOADING OVERLAY -->
+    <div id="scanOverlay" aria-live="polite" aria-label="Running factory scan">
+        <span class="scan-wordmark" id="scanWordmark">ORCATRADE HOLDING</span>
+        <div class="scan-line" id="scanLine"></div>
+        <div class="scan-phase" id="scanPhase">Initialising scan...</div>
+        <div class="scan-timer" id="scanTimer">Estimated time: ~15 seconds</div>
+        <div class="scan-progress"><div class="scan-progress-fill" id="scanFill"></div></div>
+    </div>
+
     <div class="container">
         <div class="page-header">
             <span class="pillar-label">PILLAR 02 &middot; FACTORY INTELLIGENCE</span>
@@ -542,20 +631,105 @@
             return card;
         };
 
+        // ── Scan overlay controller ───────────────────────────────────────
+        const scanOverlay  = document.getElementById('scanOverlay');
+        const scanWordmark = document.getElementById('scanWordmark');
+        const scanLine     = document.getElementById('scanLine');
+        const scanPhase    = document.getElementById('scanPhase');
+        const scanTimer    = document.getElementById('scanTimer');
+        const scanFill     = document.getElementById('scanFill');
+
+        const PHASES = [
+            'Querying manufacturer database...',
+            'Checking financial signals...',
+            'Verifying EU compliance records...',
+            'Scoring risk profile...',
+            'Cross-referencing audit history...',
+            'Compiling factory intelligence...',
+        ];
+
+        let phaseIndex = 0;
+        let phaseInterval = null;
+        let timerInterval = null;
+        let scanStartTime = null;
+        const ESTIMATED_MS = 15000;
+
+        function startScanOverlay() {
+            phaseIndex = 0;
+            scanWordmark.classList.remove('is-visible');
+            scanLine.classList.remove('is-visible');
+            scanPhase.classList.remove('is-visible');
+            scanTimer.classList.remove('is-visible');
+            scanFill.style.width = '0%';
+
+            scanOverlay.style.display = 'flex';
+            // Force reflow then fade in
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    scanOverlay.classList.add('is-visible');
+                    scanWordmark.classList.add('is-visible');
+                    scanLine.classList.add('is-visible');
+                });
+            });
+
+            setTimeout(() => {
+                scanPhase.textContent = PHASES[0];
+                scanPhase.classList.add('is-visible');
+                scanTimer.classList.add('is-visible');
+            }, 600);
+
+            scanStartTime = Date.now();
+
+            // Cycle through phase messages every 2.5s
+            phaseInterval = setInterval(() => {
+                phaseIndex = (phaseIndex + 1) % PHASES.length;
+                scanPhase.classList.remove('is-visible');
+                setTimeout(() => {
+                    scanPhase.textContent = PHASES[phaseIndex];
+                    scanPhase.classList.add('is-visible');
+                }, 220);
+            }, 2500);
+
+            // Countdown + progress fill every second
+            timerInterval = setInterval(() => {
+                const elapsed = Date.now() - scanStartTime;
+                const remaining = Math.max(0, Math.ceil((ESTIMATED_MS - elapsed) / 1000));
+                scanTimer.textContent = remaining > 0
+                    ? `Estimated time: ~${remaining} second${remaining !== 1 ? 's' : ''}`
+                    : 'Finalising results...';
+                const pct = Math.min(95, (elapsed / ESTIMATED_MS) * 100);
+                scanFill.style.width = pct + '%';
+            }, 1000);
+        }
+
+        function stopScanOverlay() {
+            clearInterval(phaseInterval);
+            clearInterval(timerInterval);
+            scanFill.style.width = '100%';
+            scanPhase.textContent = 'Report ready.';
+            scanTimer.textContent = '';
+            setTimeout(() => {
+                scanOverlay.classList.add('is-fading');
+                scanOverlay.addEventListener('transitionend', () => {
+                    scanOverlay.classList.remove('is-visible', 'is-fading');
+                    scanOverlay.style.display = 'none';
+                }, { once: true });
+            }, 500);
+        }
+
+        // ── Search form ───────────────────────────────────────────────────
         document.getElementById('searchForm').addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            const btn      = document.getElementById('searchBtn');
-            const loading  = document.getElementById('loadingState');
-            const grid     = document.getElementById('resultsGrid');
-            const context  = document.getElementById('resultsContext');
+            const btn     = document.getElementById('searchBtn');
+            const grid    = document.getElementById('resultsGrid');
+            const context = document.getElementById('resultsContext');
 
-            const category     = document.getElementById('categorySelect').value || 'Any';
-            const country      = document.getElementById('countrySelect').value  || 'Any';
+            const category      = document.getElementById('categorySelect').value || 'Any';
+            const country       = document.getElementById('countrySelect').value  || 'Any';
             const riskTolerance = document.getElementById('riskSelect').value;
-            let   query        = document.getElementById('searchInput').value.trim();
+            let   query         = document.getElementById('searchInput').value.trim();
 
-            // Fix 5: if no query typed, build a meaningful one from filters
             if (!query) {
                 query = `${category !== 'Any' ? category : 'manufacturer'} in ${country !== 'Any' ? country : 'Asia'}`;
             }
@@ -567,7 +741,8 @@
             grid.style.display = 'none';
             grid.innerHTML = '';
             context.style.display = 'none';
-            loading.style.display = 'block';
+
+            startScanOverlay();
 
             try {
                 const response = await fetch('/api/factory-score', {
@@ -583,15 +758,15 @@
 
                 const data = await response.json();
 
-                // Fix 2: filter out factories that don't match the selected country
                 if (country && country !== 'Any' && country !== 'Other' && data.factories) {
                     data.factories = data.factories.filter(f =>
                         f.country && f.country.toLowerCase().includes(country.toLowerCase())
                     );
                 }
 
+                stopScanOverlay();
+
                 if (data.factories && data.factories.length > 0) {
-                    // Fix 4: show search context line
                     const parts = [
                         `${data.factories.length} factories`,
                         category !== 'Any' ? category : null,
@@ -611,10 +786,10 @@
 
             } catch (err) {
                 console.error(err);
+                stopScanOverlay();
                 grid.innerHTML = `<p style="grid-column:1/-1;text-align:center;color:var(--danger);font-family:monospace;"><b>Error:</b> ${err.message}</p>`;
                 grid.style.display = 'grid';
             } finally {
-                loading.style.display = 'none';
                 btn.innerHTML = 'Search Factories &rarr;';
                 btn.style.opacity = '1';
                 btn.style.pointerEvents = 'auto';
