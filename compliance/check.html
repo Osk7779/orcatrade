@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Compliance Report | OrcaTrade Intelligence</title>
+  <link rel="stylesheet" href="styles/main.css">
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <span class="logo-text">ORCATRADE.<span class="text-accent">OS</span></span>
+      </div>
+      <div class="nav-links">
+        <a href="/intelligence.html">Intelligence</a>
+        <a href="/sourcing.html">Sourcing</a>
+        <a href="/">OrcaTrade Holding</a>
+      </div>
+      <div class="nav-cta">
+        <a href="index.html" class="btn btn-outline" style="border-radius: 4px; padding: 0.5rem 1rem; border: 1px solid var(--accent-color); color: var(--accent-color);">Run new check</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content" style="max-width: 1000px">
+    
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-container">
+      <div class="scanner">
+        <div class="scanner-line"></div>
+      </div>
+      <h2 id="loadingText" class="loading-text">Initializing AI scan...</h2>
+      <p class="text-muted">Analyzing supplier and product configurations</p>
+    </div>
+
+    <!-- Results State -->
+    <div id="resultsContainer" style="display: none;">
+      
+      <!-- Premium Report Header -->
+      <div class="report-header glass-panel">
+        <div class="rh-top">
+          <div>
+            <h1 style="margin-bottom: 0.2rem">Compliance Report</h1>
+            <p class="text-muted" style="margin-top: 0">Generated on <span id="reportTimestamp"></span></p>
+          </div>
+          <button class="btn btn-primary" onclick="window.print()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 8px; vertical-align: middle;"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Download Report
+          </button>
+        </div>
+        
+        <div class="rh-mid">
+          <div class="rh-product">
+            <p class="text-muted" style="margin-bottom: 0">Target Analysis</p>
+            <h2 id="reportProduct" style="margin-top: 0.2rem; font-size: 1.8rem">--</h2>
+          </div>
+        </div>
+
+        <div class="rh-bottom grid-2">
+          <div class="status-overview">
+            <p class="text-muted">Overall Risk Status</p>
+            <div id="overallStatusBadge" class="status-large">--</div>
+          </div>
+          <div class="score-overview">
+            <p class="text-muted">Compliance Score</p>
+            <div class="score-display">
+              <span id="overallScoreText" class="score-number">--</span>
+              <span style="font-size: 1.5rem; color: var(--text-muted)">/ 100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Detail Cards (Generated via JS) -->
+      <div id="regulationsContainer" class="regulations-grid"></div>
+
+      <!-- Priority Actions -->
+      <div id="priorityCard" class="priority-card glass-panel" style="border-color: var(--accent-color)">
+        <h2 style="color: var(--accent-color); margin-bottom: 0.5rem">Your top actions</h2>
+        <p class="text-muted" style="margin-top:0; margin-bottom: 1.5rem">Complete within 30 days to mitigate financial risk.</p>
+        
+        <div id="priorityList" class="priority-list"></div>
+      </div>
+
+      <!-- Next Steps CTA -->
+      <div class="next-steps-cta glass-panel" style="text-align: center; margin-top: 3rem">
+        <h2>Need help becoming compliant?</h2>
+        <p class="text-muted" style="margin-bottom: 2rem">OrcaTrade experts can trace your commodities and file verifications on your behalf.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center">
+          <a href="#" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem">Talk to OrcaTrade</a>
+          <a href="index.html" class="btn" style="border: 1px solid var(--border-color); padding: 1rem 2rem; border-radius: 4px; font-size: 1.1rem; color: #fff;">Run another check</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="js/results.js"></script>
+</body>
+</html>

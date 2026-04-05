@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Is your order compliant? | OrcaTrade Intelligence</title>
+  <link rel="stylesheet" href="styles/main.css">
+  <style>
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <!-- Nav -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <span class="logo-text">ORCATRADE.<span class="text-accent">OS</span></span>
+      </div>
+      <div class="nav-links">
+        <a href="/intelligence.html">Intelligence</a>
+        <a href="/sourcing.html">Sourcing</a>
+        <a href="/">OrcaTrade Holding</a>
+      </div>
+      <div class="nav-cta">
+        <a href="#" class="btn btn-outline" style="border-radius: 4px; padding: 0.5rem 1rem; border: 1px solid var(--accent-color); color: var(--accent-color);">Run compliance check</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <main class="main-content">
+    <section class="hero">
+      <div class="badge">Powered by OrcaTrade Intelligence</div>
+      <h1 class="hero-title">Is your order compliant?</h1>
+      <p class="hero-subtitle">Check any import order against EUDR, CBAM, and CSDDD in seconds. Get a detailed compliance report with action steps.</p>
+    </section>
+
+    <!-- Form Section -->
+    <section class="form-section">
+      <form id="complianceForm" class="compliance-form glass-panel">
+        
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="productCategory">Product category</label>
+            <select id="productCategory" name="productCategory" required>
+              <option value="" disabled selected>Select category...</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Textiles">Textiles</option>
+              <option value="Food & Beverage">Food & Beverage</option>
+              <option value="Packaging">Packaging</option>
+              <option value="Furniture & Wood">Furniture & Wood</option>
+              <option value="Steel & Metal">Steel & Metal</option>
+              <option value="Chemicals">Chemicals</option>
+              <option value="Ceramics">Ceramics</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="input-wrapper">
+            <label for="origin">Country of origin</label>
+            <select id="origin" name="origin" required>
+              <option value="" disabled selected>Select origin...</option>
+              <option value="China">China</option>
+              <option value="Vietnam">Vietnam</option>
+              <option value="Indonesia">Indonesia</option>
+              <option value="India">India</option>
+              <option value="Bangladesh">Bangladesh</option>
+              <option value="Thailand">Thailand</option>
+              <option value="Malaysia">Malaysia</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="productDescription">Product description</label>
+            <textarea id="productDescription" name="productDescription" rows="3" placeholder="Describe your product in detail..." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="supplierName">Supplier name (optional)</label>
+            <input type="text" id="supplierName" name="supplierName" placeholder="Enter supplier name...">
+          </div>
+          <div class="input-wrapper">
+            <label for="importValue">Annual import value</label>
+            <select id="importValue" name="importValue" required>
+              <option value="" disabled selected>Select value...</option>
+              <option value="Under €50K">Under €50K</option>
+              <option value="€50K–€500K">€50K–€500K</option>
+              <option value="€500K–€5M">€500K–€5M</option>
+              <option value="Over €5M">Over €5M</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="companySize">Company size</label>
+            <select id="companySize" name="companySize" required>
+              <option value="" disabled selected>Select size...</option>
+              <option value="Under 250 employees">Under 250 employees</option>
+              <option value="250–1000 employees">250–1000 employees</option>
+              <option value="Over 1000 employees">Over 1000 employees</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group checkbox-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="euMarket" name="euMarket" checked>
+            <span class="custom-checkbox"></span>
+            Are you placing this product on the EU market?
+          </label>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-large">Run Compliance Check &rarr;</button>
+      </form>
+      
+      <div class="trust-signals">
+        <span>✓ EUDR · CBAM · CSDDD checked</span>
+        <span class="dot-separator">•</span>
+        <span>⏱ Results in under 10 seconds</span>
+        <span class="dot-separator">•</span>
+        <span>🛡 Used by OrcaTrade sourcing team</span>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
