@@ -132,7 +132,7 @@ export default async function handler(req) {
   }
 
   // No API key — return demo data immediately
-  if (!process.env.ANTHROPIC_API_KEY) {
+  if (!process.env.ORCATRADE_OS_API) {
     return mockResponse();
   }
 
@@ -184,7 +184,7 @@ Return a JSON object with this exact structure:
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': process.env.ANTHROPIC_API_KEY,
+        'x-api-key': process.env.ORCATRADE_OS_API,
         'anthropic-version': '2023-06-01',
         'content-type': 'application/json',
       },

@@ -70,7 +70,7 @@ module.exports = async (req, res) => {
   res.setHeader('Cache-Control', 'no-cache');
   res.setHeader('Connection', 'keep-alive');
 
-  const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const client = new Anthropic({ apiKey: process.env.ORCATRADE_OS_API });
 
   try {
     const stream = await client.messages.create({

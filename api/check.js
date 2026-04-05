@@ -103,7 +103,7 @@ ${jsonSchema}
 
 Do NOT wrap the JSON in Markdown backticks (e.g., \`\`\`json). Just return the raw JSON object.`;
 
-    const anthropicApiKey = process.env.ANTHROPIC_API_KEY;
+    const anthropicApiKey = process.env.ORCATRADE_OS_API;
     
     if (!anthropicApiKey) {
       throw new Error("Missing ANTHROPIC_API_KEY environment variable");
