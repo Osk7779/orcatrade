@@ -1,6 +1,4 @@
-export const config = {
-  runtime: 'edge',
-};
+const Anthropic = require('@anthropic-ai/sdk');
 
 const MOCK_RESPONSE = {
   factories: [
@@ -109,41 +107,29 @@ const MOCK_RESPONSE = {
   ]
 };
 
-function mockResponse() {
-  return new Response(JSON.stringify(MOCK_RESPONSE), {
-    status: 200,
-    headers: { 'Content-Type': 'application/json' },
-  });
-}
-
-export default async function handler(req) {
+module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method Not Allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(405).json({ error: 'Method Not Allowed' });
   }
 
-  let query, category, country, riskTolerance;
-  try {
-    ({ query, category, country, riskTolerance } = await req.json());
-  } catch (_) {
-    return mockResponse();
-  }
+  const { query, category, country, riskTolerance } = req.body || {};
 
-  // No API key — return demo data immediately
   if (!process.env.ORCATRADE_OS_API) {
-    return mockResponse();
+    return res.status(200).json(MOCK_RESPONSE);
   }
 
   try {
-    const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine. You are an expert in Asian manufacturing, supply chain risk, and EU trade compliance. Generate realistic, detailed, plausible factory intelligence data for demo purposes. Scores should feel real — not all high, include genuine variation. Be specific with factory names, locations, and findings. Always return valid JSON only. No markdown, no explanation, just JSON.`;
+    const client = new Anthropic({ apiKey: process.env.ORCATRADE_OS_API });
+
+    const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine. You are an expert in Asian manufacturing, supply chain risk, and EU trade compliance. Generate realistic, detailed, plausible factory intelligence data based on the user's search query. Match the factories to what the user is actually searching for — product type, country, and category must be relevant. Scores should feel real — not all high, include genuine variation. Be specific with factory names, locations, and findings. Always return valid JSON only. No markdown, no explanation, just JSON.`;
 
     const userPrompt = `Generate 6 factory results for a search with these parameters:
-Query: ${query}
-Product category: ${category}
-Country: ${country}
-Risk tolerance: ${riskTolerance}
+Query: ${query || 'general manufacturing'}
+Product category: ${category || 'Any'}
+Country: ${country || 'Any'}
+Risk tolerance: ${riskTolerance || 'medium'}
+
+The factories MUST be relevant to the query above. If the query mentions a specific product (e.g. shoes, furniture, electronics), all factories should specialise in that product type. If a country is specified, factories should be in that country.
 
 Return a JSON object with this exact structure:
 {
@@ -153,7 +139,7 @@ Return a JSON object with this exact structure:
       "name": "realistic factory name",
       "city": "real city",
       "country": "country",
-      "speciality": "specific product type",
+      "speciality": "specific product type matching the query",
       "riskScore": number 0-100,
       "financialScore": number 0-100,
       "complianceScore": number 0-100,
@@ -181,45 +167,25 @@ Return a JSON object with this exact structure:
   ]
 }`;
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'x-api-key': process.env.ORCATRADE_OS_API,
-        'anthropic-version': '2023-06-01',
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
-        max_tokens: 4000,
-        system: systemPrompt,
-        messages: [{ role: 'user', content: userPrompt }],
-      }),
+    const message = await client.messages.create({
+      model: 'claude-opus-4-6',
+      max_tokens: 4000,
+      system: systemPrompt,
+      messages: [{ role: 'user', content: userPrompt }],
     });
 
-    if (!response.ok) {
-      console.error('Anthropic API error:', response.status, response.statusText);
-      return mockResponse();
-    }
-
-    const data = await response.json();
-    let textResponse = data.content?.[0]?.text || '';
-
-    if (!textResponse) return mockResponse();
-
+    let textResponse = message.content?.[0]?.text || '';
     textResponse = textResponse.replace(/^```json\s*/i, '').replace(/```$/, '').trim();
 
     try {
       const parsed = JSON.parse(textResponse);
-      return new Response(JSON.stringify(parsed), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(200).json(parsed);
     } catch (_) {
-      return mockResponse();
+      return res.status(200).json(MOCK_RESPONSE);
     }
 
   } catch (err) {
-    console.error('Factory score handler error:', err);
-    return mockResponse();
+    console.error('Factory score error:', err.message);
+    return res.status(200).json(MOCK_RESPONSE);
   }
-}
+};
