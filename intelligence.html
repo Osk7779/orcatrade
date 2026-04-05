@@ -328,7 +328,7 @@
       border-color: rgba(184,190,200,0.2);
     }
 
-    @media (max-width: 720px) {
+    @media (max-width: 960px) {
       .cta-grid { grid-template-columns: 1fr !important; }
     }
 
@@ -522,15 +522,16 @@
     </p>
 
     <div class="pillars-grid">
-      <div class="pillar-card">
-        <div class="pillar-num">Pillar 01</div>
+      <a href="supply-chain/" class="pillar-card" style="display:block;">
+        <div class="pillar-num">Pillar 01 · Live Now</div>
         <h3 class="pillar-title">Supply Chain Clarity</h3>
         <p class="pillar-desc">
           Real-time visibility across your supplier network. Know which shipments are moving,
           which factories are at capacity, and where bottlenecks are forming — before they cost you.
           Disruption forecasting built on live trade signals.
         </p>
-      </div>
+        <div style="margin-top:1.2rem;font-size:0.82rem;color:var(--os-accent);font-weight:500;">Open Dashboard →</div>
+      </a>
 
       <div class="pillar-card pillar-card--accent">
         <div class="pillar-num">Pillar 02</div>
@@ -558,7 +559,21 @@
 
   <!-- COMPLIANCE CTA -->
   <section class="os-section" id="compliance">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-top:1rem;">
+    <div class="cta-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem; margin-top:1rem;">
+
+      <div class="compliance-cta-section" style="margin-top:0;">
+        <div class="os-kicker" style="justify-content:center; display:flex;">Live Now · Pillar 01</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Track your shipments.</h2>
+        <p class="os-subtitle" style="font-size:0.88rem;">
+          Real-time visibility across your supplier network. Shipment tracking, port conditions, and disruption forecasts.
+        </p>
+        <a href="supply-chain/" class="btn-os-primary">Open Supply Chain →</a>
+        <div class="compliance-trust" style="margin-top:1.2rem;">
+          <span>Shipments · Ports · Forecast</span>
+          <span>·</span>
+          <span>AI-powered</span>
+        </div>
+      </div>
 
       <div class="compliance-cta-section" style="margin-top:0;">
         <div class="os-kicker" style="justify-content:center; display:flex;">Live Now · Pillar 03</div>
@@ -599,8 +614,7 @@
       <div class="os-kicker">Full platform</div>
       <h2 class="os-title" style="font-size:clamp(1.5rem,3vw,2.2rem);">Join the waitlist.</h2>
       <p style="font-size:0.92rem; color:var(--os-muted); max-width:44ch; margin:0 auto;">
-        Pillar 01 is in active development. Be among the first importers to access
-        the full OrcaTrade Intelligence OS.
+        Join the waitlist for early access to the full OrcaTrade Intelligence OS as new pillars go live.
       </p>
     </div>
     <div class="waitlist-box">

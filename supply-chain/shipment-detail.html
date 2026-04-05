@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipment Deep Dive — OrcaTrade Intelligence</title>
+  <meta name="description" content="Detailed shipment tracking and risk analysis. Powered by OrcaTrade Intelligence." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --os-bg:       #050507;
+      --os-bg-light: #0d0e12;
+      --os-accent:   #b8bec8;
+      --os-text:     #ececec;
+      --os-muted:    #b6b8bf;
+      --os-border:   rgba(255, 255, 255, 0.07);
+      --font-head:   'Playfair Display', serif;
+      --font-body:   'Inter', system-ui, sans-serif;
+      --success: #5cb88a;
+      --warning: #e8903a;
+      --danger:  #dc5050;
+      --info:    #4a90e2;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: var(--font-body);
+      background: radial-gradient(circle at top left, #171922 0, var(--os-bg) 40%, #010102 100%);
+      background-attachment: fixed;
+      color: var(--os-text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      padding-bottom: 5rem;
+      line-height: 1.6;
+    }
+    body::before {
+      content: "";
+      position: fixed; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(140,149,173,0.1) 0, transparent 55%),
+        radial-gradient(circle at 90% 100%, rgba(143,151,166,0.1) 0, transparent 55%);
+      mix-blend-mode: soft-light; z-index: 0;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* NAV */
+    .os-nav {
+      position: sticky; top: 0; z-index: 50;
+      border-bottom: 1px solid var(--os-border);
+      background: linear-gradient(to bottom, rgba(4,9,20,0.94), rgba(4,9,20,0.82), transparent);
+      backdrop-filter: blur(16px);
+    }
+    .os-nav-inner {
+      max-width: 1160px; margin: 0 auto;
+      padding: 1.1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+    }
+    .os-brand { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; }
+    .os-brand span { color: var(--os-accent); }
+    .os-nav-links { display: flex; align-items: center; gap: 2rem; font-size: 0.88rem; font-weight: 500; }
+    .os-nav-links a { color: var(--os-muted); transition: color 0.18s; }
+    .os-nav-links a:hover, .os-nav-links a.active { color: var(--os-text); }
+    .os-nav-cta {
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+      padding: 0.55rem 1.2rem; border-radius: 999px; border: none;
+      background: linear-gradient(135deg, var(--os-accent), #6f7783);
+      color: #0a0912; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+    }
+    .os-nav-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    @media (max-width: 768px) { .os-nav-links { display: none; } }
+
+    /* LAYOUT */
+    .container { max-width: 1000px; margin: 0 auto; padding: 3rem 1.5rem; position: relative; z-index: 1; }
+
+    /* ERROR STATE */
+    #errorState { text-align: center; padding: 6rem 0; display: none; }
+    #errorState h2 { font-family: var(--font-head); font-size: 1.8rem; color: var(--danger); margin-bottom: 1rem; }
+    #errorState p { color: var(--os-muted); margin-bottom: 2rem; }
+
+    /* CONTENT */
+    #contentView { display: none; }
+
+    .back-link {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--os-muted); margin-bottom: 2rem; transition: color 0.18s;
+    }
+    .back-link:hover { color: var(--os-text); }
+
+    /* HEADER */
+    .header-box {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      margin-bottom: 3rem; border-bottom: 1px solid var(--os-border);
+      padding-bottom: 2rem; flex-wrap: wrap; gap: 1rem;
+    }
+    .h-id { font-family: var(--font-head); font-size: 2.2rem; font-weight: 600; color: var(--os-text); margin-bottom: 0.25rem; }
+    .h-route { color: var(--os-muted); font-size: 1rem; }
+    .h-right { text-align: right; }
+    .status-badge {
+      display: inline-block; padding: 0.45rem 1.1rem;
+      border-radius: 999px; font-weight: 600; font-size: 0.8rem;
+      margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.08em;
+    }
+    .h-updated { font-size: 0.78rem; color: var(--os-muted); display: block; }
+
+    /* TIMELINE */
+    .timeline {
+      display: flex; justify-content: space-between; position: relative;
+      margin-bottom: 3.5rem; padding-top: 0.5rem;
+    }
+    .timeline::before {
+      content: ''; position: absolute; top: 20px; left: 0; right: 0;
+      height: 2px; background: var(--os-border); z-index: 1;
+    }
+    .t-step {
+      display: flex; flex-direction: column; align-items: center;
+      z-index: 2; width: 12%; text-align: center;
+    }
+    .t-circle {
+      width: 22px; height: 22px; border-radius: 50%;
+      background: var(--os-bg); border: 2px solid var(--os-muted);
+      margin-bottom: 0.65rem; display: flex; justify-content: center; align-items: center;
+      font-size: 0.65rem; font-weight: 600;
+    }
+    .t-label { font-size: 0.68rem; color: var(--os-muted); line-height: 1.3; }
+    .step-completed .t-circle { background: var(--success); border-color: var(--success); color: #050507; }
+    .step-completed .t-label { color: var(--os-text); }
+    .step-active .t-circle { border-color: var(--os-accent); background: var(--os-bg); box-shadow: 0 0 0 4px rgba(184,190,200,0.15); }
+    .step-active .t-label { color: var(--os-accent); font-weight: 500; }
+
+    /* GRID */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2rem; }
+    @media (max-width: 640px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    /* PANELS */
+    .panel {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border); border-radius: 1.2rem;
+      padding: 1.8rem;
+    }
+    .panel h3 {
+      font-family: var(--font-head); font-size: 0.88rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--os-accent); margin-bottom: 1.2rem;
+    }
+    .data-row {
+      display: flex; justify-content: space-between;
+      padding: 0.7rem 0; border-bottom: 1px solid rgba(255,255,255,0.04);
+    }
+    .data-row:last-child { border-bottom: none; }
+    .data-lbl { color: var(--os-muted); font-size: 0.85rem; }
+    .data-val { font-weight: 500; text-align: right; max-width: 60%; font-size: 0.9rem; }
+
+    /* RISK BANNER */
+    #riskPanel {
+      display: none;
+      background: rgba(220, 80, 80, 0.06); border: 1px solid var(--danger);
+      border-radius: 1.2rem; padding: 2rem; margin-bottom: 2rem;
+    }
+    #riskPanel h2 {
+      font-family: var(--font-head); color: var(--danger);
+      margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;
+      font-size: 1.1rem;
+    }
+    .risk-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
+    @media (max-width: 600px) { .risk-grid { grid-template-columns: 1fr; } }
+    .rg-item { background: rgba(0,0,0,0.2); padding: 0.9rem; border-radius: 0.6rem; }
+    .rg-lbl { font-size: 0.75rem; color: var(--os-muted); display: block; margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.1em; }
+    .rg-val { color: var(--os-text); font-weight: 500; font-size: 0.95rem; }
+    .action-text {
+      color: var(--os-text); font-size: 0.9rem; line-height: 1.6;
+      margin-bottom: 1.25rem; padding: 1rem 1rem 1rem 1.25rem;
+      border-left: 3px solid var(--warning);
+      background: rgba(232, 144, 58, 0.06); border-radius: 0 0.5rem 0.5rem 0;
+    }
+    .btn-danger {
+      background: transparent; border: 1px solid var(--danger); color: var(--danger);
+      padding: 0.65rem 1.25rem; border-radius: 999px; font-size: 0.85rem;
+      font-weight: 500; cursor: pointer; font-family: var(--font-body);
+      transition: all 0.18s;
+    }
+    .btn-danger:hover { background: rgba(220,80,80,0.1); }
+
+    /* LINK BARS */
+    .link-bar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border); padding: 1.4rem 1.6rem;
+      border-radius: 1rem; margin-bottom: 1rem;
+      transition: border-color 0.2s, transform 0.2s; cursor: pointer;
+    }
+    .link-bar:hover { border-color: rgba(184,190,200,0.25); transform: translateY(-1px); }
+    .lb-left { display: flex; flex-direction: column; gap: 0.4rem; }
+    .lb-title { font-family: var(--font-head); font-size: 1rem; font-weight: 600; color: var(--os-text); }
+    .pill {
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
+      font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
+      letter-spacing: 0.07em; margin-right: 0.4rem;
+    }
+    .lb-arrow { color: var(--os-accent); font-weight: 500; font-size: 0.9rem; white-space: nowrap; }
+
+    /* UTILITY */
+    .bg-green { background: rgba(92, 184, 138, 0.12); color: var(--success); }
+    .bg-amber { background: rgba(232, 144, 58, 0.12); color: var(--warning); }
+    .bg-red   { background: rgba(220, 80, 80, 0.12); color: var(--danger); }
+    .bg-blue  { background: rgba(74, 144, 226, 0.12); color: var(--info); }
+    .bg-muted { background: rgba(255,255,255,0.06); color: var(--os-muted); }
+
+    /* FOOTER */
+    .os-footer { border-top: 1px solid var(--os-border); padding: 1.8rem 1.5rem; position: relative; z-index: 1; }
+    .os-footer-inner {
+      max-width: 1160px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
+      font-size: 0.78rem; color: var(--os-muted);
+    }
+    .os-footer a { color: var(--os-muted); transition: color 0.18s; }
+    .os-footer a:hover { color: var(--os-text); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="os-nav">
+    <div class="os-nav-inner">
+      <a href="../index.html" class="os-brand">ORCATRADE.<span>OS</span></a>
+      <div class="os-nav-links">
+        <a href="../index.html">Holding</a>
+        <a href="../sourcing.html">Sourcing</a>
+        <a href="../intelligence.html">Intelligence</a>
+        <a href="../search/">Search</a>
+        <a href="../foundation.html">Foundation</a>
+      </div>
+      <a href="../compliance/" class="os-nav-cta">Run Compliance Check →</a>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <div id="errorState">
+      <h2>No Shipment Selected</h2>
+      <p>Please select a shipment from the supply chain dashboard.</p>
+      <a href="index.html" style="display:inline-block;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;border-radius:999px;font-weight:600;font-size:0.85rem;">← Back to Dashboard</a>
+    </div>
+
+    <div id="contentView">
+
+      <a href="index.html" class="back-link">← Supply chain dashboard</a>
+
+      <div class="header-box">
+        <div>
+          <div class="h-id" id="vID">--</div>
+          <div class="h-route" id="vRoute">--</div>
+        </div>
+        <div class="h-right">
+          <div class="status-badge" id="vBadge">--</div>
+          <span class="h-updated">Last tracked: Just now</span>
+        </div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="timeline" id="stepperList"></div>
+
+      <!-- RISK PANEL -->
+      <div id="riskPanel">
+        <h2>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          Shipment Risk Alert
+        </h2>
+        <div class="risk-grid">
+          <div class="rg-item"><span class="rg-lbl">Risk Type</span><span class="rg-val" id="rTitle">--</span></div>
+          <div class="rg-item"><span class="rg-lbl">Estimated Delay</span><span class="rg-val" id="rDelay">--</span></div>
+          <div class="rg-item"><span class="rg-lbl">Financial Impact</span><span class="rg-val" id="rImpact">--</span></div>
+        </div>
+        <div class="action-text" id="rAction">--</div>
+        <button class="btn-danger">Talk to OrcaTrade about this shipment</button>
+      </div>
+
+      <!-- DETAILS -->
+      <div class="grid-2">
+        <div class="panel">
+          <h3>Commercial Details</h3>
+          <div class="data-row"><span class="data-lbl">Supplier</span><span class="data-val" id="dSup" style="color:var(--os-accent);cursor:pointer;" onclick="goToFactory()">--</span></div>
+          <div class="data-row"><span class="data-lbl">Category</span><span class="data-val" id="dCat">--</span></div>
+          <div class="data-row"><span class="data-lbl">Value (EUR)</span><span class="data-val" id="dVal">--</span></div>
+          <div class="data-row"><span class="data-lbl">Incoterms</span><span class="data-val" id="dInc">--</span></div>
+          <div class="data-row"><span class="data-lbl">Volume</span><span class="data-val" id="dVol">--</span></div>
+        </div>
+        <div class="panel">
+          <h3>Logistics Intel</h3>
+          <div class="data-row"><span class="data-lbl">Vessel</span><span class="data-val" id="dVes">--</span></div>
+          <div class="data-row"><span class="data-lbl">Location</span><span class="data-val" id="dLoc" style="color:var(--os-accent);">--</span></div>
+          <div class="data-row"><span class="data-lbl">ETA</span><span class="data-val" id="dEta">--</span></div>
+          <div class="data-row"><span class="data-lbl">Carrier</span><span class="data-val" id="dCar">--</span></div>
+          <div class="data-row"><span class="data-lbl">B/L Ref</span><span class="data-val" id="dBL">--</span></div>
+        </div>
+      </div>
+
+      <!-- LINK BARS -->
+      <div class="link-bar" onclick="goToCompliance()">
+        <div class="lb-left">
+          <div class="lb-title">Regulatory Compliance Status</div>
+          <div>
+            <span class="pill" id="pEudr">EUDR: --</span>
+            <span class="pill" id="pCbam">CBAM: --</span>
+            <span class="pill" id="pCsddd">CSDDD: --</span>
+          </div>
+        </div>
+        <div class="lb-arrow">Run full compliance check →</div>
+      </div>
+
+      <div class="link-bar" onclick="goToFactory()">
+        <div class="lb-left">
+          <div class="lb-title">Sourced from</div>
+          <div style="color:var(--os-muted);font-size:0.88rem;">
+            <span id="lbFactName">--</span>
+            <span style="color:var(--os-accent);margin-left:0.5rem;font-weight:600;" id="lbFactRisk">Risk Score: --</span>
+          </div>
+        </div>
+        <div class="lb-arrow">View factory risk report →</div>
+      </div>
+
+    </div><!-- /contentView -->
+  </div><!-- /container -->
+
+  <footer class="os-footer">
+    <div class="os-footer-inner">
+      <span>© <span id="year"></span> OrcaTrade Holding. All rights reserved.</span>
+      <span>Warsaw, London &amp; Hong Kong · Europe ↔ Asia</span>
+      <a href="index.html">← Back to Supply Chain</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const steps = [
+      "Order Confirmed", "Factory Production", "Quality Control",
+      "Departed Origin", "In Transit", "Arrived Destination",
+      "Customs Clearance", "Delivered"
+    ];
+
+    let loadedShipment = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const raw = localStorage.getItem('orcatrade_selected_shipment');
+      if (!raw) {
+        document.getElementById('errorState').style.display = 'block';
+        return;
+      }
+      try {
+        const s = JSON.parse(raw);
+        loadedShipment = s;
+        document.getElementById('contentView').style.display = 'block';
+
+        document.getElementById('vID').innerText    = s.id;
+        document.getElementById('vRoute').innerText = `${s.supplierCity}, ${s.supplierCountry} → ${s.destinationPort}`;
+
+        const badge = document.getElementById('vBadge');
+        badge.innerText = s.status;
+        let bgClass = 'bg-blue';
+        if (s.status === 'AT PORT')  bgClass = 'bg-amber';
+        if (s.status === 'DELAYED' || s.status === 'AT RISK') bgClass = 'bg-red';
+        badge.className = `status-badge ${bgClass}`;
+
+        // Timeline
+        document.getElementById('stepperList').innerHTML = steps.map((step, idx) => {
+          const stepNum = idx + 1;
+          let stateClass = 'step-future';
+          let circleContent = '';
+          let circleStyle = '';
+
+          if (stepNum < s.journeyStep) {
+            stateClass = 'step-completed';
+            circleContent = '✓';
+          } else if (stepNum === s.journeyStep) {
+            stateClass = 'step-active';
+            circleContent = '●';
+            if (s.status === 'DELAYED' || s.status === 'AT RISK') {
+              circleStyle = 'border-color:var(--danger)!important;box-shadow:0 0 0 4px rgba(220,80,80,0.2)!important;color:var(--danger);';
+            }
+          }
+
+          return `
+            <div class="t-step ${stateClass}">
+              <div class="t-circle" style="${circleStyle}">${circleContent}</div>
+              <div class="t-label">${step}</div>
+            </div>`;
+        }).join('');
+
+        // Details
+        document.getElementById('dSup').innerText = s.supplierName;
+        document.getElementById('dCat').innerText = s.productCategory;
+        document.getElementById('dVal').innerText = `€ ${(s.orderValueEur || 0).toLocaleString()}`;
+        document.getElementById('dInc').innerText = s.incoterms;
+        document.getElementById('dVol').innerText = `${s.containerCount}x ${s.containerType}`;
+        document.getElementById('dVes').innerText = s.vesselName;
+        document.getElementById('dLoc').innerText = s.currentPosition;
+        document.getElementById('dEta').innerText = s.eta;
+        document.getElementById('dCar').innerText = s.shippingLine;
+        document.getElementById('dBL').innerText  = s.billOfLading;
+
+        // Risk panel
+        if (s.riskFlag) {
+          document.getElementById('riskPanel').style.display = 'block';
+          document.getElementById('rTitle').innerText  = s.riskFlag.title;
+          document.getElementById('rDelay').innerText  = `+${s.riskFlag.estimatedDelayDays} Days`;
+          document.getElementById('rImpact').innerText = `€ ${(s.riskFlag.financialImpactEur || 0).toLocaleString()}`;
+          document.getElementById('rAction').innerText = s.riskFlag.recommendedAction;
+        }
+
+        // Compliance pills
+        const setPill = (id, lbl, val) => {
+          const el = document.getElementById(id);
+          el.innerText = `${lbl}: ${val}`;
+          el.className = val === 'Compliant' ? 'pill bg-green' : val === 'At Risk' ? 'pill bg-red' : 'pill bg-muted';
+        };
+        setPill('pEudr',  'EUDR',  s.eudr);
+        setPill('pCbam',  'CBAM',  s.cbam);
+        setPill('pCsddd', 'CSDDD', s.csddd);
+
+        document.getElementById('lbFactName').innerText = s.supplierName;
+        document.getElementById('lbFactRisk').innerText = `Risk Score: ${s.factoryRiskScore || '--'}`;
+
+      } catch (err) {
+        console.error(err);
+        document.getElementById('errorState').style.display = 'block';
+      }
+    });
+
+    window.goToFactory = function() {
+      if (!loadedShipment) return;
+      const fact = {
+        name:       loadedShipment.supplierName,
+        city:       loadedShipment.supplierCity,
+        country:    loadedShipment.supplierCountry,
+        speciality: loadedShipment.productCategory,
+        riskScore:  loadedShipment.factoryRiskScore || 45,
+        eudr:  { status: loadedShipment.eudr,  reason: "Inferred from shipment" },
+        cbam:  { status: loadedShipment.cbam,  reason: "Inferred from shipment" },
+        csddd: { status: loadedShipment.csddd, reason: "Inferred from shipment" }
+      };
+      localStorage.setItem('orcatrade_selected_factory', JSON.stringify(fact));
+      window.location.href = '../factory-risk/';
+    };
+
+    window.goToCompliance = function() {
+      if (!loadedShipment) return;
+      localStorage.setItem('orcatrade_pending_check', JSON.stringify({
+        category: loadedShipment.productCategory,
+        origin:   loadedShipment.supplierCountry
+      }));
+      window.location.href = '../compliance/';
+    };
+  </script>
+  <script src="../js/transitions.js"></script>
+</body>
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Supply Chain Clarity — OrcaTrade Intelligence</title>
+  <meta name="description" content="Real-time supply chain visibility. Track shipments, monitor port conditions, and get disruption forecasts. Powered by OrcaTrade Intelligence." />
+  <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/supply-chain/" />
+  <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/supply-chain/" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --os-bg:       #050507;
+      --os-bg-light: #0d0e12;
+      --os-accent:   #b8bec8;
+      --os-text:     #ececec;
+      --os-muted:    #b6b8bf;
+      --os-border:   rgba(255, 255, 255, 0.07);
+      --font-head:   'Playfair Display', serif;
+      --font-body:   'Inter', system-ui, sans-serif;
+      --success: #5cb88a;
+      --warning: #e8903a;
+      --danger:  #dc5050;
+      --info:    #4a90e2;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--font-body);
+      background: radial-gradient(circle at top left, #171922 0, var(--os-bg) 40%, #010102 100%);
+      background-attachment: fixed;
+      color: var(--os-text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+      padding-bottom: 5rem;
+    }
+    body::before {
+      content: "";
+      position: fixed; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(140,149,173,0.1) 0, transparent 55%),
+        radial-gradient(circle at 90% 100%, rgba(143,151,166,0.1) 0, transparent 55%);
+      mix-blend-mode: soft-light; z-index: 0;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    /* NAV */
+    .os-nav {
+      position: sticky; top: 0; z-index: 50;
+      border-bottom: 1px solid var(--os-border);
+      background: linear-gradient(to bottom, rgba(4,9,20,0.94), rgba(4,9,20,0.82), transparent);
+      backdrop-filter: blur(16px);
+    }
+    .os-nav-inner {
+      max-width: 1160px; margin: 0 auto;
+      padding: 1.1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+    }
+    .os-brand { font-family: var(--font-head); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; }
+    .os-brand span { color: var(--os-accent); }
+    .os-nav-links { display: flex; align-items: center; gap: 2rem; font-size: 0.88rem; font-weight: 500; }
+    .os-nav-links a { color: var(--os-muted); transition: color 0.18s; }
+    .os-nav-links a:hover, .os-nav-links a.active { color: var(--os-text); }
+    .os-nav-cta {
+      font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
+      padding: 0.55rem 1.2rem; border-radius: 999px; border: none;
+      background: linear-gradient(135deg, var(--os-accent), #6f7783);
+      color: #0a0912; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
+    }
+    .os-nav-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    @media (max-width: 768px) { .os-nav-links { display: none; } }
+
+    /* LANG SWITCHER */
+    .lang-switcher { display: flex; gap: 0.4rem; align-items: center; }
+    .lang-btn {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+      padding: 0.28rem 0.6rem; border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.5); transition: all 0.18s;
+    }
+    .lang-btn:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
+    .lang-btn.lang-active { color: #0a0912; background: linear-gradient(135deg, #b8bec8, #6f7783); border-color: transparent; }
+
+    /* LAYOUT */
+    .container { max-width: 1320px; margin: 0 auto; padding: 3rem 1.5rem; position: relative; z-index: 1; }
+
+    /* KICKER */
+    .os-kicker {
+      font-family: var(--font-head); font-size: 0.72rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.22em;
+      color: var(--os-accent); margin-bottom: 0.75rem;
+    }
+
+    /* PAGE HEADER */
+    .page-header { text-align: center; margin-bottom: 3rem; padding-top: 2rem; }
+    .page-header h1 {
+      font-family: var(--font-head); font-size: clamp(2rem, 4vw, 3rem);
+      font-weight: 600; line-height: 1.1; margin-bottom: 0.75rem;
+    }
+    .page-header p { color: var(--os-muted); font-size: 1rem; max-width: 600px; margin: 0 auto; line-height: 1.7; }
+
+    /* SETUP FORM */
+    #setupFormCard {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border);
+      border-radius: 1.4rem; padding: 3rem;
+      max-width: 820px; margin: 0 auto;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+    .form-title {
+      font-family: var(--font-head); font-size: 1.4rem; font-weight: 600;
+      margin-bottom: 2rem; padding-bottom: 1rem;
+      border-bottom: 1px solid var(--os-border); color: var(--os-text);
+    }
+    .form-group { margin-bottom: 1.5rem; }
+    .form-group label {
+      display: block; margin-bottom: 0.5rem;
+      color: var(--os-muted); font-size: 0.82rem;
+      text-transform: uppercase; letter-spacing: 0.1em;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      background: rgba(5, 5, 7, 0.7);
+      border: 1px solid var(--os-border);
+      padding: 0.85rem 1rem; border-radius: 0.7rem;
+      color: var(--os-text); font-size: 0.95rem;
+      font-family: var(--font-body); outline: none;
+      transition: border-color 0.18s;
+      appearance: none;
+    }
+    .form-select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23b6b8bf' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 1rem center; padding-right: 2.5rem; }
+    .form-input:focus, .form-select:focus { border-color: rgba(184, 190, 200, 0.5); box-shadow: 0 0 0 3px rgba(184, 190, 200, 0.08); }
+    .form-select option { background: #0d0e12; color: var(--os-text); }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+    .checkbox-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-top: 0.5rem; }
+    @media (max-width: 600px) { .checkbox-grid { grid-template-columns: 1fr 1fr; } }
+    .checkbox-lbl {
+      display: flex; align-items: center; gap: 0.5rem;
+      font-size: 0.88rem; color: var(--os-muted); cursor: pointer;
+      padding: 0.6rem 0.75rem; border-radius: 0.5rem;
+      border: 1px solid var(--os-border); transition: all 0.18s;
+    }
+    .checkbox-lbl:hover { border-color: rgba(184,190,200,0.3); color: var(--os-text); }
+    .checkbox-lbl input[type="checkbox"] { accent-color: var(--os-accent); width: 14px; height: 14px; }
+    .submit-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--os-accent), #6f7783);
+      color: #0a0912; border: none;
+      padding: 1rem; font-size: 1rem; font-weight: 600;
+      border-radius: 999px; cursor: pointer; margin-top: 1.5rem;
+      font-family: var(--font-body);
+      letter-spacing: 0.06em; text-transform: uppercase;
+      transition: all 0.2s ease;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+    }
+    .submit-btn:hover { filter: brightness(1.07); transform: translateY(-2px); }
+
+    /* LOADING */
+    #loadingState { display: none; text-align: center; padding: 6rem 0; }
+    .spinner {
+      width: 48px; height: 48px;
+      border: 2px solid var(--os-border);
+      border-top-color: var(--os-accent);
+      border-radius: 50%; animation: spin 0.9s linear infinite;
+      margin: 0 auto 2rem;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-line {
+      font-family: var(--font-head); font-size: 1rem;
+      color: var(--os-muted); opacity: 0; transition: opacity 0.5s;
+      margin-bottom: 0.4rem; letter-spacing: 0.05em;
+    }
+
+    /* DASHBOARD */
+    #dashboardView { display: none; opacity: 0; transition: opacity 0.5s ease-in; }
+
+    /* METRICS ROW */
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; margin-bottom: 2rem; }
+    @media (max-width: 700px) { .metrics-row { grid-template-columns: 1fr 1fr; } }
+    .metric-card {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border); border-radius: 1rem;
+      padding: 1.5rem;
+    }
+    .m-title {
+      font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.14em;
+      color: var(--os-muted); margin-bottom: 0.6rem;
+    }
+    .m-value { font-family: var(--font-head); font-size: 2.4rem; line-height: 1; color: var(--os-text); }
+
+    /* ALERT BANNER */
+    .alert-banner {
+      background: rgba(220, 80, 80, 0.08); border: 1px solid var(--danger);
+      border-radius: 0.75rem; padding: 1rem 1.5rem; margin-bottom: 1.5rem;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .alert-banner-text { color: var(--danger); font-weight: 500; }
+    .alert-link { color: var(--os-muted); font-size: 0.88rem; }
+    .alert-link:hover { color: var(--os-text); }
+
+    /* DASHBOARD GRID */
+    .dashboard-grid { display: grid; grid-template-columns: 60% 1fr; gap: 1.5rem; margin-bottom: 2rem; align-items: start; }
+    @media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } }
+
+    /* PANELS */
+    .panel {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border); border-radius: 1.2rem;
+      padding: 1.5rem; margin-bottom: 1.5rem;
+    }
+    .panel-header {
+      display: flex; justify-content: space-between; align-items: center;
+      margin-bottom: 1.2rem; padding-bottom: 0.75rem;
+      border-bottom: 1px solid var(--os-border);
+    }
+    .panel-header h2 {
+      font-family: var(--font-head); font-size: 1.05rem; font-weight: 600; color: var(--os-text);
+    }
+    .badge-count {
+      background: rgba(255,255,255,0.08); padding: 0.15rem 0.55rem;
+      border-radius: 999px; font-size: 0.78rem; color: var(--os-muted);
+    }
+
+    /* SHIPMENT ROWS */
+    .shipment-row {
+      border: 1px solid var(--os-border); border-radius: 0.8rem;
+      padding: 1rem 1.1rem; margin-bottom: 0.9rem;
+      background: rgba(0,0,0,0.15); transition: border-color 0.2s, background 0.2s;
+    }
+    .shipment-row:hover { border-color: rgba(184,190,200,0.25); background: rgba(184,190,200,0.03); }
+    .s-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.35rem; flex-wrap: wrap; gap: 0.3rem; }
+    .s-id { font-family: var(--font-head); font-weight: 600; color: var(--os-text); font-size: 0.95rem; }
+    .s-route { font-size: 0.82rem; color: var(--os-muted); }
+    .s-details { font-size: 0.88rem; color: var(--os-muted); margin-bottom: 0.75rem; }
+    .s-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 0.4rem; }
+    .s-badge { padding: 0.2rem 0.65rem; border-radius: 999px; font-weight: 600; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .s-progress-bg { height: 3px; background: var(--os-border); border-radius: 2px; flex-grow: 1; margin: 0 0.75rem; overflow: hidden; min-width: 40px; }
+    .s-progress-fill { height: 100%; background: var(--info); border-radius: 2px; }
+    .view-link { color: var(--os-accent); font-weight: 500; cursor: pointer; transition: opacity 0.18s; }
+    .view-link:hover { opacity: 0.75; }
+
+    /* PORT CONDITIONS */
+    .port-item { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .port-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .p-top { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
+    .p-name { font-weight: 500; color: var(--os-text); font-size: 0.9rem; }
+    .p-trend { font-size: 0.78rem; color: var(--os-muted); }
+    .p-bar-bg { width: 100%; height: 5px; background: var(--os-border); border-radius: 3px; }
+
+    /* DISRUPTION RADAR */
+    .radar-item { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .radar-item:last-child { margin-bottom: 0; padding-bottom: 0; border-bottom: none; }
+    .r-title { color: var(--os-text); font-weight: 500; margin-bottom: 0.25rem; font-size: 0.92rem; }
+    .r-meta { font-size: 0.78rem; color: var(--os-muted); display: flex; justify-content: space-between; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.25rem; }
+    .r-action { font-size: 0.83rem; color: var(--os-accent); }
+    .risk-tag { padding: 0.1rem 0.45rem; border-radius: 4px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+
+    /* SUPPLIER RISK */
+    .sup-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .sup-left { display: flex; flex-direction: column; gap: 0.1rem; }
+    .sup-name { font-size: 0.88rem; color: var(--os-text); }
+    .sup-status { font-size: 0.75rem; color: var(--os-muted); }
+    .sup-score { font-family: var(--font-head); font-weight: 600; font-size: 1.2rem; }
+
+    /* RECOMMENDATIONS */
+    .recs-panel { border-left: 3px solid rgba(184,190,200,0.4); }
+    .recs-list { list-style: none; padding: 0; }
+    .recs-list li {
+      padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+      color: var(--os-text); font-size: 0.9rem; line-height: 1.6;
+      padding-left: 1rem; position: relative;
+    }
+    .recs-list li::before { content: "→"; position: absolute; left: 0; color: var(--os-accent); font-size: 0.8rem; top: 0.85rem; }
+    .recs-list li:last-child { border-bottom: none; }
+
+    /* UTILITY COLORS */
+    .text-green { color: var(--success); }
+    .text-amber { color: var(--warning); }
+    .text-red   { color: var(--danger); }
+    .text-blue  { color: var(--info); }
+    .bg-green { background: rgba(92, 184, 138, 0.12); color: var(--success); }
+    .bg-amber { background: rgba(232, 144, 58, 0.12); color: var(--warning); }
+    .bg-red   { background: rgba(220, 80, 80, 0.12); color: var(--danger); }
+    .bg-blue  { background: rgba(74, 144, 226, 0.12); color: var(--info); }
+
+    @keyframes pulseAlert {
+      0%   { box-shadow: 0 0 0 0 rgba(220, 80, 80, 0.4); }
+      70%  { box-shadow: 0 0 0 6px rgba(220, 80, 80, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(220, 80, 80, 0); }
+    }
+    .pulse-red { animation: pulseAlert 2s infinite; }
+
+    /* FOOTER */
+    .os-footer { border-top: 1px solid var(--os-border); padding: 1.8rem 1.5rem; position: relative; z-index: 1; }
+    .os-footer-inner {
+      max-width: 1160px; margin: 0 auto;
+      display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem;
+      font-size: 0.78rem; color: var(--os-muted);
+    }
+    .os-footer a { color: var(--os-muted); transition: color 0.18s; }
+    .os-footer a:hover { color: var(--os-text); }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav class="os-nav">
+    <div class="os-nav-inner">
+      <a href="../index.html" class="os-brand">ORCATRADE.<span>OS</span></a>
+      <div class="os-nav-links">
+        <a href="../index.html">Holding</a>
+        <a href="../sourcing.html">Sourcing</a>
+        <a href="../intelligence.html">Intelligence</a>
+        <a href="../search/">Search</a>
+        <a href="../foundation.html">Foundation</a>
+      </div>
+      <div class="lang-switcher">
+        <a href="../supply-chain/" class="lang-btn lang-active">EN</a>
+        <a href="../pl/intelligence.html" class="lang-btn">PL</a>
+        <a href="../de/intelligence.html" class="lang-btn">DE</a>
+      </div>
+      <a href="../compliance/" class="os-nav-cta">Run Compliance Check →</a>
+    </div>
+  </nav>
+
+  <div class="container">
+
+    <!-- PAGE HEADER -->
+    <div class="page-header" id="pageHeader">
+      <div class="os-kicker">Pillar 01 · Supply Chain Clarity</div>
+      <h1>Full visibility across your supply chain</h1>
+      <p>Track shipments, monitor port conditions, and get 60–90 day disruption forecasts across your entire supplier network.</p>
+    </div>
+
+    <!-- SETUP FORM -->
+    <div id="setupFormCard">
+      <div class="form-title">Configure your supply chain view</div>
+      <form id="scForm">
+        <div class="form-group grid-2">
+          <div>
+            <label>Company name</label>
+            <input type="text" id="fcName" class="form-input" placeholder="e.g. Acme Corp" required>
+          </div>
+          <div>
+            <label>Primary sourcing country</label>
+            <select id="fcCountry" class="form-select" required>
+              <option value="" disabled selected>Select country...</option>
+              <option>China</option><option>Vietnam</option><option>Indonesia</option>
+              <option>India</option><option>Bangladesh</option><option>Thailand</option>
+              <option>Malaysia</option><option>Taiwan</option><option>South Korea</option><option>Other</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Product categories</label>
+          <div class="checkbox-grid">
+            <label class="checkbox-lbl"><input type="checkbox" value="Electronics"> Electronics</label>
+            <label class="checkbox-lbl"><input type="checkbox" value="Textiles"> Textiles</label>
+            <label class="checkbox-lbl"><input type="checkbox" value="Food & Beverage"> Food & Beverage</label>
+            <label class="checkbox-lbl"><input type="checkbox" value="Packaging"> Packaging</label>
+            <label class="checkbox-lbl"><input type="checkbox" value="Furniture & Wood"> Furniture & Wood</label>
+            <label class="checkbox-lbl"><input type="checkbox" value="Steel & Metal"> Steel & Metal</label>
+            <label class="checkbox-lbl"><input type="checkbox" value="Chemicals"> Chemicals</label>
+            <label class="checkbox-lbl"><input type="checkbox" value="Ceramics"> Ceramics</label>
+            <label class="checkbox-lbl"><input type="checkbox" value="Other"> Other</label>
+          </div>
+        </div>
+
+        <div class="form-group grid-2">
+          <div>
+            <label>Number of active suppliers</label>
+            <select id="fcSuppliers" class="form-select" required>
+              <option value="" disabled selected>Select...</option>
+              <option>1-5</option><option>6-20</option><option>21-50</option><option>50+</option>
+            </select>
+          </div>
+          <div>
+            <label>Primary destination port</label>
+            <select id="fcPort" class="form-select" required>
+              <option value="" disabled selected>Select port...</option>
+              <option>Rotterdam</option><option>Hamburg</option><option>Antwerp</option>
+              <option>Felixstowe</option><option>Gdansk</option><option>Barcelona</option>
+              <option>Piraeus</option><option>Other EU port</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Biggest supply chain concern</label>
+          <select id="fcConcern" class="form-select" required>
+            <option value="" disabled selected>Select concern...</option>
+            <option>Shipment delays</option><option>Supplier risk</option>
+            <option>Regulatory compliance</option><option>Cost volatility</option>
+            <option>All of the above</option>
+          </select>
+        </div>
+
+        <button type="submit" class="submit-btn" id="submitBtn">Generate Supply Chain View →</button>
+      </form>
+    </div>
+
+    <!-- LOADING -->
+    <div id="loadingState">
+      <div class="spinner"></div>
+      <div id="l1" class="loading-line">Scanning active shipping lanes...</div>
+      <div id="l2" class="loading-line">Checking port congestion levels...</div>
+      <div id="l3" class="loading-line">Analysing supplier risk signals...</div>
+      <div id="l4" class="loading-line">Generating disruption forecast...</div>
+    </div>
+
+    <!-- DASHBOARD VIEW -->
+    <div id="dashboardView">
+
+      <div class="metrics-row">
+        <div class="metric-card"><div class="m-title">Active Shipments</div><div class="m-value" id="dmShip">--</div></div>
+        <div class="metric-card"><div class="m-title">Ports Monitored</div><div class="m-value" id="dmPort">--</div></div>
+        <div class="metric-card"><div class="m-title">Disruption Alerts</div><div class="m-value" id="dmAlert">--</div></div>
+        <div class="metric-card"><div class="m-title">Health Score</div><div class="m-value" id="dmHealth">--</div></div>
+      </div>
+
+      <div id="alertBannerHolder" style="display:none;">
+        <div class="alert-banner">
+          <span class="alert-banner-text" id="alertBannerText">Active disruption alerts require your attention</span>
+          <a href="#radarPanel" class="alert-link">View alerts ↓</a>
+        </div>
+      </div>
+
+      <div class="dashboard-grid">
+        <!-- LEFT: Shipments -->
+        <div class="panel">
+          <div class="panel-header">
+            <h2>Active Shipments <span class="badge-count" id="sCountBadge">0</span></h2>
+          </div>
+          <div id="shipmentsList"></div>
+        </div>
+
+        <!-- RIGHT: Panels -->
+        <div>
+          <div class="panel">
+            <div class="panel-header"><h2>Port Conditions</h2></div>
+            <div id="portsList"></div>
+          </div>
+
+          <div class="panel" id="radarPanel">
+            <div class="panel-header"><h2>60–90 Day Forecast</h2></div>
+            <div id="radarList"></div>
+          </div>
+
+          <div class="panel">
+            <div class="panel-header"><h2>Supplier Risk Summary</h2></div>
+            <div id="supList"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RECOMMENDATIONS -->
+      <div class="panel recs-panel">
+        <div class="panel-header"><h2 id="recTitle">AI Recommendations</h2></div>
+        <ul class="recs-list" id="recList"></ul>
+      </div>
+
+    </div><!-- /dashboardView -->
+
+  </div><!-- /container -->
+
+  <footer class="os-footer">
+    <div class="os-footer-inner">
+      <span>© <span id="year"></span> OrcaTrade Holding. All rights reserved.</span>
+      <span>Warsaw, London &amp; Hong Kong · Europe ↔ Asia</span>
+      <a href="../intelligence.html">← Back to Intelligence</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    const formCard  = document.getElementById('setupFormCard');
+    const loading   = document.getElementById('loadingState');
+    const dash      = document.getElementById('dashboardView');
+    const header    = document.getElementById('pageHeader');
+
+    document.getElementById('scForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        company:         document.getElementById('fcName').value,
+        sourcingCountry: document.getElementById('fcCountry').value,
+        supplierCount:   document.getElementById('fcSuppliers').value,
+        destinationPort: document.getElementById('fcPort').value,
+        mainConcern:     document.getElementById('fcConcern').value,
+        categories: Array.from(document.querySelectorAll('.checkbox-grid input:checked')).map(el => el.value)
+      };
+
+      formCard.style.display = 'none';
+      header.style.display   = 'none';
+      loading.style.display  = 'block';
+
+      const lines = ['l1','l2','l3','l4'];
+      lines.forEach((id, i) => setTimeout(() => document.getElementById(id).style.opacity = '1', i * 800));
+
+      try {
+        const res = await fetch('/api/supply-chain', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) throw new Error(await res.text());
+        const data = await res.json();
+        localStorage.setItem('orcatrade_supply_chain', JSON.stringify(data));
+        renderDashboard(data);
+        setTimeout(() => {
+          loading.style.display = 'none';
+          dash.style.display    = 'block';
+          setTimeout(() => dash.style.opacity = '1', 50);
+        }, 3500);
+      } catch (err) {
+        loading.innerHTML = `<h3 style="color:var(--danger);font-family:var(--font-head);">Error loading supply chain data.</h3><p style="color:var(--os-muted);margin-top:0.5rem;">${err.message}</p><button onclick="location.reload()" style="margin-top:1.5rem;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;border:none;border-radius:999px;cursor:pointer;font-weight:600;">Try again</button>`;
+      }
+    });
+
+    function getStatusBadge(status) {
+      let cls = 'bg-blue';
+      if (status === 'AT PORT')  cls = 'bg-amber';
+      if (status === 'DELAYED')  cls = 'bg-red';
+      if (status === 'AT RISK')  cls = 'bg-red pulse-red';
+      return `<span class="s-badge ${cls}">${status}</span>`;
+    }
+
+    function getPortColor(level) {
+      if (level === 'LOW')      return 'var(--success)';
+      if (level === 'MODERATE') return 'var(--warning)';
+      return 'var(--danger)';
+    }
+
+    function getScoreColor(score) {
+      if (score >= 70) return 'text-green';
+      if (score >= 50) return 'text-amber';
+      return 'text-red';
+    }
+
+    function getRiskTagStyle(impact) {
+      if (impact === 'HIGH')   return 'background:rgba(220,80,80,0.12);color:var(--danger);';
+      if (impact === 'MEDIUM') return 'background:rgba(232,144,58,0.12);color:var(--warning);';
+      return 'background:rgba(92,184,138,0.12);color:var(--success);';
+    }
+
+    function renderDashboard(data) {
+      const sum = data.summary || {};
+
+      document.getElementById('dmShip').innerText = sum.activeShipments || 0;
+      document.getElementById('dmPort').innerText = sum.portsMonitored  || 0;
+
+      const alerts = sum.disruptionAlerts || 0;
+      const alEl   = document.getElementById('dmAlert');
+      alEl.innerText  = alerts;
+      alEl.className  = alerts > 0 ? 'm-value text-red' : 'm-value text-green';
+      if (alerts > 0) {
+        document.getElementById('alertBannerHolder').style.display = 'block';
+        document.getElementById('alertBannerText').innerText = `${alerts} active disruption alert${alerts > 1 ? 's' : ''} require your attention`;
+      }
+
+      const hScore = sum.healthScore || 0;
+      const hEl    = document.getElementById('dmHealth');
+      hEl.innerText = hScore;
+      hEl.className = `m-value ${getScoreColor(hScore)}`;
+
+      // Shipments
+      document.getElementById('sCountBadge').innerText = (data.shipments || []).length;
+      document.getElementById('shipmentsList').innerHTML = (data.shipments || []).map(s => {
+        const enc = encodeURIComponent(JSON.stringify(s));
+        return `
+          <div class="shipment-row">
+            <div class="s-top">
+              <span class="s-id">${s.id}</span>
+              <span class="s-route">${s.supplierCity}, ${s.supplierCountry} → ${s.destinationPort}</span>
+            </div>
+            <div class="s-details">${s.productCategory} · ${s.supplierName}</div>
+            <div class="s-meta">
+              ${getStatusBadge(s.status)}
+              <div class="s-progress-bg"><div class="s-progress-fill" style="width:${s.progressPercent}%"></div></div>
+              <span>ETA: ${s.eta}</span>
+              <span class="view-link" onclick="viewShipment('${enc}')">View Details →</span>
+            </div>
+          </div>`;
+      }).join('');
+
+      // Ports
+      document.getElementById('portsList').innerHTML = (data.portConditions || []).map(p => {
+        const fillW = {LOW:'20%', MODERATE:'50%', HIGH:'80%', SEVERE:'100%'}[p.congestionLevel] || '50%';
+        return `
+          <div class="port-item">
+            <div class="p-top">
+              <span class="p-name">${p.portName}</span>
+              <span class="p-trend">${p.trend} · +${p.averageDelayDays}d avg</span>
+            </div>
+            <div class="p-bar-bg"><div style="background:${getPortColor(p.congestionLevel)};width:${fillW};height:100%;border-radius:3px;"></div></div>
+          </div>`;
+      }).join('');
+
+      // Radar
+      document.getElementById('radarList').innerHTML = (data.disruptionForecast || []).map(r => `
+        <div class="radar-item">
+          <div class="r-title">${r.title}</div>
+          <div class="r-meta">
+            <span>${r.affectedRegion} · ${r.dateRange}</span>
+            <span class="risk-tag" style="${getRiskTagStyle(r.impact)}">${r.impact}</span>
+          </div>
+          <div class="r-action">${r.recommendedAction}</div>
+        </div>`).join('');
+
+      // Suppliers
+      document.getElementById('supList').innerHTML = (data.supplierSummary || []).map(sup => `
+        <div class="sup-item">
+          <div class="sup-left">
+            <span class="sup-name">${sup.name}</span>
+            <span class="sup-status">${sup.status}</span>
+          </div>
+          <span class="sup-score ${getScoreColor(sup.riskScore)}">${sup.riskScore}</span>
+        </div>`).join('') +
+        `<div style="text-align:right;margin-top:1rem;"><a href="../factory-risk/" class="view-link" style="font-size:0.82rem;">View all suppliers →</a></div>`;
+
+      // Recommendations
+      document.getElementById('recTitle').innerText = `AI Recommendations for ${sum.companyName || 'You'}`;
+      document.getElementById('recList').innerHTML = (data.recommendations || []).map(r => `<li>${r}</li>`).join('');
+    }
+
+    window.viewShipment = function(enc) {
+      localStorage.setItem('orcatrade_selected_shipment', decodeURIComponent(enc));
+      window.location.href = 'shipment-detail.html';
+    };
+  </script>
+  <script src="../js/transitions.js"></script>
+</body>
+</html>
