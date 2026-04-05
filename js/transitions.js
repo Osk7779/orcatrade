@@ -2,8 +2,8 @@
   // ── Styles ──────────────────────────────────────────────
   var style = document.createElement('style');
   style.textContent = [
-    '#pt-overlay{position:fixed;inset:0;z-index:99999;background:#050507;display:flex;align-items:center;justify-content:center;opacity:1;pointer-events:all;transition:opacity 0.7s ease;}',
-    '#pt-overlay.pt-hidden{opacity:0;pointer-events:none;}',
+    '#pt-overlay{position:fixed;inset:0;z-index:99999;background:#050507;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.6s ease;}',
+    '#pt-overlay.pt-visible{opacity:1;pointer-events:all;}',
     '.pt-inner{text-align:center;user-select:none;}',
     '.pt-wordmark{display:block;font-family:"Cormorant Garamond","Playfair Display",Georgia,serif;font-weight:300;font-size:clamp(1.6rem,5vw,4.2rem);letter-spacing:0.42em;text-indent:0.42em;color:#f5f0e8;opacity:0;transition:opacity 0.8s ease;}',
     '.pt-wordmark.pt-show{opacity:1;}',
@@ -23,9 +23,9 @@
   var line     = overlay.querySelector('.pt-line');
 
   function showOverlay() {
-    overlay.classList.remove('pt-hidden');
     wordmark.classList.remove('pt-show');
     line.classList.remove('pt-show');
+    overlay.classList.add('pt-visible');
     requestAnimationFrame(function () {
       requestAnimationFrame(function () {
         wordmark.classList.add('pt-show');
@@ -35,17 +35,22 @@
   }
 
   function hideOverlay() {
-    overlay.classList.add('pt-hidden');
+    overlay.classList.remove('pt-visible');
+    wordmark.classList.remove('pt-show');
+    line.classList.remove('pt-show');
   }
 
   // ── Page-load reveal ─────────────────────────────────────
   // Skip auto-show on the homepage — it has its own intro overlay
-  if (document.getElementById('intro-overlay')) {
-    overlay.classList.add('pt-hidden');
-  } else {
+  if (!document.getElementById('intro-overlay')) {
     showOverlay();
     setTimeout(hideOverlay, 1100);
   }
+
+  // Always hide on pageshow (covers browser back/forward cache)
+  window.addEventListener('pageshow', function () {
+    hideOverlay();
+  });
 
   // ── Intercept internal link clicks ───────────────────────
   document.addEventListener('click', function (e) {
@@ -60,6 +65,6 @@
     e.preventDefault();
     var dest = href;
     showOverlay();
-    setTimeout(function () { window.location.href = dest; }, 550);
+    setTimeout(function () { window.location.href = dest; }, 500);
   });
 })();
