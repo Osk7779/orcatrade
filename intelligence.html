@@ -9,20 +9,20 @@
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
   <style>
     :root {
-      --os-bg:       #08111f;
-      --os-bg-light: #101a2a;
-      --os-accent:   #c8a96e;
-      --os-accent-dim: rgba(200, 169, 110, 0.15);
-      --os-text:     #ffffff;
-      --os-muted:    #a0aab8;
-      --os-border:   rgba(255, 255, 255, 0.1);
-      --os-glass:    rgba(16, 26, 42, 0.6);
-      --font-head:   'Syne', sans-serif;
-      --font-body:   'Instrument Sans', sans-serif;
+      --os-bg:       #050507;
+      --os-bg-light: #0d0e12;
+      --os-accent:   #b8bec8;
+      --os-accent-dim: rgba(184, 190, 200, 0.12);
+      --os-text:     #ececec;
+      --os-muted:    #b6b8bf;
+      --os-border:   rgba(255, 255, 255, 0.07);
+      --os-glass:    rgba(13, 14, 18, 0.7);
+      --font-head:   'Playfair Display', serif;
+      --font-body:   'Inter', system-ui, sans-serif;
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -31,7 +31,8 @@
 
     body {
       font-family: var(--font-body);
-      background-color: var(--os-bg);
+      background: radial-gradient(circle at top left, #171922 0, var(--os-bg) 40%, #010102 100%);
+      background-attachment: fixed;
       color: var(--os-text);
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
@@ -43,8 +44,9 @@
       inset: 0;
       pointer-events: none;
       background:
-        radial-gradient(ellipse at 20% 0%, rgba(200,169,110,0.07) 0, transparent 55%),
-        radial-gradient(ellipse at 80% 100%, rgba(16,90,180,0.09) 0, transparent 55%);
+        radial-gradient(circle at 10% 0%, rgba(140,149,173,0.1) 0, transparent 55%),
+        radial-gradient(circle at 90% 100%, rgba(143,151,166,0.1) 0, transparent 55%);
+      mix-blend-mode: soft-light;
       z-index: 0;
     }
 
@@ -57,7 +59,7 @@
       top: 0;
       z-index: 50;
       border-bottom: 1px solid var(--os-border);
-      background: rgba(8, 17, 31, 0.85);
+      background: linear-gradient(to bottom, rgba(4,9,20,0.94), rgba(4,9,20,0.82), transparent);
       backdrop-filter: blur(16px);
     }
 
@@ -101,17 +103,18 @@
       font-size: 0.85rem;
       font-weight: 600;
       padding: 0.55rem 1.2rem;
-      border-radius: 4px;
-      border: 1px solid var(--os-accent);
-      color: var(--os-accent);
-      background: transparent;
+      border-radius: 999px;
+      border: none;
+      background: linear-gradient(135deg, var(--os-accent), #6f7783);
+      color: #0a0912;
       cursor: pointer;
       transition: all 0.2s ease;
       white-space: nowrap;
     }
 
     .os-nav-cta:hover {
-      background: var(--os-accent-dim);
+      filter: brightness(1.08);
+      transform: translateY(-1px);
     }
 
     @media (max-width: 768px) {
@@ -169,8 +172,8 @@
       padding: 0.3rem 0.85rem;
       border-radius: 999px;
       margin-bottom: 1.4rem;
-      border: 1px solid rgba(200, 169, 110, 0.3);
-      background: rgba(200, 169, 110, 0.08);
+      border: 1px solid rgba(184, 190, 200, 0.3);
+      background: rgba(184, 190, 200, 0.08);
       color: var(--os-accent);
     }
 
@@ -219,54 +222,57 @@
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.85rem 1.6rem;
-      border-radius: 4px;
-      background: var(--os-accent);
-      color: #08111f;
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--os-accent), #6f7783);
+      color: #0a0912;
       font-family: var(--font-body);
       font-size: 0.9rem;
-      font-weight: 700;
-      letter-spacing: 0.04em;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
       border: none;
       cursor: pointer;
-      transition: all 0.2s ease;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 16px 38px rgba(0,0,0,0.7);
+      transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
     }
 
     .btn-os-primary:hover {
-      filter: brightness(1.1);
-      transform: translateY(-2px);
-      box-shadow: 0 12px 28px rgba(200, 169, 110, 0.3);
+      filter: brightness(1.06);
+      transform: translateY(-3px) scale(1.02);
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.14), 0 22px 46px rgba(0,0,0,0.85);
     }
 
     .btn-os-ghost {
       display: inline-flex;
       align-items: center;
       gap: 0.4rem;
-      padding: 0.85rem 1.6rem;
-      border-radius: 4px;
+      padding: 0.8rem 1.5rem;
+      border-radius: 999px;
       background: transparent;
       color: var(--os-muted);
       font-family: var(--font-body);
       font-size: 0.9rem;
-      font-weight: 600;
-      border: 1px solid var(--os-border);
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid rgba(255,255,255,0.16);
       cursor: pointer;
       transition: all 0.2s ease;
     }
 
     .btn-os-ghost:hover {
+      background: rgba(8,20,51,0.96);
       border-color: rgba(255,255,255,0.3);
       color: var(--os-text);
+      transform: translateY(-2px);
     }
 
     /* ── PILLAR GRID ── */
     .pillars-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 1px;
-      border: 1px solid var(--os-border);
-      border-radius: 8px;
-      overflow: hidden;
+      gap: 1.2rem;
       margin-top: 3rem;
     }
 
@@ -275,16 +281,17 @@
     }
 
     .pillar-card {
-      background: var(--os-glass);
-      backdrop-filter: blur(12px);
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border);
+      border-radius: 1.2rem;
       padding: 2.2rem 1.8rem;
-      border-right: 1px solid var(--os-border);
-      transition: background 0.2s ease;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
     }
 
-    .pillar-card:last-child { border-right: none; }
-
-    .pillar-card:hover { background: rgba(16, 26, 42, 0.9); }
+    .pillar-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.5);
+    }
 
     .pillar-num {
       font-family: var(--font-head);
@@ -313,8 +320,8 @@
     }
 
     .pillar-card--accent {
-      background: linear-gradient(145deg, rgba(200,169,110,0.08), rgba(16,26,42,0.7));
-      border-color: rgba(200,169,110,0.2);
+      background: linear-gradient(145deg, #152040, #080f1e);
+      border-color: rgba(184,190,200,0.2);
     }
 
     @media (max-width: 720px) {
@@ -323,9 +330,9 @@
 
     /* ── COMPLIANCE CTA ── */
     .compliance-cta-section {
-      background: linear-gradient(135deg, var(--os-bg-light), var(--os-bg));
+      background: linear-gradient(145deg, #111d3a, #060b17);
       border: 1px solid var(--os-border);
-      border-radius: 8px;
+      border-radius: 1.4rem;
       padding: 4rem 3rem;
       text-align: center;
       position: relative;
@@ -337,7 +344,7 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(ellipse at center top, rgba(200,169,110,0.08) 0, transparent 65%);
+      background: radial-gradient(ellipse at center top, rgba(184,190,200,0.07) 0, transparent 65%);
       pointer-events: none;
     }
 
@@ -368,10 +375,9 @@
     .waitlist-box {
       max-width: 520px;
       margin: 0 auto;
-      background: var(--os-glass);
-      backdrop-filter: blur(12px);
+      background: linear-gradient(145deg, #111d3a, #060b17);
       border: 1px solid var(--os-border);
-      border-radius: 8px;
+      border-radius: 1.4rem;
       padding: 2.4rem 2rem;
     }
 
@@ -407,9 +413,9 @@
 
     .wl-input {
       width: 100%;
-      background: rgba(8, 17, 31, 0.8);
+      background: rgba(5, 5, 7, 0.8);
       border: 1px solid var(--os-border);
-      border-radius: 4px;
+      border-radius: 0.7rem;
       color: var(--os-text);
       padding: 0.7rem 0.9rem;
       font-size: 0.9rem;
@@ -419,8 +425,8 @@
     }
 
     .wl-input:focus {
-      border-color: rgba(200, 169, 110, 0.5);
-      box-shadow: 0 0 0 3px rgba(200, 169, 110, 0.08);
+      border-color: rgba(184, 190, 200, 0.5);
+      box-shadow: 0 0 0 3px rgba(184, 190, 200, 0.08);
     }
 
     /* ── DIVIDER ── */
