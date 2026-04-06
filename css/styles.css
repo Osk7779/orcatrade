@@ -1576,13 +1576,14 @@ footer {
 .nav-dropdown-menu {
   display: none;
   position: absolute;
-  top: calc(100% + 0.8rem);
+  top: 100%;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(6, 10, 20, 0.98);
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: 0.85rem;
   padding: 0.4rem;
+  padding-top: 1.2rem;
   min-width: 172px;
   backdrop-filter: blur(16px);
   box-shadow: 0 20px 44px rgba(0, 0, 0, 0.8);
