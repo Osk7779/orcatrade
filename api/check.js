@@ -2,10 +2,6 @@ export const config = {
   runtime: 'edge',
 };
 
-import { eudrRegulation } from '../regulations/eudr.js';
-import { cbamRegulation } from '../regulations/cbam.js';
-import { csdddRegulation } from '../regulations/csddd.js';
-
 export default async function handler(request) {
   if (request.method !== 'POST') {
     return new Response(JSON.stringify({ error: 'Method not allowed' }), {
@@ -16,142 +12,239 @@ export default async function handler(request) {
 
   try {
     const orderData = await request.json();
-    
-    // Normalize data from the frontend form to match regulation checking logic
-    const normalizedData = {
-      ...orderData,
-      destinationMarket: orderData.euMarket ? 'EU' : 'Other',
-      importDestination: orderData.euMarket ? 'EU' : 'Other',
-      products: orderData.productDescription ? [orderData.productCategory, orderData.productDescription.toLowerCase()] : [orderData.productCategory],
-    };
-    
-    // Map company size to numerical values for CSDDD thresholds
-    if (orderData.companySize === 'Over 1000 employees') {
-      normalizedData.buyerCompanySize = 1500; 
-    } else if (orderData.companySize === '250–1000 employees') {
-      normalizedData.buyerCompanySize = 500;
-    } else {
-      normalizedData.buyerCompanySize = 100;
-    }
-
-    // Map import value to theoretical revenue for demo purposes to trigger thresholds
-    if (orderData.importValue === 'Over €5M') {
-      normalizedData.buyerRevenue = 500000000; // over €450M threshold
-    } else {
-      normalizedData.buyerRevenue = 10000000;
-    }
-    
-    // Check relevance for each regulation
-    const eudrCheck = eudrRegulation.checkRelevance(normalizedData);
-    const cbamCheck = cbamRegulation.checkRelevance(normalizedData);
-    const csdddCheck = csdddRegulation.checkRelevance(normalizedData);
-    
-    const applicableRegulations = [];
-    if (eudrCheck.relevant) applicableRegulations.push({ reg: eudrRegulation, reasons: eudrCheck.reasons });
-    if (cbamCheck.relevant) applicableRegulations.push({ reg: cbamRegulation, reasons: cbamCheck.reasons });
-    if (csdddCheck.relevant) applicableRegulations.push({ reg: csdddRegulation, reasons: csdddCheck.reasons });
-    
-    // System Prompt setup
-    const systemPrompt = `You are OrcaTrade Intelligence's compliance engine. You are an expert in EU trade regulations. Analyze the provided order details against the specified regulations and return a structured JSON compliance report. Be specific, practical, and actionable. Never be vague. Always cite the specific article or requirement that creates a compliance obligation.`;
-    
-    let regulationContext = "";
-    if (applicableRegulations.length > 0) {
-      regulationContext = "Relevant Regulations and Requirements:\n\n" + applicableRegulations.map(a => `
-Name: ${a.reg.name}
-Short Description: ${a.reg.shortDescription}
-Applicable To: ${a.reg.applicableTo}
-Effective Date: ${a.reg.effectiveDate}
-Penalties: ${a.reg.penaltiesText}
-Key Requirements:
-- ${a.reg.keyRequirements.join('\n- ')}
-Reasons this applies:
-- ${a.reasons.join('\n- ')}
-`).join('\n---\n');
-    } else {
-      regulationContext = "Based on our initial checks, none of our tracked regulations (EUDR, CBAM, CSDDD) are directly triggered. Please confirm this independently based on the order data, but you may report not_applicable for all.";
-    }
-
-    const jsonSchema = `{
-  "overallStatus": "compliant" | "at_risk" | "non_compliant",
-  "overallScore": 0-100,
-  "checkedRegulations": [
-    {
-      "regulation": "EUDR" | "CBAM" | "CSDDD",
-      "applicable": boolean,
-      "status": "compliant" | "at_risk" | "non_compliant" | "not_applicable",
-      "riskLevel": "low" | "medium" | "high",
-      "summary": "one sentence plain English",
-      "findings": ["specific finding 1", "finding 2"],
-      "requiredActions": ["specific action 1", "action 2"],
-      "deadline": "date or timeframe if applicable",
-      "estimatedCost": "rough cost estimate if applicable"
-    }
-  ],
-  "priorityActions": ["top 3 actions across all regulations"],
-  "estimatedTotalRisk": "financial risk estimate in EUR",
-  "nextSteps": "what to do in the next 30 days"
-}`;
-
-    const userPrompt = `Order Data:
-${JSON.stringify(orderData, null, 2)}
-
-${regulationContext}
-
-Instructions:
-Assess compliance gap, risk level, and specific action items based strictly on the regulations included above. You must return EXACTLY AND ONLY a valid JSON object matching the following structure:
-${jsonSchema}
-
-Do NOT wrap the JSON in Markdown backticks (e.g., \`\`\`json). Just return the raw JSON object.`;
+    const {
+      productCategory = '',
+      productDescription = '',
+      origin = '',
+      supplierName = 'Not provided',
+      importValue = 'Not specified',
+      companySize = 'Not specified',
+      euMarket = true,
+    } = orderData;
 
     const anthropicApiKey = process.env.ORCATRADE_OS_API;
-    
     if (!anthropicApiKey) {
-      throw new Error("Missing ANTHROPIC_API_KEY environment variable");
+      return new Response(JSON.stringify({ error: 'API key not configured' }), {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      });
     }
+
+    const year = new Date().getFullYear();
+    const reportId = `OT-COMP-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
+    const timestamp = new Date().toISOString();
+
+    const systemPrompt = `You are OrcaTrade Intelligence, a senior EU trade compliance engine with expert knowledge of:
+- EUDR: Regulation (EU) 2023/1115 — EU Deforestation Regulation
+- CBAM: Regulation (EU) 2023/956 — Carbon Border Adjustment Mechanism
+- CSDDD: Directive (EU) 2024/1760 — Corporate Sustainability Due Diligence
+
+You produce LEGALLY PRECISE, DEEPLY SPECIFIC compliance reports.
+Every finding MUST cite the exact Article number.
+Every financial risk MUST show the calculation formula.
+Every required action MUST name the exact document and EU portal.
+Never be vague. Never say "may be required". State obligations definitively.
+
+EUDR FINANCIAL RISK RULES:
+- Base fine: up to 4% of annual EU turnover per Article 25(2)(a)
+- Minimum fine: €10,000 per infringement per Article 25(2)(a)
+- Additional: seizure and confiscation of goods per Article 25(2)(b)
+- Additional: temporary exclusion from public procurement per Article 25(2)(d)
+- Calculate based on import value provided as proxy for EU turnover
+
+CBAM FINANCIAL RISK RULES:
+- Penalty: €100 per tonne CO2 equivalent shortfall per Article 26(1)
+- Wood products: NOT a covered sector — mark as N/A
+- Covered sectors: cement, iron, steel, aluminium, fertilisers, electricity, hydrogen per Annex I of Regulation (EU) 2023/956
+- ONLY applicable if product falls in a covered CBAM sector — be strict
+
+CSDDD FINANCIAL RISK RULES:
+- Applies ONLY to companies with 1000+ employees AND €450M+ turnover
+- Fines up to 5% of global net turnover per Article 27(1)
+- SMEs (under 250 employees): NOT applicable — state this clearly
+- Timeline: phased from 2027 for largest companies
+
+SCORE CALCULATION:
+- Start at 100
+- Deduct 35 points per NON_COMPLIANT regulation
+- Deduct 15 points per AT_RISK regulation
+- Each regulation only deducted if applicable to this product/company
+
+Return ONLY valid JSON. No markdown. No text outside the JSON object.`;
+
+    const userPrompt = `Generate a detailed compliance report for this import order:
+
+Product category: ${productCategory}
+Product description: ${productDescription}
+Country of origin: ${origin}
+Supplier name: ${supplierName}
+Annual import value: ${importValue}
+Company size: ${companySize}
+Placing on EU market: ${euMarket ? 'Yes' : 'No'}
+
+Return this exact JSON structure with no markdown wrapping:
+{
+  "reportId": "${reportId}",
+  "timestamp": "${timestamp}",
+  "overallStatus": "compliant" | "at_risk" | "non_compliant",
+  "overallScore": number 0-100,
+  "executiveSummary": "Precise 3-sentence summary citing specific regulation names and article numbers. State the single most urgent action.",
+  "checkedRegulations": [
+    {
+      "regulation": "EUDR",
+      "applicable": boolean,
+      "applicabilityReason": "cite Article 1 and 2 of Regulation (EU) 2023/1115 explaining why this product triggers or does not trigger EUDR",
+      "status": "compliant" | "at_risk" | "non_compliant" | "not_applicable",
+      "legalBasis": "Regulation (EU) 2023/1115 of the European Parliament and of the Council",
+      "keyObligation": "exact legal obligation in one sentence with article citation",
+      "currentGap": "what is specifically missing for this product/supplier combination, or N/A if not applicable",
+      "findings": [
+        {
+          "finding": "specific, detailed finding text — not generic",
+          "severity": "critical" | "major" | "minor",
+          "article": "Article X(Y) of Regulation (EU) 2023/1115",
+          "legalImplication": "exact consequence of this finding under EU law"
+        }
+      ],
+      "requiredActions": [
+        {
+          "step": 1,
+          "action": "specific action text with exact steps",
+          "documentRequired": "exact name of document needed",
+          "portal": "exact EU portal or authority name",
+          "deadline": "specific date or clear trigger event",
+          "estimatedHours": number,
+          "estimatedCostEur": "EUR range e.g. €500–€2,000"
+        }
+      ],
+      "financialRisk": {
+        "minimumFineEur": number,
+        "maximumFineEur": number,
+        "calculationExplained": "show the formula: e.g. 4% × €200,000 import value = €8,000 maximum fine. Minimum per Article 25: €10,000.",
+        "additionalRisks": ["array of strings"]
+      },
+      "complianceDeadline": "specific date with context"
+    },
+    {
+      "regulation": "CBAM",
+      "applicable": boolean,
+      "applicabilityReason": "cite Annex I of Regulation (EU) 2023/956 — wood and furniture are NOT covered sectors, state clearly if not applicable",
+      "status": "compliant" | "at_risk" | "non_compliant" | "not_applicable",
+      "legalBasis": "Regulation (EU) 2023/956 of the European Parliament and of the Council",
+      "keyObligation": "exact legal obligation or N/A if sector not covered",
+      "currentGap": "what is missing or N/A",
+      "findings": [],
+      "requiredActions": [],
+      "financialRisk": {
+        "minimumFineEur": 0,
+        "maximumFineEur": 0,
+        "calculationExplained": "Product sector not covered by CBAM Annex I — no CBAM financial exposure.",
+        "additionalRisks": []
+      },
+      "complianceDeadline": "N/A — product not covered by CBAM"
+    },
+    {
+      "regulation": "CSDDD",
+      "applicable": boolean,
+      "applicabilityReason": "cite Article 2 of Directive (EU) 2024/1760 on company size thresholds — under 250 employees is NOT applicable",
+      "status": "compliant" | "at_risk" | "non_compliant" | "not_applicable",
+      "legalBasis": "Directive (EU) 2024/1760 of the European Parliament and of the Council",
+      "keyObligation": "exact legal obligation or N/A if thresholds not met",
+      "currentGap": "what is missing or N/A",
+      "findings": [],
+      "requiredActions": [],
+      "financialRisk": {
+        "minimumFineEur": 0,
+        "maximumFineEur": 0,
+        "calculationExplained": "Company below CSDDD thresholds — no CSDDD financial exposure.",
+        "additionalRisks": []
+      },
+      "complianceDeadline": "Not applicable based on company size"
+    }
+  ],
+  "priorityActions": [
+    {
+      "rank": 1,
+      "action": "specific action text",
+      "urgency": "Immediate — within 7 days",
+      "estimatedCostEur": "EUR range",
+      "consequenceIfIgnored": "specific legal or financial consequence"
+    },
+    {
+      "rank": 2,
+      "action": "specific action text",
+      "urgency": "Within 30 days",
+      "estimatedCostEur": "EUR range",
+      "consequenceIfIgnored": "specific legal or financial consequence"
+    },
+    {
+      "rank": 3,
+      "action": "specific action text",
+      "urgency": "Within 90 days",
+      "estimatedCostEur": "EUR range",
+      "consequenceIfIgnored": "specific legal or financial consequence"
+    }
+  ],
+  "totalFinancialExposure": {
+    "minimumEur": number,
+    "maximumEur": number,
+    "calculationBreakdown": "regulation by regulation breakdown as a string"
+  },
+  "disclaimer": "This report is generated by OrcaTrade Intelligence based on information provided by the user. It does not constitute legal advice and should not be relied upon as such. For binding legal opinions on EU trade compliance obligations, consult a qualified EU trade law practitioner. Report ID: ${reportId}. Generated: ${timestamp}."
+}`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': anthropicApiKey,
-        'anthropic-version': '2023-06-01'
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-6', // Model requested
-        max_tokens: 4000,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 8000,
         system: systemPrompt,
-        messages: [
-          { role: 'user', content: userPrompt }
-        ]
-      })
+        messages: [{ role: 'user', content: userPrompt }],
+      }),
     });
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error("Anthropic API Error:", errorText);
-      return new Response(JSON.stringify({ error: 'Failed to communicate with Anthropic API. Model may not exist or key invalid.' }), {
-        status: response.status,
+      console.error('Anthropic API Error:', errorText);
+      return new Response(JSON.stringify({ error: 'AI API error', detail: errorText }), {
+        status: 502,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
     const data = await response.json();
     let assistantText = data.content[0].text;
-    
-    // Graceful fallback parsing in case model wraps in markdown
+
+    // Strip markdown fences if present
+    const fenceMatch = assistantText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+    if (fenceMatch) assistantText = fenceMatch[1];
+
+    // Extract first JSON object as final safety net
     let parsedJson;
     try {
-      const jsonMatch = assistantText.match(/```(?:json)?\n([\s\S]*)\n```/);
-      if (jsonMatch) {
-         assistantText = jsonMatch[1];
-      }
       parsedJson = JSON.parse(assistantText);
-    } catch (parseError) {
-      console.error('Failed to parse Anthropic JSON output:', assistantText);
-      return new Response(JSON.stringify({ error: 'Invalid JSON response from AI model' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+    } catch {
+      const objMatch = assistantText.match(/\{[\s\S]*\}/);
+      if (objMatch) {
+        try {
+          parsedJson = JSON.parse(objMatch[0]);
+        } catch {
+          return new Response(JSON.stringify({ error: 'Failed to parse AI response' }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' },
+          });
+        }
+      } else {
+        return new Response(JSON.stringify({ error: 'No JSON found in AI response' }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      }
     }
 
     return new Response(JSON.stringify(parsedJson), {
@@ -160,7 +253,7 @@ Do NOT wrap the JSON in Markdown backticks (e.g., \`\`\`json). Just return the r
     });
 
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('Handler error:', error);
     return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), {
       status: 500,
       headers: { 'Content-Type': 'application/json' },
