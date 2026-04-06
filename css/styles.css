@@ -228,6 +228,12 @@ main {
   transform: translateY(0);
 }
 
+.section--hero,
+.section--hero-center {
+  opacity: 1 !important;
+  transform: translateY(0) !important;
+}
+
 .section--hero {
   padding-top: 4.5rem;
   padding-bottom: 4rem;

@@ -18,7 +18,7 @@ document.addEventListener('DOMContentLoaded', function() {
           e.preventDefault();
           const headerOffset = 80;
           const elementPosition = target.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+          const offsetPosition = elementPosition + window.scrollY - headerOffset;
 
           window.scrollTo({
             top: offsetPosition,
@@ -31,22 +31,29 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Scroll animation for sections
   const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -100px 0px'
+    threshold: 0.05,
+    rootMargin: '0px 0px 0px 0px'
   };
 
   const observer = new IntersectionObserver(function(entries) {
     entries.forEach(entry => {
       if (entry.isIntersecting) {
         entry.target.classList.add('visible');
+        observer.unobserve(entry.target);
       }
     });
   }, observerOptions);
 
-  // Observe all sections except hero (which is already visible)
-  document.querySelectorAll('.section:not(.section--hero)').forEach(section => {
+  document.querySelectorAll('.section').forEach(section => {
     observer.observe(section);
   });
+
+  // Safety fallback: force all sections visible after 2s
+  setTimeout(function() {
+    document.querySelectorAll('.section').forEach(function(el) {
+      el.classList.add('visible');
+    });
+  }, 2000);
 
   // Highlight active navigation link based on scroll position
   const sections = document.querySelectorAll('.section[id]');
@@ -54,7 +61,7 @@ document.addEventListener('DOMContentLoaded', function() {
   
   function highlightActiveSection() {
     let current = '';
-    const scrollPosition = window.pageYOffset + 150;
+    const scrollPosition = window.scrollY + 150;
 
     sections.forEach(section => {
       const sectionTop = section.offsetTop;
