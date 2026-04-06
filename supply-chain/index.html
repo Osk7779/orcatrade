@@ -68,7 +68,7 @@
     .os-nav-links a:hover, .os-nav-links a.active { color: var(--os-text); }
     .os-nav-cta {
       font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
-      padding: 0.55rem 1.2rem; border-radius: 999px; border: none;
+      padding: 0.55rem 1.2rem; border-radius: 0; border: none;
       background: linear-gradient(135deg, var(--os-accent), #6f7783);
       color: #0a0912; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
     }
@@ -79,7 +79,7 @@
     .lang-switcher { display: flex; gap: 0.4rem; align-items: center; }
     .lang-btn {
       font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
-      padding: 0.28rem 0.6rem; border-radius: 999px;
+      padding: 0.28rem 0.6rem; border-radius: 0;
       border: 1px solid rgba(255,255,255,0.15);
       color: rgba(255,255,255,0.5); transition: all 0.18s;
     }
@@ -108,7 +108,7 @@
     #setupFormCard {
       background: linear-gradient(145deg, #111d3a, #060b17);
       border: 1px solid var(--os-border);
-      border-radius: 1.4rem; padding: 3rem;
+      border-radius: 0; padding: 3rem;
       max-width: 820px; margin: 0 auto;
       box-shadow: 0 20px 50px rgba(0,0,0,0.4);
     }
@@ -127,7 +127,7 @@
       width: 100%;
       background: rgba(5, 5, 7, 0.7);
       border: 1px solid var(--os-border);
-      padding: 0.85rem 1rem; border-radius: 0.7rem;
+      padding: 0.85rem 1rem; border-radius: 0;
       color: var(--os-text); font-size: 0.95rem;
       font-family: var(--font-body); outline: none;
       transition: border-color 0.18s;
@@ -143,7 +143,7 @@
     .checkbox-lbl {
       display: flex; align-items: center; gap: 0.5rem;
       font-size: 0.88rem; color: var(--os-muted); cursor: pointer;
-      padding: 0.6rem 0.75rem; border-radius: 0.5rem;
+      padding: 0.6rem 0.75rem; border-radius: 0;
       border: 1px solid var(--os-border); transition: all 0.18s;
     }
     .checkbox-lbl:hover { border-color: rgba(184,190,200,0.3); color: var(--os-text); }
@@ -153,7 +153,7 @@
       background: linear-gradient(135deg, var(--os-accent), #6f7783);
       color: #0a0912; border: none;
       padding: 1rem; font-size: 1rem; font-weight: 600;
-      border-radius: 999px; cursor: pointer; margin-top: 1.5rem;
+      border-radius: 0; cursor: pointer; margin-top: 1.5rem;
       font-family: var(--font-body);
       letter-spacing: 0.06em; text-transform: uppercase;
       transition: all 0.2s ease;
@@ -167,7 +167,7 @@
       width: 48px; height: 48px;
       border: 2px solid var(--os-border);
       border-top-color: var(--os-accent);
-      border-radius: 50%; animation: spin 0.9s linear infinite;
+      border-radius: 0; animation: spin 0.9s linear infinite;
       margin: 0 auto 2rem;
     }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -185,7 +185,7 @@
     @media (max-width: 700px) { .metrics-row { grid-template-columns: 1fr 1fr; } }
     .metric-card {
       background: linear-gradient(145deg, #111d3a, #060b17);
-      border: 1px solid var(--os-border); border-radius: 1rem;
+      border: 1px solid var(--os-border); border-radius: 0;
       padding: 1.5rem;
     }
     .m-title {
@@ -197,7 +197,7 @@
     /* ALERT BANNER */
     .alert-banner {
       background: rgba(220, 80, 80, 0.08); border: 1px solid var(--danger);
-      border-radius: 0.75rem; padding: 1rem 1.5rem; margin-bottom: 1.5rem;
+      border-radius: 0; padding: 1rem 1.5rem; margin-bottom: 1.5rem;
       display: flex; justify-content: space-between; align-items: center;
     }
     .alert-banner-text { color: var(--danger); font-weight: 500; }
@@ -211,7 +211,7 @@
     /* PANELS */
     .panel {
       background: linear-gradient(145deg, #111d3a, #060b17);
-      border: 1px solid var(--os-border); border-radius: 1.2rem;
+      border: 1px solid var(--os-border); border-radius: 0;
       padding: 1.5rem; margin-bottom: 1.5rem;
     }
     .panel-header {
@@ -224,12 +224,12 @@
     }
     .badge-count {
       background: rgba(255,255,255,0.08); padding: 0.15rem 0.55rem;
-      border-radius: 999px; font-size: 0.78rem; color: var(--os-muted);
+      border-radius: 0; font-size: 0.78rem; color: var(--os-muted);
     }
 
     /* SHIPMENT ROWS */
     .shipment-row {
-      border: 1px solid var(--os-border); border-radius: 0.8rem;
+      border: 1px solid var(--os-border); border-radius: 0;
       padding: 1rem 1.1rem; margin-bottom: 0.9rem;
       background: rgba(0,0,0,0.15); transition: border-color 0.2s, background 0.2s;
     }
@@ -239,9 +239,9 @@
     .s-route { font-size: 0.82rem; color: var(--os-muted); }
     .s-details { font-size: 0.88rem; color: var(--os-muted); margin-bottom: 0.75rem; }
     .s-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; flex-wrap: wrap; gap: 0.4rem; }
-    .s-badge { padding: 0.2rem 0.65rem; border-radius: 999px; font-weight: 600; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; }
-    .s-progress-bg { height: 3px; background: var(--os-border); border-radius: 2px; flex-grow: 1; margin: 0 0.75rem; overflow: hidden; min-width: 40px; }
-    .s-progress-fill { height: 100%; background: var(--info); border-radius: 2px; }
+    .s-badge { padding: 0.2rem 0.65rem; border-radius: 0; font-weight: 600; font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.08em; }
+    .s-progress-bg { height: 3px; background: var(--os-border); border-radius: 0; flex-grow: 1; margin: 0 0.75rem; overflow: hidden; min-width: 40px; }
+    .s-progress-fill { height: 100%; background: var(--info); border-radius: 0; }
     .view-link { color: var(--os-accent); font-weight: 500; cursor: pointer; transition: opacity 0.18s; }
     .view-link:hover { opacity: 0.75; }
 
@@ -251,7 +251,7 @@
     .p-top { display: flex; justify-content: space-between; margin-bottom: 0.4rem; }
     .p-name { font-weight: 500; color: var(--os-text); font-size: 0.9rem; }
     .p-trend { font-size: 0.78rem; color: var(--os-muted); }
-    .p-bar-bg { width: 100%; height: 5px; background: var(--os-border); border-radius: 3px; }
+    .p-bar-bg { width: 100%; height: 5px; background: var(--os-border); border-radius: 0; }
 
     /* DISRUPTION RADAR */
     .radar-item { margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid rgba(255,255,255,0.05); }
@@ -259,7 +259,7 @@
     .r-title { color: var(--os-text); font-weight: 500; margin-bottom: 0.25rem; font-size: 0.92rem; }
     .r-meta { font-size: 0.78rem; color: var(--os-muted); display: flex; justify-content: space-between; margin-bottom: 0.4rem; flex-wrap: wrap; gap: 0.25rem; }
     .r-action { font-size: 0.83rem; color: var(--os-accent); }
-    .risk-tag { padding: 0.1rem 0.45rem; border-radius: 4px; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
+    .risk-tag { padding: 0.1rem 0.45rem; border-radius: 0; font-size: 0.68rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.06em; }
 
     /* SUPPLIER RISK */
     .sup-item { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
@@ -519,7 +519,7 @@
           setTimeout(() => dash.style.opacity = '1', 50);
         }, 3500);
       } catch (err) {
-        loading.innerHTML = `<h3 style="color:var(--danger);font-family:var(--font-head);">Error loading supply chain data.</h3><p style="color:var(--os-muted);margin-top:0.5rem;">${err.message}</p><button onclick="location.reload()" style="margin-top:1.5rem;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;border:none;border-radius:999px;cursor:pointer;font-weight:600;">Try again</button>`;
+        loading.innerHTML = `<h3 style="color:var(--danger);font-family:var(--font-head);">Error loading supply chain data.</h3><p style="color:var(--os-muted);margin-top:0.5rem;">${err.message}</p><button onclick="location.reload()" style="margin-top:1.5rem;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;border:none;border-radius: 0;cursor:pointer;font-weight:600;">Try again</button>`;
       }
     });
 
@@ -598,7 +598,7 @@
               <span class="p-name">${p.portName}</span>
               <span class="p-trend">${p.trend} · +${p.averageDelayDays}d avg</span>
             </div>
-            <div class="p-bar-bg"><div style="background:${getPortColor(p.congestionLevel)};width:${fillW};height:100%;border-radius:3px;"></div></div>
+            <div class="p-bar-bg"><div style="background:${getPortColor(p.congestionLevel)};width:${fillW};height:100%;border-radius: 0;"></div></div>
           </div>`;
       }).join('');
 

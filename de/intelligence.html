@@ -70,7 +70,7 @@
     .os-nav-links a:hover, .os-nav-links a.active { color: var(--os-text); }
     .os-nav-cta {
       font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
-      padding: 0.55rem 1.2rem; border-radius: 999px; border: none;
+      padding: 0.55rem 1.2rem; border-radius: 0; border: none;
       background: linear-gradient(135deg, var(--os-accent), #6f7783); color: #0a0912;
       cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
     }
@@ -87,10 +87,10 @@
       display: inline-flex; align-items: center; gap: 0.45rem;
       font-family: var(--font-head); font-size: 0.68rem; font-weight: 700;
       text-transform: uppercase; letter-spacing: 0.18em;
-      padding: 0.3rem 0.85rem; border-radius: 999px; margin-bottom: 1.4rem;
+      padding: 0.3rem 0.85rem; border-radius: 0; margin-bottom: 1.4rem;
       border: 1px solid rgba(184, 190, 200, 0.3); background: rgba(184, 190, 200, 0.08); color: var(--os-accent);
     }
-    .os-badge::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--os-accent); animation: pulse 2s ease-in-out infinite; }
+    .os-badge::before { content: ""; width: 6px; height: 6px; border-radius: 0; background: var(--os-accent); animation: pulse 2s ease-in-out infinite; }
     @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
 
     .os-hero { padding-top: 5.5rem; padding-bottom: 4rem; }
@@ -100,7 +100,7 @@
 
     .btn-os-primary {
       display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.8rem 1.5rem; border-radius: 999px;
+      padding: 0.8rem 1.5rem; border-radius: 0;
       background: linear-gradient(135deg, var(--os-accent), #6f7783); color: #0a0912;
       font-family: var(--font-body); font-size: 0.9rem; font-weight: 600;
       text-transform: uppercase; letter-spacing: 0.1em; border: none; cursor: pointer;
@@ -111,7 +111,7 @@
 
     .btn-os-ghost {
       display: inline-flex; align-items: center; gap: 0.4rem;
-      padding: 0.8rem 1.5rem; border-radius: 999px; background: transparent;
+      padding: 0.8rem 1.5rem; border-radius: 0; background: transparent;
       color: var(--os-muted); font-family: var(--font-body); font-size: 0.9rem; font-weight: 500;
       text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.16);
       cursor: pointer; transition: all 0.2s ease;
@@ -120,7 +120,7 @@
 
     .pillars-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 3rem; }
     @media (max-width: 800px) { .pillars-grid { grid-template-columns: 1fr; } }
-    .pillar-card { background: linear-gradient(145deg, #111d3a, #060b17); border: 1px solid var(--os-border); border-radius: 1.2rem; padding: 2.2rem 1.8rem; transition: transform 0.22s ease, box-shadow 0.22s ease; }
+    .pillar-card { background: linear-gradient(145deg, #111d3a, #060b17); border: 1px solid var(--os-border); border-radius: 0; padding: 2.2rem 1.8rem; transition: transform 0.22s ease, box-shadow 0.22s ease; }
     .pillar-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
     .pillar-num { font-family: var(--font-head); font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--os-accent); opacity: 0.7; margin-bottom: 1rem; }
     .pillar-title { font-family: var(--font-head); font-size: 1.1rem; font-weight: 600; line-height: 1.3; margin-bottom: 0.75rem; letter-spacing: -0.01em; }
@@ -130,7 +130,7 @@
 
     .compliance-cta-section {
       background: linear-gradient(145deg, #111d3a, #060b17); border: 1px solid var(--os-border);
-      border-radius: 1.4rem; padding: 4rem 3rem; text-align: center; position: relative; overflow: hidden; margin-top: 1rem;
+      border-radius: 0; padding: 4rem 3rem; text-align: center; position: relative; overflow: hidden; margin-top: 1rem;
     }
     .compliance-cta-section::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center top, rgba(184,190,200,0.07) 0, transparent 65%); pointer-events: none; }
     .compliance-cta-section .os-title { font-size: clamp(1.6rem, 3vw, 2.6rem); margin-bottom: 0.8rem; }
@@ -138,12 +138,12 @@
     .compliance-trust { margin-top: 1.6rem; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 0.5rem 1.4rem; font-size: 0.8rem; color: var(--os-muted); }
     .compliance-trust span { opacity: 0.8; }
 
-    .waitlist-box { max-width: 520px; margin: 0 auto; background: linear-gradient(145deg, #111d3a, #060b17); border: 1px solid var(--os-border); border-radius: 1.4rem; padding: 2.4rem 2rem; }
+    .waitlist-box { max-width: 520px; margin: 0 auto; background: linear-gradient(145deg, #111d3a, #060b17); border: 1px solid var(--os-border); border-radius: 0; padding: 2.4rem 2rem; }
     .waitlist-box h2 { font-family: var(--font-head); font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; letter-spacing: -0.01em; }
     .waitlist-box p { font-size: 0.9rem; color: var(--os-muted); line-height: 1.65; margin-bottom: 1.6rem; }
     .wl-form { display: flex; flex-direction: column; gap: 0.9rem; }
     .wl-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--os-muted); margin-bottom: 0.25rem; display: block; }
-    .wl-input { width: 100%; background: rgba(5, 5, 7, 0.8); border: 1px solid var(--os-border); border-radius: 0.7rem; color: var(--os-text); padding: 0.7rem 0.9rem; font-size: 0.9rem; font-family: var(--font-body); outline: none; transition: border-color 0.18s; }
+    .wl-input { width: 100%; background: rgba(5, 5, 7, 0.8); border: 1px solid var(--os-border); border-radius: 0; color: var(--os-text); padding: 0.7rem 0.9rem; font-size: 0.9rem; font-family: var(--font-body); outline: none; transition: border-color 0.18s; }
     .wl-input:focus { border-color: rgba(184, 190, 200, 0.5); box-shadow: 0 0 0 3px rgba(184, 190, 200, 0.08); }
 
     .os-divider { border: none; border-top: 1px solid var(--os-border); margin: 0; }
@@ -154,7 +154,7 @@
 
     /* ── LANGUAGE SWITCHER ── */
     .lang-switcher { display: flex; gap: 0.4rem; align-items: center; }
-    .lang-btn { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; padding: 0.28rem 0.6rem; border-radius: 999px; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); transition: all 0.18s; text-decoration: none; }
+    .lang-btn { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; padding: 0.28rem 0.6rem; border-radius: 0; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); transition: all 0.18s; text-decoration: none; }
     .lang-btn:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
     .lang-btn.lang-active { color: #0a0912; background: linear-gradient(135deg, #b8bec8, #6f7783); border-color: transparent; }
   </style>

@@ -66,7 +66,7 @@
     .os-nav-links a:hover, .os-nav-links a.active { color: var(--os-text); }
     .os-nav-cta {
       font-family: var(--font-body); font-size: 0.85rem; font-weight: 600;
-      padding: 0.55rem 1.2rem; border-radius: 999px; border: none;
+      padding: 0.55rem 1.2rem; border-radius: 0; border: none;
       background: linear-gradient(135deg, var(--os-accent), #6f7783);
       color: #0a0912; cursor: pointer; transition: all 0.2s ease; white-space: nowrap;
     }
@@ -102,7 +102,7 @@
     .h-right { text-align: right; }
     .status-badge {
       display: inline-block; padding: 0.45rem 1.1rem;
-      border-radius: 999px; font-weight: 600; font-size: 0.8rem;
+      border-radius: 0; font-weight: 600; font-size: 0.8rem;
       margin-bottom: 0.4rem; text-transform: uppercase; letter-spacing: 0.08em;
     }
     .h-updated { font-size: 0.78rem; color: var(--os-muted); display: block; }
@@ -121,7 +121,7 @@
       z-index: 2; width: 12%; text-align: center;
     }
     .t-circle {
-      width: 22px; height: 22px; border-radius: 50%;
+      width: 22px; height: 22px; border-radius: 0;
       background: var(--os-bg); border: 2px solid var(--os-muted);
       margin-bottom: 0.65rem; display: flex; justify-content: center; align-items: center;
       font-size: 0.65rem; font-weight: 600;
@@ -139,7 +139,7 @@
     /* PANELS */
     .panel {
       background: linear-gradient(145deg, #111d3a, #060b17);
-      border: 1px solid var(--os-border); border-radius: 1.2rem;
+      border: 1px solid var(--os-border); border-radius: 0;
       padding: 1.8rem;
     }
     .panel h3 {
@@ -159,7 +159,7 @@
     #riskPanel {
       display: none;
       background: rgba(220, 80, 80, 0.06); border: 1px solid var(--danger);
-      border-radius: 1.2rem; padding: 2rem; margin-bottom: 2rem;
+      border-radius: 0; padding: 2rem; margin-bottom: 2rem;
     }
     #riskPanel h2 {
       font-family: var(--font-head); color: var(--danger);
@@ -168,18 +168,18 @@
     }
     .risk-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; margin-bottom: 1.25rem; }
     @media (max-width: 600px) { .risk-grid { grid-template-columns: 1fr; } }
-    .rg-item { background: rgba(0,0,0,0.2); padding: 0.9rem; border-radius: 0.6rem; }
+    .rg-item { background: rgba(0,0,0,0.2); padding: 0.9rem; border-radius: 0; }
     .rg-lbl { font-size: 0.75rem; color: var(--os-muted); display: block; margin-bottom: 0.2rem; text-transform: uppercase; letter-spacing: 0.1em; }
     .rg-val { color: var(--os-text); font-weight: 500; font-size: 0.95rem; }
     .action-text {
       color: var(--os-text); font-size: 0.9rem; line-height: 1.6;
       margin-bottom: 1.25rem; padding: 1rem 1rem 1rem 1.25rem;
       border-left: 3px solid var(--warning);
-      background: rgba(232, 144, 58, 0.06); border-radius: 0 0.5rem 0.5rem 0;
+      background: rgba(232, 144, 58, 0.06); border-radius: 0;
     }
     .btn-danger {
       background: transparent; border: 1px solid var(--danger); color: var(--danger);
-      padding: 0.65rem 1.25rem; border-radius: 999px; font-size: 0.85rem;
+      padding: 0.65rem 1.25rem; border-radius: 0; font-size: 0.85rem;
       font-weight: 500; cursor: pointer; font-family: var(--font-body);
       transition: all 0.18s;
     }
@@ -190,14 +190,14 @@
       display: flex; justify-content: space-between; align-items: center;
       background: linear-gradient(145deg, #111d3a, #060b17);
       border: 1px solid var(--os-border); padding: 1.4rem 1.6rem;
-      border-radius: 1rem; margin-bottom: 1rem;
+      border-radius: 0; margin-bottom: 1rem;
       transition: border-color 0.2s, transform 0.2s; cursor: pointer;
     }
     .link-bar:hover { border-color: rgba(184,190,200,0.25); transform: translateY(-1px); }
     .lb-left { display: flex; flex-direction: column; gap: 0.4rem; }
     .lb-title { font-family: var(--font-head); font-size: 1rem; font-weight: 600; color: var(--os-text); }
     .pill {
-      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 999px;
+      display: inline-block; padding: 0.15rem 0.5rem; border-radius: 0;
       font-size: 0.7rem; font-weight: 600; text-transform: uppercase;
       letter-spacing: 0.07em; margin-right: 0.4rem;
     }
@@ -242,7 +242,7 @@
     <div id="errorState">
       <h2>No Shipment Selected</h2>
       <p>Please select a shipment from the supply chain dashboard.</p>
-      <a href="index.html" style="display:inline-block;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;border-radius:999px;font-weight:600;font-size:0.85rem;">← Back to Dashboard</a>
+      <a href="index.html" style="display:inline-block;padding:0.7rem 1.5rem;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;border-radius: 0;font-weight:600;font-size:0.85rem;">← Back to Dashboard</a>
     </div>
 
     <div id="contentView">
