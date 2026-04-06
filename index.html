@@ -430,7 +430,7 @@
         <p class="section-intro">Fill in the brief below and we'll respond within one business day.</p>
 
         <div class="contact-grid">
-          <form id="contact-form" action="mailto:hello@orcatrade.com" method="post" enctype="text/plain">
+          <form id="contact-form" data-contact="contact">
             <div class="field-group">
               <label for="name">Name</label>
               <input id="name" name="name" type="text" placeholder="Your full name" required>
@@ -447,11 +447,11 @@
               <label for="project">How can we help?</label>
               <textarea id="project" name="project" placeholder="Tell us about your project, goals or what you're looking for across any of our business units…"></textarea>
             </div>
-            <button class="btn btn-primary" type="submit">Send message</button>
+            <div class="form-msg" style="font-size:0.88rem;margin-top:0.5rem;min-height:1.2em;"></div><button class="btn btn-primary" type="submit">Send message</button>
           </form>
 
           <div class="contact-details">
-            <p>Prefer a call? Reach us at <a href="tel:+48123456789">+48 123 456 789</a> or <a href="mailto:hello@orcatrade.com">hello@orcatrade.com</a>.</p>
+            <p>Prefer a call? Reach us at <a href="tel:+48123456789">+48 123 456 789</a> or <a href="mailto:orca@orcatrade.pl">orca@orcatrade.pl</a>.</p>
             <p>
               <strong>Our Offices:</strong><br>
               Warsaw, Poland<br>
@@ -503,6 +503,7 @@
   <script src="js/main.js"></script>
   <script src="js/form.js"></script>
   <script src="js/chat.js"></script>
+  <script src="js/forms.js"></script>
   <script src="js/transitions.js"></script>
 </body>
 </html>

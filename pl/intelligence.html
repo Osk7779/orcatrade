@@ -609,7 +609,7 @@
       </p>
     </div>
     <div class="waitlist-box">
-      <form class="wl-form" action="mailto:hello@orcatrade.com" method="post" enctype="text/plain">
+      <form class="wl-form" data-contact="waitlist">
         <div>
           <label class="wl-label" for="wl-name">Imię i nazwisko</label>
           <input class="wl-input" id="wl-name" name="name" type="text" placeholder="Imię i nazwisko" required>
@@ -634,6 +634,7 @@
   </footer>
 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script src="../js/forms.js"></script>
   <script src="../js/transitions.js"></script>
 </body>
 </html>
