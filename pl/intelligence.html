@@ -323,7 +323,7 @@
       border-color: rgba(184,190,200,0.2);
     }
 
-    @media (max-width: 720px) {
+    @media (max-width: 960px) {
       .cta-grid { grid-template-columns: 1fr !important; }
     }
 
@@ -513,15 +513,16 @@
     </p>
 
     <div class="pillars-grid">
-      <div class="pillar-card">
-        <div class="pillar-num">Filar 01</div>
+      <a href="../supply-chain/" class="pillar-card" style="display:block;">
+        <div class="pillar-num">Filar 01 · Dostępne teraz</div>
         <h3 class="pillar-title">Przejrzystość łańcucha dostaw</h3>
         <p class="pillar-desc">
           Widoczność w czasie rzeczywistym całej sieci dostawców. Wiedzą Państwo, które przesyłki są w ruchu,
           które fabryki są na granicy przepustowości i gdzie tworzą się wąskie gardła — zanim zaczną kosztować.
           Prognozowanie zakłóceń oparte na sygnałach z handlu na żywo.
         </p>
-      </div>
+        <div style="margin-top:1.2rem;font-size:0.82rem;color:var(--os-accent);font-weight:500;">Otwórz panel →</div>
+      </a>
 
       <div class="pillar-card pillar-card--accent">
         <div class="pillar-num">Filar 02</div>
@@ -549,7 +550,21 @@
 
   <!-- COMPLIANCE CTA -->
   <section class="os-section" id="compliance">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem; margin-top:1rem;">
+    <div class="cta-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem; margin-top:1rem;">
+
+      <div class="compliance-cta-section" style="margin-top:0;">
+        <div class="os-kicker" style="justify-content:center; display:flex;">Dostępne teraz · Filar 01</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Śledź swoje przesyłki.</h2>
+        <p class="os-subtitle" style="font-size:0.88rem;">
+          Widoczność w czasie rzeczywistym całej sieci dostawców. Śledzenie przesyłek, warunki portowe i prognozy zakłóceń.
+        </p>
+        <a href="../supply-chain/" class="btn-os-primary">Otwórz łańcuch dostaw →</a>
+        <div class="compliance-trust" style="margin-top:1.2rem;">
+          <span>Przesyłki · Porty · Prognoza</span>
+          <span>•</span>
+          <span>Wspierane przez AI</span>
+        </div>
+      </div>
 
       <div class="compliance-cta-section" style="margin-top:0;">
         <div class="os-kicker" style="justify-content:center; display:flex;">Dostępne teraz · Filar 03</div>
@@ -590,8 +605,7 @@
       <div class="os-kicker">Pełna platforma</div>
       <h2 class="os-title" style="font-size:clamp(1.5rem,3vw,2.2rem);">Dołącz do listy oczekujących.</h2>
       <p style="font-size:0.92rem; color:var(--os-muted); max-width:44ch; margin:0 auto;">
-        Filar 01 jest w aktywnym rozwoju. Bądź wśród pierwszych importerów, którzy uzyskają dostęp
-        do pełnego systemu OrcaTrade Intelligence.
+        Dołącz do listy oczekujących na wczesny dostęp do pełnego systemu OrcaTrade Intelligence wraz z uruchamianiem kolejnych filarów.
       </p>
     </div>
     <div class="waitlist-box">
