@@ -1,6 +1,6 @@
 :root {
   --navy: #050507;
-  --navy-soft: #0d0e12;
+  --navy-soft: #080910;
   --cream: #ececec;
   --cream-soft: #b6b8bf;
   --gold: #b8bec8;
@@ -242,6 +242,9 @@ main {
 .section--visual {
   padding-top: 1rem;
   padding-bottom: 1.5rem;
+  max-width: 100%;
+  padding-left: 0;
+  padding-right: 0;
 }
 
 @media (max-width: 840px) {
@@ -367,7 +370,7 @@ main {
 /* Hero right card */
 
 .hero-card {
-  background: radial-gradient(circle at top left, #273962 0, #07101f 52%, #040813 100%);
+  background: radial-gradient(circle at top left, #162040 0, #040e18 52%, #020509 100%);
   border-radius: 0;
   padding: 1.6rem 1.5rem 1.7rem;
   border: 1px solid rgba(255, 255, 255, 0.04);
@@ -470,12 +473,7 @@ main {
 
 .trade-visual {
   position: relative;
-  border-radius: 0;
   overflow: hidden;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow:
-    0 26px 60px rgba(0, 0, 0, 0.7),
-    0 0 60px rgba(10, 37, 84, 0.85);
 }
 
 .trade-visual img,
@@ -532,6 +530,10 @@ main {
   margin-bottom: 0.5rem;
 }
 
+.section--visual > .section-kicker {
+  padding-left: 1.5rem;
+}
+
 .section-intro {
   max-width: 40rem;
   font-size: 0.92rem;
@@ -553,7 +555,7 @@ main {
 }
 
 .card {
-  background: linear-gradient(145deg, #111d3a, #060b17);
+  background: linear-gradient(145deg, #0a1428, #030610);
   border-radius: 0;
   padding: 1.4rem 1.4rem 1.5rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -797,7 +799,7 @@ textarea {
   display: flex;
   gap: 1.6rem;
   align-items: flex-start;
-  background: radial-gradient(circle at top left, #273962 0, #07101f 55%, #040813 100%);
+  background: radial-gradient(circle at top left, #162040 0, #040e18 55%, #020509 100%);
   border-radius: 0;
   padding: 1.3rem 1.3rem 1.4rem;
   border: 1px solid rgba(255, 255, 255, 0.06);
@@ -1038,7 +1040,7 @@ footer {
 }
 
 .group-card {
-  background: linear-gradient(145deg, #111d3a, #060b17);
+  background: linear-gradient(145deg, #0a1428, #030610);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 0;
   padding: 1.5rem 1.4rem 1.6rem;
@@ -1704,7 +1706,7 @@ footer {
 }
 
 .feature-card {
-  background: linear-gradient(145deg, #111d3a, #060b17);
+  background: linear-gradient(145deg, #0a1428, #030610);
   border: 1px solid rgba(255, 255, 255, 0.07);
   border-radius: 0;
   padding: 1.6rem 1.5rem 1.7rem;
