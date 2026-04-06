@@ -1,17 +1,13 @@
-export const config = {
-  runtime: 'edge',
-};
+module.exports = async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
 
-export default async function handler(request) {
-  if (request.method !== 'POST') {
-    return new Response(JSON.stringify({ error: 'Method not allowed' }), {
-      status: 405,
-      headers: { 'Content-Type': 'application/json' },
-    });
-  }
+  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   try {
-    const orderData = await request.json();
+    const orderData = req.body;
     const {
       productCategory = '',
       productDescription = '',
@@ -24,10 +20,7 @@ export default async function handler(request) {
 
     const anthropicApiKey = process.env.ORCATRADE_OS_API;
     if (!anthropicApiKey) {
-      return new Response(JSON.stringify({ error: 'API key not configured' }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(500).json({ error: 'API key not configured' });
     }
 
     const year = new Date().getFullYear();
@@ -54,9 +47,9 @@ EUDR FINANCIAL RISK RULES:
 
 CBAM FINANCIAL RISK RULES:
 - Penalty: €100 per tonne CO2 equivalent shortfall per Article 26(1)
-- Wood products: NOT a covered sector — mark as N/A
-- Covered sectors: cement, iron, steel, aluminium, fertilisers, electricity, hydrogen per Annex I of Regulation (EU) 2023/956
-- ONLY applicable if product falls in a covered CBAM sector — be strict
+- Wood products: NOT a covered sector — mark as not_applicable
+- Covered sectors ONLY: cement, iron, steel, aluminium, fertilisers, electricity, hydrogen per Annex I of Regulation (EU) 2023/956
+- If product is NOT in a covered sector, set applicable: false and status: not_applicable
 
 CSDDD FINANCIAL RISK RULES:
 - Applies ONLY to companies with 1000+ employees AND €450M+ turnover
@@ -66,9 +59,9 @@ CSDDD FINANCIAL RISK RULES:
 
 SCORE CALCULATION:
 - Start at 100
-- Deduct 35 points per NON_COMPLIANT regulation
-- Deduct 15 points per AT_RISK regulation
-- Each regulation only deducted if applicable to this product/company
+- Deduct 35 points per NON_COMPLIANT regulation that is applicable
+- Deduct 15 points per AT_RISK regulation that is applicable
+- Regulations marked not_applicable do not affect score
 
 Return ONLY valid JSON. No markdown. No text outside the JSON object.`;
 
@@ -82,57 +75,57 @@ Annual import value: ${importValue}
 Company size: ${companySize}
 Placing on EU market: ${euMarket ? 'Yes' : 'No'}
 
-Return this exact JSON structure with no markdown wrapping:
+Return ONLY this JSON object with no markdown wrapping:
 {
   "reportId": "${reportId}",
   "timestamp": "${timestamp}",
-  "overallStatus": "compliant" | "at_risk" | "non_compliant",
-  "overallScore": number 0-100,
+  "overallStatus": "compliant or at_risk or non_compliant",
+  "overallScore": 0-100,
   "executiveSummary": "Precise 3-sentence summary citing specific regulation names and article numbers. State the single most urgent action.",
   "checkedRegulations": [
     {
       "regulation": "EUDR",
-      "applicable": boolean,
-      "applicabilityReason": "cite Article 1 and 2 of Regulation (EU) 2023/1115 explaining why this product triggers or does not trigger EUDR",
-      "status": "compliant" | "at_risk" | "non_compliant" | "not_applicable",
+      "applicable": true or false,
+      "applicabilityReason": "cite Article 1 and 2 of Regulation (EU) 2023/1115 explaining why",
+      "status": "compliant or at_risk or non_compliant or not_applicable",
       "legalBasis": "Regulation (EU) 2023/1115 of the European Parliament and of the Council",
-      "keyObligation": "exact legal obligation in one sentence with article citation",
-      "currentGap": "what is specifically missing for this product/supplier combination, or N/A if not applicable",
+      "keyObligation": "exact legal obligation with article citation, or Not applicable",
+      "currentGap": "what is specifically missing, or N/A if not applicable",
       "findings": [
         {
-          "finding": "specific, detailed finding text — not generic",
-          "severity": "critical" | "major" | "minor",
+          "finding": "specific detailed finding",
+          "severity": "critical or major or minor",
           "article": "Article X(Y) of Regulation (EU) 2023/1115",
-          "legalImplication": "exact consequence of this finding under EU law"
+          "legalImplication": "exact legal consequence"
         }
       ],
       "requiredActions": [
         {
           "step": 1,
-          "action": "specific action text with exact steps",
-          "documentRequired": "exact name of document needed",
+          "action": "specific action with exact steps",
+          "documentRequired": "exact document name",
           "portal": "exact EU portal or authority name",
-          "deadline": "specific date or clear trigger event",
-          "estimatedHours": number,
-          "estimatedCostEur": "EUR range e.g. €500–€2,000"
+          "deadline": "specific date or trigger event",
+          "estimatedHours": 4,
+          "estimatedCostEur": "EUR range"
         }
       ],
       "financialRisk": {
-        "minimumFineEur": number,
-        "maximumFineEur": number,
-        "calculationExplained": "show the formula: e.g. 4% × €200,000 import value = €8,000 maximum fine. Minimum per Article 25: €10,000.",
-        "additionalRisks": ["array of strings"]
+        "minimumFineEur": 10000,
+        "maximumFineEur": 20000,
+        "calculationExplained": "4% x import value = X. Minimum per Article 25: €10,000.",
+        "additionalRisks": ["seizure of goods", "market ban"]
       },
       "complianceDeadline": "specific date with context"
     },
     {
       "regulation": "CBAM",
-      "applicable": boolean,
-      "applicabilityReason": "cite Annex I of Regulation (EU) 2023/956 — wood and furniture are NOT covered sectors, state clearly if not applicable",
-      "status": "compliant" | "at_risk" | "non_compliant" | "not_applicable",
+      "applicable": false,
+      "applicabilityReason": "cite Annex I of Regulation (EU) 2023/956 — wood and furniture are NOT listed covered sectors",
+      "status": "not_applicable",
       "legalBasis": "Regulation (EU) 2023/956 of the European Parliament and of the Council",
-      "keyObligation": "exact legal obligation or N/A if sector not covered",
-      "currentGap": "what is missing or N/A",
+      "keyObligation": "Not applicable — product sector not covered by CBAM Annex I",
+      "currentGap": "N/A",
       "findings": [],
       "requiredActions": [],
       "financialRisk": {
@@ -141,16 +134,16 @@ Return this exact JSON structure with no markdown wrapping:
         "calculationExplained": "Product sector not covered by CBAM Annex I — no CBAM financial exposure.",
         "additionalRisks": []
       },
-      "complianceDeadline": "N/A — product not covered by CBAM"
+      "complianceDeadline": "N/A"
     },
     {
       "regulation": "CSDDD",
-      "applicable": boolean,
-      "applicabilityReason": "cite Article 2 of Directive (EU) 2024/1760 on company size thresholds — under 250 employees is NOT applicable",
-      "status": "compliant" | "at_risk" | "non_compliant" | "not_applicable",
+      "applicable": false,
+      "applicabilityReason": "cite Article 2 of Directive (EU) 2024/1760 — company must have 1000+ employees and €450M+ turnover to be in scope",
+      "status": "not_applicable",
       "legalBasis": "Directive (EU) 2024/1760 of the European Parliament and of the Council",
-      "keyObligation": "exact legal obligation or N/A if thresholds not met",
-      "currentGap": "what is missing or N/A",
+      "keyObligation": "Not applicable based on company size threshold per Article 2",
+      "currentGap": "N/A",
       "findings": [],
       "requiredActions": [],
       "financialRisk": {
@@ -159,7 +152,7 @@ Return this exact JSON structure with no markdown wrapping:
         "calculationExplained": "Company below CSDDD thresholds — no CSDDD financial exposure.",
         "additionalRisks": []
       },
-      "complianceDeadline": "Not applicable based on company size"
+      "complianceDeadline": "N/A"
     }
   ],
   "priorityActions": [
@@ -186,11 +179,11 @@ Return this exact JSON structure with no markdown wrapping:
     }
   ],
   "totalFinancialExposure": {
-    "minimumEur": number,
-    "maximumEur": number,
-    "calculationBreakdown": "regulation by regulation breakdown as a string"
+    "minimumEur": 10000,
+    "maximumEur": 20000,
+    "calculationBreakdown": "EUDR: min €10,000 — max €X,XXX. CBAM: N/A. CSDDD: N/A."
   },
-  "disclaimer": "This report is generated by OrcaTrade Intelligence based on information provided by the user. It does not constitute legal advice and should not be relied upon as such. For binding legal opinions on EU trade compliance obligations, consult a qualified EU trade law practitioner. Report ID: ${reportId}. Generated: ${timestamp}."
+  "disclaimer": "This report is generated by OrcaTrade Intelligence based on information provided by the user. It does not constitute legal advice. Report ID: ${reportId}. Generated: ${timestamp}."
 }`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -211,10 +204,7 @@ Return this exact JSON structure with no markdown wrapping:
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Anthropic API Error:', errorText);
-      return new Response(JSON.stringify({ error: 'AI API error', detail: errorText }), {
-        status: 502,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      return res.status(502).json({ error: 'AI API error', detail: errorText });
     }
 
     const data = await response.json();
@@ -224,7 +214,6 @@ Return this exact JSON structure with no markdown wrapping:
     const fenceMatch = assistantText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
     if (fenceMatch) assistantText = fenceMatch[1];
 
-    // Extract first JSON object as final safety net
     let parsedJson;
     try {
       parsedJson = JSON.parse(assistantText);
@@ -233,30 +222,20 @@ Return this exact JSON structure with no markdown wrapping:
       if (objMatch) {
         try {
           parsedJson = JSON.parse(objMatch[0]);
-        } catch {
-          return new Response(JSON.stringify({ error: 'Failed to parse AI response' }), {
-            status: 500,
-            headers: { 'Content-Type': 'application/json' },
-          });
+        } catch (e) {
+          console.error('JSON parse error:', e, assistantText.slice(0, 500));
+          return res.status(500).json({ error: 'Failed to parse AI response' });
         }
       } else {
-        return new Response(JSON.stringify({ error: 'No JSON found in AI response' }), {
-          status: 500,
-          headers: { 'Content-Type': 'application/json' },
-        });
+        console.error('No JSON found in response:', assistantText.slice(0, 500));
+        return res.status(500).json({ error: 'No JSON found in AI response' });
       }
     }
 
-    return new Response(JSON.stringify(parsedJson), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(200).json(parsedJson);
 
   } catch (error) {
     console.error('Handler error:', error);
-    return new Response(JSON.stringify({ error: error.message || 'Internal Server Error' }), {
-      status: 500,
-      headers: { 'Content-Type': 'application/json' },
-    });
+    return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
-}
+};
