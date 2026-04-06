@@ -34,7 +34,7 @@ module.exports = async function handler(req, res) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'OrcaTrade Site <noreply@orcatrade.pl>',
+        from: process.env.RESEND_FROM || 'OrcaTrade <onboarding@resend.dev>',
         to: ['orca@orcatrade.pl'],
         reply_to: email,
         subject,

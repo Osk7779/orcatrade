@@ -1,93 +1,64 @@
-// Form validation and handling
+// OrcaTrade contact form handler — posts to /api/contact
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   const contactForm = document.getElementById('contact-form');
-  
-  if (contactForm) {
-    contactForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-      
-      // Get form values
-      const name = document.getElementById('name').value.trim();
-      const company = document.getElementById('company').value.trim();
-      const email = document.getElementById('email').value.trim();
-      const project = document.getElementById('project').value.trim();
+  if (!contactForm) return;
 
-      // Optional order-specific fields
-      const productCategoryInput = document.getElementById('product-category');
-      const orderQuantityInput = document.getElementById('order-quantity');
-      const targetPriceInput = document.getElementById('target-price');
-      const incotermsInput = document.getElementById('incoterms');
-      const timelineInput = document.getElementById('timeline');
-      
-      // Basic validation
-      if (!name || !company || !email) {
-        alert('Please fill in all required fields.');
-        return;
-      }
-      
-      // Email validation
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(email)) {
-        alert('Please enter a valid email address.');
-        return;
-      }
-      
-      // Build email subject and body
-      const subject = encodeURIComponent(`New Order Inquiry from ${name} at ${company}`);
-
-      const lines = [
-        `Name: ${name}`,
-        `Company: ${company}`,
-        `Email: ${email}`,
-        '',
-        `Product / Project Details:`,
-        project || 'N/A'
-      ];
-
-      const productCategory = productCategoryInput && productCategoryInput.value.trim();
-      const orderQuantity = orderQuantityInput && orderQuantityInput.value.trim();
-      const targetPrice = targetPriceInput && targetPriceInput.value.trim();
-      const incoterms = incotermsInput && incotermsInput.value.trim();
-      const timeline = timelineInput && timelineInput.value.trim();
-
-      if (productCategory || orderQuantity || targetPrice || incoterms || timeline) {
-        lines.push('', 'Order Parameters:');
-      }
-
-      if (productCategory) {
-        lines.push(`- Product category: ${productCategory}`);
-      }
-      if (orderQuantity) {
-        lines.push(`- Estimated order quantity: ${orderQuantity}`);
-      }
-      if (targetPrice) {
-        lines.push(`- Target price: ${targetPrice}`);
-      }
-      if (incoterms) {
-        lines.push(`- Preferred incoterms & destination: ${incoterms}`);
-      }
-      if (timeline) {
-        lines.push(`- Target delivery timeline: ${timeline}`);
-      }
-
-      const body = encodeURIComponent(lines.join('\n'));
-      
-      // Open email client
-      window.location.href = `mailto:hello@orcatrade.com?subject=${subject}&body=${body}`;
-      
-      // Show success message
-      const submitButton = contactForm.querySelector('button[type="submit"]');
-      const originalText = submitButton.textContent;
-      submitButton.textContent = 'Opening email client...';
-      submitButton.disabled = true;
-      
-      setTimeout(() => {
-        submitButton.textContent = originalText;
-        submitButton.disabled = false;
-      }, 2000);
-    });
+  // Add form-msg element if not already present
+  if (!contactForm.querySelector('.form-msg')) {
+    const btn = contactForm.querySelector('button[type="submit"]');
+    if (btn) {
+      const msgEl = document.createElement('div');
+      msgEl.className = 'form-msg';
+      msgEl.style.cssText = 'font-size:0.88rem;margin-top:0.5rem;min-height:1.2em;';
+      btn.parentNode.insertBefore(msgEl, btn);
+    }
   }
+
+  contactForm.addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    const btn = contactForm.querySelector('button[type="submit"]');
+    const msg = contactForm.querySelector('.form-msg');
+    const originalText = btn ? btn.textContent : '';
+
+    const name    = (document.getElementById('name')    || {}).value || '';
+    const company = (document.getElementById('company') || {}).value || '';
+    const email   = (document.getElementById('email')   || {}).value || '';
+    const project = (document.getElementById('project') || {}).value || '';
+
+    if (!name || !email) {
+      if (msg) { msg.textContent = 'Please fill in your name and email.'; msg.style.color = '#dc5050'; }
+      return;
+    }
+
+    if (btn) { btn.disabled = true; btn.textContent = 'Sending…'; }
+
+    try {
+      const res = await fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, company, email, project, type: 'contact' }),
+      });
+
+      const json = await res.json();
+
+      if (res.ok) {
+        contactForm.reset();
+        if (msg) {
+          msg.textContent = "Message sent. We'll reply within one business day.";
+          msg.style.color = '#5cb88a';
+        }
+        if (btn) { btn.textContent = 'Sent'; }
+      } else {
+        throw new Error(json.error || 'Something went wrong.');
+      }
+    } catch (err) {
+      if (msg) {
+        msg.textContent = 'Could not send — please email us directly at orca@orcatrade.pl';
+        msg.style.color = '#dc5050';
+      }
+      if (btn) { btn.disabled = false; btn.textContent = originalText; }
+    }
+  });
 });
-
-
