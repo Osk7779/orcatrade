@@ -5,7 +5,7 @@
     '#pt-overlay{position:fixed;inset:0;z-index:99999;background:#050507;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity 0.6s ease;}',
     '#pt-overlay.pt-visible{opacity:1;pointer-events:all;}',
     '.pt-inner{text-align:center;user-select:none;}',
-    '.pt-wordmark{display:block;font-family:"Cormorant Garamond","Playfair Display",Georgia,serif;font-weight:300;font-size:clamp(1.6rem,5vw,4.2rem);letter-spacing:0.42em;text-indent:0.42em;color:#f5f0e8;opacity:0;transition:opacity 0.8s ease;}',
+    '.pt-wordmark{display:block;font-family:"Cormorant Garant",Georgia,serif;font-weight:300;font-size:clamp(1.6rem,5vw,4.2rem);letter-spacing:0.3em;text-indent:0.3em;color:#f5f0e8;opacity:0;transition:opacity 0.8s ease;}',
     '.pt-wordmark.pt-show{opacity:1;}',
     '.pt-line{width:0;height:1px;background:linear-gradient(to right,transparent,#ffffff,transparent);margin:1.4rem auto 0;transition:width 0.9s ease 0.3s;}',
     '.pt-line.pt-show{width:120px;}'
