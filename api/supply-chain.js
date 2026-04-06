@@ -157,11 +157,11 @@ module.exports = async function handler(req, res) {
     }
 
     const systemPrompt = `You are OrcaTrade Intelligence's supply chain monitoring engine.
-Generate realistic, detailed supply chain dashboard data for a company importing goods from Asia to Europe.
-The data must be internally consistent and feel like a real operational dashboard — not a generic template.
-Be specific: use real port names, real shipping routes, real vessel types, realistic ETAs, realistic disruption events.
-Make disruption alerts and risk levels feel genuine — not everything is fine, not everything is catastrophic. Show real operational nuance.
-Return only valid JSON. No markdown. No explanation.`;
+Generate realistic supply chain dashboard data for a company importing goods from Asia to Europe.
+The data must be internally consistent and feel like a real operational dashboard.
+Be specific: use real port names, real shipping routes, real vessel types, realistic ETAs.
+IMPORTANT: Return exactly 4 shipments, exactly 2 port conditions, exactly 2 disruption forecast items, exactly 3 supplier summary items, exactly 3 recommendations.
+Return only valid JSON. No markdown. No explanation. No text before or after the JSON object.`;
 
     const userPrompt = `Generate a complete supply chain dashboard for:
 Company: ${company}
@@ -249,7 +249,7 @@ Return this exact JSON structure:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 8000,
+        max_tokens: 16000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       }),
