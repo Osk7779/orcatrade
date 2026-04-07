@@ -9,6 +9,8 @@ const {
   isOutOfScope,
 } = require('../lib/intelligence/live-pillars');
 
+const COMPLIANCE_TRIAGE_PATTERN = /\b(cbam|eudr|import|imports|importer|regulation|regulations|penalty|penalties|fine|fines|certificate|declarant|declaration|threshold|supplier|goods|customs|compliance|compliant)\b/i;
+
 function openStream(res) {
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -49,7 +51,7 @@ module.exports = async (req, res) => {
 
   const lastUserMessage = [...trimmedMessages].reverse().find(message => message.role === 'user');
   const lastUserText = lastUserMessage ? lastUserMessage.content : '';
-  const intent = detectPillarIntent(lastUserText);
+  let intent = detectPillarIntent(lastUserText);
 
   openStream(res);
 
@@ -58,7 +60,11 @@ module.exports = async (req, res) => {
   }
 
   if (intent === 'triage' || isCapabilityQuestion(lastUserText)) {
-    return streamStaticReply(res, buildTriageReply());
+    if (intent === 'triage' && COMPLIANCE_TRIAGE_PATTERN.test(lastUserText)) {
+      intent = 'compliance';
+    } else {
+      return streamStaticReply(res, buildTriageReply());
+    }
   }
 
   if (!process.env.ORCATRADE_OS_API) {
