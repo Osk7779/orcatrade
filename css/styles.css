@@ -1030,6 +1030,24 @@ footer {
   text-underline-offset: 3px;
 }
 
+.footer-socials {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.footer-socials a {
+  text-decoration: none;
+  opacity: 0.55;
+  transition: opacity 0.18s;
+  display: flex;
+  align-items: center;
+}
+
+.footer-socials a:hover {
+  opacity: 1;
+}
+
 /* ===== Group Section ===== */
 
 .group-tree {
