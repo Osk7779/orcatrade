@@ -16,6 +16,47 @@ function checkRate(ip, limit) {
   return entry.count > limit;
 }
 
+async function sendComplianceSummaryEmail(report, orderData = {}) {
+  if (!process.env.RESEND_API_KEY) return;
+
+  try {
+    const productCategory = orderData.productCategory || 'Not provided';
+    const origin = orderData.origin || 'Not provided';
+    const company = orderData.company || 'Not provided';
+    const body = [
+      `OrcaTrade Intelligence compliance report summary`,
+      ``,
+      `Report ID: ${report.reportId || 'N/A'}`,
+      `Product category: ${productCategory}`,
+      `Origin: ${origin}`,
+      `Company: ${company}`,
+      `Overall status: ${report.overallStatus || 'N/A'}`,
+      `Overall score: ${report.overallScore ?? 'N/A'}`,
+    ].join('\n');
+
+    const response = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: process.env.RESEND_FROM || 'OrcaTrade <onboarding@resend.dev>',
+        to: ['intelligence@orcatrade.pl'],
+        subject: `OrcaTrade Intelligence — New Compliance Report [${report.overallStatus}]`,
+        text: body,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Compliance summary email error:', errorText);
+    }
+  } catch (error) {
+    console.error('Compliance summary email failed:', error);
+  }
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -310,6 +351,7 @@ Return ONLY this JSON object with no markdown wrapping:
     report = enforceComplianceLogic(report, orderData);
     // ─────────────────────────────────────────────────────────────────
 
+    void sendComplianceSummaryEmail(report, orderData);
     return res.status(200).json(report);
 
   } catch (error) {
