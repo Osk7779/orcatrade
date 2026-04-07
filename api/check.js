@@ -38,30 +38,85 @@ Every financial risk MUST show the calculation formula.
 Every required action MUST name the exact document and EU portal.
 Never be vague. Never say "may be required". State obligations definitively.
 
-EUDR FINANCIAL RISK RULES:
-- Base fine: up to 4% of annual EU turnover per Article 25(2)(a)
-- Minimum fine: €10,000 per infringement per Article 25(2)(a)
-- Additional: seizure and confiscation of goods per Article 25(2)(b)
-- Additional: temporary exclusion from public procurement per Article 25(2)(d)
-- Calculate based on import value provided as proxy for EU turnover
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+STATUS AND SCORE RULES — READ CAREFULLY
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-CBAM FINANCIAL RISK RULES:
-- Penalty: €100 per tonne CO2 equivalent shortfall per Article 26(1)
-- Wood products: NOT a covered sector — mark as not_applicable
-- Covered sectors ONLY: cement, iron, steel, aluminium, fertilisers, electricity, hydrogen per Annex I of Regulation (EU) 2023/956
-- If product is NOT in a covered sector, set applicable: false and status: not_applicable
+STATUS is determined by the WORST applicable regulation result, in this strict hierarchy:
 
-CSDDD FINANCIAL RISK RULES:
-- Applies ONLY to companies with 1000+ employees AND €450M+ turnover
-- Fines up to 5% of global net turnover per Article 27(1)
-- SMEs (under 250 employees): NOT applicable — state this clearly
-- Timeline: phased from 2027 for largest companies
+  non_compliant > at_risk > compliant > not_applicable
 
-SCORE CALCULATION:
-- Start at 100
-- Deduct 35 points per NON_COMPLIANT regulation that is applicable
-- Deduct 15 points per AT_RISK regulation that is applicable
-- Regulations marked not_applicable do not affect score
+REGULATION STATUS ASSIGNMENT RULES (mandatory):
+- "not_applicable": regulation does not apply to this product/company. No score impact.
+- "non_compliant": regulation applies AND at least ONE of:
+    • a finding with severity "critical" exists
+    • a mandatory legal prerequisite is unmet (e.g. not registered as CBAM declarant
+      when CBAM applies, no georeferenced data when EUDR applies)
+    • import would be legally prohibited without this missing element
+- "at_risk": regulation applies AND at least ONE of:
+    • a finding with severity "major" exists
+    • required actions are outstanding but import is not yet prohibited
+    • missing data that creates uncertainty about an obligation
+- "compliant": regulation applies AND all known obligations are satisfied or
+    explicitly verified as not required. This requires positive evidence —
+    NOT the absence of information.
+
+CRITICAL RULE: You CANNOT mark a regulation "compliant" if:
+  - you have identified any critical or major finding under it
+  - you have listed any required actions under it
+  - the importer has not verified they have met the legal prerequisites
+
+SCORE CALCULATION (mandatory, calculate after setting all regulation statuses):
+  Start at 100
+  For each regulation where applicable = true:
+    - status = non_compliant → subtract 35
+    - status = at_risk       → subtract 15
+    - status = compliant     → subtract 0
+    - status = not_applicable → subtract 0
+  Score cannot go below 0.
+
+OVERALL STATUS (mandatory, derived from individual regulation statuses):
+  If ANY applicable regulation is non_compliant → overallStatus = "non_compliant"
+  Else if ANY applicable regulation is at_risk  → overallStatus = "at_risk"
+  Else all applicable regulations are compliant  → overallStatus = "compliant"
+
+A score of 100 and overallStatus "compliant" is ONLY valid when:
+  - Every applicable regulation has status "compliant" with verified evidence
+  - No findings of any severity exist
+  - No required actions are listed
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CBAM SECTOR RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Covered sectors per Annex I of Regulation (EU) 2023/956:
+  cement, iron, steel, aluminium, fertilisers, electricity, hydrogen
+NOT covered: wood, furniture, textiles, food, chemicals, plastics,
+  electronics, rubber, paper, glass (unless produced in a covered process).
+If product is not in a covered sector: applicable = false, status = "not_applicable".
+If uncertain about CN code classification, state that explicitly in applicabilityReason.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+EUDR RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Applies to: cattle, cocoa, coffee, palm oil, soya, wood, rubber and derived products.
+Derived products include: leather, chocolate, furniture, paper, printed matter.
+Check Article 1 and Annex I of Regulation (EU) 2023/1115 to determine applicability.
+If applicable: operator MUST have georeferenced polygon data per Article 9.
+Missing polygon data = critical finding = non_compliant.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+CSDDD RULES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Applies ONLY to: companies with 1000+ employees AND €450M+ global turnover.
+If company size is "Under 250 employees" or "250–1000 employees": applicable = false.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+FINANCIAL RISK — EUDR
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Minimum fine: €10,000 per infringement per Article 25(2)(a)
+Maximum fine: up to 4% of annual EU turnover per Article 25(2)(a)
+Use import value as turnover proxy. Show the calculation.
+Additional: seizure per Article 25(2)(b), procurement ban per Article 25(2)(d).
 
 Return ONLY valid JSON. No markdown. No text outside the JSON object.`;
 
@@ -75,26 +130,30 @@ Annual import value: ${importValue}
 Company size: ${companySize}
 Placing on EU market: ${euMarket ? 'Yes' : 'No'}
 
+IMPORTANT: Follow the STATUS AND SCORE RULES exactly. Do not mark a regulation
+compliant if you have listed findings or required actions under it.
+Derive overallStatus and overallScore from the regulation statuses after setting them.
+
 Return ONLY this JSON object with no markdown wrapping:
 {
   "reportId": "${reportId}",
   "timestamp": "${timestamp}",
-  "overallStatus": "compliant or at_risk or non_compliant",
-  "overallScore": 0-100,
-  "executiveSummary": "Precise 3-sentence summary citing specific regulation names and article numbers. State the single most urgent action.",
+  "overallStatus": "non_compliant | at_risk | compliant",
+  "overallScore": <number 0-100 calculated per rules above>,
+  "executiveSummary": "3 sentences. Sentence 1: what regulations apply and why. Sentence 2: what the most critical unresolved obligation is, with article citation. Sentence 3: the single most urgent action the importer must take.",
   "checkedRegulations": [
     {
       "regulation": "EUDR",
-      "applicable": true or false,
-      "applicabilityReason": "cite Article 1 and 2 of Regulation (EU) 2023/1115 explaining why",
-      "status": "compliant or at_risk or non_compliant or not_applicable",
+      "applicable": <boolean>,
+      "applicabilityReason": "cite specific articles. If uncertain about CN code, state that.",
+      "status": "non_compliant | at_risk | compliant | not_applicable",
       "legalBasis": "Regulation (EU) 2023/1115 of the European Parliament and of the Council",
-      "keyObligation": "exact legal obligation with article citation, or Not applicable",
-      "currentGap": "what is specifically missing, or N/A if not applicable",
+      "keyObligation": "exact obligation with article citation, or Not applicable",
+      "currentGap": "specific missing element, or N/A",
       "findings": [
         {
-          "finding": "specific detailed finding",
-          "severity": "critical or major or minor",
+          "finding": "specific finding text",
+          "severity": "critical | major | minor",
           "article": "Article X(Y) of Regulation (EU) 2023/1115",
           "legalImplication": "exact legal consequence"
         }
@@ -102,88 +161,74 @@ Return ONLY this JSON object with no markdown wrapping:
       "requiredActions": [
         {
           "step": 1,
-          "action": "specific action with exact steps",
+          "action": "specific action",
           "documentRequired": "exact document name",
-          "portal": "exact EU portal or authority name",
-          "deadline": "specific date or trigger event",
-          "estimatedHours": 4,
+          "portal": "exact EU portal or authority",
+          "deadline": "specific date or trigger",
+          "estimatedHours": <number>,
           "estimatedCostEur": "EUR range"
         }
       ],
       "financialRisk": {
-        "minimumFineEur": 10000,
-        "maximumFineEur": 20000,
-        "calculationExplained": "4% x import value = X. Minimum per Article 25: €10,000.",
-        "additionalRisks": ["seizure of goods", "market ban"]
+        "minimumFineEur": <number>,
+        "maximumFineEur": <number>,
+        "calculationExplained": "formula shown explicitly",
+        "additionalRisks": ["array of strings"]
       },
       "complianceDeadline": "specific date with context"
     },
     {
       "regulation": "CBAM",
-      "applicable": false,
-      "applicabilityReason": "cite Annex I of Regulation (EU) 2023/956 — wood and furniture are NOT listed covered sectors",
-      "status": "not_applicable",
+      "applicable": <boolean — false if product not in Annex I covered sectors>,
+      "applicabilityReason": "cite Annex I of Regulation (EU) 2023/956. State clearly if not covered.",
+      "status": "non_compliant | at_risk | compliant | not_applicable",
       "legalBasis": "Regulation (EU) 2023/956 of the European Parliament and of the Council",
-      "keyObligation": "Not applicable — product sector not covered by CBAM Annex I",
-      "currentGap": "N/A",
+      "keyObligation": "obligation or Not applicable",
+      "currentGap": "gap or N/A",
       "findings": [],
       "requiredActions": [],
       "financialRisk": {
-        "minimumFineEur": 0,
-        "maximumFineEur": 0,
-        "calculationExplained": "Product sector not covered by CBAM Annex I — no CBAM financial exposure.",
+        "minimumFineEur": <number>,
+        "maximumFineEur": <number>,
+        "calculationExplained": "explanation or Not applicable",
         "additionalRisks": []
       },
-      "complianceDeadline": "N/A"
+      "complianceDeadline": "date or N/A"
     },
     {
       "regulation": "CSDDD",
-      "applicable": false,
-      "applicabilityReason": "cite Article 2 of Directive (EU) 2024/1760 — company must have 1000+ employees and €450M+ turnover to be in scope",
-      "status": "not_applicable",
+      "applicable": <boolean — false if under 1000 employees or under €450M turnover>,
+      "applicabilityReason": "cite Article 2 of Directive (EU) 2024/1760 and the company size provided",
+      "status": "non_compliant | at_risk | compliant | not_applicable",
       "legalBasis": "Directive (EU) 2024/1760 of the European Parliament and of the Council",
-      "keyObligation": "Not applicable based on company size threshold per Article 2",
-      "currentGap": "N/A",
+      "keyObligation": "obligation or Not applicable",
+      "currentGap": "gap or N/A",
       "findings": [],
       "requiredActions": [],
       "financialRisk": {
-        "minimumFineEur": 0,
-        "maximumFineEur": 0,
-        "calculationExplained": "Company below CSDDD thresholds — no CSDDD financial exposure.",
+        "minimumFineEur": <number>,
+        "maximumFineEur": <number>,
+        "calculationExplained": "explanation or Not applicable",
         "additionalRisks": []
       },
-      "complianceDeadline": "N/A"
+      "complianceDeadline": "date or N/A"
     }
   ],
   "priorityActions": [
     {
       "rank": 1,
-      "action": "specific action text",
-      "urgency": "Immediate — within 7 days",
-      "estimatedCostEur": "EUR range",
-      "consequenceIfIgnored": "specific legal or financial consequence"
-    },
-    {
-      "rank": 2,
-      "action": "specific action text",
-      "urgency": "Within 30 days",
-      "estimatedCostEur": "EUR range",
-      "consequenceIfIgnored": "specific legal or financial consequence"
-    },
-    {
-      "rank": 3,
-      "action": "specific action text",
-      "urgency": "Within 90 days",
+      "action": "specific action",
+      "urgency": "Immediate — within 7 days | Within 30 days | Within 90 days",
       "estimatedCostEur": "EUR range",
       "consequenceIfIgnored": "specific legal or financial consequence"
     }
   ],
   "totalFinancialExposure": {
-    "minimumEur": 10000,
-    "maximumEur": 20000,
-    "calculationBreakdown": "EUDR: min €10,000 — max €X,XXX. CBAM: N/A. CSDDD: N/A."
+    "minimumEur": <number>,
+    "maximumEur": <number>,
+    "calculationBreakdown": "regulation by regulation breakdown"
   },
-  "disclaimer": "This report is generated by OrcaTrade Intelligence based on information provided by the user. It does not constitute legal advice. Report ID: ${reportId}. Generated: ${timestamp}."
+  "disclaimer": "This report is generated by OrcaTrade Intelligence based on information provided by the user. It does not constitute legal advice and should not be relied upon as such. For binding legal opinions on EU trade compliance obligations, consult a qualified EU trade law practitioner. Report ID: ${reportId}. Generated: ${timestamp}."
 }`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {
@@ -210,32 +255,111 @@ Return ONLY this JSON object with no markdown wrapping:
     const data = await response.json();
     let assistantText = data.content[0].text;
 
-    // Strip markdown fences if present
     const fenceMatch = assistantText.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
     if (fenceMatch) assistantText = fenceMatch[1];
 
-    let parsedJson;
+    let report;
     try {
-      parsedJson = JSON.parse(assistantText);
+      report = JSON.parse(assistantText);
     } catch {
       const objMatch = assistantText.match(/\{[\s\S]*\}/);
       if (objMatch) {
-        try {
-          parsedJson = JSON.parse(objMatch[0]);
-        } catch (e) {
+        try { report = JSON.parse(objMatch[0]); }
+        catch (e) {
           console.error('JSON parse error:', e, assistantText.slice(0, 500));
           return res.status(500).json({ error: 'Failed to parse AI response' });
         }
       } else {
-        console.error('No JSON found in response:', assistantText.slice(0, 500));
         return res.status(500).json({ error: 'No JSON found in AI response' });
       }
     }
 
-    return res.status(200).json(parsedJson);
+    // ── Server-side compliance logic enforcement ──────────────────────
+    // The AI may hallucinate a "compliant" status despite having findings
+    // or required actions. This sanitiser enforces the correct hierarchy.
+    report = enforceComplianceLogic(report);
+    // ─────────────────────────────────────────────────────────────────
+
+    return res.status(200).json(report);
 
   } catch (error) {
     console.error('Handler error:', error);
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 };
+
+// ── Compliance logic enforcer ──────────────────────────────────────────────
+// Audits the AI response and corrects any status/score inconsistencies.
+// Rules (in order of priority):
+//   1. Not-applicable regs → status forced to not_applicable, zero score impact.
+//   2. Applicable reg with critical findings or unmet mandatory prereqs → non_compliant.
+//   3. Applicable reg with major findings or outstanding required actions → at_risk.
+//   4. Applicable reg with only minor findings → at_risk (benefit of the doubt
+//      requires positive verified evidence, which a tool run cannot confirm).
+//   5. Applicable reg with NO findings AND NO required actions → keep AI status,
+//      but cap at "at_risk" (never auto-upgrade to compliant without evidence).
+//   6. overallStatus = worst applicable regulation status.
+//   7. overallScore recalculated from regulation statuses.
+function enforceComplianceLogic(report) {
+  if (!report || !Array.isArray(report.checkedRegulations)) return report;
+
+  for (const reg of report.checkedRegulations) {
+    // Force not_applicable when applicable is false
+    if (!reg.applicable) {
+      reg.status = 'not_applicable';
+      reg.findings = reg.findings || [];
+      reg.requiredActions = reg.requiredActions || [];
+      if (reg.financialRisk) {
+        reg.financialRisk.minimumFineEur = 0;
+        reg.financialRisk.maximumFineEur = 0;
+      }
+      continue;
+    }
+
+    const findings = Array.isArray(reg.findings) ? reg.findings : [];
+    const actions  = Array.isArray(reg.requiredActions) ? reg.requiredActions : [];
+
+    const hasCritical = findings.some(f => f.severity === 'critical');
+    const hasMajor    = findings.some(f => f.severity === 'major');
+    const hasActions  = actions.length > 0;
+    const hasFindings = findings.length > 0;
+
+    if (hasCritical) {
+      reg.status = 'non_compliant';
+    } else if (hasMajor || hasActions) {
+      reg.status = 'at_risk';
+    } else if (hasFindings) {
+      // Minor findings only — cannot confirm compliant without positive evidence
+      reg.status = 'at_risk';
+    } else if (reg.status === 'compliant') {
+      // AI said compliant with no findings and no actions — accept it
+      // (this is the only valid path to "compliant")
+    } else {
+      // Applicable but no data either way — treat as at_risk
+      reg.status = 'at_risk';
+    }
+  }
+
+  // Derive overallStatus from worst applicable regulation
+  let worst = 'compliant';
+  let allNotApplicable = true;
+
+  for (const reg of report.checkedRegulations) {
+    if (reg.status === 'not_applicable') continue;
+    allNotApplicable = false;
+    if (reg.status === 'non_compliant') { worst = 'non_compliant'; break; }
+    if (reg.status === 'at_risk' && worst !== 'non_compliant') worst = 'at_risk';
+  }
+
+  report.overallStatus = allNotApplicable ? 'compliant' : worst;
+
+  // Recalculate score
+  let score = 100;
+  for (const reg of report.checkedRegulations) {
+    if (reg.status === 'non_compliant') score -= 35;
+    else if (reg.status === 'at_risk')  score -= 15;
+  }
+  report.overallScore = Math.max(0, score);
+
+  return report;
+}
