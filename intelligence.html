@@ -430,83 +430,118 @@
       line-height: 1.65;
     }
 
-    .command-grid {
+    /* ── COMMAND TABS ── */
+    .command-shell {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1px;
-      margin-top: 2.5rem;
+      grid-template-columns: 260px 1fr;
       border: 1px solid var(--os-border);
+      margin-top: 2.5rem;
+      min-height: 340px;
     }
 
-    .command-card {
-      background: linear-gradient(160deg, #0d1528 0%, #060b17 100%);
-      padding: 2.4rem 2.2rem;
-      position: relative;
-      transition: background 0.2s ease;
-    }
-
-    .command-card:nth-child(odd) {
+    .command-tabs {
       border-right: 1px solid var(--os-border);
+      display: flex;
+      flex-direction: column;
     }
 
-    .command-card:nth-child(1),
-    .command-card:nth-child(2) {
+    .command-tab {
+      padding: 1.4rem 1.6rem;
       border-bottom: 1px solid var(--os-border);
+      cursor: pointer;
+      transition: background 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      user-select: none;
     }
 
-    .command-card:hover {
-      background: linear-gradient(160deg, #111d3a 0%, #080f1e 100%);
-    }
+    .command-tab:last-child { border-bottom: none; }
 
-    .command-card-num {
+    .command-tab-num {
       font-family: var(--font-head);
-      font-size: 3rem;
-      font-weight: 300;
-      line-height: 1;
-      color: rgba(184,190,200,0.12);
-      margin-bottom: 1.4rem;
-      letter-spacing: -0.02em;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: rgba(184,190,200,0.3);
+      letter-spacing: 0.1em;
+      min-width: 1.6rem;
+      transition: color 0.15s;
     }
 
-    .command-title {
+    .command-tab-label {
+      font-size: 0.88rem;
+      font-weight: 500;
+      color: var(--os-muted);
+      transition: color 0.15s;
+    }
+
+    .command-tab:hover { background: rgba(184,190,200,0.04); }
+
+    .command-tab.active {
+      background: linear-gradient(90deg, rgba(184,190,200,0.07), transparent);
+      border-left: 2px solid var(--os-accent);
+    }
+
+    .command-tab.active .command-tab-num { color: var(--os-accent); }
+    .command-tab.active .command-tab-label { color: var(--os-text); }
+
+    .command-panel {
+      padding: 2.4rem 2.8rem;
+      display: none;
+    }
+
+    .command-panel.active { display: block; }
+
+    .command-panel-title {
       font-family: var(--font-head);
-      font-size: 1.5rem;
+      font-size: clamp(1.4rem, 2.5vw, 2rem);
       font-weight: 600;
-      margin-bottom: 0.7rem;
-      line-height: 1.2;
+      margin-bottom: 0.8rem;
       letter-spacing: -0.01em;
     }
 
-    .command-copy {
+    .command-panel-copy {
       color: var(--os-muted);
-      font-size: 0.9rem;
-      line-height: 1.7;
-      margin-bottom: 1.6rem;
-      max-width: 42ch;
+      font-size: 0.92rem;
+      line-height: 1.72;
+      max-width: 52ch;
+      margin-bottom: 2rem;
     }
 
-    .command-list {
+    .command-panel-items {
       display: flex;
       flex-direction: column;
       gap: 0;
-      color: rgba(184,190,200,0.7);
-      font-size: 0.82rem;
-      line-height: 1.6;
     }
 
-    .command-list div {
-      border-top: 1px solid rgba(255,255,255,0.06);
-      padding: 0.6rem 0;
-      padding-left: 1rem;
-      position: relative;
+    .command-panel-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      padding: 0.9rem 0;
+      border-top: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.88rem;
+      color: rgba(184,190,200,0.75);
+      line-height: 1.55;
     }
 
-    .command-list div::before {
-      content: "—";
-      position: absolute;
-      left: 0;
-      color: rgba(184,190,200,0.3);
-      font-size: 0.7rem;
+    .command-panel-item::before {
+      content: "";
+      width: 4px;
+      height: 4px;
+      background: var(--os-accent);
+      border-radius: 50%;
+      margin-top: 0.45em;
+      flex-shrink: 0;
+      opacity: 0.5;
+    }
+
+    @media (max-width: 640px) {
+      .command-shell { grid-template-columns: 1fr; }
+      .command-tabs { flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--os-border); }
+      .command-tab { border-bottom: none; border-right: 1px solid var(--os-border); flex-shrink: 0; }
+      .command-tab:last-child { border-right: none; }
+      .command-tab.active { border-left: none; border-bottom: 2px solid var(--os-accent); }
     }
 
     .timeline-grid {
@@ -937,45 +972,60 @@
       operating view that shows you what's in scope, what's missing, what's blocked, and what to do next.
     </p>
 
-    <div class=”command-grid”>
-      <div class=”command-card”>
-        <div class=”command-card-num”>01</div>
-        <div class=”command-title”>Threshold Watch</div>
-        <div class=”command-copy”>See exactly which of your product flows are inside the CBAM perimeter — before your customs agent tells you it's too late.</div>
-        <div class=”command-list”>
-          <div>50-tonne exposure tracked by supplier, category, and importer entity.</div>
-          <div>Authorised declarant readiness and customs handoff status.</div>
-          <div>Weekly alert on which flows are drifting toward a threshold breach.</div>
+    <div class=”command-shell”>
+      <div class=”command-tabs”>
+        <div class=”command-tab active” data-panel=”p1”>
+          <span class=”command-tab-num”>01</span>
+          <span class=”command-tab-label”>Threshold Watch</span>
+        </div>
+        <div class=”command-tab” data-panel=”p2”>
+          <span class=”command-tab-num”>02</span>
+          <span class=”command-tab-label”>Evidence Queue</span>
+        </div>
+        <div class=”command-tab” data-panel=”p3”>
+          <span class=”command-tab-num”>03</span>
+          <span class=”command-tab-label”>Cost Planning</span>
+        </div>
+        <div class=”command-tab” data-panel=”p4”>
+          <span class=”command-tab-num”>04</span>
+          <span class=”command-tab-label”>Exception Control</span>
         </div>
       </div>
-      <div class=”command-card”>
-        <div class=”command-card-num”>02</div>
-        <div class=”command-title”>Supplier Evidence Queue</div>
-        <div class=”command-copy”>Stop chasing suppliers by email. Every outstanding document, declaration, and emissions methodology in one managed queue.</div>
-        <div class=”command-list”>
-          <div>Outstanding requests sorted by shipment value and urgency.</div>
-          <div>Follow-up, QA, approval, and escalation in one place.</div>
-          <div>Audit trail for every supplier interaction and document received.</div>
+
+      <div class=”command-panel active” id=”p1”>
+        <div class=”command-panel-title”>Threshold Watch</div>
+        <div class=”command-panel-copy”>See exactly which of your product flows are inside the CBAM perimeter — before your customs agent tells you it's too late.</div>
+        <div class=”command-panel-items”>
+          <div class=”command-panel-item”>50-tonne exposure tracked by supplier, category, and importer entity.</div>
+          <div class=”command-panel-item”>Authorised declarant readiness and customs handoff status.</div>
+          <div class=”command-panel-item”>Weekly alert on which flows are drifting toward a threshold breach.</div>
         </div>
       </div>
-      <div class=”command-card”>
-        <div class=”command-card-num”>03</div>
-        <div class=”command-title”>Certificate Cost Planning</div>
-        <div class=”command-copy”>Know what CBAM is going to cost you before your next declaration — and where switching suppliers saves the most money.</div>
-        <div class=”command-list”>
-          <div>Certificate price visibility and account-level planning assumptions.</div>
-          <div>Emissions exposure mapped against your actual import volume.</div>
-          <div>Supplier comparison so you know where to push for better data.</div>
+      <div class=”command-panel” id=”p2”>
+        <div class=”command-panel-title”>Supplier Evidence Queue</div>
+        <div class=”command-panel-copy”>Stop chasing suppliers by email. Every outstanding document, declaration, and emissions methodology in one managed queue.</div>
+        <div class=”command-panel-items”>
+          <div class=”command-panel-item”>Outstanding requests sorted by shipment value and urgency.</div>
+          <div class=”command-panel-item”>Follow-up, QA, approval, and escalation tracked in one place.</div>
+          <div class=”command-panel-item”>Full audit trail for every supplier interaction and document received.</div>
         </div>
       </div>
-      <div class=”command-card”>
-        <div class=”command-card-num”>04</div>
-        <div class=”command-title”>Shipment Exception Control</div>
-        <div class=”command-copy”>Your live order book, connected to your compliance workflow. Missing evidence becomes an operational exception — not a buried note.</div>
-        <div class=”command-list”>
-          <div>Shipments blocked by missing supplier evidence flagged immediately.</div>
-          <div>Port, vessel, and factory context alongside every compliance task.</div>
-          <div>Clear owner and next action on every open blocker.</div>
+      <div class=”command-panel” id=”p3”>
+        <div class=”command-panel-title”>Certificate Cost Planning</div>
+        <div class=”command-panel-copy”>Know what CBAM is going to cost you before your next declaration — and where switching suppliers saves the most money.</div>
+        <div class=”command-panel-items”>
+          <div class=”command-panel-item”>Certificate price visibility and account-level planning assumptions.</div>
+          <div class=”command-panel-item”>Emissions exposure mapped against your actual import volume.</div>
+          <div class=”command-panel-item”>Supplier comparison so you know exactly where to push for better data.</div>
+        </div>
+      </div>
+      <div class=”command-panel” id=”p4”>
+        <div class=”command-panel-title”>Shipment Exception Control</div>
+        <div class=”command-panel-copy”>Your live order book, connected to your compliance workflow. Missing evidence becomes an operational exception — not a buried note.</div>
+        <div class=”command-panel-items”>
+          <div class=”command-panel-item”>Shipments blocked by missing supplier evidence flagged immediately.</div>
+          <div class=”command-panel-item”>Port, vessel, and factory context alongside every compliance task.</div>
+          <div class=”command-panel-item”>Clear owner and next action on every open blocker.</div>
         </div>
       </div>
     </div>
@@ -1318,5 +1368,19 @@
   </script>
   <script src="js/forms.js"></script>
   <script src="js/transitions.js"></script>
+  <script>
+    (function() {
+      const tabs = document.querySelectorAll('.command-tab');
+      const panels = document.querySelectorAll('.command-panel');
+      tabs.forEach(function(tab) {
+        tab.addEventListener('click', function() {
+          tabs.forEach(function(t) { t.classList.remove('active'); });
+          panels.forEach(function(p) { p.classList.remove('active'); });
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.panel).classList.add('active');
+        });
+      });
+    })();
+  </script>
 </body>
 </html>
