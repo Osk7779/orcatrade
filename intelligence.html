@@ -780,10 +780,40 @@
     .lang-btn { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; padding: 0.28rem 0.6rem; border-radius: 0; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); transition: all 0.18s; text-decoration: none; }
     .lang-btn:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
     .lang-btn.lang-active { color: #0a0912; background: linear-gradient(135deg, #b8bec8, #6f7783); border-color: transparent; }
+
+    /* ── URGENCY BAR ── */
+    .urgency-bar {
+      background: rgba(184,190,200,0.08);
+      border-bottom: 1px solid rgba(184,190,200,0.14);
+      padding: 0.55rem 1.5rem;
+      text-align: center;
+      font-size: 0.78rem;
+      color: var(--os-muted);
+      letter-spacing: 0.02em;
+      position: relative;
+      z-index: 60;
+    }
+    .urgency-bar strong { color: var(--os-text); }
+    .urgency-bar a { color: var(--os-accent); text-decoration: underline; text-underline-offset: 3px; margin-left: 0.5rem; }
+
+    /* ── PRICE BADGE ── */
+    .price-badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--os-accent);
+      border: 1px solid rgba(184,190,200,0.25);
+      padding: 0.2rem 0.6rem;
+      margin-top: 1rem;
+    }
   </style>
 </head>
 
 <body>
+
+  <div class="urgency-bar"><strong>CBAM is live.</strong> Reporting obligations are active now — penalties apply from the first non-compliant declaration. <a href="#cbam-call">Check your exposure →</a></div>
 
   <!-- NAV -->
   <nav class="os-nav">
@@ -800,7 +830,7 @@
         <a href="pl/intelligence.html" class="lang-btn">PL</a>
         <a href="de/intelligence.html" class="lang-btn">DE</a>
       </div>
-      <a href="#cbam-call" class="os-nav-cta">Book CBAM Readiness Call →</a>
+      <a href="#cbam-call" class="os-nav-cta">Book a Call →</a>
     </div>
   </nav>
 
@@ -809,105 +839,108 @@
     <a href="index.html" class="os-back">← Back to OrcaTrade Group</a>
     <div class="os-kicker">Business Unit · Live Now</div>
     <div class="os-badge">Live Now</div>
-    <h1 class="os-title">OrcaTrade Intelligence —<br><span>CBAM operations for EU importers</span></h1>
+    <h1 class="os-title">Your CBAM workflow<br><span>is already overdue.</span></h1>
     <p class="os-subtitle">
-      Start with the urgent workflow buyers will pay for now: CBAM readiness, supplier evidence
-      collection, certificate-cost visibility, and import exception control. Then expand into
-      shipment monitoring, factory scoring, and EUDR readiness from the same operating layer.
+      The CBAM definitive regime is live. If you import iron, steel, aluminium, fertilisers, or cement
+      above 50 tonnes per year, you are already inside the compliance perimeter — whether or not you
+      have a declarant, supplier evidence, or a plan. OrcaTrade Intelligence gives you the operating
+      layer to fix that fast.
     </p>
     <div class="os-hero-actions">
       <a href="#cbam-call" class="btn-os-primary">Book CBAM Readiness Call →</a>
-      <a href="#market-window" class="btn-os-ghost">See the commercial wedge</a>
+      <a href="compliance/" class="btn-os-ghost">Run a compliance check now</a>
     </div>
   </section>
 
   <hr class="os-divider">
 
   <section class="os-section" id="market-window">
-    <div class="os-kicker">Commercial wedge</div>
-    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">Start with the painful thing buyers cannot ignore.</h2>
+    <div class="os-kicker">Why this matters now</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">The regulation is live. The clock started without you.</h2>
     <p class="os-subtitle" style="max-width:58ch;">
-      OrcaTrade Intelligence should sell as a CBAM-first operating layer for EU importers, then
-      expand account value through shipment visibility, factory scoring, and broader compliance.
+      CBAM is not a future risk to plan for — it is an active legal obligation. Most EU importers are behind
+      on supplier evidence, declarant setup, and certificate planning. The ones who move now avoid the penalty
+      window entirely.
     </p>
 
     <div class="market-grid">
       <div class="market-card">
-        <div class="market-label">CBAM live now</div>
-        <div class="market-number">1 Jan 2026</div>
-        <div class="market-copy">The CBAM definitive regime is already operational, so the urgency is present now rather than theoretical.</div>
+        <div class="market-label">CBAM definitive regime</div>
+        <div class="market-number">Live now</div>
+        <div class="market-copy">Reporting obligations are active. Non-compliant declarations carry financial penalties from day one of the definitive phase.</div>
       </div>
       <div class="market-card">
-        <div class="market-label">Importer threshold</div>
-        <div class="market-number">50 tonnes</div>
-        <div class="market-copy">Above the annual threshold, importers need controlled workflows, evidence collection, and declarant readiness.</div>
+        <div class="market-label">You're in scope if you import</div>
+        <div class="market-number">&gt; 50 t/yr</div>
+        <div class="market-copy">Above 50 tonnes annually in covered goods, you need an authorised declarant, supplier emissions evidence, and customs-ready workflows — now.</div>
       </div>
       <div class="market-card">
-        <div class="market-label">EUDR next window</div>
+        <div class="market-label">EUDR deadline for large operators</div>
         <div class="market-number">30 Dec 2026</div>
-        <div class="market-copy">Large and medium operators face the next major readiness deadline, with micro and small operators following on 30 June 2027.</div>
+        <div class="market-copy">If you import timber, wood, cocoa, coffee, palm, soy, beef, rubber, or leather, your next major deadline is already fixed. Preparation takes months.</div>
       </div>
       <div class="market-card">
-        <div class="market-label">Expansion path</div>
-        <div class="market-number">3 layers</div>
-        <div class="market-copy">Compliance ops win the account. Factory scoring and shipment visibility increase retention and account value.</div>
+        <div class="market-label">What happens without a workflow</div>
+        <div class="market-number">Fines + delays</div>
+        <div class="market-copy">Missing supplier evidence, late declarations, and no escalation process mean customs delays, financial penalties, and procurement bans.</div>
       </div>
     </div>
 
     <div class="offer-strip">
-      <p><strong>Who buys first:</strong> EU importers of iron, steel, aluminium, fertilisers, cement, and adjacent industrial goods that need supplier evidence and customs-ready workflows.</p>
-      <p><strong>What OrcaTrade sells:</strong> a CBAM readiness sprint, ongoing managed compliance ops, and a broader intelligence layer for suppliers, factories, and live shipments.</p>
+      <p><strong>This is for you if</strong> you import iron, steel, aluminium, fertilisers, cement, or adjacent industrial goods into the EU — and your current process is spreadsheets, inbox chasing, and guesswork.</p>
+      <p><strong>What you get</strong> — a CBAM readiness sprint, ongoing managed compliance ops, and a broader intelligence layer for your suppliers, factories, and live shipments. Starting from <strong>€2,400</strong> for the first engagement.</p>
     </div>
   </section>
 
   <hr class="os-divider">
 
-  <section class="os-section" id="command-center">
-    <div class="os-kicker">Command center preview</div>
-    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">This should feel like an operating desk, not a brochure.</h2>
-    <p class="os-subtitle" style="max-width:58ch;">
-      The strongest version of OrcaTrade Intelligence is a single place where import teams see what is in scope, what is missing, what is blocked, and what to do next.
+  <section class=”os-section” id=”command-center”>
+    <div class=”os-kicker”>What's inside</div>
+    <h2 class=”os-title” style=”font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;”>One desk. Everything your import compliance team needs to see.</h2>
+    <p class=”os-subtitle” style=”max-width:58ch;”>
+      Instead of scattered spreadsheets, inbox threads, and disconnected customs documents — one
+      operating view that shows you what's in scope, what's missing, what's blocked, and what to do next.
     </p>
 
-    <div class="command-grid">
-      <div class="command-card">
-        <div class="command-kicker">Panel 01</div>
-        <div class="command-title">Threshold Watch</div>
-        <div class="command-copy">Know exactly which accounts, product lines, and supplier flows are already inside the CBAM operating zone.</div>
-        <div class="command-list">
-          <div>50-tonne exposure tracking by supplier, category, and importer entity.</div>
+    <div class=”command-grid”>
+      <div class=”command-card”>
+        <div class=”command-kicker”>View 01</div>
+        <div class=”command-title”>Threshold Watch</div>
+        <div class=”command-copy”>See exactly which of your product flows are inside the CBAM perimeter — before your customs agent tells you it's too late.</div>
+        <div class=”command-list”>
+          <div>50-tonne exposure tracked by supplier, category, and importer entity.</div>
           <div>Authorised declarant readiness and customs handoff status.</div>
-          <div>Weekly view of which flows are drifting toward a threshold breach.</div>
+          <div>Weekly alert on which flows are drifting toward a threshold breach.</div>
         </div>
       </div>
-      <div class="command-card">
-        <div class="command-kicker">Panel 02</div>
-        <div class="command-title">Supplier Evidence Queue</div>
-        <div class="command-copy">Collect the hard evidence buyers actually struggle to get back from exporters and factories.</div>
-        <div class="command-list">
-          <div>Outstanding emissions methodology, declarations, and supporting documents.</div>
-          <div>Overdue supplier requests sorted by shipment and commercial importance.</div>
-          <div>One queue for follow-up, QA, approval, and escalation.</div>
+      <div class=”command-card”>
+        <div class=”command-kicker”>View 02</div>
+        <div class=”command-title”>Supplier Evidence Queue</div>
+        <div class=”command-copy”>Stop chasing suppliers by email. Every outstanding document, declaration, and emissions methodology in one managed queue.</div>
+        <div class=”command-list”>
+          <div>Outstanding requests sorted by shipment value and urgency.</div>
+          <div>Follow-up, QA, approval, and escalation in one place.</div>
+          <div>Audit trail for every supplier interaction and document received.</div>
         </div>
       </div>
-      <div class="command-card">
-        <div class="command-kicker">Panel 03</div>
-        <div class="command-title">Certificate Cost Planning</div>
-        <div class="command-copy">Move the discussion from “Are we in scope?” to “What is this going to cost and where do we intervene?”</div>
-        <div class="command-list">
+      <div class=”command-card”>
+        <div class=”command-kicker”>View 03</div>
+        <div class=”command-title”>Certificate Cost Planning</div>
+        <div class=”command-copy”>Know what CBAM is going to cost you before your next declaration — and where switching suppliers saves the most money.</div>
+        <div class=”command-list”>
           <div>Certificate price visibility and account-level planning assumptions.</div>
-          <div>Importer view of goods value, emissions exposure, and planning pressure.</div>
-          <div>Comparison across suppliers so buyers see where to push for better data or better sourcing.</div>
+          <div>Emissions exposure mapped against your actual import volume.</div>
+          <div>Supplier-by-supplier comparison so you know where to push for better data.</div>
         </div>
       </div>
-      <div class="command-card">
-        <div class="command-kicker">Panel 04</div>
-        <div class="command-title">Shipment + Exception Control</div>
-        <div class="command-copy">Tie compliance back to the live order book so missing evidence becomes an operating exception, not a buried spreadsheet note.</div>
-        <div class="command-list">
-          <div>Shipments that are delayed, high-risk, or blocked by missing supplier evidence.</div>
-          <div>Port, vessel, and factory context alongside the compliance workflow.</div>
-          <div>A clear owner and next action on every operational blocker.</div>
+      <div class=”command-card”>
+        <div class=”command-kicker”>View 04</div>
+        <div class=”command-title”>Shipment Exception Control</div>
+        <div class=”command-copy”>Your live order book, connected to your compliance workflow. Missing evidence becomes an operational exception — not a buried note.</div>
+        <div class=”command-list”>
+          <div>Shipments delayed or blocked by missing supplier evidence flagged immediately.</div>
+          <div>Port, vessel, and factory context alongside every compliance task.</div>
+          <div>Clear owner and next action on every open blocker.</div>
         </div>
       </div>
     </div>
@@ -917,10 +950,10 @@
 
   <!-- THREE PILLARS -->
   <section class="os-section" id="pillars">
-    <div class="os-kicker">Delivery stack</div>
-    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.5rem;">Three pillars. One commercial account.</h2>
+    <div class="os-kicker">Live tools — open now</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.5rem;">Three dashboards live. Use them today.</h2>
     <p style="font-size:0.92rem; color:var(--os-muted); line-height:1.65; max-width:50ch; margin-bottom:0;">
-      Each workflow is deliberately narrow, operational, and built to support the same customer relationship: win with compliance, expand with supplier and shipment intelligence.
+      Every tool below is operational. No waitlist, no demo request — open the dashboard and run your first check in under a minute.
     </p>
 
     <div class="pillars-grid">
@@ -959,54 +992,51 @@
   <hr class="os-divider">
 
   <section class="os-section" id="offer-stack">
-    <div class="os-kicker">Offer stack</div>
-    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">Sell the work in layers.</h2>
+    <div class="os-kicker">How to work with us</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">Start where your pressure is. Expand from there.</h2>
     <p class="os-subtitle" style="max-width:56ch;">
-      OrcaTrade Intelligence should not sell as a vague all-in-one platform. It should sell as a
-      paid entry point with clear expansion paths.
+      Every engagement starts with a fixed-scope sprint so you see value fast. Most clients convert to
+      a recurring model within 60 days because the workflow becomes part of how they operate.
     </p>
 
     <div class="cta-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem; margin-top:1rem;">
 
       <div class="compliance-cta-section" style="margin-top:0;">
-        <div class="os-kicker" style="justify-content:center; display:flex;">Offer 01 · Entry point</div>
+        <div class="os-kicker" style="justify-content:center; display:flex;">Start here · 30 days</div>
         <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">CBAM Readiness Sprint</h2>
         <p class="os-subtitle" style="font-size:0.88rem;">
-          A paid launch offer for EU importers: scope threshold exposure, map suppliers, define the evidence workflow, and identify the immediate compliance blockers.
+          We scope your threshold exposure, map your suppliers, define the evidence workflow, and hand you a clear action plan with deadlines. Done in 30 days.
         </p>
         <a href="#cbam-call" class="btn-os-primary">Book Discovery Call →</a>
-        <div class="compliance-trust" style="margin-top:1.2rem;">
-          <span>Scope map · Supplier evidence · Action plan</span>
-          <span>·</span>
-          <span>30-day engagement</span>
+        <div class="price-badge">From €2,400</div>
+        <div class="compliance-trust" style="margin-top:1rem;">
+          <span>Scope map · Evidence plan · Action list</span>
         </div>
       </div>
 
       <div class="compliance-cta-section" style="margin-top:0;">
-        <div class="os-kicker" style="justify-content:center; display:flex;">Offer 02 · Recurring revenue</div>
-        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Managed Import Ops</h2>
+        <div class="os-kicker" style="justify-content:center; display:flex;">Month to month · Ongoing</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Managed Compliance Ops</h2>
         <p class="os-subtitle" style="font-size:0.88rem;">
-          Ongoing compliance operations with certificate-cost visibility, document chasing, shipment exceptions, and supplier follow-up inside one workflow.
+          We run your CBAM workflow on an ongoing basis — certificate-cost visibility, supplier chasing, shipment exceptions, and declaration readiness. No internal headcount needed.
         </p>
-        <a href="compliance/" class="btn-os-primary">Open Compliance Layer →</a>
-        <div class="compliance-trust" style="margin-top:1.2rem;">
-          <span>CBAM now · EUDR next</span>
-          <span>·</span>
-          <span>Monthly operating model</span>
+        <a href="compliance/" class="btn-os-primary">Run a Check Now →</a>
+        <div class="price-badge">From €1,200/mo</div>
+        <div class="compliance-trust" style="margin-top:1rem;">
+          <span>CBAM now · EUDR when it applies</span>
         </div>
       </div>
 
       <div class="compliance-cta-section" style="margin-top:0;">
-        <div class="os-kicker" style="justify-content:center; display:flex;">Offer 03 · Expansion</div>
-        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Factory + Shipment Intelligence</h2>
+        <div class="os-kicker" style="justify-content:center; display:flex;">Add on · When you're ready</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Factory & Shipment Intelligence</h2>
         <p class="os-subtitle" style="font-size:0.88rem;">
-          Expand account value with supplier scoring, audit prioritisation, and shipment visibility once the importer is already operating through OrcaTrade.
+          Once your compliance workflow is running, expand into supplier risk scoring, audit prioritisation, and live shipment visibility from the same operating layer.
         </p>
-        <a href="factory-risk/" class="btn-os-primary">Open Factory Layer →</a>
-        <div class="compliance-trust" style="margin-top:1.2rem;">
+        <a href="factory-risk/" class="btn-os-primary">Score a Factory Now →</a>
+        <div class="price-badge">Included in managed tier</div>
+        <div class="compliance-trust" style="margin-top:1rem;">
           <span>Risk · Capacity · Delivery</span>
-          <span>·</span>
-          <span>Expansion revenue</span>
         </div>
       </div>
 
@@ -1016,36 +1046,37 @@
   <hr class="os-divider">
 
   <section class="os-section" id="launch-plan">
-    <div class="os-kicker">Execution plan</div>
-    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">What the first 30 days should look like.</h2>
+    <div class="os-kicker">Your first 30 days</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">From inbox chaos to a managed compliance rhythm. In a month.</h2>
     <p class="os-subtitle" style="max-width:57ch;">
-      Amazing is not just aesthetics. It is a launch path that gets a buyer from scattered spreadsheets to a managed operating rhythm fast enough that they will pay to stay.
+      Every engagement follows the same four-step path. By the end of week four, you have a live operating
+      workflow — not a report that sits in a drawer.
     </p>
 
     <div class="timeline-grid">
       <div class="timeline-card">
         <div class="timeline-step">01</div>
-        <h3>Scope the account</h3>
-        <p>Map the importer entities, product flows, supplier base, and where the CBAM burden really sits.</p>
-        <strong>Outcome:</strong> buyer sees what is in scope now and what will hurt first.
+        <h3>We map your exposure</h3>
+        <p>We go through your product flows, supplier base, and import volumes to identify exactly where your CBAM obligations sit and what's missing.</p>
+        <strong>You get:</strong> a clear picture of what's in scope, what's at risk, and what needs to happen first.
       </div>
       <div class="timeline-card">
         <div class="timeline-step">02</div>
-        <h3>Launch the evidence run</h3>
-        <p>Open the supplier evidence queue, assign owners, and push all missing data into one managed process.</p>
-        <strong>Outcome:</strong> supplier chasing becomes a controlled workflow instead of inbox chaos.
+        <h3>We open your evidence queue</h3>
+        <p>Every missing emissions declaration, methodology document, and supplier certificate gets a tracked request with a deadline and an owner.</p>
+        <strong>You get:</strong> supplier chasing becomes a controlled process, not an inbox thread.
       </div>
       <div class="timeline-card">
         <div class="timeline-step">03</div>
-        <h3>Connect operations</h3>
-        <p>Link shipments, suppliers, factories, and compliance status so the ops team sees live exceptions, not isolated documents.</p>
-        <strong>Outcome:</strong> the buyer knows which orders are commercially exposed.
+        <h3>We connect your operations</h3>
+        <p>Your inbound shipments, suppliers, and compliance status sit in one view. Missing evidence triggers an operational exception — not a spreadsheet update.</p>
+        <strong>You get:</strong> visibility on exactly which orders are commercially exposed right now.
       </div>
       <div class="timeline-card">
         <div class="timeline-step">04</div>
-        <h3>Move to recurring ops</h3>
-        <p>Convert the sprint into a monthly operating model with evidence QA, cost planning, and exception control.</p>
-        <strong>Outcome:</strong> OrcaTrade becomes hard to replace because it runs part of the workflow.
+        <h3>We move to ongoing ops</h3>
+        <p>The sprint converts into a monthly operating model — evidence QA, certificate cost planning, declaration readiness, and exception control on autopilot.</p>
+        <strong>You get:</strong> a compliance workflow that runs itself, with OrcaTrade accountable for the output.
       </div>
     </div>
   </section>
@@ -1053,23 +1084,24 @@
   <hr class="os-divider">
 
   <section class="os-section" id="roi-model">
-    <div class="os-kicker">Commercial planning model</div>
-    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">Model the account before you sell it.</h2>
+    <div class="os-kicker">Exposure calculator</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">How heavy is your CBAM burden?</h2>
     <p class="os-subtitle" style="max-width:58ch;">
-      Use this planning layer to see how heavy the operating load is and which commercial motion OrcaTrade should lead with. This is a planning model, not a savings guarantee.
+      Enter your import profile and see how much compliance work you're actually carrying — and
+      which engagement model makes sense for your situation. This is an estimate, not a legal assessment.
     </p>
 
     <div class="roi-shell">
       <div class="roi-panel">
-        <div class="roi-badge">Buyer profile inputs</div>
-        <h3 class="os-title" style="font-size:clamp(1.25rem,2vw,1.7rem); margin-bottom:0.6rem;">What does this account actually look like?</h3>
+        <div class="roi-badge">Your import profile</div>
+        <h3 class="os-title" style="font-size:clamp(1.25rem,2vw,1.7rem); margin-bottom:0.6rem;">Tell us about your operation.</h3>
         <div class="roi-form-grid">
           <div class="roi-input-wrap">
             <label for="annualImportValue">Annual CBAM goods value (EUR)</label>
             <input id="annualImportValue" type="number" min="100000" step="50000" value="8500000">
           </div>
           <div class="roi-input-wrap">
-            <label for="activeSuppliers">Active CBAM suppliers</label>
+            <label for="activeSuppliers">CBAM-covered suppliers</label>
             <input id="activeSuppliers" type="number" min="1" step="1" value="18">
           </div>
           <div class="roi-input-wrap">
@@ -1077,43 +1109,43 @@
             <input id="monthlyShipments" type="number" min="1" step="1" value="24">
           </div>
           <div class="roi-input-wrap">
-            <label for="internalHours">Admin hours per month</label>
+            <label for="internalHours">Hours/month spent on compliance admin</label>
             <input id="internalHours" type="number" min="1" step="1" value="60">
           </div>
         </div>
         <p class="roi-note">
-          The goal is to see whether the account is light enough for a readiness sprint or already heavy enough to justify a managed recurring model from day one.
+          If you're unsure of exact numbers, use estimates. The output is directional — it helps you understand the scale of the problem before talking to us.
         </p>
       </div>
 
       <div class="roi-panel">
-        <div class="roi-badge">Planning outputs</div>
-        <h3 class="os-title" style="font-size:clamp(1.25rem,2vw,1.7rem); margin-bottom:0.6rem;">What should OrcaTrade sell here?</h3>
+        <div class="roi-badge">Your exposure picture</div>
+        <h3 class="os-title" style="font-size:clamp(1.25rem,2vw,1.7rem); margin-bottom:0.6rem;">Here's what you're dealing with.</h3>
         <div class="roi-metric-grid">
           <div class="roi-metric">
-            <div class="roi-metric-label">Annual scope under management</div>
+            <div class="roi-metric-label">CBAM goods in scope</div>
             <div class="roi-metric-value" id="scopeManaged">€8.5m</div>
-            <div class="roi-metric-copy">Goods value that should sit inside one operating view.</div>
+            <div class="roi-metric-copy">Annual goods value sitting inside the CBAM compliance perimeter.</div>
           </div>
           <div class="roi-metric">
-            <div class="roi-metric-label">Estimated yearly coordination events</div>
+            <div class="roi-metric-label">Annual compliance touches</div>
             <div class="roi-metric-value" id="coordinationEvents">504</div>
-            <div class="roi-metric-copy">Touches across suppliers, shipments, and evidence follow-up.</div>
+            <div class="roi-metric-copy">Estimated supplier requests, evidence checks, and declaration events per year.</div>
           </div>
           <div class="roi-metric">
-            <div class="roi-metric-label">Hours to redirect into workflow</div>
+            <div class="roi-metric-label">Admin hours you can reclaim</div>
             <div class="roi-metric-value" id="hoursRedirected">252</div>
-            <div class="roi-metric-copy">Planning estimate of annual admin time that should become structured process.</div>
+            <div class="roi-metric-copy">Estimated annual hours that should be structured process, not manual effort.</div>
           </div>
           <div class="roi-metric">
-            <div class="roi-metric-label">Recommended commercial motion</div>
+            <div class="roi-metric-label">Where to start</div>
             <div class="roi-metric-value" id="recommendedMotion">Managed Ops</div>
-            <div class="roi-metric-copy">The offer that best matches the operating burden.</div>
+            <div class="roi-metric-copy">The engagement model that fits your operating load.</div>
           </div>
         </div>
         <div class="roi-recommendation">
-          <strong id="recommendedPackage">Lead with Managed Import Ops.</strong>
-          <p id="recommendedCopy">This account is already carrying enough supplier, shipment, and evidence load that OrcaTrade should sell an ongoing operating model rather than a one-off diagnostic.</p>
+          <strong id="recommendedPackage">Start with Managed Compliance Ops.</strong>
+          <p id="recommendedCopy">Your supplier count, shipment volume, and admin load are already above the threshold where a one-off sprint won't be enough. A monthly operating model will serve you better from day one.</p>
         </div>
       </div>
     </div>
@@ -1123,10 +1155,11 @@
 
   <section class="os-section" id="cbam-call">
     <div style="text-align:center; margin-bottom:2.5rem;">
-      <div class="os-kicker">Inbound engine</div>
+      <div class="os-kicker">Get started</div>
       <h2 class="os-title" style="font-size:clamp(1.5rem,3vw,2.2rem);">Book a CBAM readiness call.</h2>
-      <p style="font-size:0.92rem; color:var(--os-muted); max-width:44ch; margin:0 auto;">
-        This should not be a passive waitlist. Use the page to qualify importers, capture urgency, and move them into a paid readiness sprint.
+      <p style="font-size:0.92rem; color:var(--os-muted); max-width:48ch; margin:0 auto;">
+        Tell us where your CBAM workflow stands. We'll map your exposure and outline the fastest path
+        to a compliant operation — usually in one 45-minute call. No obligation, no sales pitch.
       </p>
     </div>
     <div class="waitlist-box">
@@ -1145,12 +1178,12 @@
             <input class="wl-input" id="wl-email" name="email" type="email" placeholder="you@company.com" required>
           </div>
           <div>
-            <label class="wl-label" for="wl-project">CBAM goods / annual volume</label>
-            <input class="wl-input" id="wl-project" name="project" type="text" placeholder="Example: 1,200 tonnes of steel fasteners from India">
+            <label class="wl-label" for="wl-project">What CBAM goods do you import and roughly how much per year?</label>
+            <input class="wl-input" id="wl-project" name="project" type="text" placeholder="e.g. 1,200 tonnes of steel fasteners from India, ~€4m/year">
           </div>
           <div>
-            <label class="wl-label" for="wl-message">Current blocker</label>
-            <textarea class="wl-input" id="wl-message" name="message" rows="4" placeholder="What is hardest right now: supplier emissions data, declarant setup, certificate planning, customs handoff, or internal process?"></textarea>
+            <label class="wl-label" for="wl-message">What's your biggest blocker right now?</label>
+            <textarea class="wl-input" id="wl-message" name="message" rows="4" placeholder="Supplier emissions data? Declarant setup? Certificate cost planning? Customs handoff? Internal process?"></textarea>
           </div>
           <button type="submit" class="btn-os-primary" style="width:100%; justify-content:center; margin-top:0.4rem;">
             Request CBAM Readiness Call →
@@ -1159,15 +1192,13 @@
         </form>
 
         <div class="fit-panel">
-          <div class="os-kicker" style="margin-bottom:0.7rem;">Best fit</div>
-          <h3 class="os-title" style="font-size:clamp(1.2rem,2vw,1.6rem); margin-bottom:0.8rem;">Importers who already feel the pressure.</h3>
-          <p style="font-size:0.88rem; color:var(--os-muted); line-height:1.7;">
-            Focus sales on buyers who have to solve an operational problem now, not on generic curiosity traffic.
-          </p>
+          <div class="os-kicker" style="margin-bottom:0.7rem;">Is this right for you?</div>
+          <h3 class="os-title" style="font-size:clamp(1.2rem,2vw,1.6rem); margin-bottom:0.8rem;">You're in the right place if any of these sound familiar.</h3>
           <div class="fit-list">
-            <div class="fit-item">EU importers above the CBAM threshold, especially in iron, steel, aluminium, fertilisers, and cement-linked categories.</div>
-            <div class="fit-item">Teams that need supplier emissions evidence, customs-ready workflows, and a cleaner process between operations and compliance.</div>
-            <div class="fit-item">Accounts that can later expand into factory scoring, shipment monitoring, and EUDR order-level checks.</div>
+            <div class="fit-item">You import iron, steel, aluminium, fertilisers, or cement into the EU — and you're not certain whether you're above the 50-tonne CBAM threshold.</div>
+            <div class="fit-item">You know you need supplier emissions evidence but getting it back from exporters has been slow, inconsistent, or completely stalled.</div>
+            <div class="fit-item">Your current compliance process is a mix of spreadsheets, email threads, and things your customs agent handles that you can't see.</div>
+            <div class="fit-item">You also import timber, wood, cocoa, coffee, palm, soy, beef, or rubber — and you want your EUDR readiness sorted before the 2026 deadline.</div>
           </div>
         </div>
       </div>
@@ -1220,19 +1251,19 @@
         const redirectedHours = Math.round(adminHours * 12 * 0.35);
 
         let motionLabel = 'Readiness Sprint';
-        let packageTitle = 'Lead with a CBAM Readiness Sprint.';
-        let packageCopy = 'The account is still compact enough to win with a fixed-scope launch, map the operating burden, and then convert into a monthly managed model once the workflow is live.';
+        let packageTitle = 'Start with the CBAM Readiness Sprint.';
+        let packageCopy = 'Your operation is compact enough to get full clarity in a 30-day engagement. We scope your exposure, build the evidence workflow, and hand you an action plan — then you decide whether to continue on a monthly basis.';
 
         if (importValue >= 5000000 || suppliers >= 14 || shipments >= 20 || adminHours >= 45) {
           motionLabel = 'Managed Ops';
-          packageTitle = 'Lead with Managed Import Ops.';
-          packageCopy = 'This account is already carrying enough supplier, shipment, and evidence load that OrcaTrade should sell an ongoing operating model rather than a one-off diagnostic.';
+          packageTitle = 'Start with Managed Compliance Ops.';
+          packageCopy = 'Your supplier count, shipment volume, and admin load are above the threshold where a one-off sprint is enough. A monthly operating model will serve you better from day one — evidence QA, cost planning, and declaration readiness on autopilot.';
         }
 
         if (importValue >= 20000000 || suppliers >= 35 || shipments >= 45 || adminHours >= 110) {
-          motionLabel = 'Enterprise Motion';
-          packageTitle = 'Lead with an enterprise operating rollout.';
-          packageCopy = 'This buyer needs OrcaTrade positioned as part software, part operating partner, with executive sponsorship, supplier onboarding, and multi-team workflow control from the start.';
+          motionLabel = 'Enterprise';
+          packageTitle = 'You need an enterprise compliance rollout.';
+          packageCopy = 'At your scale, compliance is an operational function, not a project. OrcaTrade works as part software, part operating partner — with supplier onboarding, multi-team workflow control, and executive-level reporting built in from the start.';
         }
 
         scopeManaged.textContent = formatEurShort(importValue);
