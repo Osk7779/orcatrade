@@ -433,56 +433,13 @@
     /* ── COMMAND GRID ── */
     .command-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.2rem;
       margin-top: 3rem;
-      border-top: 1px solid var(--os-border);
-      border-bottom: 1px solid var(--os-border);
     }
 
-    .command-item {
-      padding: 2.4rem 2rem 2.4rem 0;
-      border-right: 1px solid var(--os-border);
-    }
-
-    .command-item:first-child { padding-left: 0; }
-    .command-item:last-child { border-right: none; padding-right: 0; }
-
-    .command-item-num {
-      font-size: 0.65rem;
-      font-weight: 500;
-      letter-spacing: 0.18em;
-      color: var(--os-accent);
-      margin-bottom: 1.6rem;
-      opacity: 0.5;
-    }
-
-    .command-item-title {
-      font-family: var(--font-head);
-      font-size: clamp(1.1rem, 1.6vw, 1.4rem);
-      font-weight: 600;
-      margin-bottom: 1rem;
-      line-height: 1.2;
-      letter-spacing: -0.01em;
-    }
-
-    .command-item-desc {
-      font-size: 0.82rem;
-      color: var(--os-muted);
-      line-height: 1.7;
-    }
-
-    @media (max-width: 860px) {
-      .command-grid { grid-template-columns: 1fr 1fr; }
-      .command-item { padding: 2rem 2rem 2rem 0; border-bottom: 1px solid var(--os-border); }
-      .command-item:nth-child(even) { border-right: none; padding-right: 0; padding-left: 2rem; }
-      .command-item:nth-child(odd) { padding-left: 0; }
-      .command-item:nth-child(3), .command-item:nth-child(4) { border-bottom: none; }
-    }
-
-    @media (max-width: 540px) {
+    @media (max-width: 600px) {
       .command-grid { grid-template-columns: 1fr; }
-      .command-item { border-right: none; padding: 1.8rem 0; border-bottom: 1px solid var(--os-border); }
-      .command-item:last-child { border-bottom: none; }
     }
 
     .timeline-grid {
@@ -906,29 +863,29 @@
   <hr class="os-divider">
 
   <section class=”os-section” id=”command-center”>
-    <div class=”os-kicker” style=”margin-bottom:0.4rem;”>What's inside</div>
-    <h2 class=”os-title” style=”font-size:clamp(1.5rem,2.8vw,2.2rem); margin-bottom:0; max-width:32ch;”>Four views. One operating desk. No inbox chasing.</h2>
+    <div class=”os-kicker”>What's inside</div>
+    <h2 class=”os-title” style=”font-size:clamp(1.5rem,2.8vw,2.2rem); margin-bottom:0; max-width:32ch;”>Four views. One operating desk.</h2>
 
     <div class=”command-grid”>
-      <div class=”command-item”>
-        <div class=”command-item-num”>01</div>
-        <div class=”command-item-title”>Threshold Watch</div>
-        <div class=”command-item-desc”>50-tonne exposure tracked by supplier, category, and importer entity — with weekly breach alerts before your customs agent flags it.</div>
+      <div class=”pillar-card”>
+        <div class=”pillar-num”>01</div>
+        <div class=”pillar-title”>Threshold Watch</div>
+        <div class=”pillar-desc”>50-tonne exposure tracked by supplier, category, and importer entity — with weekly breach alerts before your customs agent flags it.</div>
       </div>
-      <div class=”command-item”>
-        <div class=”command-item-num”>02</div>
-        <div class=”command-item-title”>Supplier Evidence Queue</div>
-        <div class=”command-item-desc”>Every outstanding document and supplier declaration in one managed queue, sorted by shipment value and urgency.</div>
+      <div class=”pillar-card”>
+        <div class=”pillar-num”>02</div>
+        <div class=”pillar-title”>Supplier Evidence Queue</div>
+        <div class=”pillar-desc”>Every outstanding document and supplier declaration in one managed queue, sorted by shipment value and urgency.</div>
       </div>
-      <div class=”command-item”>
-        <div class=”command-item-num”>03</div>
-        <div class=”command-item-title”>Certificate Cost Planning</div>
-        <div class=”command-item-desc”>Know your CBAM cost before the next declaration. Supplier comparison built in so you know exactly where to push for better data.</div>
+      <div class=”pillar-card”>
+        <div class=”pillar-num”>03</div>
+        <div class=”pillar-title”>Certificate Cost Planning</div>
+        <div class=”pillar-desc”>Know your CBAM cost before the next declaration. Supplier comparison built in so you know exactly where to push for better data.</div>
       </div>
-      <div class=”command-item”>
-        <div class=”command-item-num”>04</div>
-        <div class=”command-item-title”>Shipment Exception Control</div>
-        <div class=”command-item-desc”>Live order book connected to your compliance workflow. Missing evidence becomes a flagged exception — not a buried email thread.</div>
+      <div class=”pillar-card”>
+        <div class=”pillar-num”>04</div>
+        <div class=”pillar-title”>Shipment Exception Control</div>
+        <div class=”pillar-desc”>Live order book connected to your compliance workflow. Missing evidence becomes a flagged exception — not a buried email thread.</div>
       </div>
     </div>
   </section>
