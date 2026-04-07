@@ -16,7 +16,7 @@
   var overlay = document.createElement('div');
   overlay.id = 'pt-overlay';
   overlay.setAttribute('aria-hidden', 'true');
-  overlay.innerHTML = '<div class="pt-inner"><span class="pt-wordmark">ORCATRADE HOLDING</span><div class="pt-line"></div></div>';
+  overlay.innerHTML = '<div class="pt-inner"><span class="pt-wordmark">ORCATRADE GROUP</span><div class="pt-line"></div></div>';
   document.body.appendChild(overlay);
 
   var wordmark = overlay.querySelector('.pt-wordmark');

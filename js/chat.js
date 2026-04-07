@@ -20,14 +20,14 @@
       <div class="chat-header">
         <div class="chat-avatar" aria-hidden="true">OT</div>
         <div class="chat-header-info">
-          <div class="chat-header-title">orcatrade Assistant</div>
-          <div class="chat-header-sub">Asia sourcing &amp; procurement</div>
+          <div class="chat-header-title">OrcaTrade Assistant</div>
+          <div class="chat-header-sub">Asia sourcing &amp; trade intelligence</div>
         </div>
       </div>
 
       <div class="chat-messages" id="chat-messages" aria-live="polite">
         <div class="chat-msg chat-msg--assistant">
-          Hi! I'm the orcatrade assistant. Ask me anything about our sourcing services, process, or how we can help your business source from Asia.
+          Hi — I'm the OrcaTrade Group assistant. Ask me about our sourcing services, the Intelligence platform, compliance tools, or anything about Asia trade.
         </div>
       </div>
 
@@ -178,7 +178,7 @@
 
     } catch {
       typingEl.remove();
-      appendMsg('assistant', 'Sorry, something went wrong. Please try again or reach us at hello@orcatrade.com.');
+      appendMsg('assistant', 'Sorry, something went wrong. Please try again or reach us at orca@orcatrade.pl.');
     } finally {
       setLoading(false);
       input.focus();

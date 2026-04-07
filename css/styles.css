@@ -1864,6 +1864,24 @@ footer {
   margin-bottom: 0;
 }
 
+.read-more-btn {
+  background: none;
+  border: none;
+  color: var(--gold);
+  font-family: 'Geist', 'Helvetica Neue', Arial, sans-serif;
+  font-size: 0.74rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  cursor: pointer;
+  padding: 0.4rem 0;
+  margin-top: 0.5rem;
+  opacity: 0.65;
+  transition: opacity 0.2s ease;
+  display: block;
+}
+
+.read-more-btn:hover { opacity: 1; }
+
 
 /* ── LANGUAGE SWITCHER ── */
 .lang-switcher { display: flex; gap: 0.4rem; align-items: center; }
