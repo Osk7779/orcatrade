@@ -430,118 +430,46 @@
       line-height: 1.65;
     }
 
-    /* ── COMMAND TABS ── */
-    .command-shell {
+    /* ── COMMAND GRID ── */
+    .command-grid {
       display: grid;
-      grid-template-columns: 260px 1fr;
-      border: 1px solid var(--os-border);
+      grid-template-columns: 1fr 1fr;
       margin-top: 2.5rem;
-      min-height: 340px;
+      border-top: 1px solid var(--os-border);
+      border-left: 1px solid var(--os-border);
     }
 
-    .command-tabs {
+    .command-item {
+      padding: 2rem 2.4rem;
       border-right: 1px solid var(--os-border);
-      display: flex;
-      flex-direction: column;
-    }
-
-    .command-tab {
-      padding: 1.4rem 1.6rem;
       border-bottom: 1px solid var(--os-border);
-      cursor: pointer;
-      transition: background 0.15s;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      user-select: none;
     }
 
-    .command-tab:last-child { border-bottom: none; }
-
-    .command-tab-num {
-      font-family: var(--font-head);
-      font-size: 0.72rem;
+    .command-item-num {
+      font-size: 0.7rem;
       font-weight: 700;
-      color: rgba(184,190,200,0.3);
-      letter-spacing: 0.1em;
-      min-width: 1.6rem;
-      transition: color 0.15s;
+      letter-spacing: 0.12em;
+      color: var(--os-accent);
+      margin-bottom: 0.9rem;
+      opacity: 0.7;
     }
 
-    .command-tab-label {
-      font-size: 0.88rem;
-      font-weight: 500;
-      color: var(--os-muted);
-      transition: color 0.15s;
-    }
-
-    .command-tab:hover { background: rgba(184,190,200,0.04); }
-
-    .command-tab.active {
-      background: linear-gradient(90deg, rgba(184,190,200,0.07), transparent);
-      border-left: 2px solid var(--os-accent);
-    }
-
-    .command-tab.active .command-tab-num { color: var(--os-accent); }
-    .command-tab.active .command-tab-label { color: var(--os-text); }
-
-    .command-panel {
-      padding: 2.4rem 2.8rem;
-      display: none !important;
-    }
-
-    .command-panel.active { display: block !important; }
-
-    .command-panel-title {
+    .command-item-title {
       font-family: var(--font-head);
-      font-size: clamp(1.4rem, 2.5vw, 2rem);
+      font-size: 1.15rem;
       font-weight: 600;
-      margin-bottom: 0.8rem;
+      margin-bottom: 0.65rem;
       letter-spacing: -0.01em;
     }
 
-    .command-panel-copy {
+    .command-item-desc {
+      font-size: 0.86rem;
       color: var(--os-muted);
-      font-size: 0.92rem;
-      line-height: 1.72;
-      max-width: 52ch;
-      margin-bottom: 2rem;
-    }
-
-    .command-panel-items {
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-    }
-
-    .command-panel-item {
-      display: flex;
-      gap: 1rem;
-      align-items: flex-start;
-      padding: 0.9rem 0;
-      border-top: 1px solid rgba(255,255,255,0.05);
-      font-size: 0.88rem;
-      color: rgba(184,190,200,0.75);
-      line-height: 1.55;
-    }
-
-    .command-panel-item::before {
-      content: "";
-      width: 4px;
-      height: 4px;
-      background: var(--os-accent);
-      border-radius: 50%;
-      margin-top: 0.45em;
-      flex-shrink: 0;
-      opacity: 0.5;
+      line-height: 1.65;
     }
 
     @media (max-width: 640px) {
-      .command-shell { grid-template-columns: 1fr; }
-      .command-tabs { flex-direction: row; overflow-x: auto; border-right: none; border-bottom: 1px solid var(--os-border); }
-      .command-tab { border-bottom: none; border-right: 1px solid var(--os-border); flex-shrink: 0; }
-      .command-tab:last-child { border-right: none; }
-      .command-tab.active { border-left: none; border-bottom: 2px solid var(--os-accent); }
+      .command-grid { grid-template-columns: 1fr; }
     }
 
     .timeline-grid {
@@ -966,67 +894,28 @@
 
   <section class=”os-section” id=”command-center”>
     <div class=”os-kicker”>What's inside</div>
-    <h2 class=”os-title” style=”font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;”>One desk. Everything your import compliance team needs to see.</h2>
-    <p class=”os-subtitle” style=”max-width:58ch;”>
-      Instead of scattered spreadsheets, inbox threads, and disconnected customs documents — one
-      operating view that shows you what's in scope, what's missing, what's blocked, and what to do next.
-    </p>
+    <h2 class=”os-title” style=”font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0;”>One desk. Four views. Zero inbox chasing.</h2>
 
-    <div class=”command-shell”>
-      <div class=”command-tabs”>
-        <div class=”command-tab active” data-panel=”p1”>
-          <span class=”command-tab-num”>01</span>
-          <span class=”command-tab-label”>Threshold Watch</span>
-        </div>
-        <div class=”command-tab” data-panel=”p2”>
-          <span class=”command-tab-num”>02</span>
-          <span class=”command-tab-label”>Evidence Queue</span>
-        </div>
-        <div class=”command-tab” data-panel=”p3”>
-          <span class=”command-tab-num”>03</span>
-          <span class=”command-tab-label”>Cost Planning</span>
-        </div>
-        <div class=”command-tab” data-panel=”p4”>
-          <span class=”command-tab-num”>04</span>
-          <span class=”command-tab-label”>Exception Control</span>
-        </div>
+    <div class=”command-grid”>
+      <div class=”command-item”>
+        <div class=”command-item-num”>01</div>
+        <div class=”command-item-title”>Threshold Watch</div>
+        <div class=”command-item-desc”>50-tonne exposure tracked by supplier, category, and importer entity — with weekly breach alerts before your customs agent flags it.</div>
       </div>
-
-      <div class=”command-panel active” id=”p1”>
-        <div class=”command-panel-title”>Threshold Watch</div>
-        <div class=”command-panel-copy”>See exactly which of your product flows are inside the CBAM perimeter — before your customs agent tells you it's too late.</div>
-        <div class=”command-panel-items”>
-          <div class=”command-panel-item”>50-tonne exposure tracked by supplier, category, and importer entity.</div>
-          <div class=”command-panel-item”>Authorised declarant readiness and customs handoff status.</div>
-          <div class=”command-panel-item”>Weekly alert on which flows are drifting toward a threshold breach.</div>
-        </div>
+      <div class=”command-item”>
+        <div class=”command-item-num”>02</div>
+        <div class=”command-item-title”>Supplier Evidence Queue</div>
+        <div class=”command-item-desc”>Every outstanding document and supplier declaration in one managed queue, sorted by shipment value and urgency.</div>
       </div>
-      <div class=”command-panel” id=”p2”>
-        <div class=”command-panel-title”>Supplier Evidence Queue</div>
-        <div class=”command-panel-copy”>Stop chasing suppliers by email. Every outstanding document, declaration, and emissions methodology in one managed queue.</div>
-        <div class=”command-panel-items”>
-          <div class=”command-panel-item”>Outstanding requests sorted by shipment value and urgency.</div>
-          <div class=”command-panel-item”>Follow-up, QA, approval, and escalation tracked in one place.</div>
-          <div class=”command-panel-item”>Full audit trail for every supplier interaction and document received.</div>
-        </div>
+      <div class=”command-item”>
+        <div class=”command-item-num”>03</div>
+        <div class=”command-item-title”>Certificate Cost Planning</div>
+        <div class=”command-item-desc”>Know your CBAM cost before the next declaration. Supplier comparison built in so you know exactly where to push for better data.</div>
       </div>
-      <div class=”command-panel” id=”p3”>
-        <div class=”command-panel-title”>Certificate Cost Planning</div>
-        <div class=”command-panel-copy”>Know what CBAM is going to cost you before your next declaration — and where switching suppliers saves the most money.</div>
-        <div class=”command-panel-items”>
-          <div class=”command-panel-item”>Certificate price visibility and account-level planning assumptions.</div>
-          <div class=”command-panel-item”>Emissions exposure mapped against your actual import volume.</div>
-          <div class=”command-panel-item”>Supplier comparison so you know exactly where to push for better data.</div>
-        </div>
-      </div>
-      <div class=”command-panel” id=”p4”>
-        <div class=”command-panel-title”>Shipment Exception Control</div>
-        <div class=”command-panel-copy”>Your live order book, connected to your compliance workflow. Missing evidence becomes an operational exception — not a buried note.</div>
-        <div class=”command-panel-items”>
-          <div class=”command-panel-item”>Shipments blocked by missing supplier evidence flagged immediately.</div>
-          <div class=”command-panel-item”>Port, vessel, and factory context alongside every compliance task.</div>
-          <div class=”command-panel-item”>Clear owner and next action on every open blocker.</div>
-        </div>
+      <div class=”command-item”>
+        <div class=”command-item-num”>04</div>
+        <div class=”command-item-title”>Shipment Exception Control</div>
+        <div class=”command-item-desc”>Live order book connected to your compliance workflow. Missing evidence becomes a flagged exception — not a buried email thread.</div>
       </div>
     </div>
   </section>
@@ -1368,32 +1257,5 @@
   </script>
   <script src="js/forms.js"></script>
   <script src="js/transitions.js"></script>
-  <script>
-    (function() {
-      const tabs = document.querySelectorAll('.command-tab');
-      const panels = document.querySelectorAll('.command-panel');
-
-      // Enforce initial state immediately in case CSS hasn't applied
-      panels.forEach(function(p) { p.style.display = 'none'; });
-      var firstActive = document.querySelector('.command-panel.active');
-      if (firstActive) firstActive.style.display = 'block';
-
-      tabs.forEach(function(tab) {
-        tab.addEventListener('click', function() {
-          tabs.forEach(function(t) { t.classList.remove('active'); });
-          panels.forEach(function(p) {
-            p.classList.remove('active');
-            p.style.display = 'none';
-          });
-          tab.classList.add('active');
-          var target = document.getElementById(tab.dataset.panel);
-          if (target) {
-            target.classList.add('active');
-            target.style.display = 'block';
-          }
-        });
-      });
-    })();
-  </script>
 </body>
 </html>
