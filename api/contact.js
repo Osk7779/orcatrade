@@ -20,11 +20,15 @@ module.exports = async function handler(req, res) {
 
   const subject = type === 'waitlist'
     ? `New waitlist signup: ${name}`
-    : `New inquiry from ${name}${company ? ` (${company})` : ''}`;
+    : type === 'cbam-readiness'
+      ? `New CBAM readiness request: ${name}${company ? ` (${company})` : ''}`
+      : `New inquiry from ${name}${company ? ` (${company})` : ''}`;
 
   const body = type === 'waitlist'
     ? `New waitlist signup\n\nName: ${name}\nEmail: ${email}`
-    : `New inquiry via OrcaTrade\n\nName: ${name}\nEmail: ${email}${company ? `\nCompany: ${company}` : ''}${project ? `\n\nMessage:\n${project}` : ''}${message ? `\n\nMessage:\n${message}` : ''}`;
+    : type === 'cbam-readiness'
+      ? `New CBAM readiness request\n\nName: ${name}\nEmail: ${email}${company ? `\nCompany: ${company}` : ''}${project ? `\n\nCBAM goods / annual volume:\n${project}` : ''}${message ? `\n\nCurrent blocker:\n${message}` : ''}`
+      : `New inquiry via OrcaTrade\n\nName: ${name}\nEmail: ${email}${company ? `\nCompany: ${company}` : ''}${project ? `\n\nMessage:\n${project}` : ''}${message ? `\n\nMessage:\n${message}` : ''}`;
 
   try {
     const response = await fetch('https://api.resend.com/emails', {

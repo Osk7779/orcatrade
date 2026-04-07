@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaTrade Intelligence — AI-Powered Supply Chain OS</title>
+  <title>OrcaTrade Intelligence — CBAM Operations for EU Importers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="OrcaTrade Intelligence: supply chain clarity, factory risk scoring, and EU regulatory compliance — EUDR, CBAM, CSDDD — powered by AI.">
-  <meta property="og:title" content="OrcaTrade Intelligence — AI-Powered Supply Chain OS" />
+  <meta name="description" content="OrcaTrade Intelligence: CBAM-first import operations for EU importers, with supplier evidence collection, factory scoring, shipment visibility, and EUDR readiness.">
+  <meta property="og:title" content="OrcaTrade Intelligence — CBAM Operations for EU Importers" />
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
@@ -374,9 +374,65 @@
 
     .compliance-trust span { opacity: 0.8; }
 
-    /* ── WAITLIST ── */
+    .market-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 2.2rem;
+    }
+
+    .market-card {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border);
+      padding: 1.4rem;
+    }
+
+    .market-label {
+      font-size: 0.68rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--os-accent);
+      margin-bottom: 0.8rem;
+    }
+
+    .market-number {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      line-height: 1;
+      margin-bottom: 0.55rem;
+    }
+
+    .market-copy {
+      font-size: 0.84rem;
+      color: var(--os-muted);
+      line-height: 1.6;
+    }
+
+    .offer-strip {
+      margin-top: 2rem;
+      padding: 1.2rem 1.4rem;
+      border: 1px solid rgba(184, 190, 200, 0.18);
+      background: rgba(184, 190, 200, 0.06);
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 1rem 2rem;
+      align-items: center;
+    }
+
+    .offer-strip strong {
+      color: var(--os-text);
+      font-weight: 600;
+    }
+
+    .offer-strip p {
+      color: var(--os-muted);
+      font-size: 0.9rem;
+      line-height: 1.65;
+    }
+
+    /* ── LEAD FORM ── */
     .waitlist-box {
-      max-width: 520px;
+      max-width: 100%;
       margin: 0 auto;
       background: linear-gradient(145deg, #111d3a, #060b17);
       border: 1px solid var(--os-border);
@@ -430,6 +486,42 @@
     .wl-input:focus {
       border-color: rgba(184, 190, 200, 0.5);
       box-shadow: 0 0 0 3px rgba(184, 190, 200, 0.08);
+    }
+
+    .lead-grid {
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 1.4rem;
+      align-items: start;
+    }
+
+    .fit-panel {
+      background: rgba(5, 5, 7, 0.42);
+      border: 1px solid var(--os-border);
+      padding: 1.4rem 1.3rem;
+    }
+
+    .fit-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.7rem;
+      margin-top: 1rem;
+      color: var(--os-muted);
+      font-size: 0.86rem;
+      line-height: 1.6;
+    }
+
+    .fit-item {
+      padding-top: 0.7rem;
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+
+    @media (max-width: 960px) {
+      .market-grid,
+      .lead-grid,
+      .offer-strip {
+        grid-template-columns: 1fr;
+      }
     }
 
     /* ── DIVIDER ── */
@@ -488,24 +580,63 @@
         <a href="pl/intelligence.html" class="lang-btn">PL</a>
         <a href="de/intelligence.html" class="lang-btn">DE</a>
       </div>
-      <a href="compliance/" class="os-nav-cta">Run Compliance Check →</a>
+      <a href="#cbam-call" class="os-nav-cta">Book CBAM Readiness Call →</a>
     </div>
   </nav>
 
   <!-- HERO -->
   <section class="os-section os-hero" id="top">
     <a href="index.html" class="os-back">← Back to OrcaTrade Group</a>
-    <div class="os-kicker">Business Unit · In Development</div>
-    <div class="os-badge">In Development</div>
-    <h1 class="os-title">OrcaTrade Intelligence —<br><span>AI-Powered Supply Chain OS</span></h1>
+    <div class="os-kicker">Business Unit · Live Now</div>
+    <div class="os-badge">Live Now</div>
+    <h1 class="os-title">OrcaTrade Intelligence —<br><span>CBAM operations for EU importers</span></h1>
     <p class="os-subtitle">
-      A focused operating layer for three live importer decisions: track shipments, score factories,
-      and check EU compliance. Built to stay precise on the workflows that matter instead of acting
-      like a generic chatbot.
+      Start with the urgent workflow buyers will pay for now: CBAM readiness, supplier evidence
+      collection, certificate-cost visibility, and import exception control. Then expand into
+      shipment monitoring, factory scoring, and EUDR readiness from the same operating layer.
     </p>
     <div class="os-hero-actions">
-      <a href="compliance/" class="btn-os-primary">Run Compliance Check →</a>
-      <a href="#pillars" class="btn-os-ghost">Explore the platform</a>
+      <a href="#cbam-call" class="btn-os-primary">Book CBAM Readiness Call →</a>
+      <a href="#market-window" class="btn-os-ghost">See the commercial wedge</a>
+    </div>
+  </section>
+
+  <hr class="os-divider">
+
+  <section class="os-section" id="market-window">
+    <div class="os-kicker">Commercial wedge</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">Start with the painful thing buyers cannot ignore.</h2>
+    <p class="os-subtitle" style="max-width:58ch;">
+      OrcaTrade Intelligence should sell as a CBAM-first operating layer for EU importers, then
+      expand account value through shipment visibility, factory scoring, and broader compliance.
+    </p>
+
+    <div class="market-grid">
+      <div class="market-card">
+        <div class="market-label">CBAM live now</div>
+        <div class="market-number">1 Jan 2026</div>
+        <div class="market-copy">The CBAM definitive regime is already operational, so the urgency is present now rather than theoretical.</div>
+      </div>
+      <div class="market-card">
+        <div class="market-label">Importer threshold</div>
+        <div class="market-number">50 tonnes</div>
+        <div class="market-copy">Above the annual threshold, importers need controlled workflows, evidence collection, and declarant readiness.</div>
+      </div>
+      <div class="market-card">
+        <div class="market-label">EUDR next window</div>
+        <div class="market-number">30 Dec 2026</div>
+        <div class="market-copy">Large and medium operators face the next major readiness deadline, with micro and small operators following on 30 June 2027.</div>
+      </div>
+      <div class="market-card">
+        <div class="market-label">Expansion path</div>
+        <div class="market-number">3 layers</div>
+        <div class="market-copy">Compliance ops win the account. Factory scoring and shipment visibility increase retention and account value.</div>
+      </div>
+    </div>
+
+    <div class="offer-strip">
+      <p><strong>Who buys first:</strong> EU importers of iron, steel, aluminium, fertilisers, cement, and adjacent industrial goods that need supplier evidence and customs-ready workflows.</p>
+      <p><strong>What OrcaTrade sells:</strong> a CBAM readiness sprint, ongoing managed compliance ops, and a broader intelligence layer for suppliers, factories, and live shipments.</p>
     </div>
   </section>
 
@@ -513,10 +644,10 @@
 
   <!-- THREE PILLARS -->
   <section class="os-section" id="pillars">
-    <div class="os-kicker">Platform pillars</div>
-    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.5rem;">Three pillars. One OS.</h2>
+    <div class="os-kicker">Delivery stack</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.5rem;">Three pillars. One commercial account.</h2>
     <p style="font-size:0.92rem; color:var(--os-muted); line-height:1.65; max-width:50ch; margin-bottom:0;">
-      Each workflow is deliberately narrow, operational, and designed to reduce mistakes where importers lose money, fail audits, or get blindsided.
+      Each workflow is deliberately narrow, operational, and built to support the same customer relationship: win with compliance, expand with supplier and shipment intelligence.
     </p>
 
     <div class="pillars-grid">
@@ -524,9 +655,8 @@
         <div class="pillar-num">Pillar 01 · Live Now</div>
         <h3 class="pillar-title">Supply Chain Clarity</h3>
         <p class="pillar-desc">
-          Real-time visibility across your supplier network. Know which shipments are moving,
-          which factories are at capacity, and where bottlenecks are forming — before they cost you.
-          Disruption forecasting built on live trade signals.
+          Real-time visibility across your supplier network. Use it to defend delivery promises,
+          surface delays early, and keep compliance ops tied to actual inbound orders and ports.
         </p>
         <div style="margin-top:1.2rem;font-size:0.82rem;color:var(--os-accent);font-weight:500;">Open Dashboard →</div>
       </a>
@@ -535,9 +665,8 @@
         <div class="pillar-num">Pillar 02 · Live Now</div>
         <h3 class="pillar-title">Factory Risk Scoring & Sourcing</h3>
         <p class="pillar-desc">
-          Continuous monitoring of supplier risk signals — audit history, certification status,
-          geopolitical exposure, labour compliance flags. Automated risk scores so you always
-          know which factories warrant deeper scrutiny.
+          Continuous monitoring of supplier risk signals so compliance and sourcing teams know
+          which factories need deeper scrutiny before they become expensive problems.
         </p>
         <div style="margin-top:1.2rem;font-size:0.82rem;color:var(--os-accent);font-weight:500;">Open Dashboard →</div>
       </a>
@@ -546,9 +675,8 @@
         <div class="pillar-num">Pillar 03 · Live Now</div>
         <h3 class="pillar-title">EU Regulatory Compliance</h3>
         <p class="pillar-desc">
-          Automated due diligence for EUDR, CBAM, and CSDDD. Georeferenced data collection,
-          compliance status dashboards, and AI-generated action steps — so your imports stay
-          on the right side of EU law, every time.
+          Start with CBAM-readiness workflows buyers need now, then extend into EUDR order checks
+          and larger-enterprise diligence over time. Built for operational action, not generic chat.
         </p>
         <div style="margin-top:1.2rem;font-size:0.82rem;color:var(--os-accent);font-weight:500;">Open Dashboard →</div>
       </a>
@@ -557,49 +685,55 @@
 
   <hr class="os-divider">
 
-  <!-- COMPLIANCE CTA -->
-  <section class="os-section" id="compliance">
+  <section class="os-section" id="offer-stack">
+    <div class="os-kicker">Offer stack</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">Sell the work in layers.</h2>
+    <p class="os-subtitle" style="max-width:56ch;">
+      OrcaTrade Intelligence should not sell as a vague all-in-one platform. It should sell as a
+      paid entry point with clear expansion paths.
+    </p>
+
     <div class="cta-grid" style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem; margin-top:1rem;">
 
       <div class="compliance-cta-section" style="margin-top:0;">
-        <div class="os-kicker" style="justify-content:center; display:flex;">Live Now · Pillar 01</div>
-        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Track your shipments.</h2>
+        <div class="os-kicker" style="justify-content:center; display:flex;">Offer 01 · Entry point</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">CBAM Readiness Sprint</h2>
         <p class="os-subtitle" style="font-size:0.88rem;">
-          Real-time visibility across your supplier network. Shipment tracking, port conditions, and disruption forecasts.
+          A paid launch offer for EU importers: scope threshold exposure, map suppliers, define the evidence workflow, and identify the immediate compliance blockers.
         </p>
-        <a href="supply-chain/" class="btn-os-primary">Open Supply Chain →</a>
+        <a href="#cbam-call" class="btn-os-primary">Book Discovery Call →</a>
         <div class="compliance-trust" style="margin-top:1.2rem;">
-          <span>Shipments · Ports · Forecast</span>
+          <span>Scope map · Supplier evidence · Action plan</span>
           <span>·</span>
-          <span>AI-powered</span>
+          <span>30-day engagement</span>
         </div>
       </div>
 
       <div class="compliance-cta-section" style="margin-top:0;">
-        <div class="os-kicker" style="justify-content:center; display:flex;">Live Now · Pillar 03</div>
-        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Is your order compliant?</h2>
+        <div class="os-kicker" style="justify-content:center; display:flex;">Offer 02 · Recurring revenue</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Managed Import Ops</h2>
         <p class="os-subtitle" style="font-size:0.88rem;">
-          Check any import order against EUDR, CBAM, and CSDDD in seconds. Get a detailed compliance report with action steps.
+          Ongoing compliance operations with certificate-cost visibility, document chasing, shipment exceptions, and supplier follow-up inside one workflow.
         </p>
-        <a href="compliance/" class="btn-os-primary">Run Compliance Check →</a>
+        <a href="compliance/" class="btn-os-primary">Open Compliance Layer →</a>
         <div class="compliance-trust" style="margin-top:1.2rem;">
-          <span>EUDR · CBAM · CSDDD</span>
+          <span>CBAM now · EUDR next</span>
           <span>·</span>
-          <span>Under 10 seconds</span>
+          <span>Monthly operating model</span>
         </div>
       </div>
 
       <div class="compliance-cta-section" style="margin-top:0;">
-        <div class="os-kicker" style="justify-content:center; display:flex;">Live Now · Pillar 02</div>
-        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Find & score any factory.</h2>
+        <div class="os-kicker" style="justify-content:center; display:flex;">Offer 03 · Expansion</div>
+        <h2 class="os-title" style="font-size:clamp(1.3rem,2.5vw,1.9rem);">Factory + Shipment Intelligence</h2>
         <p class="os-subtitle" style="font-size:0.88rem;">
-          Search OrcaTrade's verified manufacturer network. Every factory scored on risk, compliance, capacity, and stability.
+          Expand account value with supplier scoring, audit prioritisation, and shipment visibility once the importer is already operating through OrcaTrade.
         </p>
-        <a href="factory-risk/" class="btn-os-primary">Run Factory Risk Scan →</a>
+        <a href="factory-risk/" class="btn-os-primary">Open Factory Layer →</a>
         <div class="compliance-trust" style="margin-top:1.2rem;">
-          <span>Risk · Compliance · Capacity</span>
+          <span>Risk · Capacity · Delivery</span>
           <span>·</span>
-          <span>Instant scoring</span>
+          <span>Expansion revenue</span>
         </div>
       </div>
 
@@ -608,30 +742,56 @@
 
   <hr class="os-divider">
 
-  <!-- WAITLIST -->
-  <section class="os-section" id="waitlist">
+  <section class="os-section" id="cbam-call">
     <div style="text-align:center; margin-bottom:2.5rem;">
-      <div class="os-kicker">Full platform</div>
-      <h2 class="os-title" style="font-size:clamp(1.5rem,3vw,2.2rem);">Join the waitlist.</h2>
+      <div class="os-kicker">Inbound engine</div>
+      <h2 class="os-title" style="font-size:clamp(1.5rem,3vw,2.2rem);">Book a CBAM readiness call.</h2>
       <p style="font-size:0.92rem; color:var(--os-muted); max-width:44ch; margin:0 auto;">
-        Join the waitlist for early access to the full OrcaTrade Intelligence OS as new pillars go live.
+        This should not be a passive waitlist. Use the page to qualify importers, capture urgency, and move them into a paid readiness sprint.
       </p>
     </div>
     <div class="waitlist-box">
-      <form class="wl-form" data-contact="waitlist">
-        <div>
-          <label class="wl-label" for="wl-name">Name</label>
-          <input class="wl-input" id="wl-name" name="name" type="text" placeholder="Your full name" required>
+      <div class="lead-grid">
+        <form class="wl-form" data-contact="cbam-readiness">
+          <div>
+            <label class="wl-label" for="wl-name">Name</label>
+            <input class="wl-input" id="wl-name" name="name" type="text" placeholder="Your full name" required>
+          </div>
+          <div>
+            <label class="wl-label" for="wl-company">Company</label>
+            <input class="wl-input" id="wl-company" name="company" type="text" placeholder="Your company name" required>
+          </div>
+          <div>
+            <label class="wl-label" for="wl-email">Work Email</label>
+            <input class="wl-input" id="wl-email" name="email" type="email" placeholder="you@company.com" required>
+          </div>
+          <div>
+            <label class="wl-label" for="wl-project">CBAM goods / annual volume</label>
+            <input class="wl-input" id="wl-project" name="project" type="text" placeholder="Example: 1,200 tonnes of steel fasteners from India">
+          </div>
+          <div>
+            <label class="wl-label" for="wl-message">Current blocker</label>
+            <textarea class="wl-input" id="wl-message" name="message" rows="4" placeholder="What is hardest right now: supplier emissions data, declarant setup, certificate planning, customs handoff, or internal process?"></textarea>
+          </div>
+          <button type="submit" class="btn-os-primary" style="width:100%; justify-content:center; margin-top:0.4rem;">
+            Request CBAM Readiness Call →
+          </button>
+          <div class="form-msg" style="font-size:0.85rem; margin-top:0.4rem; min-height:1.2em;"></div>
+        </form>
+
+        <div class="fit-panel">
+          <div class="os-kicker" style="margin-bottom:0.7rem;">Best fit</div>
+          <h3 class="os-title" style="font-size:clamp(1.2rem,2vw,1.6rem); margin-bottom:0.8rem;">Importers who already feel the pressure.</h3>
+          <p style="font-size:0.88rem; color:var(--os-muted); line-height:1.7;">
+            Focus sales on buyers who have to solve an operational problem now, not on generic curiosity traffic.
+          </p>
+          <div class="fit-list">
+            <div class="fit-item">EU importers above the CBAM threshold, especially in iron, steel, aluminium, fertilisers, and cement-linked categories.</div>
+            <div class="fit-item">Teams that need supplier emissions evidence, customs-ready workflows, and a cleaner process between operations and compliance.</div>
+            <div class="fit-item">Accounts that can later expand into factory scoring, shipment monitoring, and EUDR order-level checks.</div>
+          </div>
         </div>
-        <div>
-          <label class="wl-label" for="wl-email">Email</label>
-          <input class="wl-input" id="wl-email" name="email" type="email" placeholder="you@company.com" required>
-        </div>
-        <button type="submit" class="btn-os-primary" style="width:100%; justify-content:center; margin-top:0.4rem;">
-          Join the waitlist →
-        </button>
-        <div class="form-msg" style="font-size:0.85rem; margin-top:0.4rem; min-height:1.2em;"></div>
-      </form>
+      </div>
     </div>
   </section>
 

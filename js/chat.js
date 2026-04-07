@@ -27,7 +27,7 @@
 
       <div class="chat-messages" id="chat-messages" aria-live="polite">
         <div class="chat-msg chat-msg--assistant">
-          I stay focused on three live OrcaTrade Intelligence jobs only: track shipments, check EUDR/CBAM/CSDDD compliance, and find &amp; score factories.
+          I stay focused on three live OrcaTrade Intelligence jobs only: track shipments, check CBAM/EUDR/CSDDD compliance, and find &amp; score factories.
         </div>
       </div>
 
