@@ -20,14 +20,14 @@
       <div class="chat-header">
         <div class="chat-avatar" aria-hidden="true">OT</div>
         <div class="chat-header-info">
-          <div class="chat-header-title">OrcaTrade Assistant</div>
-          <div class="chat-header-sub">Asia sourcing &amp; trade intelligence</div>
+          <div class="chat-header-title">OrcaTrade Intelligence</div>
+          <div class="chat-header-sub">Shipments, compliance &amp; factory scoring</div>
         </div>
       </div>
 
       <div class="chat-messages" id="chat-messages" aria-live="polite">
         <div class="chat-msg chat-msg--assistant">
-          Hi — I'm the OrcaTrade Group assistant. Ask me about our sourcing services, the Intelligence platform, compliance tools, or anything about Asia trade.
+          I stay focused on three live OrcaTrade Intelligence jobs only: track shipments, check EUDR/CBAM/CSDDD compliance, and find &amp; score factories.
         </div>
       </div>
 
@@ -36,7 +36,7 @@
           type="text"
           id="chat-input"
           class="chat-input"
-          placeholder="Type a message…"
+          placeholder="Ask about shipments, compliance, or factories..."
           aria-label="Chat message"
           maxlength="500"
         />

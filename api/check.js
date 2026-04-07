@@ -1,3 +1,5 @@
+const { determineRegulationApplicability, enforceComplianceLogic } = require('../lib/intelligence/compliance');
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -22,6 +24,8 @@ module.exports = async function handler(req, res) {
     if (!anthropicApiKey) {
       return res.status(500).json({ error: 'API key not configured' });
     }
+
+    const applicability = determineRegulationApplicability(orderData);
 
     const year = new Date().getFullYear();
     const reportId = `OT-COMP-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -117,6 +121,11 @@ Minimum fine: €10,000 per infringement per Article 25(2)(a)
 Maximum fine: up to 4% of annual EU turnover per Article 25(2)(a)
 Use import value as turnover proxy. Show the calculation.
 Additional: seizure per Article 25(2)(b), procurement ban per Article 25(2)(d).
+
+DETERMINISTIC PRE-CHECK — YOU MUST RESPECT THIS UNLESS USER DATA CLEARLY CONTRADICTS IT
+- EUDR applicability: ${applicability.EUDR.applicable ? 'APPLICABLE' : 'NOT APPLICABLE'} — ${applicability.EUDR.applicabilityReason}
+- CBAM applicability: ${applicability.CBAM.applicable ? 'APPLICABLE' : 'NOT APPLICABLE'} — ${applicability.CBAM.applicabilityReason}
+- CSDDD applicability: ${applicability.CSDDD.applicable ? 'APPLICABLE' : 'NOT APPLICABLE'} — ${applicability.CSDDD.applicabilityReason}
 
 Return ONLY valid JSON. No markdown. No text outside the JSON object.`;
 
@@ -277,7 +286,7 @@ Return ONLY this JSON object with no markdown wrapping:
     // ── Server-side compliance logic enforcement ──────────────────────
     // The AI may hallucinate a "compliant" status despite having findings
     // or required actions. This sanitiser enforces the correct hierarchy.
-    report = enforceComplianceLogic(report);
+    report = enforceComplianceLogic(report, orderData);
     // ─────────────────────────────────────────────────────────────────
 
     return res.status(200).json(report);
@@ -287,79 +296,3 @@ Return ONLY this JSON object with no markdown wrapping:
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 };
-
-// ── Compliance logic enforcer ──────────────────────────────────────────────
-// Audits the AI response and corrects any status/score inconsistencies.
-// Rules (in order of priority):
-//   1. Not-applicable regs → status forced to not_applicable, zero score impact.
-//   2. Applicable reg with critical findings or unmet mandatory prereqs → non_compliant.
-//   3. Applicable reg with major findings or outstanding required actions → at_risk.
-//   4. Applicable reg with only minor findings → at_risk (benefit of the doubt
-//      requires positive verified evidence, which a tool run cannot confirm).
-//   5. Applicable reg with NO findings AND NO required actions → keep AI status,
-//      but cap at "at_risk" (never auto-upgrade to compliant without evidence).
-//   6. overallStatus = worst applicable regulation status.
-//   7. overallScore recalculated from regulation statuses.
-function enforceComplianceLogic(report) {
-  if (!report || !Array.isArray(report.checkedRegulations)) return report;
-
-  for (const reg of report.checkedRegulations) {
-    // Force not_applicable when applicable is false
-    if (!reg.applicable) {
-      reg.status = 'not_applicable';
-      reg.findings = reg.findings || [];
-      reg.requiredActions = reg.requiredActions || [];
-      if (reg.financialRisk) {
-        reg.financialRisk.minimumFineEur = 0;
-        reg.financialRisk.maximumFineEur = 0;
-      }
-      continue;
-    }
-
-    const findings = Array.isArray(reg.findings) ? reg.findings : [];
-    const actions  = Array.isArray(reg.requiredActions) ? reg.requiredActions : [];
-
-    const hasCritical = findings.some(f => f.severity === 'critical');
-    const hasMajor    = findings.some(f => f.severity === 'major');
-    const hasActions  = actions.length > 0;
-    const hasFindings = findings.length > 0;
-
-    if (hasCritical) {
-      reg.status = 'non_compliant';
-    } else if (hasMajor || hasActions) {
-      reg.status = 'at_risk';
-    } else if (hasFindings) {
-      // Minor findings only — cannot confirm compliant without positive evidence
-      reg.status = 'at_risk';
-    } else if (reg.status === 'compliant') {
-      // AI said compliant with no findings and no actions — accept it
-      // (this is the only valid path to "compliant")
-    } else {
-      // Applicable but no data either way — treat as at_risk
-      reg.status = 'at_risk';
-    }
-  }
-
-  // Derive overallStatus from worst applicable regulation
-  let worst = 'compliant';
-  let allNotApplicable = true;
-
-  for (const reg of report.checkedRegulations) {
-    if (reg.status === 'not_applicable') continue;
-    allNotApplicable = false;
-    if (reg.status === 'non_compliant') { worst = 'non_compliant'; break; }
-    if (reg.status === 'at_risk' && worst !== 'non_compliant') worst = 'at_risk';
-  }
-
-  report.overallStatus = allNotApplicable ? 'compliant' : worst;
-
-  // Recalculate score
-  let score = 100;
-  for (const reg of report.checkedRegulations) {
-    if (reg.status === 'non_compliant') score -= 35;
-    else if (reg.status === 'at_risk')  score -= 15;
-  }
-  report.overallScore = Math.max(0, score);
-
-  return report;
-}

@@ -1,40 +1,33 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const {
+  buildFocusedSystemPrompt,
+  buildLocalFallbackReply,
+  buildOutOfScopeReply,
+  buildTriageReply,
+  detectPillarIntent,
+  isCapabilityQuestion,
+  isOutOfScope,
+} = require('../lib/intelligence/live-pillars');
 
-const SYSTEM_PROMPT = `You are the OrcaTrade Group assistant — a sharp, knowledgeable guide for European businesses exploring Asia sourcing and trade.
+function openStream(res) {
+  res.setHeader('Content-Type', 'text/event-stream');
+  res.setHeader('Cache-Control', 'no-cache');
+  res.setHeader('Connection', 'keep-alive');
+}
 
-Tone: Professional, direct, and genuinely helpful. Never robotic. Max 3 sentences per reply unless the user asks for detail.
+function writeChunk(res, payload) {
+  res.write(`data: ${JSON.stringify(payload)}\n\n`);
+}
 
-About OrcaTrade Group:
-- A business group connecting European buyers with vetted Asian manufacturers
-- Four business units: Sourcing, Intelligence, Search, Finance
-- Offices in Warsaw (Poland), London (UK), Hong Kong — covering CET, GMT, China Standard Time
-- Founded by UCL graduates who identified the gap in how European businesses access Asian manufacturing
+function closeStream(res) {
+  res.write('data: [DONE]\n\n');
+  res.end();
+}
 
-Business units:
-1. OrcaTrade Sourcing (live) — end-to-end procurement: supplier mapping, quality control, logistics coordination. Lead time 18–45 days FOB. Factory approval under 3 weeks. 3-step quality inspection.
-2. OrcaTrade Intelligence (in development) — AI platform for supply chain visibility, factory risk scoring, EU regulatory compliance (EUDR, CBAM, CSDDD). Compliance checker live now at /compliance/.
-3. OrcaTrade Search (beta) — paid factory discovery engine across Asia by category, country, MOQ.
-4. OrcaTrade Finance (coming soon) — trade finance and cross-border payment facilitation.
-
-Sourcing process (6 steps):
-Discovery & Brief → Factory Search & Shortlist → Sampling & Fine-tuning → Order Placement & Production → Quality Control → Logistics & After-shipment Care
-
-Team:
-- Jay Xie — CEO & Co-Founder (sourcing strategy, supplier partnerships)
-- Arman Sirin — Head of Client Communications
-- Yiu Cheung — Head of Logistics
-- Oskar Klepuszewski — Co-Founder & CFO (European operations, financial strategy)
-
-Best fit for: European brands and distributors who value transparency, repeat ordering, and quality over lowest quote. Sectors: consumer goods, lifestyle & gifting, accessories, small electronics, food-adjacent packaging.
-
-Contact: orca@orcatrade.pl | Warsaw, London & Hong Kong
-
-Rules:
-- For pricing: explain it depends on product and volume, direct to the contact form or orca@orcatrade.pl
-- For compliance questions: direct to the OrcaTrade Intelligence compliance checker at /compliance/
-- Do not invent facts not listed above
-- If a question is unrelated to trade/sourcing/OrcaTrade, gently redirect
-- Never mention the Foundation or Timotheus Carrington`;
+function streamStaticReply(res, text) {
+  writeChunk(res, { text });
+  closeStream(res);
+}
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -44,44 +37,53 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
-  const { messages } = req.body;
-
-  if (!messages || !Array.isArray(messages) || messages.length === 0) {
+  const { messages } = req.body || {};
+  if (!Array.isArray(messages) || !messages.length) {
     return res.status(400).json({ error: 'Invalid request' });
   }
 
-  const trimmedMessages = messages.slice(-20).map(m => ({
-    role: m.role === 'user' ? 'user' : 'assistant',
-    content: String(m.content).slice(0, 2000),
+  const trimmedMessages = messages.slice(-12).map(message => ({
+    role: message.role === 'user' ? 'user' : 'assistant',
+    content: String(message.content || '').slice(0, 1200),
   }));
 
-  res.setHeader('Content-Type', 'text/event-stream');
-  res.setHeader('Cache-Control', 'no-cache');
-  res.setHeader('Connection', 'keep-alive');
+  const lastUserMessage = [...trimmedMessages].reverse().find(message => message.role === 'user');
+  const lastUserText = lastUserMessage ? lastUserMessage.content : '';
+  const intent = detectPillarIntent(lastUserText);
 
-  const client = new Anthropic({ apiKey: process.env.ORCATRADE_OS_API });
+  openStream(res);
+
+  if (isOutOfScope(lastUserText)) {
+    return streamStaticReply(res, buildOutOfScopeReply());
+  }
+
+  if (intent === 'triage' || isCapabilityQuestion(lastUserText)) {
+    return streamStaticReply(res, buildTriageReply());
+  }
+
+  if (!process.env.ORCATRADE_OS_API) {
+    return streamStaticReply(res, buildLocalFallbackReply(intent));
+  }
 
   try {
+    const client = new Anthropic({ apiKey: process.env.ORCATRADE_OS_API });
     const stream = await client.messages.create({
       model: 'claude-sonnet-4-6',
-      max_tokens: 512,
-      system: SYSTEM_PROMPT,
+      max_tokens: 420,
+      system: buildFocusedSystemPrompt(intent),
       messages: trimmedMessages,
       stream: true,
     });
 
     for await (const event of stream) {
       if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-        res.write(`data: ${JSON.stringify({ text: event.delta.text })}\n\n`);
+        writeChunk(res, { text: event.delta.text });
       }
     }
 
-    res.write('data: [DONE]\n\n');
-    res.end();
+    closeStream(res);
   } catch (error) {
     console.error('Claude API error:', error);
-    res.write(`data: ${JSON.stringify({ error: 'Failed to get response' })}\n\n`);
-    res.write('data: [DONE]\n\n');
-    res.end();
+    streamStaticReply(res, buildLocalFallbackReply(intent));
   }
 };
