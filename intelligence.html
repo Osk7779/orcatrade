@@ -430,6 +430,221 @@
       line-height: 1.65;
     }
 
+    .command-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .command-card {
+      background: linear-gradient(160deg, rgba(17,29,58,0.92), rgba(6,11,23,0.92));
+      border: 1px solid var(--os-border);
+      padding: 1.35rem;
+      min-height: 230px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.03);
+    }
+
+    .command-kicker {
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: var(--os-accent);
+      margin-bottom: 0.8rem;
+    }
+
+    .command-title {
+      font-family: var(--font-head);
+      font-size: 1.15rem;
+      margin-bottom: 0.65rem;
+      line-height: 1.2;
+    }
+
+    .command-copy {
+      color: var(--os-muted);
+      font-size: 0.86rem;
+      line-height: 1.65;
+      margin-bottom: 1rem;
+    }
+
+    .command-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.55rem;
+      color: var(--os-muted);
+      font-size: 0.8rem;
+      line-height: 1.55;
+    }
+
+    .command-list div {
+      border-top: 1px solid rgba(255,255,255,0.08);
+      padding-top: 0.55rem;
+    }
+
+    .timeline-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .timeline-card {
+      position: relative;
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border);
+      padding: 1.5rem 1.3rem 1.3rem;
+    }
+
+    .timeline-step {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 2rem;
+      height: 2rem;
+      border: 1px solid rgba(184,190,200,0.35);
+      color: var(--os-accent);
+      font-size: 0.78rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+    }
+
+    .timeline-card h3 {
+      font-family: var(--font-head);
+      font-size: 1.08rem;
+      margin-bottom: 0.55rem;
+    }
+
+    .timeline-card p {
+      color: var(--os-muted);
+      font-size: 0.84rem;
+      line-height: 1.6;
+      margin-bottom: 0.8rem;
+    }
+
+    .timeline-card strong {
+      color: var(--os-text);
+      font-weight: 600;
+    }
+
+    .roi-shell {
+      display: grid;
+      grid-template-columns: 0.95fr 1.05fr;
+      gap: 1.4rem;
+      margin-top: 2rem;
+    }
+
+    .roi-panel {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--os-border);
+      padding: 1.7rem;
+    }
+
+    .roi-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .roi-input-wrap label {
+      display: block;
+      font-size: 0.72rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--os-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .roi-input-wrap input {
+      width: 100%;
+      background: rgba(5, 5, 7, 0.82);
+      border: 1px solid var(--os-border);
+      color: var(--os-text);
+      padding: 0.78rem 0.9rem;
+      font-size: 0.94rem;
+      outline: none;
+    }
+
+    .roi-input-wrap input:focus {
+      border-color: rgba(184, 190, 200, 0.5);
+      box-shadow: 0 0 0 3px rgba(184, 190, 200, 0.08);
+    }
+
+    .roi-note {
+      font-size: 0.83rem;
+      color: var(--os-muted);
+      line-height: 1.6;
+      margin-top: 1rem;
+    }
+
+    .roi-metric-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .roi-metric {
+      background: rgba(5, 5, 7, 0.46);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 1rem;
+    }
+
+    .roi-metric-label {
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--os-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .roi-metric-value {
+      font-family: var(--font-head);
+      font-size: 1.8rem;
+      line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+
+    .roi-metric-copy {
+      font-size: 0.82rem;
+      color: var(--os-muted);
+      line-height: 1.55;
+    }
+
+    .roi-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+      padding: 0.4rem 0.75rem;
+      border: 1px solid rgba(184,190,200,0.24);
+      background: rgba(184,190,200,0.08);
+      font-size: 0.73rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--os-accent);
+      margin-bottom: 0.9rem;
+    }
+
+    .roi-recommendation {
+      margin-top: 1.2rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid rgba(184,190,200,0.18);
+      background: rgba(184,190,200,0.06);
+    }
+
+    .roi-recommendation strong {
+      display: block;
+      color: var(--os-text);
+      margin-bottom: 0.35rem;
+      font-weight: 600;
+    }
+
+    .roi-recommendation p {
+      font-size: 0.84rem;
+      color: var(--os-muted);
+      line-height: 1.65;
+    }
+
     /* ── LEAD FORM ── */
     .waitlist-box {
       max-width: 100%;
@@ -518,8 +733,13 @@
 
     @media (max-width: 960px) {
       .market-grid,
+      .command-grid,
+      .timeline-grid,
       .lead-grid,
-      .offer-strip {
+      .offer-strip,
+      .roi-shell,
+      .roi-form-grid,
+      .roi-metric-grid {
         grid-template-columns: 1fr;
       }
     }
@@ -642,6 +862,59 @@
 
   <hr class="os-divider">
 
+  <section class="os-section" id="command-center">
+    <div class="os-kicker">Command center preview</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">This should feel like an operating desk, not a brochure.</h2>
+    <p class="os-subtitle" style="max-width:58ch;">
+      The strongest version of OrcaTrade Intelligence is a single place where import teams see what is in scope, what is missing, what is blocked, and what to do next.
+    </p>
+
+    <div class="command-grid">
+      <div class="command-card">
+        <div class="command-kicker">Panel 01</div>
+        <div class="command-title">Threshold Watch</div>
+        <div class="command-copy">Know exactly which accounts, product lines, and supplier flows are already inside the CBAM operating zone.</div>
+        <div class="command-list">
+          <div>50-tonne exposure tracking by supplier, category, and importer entity.</div>
+          <div>Authorised declarant readiness and customs handoff status.</div>
+          <div>Weekly view of which flows are drifting toward a threshold breach.</div>
+        </div>
+      </div>
+      <div class="command-card">
+        <div class="command-kicker">Panel 02</div>
+        <div class="command-title">Supplier Evidence Queue</div>
+        <div class="command-copy">Collect the hard evidence buyers actually struggle to get back from exporters and factories.</div>
+        <div class="command-list">
+          <div>Outstanding emissions methodology, declarations, and supporting documents.</div>
+          <div>Overdue supplier requests sorted by shipment and commercial importance.</div>
+          <div>One queue for follow-up, QA, approval, and escalation.</div>
+        </div>
+      </div>
+      <div class="command-card">
+        <div class="command-kicker">Panel 03</div>
+        <div class="command-title">Certificate Cost Planning</div>
+        <div class="command-copy">Move the discussion from “Are we in scope?” to “What is this going to cost and where do we intervene?”</div>
+        <div class="command-list">
+          <div>Certificate price visibility and account-level planning assumptions.</div>
+          <div>Importer view of goods value, emissions exposure, and planning pressure.</div>
+          <div>Comparison across suppliers so buyers see where to push for better data or better sourcing.</div>
+        </div>
+      </div>
+      <div class="command-card">
+        <div class="command-kicker">Panel 04</div>
+        <div class="command-title">Shipment + Exception Control</div>
+        <div class="command-copy">Tie compliance back to the live order book so missing evidence becomes an operating exception, not a buried spreadsheet note.</div>
+        <div class="command-list">
+          <div>Shipments that are delayed, high-risk, or blocked by missing supplier evidence.</div>
+          <div>Port, vessel, and factory context alongside the compliance workflow.</div>
+          <div>A clear owner and next action on every operational blocker.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="os-divider">
+
   <!-- THREE PILLARS -->
   <section class="os-section" id="pillars">
     <div class="os-kicker">Delivery stack</div>
@@ -742,6 +1015,112 @@
 
   <hr class="os-divider">
 
+  <section class="os-section" id="launch-plan">
+    <div class="os-kicker">Execution plan</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">What the first 30 days should look like.</h2>
+    <p class="os-subtitle" style="max-width:57ch;">
+      Amazing is not just aesthetics. It is a launch path that gets a buyer from scattered spreadsheets to a managed operating rhythm fast enough that they will pay to stay.
+    </p>
+
+    <div class="timeline-grid">
+      <div class="timeline-card">
+        <div class="timeline-step">01</div>
+        <h3>Scope the account</h3>
+        <p>Map the importer entities, product flows, supplier base, and where the CBAM burden really sits.</p>
+        <strong>Outcome:</strong> buyer sees what is in scope now and what will hurt first.
+      </div>
+      <div class="timeline-card">
+        <div class="timeline-step">02</div>
+        <h3>Launch the evidence run</h3>
+        <p>Open the supplier evidence queue, assign owners, and push all missing data into one managed process.</p>
+        <strong>Outcome:</strong> supplier chasing becomes a controlled workflow instead of inbox chaos.
+      </div>
+      <div class="timeline-card">
+        <div class="timeline-step">03</div>
+        <h3>Connect operations</h3>
+        <p>Link shipments, suppliers, factories, and compliance status so the ops team sees live exceptions, not isolated documents.</p>
+        <strong>Outcome:</strong> the buyer knows which orders are commercially exposed.
+      </div>
+      <div class="timeline-card">
+        <div class="timeline-step">04</div>
+        <h3>Move to recurring ops</h3>
+        <p>Convert the sprint into a monthly operating model with evidence QA, cost planning, and exception control.</p>
+        <strong>Outcome:</strong> OrcaTrade becomes hard to replace because it runs part of the workflow.
+      </div>
+    </div>
+  </section>
+
+  <hr class="os-divider">
+
+  <section class="os-section" id="roi-model">
+    <div class="os-kicker">Commercial planning model</div>
+    <h2 class="os-title" style="font-size:clamp(1.6rem,3vw,2.4rem); margin-bottom:0.7rem;">Model the account before you sell it.</h2>
+    <p class="os-subtitle" style="max-width:58ch;">
+      Use this planning layer to see how heavy the operating load is and which commercial motion OrcaTrade should lead with. This is a planning model, not a savings guarantee.
+    </p>
+
+    <div class="roi-shell">
+      <div class="roi-panel">
+        <div class="roi-badge">Buyer profile inputs</div>
+        <h3 class="os-title" style="font-size:clamp(1.25rem,2vw,1.7rem); margin-bottom:0.6rem;">What does this account actually look like?</h3>
+        <div class="roi-form-grid">
+          <div class="roi-input-wrap">
+            <label for="annualImportValue">Annual CBAM goods value (EUR)</label>
+            <input id="annualImportValue" type="number" min="100000" step="50000" value="8500000">
+          </div>
+          <div class="roi-input-wrap">
+            <label for="activeSuppliers">Active CBAM suppliers</label>
+            <input id="activeSuppliers" type="number" min="1" step="1" value="18">
+          </div>
+          <div class="roi-input-wrap">
+            <label for="monthlyShipments">Monthly inbound shipments</label>
+            <input id="monthlyShipments" type="number" min="1" step="1" value="24">
+          </div>
+          <div class="roi-input-wrap">
+            <label for="internalHours">Admin hours per month</label>
+            <input id="internalHours" type="number" min="1" step="1" value="60">
+          </div>
+        </div>
+        <p class="roi-note">
+          The goal is to see whether the account is light enough for a readiness sprint or already heavy enough to justify a managed recurring model from day one.
+        </p>
+      </div>
+
+      <div class="roi-panel">
+        <div class="roi-badge">Planning outputs</div>
+        <h3 class="os-title" style="font-size:clamp(1.25rem,2vw,1.7rem); margin-bottom:0.6rem;">What should OrcaTrade sell here?</h3>
+        <div class="roi-metric-grid">
+          <div class="roi-metric">
+            <div class="roi-metric-label">Annual scope under management</div>
+            <div class="roi-metric-value" id="scopeManaged">€8.5m</div>
+            <div class="roi-metric-copy">Goods value that should sit inside one operating view.</div>
+          </div>
+          <div class="roi-metric">
+            <div class="roi-metric-label">Estimated yearly coordination events</div>
+            <div class="roi-metric-value" id="coordinationEvents">504</div>
+            <div class="roi-metric-copy">Touches across suppliers, shipments, and evidence follow-up.</div>
+          </div>
+          <div class="roi-metric">
+            <div class="roi-metric-label">Hours to redirect into workflow</div>
+            <div class="roi-metric-value" id="hoursRedirected">252</div>
+            <div class="roi-metric-copy">Planning estimate of annual admin time that should become structured process.</div>
+          </div>
+          <div class="roi-metric">
+            <div class="roi-metric-label">Recommended commercial motion</div>
+            <div class="roi-metric-value" id="recommendedMotion">Managed Ops</div>
+            <div class="roi-metric-copy">The offer that best matches the operating burden.</div>
+          </div>
+        </div>
+        <div class="roi-recommendation">
+          <strong id="recommendedPackage">Lead with Managed Import Ops.</strong>
+          <p id="recommendedCopy">This account is already carrying enough supplier, shipment, and evidence load that OrcaTrade should sell an ongoing operating model rather than a one-off diagnostic.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="os-divider">
+
   <section class="os-section" id="cbam-call">
     <div style="text-align:center; margin-bottom:2.5rem;">
       <div class="os-kicker">Inbound engine</div>
@@ -807,7 +1186,70 @@
     </div>
   </footer>
 
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    (function () {
+      const annualImportValue = document.getElementById('annualImportValue');
+      const activeSuppliers = document.getElementById('activeSuppliers');
+      const monthlyShipments = document.getElementById('monthlyShipments');
+      const internalHours = document.getElementById('internalHours');
+
+      if (!annualImportValue || !activeSuppliers || !monthlyShipments || !internalHours) return;
+
+      const scopeManaged = document.getElementById('scopeManaged');
+      const coordinationEvents = document.getElementById('coordinationEvents');
+      const hoursRedirected = document.getElementById('hoursRedirected');
+      const recommendedMotion = document.getElementById('recommendedMotion');
+      const recommendedPackage = document.getElementById('recommendedPackage');
+      const recommendedCopy = document.getElementById('recommendedCopy');
+
+      function formatEurShort(value) {
+        if (value >= 1000000) return `€${(value / 1000000).toFixed(1)}m`;
+        if (value >= 1000) return `€${Math.round(value / 1000)}k`;
+        return `€${Math.round(value)}`;
+      }
+
+      function updateModel() {
+        const importValue = Math.max(100000, Number(annualImportValue.value) || 0);
+        const suppliers = Math.max(1, Number(activeSuppliers.value) || 1);
+        const shipments = Math.max(1, Number(monthlyShipments.value) || 1);
+        const adminHours = Math.max(1, Number(internalHours.value) || 1);
+
+        const yearlyCoordination = Math.round((suppliers * 16) + (shipments * 9));
+        const redirectedHours = Math.round(adminHours * 12 * 0.35);
+
+        let motionLabel = 'Readiness Sprint';
+        let packageTitle = 'Lead with a CBAM Readiness Sprint.';
+        let packageCopy = 'The account is still compact enough to win with a fixed-scope launch, map the operating burden, and then convert into a monthly managed model once the workflow is live.';
+
+        if (importValue >= 5000000 || suppliers >= 14 || shipments >= 20 || adminHours >= 45) {
+          motionLabel = 'Managed Ops';
+          packageTitle = 'Lead with Managed Import Ops.';
+          packageCopy = 'This account is already carrying enough supplier, shipment, and evidence load that OrcaTrade should sell an ongoing operating model rather than a one-off diagnostic.';
+        }
+
+        if (importValue >= 20000000 || suppliers >= 35 || shipments >= 45 || adminHours >= 110) {
+          motionLabel = 'Enterprise Motion';
+          packageTitle = 'Lead with an enterprise operating rollout.';
+          packageCopy = 'This buyer needs OrcaTrade positioned as part software, part operating partner, with executive sponsorship, supplier onboarding, and multi-team workflow control from the start.';
+        }
+
+        scopeManaged.textContent = formatEurShort(importValue);
+        coordinationEvents.textContent = yearlyCoordination.toLocaleString('en-GB');
+        hoursRedirected.textContent = redirectedHours.toLocaleString('en-GB');
+        recommendedMotion.textContent = motionLabel;
+        recommendedPackage.textContent = packageTitle;
+        recommendedCopy.textContent = packageCopy;
+      }
+
+      [annualImportValue, activeSuppliers, monthlyShipments, internalHours].forEach(input => {
+        input.addEventListener('input', updateModel);
+      });
+
+      updateModel();
+    })();
+  </script>
   <script src="js/forms.js"></script>
   <script src="js/transitions.js"></script>
 </body>
