@@ -80,6 +80,24 @@
     .hero-actions--center {
       justify-content: center;
     }
+
+    /* News skeleton */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+    .news-card--skeleton { pointer-events: none; }
+    .news-skeleton-tag,
+    .news-skeleton-title,
+    .news-skeleton-body {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 2px;
+    }
+    .news-skeleton-tag   { height: 0.85rem; width: 5rem; margin-bottom: 1rem; }
+    .news-skeleton-title { height: 1.1rem;  width: 85%;  margin-bottom: 0.8rem; }
+    .news-skeleton-body  { height: 4rem;    width: 100%; }
   </style>
 </head>
 
@@ -343,45 +361,15 @@
 
       <!-- GROUP INSIGHTS / NEWS -->
       <section class="section" id="news">
-        <div class="section-kicker">Group Insights</div>
-        <h2 class="section-title">Insights on global sourcing, logistics and Asia-Europe trade.</h2>
+        <div class="section-kicker">Trade Intelligence</div>
+        <h2 class="section-title">Live trade news — sourcing, logistics &amp; Asia-Europe.</h2>
 
-        <div class="news-grid">
-          <article class="news-card">
-            <div class="news-tag news-tag--logistics">Logistics</div>
-            <h3 class="news-title">China Freight Rates Stabilise Ahead of Q3 Season</h3>
-            <p class="news-excerpt">Sea freight rates from Shanghai and Ningbo are normalising after months of volatility, offering importers a brief window before summer peak demand returns. Carriers are cautiously restoring capacity on Europe-bound lanes, with spot rates settling into a more predictable range.</p>
-            <div class="news-footer">
-              <span class="news-date">April 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--policy">Policy</div>
-            <h3 class="news-title">EU Deforestation Regulation: What Importers Need to Know</h3>
-            <p class="news-excerpt">The EUDR introduces strict due diligence requirements for goods linked to deforestation entering the EU market. Companies sourcing timber, soy, cocoa, and derived products must provide georeferenced data and compliance statements. Early preparation is critical.</p>
-            <div class="news-footer">
-              <span class="news-date">March 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--sourcing">Sourcing</div>
-            <h3 class="news-title">Sourcing Beyond China: Vietnam and Malaysia Gain Ground</h3>
-            <p class="news-excerpt">Supply chain diversification is accelerating as European buyers reduce single-country dependency. Vietnam leads in garments and electronics assembly while Malaysia strengthens in semiconductors and precision parts. Dual-sourcing strategies are becoming standard practice.</p>
-            <div class="news-footer">
-              <span class="news-date">March 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--planning">Planning</div>
-            <h3 class="news-title">Golden Week 2025: How to Plan Your Factory Calendar</h3>
-            <p class="news-excerpt">China's National Day Golden Week (1–7 October) brings factory shutdowns across major manufacturing hubs. Importers targeting Q4 deliveries should confirm orders by early August. Failure to account for the pre-holiday rush routinely leads to inflated lead times and missed windows.</p>
-            <div class="news-footer">
-              <span class="news-date">February 2025</span>
-            </div>
-          </article>
+        <div class="news-grid" id="news-grid">
+          <!-- skeleton cards while loading -->
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
         </div>
       </section>
 
@@ -470,5 +458,32 @@
   <script src="js/chat.js"></script>
   <script src="js/forms.js"></script>
   <script src="js/transitions.js"></script>
+  <script>
+    (function () {
+      const TAG_CLASS = { Policy: 'policy', Logistics: 'logistics', Sourcing: 'sourcing', Trade: 'trade' };
+
+      function renderNews(articles) {
+        const grid = document.getElementById('news-grid');
+        if (!grid) return;
+        grid.innerHTML = articles.map(a => `
+          <article class="news-card">
+            <a href="${a.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block;">
+              <div class="news-tag news-tag--${TAG_CLASS[a.tag] || 'trade'}">${a.tag}</div>
+              <h3 class="news-title">${a.title}</h3>
+              <p class="news-excerpt">${a.excerpt}</p>
+              <div class="news-footer">
+                <span class="news-date">${a.date}</span>
+                <span class="news-source" style="opacity:0.45;font-size:0.72rem;margin-left:auto;">${a.source}</span>
+              </div>
+            </a>
+          </article>`).join('');
+      }
+
+      fetch('/api/news')
+        .then(r => r.json())
+        .then(data => { if (data.articles) renderNews(data.articles); })
+        .catch(() => {/* keep skeleton on error */});
+    })();
+  </script>
 </body>
 </html>

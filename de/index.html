@@ -80,6 +80,23 @@
     .hero-actions--center {
       justify-content: center;
     }
+    /* News skeleton */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+    .news-card--skeleton { pointer-events: none; }
+    .news-skeleton-tag,
+    .news-skeleton-title,
+    .news-skeleton-body {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 2px;
+    }
+    .news-skeleton-tag   { height: 0.85rem; width: 5rem; margin-bottom: 1rem; }
+    .news-skeleton-title { height: 1.1rem;  width: 85%;  margin-bottom: 0.8rem; }
+    .news-skeleton-body  { height: 4rem;    width: 100%; }
   </style>
 </head>
 
@@ -347,47 +364,16 @@
         </div>
       </section>
 
-      <!-- GROUP INSIGHTS / NEWS -->
+      <!-- TRADE NEWS -->
       <section class="section" id="news">
-        <div class="section-kicker">Gruppen-Insights</div>
-        <h2 class="section-title">Insights zu globaler Beschaffung, Logistik und dem Handel zwischen Asien und Europa.</h2>
+        <div class="section-kicker">Handelsnachrichten</div>
+        <h2 class="section-title">Aktuelle Nachrichten — Beschaffung, Logistik und Asien-Europa-Handel.</h2>
 
-        <div class="news-grid">
-          <article class="news-card">
-            <div class="news-tag news-tag--logistics">Logistik</div>
-            <h3 class="news-title">China-Frachtpreise stabilisieren sich vor der Q3-Saison</h3>
-            <p class="news-excerpt">Die Seefrachtraten aus Shanghai und Ningbo normalisieren sich nach monatelanger Volatilität und bieten Importeuren ein kurzes Zeitfenster, bevor die sommerliche Spitzennachfrage zurückkehrt. Reedereien stellen vorsichtig Kapazitäten auf Europa-Routen wieder her, während sich Spotraten in einen vorhersehbareren Bereich einpendeln.</p>
-            <div class="news-footer">
-              <span class="news-date">April 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--policy">Politik</div>
-            <h3 class="news-title">EU-Entwaldungsverordnung: Was Importeure wissen müssen</h3>
-            <p class="news-excerpt">Die EUDR führt strenge Sorgfaltspflichten für mit Entwaldung verbundene Waren ein, die auf den EU-Markt kommen. Unternehmen, die Holz, Soja, Kakao und Derivate importieren, müssen georeferenzierte Daten und Konformitätserklärungen vorlegen. Frühe Vorbereitung ist entscheidend.</p>
-            <div class="news-footer">
-              <span class="news-date">März 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--sourcing">Beschaffung</div>
-            <h3 class="news-title">Beschaffung jenseits Chinas: Vietnam und Malaysia gewinnen an Bedeutung</h3>
-            <p class="news-excerpt">Die Diversifizierung der Lieferkette beschleunigt sich, da europäische Einkäufer die Abhängigkeit von einem einzelnen Land reduzieren. Vietnam führt bei Bekleidung und Elektronikfertigung, während Malaysia sich bei Halbleitern und Präzisionsteilen stärkt. Dual-Sourcing-Strategien werden zur Standardpraxis.</p>
-            <div class="news-footer">
-              <span class="news-date">März 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--planning">Planung</div>
-            <h3 class="news-title">Goldene Woche 2025: Wie Sie Ihren Fabrikkalender planen</h3>
-            <p class="news-excerpt">Chinas Nationalfeiertag Goldene Woche (1.–7. Oktober) bringt Fabrikschließungen in den wichtigsten Fertigungszentren. Importeure, die Q4-Lieferungen anstreben, sollten Bestellungen bis Anfang August bestätigen. Wer den Vorhochzeits-Ansturm nicht einplant, riskiert verlängerte Vorlaufzeiten und verpasste Lieferfenster.</p>
-            <div class="news-footer">
-              <span class="news-date">Februar 2025</span>
-            </div>
-          </article>
+        <div class="news-grid" id="news-grid">
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
         </div>
       </section>
 
@@ -476,5 +462,27 @@
   <script src="../js/chat.js"></script>
   <script src="../js/forms.js"></script>
   <script src="../js/transitions.js"></script>
+  <script>
+    (function () {
+      const TAG_CLASS = { Policy: 'policy', Logistics: 'logistics', Sourcing: 'sourcing', Trade: 'trade' };
+      function renderNews(articles) {
+        const grid = document.getElementById('news-grid');
+        if (!grid) return;
+        grid.innerHTML = articles.map(a => `
+          <article class="news-card">
+            <a href="${a.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block;">
+              <div class="news-tag news-tag--${TAG_CLASS[a.tag] || 'trade'}">${a.tag}</div>
+              <h3 class="news-title">${a.title}</h3>
+              <p class="news-excerpt">${a.excerpt}</p>
+              <div class="news-footer">
+                <span class="news-date">${a.date}</span>
+                <span class="news-source" style="opacity:0.45;font-size:0.72rem;margin-left:auto;">${a.source}</span>
+              </div>
+            </a>
+          </article>`).join('');
+      }
+      fetch('/api/news').then(r=>r.json()).then(d=>{if(d.articles)renderNews(d.articles);}).catch(()=>{});
+    })();
+  </script>
 </body>
 </html>

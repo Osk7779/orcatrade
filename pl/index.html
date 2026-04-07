@@ -80,6 +80,23 @@
     .hero-actions--center {
       justify-content: center;
     }
+    /* News skeleton */
+    @keyframes shimmer {
+      0%   { background-position: -600px 0; }
+      100% { background-position:  600px 0; }
+    }
+    .news-card--skeleton { pointer-events: none; }
+    .news-skeleton-tag,
+    .news-skeleton-title,
+    .news-skeleton-body {
+      background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.09) 50%, rgba(255,255,255,0.04) 75%);
+      background-size: 600px 100%;
+      animation: shimmer 1.4s infinite linear;
+      border-radius: 2px;
+    }
+    .news-skeleton-tag   { height: 0.85rem; width: 5rem; margin-bottom: 1rem; }
+    .news-skeleton-title { height: 1.1rem;  width: 85%;  margin-bottom: 0.8rem; }
+    .news-skeleton-body  { height: 4rem;    width: 100%; }
   </style>
 </head>
 
@@ -343,45 +360,14 @@
 
       <!-- GROUP INSIGHTS / NEWS -->
       <section class="section" id="news">
-        <div class="section-kicker">Spostrzeżenia grupowe</div>
-        <h2 class="section-title">Spostrzeżenia na temat globalnego zaopatrzenia, logistyki i handlu Azja-Europa.</h2>
+        <div class="section-kicker">Aktualności handlowe</div>
+        <h2 class="section-title">Najnowsze wiadomości — zaopatrzenie, logistyka i handel Azja-Europa.</h2>
 
-        <div class="news-grid">
-          <article class="news-card">
-            <div class="news-tag news-tag--logistics">Logistyka</div>
-            <h3 class="news-title">Stawki frachtowe z Chin stabilizują się przed sezonem Q3</h3>
-            <p class="news-excerpt">Stawki frachtu morskiego z Szanghaju i Ningbo normalizują się po miesiącach zmienności, oferując importerom krótkie okno przed powrotem szczytowego zapotrzebowania letniego. Przewoźnicy ostrożnie przywracają przepustowość na trasach do Europy, a stawki spotowe stabilizują się w bardziej przewidywalnym zakresie.</p>
-            <div class="news-footer">
-              <span class="news-date">Kwiecień 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--policy">Polityka</div>
-            <h3 class="news-title">Rozporządzenie UE w sprawie wylesiania: co importerzy powinni wiedzieć</h3>
-            <p class="news-excerpt">EUDR wprowadza surowe wymogi dotyczące należytej staranności dla towarów związanych z wylesianiem wchodzących na rynek UE. Firmy importujące drewno, soję, kakao i produkty pochodne muszą dostarczyć dane georeferencyjne i oświadczenia o zgodności. Wczesne przygotowanie jest kluczowe.</p>
-            <div class="news-footer">
-              <span class="news-date">Marzec 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--sourcing">Zaopatrzenie</div>
-            <h3 class="news-title">Zaopatrzenie poza Chinami: Wietnam i Malezja zyskują na znaczeniu</h3>
-            <p class="news-excerpt">Dywersyfikacja łańcucha dostaw przyspiesza, gdy europejscy kupujący zmniejszają zależność od jednego kraju. Wietnam przoduje w odzieży i montażu elektroniki, podczas gdy Malezja umacnia pozycję w półprzewodnikach i precyzyjnych częściach. Strategie podwójnego zaopatrzenia stają się standardową praktyką.</p>
-            <div class="news-footer">
-              <span class="news-date">Marzec 2025</span>
-            </div>
-          </article>
-
-          <article class="news-card">
-            <div class="news-tag news-tag--planning">Planowanie</div>
-            <h3 class="news-title">Złoty Tydzień 2025: jak zaplanować kalendarz fabryczny</h3>
-            <p class="news-excerpt">Chiński Narodowy Złoty Tydzień (1–7 października) powoduje zamknięcie fabryk w głównych centrach produkcyjnych. Importerzy planujący dostawy w Q4 powinni potwierdzić zamówienia do początku sierpnia. Niedoszacowanie przedświątecznego szczytu regularnie prowadzi do wydłużonych czasów realizacji i przegapionych okien.</p>
-            <div class="news-footer">
-              <span class="news-date">Luty 2025</span>
-            </div>
-          </article>
+        <div class="news-grid" id="news-grid">
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
+          <article class="news-card news-card--skeleton"><div class="news-skeleton-tag"></div><div class="news-skeleton-title"></div><div class="news-skeleton-body"></div></article>
         </div>
       </section>
 
@@ -470,5 +456,27 @@
   <script src="../js/chat.js"></script>
   <script src="../js/forms.js"></script>
   <script src="../js/transitions.js"></script>
+  <script>
+    (function () {
+      const TAG_CLASS = { Policy: 'policy', Logistics: 'logistics', Sourcing: 'sourcing', Trade: 'trade' };
+      function renderNews(articles) {
+        const grid = document.getElementById('news-grid');
+        if (!grid) return;
+        grid.innerHTML = articles.map(a => `
+          <article class="news-card">
+            <a href="${a.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block;">
+              <div class="news-tag news-tag--${TAG_CLASS[a.tag] || 'trade'}">${a.tag}</div>
+              <h3 class="news-title">${a.title}</h3>
+              <p class="news-excerpt">${a.excerpt}</p>
+              <div class="news-footer">
+                <span class="news-date">${a.date}</span>
+                <span class="news-source" style="opacity:0.45;font-size:0.72rem;margin-left:auto;">${a.source}</span>
+              </div>
+            </a>
+          </article>`).join('');
+      }
+      fetch('/api/news').then(r=>r.json()).then(d=>{if(d.articles)renderNews(d.articles);}).catch(()=>{});
+    })();
+  </script>
 </body>
 </html>

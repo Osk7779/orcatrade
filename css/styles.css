@@ -1315,6 +1315,7 @@ footer {
 .news-tag--policy    { background: rgba(201, 168, 76, 0.08);  color: #c9a84c; border-color: rgba(201, 168, 76, 0.2);  }
 .news-tag--sourcing  { background: rgba(184, 190, 200, 0.08); color: #9ab4a8; border-color: rgba(154, 180, 168, 0.2); }
 .news-tag--planning  { background: rgba(184, 190, 200, 0.08); color: #b4a8c8; border-color: rgba(180, 168, 200, 0.2); }
+.news-tag--trade     { background: rgba(184, 190, 200, 0.08); color: #b8bec8; border-color: rgba(184, 190, 200, 0.2); }
 
 .news-title {
   font-family: 'Cormorant Garant', Georgia, serif;
