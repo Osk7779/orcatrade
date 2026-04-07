@@ -487,10 +487,10 @@
 
     .command-panel {
       padding: 2.4rem 2.8rem;
-      display: none;
+      display: none !important;
     }
 
-    .command-panel.active { display: block; }
+    .command-panel.active { display: block !important; }
 
     .command-panel-title {
       font-family: var(--font-head);
@@ -1372,12 +1372,25 @@
     (function() {
       const tabs = document.querySelectorAll('.command-tab');
       const panels = document.querySelectorAll('.command-panel');
+
+      // Enforce initial state immediately in case CSS hasn't applied
+      panels.forEach(function(p) { p.style.display = 'none'; });
+      var firstActive = document.querySelector('.command-panel.active');
+      if (firstActive) firstActive.style.display = 'block';
+
       tabs.forEach(function(tab) {
         tab.addEventListener('click', function() {
           tabs.forEach(function(t) { t.classList.remove('active'); });
-          panels.forEach(function(p) { p.classList.remove('active'); });
+          panels.forEach(function(p) {
+            p.classList.remove('active');
+            p.style.display = 'none';
+          });
           tab.classList.add('active');
-          document.getElementById(tab.dataset.panel).classList.add('active');
+          var target = document.getElementById(tab.dataset.panel);
+          if (target) {
+            target.classList.add('active');
+            target.style.display = 'block';
+          }
         });
       });
     })();
