@@ -106,7 +106,7 @@ a:hover { opacity: 0.8; }
   font-weight: 500;
   cursor: pointer;
   transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
-  border-radius: 999px;
+  border-radius: 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   white-space: nowrap;
@@ -159,7 +159,7 @@ a:hover { opacity: 0.8; }
   align-items: center;
   gap: 0.45rem;
   padding: 0.32rem 1rem;
-  border-radius: 999px;
+  border-radius: 0;
   background: rgba(184,190,200,0.08);
   color: var(--gold);
   font-size: 0.72rem;
@@ -190,7 +190,7 @@ a:hover { opacity: 0.8; }
 .glass-panel {
   background: radial-gradient(circle at top left, #1a2a4e 0, #07101f 52%, #040813 100%);
   border: 1px solid var(--border);
-  border-radius: 1.4rem;
+  border-radius: 0;
   padding: 2.4rem;
   backdrop-filter: blur(16px);
   box-shadow: 0 26px 60px rgba(0,0,0,0.6);
@@ -357,7 +357,7 @@ textarea { min-height: 110px; resize: vertical; }
 .report-header {
   background: radial-gradient(circle at top left, #1a2a4e 0, #07101f 52%, #040813 100%);
   border: 1px solid var(--border);
-  border-radius: 1.4rem;
+  border-radius: 0;
   margin-bottom: 2rem;
   padding: 2.4rem;
   box-shadow: 0 26px 60px rgba(0,0,0,0.6);
@@ -377,7 +377,7 @@ textarea { min-height: 110px; resize: vertical; }
 .status-large {
   display: inline-block;
   padding: 0.6rem 1.6rem;
-  border-radius: 999px;
+  border-radius: 0;
   font-size: 0.82rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -409,7 +409,7 @@ textarea { min-height: 110px; resize: vertical; }
 .reg-card {
   background: linear-gradient(145deg, #111d3a, #060b17);
   border: 1px solid var(--border);
-  border-radius: 1.2rem;
+  border-radius: 0;
   padding: 1.6rem;
   transition: transform 0.22s ease, border-color 0.22s ease;
 }
@@ -431,7 +431,7 @@ textarea { min-height: 110px; resize: vertical; }
   font-size: 0.68rem;
   font-weight: 600;
   padding: 0.18rem 0.55rem;
-  border-radius: 999px;
+  border-radius: 0;
   text-transform: uppercase;
   letter-spacing: 0.1em;
   border: 1px solid var(--border-hi);
@@ -443,7 +443,7 @@ textarea { min-height: 110px; resize: vertical; }
   font-size: 0.68rem;
   font-weight: 700;
   padding: 0.25rem 0.65rem;
-  border-radius: 999px;
+  border-radius: 0;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -496,7 +496,7 @@ textarea { min-height: 110px; resize: vertical; }
 .priority-card {
   background: radial-gradient(circle at top left, #1a2a4e 0, #07101f 52%, #040813 100%);
   border: 1px solid var(--border);
-  border-radius: 1.4rem;
+  border-radius: 0;
   padding: 2.2rem;
   margin-bottom: 2.4rem;
   box-shadow: 0 20px 50px rgba(0,0,0,0.55);
