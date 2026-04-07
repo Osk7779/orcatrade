@@ -1,5 +1,21 @@
 const { determineRegulationApplicability, enforceComplianceLogic } = require('../lib/intelligence/compliance');
 
+const rateMap = new Map();
+
+function checkRate(ip, limit) {
+  const now = Date.now();
+  const entry = rateMap.get(ip) || { count: 0, windowStart: now };
+
+  if (now - entry.windowStart > 60000) {
+    entry.count = 0;
+    entry.windowStart = now;
+  }
+
+  entry.count++;
+  rateMap.set(ip, entry);
+  return entry.count > limit;
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
@@ -7,6 +23,11 @@ module.exports = async function handler(req, res) {
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
+
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+  if (checkRate(ip, 5)) {
+    return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
+  }
 
   try {
     const orderData = req.body;
