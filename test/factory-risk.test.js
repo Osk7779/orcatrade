@@ -61,6 +61,8 @@ test('factory search preserves a specific requested company name in fallback mod
     riskTolerance: 'Any risk level',
   });
 
+  assert.equal(result.queryMode, 'exact_factory');
+  assert.equal(result.factories.length, 1);
   assert.equal(result.factories[0].name, 'Guangdong Yimai Packaging Co., Ltd.');
   assert.equal(result.factories[0].country, 'China');
   assert.equal(isCategoryCompatible(result.factories[0].speciality, 'Packaging & Paper'), true);
@@ -88,6 +90,8 @@ test('factory search keeps the requested factory anchored when AI returns unrela
     riskTolerance: 'Low risk only (Score 70+)',
   });
 
+  assert.equal(result.queryMode, 'exact_factory');
+  assert.equal(result.factories.length, 1);
   assert.equal(result.factories[0].name, 'Yimai Packaging Factory');
   assert.equal(result.factories[0].country, 'China');
   assert.ok(result.factories[0].riskScore >= 70);

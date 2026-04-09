@@ -1,6 +1,11 @@
 const { CATEGORY_SPECIALITIES, COUNTRY_CITIES } = require('../lib/intelligence/catalog');
 const { extractAnthropicText, requestAnthropicMessage } = require('../lib/intelligence/model-runtime');
-const { normalizeFactorySearch, sanitizeFactoryResults } = require('../lib/intelligence/factory-risk');
+const {
+  extractRequestedFactoryName,
+  isSpecificFactoryLookup,
+  normalizeFactorySearch,
+  sanitizeFactoryResults,
+} = require('../lib/intelligence/factory-risk');
 
 const FACTORY_MODEL_TIMEOUT_MS = 15000;
 const FACTORY_MODEL_RETRIES = 1;
@@ -22,6 +27,8 @@ module.exports = async function handler(req, res) {
   }
 
   const filters = normalizeFactorySearch(req.body || {});
+  const exactFactorySearch = isSpecificFactoryLookup(filters);
+  const requestedFactoryName = extractRequestedFactoryName(filters.query, filters);
   const allowedCities = (COUNTRY_CITIES[filters.country] || COUNTRY_CITIES.China).join(', ');
   const allowedSpecialities = (CATEGORY_SPECIALITIES[filters.category] || CATEGORY_SPECIALITIES.Other).join(', ');
 
@@ -34,12 +41,14 @@ module.exports = async function handler(req, res) {
 Return only valid JSON. No markdown. No explanation.
 
 Hard constraints:
-- Return exactly 6 factories.
+- Return exactly ${exactFactorySearch ? '1 factory' : '6 factories'}.
 - Every factory must match the requested country and category filters exactly when they are provided.
 - riskScore MUST equal Math.round(financialScore*0.3 + complianceScore*0.25 + capacityScore*0.25 + auditScore*0.2).
 - complianceScore, financialScore, capacityScore, and auditScore are all safety scores where high is good.
 - Be conservative: if a certification, audit, or compliance fact is uncertain, prefer Pending or At Risk over Verified.
 - Use realistic manufacturing cities only.
+${exactFactorySearch ? `- This is an exact factory lookup for "${requestedFactoryName}". Keep the result tied to that company name and do not substitute alternative factories.
+- If details are uncertain, preserve the requested company name and use conservative findings rather than inventing a different supplier.` : '' }
 
 Country focus: ${filters.countryConstraint || 'Best-fit Asian sourcing market'}
 Allowed cities for ${filters.country}: ${allowedCities}
@@ -51,6 +60,7 @@ Query: "${filters.query || 'manufacturer search'}"
 Country filter: "${filters.countryConstraint || 'Any'}"
 Category filter: "${filters.categoryConstraint || 'Any'}"
 Risk tolerance: "${filters.riskTolerance}"
+Search mode: "${exactFactorySearch ? `Exact factory lookup for ${requestedFactoryName}` : 'Market scan'}"
 
 Return this exact JSON shape:
 {
