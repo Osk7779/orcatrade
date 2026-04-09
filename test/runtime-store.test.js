@@ -4,11 +4,14 @@ const assert = require('node:assert/strict');
 const {
   consumeRateLimit,
   getSharedCacheValue,
+  getStoredEvidenceBundleById,
   getStoredEvidenceSnapshotById,
   getStoredComplianceReportById,
   getStoredComplianceReportByRequest,
+  listStoredEvidenceBundlesByOwner,
   listStoredComplianceReportVersions,
   listStoredComplianceReportsByOwner,
+  persistEvidenceBundle,
   persistComplianceReport,
   setSharedCacheValue,
 } = require('../lib/intelligence/runtime-store');
@@ -168,4 +171,31 @@ test('runtime store versions related reports into the same family and keeps evid
   assert.equal(stored.report.reportHistory.versions[1].reportId, 'OT-RUNTIME-FAMILY-001');
   assert.equal(stored.report.evidenceTrail.current.snapshotId, second.evidenceSnapshotId);
   assert.equal(stored.report.evidenceTrail.previousSnapshots[0].reportId, 'OT-RUNTIME-FAMILY-001');
+});
+
+test('runtime store persists evidence bundles and indexes them by owner', async () => {
+  const bundle = {
+    bundleId: 'bundle-runtime-001',
+    bundleVersion: '2026-04-09',
+    documentCount: 1,
+    extractedFieldCount: 3,
+    evidenceSummary: 'CN / HS code: 7318.15',
+    documents: [{ documentId: 'doc-1', name: 'Importer dossier', type: 'text/plain' }],
+    extractedFacts: { cnCode: '7318.15', authorisedDeclarant: true },
+    factSources: { cnCode: { documentId: 'doc-1' } },
+  };
+
+  await persistEvidenceBundle(bundle, {
+    company: 'Northline Imports',
+    email: 'ops@northline.test',
+  }, 5000);
+
+  const stored = await getStoredEvidenceBundleById('bundle-runtime-001');
+  assert.equal(stored.storageMode, 'memory');
+  assert.equal(stored.bundle.bundleId, 'bundle-runtime-001');
+  assert.equal(stored.ownership.company, 'Northline Imports');
+
+  const list = await listStoredEvidenceBundlesByOwner(stored.ownership.ownerFingerprint, { limit: 10 });
+  assert.equal(list.storageMode, 'memory');
+  assert.ok(list.bundles.some(item => item.bundleId === 'bundle-runtime-001'));
 });

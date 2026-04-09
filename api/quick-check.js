@@ -1,8 +1,9 @@
 const { cleanString } = require('../lib/intelligence/catalog');
-const { consumeRateLimit, getSharedCacheValue, setSharedCacheValue } = require('../lib/intelligence/runtime-store');
+const { consumeRateLimit, getSharedCacheValue, persistEvidenceBundle, setSharedCacheValue } = require('../lib/intelligence/runtime-store');
 const { extractAnthropicText, requestAnthropicMessage } = require('../lib/intelligence/model-runtime');
 const { validateCompliancePayload } = require('../lib/intelligence/compliance-validator');
 const { resolveAsOfDate, RULE_VERSION } = require('../lib/intelligence/compliance');
+const { applyRequestHeaders, buildRequestContext, emitAuditEvent } = require('../lib/intelligence/request-runtime');
 
 const QUICK_CHECK_CACHE_TTL_MS = 15 * 60 * 1000;
 const QUICK_CHECK_MODEL_TIMEOUT_MS = 12000;
@@ -11,7 +12,7 @@ const QUICK_CHECK_MODEL_RETRIES = 1;
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Cache-Preference');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Cache-Preference, X-Request-Id');
 }
 
 function getCachePreference(req) {
@@ -38,6 +39,10 @@ function normaliseQuickCheckInput(orderData = {}) {
     dueDiligenceStatement: String(orderData.dueDiligenceStatement),
     supplierEmissionsData: String(orderData.supplierEmissionsData),
     authorisedDeclarant: String(orderData.authorisedDeclarant),
+    evidenceBundleId: cleanString(orderData.evidenceBundleId).toLowerCase(),
+    evidenceSummary: cleanString(orderData.evidenceSummary).toLowerCase(),
+    evidenceDocumentCount: Number(orderData.evidenceDocumentCount) || 0,
+    evidenceFieldCount: Number(orderData.evidenceFieldCount) || 0,
   };
 }
 
@@ -96,14 +101,16 @@ function buildCta(status, applicability) {
 
 module.exports = async function handler(req, res) {
   setCors(res);
+  const requestContext = buildRequestContext(req, 'quick-check');
+  applyRequestHeaders(res, requestContext);
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
-  const rate = await consumeRateLimit('quick-check', ip, 10, 60000);
+  const rate = await consumeRateLimit('quick-check', requestContext.ip, 10, 60000);
   res.setHeader('X-OrcaTrade-Storage-Mode', rate.storageMode);
   if (rate.limited) {
+    emitAuditEvent(requestContext, 'quick_check.rate_limited', { storageMode: rate.storageMode });
     return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
   }
 
@@ -116,6 +123,11 @@ module.exports = async function handler(req, res) {
   }
 
   const orderData = validation.normalizedOrderData;
+  if (validation.evidenceBundle?.bundleId) {
+    const persistedEvidence = await persistEvidenceBundle(validation.evidenceBundle, orderData, QUICK_CHECK_CACHE_TTL_MS);
+    res.setHeader('X-OrcaTrade-Evidence-Bundle', persistedEvidence.bundleId);
+    res.setHeader('X-OrcaTrade-Storage-Mode', persistedEvidence.storageMode || rate.storageMode || 'memory');
+  }
   const {
     productCategory = '',
     origin = '',
@@ -128,6 +140,9 @@ module.exports = async function handler(req, res) {
     dueDiligenceStatement = null,
     supplierEmissionsData = null,
     authorisedDeclarant = null,
+    evidenceBundleId = '',
+    evidenceSummary = '',
+    evidenceDocumentCount = 0,
   } = orderData;
   const cachePreference = getCachePreference(req);
 
@@ -140,6 +155,12 @@ module.exports = async function handler(req, res) {
     if (cached) {
       res.setHeader('X-OrcaTrade-Cache', 'HIT');
       res.setHeader('X-OrcaTrade-Generation-Mode', cached.value?.generationMode || 'unknown');
+      if (cached.value?.documentEvidence?.bundleId) {
+        res.setHeader('X-OrcaTrade-Evidence-Bundle', cached.value.documentEvidence.bundleId);
+      }
+      emitAuditEvent(requestContext, 'quick_check.cache_hit', {
+        generationMode: cleanString(cached.value?.generationMode),
+      });
       return res.status(200).json(cached.value);
     }
   }
@@ -150,6 +171,11 @@ module.exports = async function handler(req, res) {
       status,
       cta: buildCta(status, applicability),
       determination: buildDetermination(applicability),
+      documentEvidence: {
+        bundleId: evidenceBundleId || null,
+        documentCount: evidenceDocumentCount || 0,
+        summary: evidenceSummary || '',
+      },
       generationMode: 'deterministic_fallback',
     };
 
@@ -159,8 +185,15 @@ module.exports = async function handler(req, res) {
     } else {
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
     }
+    if (fallbackPayload.documentEvidence?.bundleId) {
+      res.setHeader('X-OrcaTrade-Evidence-Bundle', fallbackPayload.documentEvidence.bundleId);
+    }
 
     res.setHeader('X-OrcaTrade-Generation-Mode', 'deterministic_fallback');
+    emitAuditEvent(requestContext, 'quick_check.completed', {
+      generationMode: 'deterministic_fallback',
+      status,
+    });
 
     return res.status(200).json(fallbackPayload);
   }
@@ -190,6 +223,9 @@ Geolocation evidence available: ${geolocationAvailable === null ? 'Unknown' : ge
 Due-diligence statement ready: ${dueDiligenceStatement === null ? 'Unknown' : dueDiligenceStatement ? 'Yes' : 'No'}
 Supplier emissions data available: ${supplierEmissionsData === null ? 'Unknown' : supplierEmissionsData ? 'Yes' : 'No'}
 Authorised CBAM declarant ready: ${authorisedDeclarant === null ? 'Unknown' : authorisedDeclarant ? 'Yes' : 'No'}
+Document evidence bundle: ${evidenceBundleId || 'None'}
+Document evidence count: ${evidenceDocumentCount || 0}
+Document evidence summary: ${evidenceSummary || 'No document evidence submitted'}
 Pre-check applicability: ${applicableRegulations}
 EUDR reason: ${applicability.EUDR.applicabilityReason}
 CBAM reason: ${applicability.CBAM.applicabilityReason}
@@ -206,6 +242,11 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
       status,
       cta: buildCta(status, applicability),
       determination: buildDetermination(applicability),
+      documentEvidence: {
+        bundleId: evidenceBundleId || null,
+        documentCount: evidenceDocumentCount || 0,
+        summary: evidenceSummary || '',
+      },
       generationMode: 'ai_assisted',
     };
 
@@ -215,17 +256,32 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
     } else {
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
     }
+    if (payload.documentEvidence?.bundleId) {
+      res.setHeader('X-OrcaTrade-Evidence-Bundle', payload.documentEvidence.bundleId);
+    }
 
     res.setHeader('X-OrcaTrade-Generation-Mode', 'ai_assisted');
+    emitAuditEvent(requestContext, 'quick_check.completed', {
+      generationMode: 'ai_assisted',
+      status,
+    });
 
     return res.status(200).json(payload);
   } catch (error) {
+    emitAuditEvent(requestContext, 'quick_check.failed', {
+      message: cleanString(error.message),
+    });
     console.error('Quick check handler error:', error);
     const fallbackPayload = {
       verdict: buildFallbackVerdict(orderData, applicability),
       status,
       cta: buildCta(status, applicability),
       determination: buildDetermination(applicability),
+      documentEvidence: {
+        bundleId: evidenceBundleId || null,
+        documentCount: evidenceDocumentCount || 0,
+        summary: evidenceSummary || '',
+      },
       generationMode: 'deterministic_fallback',
     };
 
@@ -235,8 +291,15 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
     } else {
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
     }
+    if (fallbackPayload.documentEvidence?.bundleId) {
+      res.setHeader('X-OrcaTrade-Evidence-Bundle', fallbackPayload.documentEvidence.bundleId);
+    }
 
     res.setHeader('X-OrcaTrade-Generation-Mode', 'deterministic_fallback');
+    emitAuditEvent(requestContext, 'quick_check.completed', {
+      generationMode: 'deterministic_fallback',
+      status,
+    });
 
     return res.status(200).json(fallbackPayload);
   }

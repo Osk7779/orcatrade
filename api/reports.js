@@ -1,19 +1,22 @@
 const { consumeRateLimit, listStoredComplianceReportsByOwner } = require('../lib/intelligence/runtime-store');
 const { verifyAccountAccessToken } = require('../lib/intelligence/report-access');
+const { applyRequestHeaders, buildRequestContext, buildRequestMeta, emitAuditEvent } = require('../lib/intelligence/request-runtime');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Account-Token');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Account-Token, X-Request-Id');
   res.setHeader('Cache-Control', 'no-store');
+  const requestContext = buildRequestContext(req, 'reports');
+  applyRequestHeaders(res, requestContext);
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'GET') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
-  const rate = await consumeRateLimit('report-list', ip, 30, 60000);
+  const rate = await consumeRateLimit('report-list', requestContext.ip, 30, 60000);
   res.setHeader('X-OrcaTrade-Storage-Mode', rate.storageMode);
   if (rate.limited) {
+    emitAuditEvent(requestContext, 'reports.rate_limited', { storageMode: rate.storageMode });
     return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
   }
 
@@ -39,11 +42,21 @@ module.exports = async function handler(req, res) {
     if (accountCheck.expiresAt) {
       res.setHeader('X-OrcaTrade-Account-Access-Expires-At', accountCheck.expiresAt);
     }
+    emitAuditEvent(requestContext, 'reports.listed', {
+      count: Array.isArray(result.reports) ? result.reports.length : 0,
+      storageMode: result.storageMode || rate.storageMode || 'memory',
+    });
     return res.status(200).json({
       reports: result.reports || [],
       count: Array.isArray(result.reports) ? result.reports.length : 0,
+      requestMeta: buildRequestMeta(requestContext, {
+        storageMode: result.storageMode || rate.storageMode || 'memory',
+      }),
     });
   } catch (error) {
+    emitAuditEvent(requestContext, 'reports.failed', {
+      message: String(error.message || ''),
+    });
     console.error('Report list retrieval error:', error);
     return res.status(500).json({ error: 'Failed to retrieve reports' });
   }

@@ -4,12 +4,14 @@ const {
   consumeRateLimit,
   getSharedCacheValue,
   getStoredComplianceReportByRequest,
+  persistEvidenceBundle,
   persistComplianceReport,
   setSharedCacheValue,
 } = require('../lib/intelligence/runtime-store');
 const { attachReportAccess } = require('../lib/intelligence/report-access');
 const { extractAnthropicText, requestAnthropicMessage } = require('../lib/intelligence/model-runtime');
 const { validateCompliancePayload } = require('../lib/intelligence/compliance-validator');
+const { applyRequestHeaders, buildRequestContext, emitAuditEvent } = require('../lib/intelligence/request-runtime');
 const {
   buildDeterministicFallbackReport,
   enforceComplianceLogic,
@@ -92,6 +94,10 @@ function normaliseCheckCacheInput(orderData = {}) {
     dueDiligenceStatement: String(orderData.dueDiligenceStatement),
     supplierEmissionsData: String(orderData.supplierEmissionsData),
     authorisedDeclarant: String(orderData.authorisedDeclarant),
+    evidenceBundleId: cleanString(orderData.evidenceBundleId).toLowerCase(),
+    evidenceSummary: cleanString(orderData.evidenceSummary).toLowerCase(),
+    evidenceDocumentCount: Number(orderData.evidenceDocumentCount) || 0,
+    evidenceFieldCount: Number(orderData.evidenceFieldCount) || 0,
     euMarket: orderData.euMarket !== false,
   };
 }
@@ -124,6 +130,9 @@ async function sendReport(res, cachePreference, cacheInput, report, orderData) {
   if (persisted.evidenceSnapshotId) {
     res.setHeader('X-OrcaTrade-Evidence-Snapshot', persisted.evidenceSnapshotId);
   }
+  if (persistedReport?.documentEvidence?.bundleId) {
+    res.setHeader('X-OrcaTrade-Evidence-Bundle', persistedReport.documentEvidence.bundleId);
+  }
   res.setHeader('Cache-Control', 'no-store');
 
   if (persistedReport && persistedReport.reportGeneration && persistedReport.reportGeneration.mode) {
@@ -150,15 +159,17 @@ async function sendReport(res, cachePreference, cacheInput, report, orderData) {
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Cache-Preference');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Cache-Preference, X-Request-Id');
+  const requestContext = buildRequestContext(req, 'compliance-report');
+  applyRequestHeaders(res, requestContext);
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
-  const rate = await consumeRateLimit('compliance-report', ip, 5, 60000);
+  const rate = await consumeRateLimit('compliance-report', requestContext.ip, 5, 60000);
   res.setHeader('X-OrcaTrade-Storage-Mode', rate.storageMode);
   if (rate.limited) {
+    emitAuditEvent(requestContext, 'check.rate_limited', { storageMode: rate.storageMode });
     return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
   }
 
@@ -178,6 +189,11 @@ module.exports = async function handler(req, res) {
     }
 
     orderData = validation.normalizedOrderData;
+    if (validation.evidenceBundle?.bundleId) {
+      const persistedEvidence = await persistEvidenceBundle(validation.evidenceBundle, orderData, REPORT_PERSIST_TTL_MS);
+      res.setHeader('X-OrcaTrade-Evidence-Bundle', persistedEvidence.bundleId);
+      res.setHeader('X-OrcaTrade-Storage-Mode', persistedEvidence.storageMode || rate.storageMode || 'memory');
+    }
     cachePreference = getCachePreference(req);
     const {
       productCategory = '',
@@ -193,6 +209,9 @@ module.exports = async function handler(req, res) {
       dueDiligenceStatement = null,
       supplierEmissionsData = null,
       authorisedDeclarant = null,
+      evidenceBundleId = '',
+      evidenceSummary = '',
+      evidenceDocumentCount = 0,
       euMarket = true,
     } = orderData;
 
@@ -217,6 +236,9 @@ module.exports = async function handler(req, res) {
         }
         if (deliveryReport?.evidenceSnapshot?.snapshotId) {
           res.setHeader('X-OrcaTrade-Evidence-Snapshot', deliveryReport.evidenceSnapshot.snapshotId);
+        }
+        if (deliveryReport?.documentEvidence?.bundleId) {
+          res.setHeader('X-OrcaTrade-Evidence-Bundle', deliveryReport.documentEvidence.bundleId);
         }
         if (deliveryReport?.reportGeneration?.mode) {
           res.setHeader('X-OrcaTrade-Generation-Mode', deliveryReport.reportGeneration.mode);
@@ -255,6 +277,9 @@ module.exports = async function handler(req, res) {
       if (deliveryReport?.evidenceSnapshot?.snapshotId) {
         res.setHeader('X-OrcaTrade-Evidence-Snapshot', deliveryReport.evidenceSnapshot.snapshotId);
       }
+      if (deliveryReport?.documentEvidence?.bundleId) {
+        res.setHeader('X-OrcaTrade-Evidence-Bundle', deliveryReport.documentEvidence.bundleId);
+      }
       if (deliveryReport?.reportGeneration?.mode) {
         res.setHeader('X-OrcaTrade-Generation-Mode', deliveryReport.reportGeneration.mode);
       }
@@ -282,6 +307,10 @@ module.exports = async function handler(req, res) {
         reportId,
         timestamp,
         reason: 'The Anthropic API key is not configured, so OrcaTrade returned a deterministic rules-based report.',
+      });
+      emitAuditEvent(requestContext, 'check.fallback_report', {
+        reportId,
+        reason: 'missing_api_key',
       });
       void sendComplianceSummaryEmail(fallbackReport, orderData);
       return sendReport(res, cachePreference, cacheInput, fallbackReport, orderData);
@@ -404,6 +433,8 @@ DETERMINISTIC PRE-CHECK — YOU MUST RESPECT THIS UNLESS USER DATA CLEARLY CONTR
 - CBAM applicabilityStatus: ${applicability.CBAM.applicabilityStatus.toUpperCase()} — ${applicability.CBAM.applicabilityReason}${applicability.CBAM.futureApplicabilityDate ? ` Future date: ${applicability.CBAM.futureApplicabilityDate}.` : ''}${applicability.CBAM.missingFacts.length ? ` Missing facts: ${applicability.CBAM.missingFacts.join(', ')}.` : ''}
 - CSDDD applicabilityStatus: ${applicability.CSDDD.applicabilityStatus.toUpperCase()} — ${applicability.CSDDD.applicabilityReason}${applicability.CSDDD.futureApplicabilityDate ? ` Future date: ${applicability.CSDDD.futureApplicabilityDate}.` : ''}${applicability.CSDDD.missingFacts.length ? ` Missing facts: ${applicability.CSDDD.missingFacts.join(', ')}.` : ''}
 
+If a document evidence bundle is provided below, treat its extracted facts as evidence-backed context unless the rest of the payload clearly contradicts it.
+
 Return ONLY valid JSON. No markdown. No text outside the JSON object.`;
 
     const userPrompt = `Generate a detailed compliance report for this import order:
@@ -421,6 +452,9 @@ Geolocation evidence available: ${geolocationAvailable === null ? 'Unknown' : ge
 Due-diligence statement ready: ${dueDiligenceStatement === null ? 'Unknown' : dueDiligenceStatement ? 'Yes' : 'No'}
 Supplier emissions data available: ${supplierEmissionsData === null ? 'Unknown' : supplierEmissionsData ? 'Yes' : 'No'}
 Authorised CBAM declarant ready: ${authorisedDeclarant === null ? 'Unknown' : authorisedDeclarant ? 'Yes' : 'No'}
+Document evidence bundle: ${evidenceBundleId || 'None'}
+Document evidence count: ${evidenceDocumentCount || 0}
+Document evidence summary: ${evidenceSummary || 'No document evidence submitted'}
 Placing on EU market: ${euMarket ? 'Yes' : 'No'}
 
 IMPORTANT: Follow the STATUS AND SCORE RULES exactly. Do not mark a regulation
@@ -571,6 +605,10 @@ Return ONLY this JSON object with no markdown wrapping:
             timestamp,
             reason: 'The AI response could not be parsed into valid JSON, so OrcaTrade returned a deterministic rules-based report instead.',
           });
+          emitAuditEvent(requestContext, 'check.fallback_report', {
+            reportId,
+            reason: 'json_parse_error',
+          });
           void sendComplianceSummaryEmail(fallbackReport, orderData);
           return sendReport(res, cachePreference, cacheInput, fallbackReport, orderData);
         }
@@ -579,6 +617,10 @@ Return ONLY this JSON object with no markdown wrapping:
           reportId,
           timestamp,
           reason: 'The AI response did not contain a valid JSON payload, so OrcaTrade returned a deterministic rules-based report instead.',
+        });
+        emitAuditEvent(requestContext, 'check.fallback_report', {
+          reportId,
+          reason: 'missing_json_payload',
         });
         void sendComplianceSummaryEmail(fallbackReport, orderData);
         return sendReport(res, cachePreference, cacheInput, fallbackReport, orderData);
@@ -605,9 +647,17 @@ Return ONLY this JSON object with no markdown wrapping:
     // ─────────────────────────────────────────────────────────────────
 
     void sendComplianceSummaryEmail(report, orderData);
+    emitAuditEvent(requestContext, 'check.completed', {
+      reportId: cleanString(report.reportId),
+      overallStatus: cleanString(report.overallStatus),
+      generationMode: cleanString(report.reportGeneration?.mode),
+    });
     return sendReport(res, cachePreference, cacheInput, report, orderData);
 
   } catch (error) {
+    emitAuditEvent(requestContext, 'check.failed', {
+      message: cleanString(error.message),
+    });
     console.error('Handler error:', error);
     if (orderData) {
       const providerDetail = cleanString(error.responseText).slice(0, 240);
@@ -615,6 +665,10 @@ Return ONLY this JSON object with no markdown wrapping:
         reportId,
         timestamp,
         reason: `Unexpected compliance handler error: ${cleanString(error.message) || 'Unknown error'}. OrcaTrade returned a deterministic rules-based report instead.${error.timedOut ? ` The model request timed out after ${REPORT_MODEL_TIMEOUT_MS}ms.` : ''}${providerDetail ? ` Provider detail: ${providerDetail}` : ''}`,
+      });
+      emitAuditEvent(requestContext, 'check.fallback_report', {
+        reportId,
+        reason: 'handler_error',
       });
       void sendComplianceSummaryEmail(fallbackReport, orderData);
       return sendReport(res, cachePreference, cacheInput || normaliseCheckCacheInput(orderData), fallbackReport, orderData);
