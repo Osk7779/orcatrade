@@ -1,6 +1,9 @@
-const { determineRegulationApplicability, enforceComplianceLogic } = require('../lib/intelligence/compliance');
+const { cleanString } = require('../lib/intelligence/catalog');
+const { getCachedValue, setCachedValue } = require('../lib/intelligence/cache-store');
+const { determineRegulationApplicability, enforceComplianceLogic, resolveAsOfDate, RULE_VERSION } = require('../lib/intelligence/compliance');
 
 const rateMap = new Map();
+const REPORT_CACHE_TTL_MS = 10 * 60 * 1000;
 
 function checkRate(ip, limit) {
   const now = Date.now();
@@ -57,10 +60,34 @@ async function sendComplianceSummaryEmail(report, orderData = {}) {
   }
 }
 
+function getCachePreference(req) {
+  const value = cleanString(req.headers['x-orcatrade-cache-preference']).toLowerCase();
+  return value === 'all' || value === 'reject' ? value : 'essential';
+}
+
+function canUseFullReportCache(preference) {
+  return preference === 'all';
+}
+
+function normaliseCheckCacheInput(orderData = {}) {
+  return {
+    ruleVersion: RULE_VERSION,
+    asOfDate: resolveAsOfDate(orderData),
+    productCategory: cleanString(orderData.productCategory).toLowerCase(),
+    productDescription: cleanString(orderData.productDescription).toLowerCase(),
+    origin: cleanString(orderData.origin).toLowerCase(),
+    supplierName: cleanString(orderData.supplierName).toLowerCase(),
+    importValue: cleanString(orderData.importValue).toLowerCase(),
+    companySize: cleanString(orderData.companySize).toLowerCase(),
+    globalTurnover: cleanString(orderData.globalTurnover || orderData.companyTurnover || orderData.turnover).toLowerCase(),
+    euMarket: orderData.euMarket !== false,
+  };
+}
+
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Cache-Preference');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
@@ -72,6 +99,7 @@ module.exports = async function handler(req, res) {
 
   try {
     const orderData = req.body;
+    const cachePreference = getCachePreference(req);
     const {
       productCategory = '',
       productDescription = '',
@@ -88,6 +116,15 @@ module.exports = async function handler(req, res) {
     }
 
     const applicability = determineRegulationApplicability(orderData);
+    const cacheInput = normaliseCheckCacheInput(orderData);
+
+    if (canUseFullReportCache(cachePreference)) {
+      const cached = getCachedValue('compliance-report', cacheInput);
+      if (cached) {
+        res.setHeader('X-OrcaTrade-Cache', 'HIT');
+        return res.status(200).json(cached.value);
+      }
+    }
 
     const year = new Date().getFullYear();
     const reportId = `OT-COMP-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
@@ -112,6 +149,11 @@ STATUS is determined by the WORST applicable regulation result, in this strict h
 
   non_compliant > at_risk > compliant > not_applicable
 
+APPLICABILITY STATUS meanings:
+- "applicable": the regulation is currently live on the provided facts
+- "future_scope": the goods/company appear to fall within scope, but the binding application date is still in the future
+- "insufficient_data": the software cannot safely decide scope because key facts are missing
+
 REGULATION STATUS ASSIGNMENT RULES (mandatory):
 - "not_applicable": regulation does not apply to this product/company. No score impact.
 - "non_compliant": regulation applies AND at least ONE of:
@@ -126,6 +168,12 @@ REGULATION STATUS ASSIGNMENT RULES (mandatory):
 - "compliant": regulation applies AND all known obligations are satisfied or
     explicitly verified as not required. This requires positive evidence —
     NOT the absence of information.
+
+SPECIAL CASES:
+- If applicabilityStatus = "future_scope", current status MUST be "not_applicable" today.
+  Do not assign current fines or current non-compliance, but do provide readiness actions.
+- If applicabilityStatus = "insufficient_data", status MUST be "at_risk".
+  State the missing facts explicitly and do not claim the regulation is compliant or out of scope.
 
 CRITICAL RULE: You CANNOT mark a regulation "compliant" if:
   - you have identified any critical or major finding under it
@@ -167,14 +215,23 @@ EUDR RULES
 Applies to: cattle, cocoa, coffee, palm oil, soya, wood, rubber and derived products.
 Derived products include: leather, chocolate, furniture, paper, printed matter.
 Check Article 1 and Annex I of Regulation (EU) 2023/1115 to determine applicability.
-If applicable: operator MUST have georeferenced polygon data per Article 9.
-Missing polygon data = critical finding = non_compliant.
+Application dates:
+- 30 December 2026 for large and medium operators/traders
+- 30 June 2027 for micro and small operators/traders
+If the application date has not yet arrived, set applicabilityStatus = "future_scope" and current status = "not_applicable".
+Once the application date has passed and EUDR applies: operator MUST have georeferenced polygon data per Article 9.
+Missing polygon data after the application date = critical finding = non_compliant.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 CSDDD RULES
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-Applies ONLY to: companies with 1000+ employees AND €450M+ global turnover.
-If company size is "Under 250 employees" or "250–1000 employees": applicable = false.
+Do NOT model CSDDD as a simple current order-clearance rule.
+Use phased application thresholds:
+- 26 July 2027: more than 5,000 employees and more than €1.5bn global turnover
+- 26 July 2028: more than 3,000 employees and more than €900m global turnover
+- 26 July 2029: more than 1,000 employees and more than €450m global turnover
+If the threshold appears relevant but the date is still in the future, set applicabilityStatus = "future_scope" and current status = "not_applicable".
+If global turnover or exact threshold facts are missing, set applicabilityStatus = "insufficient_data" and current status = "at_risk".
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 FINANCIAL RISK — EUDR
@@ -185,9 +242,10 @@ Use import value as turnover proxy. Show the calculation.
 Additional: seizure per Article 25(2)(b), procurement ban per Article 25(2)(d).
 
 DETERMINISTIC PRE-CHECK — YOU MUST RESPECT THIS UNLESS USER DATA CLEARLY CONTRADICTS IT
-- EUDR applicability: ${applicability.EUDR.applicable ? 'APPLICABLE' : 'NOT APPLICABLE'} — ${applicability.EUDR.applicabilityReason}
-- CBAM applicability: ${applicability.CBAM.applicable ? 'APPLICABLE' : 'NOT APPLICABLE'} — ${applicability.CBAM.applicabilityReason}
-- CSDDD applicability: ${applicability.CSDDD.applicable ? 'APPLICABLE' : 'NOT APPLICABLE'} — ${applicability.CSDDD.applicabilityReason}
+- Assessment date: ${resolveAsOfDate(orderData)}
+- EUDR applicabilityStatus: ${applicability.EUDR.applicabilityStatus.toUpperCase()} — ${applicability.EUDR.applicabilityReason}${applicability.EUDR.futureApplicabilityDate ? ` Future date: ${applicability.EUDR.futureApplicabilityDate}.` : ''}${applicability.EUDR.missingFacts.length ? ` Missing facts: ${applicability.EUDR.missingFacts.join(', ')}.` : ''}
+- CBAM applicabilityStatus: ${applicability.CBAM.applicabilityStatus.toUpperCase()} — ${applicability.CBAM.applicabilityReason}${applicability.CBAM.futureApplicabilityDate ? ` Future date: ${applicability.CBAM.futureApplicabilityDate}.` : ''}${applicability.CBAM.missingFacts.length ? ` Missing facts: ${applicability.CBAM.missingFacts.join(', ')}.` : ''}
+- CSDDD applicabilityStatus: ${applicability.CSDDD.applicabilityStatus.toUpperCase()} — ${applicability.CSDDD.applicabilityReason}${applicability.CSDDD.futureApplicabilityDate ? ` Future date: ${applicability.CSDDD.futureApplicabilityDate}.` : ''}${applicability.CSDDD.missingFacts.length ? ` Missing facts: ${applicability.CSDDD.missingFacts.join(', ')}.` : ''}
 
 Return ONLY valid JSON. No markdown. No text outside the JSON object.`;
 
@@ -216,7 +274,13 @@ Return ONLY this JSON object with no markdown wrapping:
     {
       "regulation": "EUDR",
       "applicable": <boolean>,
+      "applicabilityStatus": "applicable | future_scope | insufficient_data | not_applicable",
       "applicabilityReason": "cite specific articles. If uncertain about CN code, state that.",
+      "futureApplicabilityDate": "YYYY-MM-DD or null",
+      "missingFacts": ["array of missing facts if any"],
+      "readinessActions": ["array of readiness actions if future scope"],
+      "confidence": "high | medium | low",
+      "requiresManualReview": <boolean>,
       "status": "non_compliant | at_risk | compliant | not_applicable",
       "legalBasis": "Regulation (EU) 2023/1115 of the European Parliament and of the Council",
       "keyObligation": "exact obligation with article citation, or Not applicable",
@@ -251,7 +315,13 @@ Return ONLY this JSON object with no markdown wrapping:
     {
       "regulation": "CBAM",
       "applicable": <boolean — false if product not in Annex I covered sectors>,
+      "applicabilityStatus": "applicable | insufficient_data | not_applicable",
       "applicabilityReason": "cite Annex I of Regulation (EU) 2023/956. State clearly if not covered.",
+      "futureApplicabilityDate": "YYYY-MM-DD or null",
+      "missingFacts": ["array of missing facts if any"],
+      "readinessActions": ["array of readiness actions if useful"],
+      "confidence": "high | medium | low",
+      "requiresManualReview": <boolean>,
       "status": "non_compliant | at_risk | compliant | not_applicable",
       "legalBasis": "Regulation (EU) 2023/956 of the European Parliament and of the Council",
       "keyObligation": "obligation or Not applicable",
@@ -268,8 +338,14 @@ Return ONLY this JSON object with no markdown wrapping:
     },
     {
       "regulation": "CSDDD",
-      "applicable": <boolean — false if under 1000 employees or under €450M turnover>,
-      "applicabilityReason": "cite Article 2 of Directive (EU) 2024/1760 and the company size provided",
+      "applicable": <boolean — true only if the relevant phased threshold is live on the assessment date>,
+      "applicabilityStatus": "applicable | future_scope | insufficient_data | not_applicable",
+      "applicabilityReason": "cite the phased threshold logic of Directive (EU) 2024/1760 and the company data provided",
+      "futureApplicabilityDate": "YYYY-MM-DD or null",
+      "missingFacts": ["array of missing facts if any"],
+      "readinessActions": ["array of readiness actions if future scope"],
+      "confidence": "high | medium | low",
+      "requiresManualReview": <boolean>,
       "status": "non_compliant | at_risk | compliant | not_applicable",
       "legalBasis": "Directive (EU) 2024/1760 of the European Parliament and of the Council",
       "keyObligation": "obligation or Not applicable",
@@ -350,6 +426,13 @@ Return ONLY this JSON object with no markdown wrapping:
     // or required actions. This sanitiser enforces the correct hierarchy.
     report = enforceComplianceLogic(report, orderData);
     // ─────────────────────────────────────────────────────────────────
+
+    if (canUseFullReportCache(cachePreference)) {
+      setCachedValue('compliance-report', cacheInput, report, REPORT_CACHE_TTL_MS);
+      res.setHeader('X-OrcaTrade-Cache', 'MISS');
+    } else {
+      res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
+    }
 
     void sendComplianceSummaryEmail(report, orderData);
     return res.status(200).json(report);

@@ -1,15 +1,54 @@
+function buildReportCacheKey(orderData) {
+  return {
+    productCategory: orderData.productCategory || '',
+    productDescription: orderData.productDescription || '',
+    origin: orderData.origin || '',
+    supplierName: orderData.supplierName || '',
+    importValue: orderData.importValue || '',
+    companySize: orderData.companySize || '',
+    globalTurnover: orderData.globalTurnover || orderData.companyTurnover || orderData.turnover || '',
+    euMarket: orderData.euMarket !== false,
+  };
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
   const loadingState   = document.getElementById('loadingState');
   const resultsContainer = document.getElementById('resultsContainer');
   const loadingText    = document.getElementById('loadingText');
+  const cache = window.OrcaTradeCachePreference;
 
-  const orderDataStr = localStorage.getItem('orcatradeComplianceOrder');
+  const orderDataStr = cache
+    ? cache.readWorkflowState('orcatradeComplianceOrder')
+    : localStorage.getItem('orcatradeComplianceOrder');
   if (!orderDataStr) {
     window.location.href = 'index.html';
     return;
   }
 
   const orderData = JSON.parse(orderDataStr);
+  const reportCacheKey = buildReportCacheKey(orderData);
+
+  if (cache) {
+    const cachedPayload = cache.getCachedJson('compliance-report', reportCacheKey);
+    if (cachedPayload) {
+      renderResults(cachedPayload, orderData);
+      loadingState.style.display = 'none';
+      resultsContainer.style.display = 'block';
+
+      const dlBtn = document.getElementById('downloadBtn');
+      if (dlBtn) {
+        dlBtn.addEventListener('click', () => {
+          const originalTitle = document.title;
+          const rid = cachedPayload.reportId || 'report';
+          document.title = 'OrcaTrade-Compliance-' + rid;
+          window.print();
+          setTimeout(() => { document.title = originalTitle; }, 1000);
+        });
+      }
+
+      return;
+    }
+  }
 
   // Loading animation
   const steps = [
@@ -30,12 +69,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   try {
     const res = await fetch('/api/check', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: Object.assign(
+        { 'Content-Type': 'application/json' },
+        cache ? cache.getRequestHeaders() : {}
+      ),
       body: orderDataStr,
     });
 
     if (res.ok) {
       payload = await res.json();
+      if (cache) {
+        cache.setCachedJson('compliance-report', reportCacheKey, payload, 10 * 60 * 1000);
+      }
     } else {
       const err = await res.json().catch(() => ({}));
       console.error('API error:', err);
@@ -113,6 +158,17 @@ function statusPill(status) {
   return `<span style="font-size:0.72rem;font-weight:700;letter-spacing:0.12em;padding:0.3rem 0.8rem;border:1px solid ${s.border};background:${s.bg};color:${s.color};">${s.label}</span>`;
 }
 
+function applicabilityPill(status) {
+  const map = {
+    applicable:      { label: 'ACTIVE NOW', bg: 'rgba(80,180,100,0.12)', border: 'rgba(80,180,100,0.4)', color: '#5cb884' },
+    future_scope:    { label: 'FUTURE SCOPE', bg: 'rgba(80,120,180,0.12)', border: 'rgba(80,120,180,0.35)', color: '#7ea5d8' },
+    insufficient_data: { label: 'MISSING FACTS', bg: 'rgba(200,140,50,0.12)', border: 'rgba(200,140,50,0.35)', color: '#c98f3a' },
+    not_applicable:  { label: 'OUT OF SCOPE', bg: 'rgba(100,100,120,0.1)', border: 'rgba(100,100,120,0.3)', color: '#6f7783' },
+  };
+  const s = map[status] || map.not_applicable;
+  return `<span style="font-size:0.66rem;font-weight:700;letter-spacing:0.11em;padding:0.25rem 0.65rem;border:1px solid ${s.border};background:${s.bg};color:${s.color};">${s.label}</span>`;
+}
+
 const REG_FULL_NAMES = {
   EUDR:  'EU Deforestation Regulation (EU) 2023/1115',
   CBAM:  'Carbon Border Adjustment Mechanism (EU) 2023/956',
@@ -165,10 +221,34 @@ function renderResults(res, orderData) {
         <div>
           <div style="font-size:0.68rem;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);margin-bottom:0.35rem;">${esc(reg.regulation)}</div>
           <h3 class="reg-title" style="font-size:1rem;margin-bottom:0.5rem;">${esc(fullName)}</h3>
+          <div style="display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;margin-bottom:0.5rem;">
+            ${applicabilityPill(reg.applicabilityStatus)}
+            ${reg.futureApplicabilityDate ? `<span style="font-size:0.72rem;color:var(--text-muted);">Relevant date: ${esc(reg.futureApplicabilityDate)}</span>` : ''}
+          </div>
           <div style="font-size:0.78rem;color:var(--text-muted);">${esc(reg.applicabilityReason)}</div>
         </div>
         <div>${statusPill(reg.status)}</div>
       </div>
+
+      ${(reg.missingFacts && reg.missingFacts.length > 0) ? `
+      <div style="font-size:0.8rem;background:rgba(200,140,50,0.07);border:1px solid rgba(200,140,50,0.2);padding:0.8rem 1rem;margin:1rem 0;">
+        <strong style="color:#c98f3a;">Missing facts:</strong> ${reg.missingFacts.map(esc).join(', ')}
+      </div>` : ''}
+
+      ${(reg.readinessActions && reg.readinessActions.length > 0) ? `
+      <div style="margin-bottom:1rem;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.14em;color:#7ea5d8;margin-bottom:0.55rem;">Readiness Actions</div>
+        <div style="font-size:0.82rem;color:var(--text-muted);line-height:1.65;">
+          ${reg.readinessActions.map(action => `<div style="margin-bottom:0.35rem;">• ${esc(action)}</div>`).join('')}
+        </div>
+      </div>` : ''}
+
+      ${(reg.confidence || reg.nextDecisionAction || (reg.evidenceSignals && reg.evidenceSignals.length > 0)) ? `
+      <div style="font-size:0.78rem;color:var(--text-muted);border-top:1px solid var(--border-color);padding-top:0.8rem;margin-bottom:1rem;">
+        ${reg.confidence ? `<div style="margin-bottom:0.35rem;"><strong style="color:var(--text-primary);">Decision confidence:</strong> ${esc(reg.confidence)}</div>` : ''}
+        ${reg.nextDecisionAction ? `<div style="margin-bottom:0.35rem;"><strong style="color:var(--text-primary);">Next decision action:</strong> ${esc(reg.nextDecisionAction)}</div>` : ''}
+        ${(reg.evidenceSignals && reg.evidenceSignals.length > 0) ? `<div><strong style="color:var(--text-primary);">Signals used:</strong> ${reg.evidenceSignals.map(esc).join(' · ')}</div>` : ''}
+      </div>` : ''}
 
       ${reg.keyObligation ? `<div style="font-style:italic;font-size:0.88rem;color:var(--text-muted);border-left:2px solid var(--accent-color);padding-left:0.9rem;margin:1rem 0;">${esc(reg.keyObligation)}</div>` : ''}
       ${reg.currentGap && reg.currentGap !== 'N/A' ? `<div style="font-size:0.85rem;background:rgba(200,70,70,0.07);border:1px solid rgba(200,70,70,0.2);padding:0.8rem 1rem;margin-bottom:1rem;"><strong style="color:#c95050;">Gap identified:</strong> ${esc(reg.currentGap)}</div>` : ''}

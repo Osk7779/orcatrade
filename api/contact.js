@@ -18,14 +18,22 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({ ok: true, demo: true });
   }
 
+  const recipient = type === 'intelligence-setup'
+    ? 'intelligence@orcatrade.pl'
+    : 'orca@orcatrade.pl';
+
   const subject = type === 'waitlist'
     ? `New waitlist signup: ${name}`
-    : type === 'cbam-readiness'
-      ? `New CBAM readiness request: ${name}${company ? ` (${company})` : ''}`
-      : `New inquiry from ${name}${company ? ` (${company})` : ''}`;
+    : type === 'intelligence-setup'
+      ? `New OrcaTrade Intelligence setup request: ${name}${company ? ` (${company})` : ''}`
+      : type === 'cbam-readiness'
+        ? `New CBAM readiness request: ${name}${company ? ` (${company})` : ''}`
+        : `New inquiry from ${name}${company ? ` (${company})` : ''}`;
 
   const body = type === 'waitlist'
     ? `New waitlist signup\n\nName: ${name}\nEmail: ${email}`
+    : type === 'intelligence-setup'
+      ? `New OrcaTrade Intelligence self-serve setup request\n\nName: ${name}\nEmail: ${email}${company ? `\nCompany: ${company}` : ''}${project ? `\n\nImport profile:\n${project}` : ''}${message ? `\n\nFirst job to solve:\n${message}` : ''}`
     : type === 'cbam-readiness'
       ? `New CBAM readiness request\n\nName: ${name}\nEmail: ${email}${company ? `\nCompany: ${company}` : ''}${project ? `\n\nCBAM goods / annual volume:\n${project}` : ''}${message ? `\n\nCurrent blocker:\n${message}` : ''}`
       : `New inquiry via OrcaTrade\n\nName: ${name}\nEmail: ${email}${company ? `\nCompany: ${company}` : ''}${project ? `\n\nMessage:\n${project}` : ''}${message ? `\n\nMessage:\n${message}` : ''}`;
@@ -39,7 +47,7 @@ module.exports = async function handler(req, res) {
       },
       body: JSON.stringify({
         from: process.env.RESEND_FROM || 'OrcaTrade <onboarding@resend.dev>',
-        to: ['orca@orcatrade.pl'],
+        to: [recipient],
         reply_to: email,
         subject,
         text: body,

@@ -35,6 +35,8 @@
           if (msg) {
             msg.textContent = data.type === 'waitlist'
               ? "You're on the list. We'll be in touch."
+              : data.type === 'intelligence-setup'
+                ? "Request received. We'll send an async setup path and next steps by email."
               : data.type === 'cbam-readiness'
                 ? "Request received. We'll reply with next steps for a CBAM readiness call."
               : "Message sent. We'll reply within one business day.";

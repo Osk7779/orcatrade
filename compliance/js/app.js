@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('complianceForm');
+  const cache = window.OrcaTradeCachePreference;
   
   if (form) {
     form.addEventListener('submit', (e) => {
@@ -9,8 +10,11 @@ document.addEventListener('DOMContentLoaded', () => {
       const data = Object.fromEntries(formData.entries());
       data.euMarket = formData.has('euMarket'); // Explicitly capture boolean state
       
-      // Save data to localStorage to pass to the check results page
-      localStorage.setItem('orcatradeComplianceOrder', JSON.stringify(data));
+      if (cache) {
+        cache.writeWorkflowState('orcatradeComplianceOrder', JSON.stringify(data));
+      } else {
+        localStorage.setItem('orcatradeComplianceOrder', JSON.stringify(data));
+      }
       
       const submitBtn = form.querySelector('button[type="submit"]');
       submitBtn.innerHTML = 'Analyzing... <span style="display:inline-block;animation:spin 1s linear infinite;margin-left:0.5rem">⭮</span>';
