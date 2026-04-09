@@ -767,11 +767,21 @@
                 stopScanOverlay();
 
                 if (data.factories && data.factories.length > 0) {
-                    const parts = [
-                        `${data.factories.length} factories`,
-                        category !== 'Any' ? category : null,
-                        country  !== 'Any' ? country  : null
-                    ].filter(Boolean);
+                    const parts = data.queryMode === 'exact_factory'
+                        ? [
+                            'Exact factory lookup',
+                            data.requestedFactoryName || query,
+                            data.resultMode === 'verified_directory_match'
+                                ? 'Verified directory match'
+                                : (data.resultMode === 'provisional_exact_lookup' ? 'Provisional result' : null),
+                            country !== 'Any' ? country : null,
+                          ].filter(Boolean)
+                        : [
+                            `${data.factories.length} factories`,
+                            category !== 'Any' ? category : null,
+                            country  !== 'Any' ? country  : null,
+                            data.generationMode === 'deterministic_fallback' ? 'Fallback mode' : null,
+                          ].filter(Boolean);
                     context.textContent = parts.join(' · ');
                     context.style.display = 'block';
 

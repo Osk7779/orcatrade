@@ -93,7 +93,7 @@ test('factory search keeps the requested factory anchored when AI returns unrela
 
   assert.equal(result.queryMode, 'exact_factory');
   assert.equal(result.factories.length, 1);
-  assert.equal(result.factories[0].name, 'Yimai Packaging Factory');
+  assert.equal(result.factories[0].name, 'Guangdong Yimai Packaging Co., Ltd.');
   assert.equal(result.factories[0].country, 'China');
   assert.ok(result.factories[0].riskScore >= 70);
 });
@@ -157,4 +157,18 @@ test('factory search treats short known supplier names as exact lookups when the
   assert.equal(result.queryMode, 'exact_factory');
   assert.equal(result.factories.length, 1);
   assert.equal(result.factories[0].name, 'Guangdong Yimai Packaging Co., Ltd.');
+});
+
+test('factory search keeps the exact requested company name unchanged for unknown exact lookups', () => {
+  const result = sanitizeFactoryResults(null, {
+    query: 'Acme Plastics',
+    category: 'Rubber & Plastics',
+    country: 'China',
+    riskTolerance: 'Any risk level',
+  });
+
+  assert.equal(result.queryMode, 'exact_factory');
+  assert.equal(result.factories.length, 1);
+  assert.equal(result.factories[0].name, 'Acme Plastics');
+  assert.equal(result.resultMode, 'provisional_exact_lookup');
 });
