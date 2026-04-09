@@ -52,3 +52,43 @@ test('factory search sanitiser repairs off-filter AI output', () => {
   assert.ok(result.factories[0].riskScore >= 50 && result.factories[0].riskScore <= 70);
   assert.equal(isCategoryCompatible(result.factories[0].speciality, 'Furniture & Wood'), true);
 });
+
+test('factory search preserves a specific requested company name in fallback mode', () => {
+  const result = sanitizeFactoryResults(null, {
+    query: 'Guangdong Yimai Packaging Co., Ltd. in China',
+    category: 'Packaging & Paper',
+    country: 'China',
+    riskTolerance: 'Any risk level',
+  });
+
+  assert.equal(result.factories[0].name, 'Guangdong Yimai Packaging Co., Ltd.');
+  assert.equal(result.factories[0].country, 'China');
+  assert.equal(isCategoryCompatible(result.factories[0].speciality, 'Packaging & Paper'), true);
+});
+
+test('factory search keeps the requested factory anchored when AI returns unrelated names', () => {
+  const result = sanitizeFactoryResults({
+    factories: [
+      {
+        id: 'wrong_1',
+        name: 'Shenzhen Delta Circuits Ltd.',
+        city: 'Shenzhen',
+        country: 'China',
+        speciality: 'printed labels',
+        financialScore: 81,
+        complianceScore: 79,
+        capacityScore: 76,
+        auditScore: 74,
+      },
+    ],
+  }, {
+    query: 'Yimai Packaging Factory in China',
+    category: 'Packaging & Paper',
+    country: 'China',
+    riskTolerance: 'Low risk only (Score 70+)',
+  });
+
+  assert.equal(result.factories[0].name, 'Yimai Packaging Factory');
+  assert.equal(result.factories[0].country, 'China');
+  assert.ok(result.factories[0].riskScore >= 70);
+});

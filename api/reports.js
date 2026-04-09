@@ -1,11 +1,11 @@
 const { consumeRateLimit, listStoredComplianceReportsByOwner } = require('../lib/intelligence/runtime-store');
-const { verifyAccountAccessToken } = require('../lib/intelligence/report-access');
+const { decodeSignedTokenResource, verifyAccountAccessToken, verifyWorkspaceAccessToken } = require('../lib/intelligence/report-access');
 const { applyRequestHeaders, buildRequestContext, buildRequestMeta, emitAuditEvent } = require('../lib/intelligence/request-runtime');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Account-Token, X-Request-Id');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Account-Token, X-OrcaTrade-Workspace-Token, X-Request-Id');
   res.setHeader('Cache-Control', 'no-store');
   const requestContext = buildRequestContext(req, 'reports');
   applyRequestHeaders(res, requestContext);
@@ -20,18 +20,40 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
   }
 
+  const workspaceToken = String(
+    req.query?.workspaceToken ||
+    req.headers['x-orcatrade-workspace-token'] ||
+    ''
+  ).trim();
   const accountToken = String(
     req.query?.accountToken ||
     req.headers['x-orcatrade-account-token'] ||
     ''
   ).trim();
 
-  const decodedFingerprint = decodeOwnerFingerprint(accountToken);
-  const accountCheck = verifyAccountAccessToken(decodedFingerprint, accountToken);
-  if (!accountCheck.ok) {
-    return res.status(accountCheck.code === 'missing_account_token' ? 401 : 403).json({
-      error: accountCheck.reason || 'A signed account token is required.',
-    });
+  const decodedFingerprint = workspaceToken
+    ? decodeWorkspaceFingerprint(workspaceToken)
+    : decodeOwnerFingerprint(accountToken);
+  if (workspaceToken) {
+    const workspaceCheck = verifyWorkspaceAccessToken(decodedFingerprint, workspaceToken);
+    if (!workspaceCheck.ok) {
+      return res.status(workspaceCheck.code === 'missing_workspace_token' ? 401 : 403).json({
+        error: workspaceCheck.reason || 'A signed workspace token is required.',
+      });
+    }
+    if (workspaceCheck.expiresAt) {
+      res.setHeader('X-OrcaTrade-Workspace-Access-Expires-At', workspaceCheck.expiresAt);
+    }
+  } else {
+    const accountCheck = verifyAccountAccessToken(decodedFingerprint, accountToken);
+    if (!accountCheck.ok) {
+      return res.status(accountCheck.code === 'missing_account_token' ? 401 : 403).json({
+        error: accountCheck.reason || 'A signed account token is required.',
+      });
+    }
+    if (accountCheck.expiresAt) {
+      res.setHeader('X-OrcaTrade-Account-Access-Expires-At', accountCheck.expiresAt);
+    }
   }
 
   const limit = Math.min(25, Math.max(1, Number(req.query?.limit) || 10));
@@ -39,9 +61,6 @@ module.exports = async function handler(req, res) {
   try {
     const result = await listStoredComplianceReportsByOwner(decodedFingerprint, { limit });
     res.setHeader('X-OrcaTrade-Storage-Mode', result.storageMode || rate.storageMode || 'memory');
-    if (accountCheck.expiresAt) {
-      res.setHeader('X-OrcaTrade-Account-Access-Expires-At', accountCheck.expiresAt);
-    }
     emitAuditEvent(requestContext, 'reports.listed', {
       count: Array.isArray(result.reports) ? result.reports.length : 0,
       storageMode: result.storageMode || rate.storageMode || 'memory',
@@ -73,4 +92,9 @@ function decodeOwnerFingerprint(token) {
   } catch (error) {
     return '';
   }
+}
+
+function decodeWorkspaceFingerprint(token) {
+  const decoded = decodeSignedTokenResource(token, 'workspace');
+  return decoded.ok ? String(decoded.payload?.r || '').trim() : '';
 }

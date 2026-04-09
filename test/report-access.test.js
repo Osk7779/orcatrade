@@ -5,8 +5,10 @@ const {
   attachReportAccess,
   createAccountAccessToken,
   createReportAccessToken,
+  createWorkspaceAccessToken,
   verifyAccountAccessToken,
   verifyReportAccessToken,
+  verifyWorkspaceAccessToken,
 } = require('../lib/intelligence/report-access');
 
 test('report access token roundtrip verifies for the matching report', () => {
@@ -44,6 +46,7 @@ test('attachReportAccess returns a signed retrieval path when a signing secret i
 
   assert.equal(report.reportAccess.enabled, true);
   assert.match(report.reportAccess.retrievalPath, /\/api\/report\?reportId=OT-COMP-SECURE-003&accessToken=/);
+  assert.equal(report.workspaceAccess.enabled, false);
 });
 
 test('account access token verifies for the matching owner fingerprint', () => {
@@ -57,4 +60,17 @@ test('account access token verifies for the matching owner fingerprint', () => {
   const verification = verifyAccountAccessToken('owner-fingerprint-001', access.token);
   assert.equal(verification.ok, true);
   assert.equal(verification.payload.r, 'owner-fingerprint-001');
+});
+
+test('workspace access token verifies for the matching workspace fingerprint', () => {
+  process.env.ORCATRADE_REPORT_SECRET = 'test-report-secret';
+
+  const access = createWorkspaceAccessToken('workspace-fingerprint-001', {
+    issuedAtMs: Date.parse('2026-04-09T10:00:00.000Z'),
+    expiresAtMs: Date.parse('2026-04-10T10:00:00.000Z'),
+  });
+
+  const verification = verifyWorkspaceAccessToken('workspace-fingerprint-001', access.token);
+  assert.equal(verification.ok, true);
+  assert.equal(verification.payload.r, 'workspace-fingerprint-001');
 });

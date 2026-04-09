@@ -5,8 +5,9 @@ const evidenceHandler = require('../api/evidence');
 const quickCheckHandler = require('../api/quick-check');
 const reportHandler = require('../api/report');
 const reportsHandler = require('../api/reports');
+const workspaceHandler = require('../api/workspace');
 const { buildDeterministicFallbackReport } = require('../lib/intelligence/compliance');
-const { createAccountAccessToken, createReportAccessToken } = require('../lib/intelligence/report-access');
+const { createAccountAccessToken, createReportAccessToken, createWorkspaceAccessToken } = require('../lib/intelligence/report-access');
 const { persistComplianceReport } = require('../lib/intelligence/runtime-store');
 
 function createMockResponse() {
@@ -48,7 +49,7 @@ async function invokeHandler(handler, options = {}) {
   return res;
 }
 
-test('evidence endpoint persists and retrieves evidence bundles with signed account access', async () => {
+test('evidence endpoint persists and retrieves evidence bundles with signed workspace access', async () => {
   process.env.ORCATRADE_REPORT_SECRET = 'test-report-secret';
 
   const postResponse = await invokeHandler(evidenceHandler, {
@@ -70,15 +71,16 @@ test('evidence endpoint persists and retrieves evidence bundles with signed acco
   assert.equal(postResponse.statusCode, 200);
   assert.equal(postResponse.getHeader('x-orcatrade-request-id'), 'req-evidence-001');
   assert.ok(postResponse.body.bundleId);
-  assert.equal(postResponse.body.accountAccess.enabled, true);
-  assert.match(postResponse.body.accountAccess.retrievalPath, /\/api\/evidence\?bundleId=/);
+  assert.equal(postResponse.body.workspaceAccess.enabled, true);
+  assert.equal(postResponse.body.workspaceAccess.mode, 'signed_workspace_token');
+  assert.match(postResponse.body.workspaceAccess.retrievalPath, /\/api\/evidence\?bundleId=/);
 
   const getResponse = await invokeHandler(evidenceHandler, {
     method: 'GET',
     headers: { 'x-request-id': 'req-evidence-002' },
     query: {
       bundleId: postResponse.body.bundleId,
-      accountToken: postResponse.body.accountAccess.token,
+      workspaceToken: postResponse.body.workspaceAccess.token,
     },
   });
 
@@ -90,7 +92,7 @@ test('evidence endpoint persists and retrieves evidence bundles with signed acco
   const listResponse = await invokeHandler(evidenceHandler, {
     method: 'GET',
     query: {
-      accountToken: postResponse.body.accountAccess.token,
+      workspaceToken: postResponse.body.workspaceAccess.token,
     },
   });
 
@@ -151,6 +153,7 @@ test('report endpoints expose request metadata for stored reports', async () => 
 
   const reportToken = createReportAccessToken(report.reportId);
   const accountToken = createAccountAccessToken(report.reportOwnership.ownerFingerprint);
+  const workspaceToken = createWorkspaceAccessToken(report.reportOwnership.workspaceFingerprint);
 
   const reportResponse = await invokeHandler(reportHandler, {
     method: 'GET',
@@ -158,7 +161,7 @@ test('report endpoints expose request metadata for stored reports', async () => 
     query: {
       reportId: report.reportId,
       accessToken: reportToken.token,
-      accountToken: accountToken.token,
+      workspaceToken: workspaceToken.token,
     },
   });
 
@@ -170,7 +173,7 @@ test('report endpoints expose request metadata for stored reports', async () => 
   const reportsResponse = await invokeHandler(reportsHandler, {
     method: 'GET',
     query: {
-      accountToken: accountToken.token,
+      workspaceToken: workspaceToken.token,
     },
   });
 
@@ -178,4 +181,35 @@ test('report endpoints expose request metadata for stored reports', async () => 
   assert.ok(Array.isArray(reportsResponse.body.reports));
   assert.ok(reportsResponse.body.reports.some(item => item.reportId === report.reportId));
   assert.equal(reportsResponse.body.requestMeta.route, 'reports');
+  assert.equal(accountToken.mode, 'signed_account_token');
+});
+
+test('workspace endpoint returns a unified workspace view for reports and evidence', async () => {
+  process.env.ORCATRADE_REPORT_SECRET = 'test-report-secret';
+
+  const setupResponse = await invokeHandler(workspaceHandler, {
+    method: 'POST',
+    body: {
+      company: 'Northline Imports',
+      email: 'ops@northline.test',
+    },
+  });
+
+  assert.equal(setupResponse.statusCode, 200);
+  assert.equal(setupResponse.body.workspace.workspaceLabel, 'Northline Imports');
+  assert.equal(setupResponse.body.workspaceAccess.enabled, true);
+
+  const workspaceView = await invokeHandler(workspaceHandler, {
+    method: 'GET',
+    query: {
+      workspaceToken: setupResponse.body.workspaceAccess.token,
+    },
+  });
+
+  assert.equal(workspaceView.statusCode, 200);
+  assert.equal(workspaceView.body.requestMeta.route, 'workspace');
+  assert.ok(Array.isArray(workspaceView.body.reports));
+  assert.ok(Array.isArray(workspaceView.body.evidenceBundles));
+  assert.ok(workspaceView.body.reportCount >= 1);
+  assert.ok(workspaceView.body.evidenceCount >= 1);
 });

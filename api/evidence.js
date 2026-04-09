@@ -7,7 +7,13 @@ const {
 } = require('../lib/intelligence/runtime-store');
 const { extractEvidenceBundle, mergeComplianceInputWithEvidence, validateEvidenceDocuments } = require('../lib/intelligence/evidence-ingestion');
 const { normaliseComplianceInput } = require('../lib/intelligence/compliance');
-const { createAccountAccessToken, verifyAccountAccessToken } = require('../lib/intelligence/report-access');
+const {
+  createAccountAccessToken,
+  createWorkspaceAccessToken,
+  decodeSignedTokenResource,
+  verifyAccountAccessToken,
+  verifyWorkspaceAccessToken,
+} = require('../lib/intelligence/report-access');
 const { applyRequestHeaders, buildRequestContext, buildRequestMeta, emitAuditEvent } = require('../lib/intelligence/request-runtime');
 
 const EVIDENCE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
@@ -15,7 +21,7 @@ const EVIDENCE_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Account-Token, X-Request-Id');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Account-Token, X-OrcaTrade-Workspace-Token, X-Request-Id');
   res.setHeader('Cache-Control', 'no-store');
 }
 
@@ -32,7 +38,12 @@ function decodeOwnerFingerprint(token) {
   }
 }
 
-function buildBundleResponse(record, requestContext, accountAccess) {
+function decodeWorkspaceFingerprint(token) {
+  const decoded = decodeSignedTokenResource(token, 'workspace');
+  return decoded.ok ? String(decoded.payload?.r || '').trim() : '';
+}
+
+function buildBundleResponse(record, requestContext, access = {}) {
   const bundle = record && record.bundle ? record.bundle : {};
   const ownership = record && record.ownership ? record.ownership : {};
 
@@ -53,7 +64,14 @@ function buildBundleResponse(record, requestContext, accountAccess) {
       company: cleanString(ownership.company),
       accessRequired: Boolean(ownership.accessRequired),
     },
-    accountAccess: accountAccess || {
+    workspaceAccess: access.workspaceAccess || {
+      enabled: false,
+      mode: 'disabled',
+      reason: ownership.ownerFingerprint
+        ? 'A signed workspace token is required to retrieve this evidence bundle.'
+        : 'No account ownership context was provided for this evidence bundle.',
+    },
+    accountAccess: access.accountAccess || {
       enabled: false,
       mode: 'disabled',
       reason: ownership.ownerFingerprint
@@ -93,9 +111,18 @@ async function handlePost(req, res, requestContext, rate) {
   const accountAccess = ownerFingerprint
     ? createAccountAccessToken(ownerFingerprint)
     : null;
+  const workspaceAccess = ownerFingerprint
+    ? createWorkspaceAccessToken(ownerFingerprint)
+    : null;
 
   res.setHeader('X-OrcaTrade-Storage-Mode', persisted.storageMode || rate.storageMode || 'memory');
   res.setHeader('X-OrcaTrade-Evidence-Bundle', evidenceBundle.bundleId);
+  if (workspaceAccess?.mode) {
+    res.setHeader('X-OrcaTrade-Workspace-Access-Mode', workspaceAccess.mode);
+  }
+  if (workspaceAccess?.expiresAt) {
+    res.setHeader('X-OrcaTrade-Workspace-Access-Expires-At', workspaceAccess.expiresAt);
+  }
   if (accountAccess?.mode) {
     res.setHeader('X-OrcaTrade-Account-Access-Mode', accountAccess.mode);
   }
@@ -125,14 +152,24 @@ async function handlePost(req, res, requestContext, rate) {
       supplierEmissionsData: derivedInputs.supplierEmissionsData,
       authorisedDeclarant: derivedInputs.authorisedDeclarant,
     },
-  }, requestContext, accountAccess ? {
-    enabled: true,
-    mode: accountAccess.mode,
-    token: accountAccess.token,
-    expiresAt: accountAccess.expiresAt,
-    retrievalPath: `/api/evidence?bundleId=${encodeURIComponent(evidenceBundle.bundleId)}&accountToken=${encodeURIComponent(accountAccess.token)}`,
-    listPath: `/api/evidence?accountToken=${encodeURIComponent(accountAccess.token)}`,
-  } : null);
+  }, requestContext, {
+    workspaceAccess: workspaceAccess ? {
+      enabled: true,
+      mode: workspaceAccess.mode,
+      token: workspaceAccess.token,
+      expiresAt: workspaceAccess.expiresAt,
+      retrievalPath: `/api/evidence?bundleId=${encodeURIComponent(evidenceBundle.bundleId)}&workspaceToken=${encodeURIComponent(workspaceAccess.token)}`,
+      listPath: `/api/evidence?workspaceToken=${encodeURIComponent(workspaceAccess.token)}`,
+    } : null,
+    accountAccess: accountAccess ? {
+      enabled: true,
+      mode: accountAccess.mode,
+      token: accountAccess.token,
+      expiresAt: accountAccess.expiresAt,
+      retrievalPath: `/api/evidence?bundleId=${encodeURIComponent(evidenceBundle.bundleId)}&accountToken=${encodeURIComponent(accountAccess.token)}`,
+      listPath: `/api/evidence?accountToken=${encodeURIComponent(accountAccess.token)}`,
+    } : null,
+  });
   payload.derivedInputs = {
     company: cleanString(derivedInputs.company),
     supplierName: cleanString(derivedInputs.supplierName),
@@ -151,6 +188,10 @@ async function handlePost(req, res, requestContext, rate) {
 
 async function handleGet(req, res, requestContext, rate) {
   const bundleId = cleanString(req.query?.bundleId);
+  const workspaceToken = cleanString(
+    req.query?.workspaceToken ||
+    req.headers['x-orcatrade-workspace-token']
+  );
   const accountToken = cleanString(
     req.query?.accountToken ||
     req.headers['x-orcatrade-account-token']
@@ -165,18 +206,34 @@ async function handleGet(req, res, requestContext, rate) {
 
     const ownerFingerprint = cleanString(record.ownership?.ownerFingerprint);
     if (ownerFingerprint) {
-      const accountCheck = verifyAccountAccessToken(ownerFingerprint, accountToken);
-      if (!accountCheck.ok) {
-        emitAuditEvent(requestContext, 'evidence.access_denied', {
-          bundleId,
-          reason: accountCheck.code,
-        });
-        return res.status(accountCheck.code === 'missing_account_token' ? 401 : 403).json({
-          error: accountCheck.reason || 'A signed account token is required for this evidence bundle.',
-        });
-      }
-      if (accountCheck.expiresAt) {
-        res.setHeader('X-OrcaTrade-Account-Access-Expires-At', accountCheck.expiresAt);
+      if (workspaceToken) {
+        const workspaceCheck = verifyWorkspaceAccessToken(ownerFingerprint, workspaceToken);
+        if (!workspaceCheck.ok) {
+          emitAuditEvent(requestContext, 'evidence.access_denied', {
+            bundleId,
+            reason: workspaceCheck.code,
+          });
+          return res.status(workspaceCheck.code === 'missing_workspace_token' ? 401 : 403).json({
+            error: workspaceCheck.reason || 'A signed workspace token is required for this evidence bundle.',
+          });
+        }
+        if (workspaceCheck.expiresAt) {
+          res.setHeader('X-OrcaTrade-Workspace-Access-Expires-At', workspaceCheck.expiresAt);
+        }
+      } else {
+        const accountCheck = verifyAccountAccessToken(ownerFingerprint, accountToken);
+        if (!accountCheck.ok) {
+          emitAuditEvent(requestContext, 'evidence.access_denied', {
+            bundleId,
+            reason: accountCheck.code,
+          });
+          return res.status(accountCheck.code === 'missing_account_token' ? 401 : 403).json({
+            error: accountCheck.reason || 'A signed account token is required for this evidence bundle.',
+          });
+        }
+        if (accountCheck.expiresAt) {
+          res.setHeader('X-OrcaTrade-Account-Access-Expires-At', accountCheck.expiresAt);
+        }
       }
     }
 
@@ -189,22 +246,36 @@ async function handleGet(req, res, requestContext, rate) {
     return res.status(200).json(buildBundleResponse(record, requestContext));
   }
 
-  const decodedFingerprint = decodeOwnerFingerprint(accountToken);
-  const accountCheck = verifyAccountAccessToken(decodedFingerprint, accountToken);
-  if (!accountCheck.ok) {
-    emitAuditEvent(requestContext, 'evidence.list_denied', { reason: accountCheck.code });
-    return res.status(accountCheck.code === 'missing_account_token' ? 401 : 403).json({
-      error: accountCheck.reason || 'A signed account token is required.',
-    });
+  const decodedFingerprint = workspaceToken
+    ? decodeWorkspaceFingerprint(workspaceToken)
+    : decodeOwnerFingerprint(accountToken);
+  if (workspaceToken) {
+    const workspaceCheck = verifyWorkspaceAccessToken(decodedFingerprint, workspaceToken);
+    if (!workspaceCheck.ok) {
+      emitAuditEvent(requestContext, 'evidence.list_denied', { reason: workspaceCheck.code });
+      return res.status(workspaceCheck.code === 'missing_workspace_token' ? 401 : 403).json({
+        error: workspaceCheck.reason || 'A signed workspace token is required.',
+      });
+    }
+    if (workspaceCheck.expiresAt) {
+      res.setHeader('X-OrcaTrade-Workspace-Access-Expires-At', workspaceCheck.expiresAt);
+    }
+  } else {
+    const accountCheck = verifyAccountAccessToken(decodedFingerprint, accountToken);
+    if (!accountCheck.ok) {
+      emitAuditEvent(requestContext, 'evidence.list_denied', { reason: accountCheck.code });
+      return res.status(accountCheck.code === 'missing_account_token' ? 401 : 403).json({
+        error: accountCheck.reason || 'A signed account token is required.',
+      });
+    }
+    if (accountCheck.expiresAt) {
+      res.setHeader('X-OrcaTrade-Account-Access-Expires-At', accountCheck.expiresAt);
+    }
   }
 
   const limit = Math.min(25, Math.max(1, Number(req.query?.limit) || 10));
   const result = await listStoredEvidenceBundlesByOwner(decodedFingerprint, { limit });
   res.setHeader('X-OrcaTrade-Storage-Mode', result.storageMode || rate.storageMode || 'memory');
-  if (accountCheck.expiresAt) {
-    res.setHeader('X-OrcaTrade-Account-Access-Expires-At', accountCheck.expiresAt);
-  }
-
   emitAuditEvent(requestContext, 'evidence.listed', {
     ownerFingerprint: decodedFingerprint,
     count: Array.isArray(result.bundles) ? result.bundles.length : 0,
