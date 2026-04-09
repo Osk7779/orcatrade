@@ -47,6 +47,8 @@
     <!-- Form Section -->
     <section class="form-section">
       <form id="complianceForm" class="compliance-form glass-panel">
+        <div id="recoveryNotice" class="recovery-notice" style="display:none;"></div>
+        <div id="dynamicEvidenceNotice" class="evidence-notice" style="display:none;"></div>
         
         <div class="form-group grid-2">
           <div class="input-wrapper">
@@ -87,6 +89,37 @@
           </div>
         </div>
 
+        <div class="form-section-divider">
+          <div class="form-section-title">Classification & customs evidence</div>
+          <p class="form-helper">These fields are optional for now, but they make OrcaTrade Intelligence far more precise and reduce provisional decisions.</p>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="cnCode">CN / HS code (recommended)</label>
+            <input type="text" id="cnCode" name="cnCode" placeholder="e.g. 7208.37">
+          </div>
+          <div class="input-wrapper">
+            <label for="authorisedDeclarant">Authorised CBAM declarant status</label>
+            <select id="authorisedDeclarant" name="authorisedDeclarant">
+              <option value="">Unknown / not confirmed</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="supplierEmissionsData">Supplier emissions data available</label>
+            <select id="supplierEmissionsData" name="supplierEmissionsData">
+              <option value="">Unknown / not confirmed</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+        </div>
+
         <div class="form-group grid-2">
           <div class="input-wrapper">
             <label for="supplierName">Supplier name (optional)</label>
@@ -104,7 +137,12 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-section-divider">
+          <div class="form-section-title">Company threshold facts</div>
+          <p class="form-helper">These signals affect CSDDD phasing and whether the software can safely clear company-level scope.</p>
+        </div>
+
+        <div class="form-group grid-2">
           <div class="input-wrapper">
             <label for="companySize">Company size</label>
             <select id="companySize" name="companySize" required>
@@ -112,6 +150,41 @@
               <option value="Under 250 employees">Under 250 employees</option>
               <option value="250–1000 employees">250–1000 employees</option>
               <option value="Over 1000 employees">Over 1000 employees</option>
+            </select>
+          </div>
+          <div class="input-wrapper">
+            <label for="employeeCount">Exact employee count (if known)</label>
+            <input type="text" id="employeeCount" name="employeeCount" placeholder="e.g. 1450">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="globalTurnover">Global turnover (if known)</label>
+            <input type="text" id="globalTurnover" name="globalTurnover" placeholder="e.g. €900m">
+          </div>
+        </div>
+
+        <div class="form-section-divider">
+          <div class="form-section-title">EUDR evidence readiness</div>
+          <p class="form-helper">Use these only if you already know whether the importer has the evidence pack ready.</p>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="geolocationAvailable">Plot-level geolocation evidence available</label>
+            <select id="geolocationAvailable" name="geolocationAvailable">
+              <option value="">Unknown / not confirmed</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
+            </select>
+          </div>
+          <div class="input-wrapper">
+            <label for="dueDiligenceStatement">Due-diligence statement ready</label>
+            <select id="dueDiligenceStatement" name="dueDiligenceStatement">
+              <option value="">Unknown / not confirmed</option>
+              <option value="true">Yes</option>
+              <option value="false">No</option>
             </select>
           </div>
         </div>
@@ -130,7 +203,7 @@
       <div class="trust-signals">
         <span>EUDR · CBAM · CSDDD checked</span>
         <span class="dot-separator">·</span>
-        <span>Results in under 10 seconds</span>
+        <span>Blocked vs evidence-backed decisions shown clearly</span>
         <span class="dot-separator">·</span>
         <span>Used by OrcaTrade sourcing team</span>
       </div>

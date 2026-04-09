@@ -1,6 +1,12 @@
 const { cleanString } = require('../lib/intelligence/catalog');
 const { getCachedValue, setCachedValue } = require('../lib/intelligence/cache-store');
-const { determineRegulationApplicability, enforceComplianceLogic, resolveAsOfDate, RULE_VERSION } = require('../lib/intelligence/compliance');
+const { validateCompliancePayload } = require('../lib/intelligence/compliance-validator');
+const {
+  buildDeterministicFallbackReport,
+  enforceComplianceLogic,
+  resolveAsOfDate,
+  RULE_VERSION,
+} = require('../lib/intelligence/compliance');
 
 const rateMap = new Map();
 const REPORT_CACHE_TTL_MS = 10 * 60 * 1000;
@@ -79,9 +85,30 @@ function normaliseCheckCacheInput(orderData = {}) {
     supplierName: cleanString(orderData.supplierName).toLowerCase(),
     importValue: cleanString(orderData.importValue).toLowerCase(),
     companySize: cleanString(orderData.companySize).toLowerCase(),
+    employeeCount: cleanString(orderData.employeeCount).toLowerCase(),
     globalTurnover: cleanString(orderData.globalTurnover || orderData.companyTurnover || orderData.turnover).toLowerCase(),
+    cnCode: cleanString(orderData.cnCode || orderData.hsCode).toLowerCase(),
+    geolocationAvailable: String(orderData.geolocationAvailable),
+    dueDiligenceStatement: String(orderData.dueDiligenceStatement),
+    supplierEmissionsData: String(orderData.supplierEmissionsData),
+    authorisedDeclarant: String(orderData.authorisedDeclarant),
     euMarket: orderData.euMarket !== false,
   };
+}
+
+function sendReport(res, cachePreference, cacheInput, report) {
+  if (canUseFullReportCache(cachePreference)) {
+    setCachedValue('compliance-report', cacheInput, report, REPORT_CACHE_TTL_MS);
+    res.setHeader('X-OrcaTrade-Cache', 'MISS');
+  } else {
+    res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
+  }
+
+  if (report && report.reportGeneration && report.reportGeneration.mode) {
+    res.setHeader('X-OrcaTrade-Generation-Mode', report.reportGeneration.mode);
+  }
+
+  return res.status(200).json(report);
 }
 
 module.exports = async function handler(req, res) {
@@ -97,9 +124,23 @@ module.exports = async function handler(req, res) {
     return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
   }
 
+  let orderData = null;
+  let cachePreference = 'essential';
+  let cacheInput = null;
+  let reportId = '';
+  let timestamp = '';
+
   try {
-    const orderData = req.body;
-    const cachePreference = getCachePreference(req);
+    const validation = validateCompliancePayload(req.body, { mode: 'report' });
+    if (!validation.ok) {
+      return res.status(422).json({
+        error: 'Missing required fields for the full compliance report.',
+        details: validation.errors,
+      });
+    }
+
+    orderData = validation.normalizedOrderData;
+    cachePreference = getCachePreference(req);
     const {
       productCategory = '',
       productDescription = '',
@@ -107,28 +148,43 @@ module.exports = async function handler(req, res) {
       supplierName = 'Not provided',
       importValue = 'Not specified',
       companySize = 'Not specified',
+      employeeCount = 'Not specified',
+      globalTurnover = 'Not specified',
+      cnCode = '',
+      geolocationAvailable = null,
+      dueDiligenceStatement = null,
+      supplierEmissionsData = null,
+      authorisedDeclarant = null,
       euMarket = true,
     } = orderData;
 
-    const anthropicApiKey = process.env.ORCATRADE_OS_API;
-    if (!anthropicApiKey) {
-      return res.status(500).json({ error: 'API key not configured' });
-    }
-
-    const applicability = determineRegulationApplicability(orderData);
-    const cacheInput = normaliseCheckCacheInput(orderData);
+    const applicability = validation.applicability;
+    cacheInput = normaliseCheckCacheInput(orderData);
 
     if (canUseFullReportCache(cachePreference)) {
       const cached = getCachedValue('compliance-report', cacheInput);
       if (cached) {
         res.setHeader('X-OrcaTrade-Cache', 'HIT');
+        if (cached.value?.reportGeneration?.mode) {
+          res.setHeader('X-OrcaTrade-Generation-Mode', cached.value.reportGeneration.mode);
+        }
         return res.status(200).json(cached.value);
       }
     }
 
     const year = new Date().getFullYear();
-    const reportId = `OT-COMP-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
-    const timestamp = new Date().toISOString();
+    reportId = `OT-COMP-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
+    timestamp = new Date().toISOString();
+    const anthropicApiKey = process.env.ORCATRADE_OS_API;
+    if (!anthropicApiKey) {
+      const fallbackReport = buildDeterministicFallbackReport(orderData, {
+        reportId,
+        timestamp,
+        reason: 'The Anthropic API key is not configured, so OrcaTrade returned a deterministic rules-based report.',
+      });
+      void sendComplianceSummaryEmail(fallbackReport, orderData);
+      return sendReport(res, cachePreference, cacheInput, fallbackReport);
+    }
 
     const systemPrompt = `You are OrcaTrade Intelligence, a senior EU trade compliance engine with expert knowledge of:
 - EUDR: Regulation (EU) 2023/1115 — EU Deforestation Regulation
@@ -257,6 +313,13 @@ Country of origin: ${origin}
 Supplier name: ${supplierName}
 Annual import value: ${importValue}
 Company size: ${companySize}
+Exact employee count: ${employeeCount || 'Not provided'}
+Global turnover: ${globalTurnover || 'Not provided'}
+CN / HS code: ${cnCode || 'Not provided'}
+Geolocation evidence available: ${geolocationAvailable === null ? 'Unknown' : geolocationAvailable ? 'Yes' : 'No'}
+Due-diligence statement ready: ${dueDiligenceStatement === null ? 'Unknown' : dueDiligenceStatement ? 'Yes' : 'No'}
+Supplier emissions data available: ${supplierEmissionsData === null ? 'Unknown' : supplierEmissionsData ? 'Yes' : 'No'}
+Authorised CBAM declarant ready: ${authorisedDeclarant === null ? 'Unknown' : authorisedDeclarant ? 'Yes' : 'No'}
 Placing on EU market: ${euMarket ? 'Yes' : 'No'}
 
 IMPORTANT: Follow the STATUS AND SCORE RULES exactly. Do not mark a regulation
@@ -396,7 +459,13 @@ Return ONLY this JSON object with no markdown wrapping:
     if (!response.ok) {
       const errorText = await response.text();
       console.error('Anthropic API Error:', errorText);
-      return res.status(502).json({ error: 'AI API error', detail: errorText });
+      const fallbackReport = buildDeterministicFallbackReport(orderData, {
+        reportId,
+        timestamp,
+        reason: `The AI provider returned an error, so OrcaTrade returned a deterministic rules-based report instead. Provider detail: ${errorText.slice(0, 240)}`,
+      });
+      void sendComplianceSummaryEmail(fallbackReport, orderData);
+      return sendReport(res, cachePreference, cacheInput, fallbackReport);
     }
 
     const data = await response.json();
@@ -414,31 +483,52 @@ Return ONLY this JSON object with no markdown wrapping:
         try { report = JSON.parse(objMatch[0]); }
         catch (e) {
           console.error('JSON parse error:', e, assistantText.slice(0, 500));
-          return res.status(500).json({ error: 'Failed to parse AI response' });
+          const fallbackReport = buildDeterministicFallbackReport(orderData, {
+            reportId,
+            timestamp,
+            reason: 'The AI response could not be parsed into valid JSON, so OrcaTrade returned a deterministic rules-based report instead.',
+          });
+          void sendComplianceSummaryEmail(fallbackReport, orderData);
+          return sendReport(res, cachePreference, cacheInput, fallbackReport);
         }
       } else {
-        return res.status(500).json({ error: 'No JSON found in AI response' });
+        const fallbackReport = buildDeterministicFallbackReport(orderData, {
+          reportId,
+          timestamp,
+          reason: 'The AI response did not contain a valid JSON payload, so OrcaTrade returned a deterministic rules-based report instead.',
+        });
+        void sendComplianceSummaryEmail(fallbackReport, orderData);
+        return sendReport(res, cachePreference, cacheInput, fallbackReport);
       }
     }
 
     // ── Server-side compliance logic enforcement ──────────────────────
     // The AI may hallucinate a "compliant" status despite having findings
     // or required actions. This sanitiser enforces the correct hierarchy.
-    report = enforceComplianceLogic(report, orderData);
+    report = enforceComplianceLogic({
+      ...report,
+      reportGeneration: {
+        mode: 'ai_assisted',
+        source: 'claude-sonnet-4-6',
+        reason: 'AI draft validated and corrected by OrcaTrade deterministic rules.',
+      },
+    }, orderData);
     // ─────────────────────────────────────────────────────────────────
 
-    if (canUseFullReportCache(cachePreference)) {
-      setCachedValue('compliance-report', cacheInput, report, REPORT_CACHE_TTL_MS);
-      res.setHeader('X-OrcaTrade-Cache', 'MISS');
-    } else {
-      res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
-    }
-
     void sendComplianceSummaryEmail(report, orderData);
-    return res.status(200).json(report);
+    return sendReport(res, cachePreference, cacheInput, report);
 
   } catch (error) {
     console.error('Handler error:', error);
+    if (orderData) {
+      const fallbackReport = buildDeterministicFallbackReport(orderData, {
+        reportId,
+        timestamp,
+        reason: `Unexpected compliance handler error: ${cleanString(error.message) || 'Unknown error'}. OrcaTrade returned a deterministic rules-based report instead.`,
+      });
+      void sendComplianceSummaryEmail(fallbackReport, orderData);
+      return sendReport(res, cachePreference, cacheInput || normaliseCheckCacheInput(orderData), fallbackReport);
+    }
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
 };

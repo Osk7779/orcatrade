@@ -2,9 +2,12 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 
 const {
+  buildDeterministicFallbackReport,
   determineRegulationApplicability,
   enforceComplianceLogic,
+  normaliseComplianceInput,
 } = require('../lib/intelligence/compliance');
+const { validateCompliancePayload } = require('../lib/intelligence/compliance-validator');
 
 test('applicability pre-check keeps irrelevant regulations out of scope', () => {
   const applicability = determineRegulationApplicability({
@@ -108,4 +111,127 @@ test('missing CSDDD threshold facts force manual review instead of false clearan
   assert.ok(csddd.missingFacts.includes('global turnover'));
   assert.equal(report.requiresManualReview, true);
   assert.equal(report.blockedByMissingData[0].regulation, 'CSDDD');
+});
+
+test('active EUDR flow becomes non-compliant when geolocation evidence is explicitly missing', () => {
+  const report = enforceComplianceLogic({
+    checkedRegulations: [
+      {
+        regulation: 'EUDR',
+        applicable: true,
+        status: 'compliant',
+        findings: [],
+        requiredActions: [],
+        financialRisk: { minimumFineEur: 0, maximumFineEur: 0 },
+      },
+    ],
+  }, {
+    productCategory: 'Furniture & Wood',
+    productDescription: 'Wooden shelving unit',
+    companySize: '250–1000 employees',
+    origin: 'Brazil',
+    globalTurnover: '€10m',
+    asOfDate: '2027-01-15',
+    geolocationAvailable: false,
+    dueDiligenceStatement: true,
+  });
+
+  const eudr = report.checkedRegulations.find(item => item.regulation === 'EUDR');
+  assert.equal(eudr.applicabilityStatus, 'applicable');
+  assert.equal(eudr.status, 'non_compliant');
+  assert.match(eudr.currentGap, /geolocation evidence/i);
+  assert.ok(eudr.findings.some(item => /Article 9/.test(item.article)));
+  assert.equal(report.decisionReadiness.level, 'provisional');
+  assert.equal(report.decisionReadiness.finalDecisionEligible, true);
+});
+
+test('active CBAM flow stays at risk when critical evidence inputs are still missing', () => {
+  const report = enforceComplianceLogic({
+    checkedRegulations: [
+      {
+        regulation: 'CBAM',
+        applicable: true,
+        status: 'compliant',
+        findings: [],
+        requiredActions: [],
+        financialRisk: { minimumFineEur: 0, maximumFineEur: 0 },
+      },
+    ],
+  }, {
+    productCategory: 'Steel & Metal',
+    productDescription: 'Steel fasteners for industrial assemblies',
+    companySize: '250–1000 employees',
+    origin: 'China',
+    globalTurnover: '€10m',
+    asOfDate: '2026-04-08',
+  });
+
+  const cbam = report.checkedRegulations.find(item => item.regulation === 'CBAM');
+  assert.equal(cbam.applicabilityStatus, 'applicable');
+  assert.equal(cbam.status, 'at_risk');
+  assert.ok(cbam.missingFacts.includes('CN / HS classification'));
+  assert.ok(cbam.requiredActions.some(item => /missing CBAM inputs/i.test(item.action)));
+  assert.equal(report.decisionReadiness.level, 'provisional');
+  assert.equal(report.decisionReadiness.finalDecisionEligible, true);
+});
+
+test('compliance input normaliser preserves alias fields and boolean strings', () => {
+  const normalized = normaliseComplianceInput({
+    productCategory: 'Steel & Metal',
+    productDescription: 'Steel coils',
+    hsCode: '7208.37',
+    euMarket: 'false',
+    authorizedDeclarant: 'yes',
+    emissionsDataAvailable: 'no',
+    dueDiligenceReady: 'true',
+    polygonDataAvailable: 'false',
+    companyTurnover: '€900m',
+  });
+
+  assert.equal(normalized.cnCode, '7208.37');
+  assert.equal(normalized.hsCode, '7208.37');
+  assert.equal(normalized.euMarket, false);
+  assert.equal(normalized.authorisedDeclarant, true);
+  assert.equal(normalized.supplierEmissionsData, false);
+  assert.equal(normalized.dueDiligenceStatement, true);
+  assert.equal(normalized.geolocationAvailable, false);
+  assert.equal(normalized.globalTurnover, '€900m');
+});
+
+test('validator rejects incomplete report payloads and accepts quick checks', () => {
+  const reportValidation = validateCompliancePayload({
+    productCategory: 'Steel & Metal',
+    origin: 'China',
+  }, { mode: 'report' });
+
+  const quickCheckValidation = validateCompliancePayload({
+    productCategory: 'Steel & Metal',
+    origin: 'China',
+  }, { mode: 'quick-check' });
+
+  assert.equal(reportValidation.ok, false);
+  assert.ok(reportValidation.errors.some(item => /product description/i.test(item)));
+  assert.equal(quickCheckValidation.ok, true);
+});
+
+test('deterministic fallback report returns a structured rules-based report', () => {
+  const report = buildDeterministicFallbackReport({
+    productCategory: 'Steel & Metal',
+    productDescription: 'Steel fasteners for industrial assemblies',
+    companySize: '250–1000 employees',
+    origin: 'China',
+    globalTurnover: '€10m',
+    asOfDate: '2026-04-08',
+  }, {
+    reportId: 'OT-COMP-TEST-FALLBACK',
+    timestamp: '2026-04-09T10:00:00.000Z',
+    reason: 'Synthetic test fallback',
+  });
+
+  assert.equal(report.reportId, 'OT-COMP-TEST-FALLBACK');
+  assert.equal(report.reportGeneration.mode, 'deterministic_fallback');
+  assert.match(report.reportGeneration.reason, /Synthetic test fallback/);
+  assert.equal(report.checkedRegulations.length, 3);
+  assert.equal(report.decisionReadiness.level, 'provisional');
+  assert.ok(report.disclaimer.includes('OT-COMP-TEST-FALLBACK'));
 });

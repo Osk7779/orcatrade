@@ -1,6 +1,7 @@
 const { cleanString } = require('../lib/intelligence/catalog');
 const { getCachedValue, setCachedValue } = require('../lib/intelligence/cache-store');
-const { determineRegulationApplicability, resolveAsOfDate, RULE_VERSION } = require('../lib/intelligence/compliance');
+const { validateCompliancePayload } = require('../lib/intelligence/compliance-validator');
+const { resolveAsOfDate, RULE_VERSION } = require('../lib/intelligence/compliance');
 
 const QUICK_CHECK_CACHE_TTL_MS = 15 * 60 * 1000;
 
@@ -24,8 +25,16 @@ function normaliseQuickCheckInput(orderData = {}) {
     ruleVersion: RULE_VERSION,
     asOfDate: resolveAsOfDate(orderData),
     productCategory: cleanString(orderData.productCategory).toLowerCase(),
+    productDescription: cleanString(orderData.productDescription).toLowerCase(),
     origin: cleanString(orderData.origin).toLowerCase(),
     importValue: cleanString(orderData.importValue).toLowerCase(),
+    companySize: cleanString(orderData.companySize).toLowerCase(),
+    globalTurnover: cleanString(orderData.globalTurnover).toLowerCase(),
+    cnCode: cleanString(orderData.cnCode || orderData.hsCode).toLowerCase(),
+    geolocationAvailable: String(orderData.geolocationAvailable),
+    dueDiligenceStatement: String(orderData.dueDiligenceStatement),
+    supplierEmissionsData: String(orderData.supplierEmissionsData),
+    authorisedDeclarant: String(orderData.authorisedDeclarant),
   };
 }
 
@@ -88,22 +97,31 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
+  const validation = validateCompliancePayload(req.body, { mode: 'quick-check' });
+  if (!validation.ok) {
+    return res.status(422).json({
+      error: 'Missing required fields for the quick check.',
+      details: validation.errors,
+    });
+  }
+
+  const orderData = validation.normalizedOrderData;
   const {
     productCategory = '',
     origin = '',
     importValue = '',
-  } = req.body || {};
+    productDescription = '',
+    companySize = '',
+    globalTurnover = '',
+    cnCode = '',
+    geolocationAvailable = null,
+    dueDiligenceStatement = null,
+    supplierEmissionsData = null,
+    authorisedDeclarant = null,
+  } = orderData;
   const cachePreference = getCachePreference(req);
 
-  const orderData = {
-    productCategory,
-    productDescription: '',
-    origin,
-    importValue,
-    companySize: '',
-  };
-
-  const applicability = determineRegulationApplicability(orderData);
+  const applicability = validation.applicability;
   const status = buildStatus(applicability);
   const cacheInput = normaliseQuickCheckInput(orderData);
 
@@ -154,8 +172,16 @@ module.exports = async function handler(req, res) {
           {
             role: 'user',
             content: `Product category: ${productCategory || 'Not provided'}
+Product description: ${productDescription || 'Not provided'}
 Country of origin: ${origin || 'Not provided'}
 Annual import value: ${importValue || 'Not provided'}
+Company size: ${companySize || 'Not provided'}
+Global turnover: ${globalTurnover || 'Not provided'}
+CN / HS code: ${cnCode || 'Not provided'}
+Geolocation evidence available: ${geolocationAvailable === null ? 'Unknown' : geolocationAvailable ? 'Yes' : 'No'}
+Due-diligence statement ready: ${dueDiligenceStatement === null ? 'Unknown' : dueDiligenceStatement ? 'Yes' : 'No'}
+Supplier emissions data available: ${supplierEmissionsData === null ? 'Unknown' : supplierEmissionsData ? 'Yes' : 'No'}
+Authorised CBAM declarant ready: ${authorisedDeclarant === null ? 'Unknown' : authorisedDeclarant ? 'Yes' : 'No'}
 Pre-check applicability: ${applicableRegulations}
 EUDR reason: ${applicability.EUDR.applicabilityReason}
 CBAM reason: ${applicability.CBAM.applicabilityReason}

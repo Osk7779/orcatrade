@@ -196,6 +196,57 @@ a:hover { opacity: 0.8; }
   box-shadow: 0 26px 60px rgba(0,0,0,0.6);
 }
 
+.recovery-notice,
+.evidence-notice {
+  margin-bottom: 1.2rem;
+  padding: 0.95rem 1.05rem;
+  border: 1px solid var(--border);
+  background: rgba(255,255,255,0.04);
+}
+
+.recovery-notice {
+  border-color: rgba(200,140,50,0.26);
+  background: rgba(200,140,50,0.09);
+}
+
+.evidence-notice {
+  border-color: rgba(80,120,180,0.24);
+  background: rgba(80,120,180,0.08);
+}
+
+.notice-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  margin-bottom: 0.35rem;
+}
+
+.notice-copy {
+  font-size: 0.84rem;
+  line-height: 1.6;
+  color: var(--cream-soft);
+}
+
+.notice-list {
+  margin-top: 0.65rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.notice-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(255,255,255,0.12);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--cream);
+  background: rgba(255,255,255,0.03);
+}
+
 .form-group { margin-bottom: 1.4rem; }
 
 .input-wrapper label {
@@ -210,6 +261,7 @@ a:hover { opacity: 0.8; }
 }
 
 input[type="text"],
+input[type="number"],
 select,
 textarea {
   width: 100%;
@@ -226,6 +278,7 @@ textarea {
 }
 
 input[type="text"]:focus,
+input[type="number"]:focus,
 select:focus,
 textarea:focus {
   border-color: rgba(184,190,200,0.9);
@@ -245,6 +298,59 @@ select {
 select option { background-color: #0d0e12; color: var(--cream); }
 
 textarea { min-height: 110px; resize: vertical; }
+
+.form-section-divider {
+  border-top: 1px solid rgba(255,255,255,0.08);
+  margin: 1.9rem 0 1.35rem;
+  padding-top: 1.3rem;
+}
+
+.form-section-title {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  color: var(--gold);
+  margin-bottom: 0.35rem;
+}
+
+.form-helper {
+  font-size: 0.8rem;
+  line-height: 1.6;
+  color: var(--cream-soft);
+  opacity: 0.8;
+}
+
+.input-wrapper.is-dynamic-required label,
+.input-wrapper.is-recovery-target label {
+  color: var(--cream);
+}
+
+.input-wrapper.is-dynamic-required input,
+.input-wrapper.is-dynamic-required select,
+.input-wrapper.is-dynamic-required textarea {
+  border-color: rgba(80,120,180,0.42);
+  box-shadow: 0 0 0 1px rgba(80,120,180,0.22);
+}
+
+.input-wrapper.is-recovery-target input,
+.input-wrapper.is-recovery-target select,
+.input-wrapper.is-recovery-target textarea {
+  border-color: rgba(200,140,50,0.44);
+  box-shadow: 0 0 0 1px rgba(200,140,50,0.24);
+}
+
+.field-requirement-note {
+  display: none;
+  margin-top: 0.4rem;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--cream-soft);
+}
+
+.field-requirement-note.visible {
+  display: block;
+}
 
 /* ── CHECKBOX ── */
 .checkbox-group { margin-top: 1.6rem; margin-bottom: 1.6rem; }
