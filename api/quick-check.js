@@ -1,9 +1,12 @@
 const { cleanString } = require('../lib/intelligence/catalog');
 const { consumeRateLimit, getSharedCacheValue, setSharedCacheValue } = require('../lib/intelligence/runtime-store');
+const { extractAnthropicText, requestAnthropicMessage } = require('../lib/intelligence/model-runtime');
 const { validateCompliancePayload } = require('../lib/intelligence/compliance-validator');
 const { resolveAsOfDate, RULE_VERSION } = require('../lib/intelligence/compliance');
 
 const QUICK_CHECK_CACHE_TTL_MS = 15 * 60 * 1000;
+const QUICK_CHECK_MODEL_TIMEOUT_MS = 12000;
+const QUICK_CHECK_MODEL_RETRIES = 1;
 
 function setCors(res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -136,6 +139,7 @@ module.exports = async function handler(req, res) {
     const cached = await getSharedCacheValue('quick-check', cacheInput);
     if (cached) {
       res.setHeader('X-OrcaTrade-Cache', 'HIT');
+      res.setHeader('X-OrcaTrade-Generation-Mode', cached.value?.generationMode || 'unknown');
       return res.status(200).json(cached.value);
     }
   }
@@ -146,6 +150,7 @@ module.exports = async function handler(req, res) {
       status,
       cta: buildCta(status, applicability),
       determination: buildDetermination(applicability),
+      generationMode: 'deterministic_fallback',
     };
 
     if (canUseQuickCheckCache(cachePreference)) {
@@ -154,6 +159,8 @@ module.exports = async function handler(req, res) {
     } else {
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
     }
+
+    res.setHeader('X-OrcaTrade-Generation-Mode', 'deterministic_fallback');
 
     return res.status(200).json(fallbackPayload);
   }
@@ -164,21 +171,15 @@ module.exports = async function handler(req, res) {
       .map(([key]) => key)
       .join(', ') || 'None';
 
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': process.env.ORCATRADE_OS_API,
-        'anthropic-version': '2023-06-01',
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-6',
-        max_tokens: 160,
-        system: 'You are OrcaTrade Intelligence. Return a 2-3 sentence compliance verdict for the given product/origin. State which regulations apply, the key obligation, and the single most urgent action. Be direct and specific. No markdown.',
-        messages: [
-          {
-            role: 'user',
-            content: `Product category: ${productCategory || 'Not provided'}
+    const modelResponse = await requestAnthropicMessage({
+      apiKey: process.env.ORCATRADE_OS_API,
+      model: 'claude-sonnet-4-6',
+      maxTokens: 160,
+      system: 'You are OrcaTrade Intelligence. Return a 2-3 sentence compliance verdict for the given product/origin. State which regulations apply, the key obligation, and the single most urgent action. Be direct and specific. No markdown.',
+      messages: [
+        {
+          role: 'user',
+          content: `Product category: ${productCategory || 'Not provided'}
 Product description: ${productDescription || 'Not provided'}
 Country of origin: ${origin || 'Not provided'}
 Annual import value: ${importValue || 'Not provided'}
@@ -193,39 +194,19 @@ Pre-check applicability: ${applicableRegulations}
 EUDR reason: ${applicability.EUDR.applicabilityReason}
 CBAM reason: ${applicability.CBAM.applicabilityReason}
 CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
-          },
-        ],
-      }),
+        },
+      ],
+      timeoutMs: QUICK_CHECK_MODEL_TIMEOUT_MS,
+      retries: QUICK_CHECK_MODEL_RETRIES,
     });
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Quick check Anthropic error:', errorText);
-      const fallbackPayload = {
-        verdict: buildFallbackVerdict(orderData, applicability),
-        status,
-        cta: buildCta(status, applicability),
-        determination: buildDetermination(applicability),
-      };
-
-      if (canUseQuickCheckCache(cachePreference)) {
-        await setSharedCacheValue('quick-check', cacheInput, fallbackPayload, QUICK_CHECK_CACHE_TTL_MS);
-        res.setHeader('X-OrcaTrade-Cache', 'MISS');
-      } else {
-        res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
-      }
-
-      return res.status(200).json(fallbackPayload);
-    }
-
-    const data = await response.json();
-    const verdict = String(data.content?.[0]?.text || '').trim() || buildFallbackVerdict(orderData, applicability);
+    const verdict = extractAnthropicText(modelResponse.data) || buildFallbackVerdict(orderData, applicability);
 
     const payload = {
       verdict,
       status,
       cta: buildCta(status, applicability),
       determination: buildDetermination(applicability),
+      generationMode: 'ai_assisted',
     };
 
     if (canUseQuickCheckCache(cachePreference)) {
@@ -235,6 +216,8 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
     }
 
+    res.setHeader('X-OrcaTrade-Generation-Mode', 'ai_assisted');
+
     return res.status(200).json(payload);
   } catch (error) {
     console.error('Quick check handler error:', error);
@@ -243,6 +226,7 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
       status,
       cta: buildCta(status, applicability),
       determination: buildDetermination(applicability),
+      generationMode: 'deterministic_fallback',
     };
 
     if (canUseQuickCheckCache(cachePreference)) {
@@ -251,6 +235,8 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
     } else {
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
     }
+
+    res.setHeader('X-OrcaTrade-Generation-Mode', 'deterministic_fallback');
 
     return res.status(200).json(fallbackPayload);
   }

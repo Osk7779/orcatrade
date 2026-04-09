@@ -465,23 +465,143 @@
   <script>
     (function () {
       const TAG_CLASS = { Policy: 'policy', Logistics: 'logistics', Sourcing: 'sourcing', Trade: 'trade' };
+      const COPY = {
+        fallbackTag: 'Handel',
+        fallbackTitle: 'Der Live-Nachrichtenfeed ist vorübergehend nicht verfügbar.',
+        fallbackBody: 'Der Feed braucht länger als erwartet. Bitte laden Sie die Seite in einem Moment neu oder schauen Sie später noch einmal vorbei.',
+        fallbackDate: 'Wird aktualisiert',
+        fallbackSource: 'OrcaTrade Feed',
+        defaultExcerpt: 'Lesen Sie den vollständigen Artikel für weitere Details.',
+      };
+
+      function safeText(value, limit) {
+        const normalized = String(value || '').replace(/\s+/g, ' ').trim();
+        if (!limit || normalized.length <= limit) return normalized;
+        return normalized.slice(0, Math.max(0, limit - 1)).trim() + '…';
+      }
+
+      function renderFallback() {
+        const grid = document.getElementById('news-grid');
+        if (!grid) return;
+        grid.innerHTML = '';
+
+        const article = document.createElement('article');
+        article.className = 'news-card news-card--empty';
+
+        const link = document.createElement('a');
+        link.className = 'news-card-link';
+        link.href = '#news';
+
+        const tag = document.createElement('div');
+        tag.className = 'news-tag news-tag--trade';
+        tag.textContent = COPY.fallbackTag;
+
+        const title = document.createElement('h3');
+        title.className = 'news-title';
+        title.textContent = COPY.fallbackTitle;
+
+        const excerpt = document.createElement('p');
+        excerpt.className = 'news-excerpt';
+        excerpt.textContent = COPY.fallbackBody;
+
+        const footer = document.createElement('div');
+        footer.className = 'news-footer';
+
+        const date = document.createElement('span');
+        date.className = 'news-date';
+        date.textContent = COPY.fallbackDate;
+
+        const source = document.createElement('span');
+        source.className = 'news-source';
+        source.textContent = COPY.fallbackSource;
+
+        footer.appendChild(date);
+        footer.appendChild(source);
+        link.appendChild(tag);
+        link.appendChild(title);
+        link.appendChild(excerpt);
+        link.appendChild(footer);
+        article.appendChild(link);
+        grid.appendChild(article);
+      }
+
       function renderNews(articles) {
         const grid = document.getElementById('news-grid');
         if (!grid) return;
-        grid.innerHTML = articles.map(a => `
-          <article class="news-card">
-            <a href="${a.link}" target="_blank" rel="noopener" style="text-decoration:none;color:inherit;display:block;">
-              <div class="news-tag news-tag--${TAG_CLASS[a.tag] || 'trade'}">${a.tag}</div>
-              <h3 class="news-title">${a.title}</h3>
-              <p class="news-excerpt">${a.excerpt}</p>
-              <div class="news-footer">
-                <span class="news-date">${a.date}</span>
-                <span class="news-source" style="opacity:0.45;font-size:0.72rem;margin-left:auto;">${a.source}</span>
-              </div>
-            </a>
-          </article>`).join('');
+        const normalized = (Array.isArray(articles) ? articles : [])
+          .map(function (article) {
+            return {
+              tag: safeText(article && article.tag, 24) || COPY.fallbackTag,
+              title: safeText(article && article.title, 160),
+              excerpt: safeText(article && article.excerpt, 220) || COPY.defaultExcerpt,
+              date: safeText(article && article.date, 40),
+              source: safeText(article && article.source, 48) || COPY.fallbackSource,
+              link: String(article && article.link || '').trim(),
+            };
+          })
+          .filter(function (article) {
+            return article.title && article.link;
+          })
+          .slice(0, 4);
+
+        if (!normalized.length) {
+          renderFallback();
+          return;
+        }
+
+        grid.innerHTML = '';
+
+        normalized.forEach(function (articleData) {
+          const article = document.createElement('article');
+          article.className = 'news-card';
+
+          const link = document.createElement('a');
+          link.className = 'news-card-link';
+          link.href = articleData.link;
+          link.target = '_blank';
+          link.rel = 'noopener';
+
+          const tag = document.createElement('div');
+          tag.className = 'news-tag news-tag--' + (TAG_CLASS[articleData.tag] || 'trade');
+          tag.textContent = articleData.tag;
+
+          const title = document.createElement('h3');
+          title.className = 'news-title';
+          title.textContent = articleData.title;
+
+          const excerpt = document.createElement('p');
+          excerpt.className = 'news-excerpt';
+          excerpt.textContent = articleData.excerpt;
+
+          const footer = document.createElement('div');
+          footer.className = 'news-footer';
+
+          const date = document.createElement('span');
+          date.className = 'news-date';
+          date.textContent = articleData.date;
+
+          const source = document.createElement('span');
+          source.className = 'news-source';
+          source.textContent = articleData.source;
+
+          footer.appendChild(date);
+          footer.appendChild(source);
+          link.appendChild(tag);
+          link.appendChild(title);
+          link.appendChild(excerpt);
+          link.appendChild(footer);
+          article.appendChild(link);
+          grid.appendChild(article);
+        });
       }
-      fetch('/api/news').then(r=>r.json()).then(d=>{if(d.articles)renderNews(d.articles);}).catch(()=>{});
+      fetch('/api/news')
+        .then(function (response) {
+          return response.ok ? response.json() : Promise.reject(response.status);
+        })
+        .then(function (data) {
+          renderNews(data && data.articles);
+        })
+        .catch(renderFallback);
     })();
   </script>
 </body>

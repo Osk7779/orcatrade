@@ -234,4 +234,7 @@ test('deterministic fallback report returns a structured rules-based report', ()
   assert.equal(report.checkedRegulations.length, 3);
   assert.equal(report.decisionReadiness.level, 'provisional');
   assert.ok(report.disclaimer.includes('OT-COMP-TEST-FALLBACK'));
+  assert.equal(report.reportLineage.ruleVersion, report.ruleVersion);
+  assert.equal(report.reportLineage.generationMode, 'deterministic_fallback');
+  assert.match(report.reportLineage.inputFingerprint, /^[a-f0-9]{64}$/);
 });

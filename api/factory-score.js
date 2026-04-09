@@ -1,6 +1,9 @@
-const Anthropic = require('@anthropic-ai/sdk');
 const { CATEGORY_SPECIALITIES, COUNTRY_CITIES } = require('../lib/intelligence/catalog');
+const { extractAnthropicText, requestAnthropicMessage } = require('../lib/intelligence/model-runtime');
 const { normalizeFactorySearch, sanitizeFactoryResults } = require('../lib/intelligence/factory-risk');
+
+const FACTORY_MODEL_TIMEOUT_MS = 15000;
+const FACTORY_MODEL_RETRIES = 1;
 
 function extractJsonObject(text) {
   const cleaned = String(text || '')
@@ -27,8 +30,6 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const client = new Anthropic({ apiKey: process.env.ORCATRADE_OS_API });
-
     const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine.
 Return only valid JSON. No markdown. No explanation.
 
@@ -85,14 +86,17 @@ Return this exact JSON shape:
   ]
 }`;
 
-    const message = await client.messages.create({
+    const message = await requestAnthropicMessage({
+      apiKey: process.env.ORCATRADE_OS_API,
       model: 'claude-sonnet-4-6',
-      max_tokens: 3200,
+      maxTokens: 3200,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
+      timeoutMs: FACTORY_MODEL_TIMEOUT_MS,
+      retries: FACTORY_MODEL_RETRIES,
     });
 
-    const textResponse = extractJsonObject(message.content?.[0]?.text || '');
+    const textResponse = extractJsonObject(extractAnthropicText(message.data));
     const parsed = JSON.parse(textResponse);
     return res.status(200).json(sanitizeFactoryResults(parsed, filters));
   } catch (error) {

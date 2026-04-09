@@ -1,5 +1,5 @@
-const Anthropic = require('@anthropic-ai/sdk');
 const { consumeRateLimit } = require('../lib/intelligence/runtime-store');
+const { streamAnthropicMessage } = require('../lib/intelligence/model-runtime');
 const {
   buildFocusedSystemPrompt,
   buildLocalFallbackReply,
@@ -11,6 +11,7 @@ const {
 } = require('../lib/intelligence/live-pillars');
 
 const COMPLIANCE_TRIAGE_PATTERN = /\b(cbam|eudr|import|imports|importer|regulation|regulations|penalty|penalties|fine|fines|certificate|declarant|declaration|threshold|supplier|goods|customs|compliance|compliant)\b/i;
+const CHAT_MODEL_TIMEOUT_MS = 16000;
 
 function openStream(res) {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -80,21 +81,18 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const client = new Anthropic({ apiKey: process.env.ORCATRADE_OS_API });
-    const stream = await client.messages.create({
+    await streamAnthropicMessage({
+      apiKey: process.env.ORCATRADE_OS_API,
       model: 'claude-sonnet-4-6',
-      max_tokens: 420,
+      maxTokens: 420,
       system: buildFocusedSystemPrompt(intent),
       messages: trimmedMessages,
-      stream: true,
+      timeoutMs: CHAT_MODEL_TIMEOUT_MS,
+      retries: 0,
+      onText: async text => {
+        writeChunk(res, { text });
+      },
     });
-
-    for await (const event of stream) {
-      if (event.type === 'content_block_delta' && event.delta.type === 'text_delta') {
-        writeChunk(res, { text: event.delta.text });
-      }
-    }
-
     closeStream(res);
   } catch (error) {
     console.error('Claude API error:', error);
