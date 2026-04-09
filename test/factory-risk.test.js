@@ -64,6 +64,7 @@ test('factory search preserves a specific requested company name in fallback mod
   assert.equal(result.queryMode, 'exact_factory');
   assert.equal(result.factories.length, 1);
   assert.equal(result.factories[0].name, 'Guangdong Yimai Packaging Co., Ltd.');
+  assert.equal(result.factories[0].city, 'Dongguan');
   assert.equal(result.factories[0].country, 'China');
   assert.equal(isCategoryCompatible(result.factories[0].speciality, 'Packaging & Paper'), true);
 });
@@ -116,4 +117,17 @@ test('factory search fallback changes with different queries in the same market'
   assert.notEqual(powerSupplies.factories[0].name, connectors.factories[0].name);
   assert.equal(powerSupplies.factories[0].speciality, 'power supplies');
   assert.equal(connectors.factories[0].speciality, 'connectors');
+});
+
+test('factory search uses directory matches for known market searches before synthetic fallback dominates', () => {
+  const result = sanitizeFactoryResults(null, {
+    query: 'gift boxes',
+    category: 'Packaging & Paper',
+    country: 'China',
+    riskTolerance: 'Any risk level',
+  });
+
+  assert.equal(result.queryMode, 'market_scan');
+  assert.equal(result.factories[0].name, 'Guangdong Yimai Packaging Co., Ltd.');
+  assert.equal(result.factories[0].city, 'Dongguan');
 });

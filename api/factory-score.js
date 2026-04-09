@@ -2,13 +2,14 @@ const { CATEGORY_SPECIALITIES, COUNTRY_CITIES } = require('../lib/intelligence/c
 const { extractAnthropicText, requestAnthropicMessage } = require('../lib/intelligence/model-runtime');
 const {
   extractRequestedFactoryName,
+  findDirectoryFactories,
   isSpecificFactoryLookup,
   normalizeFactorySearch,
   sanitizeFactoryResults,
 } = require('../lib/intelligence/factory-risk');
 
-const FACTORY_MODEL_TIMEOUT_MS = 15000;
-const FACTORY_MODEL_RETRIES = 1;
+const FACTORY_MODEL_TIMEOUT_MS = 6000;
+const FACTORY_MODEL_RETRIES = 0;
 
 function extractJsonObject(text) {
   const cleaned = String(text || '')
@@ -37,11 +38,16 @@ module.exports = async function handler(req, res) {
   const filters = normalizeFactorySearch(req.body || {});
   const exactFactorySearch = isSpecificFactoryLookup(filters);
   const requestedFactoryName = extractRequestedFactoryName(filters.query, filters);
+  const directoryCandidates = findDirectoryFactories(filters, exactFactorySearch ? 1 : 6);
   const allowedCities = (COUNTRY_CITIES[filters.country] || COUNTRY_CITIES.China).join(', ');
   const allowedSpecialities = (CATEGORY_SPECIALITIES[filters.category] || CATEGORY_SPECIALITIES.Other).join(', ');
 
   if (!process.env.ORCATRADE_OS_API) {
     return sendFactoryResponse(res, sanitizeFactoryResults(null, filters), 'deterministic_fallback');
+  }
+
+  if (exactFactorySearch && directoryCandidates.length) {
+    return sendFactoryResponse(res, sanitizeFactoryResults({ factories: directoryCandidates }, filters), 'directory_match');
   }
 
   try {
