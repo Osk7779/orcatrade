@@ -49,6 +49,31 @@ async function invokeHandler(handler, options = {}) {
   return res;
 }
 
+function loadFactoryScoreHandlerWithThrowingModel() {
+  const handlerPath = require.resolve('../api/factory-score');
+  const runtimePath = require.resolve('../lib/intelligence/model-runtime');
+  const originalRuntime = require(runtimePath);
+  const originalExports = require.cache[runtimePath].exports;
+
+  delete require.cache[handlerPath];
+  require.cache[runtimePath].exports = {
+    ...originalRuntime,
+    requestAnthropicMessage: async () => {
+      throw new Error('mock model unavailable');
+    },
+  };
+
+  const handler = require(handlerPath);
+
+  return {
+    handler,
+    restore() {
+      delete require.cache[handlerPath];
+      require.cache[runtimePath].exports = originalExports;
+    },
+  };
+}
+
 test('evidence endpoint persists and retrieves evidence bundles with signed workspace access', async () => {
   process.env.ORCATRADE_REPORT_SECRET = 'test-report-secret';
 
@@ -212,4 +237,33 @@ test('workspace endpoint returns a unified workspace view for reports and eviden
   assert.ok(Array.isArray(workspaceView.body.evidenceBundles));
   assert.ok(workspaceView.body.reportCount >= 1);
   assert.ok(workspaceView.body.evidenceCount >= 1);
+});
+
+test('factory-score endpoint does not claim a false directory match for unknown exact company names', async () => {
+  process.env.ORCATRADE_OS_API = 'test-api-key';
+  const originalConsoleError = console.error;
+  const { handler, restore } = loadFactoryScoreHandlerWithThrowingModel();
+  console.error = () => {};
+
+  try {
+    const response = await invokeHandler(handler, {
+      method: 'POST',
+      body: {
+        query: 'Acme Plastics',
+        category: 'Rubber & Plastics',
+        country: 'China',
+        riskTolerance: 'Any risk level',
+      },
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'deterministic_fallback');
+    assert.equal(response.body.queryMode, 'exact_factory');
+    assert.equal(response.body.resultMode, 'provisional_exact_lookup');
+    assert.equal(response.body.factories[0].name, 'Acme Plastics');
+  } finally {
+    console.error = originalConsoleError;
+    restore();
+    delete process.env.ORCATRADE_OS_API;
+  }
 });
