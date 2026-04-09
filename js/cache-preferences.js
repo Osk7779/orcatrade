@@ -240,7 +240,22 @@
     renderWidget();
   }
 
-  function widgetMarkup(preference) {
+  function widgetMarkup(preference, firstVisit) {
+    if (firstVisit) {
+      return '' +
+        '<div class="ot-cache-overlay"></div>' +
+        '<div class="ot-cache-widget-panel ot-cache-widget-panel--modal visible" id="ot-cache-panel">' +
+        '  <div class="ot-cache-widget-title">Choose your cache mode</div>' +
+        '  <p class="ot-cache-widget-copy">OrcaTrade can cache repeat checks to make Intelligence faster. Choose whether you want full cache, essential-only workflow state, or no optional cache.</p>' +
+        '  <div class="ot-cache-widget-actions">' +
+        '    <button type="button" data-pref="all">Accept all</button>' +
+        '    <button type="button" data-pref="essential">Essential only</button>' +
+        '    <button type="button" data-pref="reject">Reject</button>' +
+        '  </div>' +
+        '  <div class="ot-cache-widget-current">No choice has been saved yet. Essential only is the default until you choose.</div>' +
+        '</div>';
+    }
+
     return '' +
       '<div class="ot-cache-widget-toggle" id="ot-cache-toggle">Cache settings</div>' +
       '<div class="ot-cache-widget-panel" id="ot-cache-panel">' +
@@ -272,9 +287,6 @@
       });
     });
 
-    if (!hasUserChoice() && panel) {
-      panel.classList.add('visible');
-    }
   }
 
   function ensureWidgetStyles() {
@@ -284,8 +296,11 @@
     style.id = 'ot-cache-widget-style';
     style.textContent = ''
       + '.ot-cache-widget{position:fixed;right:1rem;bottom:1rem;z-index:1200;font-family:Geist,Arial,sans-serif;}'
+      + '.ot-cache-widget--modal{inset:0;right:auto;bottom:auto;display:flex;align-items:center;justify-content:center;padding:1rem;}'
+      + '.ot-cache-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.58);backdrop-filter:blur(6px);}'
       + '.ot-cache-widget-toggle{display:inline-flex;align-items:center;gap:0.35rem;padding:0.6rem 0.9rem;background:rgba(8,12,20,0.92);border:1px solid rgba(255,255,255,0.14);color:#ececec;font-size:0.78rem;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;backdrop-filter:blur(14px);}'
       + '.ot-cache-widget-panel{display:none;width:min(360px,calc(100vw - 2rem));margin-top:0.6rem;padding:1rem 1rem 0.95rem;background:rgba(8,12,20,0.96);border:1px solid rgba(255,255,255,0.14);color:#ececec;box-shadow:0 18px 40px rgba(0,0,0,0.45);backdrop-filter:blur(16px);}'
+      + '.ot-cache-widget-panel--modal{display:block;position:relative;width:min(420px,calc(100vw - 2rem));margin-top:0;padding:1.15rem 1.1rem 1rem;z-index:1;}'
       + '.ot-cache-widget-panel.visible{display:block;}'
       + '.ot-cache-widget-title{font-size:0.9rem;font-weight:700;margin-bottom:0.55rem;}'
       + '.ot-cache-widget-copy{font-size:0.8rem;line-height:1.6;color:rgba(236,236,236,0.72);margin:0 0 0.85rem;}'
@@ -293,7 +308,7 @@
       + '.ot-cache-widget-actions button{border:1px solid rgba(255,255,255,0.16);background:transparent;color:#ececec;padding:0.55rem 0.75rem;font-size:0.74rem;letter-spacing:0.08em;text-transform:uppercase;cursor:pointer;}'
       + '.ot-cache-widget-actions button:hover{border-color:rgba(255,255,255,0.3);background:rgba(255,255,255,0.04);}'
       + '.ot-cache-widget-current{font-size:0.75rem;color:rgba(236,236,236,0.72);}'
-      + '@media (max-width:640px){.ot-cache-widget{left:1rem;right:1rem;}.ot-cache-widget-toggle{width:100%;justify-content:center;}.ot-cache-widget-panel{width:100%;}}';
+      + '@media (max-width:640px){.ot-cache-widget{left:1rem;right:1rem;}.ot-cache-widget-toggle{width:100%;justify-content:center;}.ot-cache-widget-panel{width:100%;}.ot-cache-widget--modal{left:0;right:0;}}';
     document.head.appendChild(style);
   }
 
@@ -305,10 +320,11 @@
     var existing = document.getElementById('ot-cache-widget');
     if (existing) existing.remove();
 
+    var firstVisit = !hasUserChoice();
     var root = document.createElement('div');
-    root.className = 'ot-cache-widget';
+    root.className = 'ot-cache-widget' + (firstVisit ? ' ot-cache-widget--modal' : '');
     root.id = 'ot-cache-widget';
-    root.innerHTML = widgetMarkup(getPreference());
+    root.innerHTML = widgetMarkup(getPreference(), firstVisit);
     document.body.appendChild(root);
     attachWidgetEvents(root);
   }
