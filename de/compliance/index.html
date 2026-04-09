@@ -21,16 +21,16 @@
         <span class="logo-text">ORCATRADE.<span class="text-accent">OS</span></span>
       </div>
       <div class="nav-links">
-        <a href="../../de/intelligence.html">Intelligence</a>
-        <a href="../../de/sourcing.html">Beschaffung</a>
-        <a href="../../de/">OrcaTrade Group</a>
+        <a href="/de/intelligence.html">Intelligence</a>
+        <a href="/de/sourcing.html">Beschaffung</a>
+        <a href="/de/">OrcaTrade Group</a>
       </div>
       <div class="nav-cta">
         <a href="#" class="btn btn-outline" style="border-radius: 0; padding: 0.5rem 1rem; border: 1px solid var(--accent-color); color: var(--accent-color);">Compliance prüfen</a>
       </div>
       <div style="display:flex;gap:0.4rem;align-items:center;">
-        <a href="../../compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">EN</a>
-        <a href="../../pl/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">PL</a>
+        <a href="/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">EN</a>
+        <a href="/pl/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">PL</a>
         <a href="/de/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid transparent;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;text-decoration:none;">DE</a>
       </div>
     </div>
@@ -47,7 +47,9 @@
     <!-- Form Section -->
     <section class="form-section">
       <form id="complianceForm" class="compliance-form glass-panel">
-
+        <div id="recoveryNotice" class="recovery-notice" style="display:none;"></div>
+        <div id="dynamicEvidenceNotice" class="evidence-notice" style="display:none;"></div>
+        
         <div class="form-group grid-2">
           <div class="input-wrapper">
             <label for="productCategory">Produktkategorie</label>
@@ -70,9 +72,9 @@
               <option value="" disabled selected>Ursprung auswählen...</option>
               <option value="China">China</option>
               <option value="Vietnam">Vietnam</option>
-              <option value="Indonesia">Indonesia</option>
-              <option value="India">India</option>
-              <option value="Bangladesh">Bangladesh</option>
+              <option value="Indonesia">Indonesien</option>
+              <option value="India">Indien</option>
+              <option value="Bangladesh">Bangladesch</option>
               <option value="Thailand">Thailand</option>
               <option value="Malaysia">Malaysia</option>
               <option value="Other">Sonstige</option>
@@ -84,6 +86,53 @@
           <div class="input-wrapper">
             <label for="productDescription">Produktbeschreibung</label>
             <textarea id="productDescription" name="productDescription" rows="3" placeholder="Beschreiben Sie Ihr Produkt detailliert..." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-section-divider">
+          <div class="form-section-title">Berichtszuordnung</div>
+          <p class="form-helper">Optional, aber empfohlen, wenn OrcaTrade Berichte Ihrem Unternehmens-Workspace zuordnen soll statt sie als anonyme Prüfungen zu behandeln.</p>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="company">Unternehmensname</label>
+            <input type="text" id="company" name="company" placeholder="z. B. Northline Imports">
+          </div>
+          <div class="input-wrapper">
+            <label for="email">Geschäftliche E-Mail</label>
+            <input type="email" id="email" name="email" placeholder="sie@unternehmen.de">
+          </div>
+        </div>
+
+        <div class="form-section-divider">
+          <div class="form-section-title">Klassifizierung &amp; Zollnachweise</div>
+          <p class="form-helper">Diese Felder sind vorerst optional, machen OrcaTrade Intelligence aber deutlich präziser und reduzieren vorläufige Entscheidungen.</p>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="cnCode">CN / HS-Code (empfohlen)</label>
+            <input type="text" id="cnCode" name="cnCode" placeholder="z. B. 7208.37">
+          </div>
+          <div class="input-wrapper">
+            <label for="authorisedDeclarant">Status als zugelassener CBAM-Anmelder</label>
+            <select id="authorisedDeclarant" name="authorisedDeclarant">
+              <option value="">Unbekannt / nicht bestätigt</option>
+              <option value="true">Ja</option>
+              <option value="false">Nein</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="supplierEmissionsData">Emissionsdaten des Lieferanten verfügbar</label>
+            <select id="supplierEmissionsData" name="supplierEmissionsData">
+              <option value="">Unbekannt / nicht bestätigt</option>
+              <option value="true">Ja</option>
+              <option value="false">Nein</option>
+            </select>
           </div>
         </div>
 
@@ -104,7 +153,12 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-section-divider">
+          <div class="form-section-title">Unternehmens-Schwellenwerte</div>
+          <p class="form-helper">Diese Signale beeinflussen die CSDDD-Phasen und ob die Software den Unternehmensumfang sicher bewerten kann.</p>
+        </div>
+
+        <div class="form-group grid-2">
           <div class="input-wrapper">
             <label for="companySize">Unternehmensgröße</label>
             <select id="companySize" name="companySize" required>
@@ -112,6 +166,41 @@
               <option value="Under 250 employees">Unter 250 Mitarbeiter</option>
               <option value="250–1000 employees">250–1000 Mitarbeiter</option>
               <option value="Over 1000 employees">Über 1000 Mitarbeiter</option>
+            </select>
+          </div>
+          <div class="input-wrapper">
+            <label for="employeeCount">Genaue Mitarbeiterzahl (falls bekannt)</label>
+            <input type="text" id="employeeCount" name="employeeCount" placeholder="z. B. 1450">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="globalTurnover">Weltweiter Umsatz (falls bekannt)</label>
+            <input type="text" id="globalTurnover" name="globalTurnover" placeholder="z. B. 900 Mio. €">
+          </div>
+        </div>
+
+        <div class="form-section-divider">
+          <div class="form-section-title">EUDR-Nachweisbereitschaft</div>
+          <p class="form-helper">Nutzen Sie diese Felder nur, wenn Sie bereits wissen, ob der Importeur das Nachweispaket bereit hat.</p>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="geolocationAvailable">Geolokalisierungsnachweise auf Flächenebene verfügbar</label>
+            <select id="geolocationAvailable" name="geolocationAvailable">
+              <option value="">Unbekannt / nicht bestätigt</option>
+              <option value="true">Ja</option>
+              <option value="false">Nein</option>
+            </select>
+          </div>
+          <div class="input-wrapper">
+            <label for="dueDiligenceStatement">Sorgfaltspflichterklärung bereit</label>
+            <select id="dueDiligenceStatement" name="dueDiligenceStatement">
+              <option value="">Unbekannt / nicht bestätigt</option>
+              <option value="true">Ja</option>
+              <option value="false">Nein</option>
             </select>
           </div>
         </div>
@@ -126,17 +215,18 @@
 
         <button type="submit" class="btn btn-primary btn-large">Compliance prüfen &rarr;</button>
       </form>
-
+      
       <div class="trust-signals">
         <span>EUDR · CBAM · CSDDD geprüft</span>
-        <span class="dot-separator">•</span>
-        <span>Ergebnisse in unter 10 Sekunden</span>
-        <span class="dot-separator">•</span>
-        <span>Vom OrcaTrade-Beschaffungsteam genutzt</span>
+        <span class="dot-separator">·</span>
+        <span>Blockierte vs. nachweisgestützte Entscheidungen klar ausgewiesen</span>
+        <span class="dot-separator">·</span>
+        <span>Genutzt vom OrcaTrade-Beschaffungsteam</span>
       </div>
     </section>
   </main>
 
+  <script src="../../js/cache-preferences.js"></script>
   <script src="../../compliance/js/app.js"></script>
   <script src="../../js/transitions.js"></script>
 </body>

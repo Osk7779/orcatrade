@@ -2,10 +2,10 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8" />
-  <title>OrcaTrade Intelligence — CBAM-Compliance für EU-Importeure</title>
+  <title>OrcaTrade Intelligence — Drei Live-Säulen für Importabläufe</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="OrcaTrade Intelligence: CBAM-Compliance-Operationen für EU-Importeure. Lieferantennachweise, Fabrikbewertung, Sendungstransparenz, EUDR-Bereitschaft.">
-  <meta property="og:title" content="OrcaTrade Intelligence — CBAM-Compliance für EU-Importeure" />
+  <meta name="description" content="OrcaTrade Intelligence vereint Sendungsverfolgung, Fabrikbewertung und EU-Compliance-Prüfungen in einer operativen Schicht für Importteams.">
+  <meta property="og:title" content="OrcaTrade Intelligence — Drei Live-Säulen für Importabläufe" />
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
@@ -16,27 +16,51 @@
   <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/intelligence.html" />
 
   <style>
+    /* ── TOKENS ── */
     :root {
       --bg:        #050507;
       --bg-card:   #0d0f14;
       --accent:    #b8bec8;
+      --accent-dim: rgba(184,190,200,0.1);
       --text:      #ececec;
       --muted:     #888c95;
       --border:    rgba(255,255,255,0.07);
       --font-h:    'Cormorant Garant', Georgia, serif;
       --font-b:    'Geist', 'Helvetica Neue', Arial, sans-serif;
     }
+
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
-    body { font-family: var(--font-b); background: radial-gradient(circle at top left, #171922 0, var(--bg) 40%, #010102 100%); color: var(--text); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
-    body::before { content: ""; position: fixed; inset: 0; pointer-events: none; background: radial-gradient(circle at 10% 0%, rgba(140,149,173,0.09) 0, transparent 55%), radial-gradient(circle at 90% 100%, rgba(143,151,166,0.09) 0, transparent 55%); mix-blend-mode: soft-light; z-index: 0; }
+    body {
+      font-family: var(--font-b);
+      background: radial-gradient(circle at top left, #171922 0, var(--bg) 40%, #010102 100%);
+      color: var(--text);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: fixed; inset: 0; pointer-events: none;
+      background:
+        radial-gradient(circle at 10% 0%, rgba(140,149,173,0.09) 0, transparent 55%),
+        radial-gradient(circle at 90% 100%, rgba(143,151,166,0.09) 0, transparent 55%);
+      mix-blend-mode: soft-light; z-index: 0;
+    }
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
-    .urgency-bar { background: rgba(184,190,200,0.07); border-bottom: 1px solid rgba(184,190,200,0.12); padding: 0.5rem 1.5rem; text-align: center; font-size: 0.77rem; color: var(--muted); letter-spacing: 0.02em; position: relative; z-index: 60; }
-    .urgency-bar strong { color: var(--text); }
-    .urgency-bar a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; margin-left: 0.5rem; }
-    .nav { position: sticky; top: 0; z-index: 50; border-bottom: 1px solid var(--border); background: linear-gradient(to bottom, rgba(4,9,20,0.96), rgba(4,9,20,0.84), transparent); backdrop-filter: blur(16px); }
-    .nav-inner { max-width: 1160px; margin: 0 auto; padding: 1.1rem 1.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; }
+
+    /* ── NAV ── */
+    .nav {
+      position: sticky; top: 0; z-index: 50;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(to bottom, rgba(4,9,20,0.96), rgba(4,9,20,0.84), transparent);
+      backdrop-filter: blur(16px);
+    }
+    .nav-inner {
+      max-width: 1160px; margin: 0 auto;
+      padding: 1.1rem 1.5rem;
+      display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;
+    }
     .brand { font-family: var(--font-h); font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; }
     .brand span { color: var(--accent); }
     .nav-links { display: flex; align-items: center; gap: 2rem; font-size: 0.88rem; font-weight: 500; }
@@ -44,73 +68,300 @@
     .nav-links a:hover, .nav-links a.active { color: var(--text); }
     @media (max-width: 768px) { .nav-links { display: none; } }
     .lang-switcher { display: flex; gap: 0.4rem; align-items: center; }
-    .lang-btn { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; padding: 0.28rem 0.6rem; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.5); transition: all 0.18s; }
+    .lang-btn {
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em;
+      padding: 0.28rem 0.6rem; border: 1px solid rgba(255,255,255,0.15);
+      color: rgba(255,255,255,0.5); transition: all 0.18s;
+    }
     .lang-btn:hover { color: #fff; border-color: rgba(255,255,255,0.35); }
     .lang-btn.active { color: #0a0912; background: linear-gradient(135deg, var(--accent), #6f7783); border-color: transparent; }
-    .btn-primary { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.7rem 1.4rem; background: linear-gradient(135deg, var(--accent), #6f7783); color: #0a0912; font-family: var(--font-b); font-size: 0.85rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; border: none; cursor: pointer; box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 10px 28px rgba(0,0,0,0.6); transition: all 0.22s cubic-bezier(0.4,0,0.2,1); }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.7rem 1.4rem;
+      background: linear-gradient(135deg, var(--accent), #6f7783);
+      color: #0a0912; font-family: var(--font-b);
+      font-size: 0.85rem; font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      border: none; cursor: pointer;
+      box-shadow: 0 0 0 1px rgba(255,255,255,0.06), 0 10px 28px rgba(0,0,0,0.6);
+      transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+    }
     .btn-primary:hover { filter: brightness(1.07); transform: translateY(-2px) scale(1.01); }
-    .section { max-width: 1160px; margin: 0 auto; padding: 5rem 1.5rem; position: relative; z-index: 1; }
+
+    /* ── LAYOUT ── */
+    .section {
+      max-width: 1160px; margin: 0 auto;
+      padding: 5rem 1.5rem;
+      position: relative; z-index: 1;
+    }
     .divider { border: none; border-top: 1px solid var(--border); margin: 0; }
-    .kicker { font-family: var(--font-h); font-size: 0.7rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent); margin-bottom: 1rem; }
-    .title { font-family: var(--font-h); font-size: clamp(2.2rem, 4vw + 1rem, 3.8rem); font-weight: 700; line-height: 1.08; letter-spacing: -0.02em; margin-bottom: 1.2rem; }
+
+    /* ── TYPOGRAPHY SYSTEM ── */
+    .kicker {
+      font-family: var(--font-h);
+      font-size: 0.7rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.22em;
+      color: var(--accent); margin-bottom: 1rem;
+    }
+    .title {
+      font-family: var(--font-h);
+      font-size: clamp(2.2rem, 4vw + 1rem, 3.8rem);
+      font-weight: 700; line-height: 1.08;
+      letter-spacing: -0.02em; margin-bottom: 1.2rem;
+    }
     .title span { color: var(--accent); }
     .title--md { font-size: clamp(1.5rem, 2.8vw, 2.4rem); }
     .subtitle { font-size: 1rem; color: var(--muted); line-height: 1.72; max-width: 52ch; margin-bottom: 2rem; }
-    .badge { display: inline-flex; align-items: center; gap: 0.45rem; font-family: var(--font-h); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; padding: 0.3rem 0.85rem; margin-bottom: 1.4rem; border: 1px solid rgba(184,190,200,0.3); background: rgba(184,190,200,0.08); color: var(--accent); }
-    .badge::before { content: ""; width: 6px; height: 6px; background: var(--accent); animation: pulse 2s ease-in-out infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.7); } }
+
+    /* ── HERO ── */
     .hero { padding-top: 5.5rem; padding-bottom: 4rem; }
-    .back { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--muted); margin-bottom: 2rem; transition: color 0.18s; }
+    .back {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.76rem; text-transform: uppercase; letter-spacing: 0.16em;
+      color: var(--muted); margin-bottom: 2rem; transition: color 0.18s;
+    }
     .back:hover { color: var(--text); }
     .hero-actions { display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; }
-    .btn-ghost { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.7rem 1.4rem; background: transparent; color: var(--muted); font-family: var(--font-b); font-size: 0.85rem; font-weight: 500; text-transform: uppercase; letter-spacing: 0.1em; border: 1px solid rgba(255,255,255,0.16); cursor: pointer; transition: all 0.2s ease; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.7rem 1.4rem;
+      background: transparent; color: var(--muted);
+      font-family: var(--font-b); font-size: 0.85rem; font-weight: 500;
+      text-transform: uppercase; letter-spacing: 0.1em;
+      border: 1px solid rgba(255,255,255,0.16); cursor: pointer;
+      transition: all 0.2s ease;
+    }
     .btn-ghost:hover { background: rgba(8,20,51,0.96); border-color: rgba(255,255,255,0.3); color: var(--text); transform: translateY(-2px); }
-    .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; margin-top: 2.5rem; border: 1px solid var(--border); background: var(--border); }
-    .stat-card { background: var(--bg-card); padding: 1.6rem 1.4rem; }
-    .stat-label { font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 0.9rem; opacity: 0.7; }
-    .stat-number { font-family: var(--font-h); font-size: 2rem; line-height: 1; margin-bottom: 0.6rem; }
-    .stat-copy { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
-    @media (max-width: 640px) { .stat-grid { grid-template-columns: repeat(2, 1fr); } }
-    .offer-strip { margin-top: 2rem; padding: 1.2rem 1.6rem; border: 1px solid rgba(184,190,200,0.16); background: rgba(184,190,200,0.05); display: grid; grid-template-columns: 1.2fr 1fr; gap: 1rem 2.5rem; align-items: center; }
-    .offer-strip p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; }
-    .offer-strip strong { color: var(--text); font-weight: 600; }
-    @media (max-width: 640px) { .offer-strip { grid-template-columns: 1fr; } }
-    .feature-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1px; margin-top: 2.5rem; border: 1px solid var(--border); background: var(--border); }
+
+    /* ── FEATURE CARDS (What's inside) ── */
+    .feature-grid {
+      display: grid; grid-template-columns: repeat(2, 1fr);
+      gap: 1px; margin-top: 2.5rem;
+      border: 1px solid var(--border);
+      background: var(--border);
+    }
     .feature-card { background: var(--bg-card); padding: 2rem 2.2rem; }
-    .feature-num { font-size: 0.65rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent); margin-bottom: 1.2rem; opacity: 0.6; }
-    .feature-title { font-family: var(--font-h); font-size: 1.2rem; font-weight: 600; margin-bottom: 0.65rem; line-height: 1.2; letter-spacing: -0.01em; }
+    .feature-num {
+      font-size: 0.65rem; font-weight: 600; letter-spacing: 0.2em;
+      text-transform: uppercase; color: var(--accent);
+      margin-bottom: 1.2rem; opacity: 0.6;
+    }
+    .feature-title {
+      font-family: var(--font-h); font-size: 1.2rem; font-weight: 600;
+      margin-bottom: 0.65rem; line-height: 1.2; letter-spacing: -0.01em;
+    }
     .feature-desc { font-size: 0.86rem; color: var(--muted); line-height: 1.68; }
     @media (max-width: 600px) { .feature-grid { grid-template-columns: 1fr; } }
-    .tools-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2.5rem; }
-    .tool-card { background: linear-gradient(145deg, #111d3a, #060b17); border: 1px solid var(--border); padding: 2.2rem 1.8rem; transition: transform 0.22s ease, box-shadow 0.22s ease; }
+
+    /* ── TOOL CARDS (three pillars) ── */
+    .tools-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem; margin-top: 2.5rem;
+    }
+    .tool-card {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--border);
+      padding: 2.2rem 1.8rem;
+      transition: transform 0.22s ease, box-shadow 0.22s ease;
+    }
     .tool-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
     .tool-card--accent { background: linear-gradient(145deg, #152040, #080f1e); border-color: rgba(184,190,200,0.2); }
-    .tool-num { font-family: var(--font-h); font-size: 0.62rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent); opacity: 0.7; margin-bottom: 1rem; }
-    .tool-title { font-family: var(--font-h); font-size: 1.1rem; font-weight: 600; line-height: 1.3; margin-bottom: 0.75rem; letter-spacing: -0.01em; }
+    .tool-num {
+      font-family: var(--font-h); font-size: 0.62rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.22em;
+      color: var(--accent); opacity: 0.7; margin-bottom: 1rem;
+    }
+    .tool-title {
+      font-family: var(--font-h); font-size: 1.1rem; font-weight: 600;
+      line-height: 1.3; margin-bottom: 0.75rem; letter-spacing: -0.01em;
+    }
     .tool-desc { font-size: 0.87rem; color: var(--muted); line-height: 1.65; }
     .tool-cta { margin-top: 1.3rem; font-size: 0.82rem; color: var(--accent); font-weight: 500; }
     @media (max-width: 800px) { .tools-grid { grid-template-columns: 1fr; } }
-    .tiers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.2rem; margin-top: 2rem; }
-    .tier-card { background: linear-gradient(145deg, #111d3a, #060b17); border: 1px solid var(--border); padding: 2.4rem 2rem; text-align: center; position: relative; overflow: hidden; }
-    .tier-card::before { content: ""; position: absolute; inset: 0; background: radial-gradient(ellipse at center top, rgba(184,190,200,0.06) 0, transparent 65%); pointer-events: none; }
-    .tier-label { font-family: var(--font-h); font-size: 0.68rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--accent); margin-bottom: 0.9rem; display: flex; justify-content: center; }
-    .tier-title { font-family: var(--font-h); font-size: clamp(1.3rem, 2.5vw, 1.8rem); font-weight: 700; line-height: 1.15; margin-bottom: 1rem; }
+
+    /* ── TIER CARDS (offer stack) ── */
+    .tiers-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.2rem; margin-top: 2rem;
+    }
+    .tier-card {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--border);
+      padding: 2.4rem 2rem; text-align: center;
+      position: relative; overflow: hidden;
+    }
+    .tier-card::before {
+      content: ""; position: absolute; inset: 0;
+      background: radial-gradient(ellipse at center top, rgba(184,190,200,0.06) 0, transparent 65%);
+      pointer-events: none;
+    }
+    .tier-label {
+      font-family: var(--font-h); font-size: 0.68rem; font-weight: 700;
+      text-transform: uppercase; letter-spacing: 0.18em;
+      color: var(--accent); margin-bottom: 0.9rem;
+      display: flex; justify-content: center; align-items: center; gap: 0.45rem;
+    }
+    .tier-title {
+      font-family: var(--font-h); font-size: clamp(1.3rem, 2.5vw, 1.8rem);
+      font-weight: 700; line-height: 1.15; margin-bottom: 1rem;
+    }
     .tier-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.6rem; }
-    .tier-price { display: inline-block; font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); border: 1px solid rgba(184,190,200,0.25); padding: 0.2rem 0.7rem; margin-top: 1rem; }
     .tier-trust { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); opacity: 0.8; }
     @media (max-width: 860px) { .tiers-grid { grid-template-columns: 1fr; } }
-    .waitlist-box { background: linear-gradient(145deg, #111d3a, #060b17); border: 1px solid var(--border); padding: 2.4rem 2rem; }
+
+    /* ── QUICK CHECK ── */
+    .qc-shell {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1px; margin-top: 2.5rem;
+      border: 1px solid var(--border); background: var(--border);
+    }
+    .qc-form-side { background: var(--bg-card); padding: 2rem 2.2rem; }
+    .qc-result-side {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      padding: 2rem 2.2rem;
+      display: flex; flex-direction: column; justify-content: center;
+    }
+    .qc-form { display: flex; flex-direction: column; gap: 0.9rem; }
+    .qc-label {
+      font-size: 0.72rem; text-transform: uppercase;
+      letter-spacing: 0.13em; color: var(--muted);
+      margin-bottom: 0.3rem; display: block;
+    }
+    .qc-input, .qc-select {
+      width: 100%; background: rgba(5,5,7,0.82); border: 1px solid var(--border);
+      color: var(--text); padding: 0.72rem 0.9rem;
+      font-size: 0.9rem; font-family: var(--font-b); outline: none;
+    }
+    .qc-input:focus, .qc-select:focus { border-color: rgba(184,190,200,0.45); }
+    .qc-select option { background: #0d0f14; }
+    .qc-result-empty { color: var(--muted); font-size: 0.88rem; line-height: 1.6; opacity: 0.7; }
+    .qc-verdict { display: none; }
+    .qc-verdict.visible { display: block; }
+    .qc-status {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      font-size: 0.7rem; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase; padding: 0.28rem 0.7rem;
+      border: 1px solid; margin-bottom: 1rem;
+    }
+    .qc-status--at_risk { color: #e0a854; border-color: rgba(224,168,84,0.35); background: rgba(224,168,84,0.07); }
+    .qc-status--non_compliant { color: #e05454; border-color: rgba(224,84,84,0.35); background: rgba(224,84,84,0.07); }
+    .qc-status--compliant { color: #54c084; border-color: rgba(84,192,132,0.35); background: rgba(84,192,132,0.07); }
+    .qc-status--not_applicable { color: var(--muted); border-color: var(--border); }
+    .qc-text { font-size: 0.9rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.2rem; }
+    .qc-cta { font-size: 0.82rem; color: var(--accent); font-weight: 500; }
+    .qc-loading { display: none; color: var(--muted); font-size: 0.88rem; opacity: 0.7; }
+    .qc-loading.visible { display: block; }
+    @media (max-width: 640px) { .qc-shell { grid-template-columns: 1fr; } }
+
+    /* ── ROI ESTIMATOR ── */
+    .roi-shell {
+      display: grid; grid-template-columns: 0.95fr 1.05fr;
+      gap: 1px; margin-top: 2rem;
+      border: 1px solid var(--border); background: var(--border);
+    }
+    .roi-form-side {
+      background: var(--bg-card);
+      padding: 2rem 2.2rem;
+    }
+    .roi-result-side {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      padding: 2rem 2.2rem;
+    }
+    .roi-form-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.95rem; margin-top: 1.1rem;
+    }
+    .roi-label {
+      display: block; font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.13em;
+      color: var(--muted); margin-bottom: 0.35rem;
+    }
+    .roi-input {
+      width: 100%; background: rgba(5,5,7,0.82);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 0.75rem 0.9rem; font-size: 0.92rem;
+      font-family: var(--font-b); outline: none;
+    }
+    .roi-input:focus {
+      border-color: rgba(184,190,200,0.45);
+      box-shadow: 0 0 0 3px rgba(184,190,200,0.07);
+    }
+    .roi-note {
+      font-size: 0.83rem; color: var(--muted);
+      line-height: 1.6; margin-top: 1rem;
+    }
+    .roi-metric-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin-top: 1.2rem;
+    }
+    .roi-metric {
+      background: rgba(5,5,7,0.46);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 1rem;
+    }
+    .roi-metric-label {
+      font-size: 0.65rem; text-transform: uppercase;
+      letter-spacing: 0.15em; color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .roi-metric-value {
+      font-family: var(--font-h);
+      font-size: 1.8rem; line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+    .roi-metric-copy {
+      font-size: 0.81rem; color: var(--muted);
+      line-height: 1.55;
+    }
+    .roi-recommendation {
+      margin-top: 1.2rem; padding: 1rem 1.1rem;
+      border: 1px solid rgba(184,190,200,0.16);
+      background: rgba(184,190,200,0.05);
+    }
+    .roi-recommendation strong {
+      display: block; color: var(--text);
+      margin-bottom: 0.35rem; font-weight: 600;
+    }
+    .roi-recommendation p {
+      font-size: 0.84rem; color: var(--muted);
+      line-height: 1.65;
+    }
+    @media (max-width: 860px) {
+      .roi-shell, .roi-form-grid, .roi-metric-grid { grid-template-columns: 1fr; }
+    }
+
+    /* ── LEAD FORM ── */
+    .waitlist-box {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      border: 1px solid var(--border); padding: 2.4rem 2rem;
+    }
     .lead-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 1.4rem; align-items: start; }
     .wl-form { display: flex; flex-direction: column; gap: 0.9rem; }
-    .wl-label { font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.13em; color: var(--muted); margin-bottom: 0.25rem; display: block; }
-    .wl-input { width: 100%; background: rgba(5,5,7,0.8); border: 1px solid var(--border); color: var(--text); padding: 0.7rem 0.9rem; font-size: 0.9rem; font-family: var(--font-b); outline: none; transition: border-color 0.18s; }
+    .wl-label {
+      font-size: 0.74rem; text-transform: uppercase;
+      letter-spacing: 0.13em; color: var(--muted);
+      margin-bottom: 0.25rem; display: block;
+    }
+    .wl-input {
+      width: 100%; background: rgba(5,5,7,0.8);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 0.7rem 0.9rem; font-size: 0.9rem;
+      font-family: var(--font-b); outline: none; transition: border-color 0.18s;
+    }
     .wl-input:focus { border-color: rgba(184,190,200,0.5); box-shadow: 0 0 0 3px rgba(184,190,200,0.07); }
     .fit-panel { background: rgba(5,5,7,0.42); border: 1px solid var(--border); padding: 1.4rem 1.3rem; }
     .fit-list { display: flex; flex-direction: column; gap: 0.7rem; margin-top: 1rem; color: var(--muted); font-size: 0.86rem; line-height: 1.6; }
     .fit-item { padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.07); }
     @media (max-width: 860px) { .lead-grid { grid-template-columns: 1fr; } }
+
+    /* ── FOOTER ── */
     .footer { border-top: 1px solid var(--border); padding: 1.8rem 1.5rem; }
-    .footer-inner { max-width: 1160px; margin: 0 auto; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 1rem; font-size: 0.78rem; color: var(--muted); }
+    .footer-inner {
+      max-width: 1160px; margin: 0 auto;
+      display: flex; flex-wrap: wrap;
+      justify-content: space-between; gap: 1rem;
+      font-size: 0.78rem; color: var(--muted);
+    }
     .footer-inner a { color: var(--muted); transition: color 0.18s; }
     .footer-inner a:hover { color: var(--text); }
     .footer-socials { display: flex; gap: 1rem; align-items: center; }
@@ -122,130 +373,67 @@
 
 <body>
 
-  <div class="urgency-bar">
-    <strong>CBAM ist aktiv.</strong> Meldepflichten gelten jetzt — Strafen greifen ab der ersten nicht konformen Erklärung.
-    <a href="#cbam-call">Exponierung prüfen →</a>
-  </div>
-
   <nav class="nav">
     <div class="nav-inner">
       <div class="brand">ORCATRADE.<span>OS</span></div>
       <div class="nav-links">
-        <a href="../index.html">Gruppe</a>
-        <a href="../sourcing.html">Sourcing</a>
+        <a href="index.html">Gruppe</a>
+        <a href="sourcing.html">Beschaffung</a>
         <a href="intelligence.html" class="active">Intelligence</a>
         <a href="../search/">Suche</a>
       </div>
       <div class="lang-switcher">
-        <a href="../intelligence.html" class="lang-btn">EN</a>
-        <a href="../pl/intelligence.html" class="lang-btn">PL</a>
-        <a href="intelligence.html" class="lang-btn active">DE</a>
+        <a href="intelligence.html" class="lang-btn active">EN</a>
+        <a href="pl/intelligence.html" class="lang-btn">PL</a>
+        <a href="de/intelligence.html" class="lang-btn">DE</a>
       </div>
-      <a href="#cbam-call" class="btn-primary">Gespräch buchen →</a>
+      <a href="#quick-check" class="btn-primary">Sofortprüfung starten →</a>
     </div>
   </nav>
 
+  <!-- ── HERO ─────────────────────────────────────────── -->
   <section class="section hero" id="top">
-    <a href="../index.html" class="back">← OrcaTrade Group</a>
-    <div class="kicker">Geschäftsbereich · Jetzt live</div>
-    <div class="badge">Jetzt live</div>
-    <h1 class="title">Ihr CBAM-Workflow<br><span>ist bereits überfällig.</span></h1>
-    <p class="subtitle">Das CBAM-Endregime ist aktiv. Wenn Sie Eisen, Stahl, Aluminium, Düngemittel oder Zement über 50 Tonnen pro Jahr importieren, befinden Sie sich bereits im Compliance-Perimeter — unabhängig davon, ob Sie einen Anmelder, Lieferantennachweise oder einen Plan haben. OrcaTrade Intelligence gibt Ihnen die operative Schicht, um das schnell zu beheben.</p>
+    <a href="index.html" class="back">← OrcaTrade Group</a>
+    <div class="kicker">OrcaTrade Intelligence · Drei Live-Säulen</div>
+    <h1 class="title">Sendungen verfolgen.<br>Fabriken bewerten.<br><span>Compliance prüfen.</span></h1>
+    <p class="subtitle">
+      Ein Ort für Sendungen, Fabrikrisiken und EU-Compliance. Sehen Sie, was sich bewegt, was riskant ist,
+      was gilt und was Ihr Team als Nächstes tun muss.
+    </p>
     <div class="hero-actions">
-      <a href="#cbam-call" class="btn-primary">CBAM-Bereitschaftsgespräch buchen →</a>
-      <a href="../compliance/" class="btn-ghost">Compliance-Prüfung starten</a>
+      <a href="#pillars" class="btn-primary">Die drei Säulen ansehen →</a>
+      <a href="#quick-check" class="btn-ghost">Sofortige Compliance-Prüfung →</a>
     </div>
   </section>
 
   <hr class="divider">
 
-  <section class="section" id="market-window">
-    <div class="kicker">Warum das jetzt wichtig ist</div>
-    <h2 class="title title--md" style="margin-bottom:0.7rem;">Die Verordnung ist aktiv. Die Uhr lief ohne Sie an.</h2>
-    <p class="subtitle" style="max-width:60ch;">CBAM ist kein zukünftiges Risiko — es ist eine aktive Rechtspflicht. Die meisten EU-Importeure sind im Rückstand bei Lieferantennachweisen, Anmelderkonfiguration und Zertifikatsplanung. Wer jetzt handelt, vermeidet das Straffenster vollständig.</p>
-
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-label">CBAM-Endregime</div>
-        <div class="stat-number">Aktiv</div>
-        <div class="stat-copy">Meldepflichten sind aktiv. Nicht konforme Erklärungen ziehen Strafen ab dem ersten Tag nach sich.</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Im Geltungsbereich bei Import von</div>
-        <div class="stat-number">&gt; 50 t/J.</div>
-        <div class="stat-copy">Über 50 Tonnen jährlich benötigen Sie einen Anmelder, Emissionsnachweise und konforme Workflows.</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">EUDR-Frist · große Betreiber</div>
-        <div class="stat-number">30. Dez. 2026</div>
-        <div class="stat-copy">Importeure von Holz, Kakao, Kaffee, Palmöl, Soja, Rindfleisch, Kautschuk — Ihre Frist ist gesetzt. Vorbereitung dauert Monate.</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Ohne Workflow</div>
-        <div class="stat-number">Bußgelder + Verzögerungen</div>
-        <div class="stat-copy">Fehlende Nachweise, verspätete Erklärungen und kein Eskalationsprozess bedeuten Zollverzögerungen, Bußgelder und Auftragssperren.</div>
-      </div>
-    </div>
-
-    <div class="offer-strip">
-      <p><strong>Das ist für Sie, wenn</strong> Sie Eisen, Stahl, Aluminium, Düngemittel oder Zement in die EU importieren — und Ihr aktueller Prozess aus Tabellen, E-Mail-Jagd und Raten besteht.</p>
-      <p><strong>Was Sie erhalten —</strong> einen CBAM-Bereitschaftssprint, laufende verwaltete Compliance-Operationen und eine Intelligence-Schicht für Lieferanten, Fabriken und Sendungen. Ab <strong>€ 2.400</strong>.</p>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <section class="section" id="command-center">
-    <div class="kicker">Was drin ist</div>
-    <h2 class="title title--md" style="margin-bottom:0;">Vier Ansichten. Ein operativer Schreibtisch.</h2>
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-num">01</div>
-        <div class="feature-title">Schwellenwert-Überwachung</div>
-        <div class="feature-desc">50-Tonnen-Exponierung nach Lieferant, Kategorie und Importeur verfolgt — mit wöchentlichen Alerts, bevor Ihr Zollagent es meldet.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-num">02</div>
-        <div class="feature-title">Nachweisqueue der Lieferanten</div>
-        <div class="feature-desc">Jedes fehlende Dokument in einer verwalteten Queue, sortiert nach Sendungswert und Dringlichkeit. Kein E-Mail-Hinterherjagen mehr.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-num">03</div>
-        <div class="feature-title">Zertifikatskostenplanung</div>
-        <div class="feature-desc">Kennen Sie Ihre CBAM-Kosten vor der nächsten Erklärung. Lieferantenvergleich integriert, damit Sie genau wissen, wo Sie auf bessere Emissionsdaten drängen müssen.</div>
-      </div>
-      <div class="feature-card">
-        <div class="feature-num">04</div>
-        <div class="feature-title">Sendungsausnahme-Kontrolle</div>
-        <div class="feature-desc">Live-Auftragsbuch mit Ihrem Compliance-Workflow verbunden. Fehlende Nachweise werden als markierte Ausnahme — nicht als vergrabener E-Mail-Thread.</div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
+  <!-- ── THREE LIVE TOOLS ─────────────────────────────── -->
   <section class="section" id="pillars">
     <div class="kicker">Live-Tools — jetzt offen</div>
-    <h2 class="title title--md" style="margin-bottom:0.5rem;">Drei Dashboards live. Nutzen Sie sie heute.</h2>
-    <p style="font-size:0.92rem; color:var(--muted); line-height:1.65; max-width:52ch; margin-bottom:0;">Jedes Tool unten ist operativ. Keine Warteliste, keine Demo — öffnen Sie das Dashboard und führen Sie Ihre erste Prüfung in unter einer Minute durch.</p>
+    <h2 class="title title--md" style="margin-bottom:0.5rem;">Drei Live-Säulen. Jede löst eine Aufgabe klar.</h2>
+    <p style="font-size:0.92rem; color:var(--muted); line-height:1.65; max-width:58ch; margin-bottom:0;">
+      Nutzen Sie OrcaTrade Intelligence, wenn Sie verstehen müssen, was bei eingehenden Bestellungen,
+      Lieferanten und EU-Handelspflichten passiert, ohne zwischen getrennten Tools zu springen.
+    </p>
 
     <div class="tools-grid">
       <a href="../supply-chain/" class="tool-card" style="display:block;">
         <div class="tool-num">Säule 01 · Jetzt live</div>
-        <h3 class="tool-title">Lieferkettenklarheit</h3>
-        <p class="tool-desc">Echtzeit-Transparenz in Ihrem gesamten Lieferantennetzwerk. Verzögerungen früh erkennen, Lieferversprechen verteidigen und Compliance mit eingehenden Bestellungen verknüpfen.</p>
+        <h3 class="tool-title">Ihre Sendungen verfolgen</h3>
+        <p class="tool-desc">Sehen Sie eingehende Bestellungen, Routenbelastung, Verzögerungsrisiken und Lieferantenbewegungen live, damit Operations und Compliance auf derselben Sendungsrealität arbeiten.</p>
         <div class="tool-cta">Dashboard öffnen →</div>
       </a>
-      <a href="../factory-risk/" class="tool-card tool-card--accent" style="display:block;">
+      <a href="factory-risk/" class="tool-card tool-card--accent" style="display:block;">
         <div class="tool-num">Säule 02 · Jetzt live</div>
-        <h3 class="tool-title">Fabrikrisikobewertung</h3>
-        <p class="tool-desc">Kontinuierliche Überwachung von Lieferantenrisikosignalen, damit Compliance- und Sourcing-Teams wissen, welche Fabriken tiefere Prüfung benötigen.</p>
+        <h3 class="tool-title">Jede Fabrik finden &amp; bewerten</h3>
+        <p class="tool-desc">Prüfen Sie Fabrikrisiken, Compliance-Status, Aktualität von Audits und Kapazitätssignale, damit Beschaffungsteams wissen, wo tiefere Prüfung nötig ist.</p>
         <div class="tool-cta">Dashboard öffnen →</div>
       </a>
-      <a href="../compliance/" class="tool-card" style="display:block;">
+      <a href="compliance/" class="tool-card" style="display:block;">
         <div class="tool-num">Säule 03 · Jetzt live</div>
-        <h3 class="tool-title">EU-Regulierungs-Compliance</h3>
-        <p class="tool-desc">CBAM-Bereitschafts-Workflows jetzt, EUDR-Bestellprüfungen und umfassendere Sorgfaltspflicht mit der Zeit. Gebaut für operatives Handeln, nicht für generischen Chat.</p>
+        <h3 class="tool-title">Bestell-Compliance prüfen</h3>
+        <p class="tool-desc">Führen Sie CBAM-, EUDR- und Sorgfaltspflichtprüfungen für echte Importbestellungen aus und sehen Sie, was gilt, was fehlt und was Ihr Team als Nächstes tun muss.</p>
         <div class="tool-cta">Dashboard öffnen →</div>
       </a>
     </div>
@@ -253,50 +441,219 @@
 
   <hr class="divider">
 
+  <!-- ── HOW IT WORKS ─────────────────────────────────── -->
+  <section class="section" id="command-center">
+    <div class="kicker">So funktioniert es</div>
+    <h2 class="title title--md" style="margin-bottom:0.5rem;">Ein Workflow, nicht drei getrennte Tools.</h2>
+    <p class="subtitle" style="max-width:58ch; margin-bottom:2.2rem;">
+      Der Ablauf ist einfach: Bringen Sie die Bestellung, den Lieferanten oder die Sendung ein, die Ihnen Sorge macht,
+      lassen Sie OrcaTrade entscheiden, was zählt, und handeln Sie dann nach fehlenden Fakten, Risiken und nächsten Schritten.
+    </p>
+
+    <div class="feature-grid">
+      <div class="feature-card">
+        <div class="feature-num">01</div>
+        <div class="feature-title">Den echten Kontext einbringen</div>
+        <div class="feature-desc">Starten Sie mit einer Sendung, einem Lieferanten oder einer Importbestellung. Die Plattform funktioniert am besten, wenn Operations, Beschaffung und Compliance auf denselben realen Ablauf schauen.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">02</div>
+        <div class="feature-title">Sehen, was gilt</div>
+        <div class="feature-desc">OrcaTrade zeigt, welche Regeln gelten, welche Fabriken riskant wirken, welche Sendungen Aufmerksamkeit brauchen und welche Fakten vor einer sicheren Entscheidung noch fehlen.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">03</div>
+        <div class="feature-title">Den Workflow voranbringen</div>
+        <div class="feature-desc">Jedes Ergebnis weist auf die nächste Aktion hin: Nachweise sammeln, einen Lieferanten eskalieren, eine Fabrik prüfen oder den vollständigen Compliance-Flow mit Artikelbezug ausführen.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-num">04</div>
+        <div class="feature-title">Aus einer Ausnahme-Queue arbeiten</div>
+        <div class="feature-desc">Statt Postfächern und verstreuten Notizen landen die wichtigen Themen an einem Ort mit der richtigen Dringlichkeit, Zuständigkeit und operativem Kontext.</div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── TRY IT LIVE ──────────────────────────────────── -->
+  <section class="section" id="quick-check">
+    <div class="kicker">Jetzt ausprobieren</div>
+    <h2 class="title title--md" style="margin-bottom:0.5rem;">Sofortige Compliance-Prüfung.</h2>
+    <p class="subtitle" style="margin-bottom:0;">
+      Geben Sie Produkt und Ursprung ein. Wir sagen Ihnen in Sekunden, welche Vorschriften gelten und wie Ihre Exponierung aussieht.
+    </p>
+
+    <div class="qc-shell">
+      <div class="qc-form-side">
+        <form class="qc-form" id="quick-check-form">
+          <div>
+            <label class="qc-label" for="qc-category">Produktkategorie</label>
+            <select class="qc-select" id="qc-category" required>
+              <option value="">Kategorie auswählen…</option>
+              <option value="Steel &amp; Iron">Stahl &amp; Eisen</option>
+              <option value="Aluminium">Aluminium</option>
+              <option value="Cement">Zement</option>
+              <option value="Fertilisers">Düngemittel</option>
+              <option value="Hydrogen &amp; Electricity">Wasserstoff &amp; Strom</option>
+              <option value="Timber &amp; Wood products">Holz- &amp; Holzprodukte</option>
+              <option value="Cocoa &amp; Chocolate">Kakao &amp; Schokolade</option>
+              <option value="Coffee">Coffee</option>
+              <option value="Palm oil">Palmöl</option>
+              <option value="Soya">Soja</option>
+              <option value="Beef &amp; Leather">Rindfleisch &amp; Leder</option>
+              <option value="Rubber">Kautschuk</option>
+              <option value="Textiles &amp; Garments">Textilien &amp; Bekleidung</option>
+              <option value="Electronics">Elektronik</option>
+              <option value="Other">Andere / nicht gelistet</option>
+            </select>
+          </div>
+          <div>
+            <label class="qc-label" for="qc-origin">Ursprungsland</label>
+            <input class="qc-input" id="qc-origin" type="text" placeholder="z. B. China, Indien, Brasilien" required>
+          </div>
+          <div>
+            <label class="qc-label" for="qc-value">Jährlicher Importwert (EUR, ca.)</label>
+            <input class="qc-input" id="qc-value" type="text" placeholder="z. B. 2.000.000">
+          </div>
+          <button type="submit" class="btn-primary" style="justify-content:center; margin-top:0.4rem;">
+            Exponierung prüfen →
+          </button>
+        </form>
+      </div>
+      <div class="qc-result-side">
+        <div class="qc-loading" id="qc-loading">Ihr Importprofil wird analysiert…</div>
+        <div class="qc-result-empty" id="qc-empty">Hier erscheint Ihr Compliance-Urteil. Dauert etwa 3 Sekunden.</div>
+        <div class="qc-verdict" id="qc-verdict">
+          <div class="qc-status" id="qc-status-badge"></div>
+          <div class="qc-text" id="qc-text"></div>
+          <a href="compliance/" class="qc-cta" id="qc-cta-link">Vollständigen Compliance-Bericht starten →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── ENTRY POINTS ────────────────────────────────── -->
   <section class="section" id="offer-stack">
-    <div class="kicker">Wie Sie mit uns arbeiten</div>
-    <h2 class="title title--md" style="margin-bottom:0.7rem;">Beginnen Sie dort, wo der Druck liegt. Erweitern Sie von dort.</h2>
-    <p class="subtitle" style="max-width:56ch;">Jedes Engagement beginnt mit einem Sprint mit festem Umfang, damit Sie schnell Mehrwert sehen. Die meisten Kunden wechseln innerhalb von 60 Tagen zu einem wiederkehrenden Modell.</p>
+    <div class="kicker">Einstiegspunkt wählen</div>
+    <h2 class="title title--md" style="margin-bottom:0.7rem;">Dort starten, wo der Druck am höchsten ist.</h2>
+    <p class="subtitle" style="max-width:56ch;">
+      Wenn Compliance dringend ist, beginnen Sie dort. Wenn Lieferantenauswahl oder eingehendes Lieferrisiko
+      das eigentliche Problem sind, springen Sie direkt in Fabrikbewertung oder Sendungsverfolgung. Derselbe Workspace
+      verbindet alles, sobald der Workflow wächst.
+    </p>
 
     <div class="tiers-grid">
       <div class="tier-card">
-        <div class="tier-label">Hier starten · 30 Tage</div>
-        <div class="tier-title">CBAM-Bereitschaftssprint</div>
-        <div class="tier-desc">Wir kartieren Ihre Schwellenwert-Exponierung, Lieferanten, definieren den Nachweis-Workflow und übergeben Ihnen einen klaren Aktionsplan. In 30 Tagen fertig.</div>
-        <a href="#cbam-call" class="btn-primary" style="width:100%; justify-content:center;">Erkundungsgespräch buchen →</a>
-        <div class="tier-price">Ab € 2.400</div>
-        <div class="tier-trust">Umfangskarte · Nachweisplan · Aktionsliste</div>
+        <div class="tier-label">Compliance zuerst</div>
+        <div class="tier-title">Compliance-Workflow</div>
+        <div class="tier-desc">Prüfen Sie CBAM-, EUDR- und Sorgfaltspflichtumfang, identifizieren Sie fehlende Nachweise und wechseln Sie von Unsicherheit zu einer strukturierten nächsten Aktion.</div>
+        <a href="compliance/" class="btn-primary" style="width:100%; justify-content:center;">Compliance öffnen →</a>
+        <div class="tier-trust">Umfang · Nachweise · Nächste Aktion</div>
       </div>
       <div class="tier-card">
-        <div class="tier-label">Monatlich · Laufend</div>
-        <div class="tier-title">Verwaltete Compliance-Ops</div>
-        <div class="tier-desc">Wir führen Ihren CBAM-Workflow laufend — Zertifikatskostentransparenz, Lieferantenverfolgung, Sendungsausnahmen und Erklärungsbereitschaft.</div>
-        <a href="../compliance/" class="btn-primary" style="width:100%; justify-content:center;">Prüfung jetzt starten →</a>
-        <div class="tier-price">Ab € 1.200/Mo.</div>
-        <div class="tier-trust">CBAM jetzt · EUDR wenn relevant</div>
+        <div class="tier-label">Lieferanten zuerst</div>
+        <div class="tier-title">Factory Intelligence</div>
+        <div class="tier-desc">Bewerten Sie Fabriken und Lieferanten, wenn Audit-Aktualität, Risikoprofil oder Beschaffungssicherheit das erste Thema sind, das Aufmerksamkeit braucht.</div>
+        <a href="factory-risk/" class="btn-primary" style="width:100%; justify-content:center;">Fabrikbewertung öffnen →</a>
+        <div class="tier-trust">Risiko · Audit-Aktualität · Kapazität</div>
       </div>
       <div class="tier-card">
-        <div class="tier-label">Erweiterung · Wenn bereit</div>
-        <div class="tier-title">Fabrik- &amp; Sendungs-Intelligence</div>
-        <div class="tier-desc">Sobald Ihr Compliance-Workflow läuft, erweitern Sie um Lieferantenrisikoscoring, Audit-Priorisierung und Live-Sendungstransparenz.</div>
-        <a href="../factory-risk/" class="btn-primary" style="width:100%; justify-content:center;">Fabrik jetzt bewerten →</a>
-        <div class="tier-price">Im verwalteten Tier enthalten</div>
-        <div class="tier-trust">Risiko · Kapazität · Lieferung</div>
+        <div class="tier-label">Operations zuerst</div>
+        <div class="tier-title">Shipment Intelligence</div>
+        <div class="tier-desc">Verfolgen Sie eingehende Bewegungen, Routenbelastung und Verzögerungsrisiken, wenn das unmittelbare Problem Lieferrisiko oder operative Störung ist.</div>
+        <a href="../supply-chain/" class="btn-primary" style="width:100%; justify-content:center;">Sendungsverfolgung öffnen →</a>
+        <div class="tier-trust">Eingehender Fluss · Verzögerungen · Ausnahmen</div>
       </div>
     </div>
   </section>
 
   <hr class="divider">
 
-  <section class="section" id="cbam-call">
+  <!-- ── ROI ESTIMATOR ───────────────────────────────── -->
+  <section class="section" id="roi-model">
+    <div class="kicker">Arbeitslast modellieren</div>
+    <h2 class="title title--md" style="margin-bottom:0.7rem;">Schätzen Sie, wie schwer die Compliance-Last wirklich ist.</h2>
+    <p class="subtitle" style="max-width:58ch;">
+      Dies ist ein Richtungsmodell, kein Rechtsurteil. Nutzen Sie es, um den administrativen Aufwand hinter
+      Ihrem Importfluss abzuschätzen und zu entscheiden, ob Sie einen einfachen Workflow oder eine vollständigere operative Schicht brauchen.
+    </p>
+
+    <div class="roi-shell">
+      <div class="roi-form-side">
+        <h3 class="title" style="font-size:clamp(1.15rem,2vw,1.5rem); margin-bottom:0.5rem;">Beschreiben Sie Ihre aktuelle Last.</h3>
+        <div class="roi-form-grid">
+          <div>
+            <label class="roi-label" for="annualImportValue">Jährlicher Warenwert im Umfang (EUR)</label>
+            <input class="roi-input" id="annualImportValue" type="number" min="100000" step="50000" value="8500000">
+          </div>
+          <div>
+            <label class="roi-label" for="activeSuppliers">Lieferanten im Umfang</label>
+            <input class="roi-input" id="activeSuppliers" type="number" min="1" step="1" value="18">
+          </div>
+          <div>
+            <label class="roi-label" for="monthlyShipments">Monatliche eingehende Sendungen</label>
+            <input class="roi-input" id="monthlyShipments" type="number" min="1" step="1" value="24">
+          </div>
+          <div>
+            <label class="roi-label" for="internalHours">Stunden pro Monat für Admin</label>
+            <input class="roi-input" id="internalHours" type="number" min="1" step="1" value="60">
+          </div>
+        </div>
+        <p class="roi-note">
+          Am besten für CBAM-lastige und nachweisintensive Importflüsse. Wenn Sie schätzen, reichen grobe Zahlen aus.
+        </p>
+      </div>
+
+      <div class="roi-result-side">
+        <h3 class="title" style="font-size:clamp(1.15rem,2vw,1.5rem); margin-bottom:0.5rem;">Was das in der Praxis bedeutet.</h3>
+        <div class="roi-metric-grid">
+          <div class="roi-metric">
+            <div class="roi-metric-label">Waren im Umfang</div>
+            <div class="roi-metric-value" id="scopeManaged">€8.5m</div>
+            <div class="roi-metric-copy">Geschätzter Wert, der durch den Workflow läuft und strukturierte Kontrolle braucht.</div>
+          </div>
+          <div class="roi-metric">
+            <div class="roi-metric-label">Koordinationsereignisse</div>
+            <div class="roi-metric-value" id="coordinationEvents">504</div>
+            <div class="roi-metric-copy">Lieferantenanfragen, Nachweisprüfungen und sendungsbezogene Entscheidungen über ein Jahr.</div>
+          </div>
+          <div class="roi-metric">
+            <div class="roi-metric-label">Umgelenkte Stunden</div>
+            <div class="roi-metric-value" id="hoursRedirected">252</div>
+            <div class="roi-metric-copy">Admin-Zeit, die zu einem gesteuerten Prozess statt zu verstreuter Handarbeit werden sollte.</div>
+          </div>
+          <div class="roi-metric">
+            <div class="roi-metric-label">Bester Startmodus</div>
+            <div class="roi-metric-value" id="recommendedMotion">Workspace</div>
+            <div class="roi-metric-copy">Die Produktform, die am besten zu Ihrem aktuellen operativen Druck passt.</div>
+          </div>
+        </div>
+        <div class="roi-recommendation">
+          <strong id="recommendedPackage">Starten Sie mit dem einheitlichen Compliance-Workspace.</strong>
+          <p id="recommendedCopy">Ihre Lieferantenzahl, Sendungsmenge und Admin-Last sind hoch genug, dass eine strukturierte operative Schicht mehr Wert schafft als einzelne Ad-hoc-Prüfungen.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="divider">
+
+  <!-- ── CONTACT ──────────────────────────────────────── -->
+  <section class="section" id="setup-plan">
     <div style="text-align:center; margin-bottom:2.5rem;">
       <div class="kicker">Loslegen</div>
-      <h2 class="title title--md">CBAM-Bereitschaftsgespräch buchen.</h2>
-      <p style="font-size:0.92rem; color:var(--muted); max-width:48ch; margin:0 auto;">Sagen Sie uns, wo Ihr Workflow steht. Wir kartieren Ihre Exponierung und skizzieren den schnellsten Weg zu einem konformen Betrieb — normalerweise in einem 45-Minuten-Gespräch.</p>
+      <h2 class="title title--md">Ihren asynchronen Setup-Plan erhalten.</h2>
+      <p style="font-size:0.92rem; color:var(--muted); max-width:48ch; margin:0 auto;">
+        Sagen Sie uns, was Sie importieren und wo Ihr Workflow bricht. Wir formen einen Self-Serve-
+        Setup-Pfad um Ihren Anwendungsfall und senden die nächsten Schritte per E-Mail. Kein Verkaufsgespräch nötig.
+      </p>
     </div>
     <div class="waitlist-box">
       <div class="lead-grid">
-        <form class="wl-form" data-contact="cbam-readiness">
+        <form class="wl-form" data-contact="intelligence-setup">
           <div>
             <label class="wl-label" for="wl-name">Name</label>
             <input class="wl-input" id="wl-name" name="name" type="text" placeholder="Ihr vollständiger Name" required>
@@ -310,24 +667,27 @@
             <input class="wl-input" id="wl-email" name="email" type="email" placeholder="sie@unternehmen.de" required>
           </div>
           <div>
-            <label class="wl-label" for="wl-project">Welche CBAM-Waren importieren Sie und wie viel pro Jahr?</label>
-            <input class="wl-input" id="wl-project" name="project" type="text" placeholder="z.B. 1.200 t Stahlbefestigungen aus Indien, ~€ 4 Mio./J.">
+            <label class="wl-label" for="wl-project">Was importieren Sie und ungefähr wie viel pro Jahr?</label>
+            <input class="wl-input" id="wl-project" name="project" type="text" placeholder="z. B. Stahlschrauben aus Indien und Holzpaneele aus Vietnam, ~4 Mio. € pro Jahr">
           </div>
           <div>
-            <label class="wl-label" for="wl-message">Was ist Ihr größter Blocker gerade?</label>
-            <textarea class="wl-input" id="wl-message" name="message" rows="4" placeholder="Lieferanten-Emissionsdaten? Anmelderkonfiguration? Zertifikatskostenplanung?"></textarea>
+            <label class="wl-label" for="wl-message">Welches Problem soll das Produkt zuerst lösen?</label>
+            <textarea class="wl-input" id="wl-message" name="message" rows="4" placeholder="Lieferantennachweise sammeln? Fabrik-Triage? Sendungsausnahmen? Ein klares CBAM- oder EUDR-Urteil?"></textarea>
           </div>
-          <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.4rem;">CBAM-Bereitschaftsgespräch anfragen →</button>
+          <button type="submit" class="btn-primary" style="width:100%; justify-content:center; margin-top:0.4rem;">
+            Asynchronen Setup-Plan anfragen →
+          </button>
           <div class="form-msg" style="font-size:0.85rem; margin-top:0.4rem; min-height:1.2em;"></div>
         </form>
+
         <div class="fit-panel">
-          <div class="kicker" style="margin-bottom:0.7rem;">Ist das das Richtige für Sie?</div>
-          <h3 class="title" style="font-size:clamp(1.1rem,2vw,1.5rem); margin-bottom:0.8rem;">Sie sind am richtigen Ort, wenn eines davon bekannt klingt.</h3>
+          <div class="kicker" style="margin-bottom:0.7rem;">Für autonome Teams gebaut</div>
+          <h3 class="title" style="font-size:clamp(1.1rem,2vw,1.5rem); margin-bottom:0.8rem;">Das passt am besten, wenn das Produkt zuerst die Schwerstarbeit übernehmen soll.</h3>
           <div class="fit-list">
-            <div class="fit-item">Sie importieren Eisen, Stahl, Aluminium, Düngemittel oder Zement in die EU — und sind nicht sicher, ob Sie über der 50-Tonnen-CBAM-Schwelle liegen.</div>
-            <div class="fit-item">Sie wissen, dass Sie Emissionsnachweise benötigen, aber die Rückkoppelung von Exporteuren war langsam, inkonsistent oder ins Stocken geraten.</div>
-            <div class="fit-item">Ihr aktueller Compliance-Prozess besteht aus Tabellen, E-Mail-Threads und Dingen, die Ihr Zollagent erledigt und die Sie nicht einsehen können.</div>
-            <div class="fit-item">Sie importieren auch Holz, Kakao, Kaffee, Palmöl, Soja, Rindfleisch oder Kautschuk — und möchten Ihre EUDR-Bereitschaft vor der Frist 2026 sichern.</div>
+            <div class="fit-item">Sie brauchen einen Ort, um zu verstehen, was sich bewegt, was riskant ist und welche Regulierung gilt.</div>
+            <div class="fit-item">Sie möchten mit Software starten, nicht mit Beratung oder einem langen Implementierungszyklus.</div>
+            <div class="fit-item">Ihr aktueller Workflow ist noch über Tabellen, Postfächer, Lieferanten-Follow-ups und Zollabhängigkeiten verteilt, die Sie nicht vollständig sehen.</div>
+            <div class="fit-item">Sie wollen jetzt einen klaren Self-Serve-Pfad und menschliche Hilfe erst später, wenn die Ausnahmen es rechtfertigen.</div>
           </div>
         </div>
       </div>
@@ -338,7 +698,7 @@
     <div class="footer-inner">
       <span>© <span id="year"></span> OrcaTrade Group. Alle Rechte vorbehalten.</span>
       <span>Warschau, London &amp; Hongkong · Europa ↔ Asien</span>
-      <a href="../index.html">Zurück zur Gruppe →</a>
+      <a href="index.html">Zurück zur Gruppe →</a>
       <div class="footer-socials">
         <a href="https://www.instagram.com/orcatradegroup?igsh=MWpra3YwMGthaWcyMw==" target="_blank" rel="noopener" aria-label="OrcaTrade Instagram">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg>
@@ -350,8 +710,152 @@
     </div>
   </footer>
 
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
-  <script src="../js/forms.js"></script>
-  <script src="../js/transitions.js"></script>
+  <script src="js/cache-preferences.js"></script>
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* ── ROI ESTIMATOR ── */
+    (function () {
+      var fields = ['annualImportValue', 'activeSuppliers', 'monthlyShipments', 'internalHours'].map(function (id) {
+        return document.getElementById(id);
+      });
+
+      function fmtCurrency(value) {
+        if (value >= 1000000) return '€' + (value / 1000000).toFixed(1).replace('.', ',') + ' Mio.';
+        if (value >= 1000) return '€' + Math.round(value / 1000).toLocaleString('de-DE') + ' Tsd.';
+        return '€' + Math.round(value).toLocaleString('de-DE');
+      }
+
+      function updateModel() {
+        var value = Math.max(100000, Number(fields[0].value) || 0);
+        var suppliers = Math.max(1, Number(fields[1].value) || 1);
+        var shipments = Math.max(1, Number(fields[2].value) || 1);
+        var hours = Math.max(1, Number(fields[3].value) || 1);
+        var coordination = Math.round((suppliers * 16) + (shipments * 9));
+        var redirectedHours = Math.round(hours * 12 * 0.35);
+
+        var motion = 'Starter';
+        var title = 'Starten Sie mit Sofortprüfungen und einem fokussierten Workflow.';
+        var copy = 'Ihre aktuelle Last ist relevant, aber noch kompakt. Starten Sie mit Compliance-Prüfungen, bauen Sie den Nachweisrhythmus auf und erweitern Sie nur dann, wenn die Ausnahmen es rechtfertigen.';
+
+        if (value >= 5000000 || suppliers >= 14 || shipments >= 20 || hours >= 45) {
+          motion = 'Workspace';
+          title = 'Starten Sie mit dem einheitlichen Compliance-Workspace.';
+          copy = 'Ihr Betrieb ist groß genug, dass Lieferanten-Follow-up, Sendungskontext und Compliance-Entscheidungen in einem strukturierten System statt in verstreuter Admin-Arbeit liegen sollten.';
+        }
+
+        if (value >= 20000000 || suppliers >= 35 || shipments >= 45 || hours >= 110) {
+          motion = 'Leitstand';
+          title = 'Sie brauchen die vollständige operative Schicht.';
+          copy = 'In dieser Größenordnung liegt die echte Chance darin, den gesamten Ablauf zu zentralisieren: Nachweissammlung, Ausnahmebehandlung, Sendungssichtbarkeit und Lieferantenrisiko auf einer Steuerungsoberfläche.';
+        }
+
+        document.getElementById('scopeManaged').textContent = fmtCurrency(value);
+        document.getElementById('coordinationEvents').textContent = coordination.toLocaleString('de-DE');
+        document.getElementById('hoursRedirected').textContent = redirectedHours.toLocaleString('de-DE');
+        document.getElementById('recommendedMotion').textContent = motion;
+        document.getElementById('recommendedPackage').textContent = title;
+        document.getElementById('recommendedCopy').textContent = copy;
+      }
+
+      if (fields.every(Boolean)) {
+        fields.forEach(function (field) {
+          field.addEventListener('input', updateModel);
+        });
+        updateModel();
+      }
+    })();
+
+    /* ── QUICK CHECK ── */
+    (function () {
+      var form    = document.getElementById('quick-check-form');
+      var loading = document.getElementById('qc-loading');
+      var empty   = document.getElementById('qc-empty');
+      var verdict = document.getElementById('qc-verdict');
+      var badge   = document.getElementById('qc-status-badge');
+      var text    = document.getElementById('qc-text');
+      var cta     = document.getElementById('qc-cta-link');
+      var cache   = window.OrcaTradeCachePreference;
+
+      var LABELS = {
+        at_risk:       '⚠ Risiko',
+        non_compliant: '✗ Nicht konform',
+        compliant:     '✓ Konform',
+        not_applicable:'— Nicht anwendbar'
+      };
+
+      function showLoading() {
+        loading.classList.add('visible');
+        empty.style.display = 'none';
+        verdict.classList.remove('visible');
+      }
+      function showResult(status, vtext, vcta) {
+        loading.classList.remove('visible');
+        badge.textContent = LABELS[status] || status;
+        badge.className = 'qc-status qc-status--' + status;
+        text.textContent = vtext;
+        if (vcta) { cta.textContent = vcta + ' →'; cta.style.display = ''; }
+        else { cta.style.display = 'none'; }
+        verdict.classList.add('visible');
+      }
+      function showFallback(category, origin) {
+        loading.classList.remove('visible');
+        var cbamGoods = /steel|iron|alumin|cement|fertilis|hydrogen/i.test(category);
+        var eudrGoods = /timber|wood|cocoa|coffee|palm|soy|beef|rubber|leather/i.test(category);
+        var status = cbamGoods || eudrGoods ? 'at_risk' : 'not_applicable';
+        var msg = cbamGoods
+          ? 'CBAM gilt für ' + category + ' aus ' + origin + '. Sie benötigen wahrscheinlich einen zugelassenen Anmelder und Emissionsnachweise des Lieferanten. Starten Sie den Vollbericht für Detailtiefe auf Artikelebene.'
+          : eudrGoods
+          ? 'EUDR gilt für ' + category + '. Sie brauchen georeferenzierte Lieferkettendaten vor der Frist im Dezember 2026. Starten Sie den Vollbericht für die erforderlichen Maßnahmen.'
+          : category + ' aus ' + origin + ' scheint aktuell nicht unter CBAM oder EUDR zu fallen. Starten Sie den Vollbericht, um das mit Artikelzitaten zu bestätigen.';
+        showResult(status, msg, 'Vollständigen Compliance-Bericht starten');
+      }
+
+      if (!form) return;
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        var category = document.getElementById('qc-category').value;
+        var origin   = document.getElementById('qc-origin').value.trim();
+        var value    = document.getElementById('qc-value').value.trim();
+        var cacheKey = {
+          productCategory: category,
+          origin: origin,
+          importValue: value
+        };
+        if (!category || !origin) return;
+
+        if (cache) {
+          var cachedPayload = cache.getCachedJson('quick-check', cacheKey);
+          if (cachedPayload) {
+            showResult(cachedPayload.status, cachedPayload.verdict, cachedPayload.cta);
+            return;
+          }
+        }
+
+        showLoading();
+
+        fetch('/api/quick-check', {
+          method: 'POST',
+          headers: Object.assign(
+            { 'Content-Type': 'application/json' },
+            cache ? cache.getRequestHeaders() : {}
+          ),
+          body: JSON.stringify({ productCategory: category, origin: origin, importValue: value })
+        })
+        .then(function(r){ return r.ok ? r.json() : Promise.reject(r.status); })
+        .then(function(d){
+          if (cache) {
+            cache.setCachedJson('quick-check', cacheKey, d, 15 * 60 * 1000);
+          }
+          showResult(d.status, d.verdict, d.cta);
+        })
+        .catch(function(){
+          showFallback(category, origin);
+        });
+      });
+    })();
+  </script>
+  <script src="js/forms.js"></script>
+  <script src="js/transitions.js"></script>
 </body>
 </html>

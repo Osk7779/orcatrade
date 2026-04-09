@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Czy Państwa zamówienie jest zgodne? | OrcaTrade Intelligence</title>
+  <title>Czy Twoje zamówienie jest zgodne? | OrcaTrade Intelligence</title>
   <link rel="stylesheet" href="../../compliance/styles/main.css">
   <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/compliance/" />
   <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/compliance/" />
@@ -21,17 +21,17 @@
         <span class="logo-text">ORCATRADE.<span class="text-accent">OS</span></span>
       </div>
       <div class="nav-links">
-        <a href="../../pl/intelligence.html">Intelligence</a>
-        <a href="../../pl/sourcing.html">Zaopatrzenie</a>
-        <a href="../../pl/">OrcaTrade Group</a>
+        <a href="/pl/intelligence.html">Intelligence</a>
+        <a href="/pl/sourcing.html">Zaopatrzenie</a>
+        <a href="/pl/">OrcaTrade Group</a>
       </div>
       <div class="nav-cta">
         <a href="#" class="btn btn-outline" style="border-radius: 0; padding: 0.5rem 1rem; border: 1px solid var(--accent-color); color: var(--accent-color);">Sprawdź zgodność</a>
       </div>
       <div style="display:flex;gap:0.4rem;align-items:center;">
-        <a href="../../compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">EN</a>
+        <a href="/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">EN</a>
         <a href="/pl/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid transparent;background:linear-gradient(135deg,#b8bec8,#6f7783);color:#0a0912;text-decoration:none;">PL</a>
-        <a href="../../de/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">DE</a>
+        <a href="/de/compliance/" style="font-size:0.72rem;font-weight:600;letter-spacing:0.1em;padding:0.28rem 0.6rem;border-radius: 0;border:1px solid rgba(255,255,255,0.15);color:rgba(255,255,255,0.5);text-decoration:none;">DE</a>
       </div>
     </div>
   </nav>
@@ -40,14 +40,16 @@
   <main class="main-content">
     <section class="hero">
       <div class="badge">Napędzane przez OrcaTrade Intelligence</div>
-      <h1 class="hero-title">Czy Państwa zamówienie jest zgodne?</h1>
-      <p class="hero-subtitle">Sprawdź każde zamówienie importowe pod kątem EUDR, CBAM i CSDDD w kilka sekund. Otrzymaj szczegółowy raport zgodności z krokami działania.</p>
+      <h1 class="hero-title">Czy Twoje zamówienie jest zgodne?</h1>
+      <p class="hero-subtitle">Sprawdź każde zamówienie importowe pod kątem EUDR, CBAM i CSDDD w kilka sekund. Odbierz szczegółowy raport zgodności z kolejnymi krokami.</p>
     </section>
 
     <!-- Form Section -->
     <section class="form-section">
       <form id="complianceForm" class="compliance-form glass-panel">
-
+        <div id="recoveryNotice" class="recovery-notice" style="display:none;"></div>
+        <div id="dynamicEvidenceNotice" class="evidence-notice" style="display:none;"></div>
+        
         <div class="form-group grid-2">
           <div class="input-wrapper">
             <label for="productCategory">Kategoria produktu</label>
@@ -58,7 +60,7 @@
               <option value="Food & Beverage">Żywność i napoje</option>
               <option value="Packaging">Opakowania</option>
               <option value="Furniture & Wood">Meble i drewno</option>
-              <option value="Steel & Metal">Stal i metale</option>
+              <option value="Steel & Metal">Stal i metal</option>
               <option value="Chemicals">Chemia</option>
               <option value="Ceramics">Ceramika</option>
               <option value="Other">Inne</option>
@@ -68,13 +70,13 @@
             <label for="origin">Kraj pochodzenia</label>
             <select id="origin" name="origin" required>
               <option value="" disabled selected>Wybierz kraj...</option>
-              <option value="China">China</option>
-              <option value="Vietnam">Vietnam</option>
-              <option value="Indonesia">Indonesia</option>
-              <option value="India">India</option>
-              <option value="Bangladesh">Bangladesh</option>
-              <option value="Thailand">Thailand</option>
-              <option value="Malaysia">Malaysia</option>
+              <option value="China">Chiny</option>
+              <option value="Vietnam">Wietnam</option>
+              <option value="Indonesia">Indonezja</option>
+              <option value="India">Indie</option>
+              <option value="Bangladesh">Bangladesz</option>
+              <option value="Thailand">Tajlandia</option>
+              <option value="Malaysia">Malezja</option>
               <option value="Other">Inne</option>
             </select>
           </div>
@@ -84,6 +86,53 @@
           <div class="input-wrapper">
             <label for="productDescription">Opis produktu</label>
             <textarea id="productDescription" name="productDescription" rows="3" placeholder="Opisz szczegółowo swój produkt..." required></textarea>
+          </div>
+        </div>
+
+        <div class="form-section-divider">
+          <div class="form-section-title">Własność raportu</div>
+          <p class="form-helper">Opcjonalne, ale zalecane, jeśli chcesz, aby OrcaTrade przypisywał raporty do workspace Twojej firmy zamiast traktować je jako anonimowe kontrole.</p>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="company">Nazwa firmy</label>
+            <input type="text" id="company" name="company" placeholder="np. Northline Imports">
+          </div>
+          <div class="input-wrapper">
+            <label for="email">E-mail służbowy</label>
+            <input type="email" id="email" name="email" placeholder="ty@firma.pl">
+          </div>
+        </div>
+
+        <div class="form-section-divider">
+          <div class="form-section-title">Klasyfikacja i dowody celne</div>
+          <p class="form-helper">Te pola są na razie opcjonalne, ale sprawiają, że OrcaTrade Intelligence działa znacznie precyzyjniej i ogranicza prowizoryczne decyzje.</p>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="cnCode">Kod CN / HS (zalecany)</label>
+            <input type="text" id="cnCode" name="cnCode" placeholder="np. 7208.37">
+          </div>
+          <div class="input-wrapper">
+            <label for="authorisedDeclarant">Status upoważnionego zgłaszającego CBAM</label>
+            <select id="authorisedDeclarant" name="authorisedDeclarant">
+              <option value="">Nieznane / niepotwierdzone</option>
+              <option value="true">Tak</option>
+              <option value="false">Nie</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="supplierEmissionsData">Dostępne dane emisyjne dostawcy</label>
+            <select id="supplierEmissionsData" name="supplierEmissionsData">
+              <option value="">Nieznane / niepotwierdzone</option>
+              <option value="true">Tak</option>
+              <option value="false">Nie</option>
+            </select>
           </div>
         </div>
 
@@ -104,7 +153,12 @@
           </div>
         </div>
 
-        <div class="form-group">
+        <div class="form-section-divider">
+          <div class="form-section-title">Fakty o progach firmy</div>
+          <p class="form-helper">Te sygnały wpływają na fazowanie CSDDD i na to, czy oprogramowanie może bezpiecznie ocenić zakres na poziomie firmy.</p>
+        </div>
+
+        <div class="form-group grid-2">
           <div class="input-wrapper">
             <label for="companySize">Wielkość firmy</label>
             <select id="companySize" name="companySize" required>
@@ -114,29 +168,65 @@
               <option value="Over 1000 employees">Powyżej 1000 pracowników</option>
             </select>
           </div>
+          <div class="input-wrapper">
+            <label for="employeeCount">Dokładna liczba pracowników (jeśli znana)</label>
+            <input type="text" id="employeeCount" name="employeeCount" placeholder="np. 1450">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <div class="input-wrapper">
+            <label for="globalTurnover">Globalne obroty (jeśli znane)</label>
+            <input type="text" id="globalTurnover" name="globalTurnover" placeholder="np. 900 mln €">
+          </div>
+        </div>
+
+        <div class="form-section-divider">
+          <div class="form-section-title">Gotowość dowodowa EUDR</div>
+          <p class="form-helper">Używaj tych pól tylko wtedy, gdy już wiesz, czy importer ma gotowy pakiet dowodów.</p>
+        </div>
+
+        <div class="form-group grid-2">
+          <div class="input-wrapper">
+            <label for="geolocationAvailable">Dostępne dowody geolokalizacji na poziomie działki</label>
+            <select id="geolocationAvailable" name="geolocationAvailable">
+              <option value="">Nieznane / niepotwierdzone</option>
+              <option value="true">Tak</option>
+              <option value="false">Nie</option>
+            </select>
+          </div>
+          <div class="input-wrapper">
+            <label for="dueDiligenceStatement">Gotowe oświadczenie due diligence</label>
+            <select id="dueDiligenceStatement" name="dueDiligenceStatement">
+              <option value="">Nieznane / niepotwierdzone</option>
+              <option value="true">Tak</option>
+              <option value="false">Nie</option>
+            </select>
+          </div>
         </div>
 
         <div class="form-group checkbox-group">
           <label class="checkbox-label">
             <input type="checkbox" id="euMarket" name="euMarket" checked>
             <span class="custom-checkbox"></span>
-            Czy wprowadzają Państwo ten produkt na rynek UE?
+            Czy wprowadzasz ten produkt na rynek UE?
           </label>
         </div>
 
-        <button type="submit" class="btn btn-primary btn-large">Sprawdź zgodność &rarr;</button>
+        <button type="submit" class="btn btn-primary btn-large">Uruchom kontrolę zgodności &rarr;</button>
       </form>
-
+      
       <div class="trust-signals">
         <span>EUDR · CBAM · CSDDD sprawdzone</span>
-        <span class="dot-separator">•</span>
-        <span>Wyniki w mniej niż 10 sekund</span>
-        <span class="dot-separator">•</span>
-        <span>Używane przez zespół zaopatrzenia OrcaTrade</span>
+        <span class="dot-separator">·</span>
+        <span>Wyraźnie pokazane: zablokowane vs oparte na dowodach</span>
+        <span class="dot-separator">·</span>
+        <span>Używane przez zespół sourcingowy OrcaTrade</span>
       </div>
     </section>
   </main>
 
+  <script src="../../js/cache-preferences.js"></script>
   <script src="../../compliance/js/app.js"></script>
   <script src="../../js/transitions.js"></script>
 </body>

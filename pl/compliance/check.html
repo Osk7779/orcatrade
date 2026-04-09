@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Raport zgodności | OrcaTrade Intelligence</title>
+  <link rel="stylesheet" href="../../compliance/styles/main.css">
+  <style>
+    /* ── REPORT PAGE STYLES ── */
+    .report-meta-bar {
+      background: rgba(184,190,200,0.05);
+      border: 1px solid var(--border-color);
+      border-radius: 0;
+      padding: 0.7rem 1.2rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.6;
+    }
+
+    .report-meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-top: 1.2rem;
+    }
+
+    .report-meta-item { display: flex; flex-direction: column; gap: 0.2rem; }
+    .report-meta-label { font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.14em; color: var(--text-muted); }
+    .report-meta-value { font-size: 0.88rem; font-weight: 500; }
+
+    .confidential-badge {
+      display: inline-block;
+      font-size: 0.62rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      padding: 0.2rem 0.6rem;
+      border: 1px solid rgba(200,80,80,0.5);
+      color: #c95050;
+      background: rgba(200,80,80,0.07);
+      vertical-align: middle;
+      margin-left: 0.75rem;
+    }
+
+    .exec-summary-box {
+      border-left: 3px solid var(--accent-color);
+      padding: 1rem 1.4rem;
+      background: rgba(184,190,200,0.05);
+      border-right: 1px solid var(--border-color);
+      border-top: 1px solid var(--border-color);
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 2rem;
+      font-size: 0.92rem;
+      line-height: 1.72;
+      color: var(--text-primary);
+    }
+
+    .legal-ref-bar {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      padding: 0.6rem 1rem;
+      background: rgba(255,255,255,0.02);
+      border: 1px solid var(--border-color);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+
+    .decision-readiness-card {
+      display: none;
+      background: rgba(184,190,200,0.05);
+      border: 1px solid var(--border-color);
+      padding: 1.2rem 1.3rem;
+      margin-bottom: 1.7rem;
+    }
+
+    .decision-readiness-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 0.8rem;
+    }
+
+    .decision-readiness-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.8rem 1.2rem;
+      margin-top: 1rem;
+    }
+
+    .decision-readiness-label {
+      font-size: 0.66rem;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .decision-facts-box {
+      display: none;
+      margin-top: 1rem;
+      padding: 0.9rem 1rem;
+      border: 1px solid rgba(200,140,50,0.24);
+      background: rgba(200,140,50,0.08);
+      color: var(--cream-soft);
+    }
+
+    .decision-checklist {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 0.7rem;
+      margin-top: 1rem;
+    }
+
+    .decision-check-item {
+      border: 1px solid var(--border-color);
+      background: rgba(255,255,255,0.03);
+      padding: 0.85rem 0.95rem;
+    }
+
+    .decision-check-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.5rem;
+      margin-bottom: 0.45rem;
+      font-size: 0.78rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .decision-check-copy {
+      font-size: 0.8rem;
+      line-height: 1.55;
+      color: var(--text-muted);
+    }
+
+    .decision-recovery-actions {
+      display: none;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .exposure-card {
+      display: none;
+      background: rgba(200,70,70,0.07);
+      border: 1px solid rgba(200,70,70,0.3);
+      padding: 1.5rem 1.8rem;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .exposure-nums {
+      display: flex;
+      gap: 3rem;
+      flex-wrap: wrap;
+      margin: 1rem 0;
+    }
+
+    .exposure-num-item { display: flex; flex-direction: column; gap: 0.2rem; }
+    .exposure-num-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--text-muted); }
+    .exposure-num-value { font-size: 1.9rem; font-weight: 700; color: #c95050; font-family: var(--font-heading); }
+
+    .disclaimer-box {
+      display: none;
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border-color);
+      padding-top: 1.2rem;
+      margin-top: 2rem;
+      line-height: 1.65;
+    }
+
+    .report-footer {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      text-align: center;
+      padding: 1.2rem 0;
+      border-top: 1px solid var(--border-color);
+      margin-top: 2rem;
+    }
+
+    /* ── PRINT STYLES ── */
+    @media print {
+      nav, .navbar, .nav-cta, .next-steps-cta, #downloadBtn, button { display: none !important; }
+
+      body {
+        background: white !important;
+        color: #111 !important;
+        font-size: 10pt;
+        font-family: 'Georgia', serif;
+      }
+
+      .main-content { max-width: 100% !important; padding: 0 !important; }
+
+      .report-header {
+        background: #08111f !important;
+        color: white !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+        padding: 20pt;
+        margin-bottom: 14pt;
+      }
+
+      .report-header h1,
+      .report-header h2,
+      .report-header p,
+      .report-header span { color: white !important; }
+
+      .glass-panel, .reg-card {
+        background: white !important;
+        border: 0.75pt solid #ccc !important;
+        page-break-inside: avoid;
+        margin-bottom: 12pt;
+        padding: 10pt 12pt;
+      }
+
+      .finding-row {
+        border-bottom: 0.5pt solid #eee;
+        padding: 5pt 0;
+        page-break-inside: avoid;
+      }
+
+      .financial-risk-box {
+        background: #f8f8f8 !important;
+        border: 0.75pt solid #ccc !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .exec-summary-box {
+        background: #f0f4f8 !important;
+        border-left: 3pt solid #666 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .exposure-card {
+        display: block !important;
+        background: #fff0f0 !important;
+        border: 0.75pt solid #c95050 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .priority-card { page-break-before: always; }
+
+      .disclaimer-box {
+        display: block !important;
+        font-size: 7pt;
+        color: #666 !important;
+      }
+
+      .legal-ref-bar {
+        font-size: 7pt;
+        background: #f9f9f9 !important;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+
+      .report-footer { display: block !important; }
+
+      @page {
+        size: A4;
+        margin: 15mm 18mm;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="nav-logo">
+        <span class="logo-text">ORCATRADE.<span class="text-accent">OS</span></span>
+      </div>
+      <div class="nav-links">
+        <a href="/pl/intelligence.html">Intelligence</a>
+        <a href="/pl/sourcing.html">Zaopatrzenie</a>
+        <a href="/pl/">OrcaTrade Group</a>
+      </div>
+      <div class="nav-cta">
+        <a href="index.html" class="btn btn-outline" style="border-radius:0;padding:0.5rem 1rem;border:1px solid var(--accent-color);color:var(--accent-color);">Uruchom nową kontrolę</a>
+      </div>
+    </div>
+  </nav>
+
+  <main class="main-content" style="max-width:1000px">
+
+    <!-- Loading State -->
+    <div id="loadingState" class="loading-container">
+      <div class="scanner"><div class="scanner-line"></div></div>
+      <h2 id="loadingText" class="loading-text">Inicjalizacja skanu AI…</h2>
+      <p class="text-muted">Analiza względem regulacji EUDR, CBAM i CSDDD</p>
+    </div>
+
+    <!-- Results State -->
+    <div id="resultsContainer" style="display:none;">
+
+      <!-- Report Header -->
+      <div class="report-header glass-panel">
+        <div class="rh-top">
+          <div>
+            <h1 style="margin-bottom:0.15rem;">
+              Raport zgodności
+              <span class="confidential-badge">POUFNE</span>
+            </h1>
+            <p class="text-muted" style="margin-top:0.1rem;font-size:0.8rem;">
+              ID raportu: <span id="reportId" style="font-family:monospace;font-weight:600;">—</span> &nbsp;·&nbsp; Wygenerowano <span id="reportTimestamp">—</span>
+            </p>
+          </div>
+          <button id="downloadBtn" class="btn btn-primary" style="display:flex;align-items:center;gap:0.5rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            Pobierz PDF
+          </button>
+        </div>
+
+        <div class="report-meta-grid">
+          <div class="report-meta-item">
+            <span class="report-meta-label">Produkt</span>
+            <span id="reportProduct" class="report-meta-value">—</span>
+          </div>
+          <div class="report-meta-item">
+            <span class="report-meta-label">Kraj pochodzenia</span>
+            <span id="reportOrigin" class="report-meta-value">—</span>
+          </div>
+          <div class="report-meta-item">
+            <span class="report-meta-label">Dostawca</span>
+            <span id="reportSupplier" class="report-meta-value">—</span>
+          </div>
+          <div class="report-meta-item">
+            <span class="report-meta-label">Oceniona wartość importu</span>
+            <span id="reportImportValue" class="report-meta-value">—</span>
+          </div>
+          <div class="report-meta-item">
+            <span class="report-meta-label">Wielkość firmy</span>
+            <span id="reportCompanySize" class="report-meta-value">—</span>
+          </div>
+          <div class="report-meta-item">
+            <span class="report-meta-label">CN / HS code</span>
+            <span id="reportCnCode" class="report-meta-value">—</span>
+          </div>
+          <div class="report-meta-item">
+            <span class="report-meta-label">Dokładna liczba pracowników</span>
+            <span id="reportEmployeeCount" class="report-meta-value">—</span>
+          </div>
+          <div class="report-meta-item">
+            <span class="report-meta-label">Globalne obroty</span>
+            <span id="reportGlobalTurnover" class="report-meta-value">—</span>
+          </div>
+        </div>
+
+        <div class="rh-bottom grid-2" style="margin-top:1.2rem;">
+          <div class="status-overview">
+            <p class="text-muted">Ogólny status ryzyka</p>
+            <div id="overallStatusBadge" class="status-large">—</div>
+          </div>
+          <div class="score-overview">
+            <p class="text-muted">Wynik zgodności</p>
+            <div class="score-display">
+              <span id="overallScoreText" class="score-number">—</span>
+              <span style="font-size:1.5rem;color:var(--text-muted)">/ 100</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Legal reference info bar -->
+      <div class="legal-ref-bar">
+        Ocena opiera się na <strong>Rozporządzeniu (UE) 2023/1115</strong> (EUDR),
+        <strong>Rozporządzeniu (UE) 2023/956</strong> (CBAM) oraz
+        <strong>Dyrektywie (UE) 2024/1760</strong> (CSDDD),
+        zgodnie z publikacją w Dzienniku Urzędowym Unii Europejskiej.
+      </div>
+
+      <div id="decisionReadinessCard" class="decision-readiness-card">
+        <div class="decision-readiness-head">
+          <div>
+            <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);margin-bottom:0.35rem;">Gotowość decyzji</div>
+            <div id="decisionReadinessSummary" style="font-size:0.9rem;line-height:1.7;color:var(--text-primary);">—</div>
+          </div>
+          <div id="decisionReadinessBadge"></div>
+        </div>
+        <div class="decision-readiness-grid">
+          <div>
+            <div class="decision-readiness-label">Możliwość wydania końcowej decyzji</div>
+            <div id="decisionEligibilityText" style="font-size:0.86rem;color:var(--text-primary);">—</div>
+          </div>
+          <div>
+            <div class="decision-readiness-label">Tryb oceny</div>
+            <div id="decisionEvidenceMode" style="font-size:0.86rem;color:var(--text-primary);">—</div>
+          </div>
+        </div>
+        <div id="decisionFactsBox" class="decision-facts-box">
+          <div class="decision-readiness-label" style="color:#c98f3a;">Krytyczne brakujące fakty</div>
+          <div id="decisionFactsList" style="font-size:0.84rem;line-height:1.65;"></div>
+        </div>
+        <div id="decisionChecklist" class="decision-checklist"></div>
+        <div id="decisionRecoveryActions" class="decision-recovery-actions"></div>
+      </div>
+
+      <!-- Executive Summary -->
+      <div id="execSummaryBox" style="display:none;">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;color:var(--text-muted);margin-bottom:0.5rem;">Podsumowanie zarządcze</div>
+        <div class="exec-summary-box" id="executiveSummary"></div>
+      </div>
+
+      <!-- Regulation Cards -->
+      <div id="regulationsContainer" class="regulations-grid"></div>
+
+      <!-- Total Financial Exposure -->
+      <div id="exposureCard" class="exposure-card">
+        <div style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.16em;color:#c95050;margin-bottom:0.5rem;">Całkowita ekspozycja regulacyjna</div>
+        <div class="exposure-nums">
+          <div class="exposure-num-item">
+            <span class="exposure-num-label">Minimalna ekspozycja</span>
+            <span id="exposureMin" class="exposure-num-value">—</span>
+          </div>
+          <div class="exposure-num-item">
+            <span class="exposure-num-label">Maksymalna ekspozycja</span>
+            <span id="exposureMax" class="exposure-num-value">—</span>
+          </div>
+        </div>
+        <div id="exposureBreakdown" style="font-size:0.82rem;color:var(--text-muted);line-height:1.65;"></div>
+      </div>
+
+      <!-- Priority Actions -->
+      <div id="priorityCard" class="priority-card glass-panel" style="border-color:var(--accent-color);">
+        <h2 style="color:var(--accent-color);margin-bottom:0.35rem;">Działania priorytetowe</h2>
+        <p class="text-muted" style="margin-top:0;margin-bottom:1.5rem;font-size:0.85rem;">Uszeregowane według pilności i ekspozycji prawnej.</p>
+        <div id="priorityList" class="priority-list"></div>
+      </div>
+
+      <!-- Disclaimer -->
+      <div id="disclaimerBox" class="disclaimer-box">
+        <div id="disclaimer"></div>
+      </div>
+
+      <!-- Next Steps CTA -->
+      <div class="next-steps-cta glass-panel" style="text-align:center;margin-top:2.5rem;">
+        <h2>Potrzebujesz pomocy, aby osiągnąć zgodność?</h2>
+        <p class="text-muted" style="margin-bottom:2rem;">Eksperci OrcaTrade mogą prześledzić Twoje towary i złożyć weryfikacje w Twoim imieniu.</p>
+        <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+          <a href="/pl/intelligence.html#setup-plan" class="btn btn-primary" style="padding:1rem 2rem;font-size:1rem;">Porozmawiaj z OrcaTrade</a>
+          <a href="index.html" class="btn" style="border:1px solid var(--border-color);padding:1rem 2rem;border-radius:0;font-size:1rem;color:#fff;">Uruchom kolejną kontrolę</a>
+        </div>
+      </div>
+
+      <!-- Report footer -->
+      <div class="report-footer">
+        Napędzane przez OrcaTrade Intelligence &nbsp;·&nbsp;
+        Baza regulacyjna zaktualizowana w kwietniu 2026 &nbsp;·&nbsp;
+        ID raportu: <span id="footerReportId" style="font-family:monospace;">—</span>
+      </div>
+
+    </div>
+  </main>
+
+  <script src="../../js/cache-preferences.js"></script>
+  <script src="../../compliance/js/results.js"></script>
+  <script src="../../js/transitions.js"></script>
+</body>
+</html>

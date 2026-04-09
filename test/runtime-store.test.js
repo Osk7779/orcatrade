@@ -6,6 +6,7 @@ const {
   getSharedCacheValue,
   getStoredComplianceReportById,
   getStoredComplianceReportByRequest,
+  listStoredComplianceReportsByOwner,
   persistComplianceReport,
   setSharedCacheValue,
 } = require('../lib/intelligence/runtime-store');
@@ -47,4 +48,26 @@ test('runtime store persists and retrieves compliance reports in memory mode', a
   assert.equal(byId.report.reportId, 'OT-RUNTIME-001');
   assert.equal(byRequest.report.reportId, 'OT-RUNTIME-001');
   assert.equal(byId.storageMode, 'memory');
+});
+
+test('runtime store indexes reports by owner fingerprint in memory mode', async () => {
+  const cachePayload = { ruleVersion: 'test-v2', productCategory: 'Furniture & Wood', origin: 'Brazil' };
+  await persistComplianceReport({
+    reportId: 'OT-RUNTIME-OWNER-001',
+    overallStatus: 'at_risk',
+    overallScore: 85,
+    reportOwnership: {
+      ownerFingerprint: 'owner-test-001',
+      accountLabel: 'Northline Imports',
+    },
+  }, {
+    productCategory: 'Furniture & Wood',
+    origin: 'Brazil',
+    company: 'Northline Imports',
+  }, cachePayload, 1000);
+
+  const result = await listStoredComplianceReportsByOwner('owner-test-001', { limit: 5 });
+  assert.equal(result.storageMode, 'memory');
+  assert.equal(result.reports[0].reportId, 'OT-RUNTIME-OWNER-001');
+  assert.equal(result.reports[0].company, 'Northline Imports');
 });

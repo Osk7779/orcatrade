@@ -3,7 +3,9 @@ const assert = require('node:assert/strict');
 
 const {
   attachReportAccess,
+  createAccountAccessToken,
   createReportAccessToken,
+  verifyAccountAccessToken,
   verifyReportAccessToken,
 } = require('../lib/intelligence/report-access');
 
@@ -42,4 +44,17 @@ test('attachReportAccess returns a signed retrieval path when a signing secret i
 
   assert.equal(report.reportAccess.enabled, true);
   assert.match(report.reportAccess.retrievalPath, /\/api\/report\?reportId=OT-COMP-SECURE-003&accessToken=/);
+});
+
+test('account access token verifies for the matching owner fingerprint', () => {
+  process.env.ORCATRADE_REPORT_SECRET = 'test-report-secret';
+
+  const access = createAccountAccessToken('owner-fingerprint-001', {
+    issuedAtMs: Date.parse('2026-04-09T10:00:00.000Z'),
+    expiresAtMs: Date.parse('2026-04-10T10:00:00.000Z'),
+  });
+
+  const verification = verifyAccountAccessToken('owner-fingerprint-001', access.token);
+  assert.equal(verification.ok, true);
+  assert.equal(verification.payload.r, 'owner-fingerprint-001');
 });

@@ -76,6 +76,9 @@ function normaliseCheckCacheInput(orderData = {}) {
   return {
     ruleVersion: RULE_VERSION,
     asOfDate: resolveAsOfDate(orderData),
+    company: cleanString(orderData.company).toLowerCase(),
+    email: cleanString(orderData.email).toLowerCase(),
+    accountId: cleanString(orderData.accountId).toLowerCase(),
     productCategory: cleanString(orderData.productCategory).toLowerCase(),
     productDescription: cleanString(orderData.productDescription).toLowerCase(),
     origin: cleanString(orderData.origin).toLowerCase(),
@@ -123,6 +126,12 @@ async function sendReport(res, cachePreference, cacheInput, report, orderData) {
   }
   if (deliveryReport.reportAccess?.expiresAt) {
     res.setHeader('X-OrcaTrade-Report-Access-Expires-At', deliveryReport.reportAccess.expiresAt);
+  }
+  if (deliveryReport.accountAccess?.mode) {
+    res.setHeader('X-OrcaTrade-Account-Access-Mode', deliveryReport.accountAccess.mode);
+  }
+  if (deliveryReport.accountAccess?.expiresAt) {
+    res.setHeader('X-OrcaTrade-Account-Access-Expires-At', deliveryReport.accountAccess.expiresAt);
   }
 
   return res.status(200).json(deliveryReport);
@@ -199,6 +208,12 @@ module.exports = async function handler(req, res) {
         if (deliveryReport?.reportAccess?.expiresAt) {
           res.setHeader('X-OrcaTrade-Report-Access-Expires-At', deliveryReport.reportAccess.expiresAt);
         }
+        if (deliveryReport?.accountAccess?.mode) {
+          res.setHeader('X-OrcaTrade-Account-Access-Mode', deliveryReport.accountAccess.mode);
+        }
+        if (deliveryReport?.accountAccess?.expiresAt) {
+          res.setHeader('X-OrcaTrade-Account-Access-Expires-At', deliveryReport.accountAccess.expiresAt);
+        }
         return res.status(200).json(deliveryReport);
       }
     }
@@ -220,6 +235,12 @@ module.exports = async function handler(req, res) {
       }
       if (deliveryReport?.reportAccess?.expiresAt) {
         res.setHeader('X-OrcaTrade-Report-Access-Expires-At', deliveryReport.reportAccess.expiresAt);
+      }
+      if (deliveryReport?.accountAccess?.mode) {
+        res.setHeader('X-OrcaTrade-Account-Access-Mode', deliveryReport.accountAccess.mode);
+      }
+      if (deliveryReport?.accountAccess?.expiresAt) {
+        res.setHeader('X-OrcaTrade-Account-Access-Expires-At', deliveryReport.accountAccess.expiresAt);
       }
       return res.status(200).json(deliveryReport);
     }

@@ -1,10 +1,10 @@
 const { consumeRateLimit, getStoredComplianceReportById } = require('../lib/intelligence/runtime-store');
-const { attachReportAccess, verifyReportAccessToken } = require('../lib/intelligence/report-access');
+const { attachReportAccess, verifyAccountAccessToken, verifyReportAccessToken } = require('../lib/intelligence/report-access');
 
 module.exports = async function handler(req, res) {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Report-Token');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, X-OrcaTrade-Report-Token, X-OrcaTrade-Account-Token');
   res.setHeader('Cache-Control', 'no-store');
 
   if (req.method === 'OPTIONS') return res.status(200).end();
@@ -38,6 +38,24 @@ module.exports = async function handler(req, res) {
     const stored = await getStoredComplianceReportById(reportId);
     if (!stored || !stored.report) {
       return res.status(404).json({ error: 'Report not found' });
+    }
+
+    const ownerFingerprint = String(stored.report?.reportOwnership?.ownerFingerprint || '').trim();
+    if (ownerFingerprint) {
+      const accountToken = String(
+        req.query?.accountToken ||
+        req.headers['x-orcatrade-account-token'] ||
+        ''
+      ).trim();
+      const accountCheck = verifyAccountAccessToken(ownerFingerprint, accountToken);
+      if (!accountCheck.ok) {
+        return res.status(accountCheck.code === 'missing_account_token' ? 401 : 403).json({
+          error: accountCheck.reason || 'A signed account token is required for this report.',
+        });
+      }
+      if (accountCheck.expiresAt) {
+        res.setHeader('X-OrcaTrade-Account-Access-Expires-At', accountCheck.expiresAt);
+      }
     }
 
     const deliveryReport = attachReportAccess(stored.report);

@@ -1,13 +1,61 @@
 (function () {
+  var LANG = (document.documentElement.lang || 'en').slice(0, 2);
   var PREF_KEY = 'orcatradeCachePreference';
   var CACHE_PREFIX = 'orcatrade.cache.';
   var WORKFLOW_PREFIX = 'orcatrade.workflow.';
   var WINDOW_PREFIX = '__ORCATRADE_TEMP__';
-  var PREF_LABELS = {
-    all: 'Accept all cache',
-    essential: 'Essential only',
-    reject: 'Reject optional cache',
+  var COPY = {
+    en: {
+      labels: {
+        all: 'Accept all cache',
+        essential: 'Essential only',
+        reject: 'Reject optional cache',
+      },
+      title: 'Choose your cache mode',
+      modalCopy: 'OrcaTrade can cache repeat checks to make Intelligence faster. Choose whether you want full cache, essential-only workflow state, or no optional cache.',
+      panelCopy: 'Accept all cache uses browser and server cache for faster repeat checks. Essential only keeps the minimum short-lived workflow state. Reject disables optional caching.',
+      acceptAll: 'Accept all',
+      essential: 'Essential only',
+      reject: 'Reject',
+      noChoice: 'No choice has been saved yet. Essential only is the default until you choose.',
+      toggle: 'Cache settings',
+      current: 'Current mode:',
+    },
+    de: {
+      labels: {
+        all: 'Gesamten Cache zulassen',
+        essential: 'Nur essenziell',
+        reject: 'Optionalen Cache ablehnen',
+      },
+      title: 'Cache-Modus wählen',
+      modalCopy: 'OrcaTrade kann Wiederholungsprüfungen cachen, um Intelligence schneller zu machen. Wählen Sie vollständigen Cache, nur essenziellen Workflow-Status oder keinen optionalen Cache.',
+      panelCopy: 'Gesamten Cache zulassen verwendet Browser- und Server-Cache für schnellere Wiederholungsprüfungen. Nur essenziell hält nur den minimalen kurzlebigen Workflow-Status. Ablehnen deaktiviert optionales Caching.',
+      acceptAll: 'Alles zulassen',
+      essential: 'Nur essenziell',
+      reject: 'Ablehnen',
+      noChoice: 'Noch keine Auswahl gespeichert. Bis zu Ihrer Entscheidung ist „Nur essenziell“ der Standard.',
+      toggle: 'Cache-Einstellungen',
+      current: 'Aktueller Modus:',
+    },
+    pl: {
+      labels: {
+        all: 'Akceptuj cały cache',
+        essential: 'Tylko niezbędne',
+        reject: 'Odrzuć opcjonalny cache',
+      },
+      title: 'Wybierz tryb cache',
+      modalCopy: 'OrcaTrade może buforować powtarzające się kontrole, aby przyspieszyć Intelligence. Wybierz pełny cache, tylko niezbędny stan workflow albo brak opcjonalnego cache.',
+      panelCopy: 'Akceptacja pełnego cache używa pamięci przeglądarki i serwera dla szybszych powtórnych kontroli. Tylko niezbędne zachowuje minimalny krótkotrwały stan workflow. Odrzucenie wyłącza opcjonalne buforowanie.',
+      acceptAll: 'Akceptuj wszystko',
+      essential: 'Tylko niezbędne',
+      reject: 'Odrzuć',
+      noChoice: 'Nie zapisano jeszcze wyboru. Do czasu decyzji domyślny jest tryb „Tylko niezbędne”.',
+      toggle: 'Ustawienia cache',
+      current: 'Obecny tryb:',
+    },
   };
+  var TEXT = COPY[LANG] || COPY.en;
+  var PREF_LABELS = TEXT.labels;
 
   function getStorage(type) {
     try {
@@ -245,28 +293,28 @@
       return '' +
         '<div class="ot-cache-overlay"></div>' +
         '<div class="ot-cache-widget-panel ot-cache-widget-panel--modal visible" id="ot-cache-panel">' +
-        '  <div class="ot-cache-widget-title">Choose your cache mode</div>' +
-        '  <p class="ot-cache-widget-copy">OrcaTrade can cache repeat checks to make Intelligence faster. Choose whether you want full cache, essential-only workflow state, or no optional cache.</p>' +
+        '  <div class="ot-cache-widget-title">' + TEXT.title + '</div>' +
+        '  <p class="ot-cache-widget-copy">' + TEXT.modalCopy + '</p>' +
         '  <div class="ot-cache-widget-actions">' +
-        '    <button type="button" data-pref="all">Accept all</button>' +
-        '    <button type="button" data-pref="essential">Essential only</button>' +
-        '    <button type="button" data-pref="reject">Reject</button>' +
+        '    <button type="button" data-pref="all">' + TEXT.acceptAll + '</button>' +
+        '    <button type="button" data-pref="essential">' + TEXT.essential + '</button>' +
+        '    <button type="button" data-pref="reject">' + TEXT.reject + '</button>' +
         '  </div>' +
-        '  <div class="ot-cache-widget-current">No choice has been saved yet. Essential only is the default until you choose.</div>' +
+        '  <div class="ot-cache-widget-current">' + TEXT.noChoice + '</div>' +
         '</div>';
     }
 
     return '' +
-      '<div class="ot-cache-widget-toggle" id="ot-cache-toggle">Cache settings</div>' +
+      '<div class="ot-cache-widget-toggle" id="ot-cache-toggle">' + TEXT.toggle + '</div>' +
       '<div class="ot-cache-widget-panel" id="ot-cache-panel">' +
-      '  <div class="ot-cache-widget-title">Choose your cache mode</div>' +
-      '  <p class="ot-cache-widget-copy">Accept all cache uses browser and server cache for faster repeat checks. Essential only keeps the minimum short-lived workflow state. Reject disables optional caching.</p>' +
+      '  <div class="ot-cache-widget-title">' + TEXT.title + '</div>' +
+      '  <p class="ot-cache-widget-copy">' + TEXT.panelCopy + '</p>' +
       '  <div class="ot-cache-widget-actions">' +
-      '    <button type="button" data-pref="all">Accept all</button>' +
-      '    <button type="button" data-pref="essential">Essential only</button>' +
-      '    <button type="button" data-pref="reject">Reject</button>' +
+      '    <button type="button" data-pref="all">' + TEXT.acceptAll + '</button>' +
+      '    <button type="button" data-pref="essential">' + TEXT.essential + '</button>' +
+      '    <button type="button" data-pref="reject">' + TEXT.reject + '</button>' +
       '  </div>' +
-      '  <div class="ot-cache-widget-current">Current mode: <strong>' + PREF_LABELS[preference] + '</strong></div>' +
+      '  <div class="ot-cache-widget-current">' + TEXT.current + ' <strong>' + PREF_LABELS[preference] + '</strong></div>' +
       '</div>';
   }
 

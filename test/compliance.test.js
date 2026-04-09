@@ -216,6 +216,8 @@ test('validator rejects incomplete report payloads and accepts quick checks', ()
 
 test('deterministic fallback report returns a structured rules-based report', () => {
   const report = buildDeterministicFallbackReport({
+    company: 'Northline Imports',
+    email: 'ops@northline.test',
     productCategory: 'Steel & Metal',
     productDescription: 'Steel fasteners for industrial assemblies',
     companySize: '250–1000 employees',
@@ -237,4 +239,8 @@ test('deterministic fallback report returns a structured rules-based report', ()
   assert.equal(report.reportLineage.ruleVersion, report.ruleVersion);
   assert.equal(report.reportLineage.generationMode, 'deterministic_fallback');
   assert.match(report.reportLineage.inputFingerprint, /^[a-f0-9]{64}$/);
+  assert.equal(report.reportOwnership.identityMode, 'email');
+  assert.equal(report.reportOwnership.company, 'Northline Imports');
+  assert.ok(report.reportOwnership.ownerFingerprint);
+  assert.equal(report.evidenceSnapshot.snapshotVersion, '2026-04-09');
 });

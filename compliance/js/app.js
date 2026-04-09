@@ -1,6 +1,91 @@
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('complianceForm');
   const cache = window.OrcaTradeCachePreference;
+  const lang = (document.documentElement.lang || 'en').slice(0, 2);
+  const copy = {
+    en: {
+      labels: {
+        cnCode: 'CN / HS code',
+        authorisedDeclarant: 'Authorised declarant status',
+        supplierEmissionsData: 'Supplier emissions data',
+        geolocationAvailable: 'Plot-level geolocation evidence',
+        dueDiligenceStatement: 'Due-diligence statement',
+        globalTurnover: 'Global turnover',
+        employeeCount: 'Exact employee count',
+        companySize: 'Company size',
+        origin: 'Country of origin',
+        productDescription: 'Product description',
+      },
+      cbamReason: 'Required for likely CBAM-covered goods.',
+      eudrReason: 'Required for likely EUDR-covered goods.',
+      cbamTitle: 'CBAM evidence required for this goods profile',
+      cbamCopy: 'These goods look CBAM-adjacent, so OrcaTrade now requires classification and importer-emissions readiness facts before you can run the strongest report.',
+      eudrTitle: 'EUDR evidence required for this goods profile',
+      eudrCopy: 'These goods look EUDR-adjacent, so OrcaTrade now requires geolocation and due-diligence readiness facts before you can run the strongest report.',
+      multiTitle: 'Multiple evidence gates are active for this goods profile',
+      multiCopy: 'These goods trigger both customs and sustainability evidence checks. Complete the highlighted fields so OrcaTrade can avoid a weaker provisional result.',
+      recoveryTitle: 'Recovery guidance is active',
+      recoveryCopy: 'OrcaTrade restored your previous order details. Complete the highlighted fields below to strengthen the next report.',
+      recoveryNoticeTitle: 'Continue from missing facts',
+      recoveryNoticeFallback: 'OrcaTrade highlighted the fields it still needs before the next run can be stronger.',
+      submit: 'Analyzing...',
+    },
+    de: {
+      labels: {
+        cnCode: 'CN / HS-Code',
+        authorisedDeclarant: 'Status als zugelassener Anmelder',
+        supplierEmissionsData: 'Emissionsdaten des Lieferanten',
+        geolocationAvailable: 'Geolokalisierungsnachweise auf Flächenebene',
+        dueDiligenceStatement: 'Sorgfaltspflichterklärung',
+        globalTurnover: 'Weltweiter Umsatz',
+        employeeCount: 'Genaue Mitarbeiterzahl',
+        companySize: 'Unternehmensgröße',
+        origin: 'Ursprungsland',
+        productDescription: 'Produktbeschreibung',
+      },
+      cbamReason: 'Erforderlich für wahrscheinlich CBAM-pflichtige Waren.',
+      eudrReason: 'Erforderlich für wahrscheinlich EUDR-pflichtige Waren.',
+      cbamTitle: 'CBAM-Nachweise für dieses Warenprofil erforderlich',
+      cbamCopy: 'Diese Waren wirken CBAM-nah. OrcaTrade benötigt daher Klassifizierungs- und Emissionsbereitschaftsfakten des Importeurs, bevor der stärkste Bericht möglich ist.',
+      eudrTitle: 'EUDR-Nachweise für dieses Warenprofil erforderlich',
+      eudrCopy: 'Diese Waren wirken EUDR-nah. OrcaTrade benötigt daher Geolokalisierungs- und Sorgfaltspflichtnachweise, bevor der stärkste Bericht möglich ist.',
+      multiTitle: 'Mehrere Nachweis-Gates sind für dieses Warenprofil aktiv',
+      multiCopy: 'Diese Waren lösen sowohl Zoll- als auch Nachhaltigkeitsprüfungen aus. Vervollständigen Sie die markierten Felder, damit OrcaTrade ein schwächeres vorläufiges Ergebnis vermeiden kann.',
+      recoveryTitle: 'Wiederherstellungshinweise sind aktiv',
+      recoveryCopy: 'OrcaTrade hat Ihre vorherigen Bestelldaten wiederhergestellt. Ergänzen Sie die markierten Felder unten, um den nächsten Bericht zu stärken.',
+      recoveryNoticeTitle: 'Mit fehlenden Fakten fortfahren',
+      recoveryNoticeFallback: 'OrcaTrade hat die Felder markiert, die vor dem nächsten stärkeren Lauf noch fehlen.',
+      submit: 'Analysiere...',
+    },
+    pl: {
+      labels: {
+        cnCode: 'Kod CN / HS',
+        authorisedDeclarant: 'Status upoważnionego zgłaszającego',
+        supplierEmissionsData: 'Dane emisyjne dostawcy',
+        geolocationAvailable: 'Dowody geolokalizacji na poziomie działki',
+        dueDiligenceStatement: 'Oświadczenie due diligence',
+        globalTurnover: 'Globalne obroty',
+        employeeCount: 'Dokładna liczba pracowników',
+        companySize: 'Wielkość firmy',
+        origin: 'Kraj pochodzenia',
+        productDescription: 'Opis produktu',
+      },
+      cbamReason: 'Wymagane dla towarów prawdopodobnie objętych CBAM.',
+      eudrReason: 'Wymagane dla towarów prawdopodobnie objętych EUDR.',
+      cbamTitle: 'Dowody CBAM wymagane dla tego profilu towaru',
+      cbamCopy: 'Te towary wyglądają na zbliżone do zakresu CBAM, więc OrcaTrade wymaga teraz klasyfikacji oraz informacji o gotowości emisyjnej importera, zanim uruchomi najmocniejszy raport.',
+      eudrTitle: 'Dowody EUDR wymagane dla tego profilu towaru',
+      eudrCopy: 'Te towary wyglądają na zbliżone do zakresu EUDR, więc OrcaTrade wymaga teraz geolokalizacji i gotowości oświadczenia due diligence, zanim uruchomi najmocniejszy raport.',
+      multiTitle: 'Dla tego profilu towaru aktywne są wielokrotne bramki dowodowe',
+      multiCopy: 'Te towary uruchamiają zarówno kontrole celne, jak i środowiskowe. Uzupełnij wyróżnione pola, aby OrcaTrade uniknął słabszego wyniku prowizorycznego.',
+      recoveryTitle: 'Aktywne są wskazówki odzyskiwania',
+      recoveryCopy: 'OrcaTrade przywrócił poprzednie dane zamówienia. Uzupełnij wyróżnione pola poniżej, aby wzmocnić kolejny raport.',
+      recoveryNoticeTitle: 'Kontynuuj od brakujących faktów',
+      recoveryNoticeFallback: 'OrcaTrade zaznaczył pola, których nadal potrzebuje przed kolejnym, mocniejszym uruchomieniem.',
+      submit: 'Analiza...',
+    },
+  };
+  const t = copy[lang] || copy.en;
 
   if (!form) return;
 
@@ -13,16 +98,16 @@ document.addEventListener('DOMContentLoaded', () => {
     eudr: ['geolocationAvailable', 'dueDiligenceStatement'],
   };
   const FACT_TO_FIELD_MAP = [
-    { pattern: /cn\s*\/?\s*hs|goods classification|classification/i, fieldId: 'cnCode', label: 'CN / HS code' },
-    { pattern: /authori[sz]ed.*declarant|declarant status/i, fieldId: 'authorisedDeclarant', label: 'Authorised declarant status' },
-    { pattern: /supplier emissions|embedded emissions|emissions data/i, fieldId: 'supplierEmissionsData', label: 'Supplier emissions data' },
-    { pattern: /geolocation|polygon|plot-level/i, fieldId: 'geolocationAvailable', label: 'Plot-level geolocation evidence' },
-    { pattern: /due[- ]?diligence statement|due diligence/i, fieldId: 'dueDiligenceStatement', label: 'Due-diligence statement' },
-    { pattern: /global turnover|turnover/i, fieldId: 'globalTurnover', label: 'Global turnover' },
-    { pattern: /employee count/i, fieldId: 'employeeCount', label: 'Exact employee count' },
-    { pattern: /company size|operator size/i, fieldId: 'companySize', label: 'Company size' },
-    { pattern: /country of origin|origin/i, fieldId: 'origin', label: 'Country of origin' },
-    { pattern: /product description|commodity classification|goods description/i, fieldId: 'productDescription', label: 'Product description' },
+    { pattern: /cn\s*\/?\s*hs|goods classification|classification/i, fieldId: 'cnCode' },
+    { pattern: /authori[sz]ed.*declarant|declarant status/i, fieldId: 'authorisedDeclarant' },
+    { pattern: /supplier emissions|embedded emissions|emissions data/i, fieldId: 'supplierEmissionsData' },
+    { pattern: /geolocation|polygon|plot-level/i, fieldId: 'geolocationAvailable' },
+    { pattern: /due[- ]?diligence statement|due diligence/i, fieldId: 'dueDiligenceStatement' },
+    { pattern: /global turnover|turnover/i, fieldId: 'globalTurnover' },
+    { pattern: /employee count/i, fieldId: 'employeeCount' },
+    { pattern: /company size|operator size/i, fieldId: 'companySize' },
+    { pattern: /country of origin|origin/i, fieldId: 'origin' },
+    { pattern: /product description|commodity classification|goods description/i, fieldId: 'productDescription' },
   ];
 
   function readWorkflowState(key) {
@@ -126,23 +211,23 @@ document.addEventListener('DOMContentLoaded', () => {
     let copy = '';
 
     if (needs.cbam) {
-      title = 'CBAM evidence required for this goods profile';
-      copy = 'These goods look CBAM-adjacent, so OrcaTrade now requires classification and importer-emissions readiness facts before you can run the strongest report.';
-      chips.push('CN / HS code', 'Authorised declarant status', 'Supplier emissions data');
+      title = t.cbamTitle;
+      copy = t.cbamCopy;
+      chips.push(t.labels.cnCode, t.labels.authorisedDeclarant, t.labels.supplierEmissionsData);
     }
 
     if (needs.eudr) {
-      title = title ? 'Multiple evidence gates are active for this goods profile' : 'EUDR evidence required for this goods profile';
+      title = title ? t.multiTitle : t.eudrTitle;
       copy = needs.cbam
-        ? 'These goods trigger both customs and sustainability evidence checks. Complete the highlighted fields so OrcaTrade can avoid a weaker provisional result.'
-        : 'These goods look EUDR-adjacent, so OrcaTrade now requires geolocation and due-diligence readiness facts before you can run the strongest report.';
-      chips.push('Geolocation evidence', 'Due-diligence statement');
+        ? t.multiCopy
+        : t.eudrCopy;
+      chips.push(t.labels.geolocationAvailable, t.labels.dueDiligenceStatement);
     }
 
     if (!needs.cbam && !needs.eudr) {
       if (recoveryData && Array.isArray(recoveryData.fieldLabels) && recoveryData.fieldLabels.length) {
-        title = 'Recovery guidance is active';
-        copy = 'OrcaTrade restored your previous order details. Complete the highlighted fields below to strengthen the next report.';
+        title = t.recoveryTitle;
+        copy = t.recoveryCopy;
         chips.push(...recoveryData.fieldLabels);
       } else {
         notice.style.display = 'none';
@@ -171,8 +256,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const chips = Array.isArray(recoveryData.fieldLabels) ? recoveryData.fieldLabels : [];
     notice.innerHTML = `
-      <div class="notice-title">Continue from missing facts</div>
-      <div class="notice-copy">${recoveryData.message || 'OrcaTrade highlighted the fields it still needs before the next run can be stronger.'}</div>
+      <div class="notice-title">${t.recoveryNoticeTitle}</div>
+      <div class="notice-copy">${recoveryData.message || t.recoveryNoticeFallback}</div>
       ${chips.length ? `<div class="notice-list">${chips.map(label => `<span class="notice-chip">${label}</span>`).join('')}</div>` : ''}
     `;
     notice.style.display = 'block';
@@ -196,10 +281,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const needs = detectDynamicNeeds(orderData);
 
     DYNAMIC_FIELDS.cbam.forEach(fieldId => {
-      setFieldRequirement(fieldId, needs.cbam, 'Required for likely CBAM-covered goods.');
+      setFieldRequirement(fieldId, needs.cbam, t.cbamReason);
     });
     DYNAMIC_FIELDS.eudr.forEach(fieldId => {
-      setFieldRequirement(fieldId, needs.eudr, 'Required for likely EUDR-covered goods.');
+      setFieldRequirement(fieldId, needs.eudr, t.eudrReason);
     });
 
     renderDynamicNotice(orderData, recoveryData);
@@ -238,7 +323,7 @@ document.addEventListener('DOMContentLoaded', () => {
       FACT_TO_FIELD_MAP.forEach(mapping => {
         if (mapping.pattern.test(String(fact || '')) && !fieldIds.includes(mapping.fieldId)) {
           fieldIds.push(mapping.fieldId);
-          fieldLabels.push(mapping.label);
+          fieldLabels.push(t.labels[mapping.fieldId] || mapping.fieldId);
         }
       });
     });
@@ -276,7 +361,7 @@ document.addEventListener('DOMContentLoaded', () => {
     recoveryData = null;
 
     const submitBtn = form.querySelector('button[type="submit"]');
-    submitBtn.innerHTML = 'Analyzing... <span style="display:inline-block;animation:spin 1s linear infinite;margin-left:0.5rem">⭮</span>';
+    submitBtn.innerHTML = t.submit + ' <span style="display:inline-block;animation:spin 1s linear infinite;margin-left:0.5rem">⭮</span>';
     submitBtn.disabled = true;
 
     window.location.href = 'check.html';
