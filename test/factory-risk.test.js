@@ -96,3 +96,24 @@ test('factory search keeps the requested factory anchored when AI returns unrela
   assert.equal(result.factories[0].country, 'China');
   assert.ok(result.factories[0].riskScore >= 70);
 });
+
+test('factory search fallback changes with different queries in the same market', () => {
+  const powerSupplies = sanitizeFactoryResults(null, {
+    query: 'power supplies',
+    category: 'Electronics & Components',
+    country: 'Vietnam',
+    riskTolerance: 'Any risk level',
+  });
+  const connectors = sanitizeFactoryResults(null, {
+    query: 'connectors',
+    category: 'Electronics & Components',
+    country: 'Vietnam',
+    riskTolerance: 'Any risk level',
+  });
+
+  assert.equal(powerSupplies.queryMode, 'market_scan');
+  assert.equal(connectors.queryMode, 'market_scan');
+  assert.notEqual(powerSupplies.factories[0].name, connectors.factories[0].name);
+  assert.equal(powerSupplies.factories[0].speciality, 'power supplies');
+  assert.equal(connectors.factories[0].speciality, 'connectors');
+});

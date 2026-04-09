@@ -21,6 +21,14 @@ function extractJsonObject(text) {
   return match ? match[0] : cleaned;
 }
 
+function sendFactoryResponse(res, payload, generationMode) {
+  res.setHeader('X-OrcaTrade-Generation-Mode', generationMode);
+  return res.status(200).json({
+    ...payload,
+    generationMode,
+  });
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method Not Allowed' });
@@ -33,7 +41,7 @@ module.exports = async function handler(req, res) {
   const allowedSpecialities = (CATEGORY_SPECIALITIES[filters.category] || CATEGORY_SPECIALITIES.Other).join(', ');
 
   if (!process.env.ORCATRADE_OS_API) {
-    return res.status(200).json(sanitizeFactoryResults(null, filters));
+    return sendFactoryResponse(res, sanitizeFactoryResults(null, filters), 'deterministic_fallback');
   }
 
   try {
@@ -108,9 +116,9 @@ Return this exact JSON shape:
 
     const textResponse = extractJsonObject(extractAnthropicText(message.data));
     const parsed = JSON.parse(textResponse);
-    return res.status(200).json(sanitizeFactoryResults(parsed, filters));
+    return sendFactoryResponse(res, sanitizeFactoryResults(parsed, filters), 'model');
   } catch (error) {
     console.error('Factory score error:', error.message);
-    return res.status(200).json(sanitizeFactoryResults(null, filters));
+    return sendFactoryResponse(res, sanitizeFactoryResults(null, filters), 'deterministic_fallback');
   }
 };
