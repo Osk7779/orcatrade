@@ -131,3 +131,30 @@ test('factory search uses directory matches for known market searches before syn
   assert.equal(result.factories[0].name, 'Guangdong Yimai Packaging Co., Ltd.');
   assert.equal(result.factories[0].city, 'Dongguan');
 });
+
+test('factory search treats directory-backed company names as exact lookups even when the name overlaps category terms', () => {
+  const result = sanitizeFactoryResults(null, {
+    query: 'Ningbo Evershine Plastic Products',
+    category: 'Rubber & Plastics',
+    country: 'China',
+    riskTolerance: 'Any risk level',
+  });
+
+  assert.equal(result.queryMode, 'exact_factory');
+  assert.equal(result.factories.length, 1);
+  assert.equal(result.factories[0].name, 'Ningbo Evershine Plastic Products');
+  assert.equal(result.factories[0].city, 'Ningbo');
+});
+
+test('factory search treats short known supplier names as exact lookups when they match the supplier directory', () => {
+  const result = sanitizeFactoryResults(null, {
+    query: 'Yimai',
+    category: 'Packaging & Paper',
+    country: 'China',
+    riskTolerance: 'Any risk level',
+  });
+
+  assert.equal(result.queryMode, 'exact_factory');
+  assert.equal(result.factories.length, 1);
+  assert.equal(result.factories[0].name, 'Guangdong Yimai Packaging Co., Ltd.');
+});
