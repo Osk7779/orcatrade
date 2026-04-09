@@ -1,4 +1,5 @@
 const Anthropic = require('@anthropic-ai/sdk');
+const { consumeRateLimit } = require('../lib/intelligence/runtime-store');
 const {
   buildFocusedSystemPrompt,
   buildLocalFallbackReply,
@@ -10,21 +11,6 @@ const {
 } = require('../lib/intelligence/live-pillars');
 
 const COMPLIANCE_TRIAGE_PATTERN = /\b(cbam|eudr|import|imports|importer|regulation|regulations|penalty|penalties|fine|fines|certificate|declarant|declaration|threshold|supplier|goods|customs|compliance|compliant)\b/i;
-const rateMap = new Map();
-
-function checkRate(ip, limit) {
-  const now = Date.now();
-  const entry = rateMap.get(ip) || { count: 0, windowStart: now };
-
-  if (now - entry.windowStart > 60000) {
-    entry.count = 0;
-    entry.windowStart = now;
-  }
-
-  entry.count++;
-  rateMap.set(ip, entry);
-  return entry.count > limit;
-}
 
 function openStream(res) {
   res.setHeader('Content-Type', 'text/event-stream');
@@ -55,7 +41,9 @@ module.exports = async (req, res) => {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
-  if (checkRate(ip, 20)) {
+  const rate = await consumeRateLimit('chat', ip, 20, 60000);
+  res.setHeader('X-OrcaTrade-Storage-Mode', rate.storageMode);
+  if (rate.limited) {
     return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
   }
 

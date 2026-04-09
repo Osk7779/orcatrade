@@ -49,20 +49,6 @@
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
 
-    /* ── URGENCY BAR ── */
-    .urgency-bar {
-      background: rgba(184,190,200,0.07);
-      border-bottom: 1px solid rgba(184,190,200,0.12);
-      padding: 0.5rem 1.5rem;
-      text-align: center;
-      font-size: 0.77rem;
-      color: var(--muted);
-      letter-spacing: 0.02em;
-      position: relative; z-index: 60;
-    }
-    .urgency-bar strong { color: var(--text); }
-    .urgency-bar a { color: var(--accent); text-decoration: underline; text-underline-offset: 3px; margin-left: 0.5rem; }
-
     /* ── NAV ── */
     .nav {
       position: sticky; top: 0; z-index: 50;
@@ -127,25 +113,6 @@
     .title--md { font-size: clamp(1.5rem, 2.8vw, 2.4rem); }
     .subtitle { font-size: 1rem; color: var(--muted); line-height: 1.72; max-width: 52ch; margin-bottom: 2rem; }
 
-    /* ── BADGE / STATUS ── */
-    .badge {
-      display: inline-flex; align-items: center; gap: 0.45rem;
-      font-family: var(--font-h); font-size: 0.68rem; font-weight: 700;
-      text-transform: uppercase; letter-spacing: 0.18em;
-      padding: 0.3rem 0.85rem; margin-bottom: 1.4rem;
-      border: 1px solid rgba(184,190,200,0.3);
-      background: rgba(184,190,200,0.08); color: var(--accent);
-    }
-    .badge::before {
-      content: ""; width: 6px; height: 6px;
-      background: var(--accent);
-      animation: pulse 2s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50%       { opacity: 0.4; transform: scale(0.7); }
-    }
-
     /* ── HERO ── */
     .hero { padding-top: 5.5rem; padding-bottom: 4rem; }
     .back {
@@ -165,38 +132,6 @@
       transition: all 0.2s ease;
     }
     .btn-ghost:hover { background: rgba(8,20,51,0.96); border-color: rgba(255,255,255,0.3); color: var(--text); transform: translateY(-2px); }
-
-    /* ── STAT CARDS (market window) ── */
-    .stat-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 1px; margin-top: 2.5rem;
-      border: 1px solid var(--border);
-      background: var(--border);
-    }
-    .stat-card {
-      background: var(--bg-card);
-      padding: 1.6rem 1.4rem;
-    }
-    .stat-label {
-      font-size: 0.66rem; text-transform: uppercase; letter-spacing: 0.16em;
-      color: var(--accent); margin-bottom: 0.9rem; opacity: 0.7;
-    }
-    .stat-number {
-      font-family: var(--font-h); font-size: 2rem; line-height: 1; margin-bottom: 0.6rem;
-    }
-    .stat-copy { font-size: 0.83rem; color: var(--muted); line-height: 1.6; }
-
-    /* ── OFFER STRIP ── */
-    .offer-strip {
-      margin-top: 2rem; padding: 1.2rem 1.6rem;
-      border: 1px solid rgba(184,190,200,0.16);
-      background: rgba(184,190,200,0.05);
-      display: grid; grid-template-columns: 1.2fr 1fr;
-      gap: 1rem 2.5rem; align-items: center;
-    }
-    .offer-strip p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; }
-    .offer-strip strong { color: var(--text); font-weight: 600; }
-    @media (max-width: 640px) { .offer-strip { grid-template-columns: 1fr; } }
 
     /* ── FEATURE CARDS (What's inside) ── */
     .feature-grid {
@@ -271,85 +206,8 @@
       font-weight: 700; line-height: 1.15; margin-bottom: 1rem;
     }
     .tier-desc { font-size: 0.88rem; color: var(--muted); line-height: 1.7; margin-bottom: 1.6rem; }
-    .tier-price {
-      display: inline-block; font-size: 0.72rem; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--accent); border: 1px solid rgba(184,190,200,0.25);
-      padding: 0.2rem 0.7rem; margin-top: 1rem;
-    }
     .tier-trust { margin-top: 1rem; font-size: 0.78rem; color: var(--muted); opacity: 0.8; }
     @media (max-width: 860px) { .tiers-grid { grid-template-columns: 1fr; } }
-
-    /* ── TIMELINE ── */
-    .timeline-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 1rem; margin-top: 2rem;
-    }
-    .timeline-card {
-      background: linear-gradient(145deg, #111d3a, #060b17);
-      border: 1px solid var(--border);
-      padding: 1.5rem 1.3rem;
-    }
-    .timeline-step {
-      display: inline-flex; align-items: center; justify-content: center;
-      min-width: 2rem; height: 2rem;
-      border: 1px solid rgba(184,190,200,0.35);
-      color: var(--accent); font-size: 0.78rem; font-weight: 700;
-      margin-bottom: 1rem;
-    }
-    .timeline-card h3 { font-family: var(--font-h); font-size: 1.05rem; margin-bottom: 0.55rem; }
-    .timeline-card p { color: var(--muted); font-size: 0.84rem; line-height: 1.6; margin-bottom: 0.8rem; }
-    .timeline-card strong { color: var(--text); font-weight: 600; }
-    @media (max-width: 860px) { .timeline-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 500px) { .timeline-grid { grid-template-columns: 1fr; } }
-
-    /* ── ROI CALCULATOR ── */
-    .roi-shell {
-      display: grid; grid-template-columns: 0.95fr 1.05fr;
-      gap: 1.4rem; margin-top: 2rem;
-    }
-    .roi-panel {
-      background: linear-gradient(145deg, #111d3a, #060b17);
-      border: 1px solid var(--border); padding: 1.8rem;
-    }
-    .roi-badge {
-      display: inline-flex; align-items: center; gap: 0.45rem;
-      padding: 0.35rem 0.75rem; border: 1px solid rgba(184,190,200,0.22);
-      background: rgba(184,190,200,0.07); font-size: 0.72rem;
-      letter-spacing: 0.12em; text-transform: uppercase;
-      color: var(--accent); margin-bottom: 0.9rem;
-    }
-    .roi-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem; }
-    .roi-input-wrap label {
-      display: block; font-size: 0.72rem; text-transform: uppercase;
-      letter-spacing: 0.13em; color: var(--muted); margin-bottom: 0.35rem;
-    }
-    .roi-input-wrap input {
-      width: 100%; background: rgba(5,5,7,0.82); border: 1px solid var(--border);
-      color: var(--text); padding: 0.75rem 0.9rem;
-      font-size: 0.94rem; outline: none;
-    }
-    .roi-input-wrap input:focus {
-      border-color: rgba(184,190,200,0.5);
-      box-shadow: 0 0 0 3px rgba(184,190,200,0.07);
-    }
-    .roi-note { font-size: 0.82rem; color: var(--muted); line-height: 1.6; margin-top: 1rem; }
-    .roi-metric-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.2rem; }
-    .roi-metric { background: rgba(5,5,7,0.46); border: 1px solid rgba(255,255,255,0.07); padding: 1rem; }
-    .roi-metric-label {
-      font-size: 0.65rem; text-transform: uppercase;
-      letter-spacing: 0.15em; color: var(--muted); margin-bottom: 0.5rem;
-    }
-    .roi-metric-value { font-family: var(--font-h); font-size: 1.8rem; line-height: 1; margin-bottom: 0.35rem; }
-    .roi-metric-copy { font-size: 0.81rem; color: var(--muted); line-height: 1.55; }
-    .roi-recommendation {
-      margin-top: 1.2rem; padding: 1rem 1.1rem;
-      border: 1px solid rgba(184,190,200,0.16);
-      background: rgba(184,190,200,0.05);
-    }
-    .roi-recommendation strong { display: block; color: var(--text); margin-bottom: 0.35rem; font-weight: 600; }
-    .roi-recommendation p { font-size: 0.84rem; color: var(--muted); line-height: 1.65; }
-    @media (max-width: 860px) { .roi-shell, .roi-form-grid, .roi-metric-grid { grid-template-columns: 1fr; } }
 
     /* ── QUICK CHECK ── */
     .qc-shell {
@@ -395,6 +253,83 @@
     .qc-loading.visible { display: block; }
     @media (max-width: 640px) { .qc-shell { grid-template-columns: 1fr; } }
 
+    /* ── ROI ESTIMATOR ── */
+    .roi-shell {
+      display: grid; grid-template-columns: 0.95fr 1.05fr;
+      gap: 1px; margin-top: 2rem;
+      border: 1px solid var(--border); background: var(--border);
+    }
+    .roi-form-side {
+      background: var(--bg-card);
+      padding: 2rem 2.2rem;
+    }
+    .roi-result-side {
+      background: linear-gradient(145deg, #111d3a, #060b17);
+      padding: 2rem 2.2rem;
+    }
+    .roi-form-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 0.95rem; margin-top: 1.1rem;
+    }
+    .roi-label {
+      display: block; font-size: 0.72rem;
+      text-transform: uppercase; letter-spacing: 0.13em;
+      color: var(--muted); margin-bottom: 0.35rem;
+    }
+    .roi-input {
+      width: 100%; background: rgba(5,5,7,0.82);
+      border: 1px solid var(--border); color: var(--text);
+      padding: 0.75rem 0.9rem; font-size: 0.92rem;
+      font-family: var(--font-b); outline: none;
+    }
+    .roi-input:focus {
+      border-color: rgba(184,190,200,0.45);
+      box-shadow: 0 0 0 3px rgba(184,190,200,0.07);
+    }
+    .roi-note {
+      font-size: 0.83rem; color: var(--muted);
+      line-height: 1.6; margin-top: 1rem;
+    }
+    .roi-metric-grid {
+      display: grid; grid-template-columns: 1fr 1fr;
+      gap: 1rem; margin-top: 1.2rem;
+    }
+    .roi-metric {
+      background: rgba(5,5,7,0.46);
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 1rem;
+    }
+    .roi-metric-label {
+      font-size: 0.65rem; text-transform: uppercase;
+      letter-spacing: 0.15em; color: var(--muted);
+      margin-bottom: 0.5rem;
+    }
+    .roi-metric-value {
+      font-family: var(--font-h);
+      font-size: 1.8rem; line-height: 1;
+      margin-bottom: 0.35rem;
+    }
+    .roi-metric-copy {
+      font-size: 0.81rem; color: var(--muted);
+      line-height: 1.55;
+    }
+    .roi-recommendation {
+      margin-top: 1.2rem; padding: 1rem 1.1rem;
+      border: 1px solid rgba(184,190,200,0.16);
+      background: rgba(184,190,200,0.05);
+    }
+    .roi-recommendation strong {
+      display: block; color: var(--text);
+      margin-bottom: 0.35rem; font-weight: 600;
+    }
+    .roi-recommendation p {
+      font-size: 0.84rem; color: var(--muted);
+      line-height: 1.65;
+    }
+    @media (max-width: 860px) {
+      .roi-shell, .roi-form-grid, .roi-metric-grid { grid-template-columns: 1fr; }
+    }
+
     /* ── LEAD FORM ── */
     .waitlist-box {
       background: linear-gradient(145deg, #111d3a, #060b17);
@@ -433,23 +368,10 @@
     .footer-socials a { opacity: 1; color: var(--text); transition: opacity 0.18s, transform 0.18s; }
     .footer-socials a svg { width: 18px; height: 18px; }
     .footer-socials a:hover { opacity: 0.6; transform: translateY(-2px); }
-
-    /* ── PRICE BADGE ── */
-    .price-badge {
-      display: inline-block; font-size: 0.72rem; font-weight: 600;
-      letter-spacing: 0.1em; text-transform: uppercase;
-      color: var(--accent); border: 1px solid rgba(184,190,200,0.25);
-      padding: 0.2rem 0.6rem; margin-top: 1rem;
-    }
   </style>
 </head>
 
 <body>
-
-  <div class="urgency-bar">
-    <strong>CBAM is live.</strong> Reporting obligations are active now — penalties apply from the first non-compliant declaration.
-    <a href="#setup-plan">Check your exposure →</a>
-  </div>
 
   <nav class="nav">
     <div class="nav-inner">
@@ -472,17 +394,15 @@
   <!-- ── HERO ─────────────────────────────────────────── -->
   <section class="section hero" id="top">
     <a href="index.html" class="back">← OrcaTrade Group</a>
-    <div class="kicker">Three Live Pillars · Live Now</div>
-    <div class="badge">Live Now</div>
-    <h1 class="title">Three live pillars.<br><span>One operating layer.</span></h1>
+    <div class="kicker">OrcaTrade Intelligence · Three Live Pillars</div>
+    <h1 class="title">Track shipments.<br>Score factories.<br><span>Check compliance.</span></h1>
     <p class="subtitle">
-      Track shipments, score factories, and check CBAM, EUDR, and CSDDD exposure from one
-      focused Intelligence layer. CBAM is the sharpest entry point right now because the
-      regime is already live, but the product is built to run the full import workflow around it.
+      One place for shipments, factory risk, and EU compliance. See what is moving, what is risky,
+      what applies, and what your team needs to do next.
     </p>
     <div class="hero-actions">
-      <a href="#pillars" class="btn-primary">Explore Live Pillars →</a>
-      <a href="#setup-plan" class="btn-ghost">Get Async Setup Plan →</a>
+      <a href="#pillars" class="btn-primary">See The Three Pillars →</a>
+      <a href="#quick-check" class="btn-ghost">Run Instant Compliance Check →</a>
     </div>
   </section>
 
@@ -491,30 +411,29 @@
   <!-- ── THREE LIVE TOOLS ─────────────────────────────── -->
   <section class="section" id="pillars">
     <div class="kicker">Live tools — open now</div>
-    <h2 class="title title--md" style="margin-bottom:0.5rem;">Three dashboards live. Use them together or start with one.</h2>
+    <h2 class="title title--md" style="margin-bottom:0.5rem;">Three live pillars. Each solves one job clearly.</h2>
     <p style="font-size:0.92rem; color:var(--muted); line-height:1.65; max-width:58ch; margin-bottom:0;">
-      OrcaTrade Intelligence is built around three operational jobs: shipment visibility, factory
-      risk scoring, and EU compliance checks. Most teams enter through CBAM pressure, then expand
-      into the other two pillars as the workflow matures.
+      Use OrcaTrade Intelligence when you need to understand what is happening across inbound orders,
+      suppliers, and EU trade obligations without jumping between separate tools.
     </p>
 
     <div class="tools-grid">
       <a href="supply-chain/" class="tool-card" style="display:block;">
         <div class="tool-num">Pillar 01 · Live Now</div>
-        <h3 class="tool-title">Supply Chain Clarity</h3>
-        <p class="tool-desc">Real-time visibility across your supplier network. Surface delays early, defend delivery promises, and keep compliance tied to actual inbound orders.</p>
+        <h3 class="tool-title">Track Your Shipments</h3>
+        <p class="tool-desc">See live inbound orders, route pressure, delay risk, and supplier movement so operations and compliance stay tied to the same shipment reality.</p>
         <div class="tool-cta">Open Dashboard →</div>
       </a>
       <a href="factory-risk/" class="tool-card tool-card--accent" style="display:block;">
         <div class="tool-num">Pillar 02 · Live Now</div>
-        <h3 class="tool-title">Factory Risk Scoring</h3>
-        <p class="tool-desc">Continuous monitoring of supplier risk signals so compliance and sourcing teams know which factories need deeper scrutiny before they become problems.</p>
+        <h3 class="tool-title">Find &amp; Score Any Factory</h3>
+        <p class="tool-desc">Review factory risk, compliance posture, audit freshness, and capacity signals so sourcing teams know where deeper scrutiny is needed.</p>
         <div class="tool-cta">Open Dashboard →</div>
       </a>
       <a href="compliance/" class="tool-card" style="display:block;">
         <div class="tool-num">Pillar 03 · Live Now</div>
-        <h3 class="tool-title">EU Regulatory Compliance</h3>
-        <p class="tool-desc">Check import orders against CBAM, EUDR, and broader diligence requirements with a workflow built for operational action, not generic chat.</p>
+        <h3 class="tool-title">Check Order Compliance</h3>
+        <p class="tool-desc">Run CBAM, EUDR, and diligence checks on real import orders, see what applies, what is missing, and what your team needs to do next.</p>
         <div class="tool-cta">Open Dashboard →</div>
       </a>
     </div>
@@ -522,73 +441,35 @@
 
   <hr class="divider">
 
-  <!-- ── WHY NOW ─────────────────────────────────────── -->
-  <section class="section" id="market-window">
-    <div class="kicker">Why this matters now</div>
-    <h2 class="title title--md" style="margin-bottom:0.7rem;">CBAM is the first pressure point. Not the whole product.</h2>
-    <p class="subtitle" style="max-width:60ch;">
-      OrcaTrade Intelligence covers shipments, factories, and compliance, but CBAM is the
-      fastest way into the platform because the legal exposure is immediate. Teams that fix
-      their CBAM workflow early usually discover they also need better supplier visibility and
-      cleaner factory risk controls around the same inbound flow.
-    </p>
-
-    <div class="stat-grid">
-      <div class="stat-card">
-        <div class="stat-label">CBAM definitive regime</div>
-        <div class="stat-number">Live now</div>
-        <div class="stat-copy">Reporting obligations are active. Non-compliant declarations carry penalties from day one.</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">You're in scope if you import</div>
-        <div class="stat-number">&gt; 50 t/yr</div>
-        <div class="stat-copy">Above 50 tonnes annually in covered goods, you need a declarant, supplier evidence, and compliant workflows.</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">EUDR deadline · large operators</div>
-        <div class="stat-number">30 Dec 2026</div>
-        <div class="stat-copy">Timber, cocoa, coffee, palm, soy, beef, rubber, leather importers — your deadline is fixed. Preparation takes months.</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Without a workflow</div>
-        <div class="stat-number">Fines + delays</div>
-        <div class="stat-copy">Missing evidence, late declarations, and no escalation mean customs delays, financial penalties, and procurement bans.</div>
-      </div>
-    </div>
-
-    <div class="offer-strip">
-      <p><strong>This is for you if</strong> your import team needs one desk for live shipments, supplier risk, and regulatory exposure instead of splitting the job across inboxes, customs brokers, and spreadsheets.</p>
-      <p><strong>How teams usually start —</strong> with a CBAM readiness sprint because it is urgent, then expand into factory scoring and shipment intelligence from the same operating layer. Starting from <strong>€2,400</strong>.</p>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <!-- ── WHAT'S INSIDE ────────────────────────────────── -->
+  <!-- ── HOW IT WORKS ─────────────────────────────────── -->
   <section class="section" id="command-center">
-    <div class="kicker">What's inside</div>
-    <h2 class="title title--md" style="margin-bottom:0;">One desk across shipments, factories, and compliance.</h2>
+    <div class="kicker">How it works</div>
+    <h2 class="title title--md" style="margin-bottom:0.5rem;">One workflow, not three disconnected tools.</h2>
+    <p class="subtitle" style="max-width:58ch; margin-bottom:2.2rem;">
+      The workflow is simple: bring in the order, supplier, or shipment you are worried about,
+      let OrcaTrade decide what matters, then act on the missing facts, risks, and next steps.
+    </p>
 
     <div class="feature-grid">
       <div class="feature-card">
         <div class="feature-num">01</div>
-        <div class="feature-title">Shipment Watch</div>
-        <div class="feature-desc">Track live inbound orders, route risk, and handoff status so your team sees delays early and keeps compliance tied to the actual shipment.</div>
+        <div class="feature-title">Bring In The Real Context</div>
+        <div class="feature-desc">Start from a shipment, a supplier, or an import order. The platform works best when operations, sourcing, and compliance all point at the same real-world flow.</div>
       </div>
       <div class="feature-card">
         <div class="feature-num">02</div>
-        <div class="feature-title">Factory Evidence Queue</div>
-        <div class="feature-desc">Keep audit freshness, risk signals, capacity concerns, and missing supplier documents in one priority queue instead of scattered threads.</div>
+        <div class="feature-title">See What Applies</div>
+        <div class="feature-desc">OrcaTrade shows which regulations apply, which factories look risky, which shipments need attention, and which facts are still missing before a safe decision can be made.</div>
       </div>
       <div class="feature-card">
         <div class="feature-num">03</div>
-        <div class="feature-title">Compliance Decision Engine</div>
-        <div class="feature-desc">See which regulations apply, what obligation is triggered, and the single next action for each order, supplier, or product flow.</div>
+        <div class="feature-title">Move The Workflow Forward</div>
+        <div class="feature-desc">Every result points to the next action: collect evidence, escalate a supplier, review a factory, or run the full compliance flow with article-level detail.</div>
       </div>
       <div class="feature-card">
         <div class="feature-num">04</div>
-        <div class="feature-title">Exception Control</div>
-        <div class="feature-desc">When a shipment, factory, or order falls out of line, it lands in one action queue with the right owner, urgency, and business impact.</div>
+        <div class="feature-title">Work From One Exception Queue</div>
+        <div class="feature-desc">Instead of inboxes and scattered notes, the important issues land in one place with the right urgency, owner, and operational context.</div>
       </div>
     </div>
   </section>
@@ -654,146 +535,105 @@
 
   <hr class="divider">
 
-  <!-- ── OFFER STACK ──────────────────────────────────── -->
+  <!-- ── ENTRY POINTS ────────────────────────────────── -->
   <section class="section" id="offer-stack">
-    <div class="kicker">How to work with us</div>
-    <h2 class="title title--md" style="margin-bottom:0.7rem;">Start where your pressure is. Expand from there.</h2>
+    <div class="kicker">Choose your entry point</div>
+    <h2 class="title title--md" style="margin-bottom:0.7rem;">Start where the pressure is highest.</h2>
     <p class="subtitle" style="max-width:56ch;">
-      Every engagement starts with a fixed-scope sprint so you see value fast. Most clients convert to
-      a recurring model within 60 days because the workflow becomes part of how they operate.
+      If compliance is urgent, begin there. If supplier selection or inbound delivery risk is the
+      real problem, jump straight into factory scoring or shipment tracking. The same workspace ties
+      them together once the workflow grows.
     </p>
 
     <div class="tiers-grid">
       <div class="tier-card">
-        <div class="tier-label">Start here · Self-serve</div>
-        <div class="tier-title">CBAM Launch Kit</div>
-        <div class="tier-desc">Run your first exposure check, structure supplier evidence requests, and get an async setup path without booking a call or waiting for a sales process.</div>
-        <a href="#setup-plan" class="btn-primary" style="width:100%; justify-content:center;">Get Async Setup Plan →</a>
-        <div class="tier-price">Autonomous start</div>
-        <div class="tier-trust">Exposure map · Evidence queue · Async guidance</div>
+        <div class="tier-label">Compliance first</div>
+        <div class="tier-title">Compliance Workflow</div>
+        <div class="tier-desc">Check CBAM, EUDR, and diligence scope, identify missing evidence, and move from uncertainty to a structured next action.</div>
+        <a href="compliance/" class="btn-primary" style="width:100%; justify-content:center;">Open Compliance →</a>
+        <div class="tier-trust">Scope · Evidence · Next action</div>
       </div>
       <div class="tier-card">
-        <div class="tier-label">Always on · Product-led</div>
-        <div class="tier-title">Autonomous Compliance Workspace</div>
-        <div class="tier-desc">The platform keeps certificate-cost visibility, supplier evidence, shipment exceptions, and declaration readiness in one place so your team can run the workflow directly.</div>
-        <a href="compliance/" class="btn-primary" style="width:100%; justify-content:center;">Run a Check Now →</a>
-        <div class="tier-price">Software-first workflow</div>
-        <div class="tier-trust">CBAM now · EUDR when it applies</div>
+        <div class="tier-label">Supplier first</div>
+        <div class="tier-title">Factory Intelligence</div>
+        <div class="tier-desc">Score factories and suppliers when audit freshness, risk posture, or sourcing confidence are the first issue that needs attention.</div>
+        <a href="factory-risk/" class="btn-primary" style="width:100%; justify-content:center;">Open Factory Scoring →</a>
+        <div class="tier-trust">Risk · Audit freshness · Capacity</div>
       </div>
       <div class="tier-card">
-        <div class="tier-label">Add on · When you're ready</div>
-        <div class="tier-title">Factory &amp; Shipment Intelligence</div>
-        <div class="tier-desc">Once your compliance workflow is running, expand into supplier risk scoring, audit prioritisation, and live shipment visibility from the same autonomous layer.</div>
-        <a href="factory-risk/" class="btn-primary" style="width:100%; justify-content:center;">Score a Factory Now →</a>
-        <div class="tier-price">Unified with the workspace</div>
-        <div class="tier-trust">Risk · Capacity · Delivery</div>
+        <div class="tier-label">Operations first</div>
+        <div class="tier-title">Shipment Intelligence</div>
+        <div class="tier-desc">Track inbound movement, route pressure, and delay exposure when the immediate problem is delivery risk or operational disruption.</div>
+        <a href="supply-chain/" class="btn-primary" style="width:100%; justify-content:center;">Open Shipment Tracking →</a>
+        <div class="tier-trust">Inbound flow · Delays · Exceptions</div>
       </div>
     </div>
   </section>
 
   <hr class="divider">
 
-  <!-- ── YOUR FIRST 30 DAYS ───────────────────────────── -->
-  <section class="section" id="launch-plan">
-    <div class="kicker">Your first 30 days</div>
-    <h2 class="title title--md" style="margin-bottom:0.7rem;">From inbox chaos to a self-serve operating rhythm. In a month.</h2>
-    <p class="subtitle" style="max-width:57ch;">
-      The first month should turn raw pressure into a repeatable workflow. By the end of week four,
-      you should have a live operating rhythm inside the product, not a dependency on booking calls.
-    </p>
-
-    <div class="timeline-grid">
-      <div class="timeline-card">
-        <div class="timeline-step">01</div>
-        <h3>Map your exposure</h3>
-        <p>Use the platform to capture product flows, supplier base, and import volumes so you can see where your CBAM obligations sit and what is still missing.</p>
-        <strong>You get:</strong> a clear picture of what's in scope, what's at risk, and what needs to happen first.
-      </div>
-      <div class="timeline-card">
-        <div class="timeline-step">02</div>
-        <h3>Open your evidence queue</h3>
-        <p>Every missing emissions declaration, methodology document, and supplier certificate becomes a tracked request with a deadline and an owner.</p>
-        <strong>You get:</strong> supplier chasing becomes a controlled process, not an inbox thread.
-      </div>
-      <div class="timeline-card">
-        <div class="timeline-step">03</div>
-        <h3>Connect your operations</h3>
-        <p>Your inbound shipments, suppliers, and compliance status sit in one view. Missing evidence triggers an operational exception instead of becoming a spreadsheet update.</p>
-        <strong>You get:</strong> visibility on exactly which orders are commercially exposed right now.
-      </div>
-      <div class="timeline-card">
-        <div class="timeline-step">04</div>
-        <h3>Scale into ongoing control</h3>
-        <p>The workflow settles into evidence QA, certificate cost planning, declaration readiness, and exception control that your team can run directly from the workspace.</p>
-        <strong>You get:</strong> a compliance workflow that runs without waiting on a meeting to move forward.
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
-  <!-- ── ROI CALCULATOR ───────────────────────────────── -->
+  <!-- ── ROI ESTIMATOR ───────────────────────────────── -->
   <section class="section" id="roi-model">
-    <div class="kicker">Exposure calculator</div>
-    <h2 class="title title--md" style="margin-bottom:0.7rem;">How heavy is your CBAM burden?</h2>
+    <div class="kicker">Model your workload</div>
+    <h2 class="title title--md" style="margin-bottom:0.7rem;">Estimate how heavy the compliance workload really is.</h2>
     <p class="subtitle" style="max-width:58ch;">
-      Enter your import profile and see how much compliance work you're carrying — and which
-      operating mode fits your situation. This is directional, not a legal assessment.
+      This is a directional model, not a legal verdict. Use it to estimate the admin load behind
+      your import flow and decide whether you need a simple workflow or a more complete operating layer.
     </p>
 
     <div class="roi-shell">
-      <div class="roi-panel">
-        <div class="roi-badge">Your import profile</div>
-        <h3 class="title" style="font-size:clamp(1.2rem,2vw,1.6rem); margin-bottom:0.6rem;">Tell us about your operation.</h3>
+      <div class="roi-form-side">
+        <h3 class="title" style="font-size:clamp(1.15rem,2vw,1.5rem); margin-bottom:0.5rem;">Describe your current load.</h3>
         <div class="roi-form-grid">
-          <div class="roi-input-wrap">
-            <label for="annualImportValue">Annual CBAM goods value (EUR)</label>
-            <input id="annualImportValue" type="number" min="100000" step="50000" value="8500000">
+          <div>
+            <label class="roi-label" for="annualImportValue">Annual covered goods value (EUR)</label>
+            <input class="roi-input" id="annualImportValue" type="number" min="100000" step="50000" value="8500000">
           </div>
-          <div class="roi-input-wrap">
-            <label for="activeSuppliers">CBAM-covered suppliers</label>
-            <input id="activeSuppliers" type="number" min="1" step="1" value="18">
+          <div>
+            <label class="roi-label" for="activeSuppliers">Covered suppliers</label>
+            <input class="roi-input" id="activeSuppliers" type="number" min="1" step="1" value="18">
           </div>
-          <div class="roi-input-wrap">
-            <label for="monthlyShipments">Monthly inbound shipments</label>
-            <input id="monthlyShipments" type="number" min="1" step="1" value="24">
+          <div>
+            <label class="roi-label" for="monthlyShipments">Monthly inbound shipments</label>
+            <input class="roi-input" id="monthlyShipments" type="number" min="1" step="1" value="24">
           </div>
-          <div class="roi-input-wrap">
-            <label for="internalHours">Hours/month on compliance admin</label>
-            <input id="internalHours" type="number" min="1" step="1" value="60">
+          <div>
+            <label class="roi-label" for="internalHours">Hours per month on admin</label>
+            <input class="roi-input" id="internalHours" type="number" min="1" step="1" value="60">
           </div>
         </div>
-        <p class="roi-note">If you're unsure of exact numbers, use estimates. The output is directional — it helps you understand the scale before deciding how much setup you need.</p>
+        <p class="roi-note">
+          Best used for CBAM-heavy and evidence-heavy import flows. If you are estimating, rough numbers are enough.
+        </p>
       </div>
 
-      <div class="roi-panel">
-        <div class="roi-badge">Your exposure picture</div>
-        <h3 class="title" style="font-size:clamp(1.2rem,2vw,1.6rem); margin-bottom:0.6rem;">Here's what you're dealing with.</h3>
+      <div class="roi-result-side">
+        <h3 class="title" style="font-size:clamp(1.15rem,2vw,1.5rem); margin-bottom:0.5rem;">What that means in practice.</h3>
         <div class="roi-metric-grid">
           <div class="roi-metric">
-            <div class="roi-metric-label">CBAM goods in scope</div>
+            <div class="roi-metric-label">Goods in scope</div>
             <div class="roi-metric-value" id="scopeManaged">€8.5m</div>
-            <div class="roi-metric-copy">Annual goods value inside the CBAM compliance perimeter.</div>
+            <div class="roi-metric-copy">Estimated value moving through the workflow that needs structured control.</div>
           </div>
           <div class="roi-metric">
-            <div class="roi-metric-label">Annual compliance touches</div>
+            <div class="roi-metric-label">Coordination events</div>
             <div class="roi-metric-value" id="coordinationEvents">504</div>
-            <div class="roi-metric-copy">Estimated supplier requests, evidence checks, and declaration events per year.</div>
+            <div class="roi-metric-copy">Supplier requests, evidence checks, and shipment-linked decisions across a year.</div>
           </div>
           <div class="roi-metric">
-            <div class="roi-metric-label">Admin hours you can reclaim</div>
+            <div class="roi-metric-label">Hours redirected</div>
             <div class="roi-metric-value" id="hoursRedirected">252</div>
-            <div class="roi-metric-copy">Hours that should be structured process, not manual effort.</div>
+            <div class="roi-metric-copy">Admin time that should become a controlled process instead of scattered manual work.</div>
           </div>
           <div class="roi-metric">
-            <div class="roi-metric-label">Where to start</div>
+            <div class="roi-metric-label">Best starting mode</div>
             <div class="roi-metric-value" id="recommendedMotion">Workspace</div>
-            <div class="roi-metric-copy">The operating mode that fits your current load.</div>
+            <div class="roi-metric-copy">The product shape that best fits your current level of operational pressure.</div>
           </div>
         </div>
         <div class="roi-recommendation">
-          <strong id="recommendedPackage">Start with the Autonomous Compliance Workspace.</strong>
-          <p id="recommendedCopy">Your supplier count, shipment volume, and admin load are above the threshold where a one-off setup is enough. A software-first operating model will serve you better from day one.</p>
+          <strong id="recommendedPackage">Start with the unified compliance workspace.</strong>
+          <p id="recommendedCopy">Your supplier count, shipment volume, and admin load are high enough that a structured operating layer will create more value than ad hoc checks alone.</p>
         </div>
       </div>
     </div>
@@ -807,8 +647,8 @@
       <div class="kicker">Get started</div>
       <h2 class="title title--md">Get your async setup plan.</h2>
       <p style="font-size:0.92rem; color:var(--muted); max-width:48ch; margin:0 auto;">
-        Tell us what you import and where the workflow breaks down. We'll use it to shape a
-        self-serve setup path and send the next steps by email. No sales call required.
+        Tell us what you import and where the workflow breaks down. We’ll shape a self-serve
+        setup path around your use case and send the next steps by email. No sales call required.
       </p>
     </div>
     <div class="waitlist-box">
@@ -844,10 +684,10 @@
           <div class="kicker" style="margin-bottom:0.7rem;">Built for autonomous teams</div>
           <h3 class="title" style="font-size:clamp(1.1rem,2vw,1.5rem); margin-bottom:0.8rem;">This fits best if you want the product to do the heavy lifting first.</h3>
           <div class="fit-list">
-            <div class="fit-item">You import iron, steel, aluminium, fertilisers, or cement into the EU — and you're not certain whether you're above the 50-tonne CBAM threshold.</div>
-            <div class="fit-item">You know you need supplier emissions evidence but getting it back from exporters has been slow, inconsistent, or completely stalled.</div>
-            <div class="fit-item">Your current compliance process is a mix of spreadsheets, email threads, and things your customs agent handles that you can't see.</div>
-            <div class="fit-item">You want a software-first system for CBAM and EUDR now, with optional human help later only if the exceptions justify it.</div>
+            <div class="fit-item">You need one place to understand what is moving, what is risky, and what regulation applies.</div>
+            <div class="fit-item">You want to start with software, not with a consulting process or a long implementation cycle.</div>
+            <div class="fit-item">Your current workflow is still spread across spreadsheets, inboxes, supplier follow-ups, and customs dependencies you cannot fully see.</div>
+            <div class="fit-item">You want a clear self-serve path now, with human help added later only if the exceptions justify it.</div>
           </div>
         </div>
       </div>
@@ -874,51 +714,56 @@
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
 
-    /* ── ROI CALCULATOR ── */
+    /* ── ROI ESTIMATOR ── */
     (function () {
-      var fields = ['annualImportValue','activeSuppliers','monthlyShipments','internalHours'].map(function(id){ return document.getElementById(id); });
-      if (!fields[0]) return;
+      var fields = ['annualImportValue', 'activeSuppliers', 'monthlyShipments', 'internalHours'].map(function (id) {
+        return document.getElementById(id);
+      });
 
-      function fmt(v) {
-        if (v >= 1000000) return '€' + (v/1000000).toFixed(1) + 'm';
-        if (v >= 1000) return '€' + Math.round(v/1000) + 'k';
-        return '€' + Math.round(v);
+      function fmtCurrency(value) {
+        if (value >= 1000000) return '€' + (value / 1000000).toFixed(1) + 'm';
+        if (value >= 1000) return '€' + Math.round(value / 1000) + 'k';
+        return '€' + Math.round(value);
       }
 
-      function update() {
-        var val = Math.max(100000, Number(fields[0].value)||0);
-        var sup = Math.max(1,      Number(fields[1].value)||1);
-        var shp = Math.max(1,      Number(fields[2].value)||1);
-        var hrs = Math.max(1,      Number(fields[3].value)||1);
+      function updateModel() {
+        var value = Math.max(100000, Number(fields[0].value) || 0);
+        var suppliers = Math.max(1, Number(fields[1].value) || 1);
+        var shipments = Math.max(1, Number(fields[2].value) || 1);
+        var hours = Math.max(1, Number(fields[3].value) || 1);
+        var coordination = Math.round((suppliers * 16) + (shipments * 9));
+        var redirectedHours = Math.round(hours * 12 * 0.35);
 
-        var coord = Math.round((sup * 16) + (shp * 9));
-        var reclaim = Math.round(hrs * 12 * 0.35);
+        var motion = 'Starter';
+        var title = 'Start with instant checks and a focused workflow.';
+        var copy = 'Your current load is meaningful but still compact. Start with compliance checks, build the evidence rhythm, and expand only when the exceptions justify it.';
 
-        var motion = 'Launch Kit';
-        var title  = 'Start with the CBAM Launch Kit.';
-        var copy   = 'Your operation is compact enough to get clarity fast in a self-serve setup. Start with exposure mapping, build the evidence workflow, and use the async plan to structure the next steps.';
-
-        if (val >= 5000000 || sup >= 14 || shp >= 20 || hrs >= 45) {
+        if (value >= 5000000 || suppliers >= 14 || shipments >= 20 || hours >= 45) {
           motion = 'Workspace';
-          title  = 'Start with the Autonomous Compliance Workspace.';
-          copy   = 'Your supplier count, shipment volume, and admin load are above the threshold where a one-off setup is enough. A software-first operating model will serve you better from day one.';
-        }
-        if (val >= 20000000 || sup >= 35 || shp >= 45 || hrs >= 110) {
-          motion = 'Enterprise';
-          title  = 'You need an enterprise compliance workspace.';
-          copy   = 'At your scale, compliance is an operational system. Centralise supplier onboarding, multi-team workflow control, and executive visibility in the product first, then add human support only where exceptions justify it.';
+          title = 'Start with the unified compliance workspace.';
+          copy = 'Your operation is large enough that supplier chasing, shipment context, and compliance decisions should sit in one structured system rather than scattered admin work.';
         }
 
-        document.getElementById('scopeManaged').textContent      = fmt(val);
-        document.getElementById('coordinationEvents').textContent = coord.toLocaleString('en-GB');
-        document.getElementById('hoursRedirected').textContent    = reclaim.toLocaleString('en-GB');
-        document.getElementById('recommendedMotion').textContent  = motion;
+        if (value >= 20000000 || suppliers >= 35 || shipments >= 45 || hours >= 110) {
+          motion = 'Control Room';
+          title = 'You need the full operating layer.';
+          copy = 'At this scale, the real opportunity is centralising the whole flow: evidence collection, exception handling, shipment visibility, and supplier risk in one control surface.';
+        }
+
+        document.getElementById('scopeManaged').textContent = fmtCurrency(value);
+        document.getElementById('coordinationEvents').textContent = coordination.toLocaleString('en-GB');
+        document.getElementById('hoursRedirected').textContent = redirectedHours.toLocaleString('en-GB');
+        document.getElementById('recommendedMotion').textContent = motion;
         document.getElementById('recommendedPackage').textContent = title;
-        document.getElementById('recommendedCopy').textContent    = copy;
+        document.getElementById('recommendedCopy').textContent = copy;
       }
 
-      fields.forEach(function(f){ f.addEventListener('input', update); });
-      update();
+      if (fields.every(Boolean)) {
+        fields.forEach(function (field) {
+          field.addEventListener('input', updateModel);
+        });
+        updateModel();
+      }
     })();
 
     /* ── QUICK CHECK ── */

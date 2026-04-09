@@ -1,5 +1,5 @@
 const { cleanString } = require('../lib/intelligence/catalog');
-const { getCachedValue, setCachedValue } = require('../lib/intelligence/cache-store');
+const { consumeRateLimit, getSharedCacheValue, setSharedCacheValue } = require('../lib/intelligence/runtime-store');
 const { validateCompliancePayload } = require('../lib/intelligence/compliance-validator');
 const { resolveAsOfDate, RULE_VERSION } = require('../lib/intelligence/compliance');
 
@@ -97,6 +97,13 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
+  const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
+  const rate = await consumeRateLimit('quick-check', ip, 10, 60000);
+  res.setHeader('X-OrcaTrade-Storage-Mode', rate.storageMode);
+  if (rate.limited) {
+    return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
+  }
+
   const validation = validateCompliancePayload(req.body, { mode: 'quick-check' });
   if (!validation.ok) {
     return res.status(422).json({
@@ -126,7 +133,7 @@ module.exports = async function handler(req, res) {
   const cacheInput = normaliseQuickCheckInput(orderData);
 
   if (canUseQuickCheckCache(cachePreference)) {
-    const cached = getCachedValue('quick-check', cacheInput);
+    const cached = await getSharedCacheValue('quick-check', cacheInput);
     if (cached) {
       res.setHeader('X-OrcaTrade-Cache', 'HIT');
       return res.status(200).json(cached.value);
@@ -142,7 +149,7 @@ module.exports = async function handler(req, res) {
     };
 
     if (canUseQuickCheckCache(cachePreference)) {
-      setCachedValue('quick-check', cacheInput, fallbackPayload, QUICK_CHECK_CACHE_TTL_MS);
+      await setSharedCacheValue('quick-check', cacheInput, fallbackPayload, QUICK_CHECK_CACHE_TTL_MS);
       res.setHeader('X-OrcaTrade-Cache', 'MISS');
     } else {
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
@@ -202,7 +209,7 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
       };
 
       if (canUseQuickCheckCache(cachePreference)) {
-        setCachedValue('quick-check', cacheInput, fallbackPayload, QUICK_CHECK_CACHE_TTL_MS);
+        await setSharedCacheValue('quick-check', cacheInput, fallbackPayload, QUICK_CHECK_CACHE_TTL_MS);
         res.setHeader('X-OrcaTrade-Cache', 'MISS');
       } else {
         res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
@@ -222,7 +229,7 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
     };
 
     if (canUseQuickCheckCache(cachePreference)) {
-      setCachedValue('quick-check', cacheInput, payload, QUICK_CHECK_CACHE_TTL_MS);
+      await setSharedCacheValue('quick-check', cacheInput, payload, QUICK_CHECK_CACHE_TTL_MS);
       res.setHeader('X-OrcaTrade-Cache', 'MISS');
     } else {
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
@@ -239,7 +246,7 @@ CSDDD reason: ${applicability.CSDDD.applicabilityReason}`,
     };
 
     if (canUseQuickCheckCache(cachePreference)) {
-      setCachedValue('quick-check', cacheInput, fallbackPayload, QUICK_CHECK_CACHE_TTL_MS);
+      await setSharedCacheValue('quick-check', cacheInput, fallbackPayload, QUICK_CHECK_CACHE_TTL_MS);
       res.setHeader('X-OrcaTrade-Cache', 'MISS');
     } else {
       res.setHeader('X-OrcaTrade-Cache', 'BYPASS');

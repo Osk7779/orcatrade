@@ -1,5 +1,11 @@
 const { cleanString } = require('../lib/intelligence/catalog');
-const { getCachedValue, setCachedValue } = require('../lib/intelligence/cache-store');
+const {
+  consumeRateLimit,
+  getSharedCacheValue,
+  getStoredComplianceReportByRequest,
+  persistComplianceReport,
+  setSharedCacheValue,
+} = require('../lib/intelligence/runtime-store');
 const { validateCompliancePayload } = require('../lib/intelligence/compliance-validator');
 const {
   buildDeterministicFallbackReport,
@@ -8,22 +14,8 @@ const {
   RULE_VERSION,
 } = require('../lib/intelligence/compliance');
 
-const rateMap = new Map();
 const REPORT_CACHE_TTL_MS = 10 * 60 * 1000;
-
-function checkRate(ip, limit) {
-  const now = Date.now();
-  const entry = rateMap.get(ip) || { count: 0, windowStart: now };
-
-  if (now - entry.windowStart > 60000) {
-    entry.count = 0;
-    entry.windowStart = now;
-  }
-
-  entry.count++;
-  rateMap.set(ip, entry);
-  return entry.count > limit;
-}
+const REPORT_PERSIST_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
 async function sendComplianceSummaryEmail(report, orderData = {}) {
   if (!process.env.RESEND_API_KEY) return;
@@ -96,13 +88,17 @@ function normaliseCheckCacheInput(orderData = {}) {
   };
 }
 
-function sendReport(res, cachePreference, cacheInput, report) {
+async function sendReport(res, cachePreference, cacheInput, report, orderData) {
   if (canUseFullReportCache(cachePreference)) {
-    setCachedValue('compliance-report', cacheInput, report, REPORT_CACHE_TTL_MS);
+    await setSharedCacheValue('compliance-report', cacheInput, report, REPORT_CACHE_TTL_MS);
     res.setHeader('X-OrcaTrade-Cache', 'MISS');
   } else {
     res.setHeader('X-OrcaTrade-Cache', 'BYPASS');
   }
+
+  const persisted = await persistComplianceReport(report, orderData, cacheInput, REPORT_PERSIST_TTL_MS);
+  res.setHeader('X-OrcaTrade-Storage-Mode', persisted.storageMode);
+  res.setHeader('X-OrcaTrade-Report-Id', persisted.reportId);
 
   if (report && report.reportGeneration && report.reportGeneration.mode) {
     res.setHeader('X-OrcaTrade-Generation-Mode', report.reportGeneration.mode);
@@ -120,7 +116,9 @@ module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
   const ip = req.headers['x-forwarded-for']?.split(',')[0]?.trim() || 'unknown';
-  if (checkRate(ip, 5)) {
+  const rate = await consumeRateLimit('compliance-report', ip, 5, 60000);
+  res.setHeader('X-OrcaTrade-Storage-Mode', rate.storageMode);
+  if (rate.limited) {
     return res.status(429).json({ error: 'Too many requests. Please wait a moment.' });
   }
 
@@ -162,14 +160,31 @@ module.exports = async function handler(req, res) {
     cacheInput = normaliseCheckCacheInput(orderData);
 
     if (canUseFullReportCache(cachePreference)) {
-      const cached = getCachedValue('compliance-report', cacheInput);
+      const cached = await getSharedCacheValue('compliance-report', cacheInput);
       if (cached) {
         res.setHeader('X-OrcaTrade-Cache', 'HIT');
+        res.setHeader('X-OrcaTrade-Storage-Mode', cached.storageMode);
+        if (cached.value?.reportId) {
+          res.setHeader('X-OrcaTrade-Report-Id', cached.value.reportId);
+        }
         if (cached.value?.reportGeneration?.mode) {
           res.setHeader('X-OrcaTrade-Generation-Mode', cached.value.reportGeneration.mode);
         }
         return res.status(200).json(cached.value);
       }
+    }
+
+    const storedReport = await getStoredComplianceReportByRequest(cacheInput);
+    if (storedReport && storedReport.report) {
+      res.setHeader('X-OrcaTrade-Cache', 'REUSED');
+      res.setHeader('X-OrcaTrade-Storage-Mode', storedReport.storageMode);
+      if (storedReport.report?.reportId) {
+        res.setHeader('X-OrcaTrade-Report-Id', storedReport.report.reportId);
+      }
+      if (storedReport.report?.reportGeneration?.mode) {
+        res.setHeader('X-OrcaTrade-Generation-Mode', storedReport.report.reportGeneration.mode);
+      }
+      return res.status(200).json(storedReport.report);
     }
 
     const year = new Date().getFullYear();
@@ -183,7 +198,7 @@ module.exports = async function handler(req, res) {
         reason: 'The Anthropic API key is not configured, so OrcaTrade returned a deterministic rules-based report.',
       });
       void sendComplianceSummaryEmail(fallbackReport, orderData);
-      return sendReport(res, cachePreference, cacheInput, fallbackReport);
+      return sendReport(res, cachePreference, cacheInput, fallbackReport, orderData);
     }
 
     const systemPrompt = `You are OrcaTrade Intelligence, a senior EU trade compliance engine with expert knowledge of:
@@ -465,7 +480,7 @@ Return ONLY this JSON object with no markdown wrapping:
         reason: `The AI provider returned an error, so OrcaTrade returned a deterministic rules-based report instead. Provider detail: ${errorText.slice(0, 240)}`,
       });
       void sendComplianceSummaryEmail(fallbackReport, orderData);
-      return sendReport(res, cachePreference, cacheInput, fallbackReport);
+      return sendReport(res, cachePreference, cacheInput, fallbackReport, orderData);
     }
 
     const data = await response.json();
@@ -489,7 +504,7 @@ Return ONLY this JSON object with no markdown wrapping:
             reason: 'The AI response could not be parsed into valid JSON, so OrcaTrade returned a deterministic rules-based report instead.',
           });
           void sendComplianceSummaryEmail(fallbackReport, orderData);
-          return sendReport(res, cachePreference, cacheInput, fallbackReport);
+          return sendReport(res, cachePreference, cacheInput, fallbackReport, orderData);
         }
       } else {
         const fallbackReport = buildDeterministicFallbackReport(orderData, {
@@ -498,7 +513,7 @@ Return ONLY this JSON object with no markdown wrapping:
           reason: 'The AI response did not contain a valid JSON payload, so OrcaTrade returned a deterministic rules-based report instead.',
         });
         void sendComplianceSummaryEmail(fallbackReport, orderData);
-        return sendReport(res, cachePreference, cacheInput, fallbackReport);
+        return sendReport(res, cachePreference, cacheInput, fallbackReport, orderData);
       }
     }
 
@@ -516,7 +531,7 @@ Return ONLY this JSON object with no markdown wrapping:
     // ─────────────────────────────────────────────────────────────────
 
     void sendComplianceSummaryEmail(report, orderData);
-    return sendReport(res, cachePreference, cacheInput, report);
+    return sendReport(res, cachePreference, cacheInput, report, orderData);
 
   } catch (error) {
     console.error('Handler error:', error);
@@ -527,7 +542,7 @@ Return ONLY this JSON object with no markdown wrapping:
         reason: `Unexpected compliance handler error: ${cleanString(error.message) || 'Unknown error'}. OrcaTrade returned a deterministic rules-based report instead.`,
       });
       void sendComplianceSummaryEmail(fallbackReport, orderData);
-      return sendReport(res, cachePreference, cacheInput || normaliseCheckCacheInput(orderData), fallbackReport);
+      return sendReport(res, cachePreference, cacheInput || normaliseCheckCacheInput(orderData), fallbackReport, orderData);
     }
     return res.status(500).json({ error: error.message || 'Internal Server Error' });
   }
