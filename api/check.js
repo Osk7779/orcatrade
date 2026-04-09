@@ -112,15 +112,25 @@ async function sendReport(res, cachePreference, cacheInput, report, orderData) {
   }
 
   const persisted = await persistComplianceReport(report, orderData, cacheInput, REPORT_PERSIST_TTL_MS);
+  const persistedReport = persisted.report || report;
   res.setHeader('X-OrcaTrade-Storage-Mode', persisted.storageMode);
   res.setHeader('X-OrcaTrade-Report-Id', persisted.reportId);
+  if (persisted.reportFamilyId) {
+    res.setHeader('X-OrcaTrade-Report-Family', persisted.reportFamilyId);
+  }
+  if (persisted.reportVersion) {
+    res.setHeader('X-OrcaTrade-Report-Version', String(persisted.reportVersion));
+  }
+  if (persisted.evidenceSnapshotId) {
+    res.setHeader('X-OrcaTrade-Evidence-Snapshot', persisted.evidenceSnapshotId);
+  }
   res.setHeader('Cache-Control', 'no-store');
 
-  if (report && report.reportGeneration && report.reportGeneration.mode) {
-    res.setHeader('X-OrcaTrade-Generation-Mode', report.reportGeneration.mode);
+  if (persistedReport && persistedReport.reportGeneration && persistedReport.reportGeneration.mode) {
+    res.setHeader('X-OrcaTrade-Generation-Mode', persistedReport.reportGeneration.mode);
   }
 
-  const deliveryReport = withReportAccess(report, cacheInput);
+  const deliveryReport = withReportAccess(persistedReport, cacheInput);
   if (deliveryReport.reportAccess?.mode) {
     res.setHeader('X-OrcaTrade-Report-Access-Mode', deliveryReport.reportAccess.mode);
   }
@@ -199,6 +209,15 @@ module.exports = async function handler(req, res) {
         if (deliveryReport?.reportId) {
           res.setHeader('X-OrcaTrade-Report-Id', deliveryReport.reportId);
         }
+        if (deliveryReport?.reportLineage?.reportFamilyId) {
+          res.setHeader('X-OrcaTrade-Report-Family', deliveryReport.reportLineage.reportFamilyId);
+        }
+        if (deliveryReport?.reportLineage?.reportVersion) {
+          res.setHeader('X-OrcaTrade-Report-Version', String(deliveryReport.reportLineage.reportVersion));
+        }
+        if (deliveryReport?.evidenceSnapshot?.snapshotId) {
+          res.setHeader('X-OrcaTrade-Evidence-Snapshot', deliveryReport.evidenceSnapshot.snapshotId);
+        }
         if (deliveryReport?.reportGeneration?.mode) {
           res.setHeader('X-OrcaTrade-Generation-Mode', deliveryReport.reportGeneration.mode);
         }
@@ -226,6 +245,15 @@ module.exports = async function handler(req, res) {
       res.setHeader('Cache-Control', 'no-store');
       if (deliveryReport?.reportId) {
         res.setHeader('X-OrcaTrade-Report-Id', deliveryReport.reportId);
+      }
+      if (deliveryReport?.reportLineage?.reportFamilyId) {
+        res.setHeader('X-OrcaTrade-Report-Family', deliveryReport.reportLineage.reportFamilyId);
+      }
+      if (deliveryReport?.reportLineage?.reportVersion) {
+        res.setHeader('X-OrcaTrade-Report-Version', String(deliveryReport.reportLineage.reportVersion));
+      }
+      if (deliveryReport?.evidenceSnapshot?.snapshotId) {
+        res.setHeader('X-OrcaTrade-Evidence-Snapshot', deliveryReport.evidenceSnapshot.snapshotId);
       }
       if (deliveryReport?.reportGeneration?.mode) {
         res.setHeader('X-OrcaTrade-Generation-Mode', deliveryReport.reportGeneration.mode);

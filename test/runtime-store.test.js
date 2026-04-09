@@ -4,8 +4,10 @@ const assert = require('node:assert/strict');
 const {
   consumeRateLimit,
   getSharedCacheValue,
+  getStoredEvidenceSnapshotById,
   getStoredComplianceReportById,
   getStoredComplianceReportByRequest,
+  listStoredComplianceReportVersions,
   listStoredComplianceReportsByOwner,
   persistComplianceReport,
   setSharedCacheValue,
@@ -70,4 +72,100 @@ test('runtime store indexes reports by owner fingerprint in memory mode', async 
   assert.equal(result.storageMode, 'memory');
   assert.equal(result.reports[0].reportId, 'OT-RUNTIME-OWNER-001');
   assert.equal(result.reports[0].company, 'Northline Imports');
+});
+
+test('runtime store versions related reports into the same family and keeps evidence snapshots', async () => {
+  const commonOrderData = {
+    company: 'Northline Imports',
+    email: 'ops@northline.test',
+    productCategory: 'Steel & Metal',
+    productDescription: 'Steel fasteners for industrial assemblies',
+    origin: 'China',
+    supplierName: 'Jiangsu Parts Co.',
+    importValue: 'Over €5M',
+  };
+  const sharedCachePayload = {
+    ruleVersion: 'test-v3',
+    productCategory: commonOrderData.productCategory,
+    productDescription: commonOrderData.productDescription,
+    origin: commonOrderData.origin,
+    supplierName: commonOrderData.supplierName,
+    importValue: commonOrderData.importValue,
+  };
+
+  const first = await persistComplianceReport({
+    reportId: 'OT-RUNTIME-FAMILY-001',
+    timestamp: '2026-04-09T10:00:00.000Z',
+    overallStatus: 'at_risk',
+    overallScore: 85,
+    reportOwnership: {
+      ownerFingerprint: 'owner-family-001',
+      accountLabel: 'Northline Imports',
+      company: 'Northline Imports',
+    },
+    reportLineage: {
+      inputFingerprint: 'input-fingerprint-001',
+      subjectFingerprint: 'subject-fingerprint-001',
+    },
+    evidenceSnapshot: {
+      capturedAt: '2026-04-09T10:00:00.000Z',
+      completeness: { providedFields: 3, missingFields: 2 },
+      items: [{ key: 'cnCode', provided: true, valueSummary: '7208.37' }],
+      regulationCoverage: [{ regulation: 'CBAM', applicabilityStatus: 'applicable', missingFacts: [] }],
+    },
+    decisionReadiness: { level: 'provisional' },
+    reportGeneration: { mode: 'deterministic_fallback' },
+  }, commonOrderData, sharedCachePayload, 5000);
+
+  const second = await persistComplianceReport({
+    reportId: 'OT-RUNTIME-FAMILY-002',
+    timestamp: '2026-04-09T11:00:00.000Z',
+    overallStatus: 'compliant',
+    overallScore: 100,
+    reportOwnership: {
+      ownerFingerprint: 'owner-family-001',
+      accountLabel: 'Northline Imports',
+      company: 'Northline Imports',
+    },
+    reportLineage: {
+      inputFingerprint: 'input-fingerprint-001',
+      subjectFingerprint: 'subject-fingerprint-001',
+    },
+    evidenceSnapshot: {
+      capturedAt: '2026-04-09T11:00:00.000Z',
+      completeness: { providedFields: 5, missingFields: 0 },
+      items: [{ key: 'cnCode', provided: true, valueSummary: '7208.37' }],
+      regulationCoverage: [{ regulation: 'CBAM', applicabilityStatus: 'applicable', missingFacts: [] }],
+    },
+    decisionReadiness: { level: 'evidence_backed' },
+    reportGeneration: { mode: 'ai_assisted' },
+  }, commonOrderData, sharedCachePayload, 5000);
+
+  assert.equal(first.reportFamilyId, second.reportFamilyId);
+  assert.equal(first.reportVersion, 1);
+  assert.equal(second.reportVersion, 2);
+  assert.ok(second.evidenceSnapshotId);
+
+  const versions = await listStoredComplianceReportVersions(first.reportFamilyId, { limit: 10 });
+  assert.equal(versions.storageMode, 'memory');
+  assert.equal(versions.versions.length, 2);
+  assert.equal(versions.versions[0].reportId, 'OT-RUNTIME-FAMILY-002');
+  assert.equal(versions.versions[0].reportVersion, 2);
+  assert.equal(versions.versions[1].reportId, 'OT-RUNTIME-FAMILY-001');
+  assert.equal(versions.versions[1].reportVersion, 1);
+
+  const snapshot = await getStoredEvidenceSnapshotById(second.evidenceSnapshotId);
+  assert.equal(snapshot.storageMode, 'memory');
+  assert.equal(snapshot.reportId, 'OT-RUNTIME-FAMILY-002');
+  assert.equal(snapshot.reportVersion, 2);
+
+  const stored = await getStoredComplianceReportById('OT-RUNTIME-FAMILY-002');
+  assert.equal(stored.report.reportLineage.reportFamilyId, first.reportFamilyId);
+  assert.equal(stored.report.reportLineage.reportVersion, 2);
+  assert.equal(stored.report.reportHistory.currentVersion, 2);
+  assert.equal(stored.report.reportHistory.totalVersions, 2);
+  assert.equal(stored.report.reportHistory.versions[0].reportId, 'OT-RUNTIME-FAMILY-002');
+  assert.equal(stored.report.reportHistory.versions[1].reportId, 'OT-RUNTIME-FAMILY-001');
+  assert.equal(stored.report.evidenceTrail.current.snapshotId, second.evidenceSnapshotId);
+  assert.equal(stored.report.evidenceTrail.previousSnapshots[0].reportId, 'OT-RUNTIME-FAMILY-001');
 });

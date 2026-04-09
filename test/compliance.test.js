@@ -239,8 +239,13 @@ test('deterministic fallback report returns a structured rules-based report', ()
   assert.equal(report.reportLineage.ruleVersion, report.ruleVersion);
   assert.equal(report.reportLineage.generationMode, 'deterministic_fallback');
   assert.match(report.reportLineage.inputFingerprint, /^[a-f0-9]{64}$/);
+  assert.match(report.reportLineage.subjectFingerprint, /^[a-f0-9]{64}$/);
+  assert.equal(report.reportLineage.reportFamilyId, report.reportLineage.subjectFingerprint);
   assert.equal(report.reportOwnership.identityMode, 'email');
   assert.equal(report.reportOwnership.company, 'Northline Imports');
   assert.ok(report.reportOwnership.ownerFingerprint);
   assert.equal(report.evidenceSnapshot.snapshotVersion, '2026-04-09');
+  assert.equal(report.evidenceSnapshot.reportFamilyId, report.reportLineage.reportFamilyId);
+  assert.equal(report.evidenceSnapshot.reportVersion, report.reportLineage.reportVersion);
+  assert.equal(report.evidenceSnapshot.ownerFingerprint, report.reportOwnership.ownerFingerprint);
 });
