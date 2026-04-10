@@ -268,7 +268,7 @@ test('factory-score endpoint does not claim a false directory match for unknown 
   }
 });
 
-test('factory-score endpoint fails closed to verified directory matches for market scans when the model is unavailable', async () => {
+test('factory-score endpoint returns verified directory network results for market scans without synthetic fallback', async () => {
   process.env.ORCATRADE_OS_API = 'test-api-key';
   const originalConsoleError = console.error;
   const { handler, restore } = loadFactoryScoreHandlerWithThrowingModel();
@@ -286,7 +286,7 @@ test('factory-score endpoint fails closed to verified directory matches for mark
     });
 
     assert.equal(response.statusCode, 200);
-    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'deterministic_fallback');
+    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'directory_network');
     assert.equal(response.body.queryMode, 'market_scan');
     assert.equal(response.body.resultMode, 'directory_only_market_scan');
     assert.equal(response.body.factories.length, 3);

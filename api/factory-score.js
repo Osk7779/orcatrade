@@ -10,8 +10,6 @@ const {
 
 const EXACT_FACTORY_TIMEOUT_MS = 6000;
 const EXACT_FACTORY_RETRIES = 0;
-const MARKET_SCAN_TIMEOUT_MS = 14000;
-const MARKET_SCAN_RETRIES = 1;
 
 function extractJsonObject(text) {
   const cleaned = String(text || '')
@@ -54,6 +52,10 @@ module.exports = async function handler(req, res) {
 
   if (exactFactorySearch && directoryPreview && directoryPreview.resultMode === 'verified_directory_match') {
     return sendFactoryResponse(res, directoryPreview, 'directory_match');
+  }
+
+  if (!exactFactorySearch) {
+    return sendFactoryResponse(res, sanitizeFactoryResults(null, filters, { strictDirectoryOnly: true }), 'directory_network');
   }
 
   try {
@@ -122,8 +124,8 @@ Return this exact JSON shape:
       maxTokens: 3200,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
-      timeoutMs: exactFactorySearch ? EXACT_FACTORY_TIMEOUT_MS : MARKET_SCAN_TIMEOUT_MS,
-      retries: exactFactorySearch ? EXACT_FACTORY_RETRIES : MARKET_SCAN_RETRIES,
+      timeoutMs: EXACT_FACTORY_TIMEOUT_MS,
+      retries: EXACT_FACTORY_RETRIES,
     });
 
     const textResponse = extractJsonObject(extractAnthropicText(message.data));
