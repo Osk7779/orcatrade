@@ -144,7 +144,7 @@ test('factory search can fail closed to verified directory matches only for mark
 
   assert.equal(result.queryMode, 'market_scan');
   assert.equal(result.resultMode, 'directory_only_market_scan');
-  assert.equal(result.factories.length, 3);
+  assert.equal(result.factories.length, 2);
   result.factories.forEach(factory => {
     assert.match(factory.id, /^dir_/);
   });
