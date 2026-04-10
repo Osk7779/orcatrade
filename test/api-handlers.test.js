@@ -299,3 +299,33 @@ test('factory-score endpoint returns verified directory network results for mark
     delete process.env.ORCATRADE_OS_API;
   }
 });
+
+test('factory-score endpoint recovers implicit company-like searches as provisional exact lookups', async () => {
+  process.env.ORCATRADE_OS_API = 'test-api-key';
+  const originalConsoleError = console.error;
+  const { handler, restore } = loadFactoryScoreHandlerWithThrowingModel();
+  console.error = () => {};
+
+  try {
+    const response = await invokeHandler(handler, {
+      method: 'POST',
+      body: {
+        query: 'qingdao metalworks',
+        category: 'Steel & Metal Products',
+        country: 'China',
+        riskTolerance: 'Any risk level',
+      },
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'directory_network');
+    assert.equal(response.body.queryMode, 'exact_factory');
+    assert.equal(response.body.resultMode, 'provisional_exact_lookup');
+    assert.equal(response.body.factories.length, 1);
+    assert.equal(response.body.factories[0].name, 'qingdao metalworks');
+  } finally {
+    console.error = originalConsoleError;
+    restore();
+    delete process.env.ORCATRADE_OS_API;
+  }
+});

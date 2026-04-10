@@ -205,3 +205,19 @@ test('factory search keeps the exact requested company name unchanged for unknow
   assert.equal(result.factories[0].name, 'Acme Plastics');
   assert.equal(result.resultMode, 'provisional_exact_lookup');
 });
+
+test('factory search recovers implicit company-like queries when verified network matches are absent', () => {
+  const result = sanitizeFactoryResults(null, {
+    query: 'qingdao metalworks',
+    category: 'Steel & Metal Products',
+    country: 'China',
+    riskTolerance: 'Any risk level',
+  }, {
+    strictDirectoryOnly: true,
+  });
+
+  assert.equal(result.queryMode, 'exact_factory');
+  assert.equal(result.resultMode, 'provisional_exact_lookup');
+  assert.equal(result.factories.length, 1);
+  assert.equal(result.factories[0].name, 'qingdao metalworks');
+});
