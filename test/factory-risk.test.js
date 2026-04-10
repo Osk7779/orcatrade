@@ -132,6 +132,39 @@ test('factory search uses directory matches for known market searches before syn
   assert.equal(result.factories[0].city, 'Dongguan');
 });
 
+test('factory search can fail closed to verified directory matches only for market scans', () => {
+  const result = sanitizeFactoryResults(null, {
+    query: 'gift boxes',
+    category: 'Packaging & Paper',
+    country: 'China',
+    riskTolerance: 'Any risk level',
+  }, {
+    strictDirectoryOnly: true,
+  });
+
+  assert.equal(result.queryMode, 'market_scan');
+  assert.equal(result.resultMode, 'directory_only_market_scan');
+  assert.equal(result.factories.length, 3);
+  result.factories.forEach(factory => {
+    assert.match(factory.id, /^dir_/);
+  });
+});
+
+test('factory search fail-closed mode returns no results when there are no verified directory matches', () => {
+  const result = sanitizeFactoryResults(null, {
+    query: 'industrial solvents',
+    category: 'Other',
+    country: 'Vietnam',
+    riskTolerance: 'Any risk level',
+  }, {
+    strictDirectoryOnly: true,
+  });
+
+  assert.equal(result.queryMode, 'market_scan');
+  assert.equal(result.resultMode, 'no_verified_market_matches');
+  assert.equal(result.factories.length, 0);
+});
+
 test('factory search treats directory-backed company names as exact lookups even when the name overlaps category terms', () => {
   const result = sanitizeFactoryResults(null, {
     query: 'Ningbo Evershine Plastic Products',

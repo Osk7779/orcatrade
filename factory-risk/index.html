@@ -780,7 +780,9 @@
                             `${data.factories.length} factories`,
                             category !== 'Any' ? category : null,
                             country  !== 'Any' ? country  : null,
-                            data.generationMode === 'deterministic_fallback' ? 'Fallback mode' : null,
+                            data.resultMode === 'directory_only_market_scan'
+                                ? 'Verified directory matches only'
+                                : (data.generationMode === 'deterministic_fallback' ? 'Fallback mode' : null),
                           ].filter(Boolean);
                     context.textContent = parts.join(' · ');
                     context.style.display = 'block';
@@ -790,7 +792,7 @@
                     });
                     grid.style.display = 'grid';
                 } else {
-                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No matching factories found. Try broadening your search.</p>';
+                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No verified factories found for this search yet. Try an exact company name or a broader category.</p>';
                     grid.style.display = 'grid';
                 }
 

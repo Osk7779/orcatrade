@@ -267,3 +267,35 @@ test('factory-score endpoint does not claim a false directory match for unknown 
     delete process.env.ORCATRADE_OS_API;
   }
 });
+
+test('factory-score endpoint fails closed to verified directory matches for market scans when the model is unavailable', async () => {
+  process.env.ORCATRADE_OS_API = 'test-api-key';
+  const originalConsoleError = console.error;
+  const { handler, restore } = loadFactoryScoreHandlerWithThrowingModel();
+  console.error = () => {};
+
+  try {
+    const response = await invokeHandler(handler, {
+      method: 'POST',
+      body: {
+        query: 'gift boxes',
+        category: 'Packaging & Paper',
+        country: 'China',
+        riskTolerance: 'Any risk level',
+      },
+    });
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'deterministic_fallback');
+    assert.equal(response.body.queryMode, 'market_scan');
+    assert.equal(response.body.resultMode, 'directory_only_market_scan');
+    assert.equal(response.body.factories.length, 3);
+    response.body.factories.forEach((factory) => {
+      assert.match(factory.id, /^dir_/);
+    });
+  } finally {
+    console.error = originalConsoleError;
+    restore();
+    delete process.env.ORCATRADE_OS_API;
+  }
+});

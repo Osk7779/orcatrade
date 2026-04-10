@@ -16,7 +16,7 @@ test('report access token roundtrip verifies for the matching report', () => {
 
   const access = createReportAccessToken('OT-COMP-SECURE-001', {
     issuedAtMs: Date.parse('2026-04-09T10:00:00.000Z'),
-    expiresAtMs: Date.parse('2026-04-10T10:00:00.000Z'),
+    expiresAtMs: Date.parse('2026-04-11T10:00:00.000Z'),
   });
 
   const verification = verifyReportAccessToken('OT-COMP-SECURE-001', access.token);
@@ -54,7 +54,7 @@ test('account access token verifies for the matching owner fingerprint', () => {
 
   const access = createAccountAccessToken('owner-fingerprint-001', {
     issuedAtMs: Date.parse('2026-04-09T10:00:00.000Z'),
-    expiresAtMs: Date.parse('2026-04-10T10:00:00.000Z'),
+    expiresAtMs: Date.parse('2026-04-11T10:00:00.000Z'),
   });
 
   const verification = verifyAccountAccessToken('owner-fingerprint-001', access.token);
@@ -67,7 +67,7 @@ test('workspace access token verifies for the matching workspace fingerprint', (
 
   const access = createWorkspaceAccessToken('workspace-fingerprint-001', {
     issuedAtMs: Date.parse('2026-04-09T10:00:00.000Z'),
-    expiresAtMs: Date.parse('2026-04-10T10:00:00.000Z'),
+    expiresAtMs: Date.parse('2026-04-11T10:00:00.000Z'),
   });
 
   const verification = verifyWorkspaceAccessToken('workspace-fingerprint-001', access.token);

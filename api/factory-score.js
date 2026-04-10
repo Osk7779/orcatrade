@@ -8,8 +8,10 @@ const {
   sanitizeFactoryResults,
 } = require('../lib/intelligence/factory-risk');
 
-const FACTORY_MODEL_TIMEOUT_MS = 6000;
-const FACTORY_MODEL_RETRIES = 0;
+const EXACT_FACTORY_TIMEOUT_MS = 6000;
+const EXACT_FACTORY_RETRIES = 0;
+const MARKET_SCAN_TIMEOUT_MS = 14000;
+const MARKET_SCAN_RETRIES = 1;
 
 function extractJsonObject(text) {
   const cleaned = String(text || '')
@@ -42,11 +44,12 @@ module.exports = async function handler(req, res) {
   const directoryPreview = exactFactorySearch && directoryCandidates.length
     ? sanitizeFactoryResults({ factories: directoryCandidates }, filters)
     : null;
+  const fallbackOptions = exactFactorySearch ? {} : { strictDirectoryOnly: true };
   const allowedCities = (COUNTRY_CITIES[filters.country] || COUNTRY_CITIES.China).join(', ');
   const allowedSpecialities = (CATEGORY_SPECIALITIES[filters.category] || CATEGORY_SPECIALITIES.Other).join(', ');
 
   if (!process.env.ORCATRADE_OS_API) {
-    return sendFactoryResponse(res, sanitizeFactoryResults(null, filters), 'deterministic_fallback');
+    return sendFactoryResponse(res, sanitizeFactoryResults(null, filters, fallbackOptions), 'deterministic_fallback');
   }
 
   if (exactFactorySearch && directoryPreview && directoryPreview.resultMode === 'verified_directory_match') {
@@ -119,8 +122,8 @@ Return this exact JSON shape:
       maxTokens: 3200,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
-      timeoutMs: FACTORY_MODEL_TIMEOUT_MS,
-      retries: FACTORY_MODEL_RETRIES,
+      timeoutMs: exactFactorySearch ? EXACT_FACTORY_TIMEOUT_MS : MARKET_SCAN_TIMEOUT_MS,
+      retries: exactFactorySearch ? EXACT_FACTORY_RETRIES : MARKET_SCAN_RETRIES,
     });
 
     const textResponse = extractJsonObject(extractAnthropicText(message.data));
@@ -128,6 +131,6 @@ Return this exact JSON shape:
     return sendFactoryResponse(res, sanitizeFactoryResults(parsed, filters), 'model');
   } catch (error) {
     console.error('Factory score error:', error.message);
-    return sendFactoryResponse(res, sanitizeFactoryResults(null, filters), 'deterministic_fallback');
+    return sendFactoryResponse(res, sanitizeFactoryResults(null, filters, fallbackOptions), 'deterministic_fallback');
   }
 };
