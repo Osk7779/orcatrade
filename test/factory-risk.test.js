@@ -220,4 +220,5 @@ test('factory search recovers implicit company-like queries when verified networ
   assert.equal(result.resultMode, 'provisional_exact_lookup');
   assert.equal(result.factories.length, 1);
   assert.equal(result.factories[0].name, 'qingdao metalworks');
+  assert.equal(result.factories[0].city, 'Qingdao');
 });

@@ -323,6 +323,7 @@ test('factory-score endpoint recovers implicit company-like searches as provisio
     assert.equal(response.body.resultMode, 'provisional_exact_lookup');
     assert.equal(response.body.factories.length, 1);
     assert.equal(response.body.factories[0].name, 'qingdao metalworks');
+    assert.equal(response.body.factories[0].city, 'Qingdao');
   } finally {
     console.error = originalConsoleError;
     restore();
