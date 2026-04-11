@@ -7,8 +7,8 @@ const {
   sanitizeFactoryResults,
 } = require('../lib/intelligence/factory-risk');
 
-const FACTORY_SEARCH_TIMEOUT_MS = 25000;
-const FACTORY_SEARCH_RETRIES = 1;
+const FACTORY_SEARCH_TIMEOUT_MS = 8500;
+const FACTORY_SEARCH_RETRIES = 0;
 
 function extractJsonObject(text) {
   const cleaned = String(text || '')
@@ -37,7 +37,7 @@ module.exports = async function handler(req, res) {
   const filters = normalizeFactorySearch(req.body || {});
   const exactFactorySearch = isSpecificFactoryLookup(filters);
   const requestedFactoryName = extractRequestedFactoryName(filters.query, filters);
-  const fallbackOptions = exactFactorySearch ? {} : { strictDirectoryOnly: true };
+  const fallbackOptions = {};
   const allowedCities = (COUNTRY_CITIES[filters.country] || COUNTRY_CITIES.China).join(', ');
   const allowedSpecialities = (CATEGORY_SPECIALITIES[filters.category] || CATEGORY_SPECIALITIES.Other).join(', ');
 
