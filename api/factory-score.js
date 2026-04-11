@@ -138,81 +138,57 @@ export default async function handler(req) {
   const selectedCountry = (country && country !== 'Any') ? country : null;
   const selectedCategory = (category && category !== 'Any') ? category : null;
 
-  // Bug 2 fix: strip country names and generic noise from query before passing to Claude
-  const countryNames = ['china', 'vietnam', 'indonesia', 'india', 'bangladesh',
-    'thailand', 'malaysia', 'taiwan', 'south korea', 'cambodia', 'myanmar'];
-  let cleanQuery = (query || '').trim();
-  countryNames.forEach(c => {
-    cleanQuery = cleanQuery.replace(new RegExp(`\\b${c}\\b`, 'gi'), '').trim();
-  });
-  cleanQuery = cleanQuery.replace(/\b(factory|supplier|manufacturer|company|ltd|co)\b/gi, '').replace(/\s+/g, ' ').trim();
-  if (!cleanQuery || cleanQuery.length < 3) {
-    cleanQuery = selectedCategory || 'general manufacturer';
-  }
-
-  // Bug 3 fix: detect specific factory lookup vs category browse
-  const knownFactories = [
-    'foxconn', 'samsung', 'lg', 'sony', 'toyota', 'honda', 'nike', 'adidas',
-    'apple', 'huawei', 'xiaomi', 'oppo', 'vivo', 'haier', 'midea', 'gree',
-    'baosteel', 'byd', 'geely', 'cosco', 'yue yuen', 'pou chen',
-    'crystal group', 'shenzhou', 'luxshare', 'hon hai', 'pegatron',
-    'wistron', 'quanta', 'compal', 'flextronics', 'jabil', 'uniqlo',
-    'h&m', 'zara', 'inditex', 'esquel', 'TAL', 'eclat',
-  ];
-  const isSpecificLookup = knownFactories.some(f =>
-    cleanQuery.toLowerCase().includes(f)
-  ) || (
-    cleanQuery.length > 2 &&
-    !cleanQuery.includes(' ') &&
-    !selectedCategory &&
-    !selectedCountry
-  );
-
+  const rawQuery = (query || '').trim();
   const cty = selectedCountry || 'China';
   const cat = selectedCategory || 'General Manufacturing';
 
-  const modeBlock = isSpecificLookup
-    ? `MODE: Specific factory lookup.
-The user is searching for: '${cleanQuery}'
-Result 1 MUST be this exact factory with its real headquarters, real founding year, real employee count, real certifications.
-Results 2-6 should be 5 real competitors or similar factories in the same country and product category.`
-    : `MODE: Category browse.
-Return 6 diverse, realistic factories that make ${cat} products in ${cty}. Cover different cities and sub-specialities within the category. Do not repeat the same city twice.`;
+  // Bug 2: detect specific company name vs generic category search
+  const genericTerms = ['electronics', 'textiles', 'food', 'packaging', 'steel',
+    'chemical', 'ceramic', 'rubber', 'manufacturer', 'factory', 'supplier',
+    'furniture', 'plastics', 'apparel', 'components'];
+  const isSpecificFactory = rawQuery.length > 2 &&
+    !genericTerms.some(g => rawQuery.toLowerCase() === g);
+
+  const modeBlock = isSpecificFactory && rawQuery
+    ? `IMPORTANT: The user is searching for a specific company: '${rawQuery}'
+Result number 1 MUST be this exact company with its real name. Use the company's real name verbatim.
+If you know this company, use its real data (headquarters city, founding year, certifications).
+If uncertain, still list it first with plausible data based on its name and industry.
+Results 2-6 should be real competitors in the same country and product category.`
+    : `Return 6 diverse factories making ${cat} products in ${cty}. Cover different cities and sub-specialities. Do not repeat the same city twice.`;
 
   try {
-    const systemPrompt = `You are a factory intelligence database. You return JSON data about real and realistic Asian manufacturers.
+    const systemPrompt = `You are a factory intelligence database. You return JSON data about real and realistic manufacturers.
 
-COUNTRY RULE — absolute: Every factory MUST be in '${cty}'. Zero exceptions. If country is Vietnam, all 6 factories are in Vietnam. If China, all 6 in China.
+COUNTRY ENFORCEMENT: Every factory.country field MUST contain exactly '${cty}'. Not a variant, not an abbreviation. If you cannot find 6 real factories in ${cty}, invent plausible ones there. Never return a factory in any other country.
 
-CATEGORY RULE — absolute: Every factory MUST produce products within '${cat}'. A textile search never returns electronics.
+CATEGORY RULE — absolute: Every factory MUST produce products within '${cat}'. No mixing categories.
 
-NAMING RULES — critical:
-- Use realistic local naming conventions (see examples below)
-- NEVER use the user's search query words in factory names
-- NEVER use patterns like '[City] [query words] Manufacturing Co.'
-- Chinese names: 'Shenzhen Mindray Bio-Medical Electronics Co.', 'Luxshare Precision Industry Co., Ltd.', 'BYD Company Limited'
-- Vietnamese names: 'Viet Huong Garment JSC', 'Thanh Cong Textile Garment Investment Trading JSC'
-- Indonesian names: 'PT Sri Rejeki Isman Tbk', 'PT Pan Brothers Tbk'
+NAMING RULES:
+- Use realistic local naming conventions
+- Chinese: 'Shenzhen Mindray Bio-Medical Electronics Co.', 'Luxshare Precision Industry Co., Ltd.'
+- Vietnamese: 'Viet Huong Garment JSC', 'Thanh Cong Textile Garment Investment Trading JSC'
+- Indonesian: 'PT Sri Rejeki Isman Tbk', 'PT Pan Brothers Tbk'
+- NEVER generate patterns like '[City] [query words] Manufacturing Co.'
 
-SPECIALITY RULE: The speciality field must be a specific product type WITHIN the category. For Electronics: 'PCB assembly', 'power semiconductor packaging', 'LCD module production'. NEVER copy the search query into the speciality field.
+SPECIALITY RULE: speciality must be a specific product sub-type within ${cat}. Never copy the search query.
 
-SCORE RULE: riskScore MUST equal this calculation rounded to nearest integer: (financialScore × 0.30) + (complianceScore × 0.25) + (capacityScore × 0.25) + (auditScore × 0.20). Calculate this yourself. Never set riskScore independently.
+SCORE RULE: riskScore = round((financialScore×0.30)+(complianceScore×0.25)+(capacityScore×0.25)+(auditScore×0.20)). Never set riskScore independently.
 
-REALISM RULE: Not all factories are good. Include genuine variation — some score 45-55 (at risk), some 65-75 (acceptable), some 80+ (strong). A believable dataset is not all green.
+REALISM: Include genuine score variation — some 45-55, some 65-75, some 80+. Not all green.
 
 Return ONLY valid JSON. No markdown. No text outside the JSON.`;
 
     const userPrompt = `${modeBlock}
 
 Product category: '${cat}' — ALL factories must produce this.
-Country: '${cty}' — ALL factories must be located here.
+Country: '${cty}' — ALL factories must be located here. factory.country = '${cty}' exactly.
 Risk filter: '${riskTolerance || 'Any'}'
 
-Validation checklist — verify each factory before including:
-✓ factory.country matches '${cty}' exactly
-✓ factory.city is a real city in '${cty}'
-✓ factory.speciality is a specific product type within '${cat}' (not the search query)
-✓ factory.name does NOT contain any words from the search query
+Verify before returning:
+✓ factory.country = '${cty}' (exactly, no variants)
+✓ factory.city is a real manufacturing city in ${cty}
+✓ factory.speciality is a specific product type within ${cat}
 ✓ factory.riskScore = round((financial×0.3)+(compliance×0.25)+(capacity×0.25)+(audit×0.20))
 
 Return this exact JSON structure:
@@ -258,7 +234,7 @@ Return this exact JSON structure:
       },
       body: JSON.stringify({
         model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2000,
+        max_tokens: 1500,
         temperature: 0.3,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
@@ -292,17 +268,30 @@ Return this exact JSON structure:
 
     if (!parsed.factories || !parsed.factories.length) return mockResponse();
 
-    // Hard validation: filter out factories that don't match the requested country
+    // Bug 3: fuzzy country filter — handles "China, PRC", "Viet Nam" etc.
     if (selectedCountry) {
-      parsed.factories = parsed.factories.filter(f =>
-        f.country && f.country.toLowerCase().includes(selectedCountry.toLowerCase())
-      );
+      const countryAliases = {
+        'china': ['china', 'chinese', 'prc', 'cn'],
+        'vietnam': ['vietnam', 'viet nam', 'vietnamese', 'vn'],
+        'indonesia': ['indonesia', 'indonesian', 'id'],
+        'india': ['india', 'indian', 'in'],
+        'bangladesh': ['bangladesh', 'bangladeshi', 'bd'],
+        'thailand': ['thailand', 'thai', 'th'],
+        'malaysia': ['malaysia', 'malaysian', 'my'],
+        'taiwan': ['taiwan', 'taiwanese', 'tw', 'roc'],
+        'south korea': ['south korea', 'korea', 'korean', 'kr'],
+      };
+      const aliases = countryAliases[selectedCountry.toLowerCase()] || [selectedCountry.toLowerCase()];
+      parsed.factories = parsed.factories.filter(f => {
+        const fc = (f.country || '').toLowerCase();
+        return aliases.some(alias => fc.includes(alias));
+      });
     }
 
     if (!parsed.factories.length) {
       return new Response(JSON.stringify({
-        error: 'No matching factories found for this country and category combination.',
         factories: [],
+        error: 'Claude returned factories from wrong country. Please try again.',
       }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     }
 

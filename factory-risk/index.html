@@ -730,16 +730,7 @@
             const riskTolerance = document.getElementById('riskSelect').value;
             let   query         = document.getElementById('searchInput').value.trim();
 
-            if (!query) {
-                query = `${category !== 'Any' ? category : 'general manufacturer'} factory in ${country !== 'Any' ? country : 'Asia'}`;
-            }
-
-            if (query && country !== 'Any') {
-                query = `${query} located in ${country}`;
-            }
-            if (query && category !== 'Any') {
-                query = `${query} producing ${category} products`;
-            }
+            // Send raw user input only — country and category go as separate fields
 
             btn.innerHTML = 'Scoring factories...';
             btn.style.opacity = '0.7';
