@@ -510,12 +510,12 @@
         <div class="page-header">
             <span class="pillar-label">PILLAR 02 &middot; FACTORY INTELLIGENCE</span>
             <h1>Find & score any factory</h1>
-            <p class="header-subtext">Search by exact company name for verified intelligence. Unknown factories can be submitted for OrcaTrade ground verification.</p>
+            <p class="header-subtext">Search by company name for verified intelligence, or browse by category for a market overview.</p>
         </div>
 
         <form class="search-area" id="searchForm">
             <div class="search-input-group">
-                <input type="text" id="searchInput" class="search-input" placeholder="Enter exact company name (e.g. Foxconn, Unilumin, BYD...)" required>
+                <input type="text" id="searchInput" class="search-input" placeholder="Company name (e.g. Unilumin, Foxconn, BYD...)">
             </div>
             
             <div class="filters-row">
@@ -760,25 +760,41 @@
 
                 stopScanOverlay();
 
-                if (data.notFound || (data.factories && data.factories.length === 0 && data.message)) {
+                if (data.mode === 'not_found' || (data.factories && data.factories.length === 0 && data.message)) {
+                    const sq = data.searchQuery || query;
                     grid.innerHTML = `
                         <div style="grid-column:1/-1;text-align:center;padding:2.5rem 1rem;">
-                            <p style="color:var(--text);margin-bottom:0.75rem;">No verified data found for <strong>${query}</strong>.</p>
-                            <p style="color:var(--muted);margin-bottom:1.5rem;">Submit this factory to OrcaTrade for a ground-level due diligence report from our Hong Kong team — verified within 3 weeks.</p>
-                            <a href="../#contact" style="display:inline-block;padding:0.6rem 1.4rem;background:var(--accent);color:#fff;text-decoration:none;font-size:0.875rem;letter-spacing:0.05em;">Submit for due diligence &rarr;</a>
+                            <p style="color:var(--text);margin-bottom:0.75rem;">No verified data found for <strong>${sq}</strong>.</p>
+                            <p style="color:var(--muted);margin-bottom:1.5rem;max-width:480px;margin-left:auto;margin-right:auto;">Submit this company to OrcaTrade for a ground-level verification by our Hong Kong team — completed within 3 weeks.</p>
+                            <a href="../#contact" style="display:inline-block;padding:0.6rem 1.4rem;background:var(--accent);color:#fff;text-decoration:none;font-size:0.875rem;letter-spacing:0.05em;">Submit for verification &rarr;</a>
                         </div>`;
                     grid.style.display = 'grid';
                 } else if (data.factories && data.factories.length > 0) {
-                    const confidence = data.dataConfidence;
-                    if (confidence === 'low') {
-                        const banner = document.createElement('div');
-                        banner.style.cssText = 'grid-column:1/-1;padding:0.75rem 1rem;background:rgba(255,180,0,0.12);border-left:3px solid #ffb400;color:var(--text);font-size:0.85rem;margin-bottom:0.5rem;';
-                        banner.textContent = '⚠ Estimated data — not yet verified by OrcaTrade. Submit for full due diligence.';
-                        grid.appendChild(banner);
+
+                    // Mode banner
+                    const banner = document.createElement('div');
+                    banner.style.cssText = 'grid-column:1/-1;padding:0.75rem 1rem;font-size:0.82rem;letter-spacing:0.04em;margin-bottom:0.25rem;border-left:3px solid;';
+                    if (data.mode === 'category_browse') {
+                        banner.style.background = 'rgba(0,100,200,0.08)';
+                        banner.style.borderColor = '#4a90d9';
+                        banner.style.color = 'var(--text)';
+                        banner.textContent = `MARKET OVERVIEW — Illustrative examples of ${category !== 'Any' ? category : 'manufacturers'} in ${country !== 'Any' ? country : 'Asia'}. Search by exact company name for verified data.`;
+                    } else if (data.dataConfidence === 'verified') {
+                        banner.style.background = 'rgba(0,160,80,0.08)';
+                        banner.style.borderColor = '#00a050';
+                        banner.style.color = 'var(--text)';
+                        banner.textContent = 'VERIFIED DATA — Sourced from public company records and OrcaTrade intelligence database.';
+                    } else {
+                        banner.style.background = 'rgba(255,180,0,0.10)';
+                        banner.style.borderColor = '#ffb400';
+                        banner.style.color = 'var(--text)';
+                        banner.textContent = '⚠ ESTIMATED DATA — Based on available intelligence. Submit for full OrcaTrade verification for confirmed scores.';
                     }
+                    grid.appendChild(banner);
+
                     context.textContent = [
-                        query,
-                        confidence === 'high' ? 'Verified intelligence' : 'Estimated data',
+                        data.mode === 'category_browse' ? `${data.factories.length} factories` : (data.searchQuery || query),
+                        data.mode === 'category_browse' ? 'Market overview' : (data.dataConfidence === 'verified' ? 'Verified' : 'Estimated'),
                         country !== 'Any' ? country : null,
                     ].filter(Boolean).join(' · ');
                     context.style.display = 'block';
@@ -788,7 +804,7 @@
                     });
                     grid.style.display = 'grid';
                 } else {
-                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No results. Try an exact company name like "Foxconn" or "BYD".</p>';
+                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No results. Try a company name like "Foxconn" or browse by category.</p>';
                     grid.style.display = 'grid';
                 }
 
