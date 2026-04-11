@@ -7,8 +7,8 @@ const {
   sanitizeFactoryResults,
 } = require('../lib/intelligence/factory-risk');
 
-const EXACT_FACTORY_TIMEOUT_MS = 6000;
-const EXACT_FACTORY_RETRIES = 0;
+const FACTORY_SEARCH_TIMEOUT_MS = 25000;
+const FACTORY_SEARCH_RETRIES = 1;
 
 function extractJsonObject(text) {
   const cleaned = String(text || '')
@@ -111,8 +111,8 @@ Return this exact JSON shape:
       maxTokens: 3200,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
-      timeoutMs: EXACT_FACTORY_TIMEOUT_MS,
-      retries: EXACT_FACTORY_RETRIES,
+      timeoutMs: FACTORY_SEARCH_TIMEOUT_MS,
+      retries: FACTORY_SEARCH_RETRIES,
     });
 
     const textResponse = extractJsonObject(extractAnthropicText(message.data));
