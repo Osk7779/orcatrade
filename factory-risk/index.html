@@ -510,12 +510,12 @@
         <div class="page-header">
             <span class="pillar-label">PILLAR 02 &middot; FACTORY INTELLIGENCE</span>
             <h1>Find & score any factory</h1>
-            <p class="header-subtext">Search OrcaTrade's verified manufacturer network. Every factory scored on risk, compliance, capacity, and financial stability.</p>
+            <p class="header-subtext">Search by exact company name for verified intelligence. Unknown factories can be submitted for OrcaTrade ground verification.</p>
         </div>
 
         <form class="search-area" id="searchForm">
             <div class="search-input-group">
-                <input type="text" id="searchInput" class="search-input" placeholder="Search by factory name, product category, or location..." required>
+                <input type="text" id="searchInput" class="search-input" placeholder="Enter exact company name (e.g. Foxconn, Unilumin, BYD...)" required>
             </div>
             
             <div class="filters-row">
@@ -591,6 +591,8 @@
             card.style.animationDelay = `${delayIndex * 0.1}s`;
 
             const scoreClass = getScoreColorClass(factory.riskScore);
+            const scoreDisplay = factory.riskScore != null ? factory.riskScore : '—';
+            const scoreLabel = factory.riskScore != null ? 'Risk Score' : 'Pending verification';
 
             card.innerHTML = `
                 <div class="card-header">
@@ -600,8 +602,8 @@
                         <div class="factory-tag">${factory.speciality}</div>
                     </div>
                     <div class="score-box">
-                        <span class="score-number ${scoreClass}">${factory.riskScore}</span>
-                        <span class="score-label">Risk Score</span>
+                        <span class="score-number ${scoreClass}">${scoreDisplay}</span>
+                        <span class="score-label">${scoreLabel}</span>
                     </div>
                 </div>
                 
@@ -756,33 +758,29 @@
 
                 const data = await response.json();
 
-                if (country && country !== 'Any' && country !== 'Other' && data.factories) {
-                    data.factories = data.factories.filter(f =>
-                        f.country && f.country.toLowerCase().includes(country.toLowerCase())
-                    );
-                }
-
                 stopScanOverlay();
 
-                if (data.factories && data.factories.length > 0) {
-                    const parts = data.queryMode === 'exact_factory'
-                        ? [
-                            'Exact factory lookup',
-                            data.requestedFactoryName || query,
-                            data.resultMode === 'verified_directory_match'
-                                ? 'Verified directory match'
-                                : (data.resultMode === 'provisional_exact_lookup' ? 'Provisional result' : null),
-                            country !== 'Any' ? country : null,
-                          ].filter(Boolean)
-                        : [
-                            `${data.factories.length} factories`,
-                            category !== 'Any' ? category : null,
-                            country  !== 'Any' ? country  : null,
-                            data.resultMode === 'directory_only_market_scan'
-                                ? 'Verified directory matches only'
-                                : (data.generationMode === 'deterministic_fallback' ? 'Fallback mode' : null),
-                          ].filter(Boolean);
-                    context.textContent = parts.join(' · ');
+                if (data.notFound || (data.factories && data.factories.length === 0 && data.message)) {
+                    grid.innerHTML = `
+                        <div style="grid-column:1/-1;text-align:center;padding:2.5rem 1rem;">
+                            <p style="color:var(--text);margin-bottom:0.75rem;">No verified data found for <strong>${query}</strong>.</p>
+                            <p style="color:var(--muted);margin-bottom:1.5rem;">Submit this factory to OrcaTrade for a ground-level due diligence report from our Hong Kong team — verified within 3 weeks.</p>
+                            <a href="../#contact" style="display:inline-block;padding:0.6rem 1.4rem;background:var(--accent);color:#fff;text-decoration:none;font-size:0.875rem;letter-spacing:0.05em;">Submit for due diligence &rarr;</a>
+                        </div>`;
+                    grid.style.display = 'grid';
+                } else if (data.factories && data.factories.length > 0) {
+                    const confidence = data.dataConfidence;
+                    if (confidence === 'low') {
+                        const banner = document.createElement('div');
+                        banner.style.cssText = 'grid-column:1/-1;padding:0.75rem 1rem;background:rgba(255,180,0,0.12);border-left:3px solid #ffb400;color:var(--text);font-size:0.85rem;margin-bottom:0.5rem;';
+                        banner.textContent = '⚠ Estimated data — not yet verified by OrcaTrade. Submit for full due diligence.';
+                        grid.appendChild(banner);
+                    }
+                    context.textContent = [
+                        query,
+                        confidence === 'high' ? 'Verified intelligence' : 'Estimated data',
+                        country !== 'Any' ? country : null,
+                    ].filter(Boolean).join(' · ');
                     context.style.display = 'block';
 
                     data.factories.forEach((factory, i) => {
@@ -790,7 +788,7 @@
                     });
                     grid.style.display = 'grid';
                 } else {
-                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No verified factories found for this search yet. Try an exact company name or a broader category.</p>';
+                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No results. Try an exact company name like "Foxconn" or "BYD".</p>';
                     grid.style.display = 'grid';
                 }
 
