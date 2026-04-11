@@ -135,36 +135,39 @@ export default async function handler(req) {
     return mockResponse();
   }
 
-  const effectiveCountry = (country && country !== 'Any') ? country : 'China';
-  const effectiveCategory = (category && category !== 'Any') ? category : 'General Manufacturing';
+  const effectiveCountry = (country && country !== 'Any') ? country : null;
+  const effectiveCategory = (category && category !== 'Any') ? category : null;
 
+  // Detect if user is looking for a specific named company vs a general market scan
+  const trimmedQuery = (query || '').trim();
+  const genericTerms = /^(manufacturer|supplier|factory|factories|suppliers|manufacturer search|search)s?$/i;
   const isExactLookup = Boolean(
-    query &&
-    query.trim().length > 3 &&
-    /\b(co\.?|ltd\.?|limited|inc\.?|corp\.?|industries|industrial|manufacturing|mfg|group|works|technology|tech|trading|electronics|textiles|furniture|plastics|metals?)\b/i.test(query)
+    trimmedQuery.length > 1 &&
+    !genericTerms.test(trimmedQuery) &&
+    !/\b(manufacturers|suppliers|factories|find|best|top|show|list)\b/i.test(trimmedQuery)
   );
 
   try {
-    const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine. You are an expert in Asian manufacturing, supply chain risk, and EU trade compliance.
+    const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine with deep knowledge of global manufacturing.
 
-Your job: generate realistic, specific factory intelligence exactly matching what the user searches for.
-
-Rules:
-- The factories MUST directly match the query. If the user searches "Nike" return Nike factories. If they search "Samsung" return Samsung facilities. If they search "shoe manufacturers Vietnam" return Vietnamese shoe factories.
-- riskScore = Math.round(financialScore*0.3 + complianceScore*0.25 + capacityScore*0.25 + auditScore*0.2)
+CRITICAL RULE: The search query is the most important input. You must return factories that directly match what was searched.
+- If the query is a company name (e.g. "Nike", "Samsung", "Foxconn", "BYD"), return that company's actual manufacturing operations.
+- If the query describes a product or market (e.g. "shoe manufacturers", "electronics suppliers"), return relevant factories in that space.
+- NEVER return unrelated factories. The name, speciality, and findings must all relate to the query.
+- riskScore MUST equal Math.round(financialScore*0.3 + complianceScore*0.25 + capacityScore*0.25 + auditScore*0.2)
 - Return only valid JSON. No markdown, no explanation.
-- Use real manufacturing cities in the specified country.
-- Vary scores realistically — not all high.`;
+- Vary scores realistically — not everything should be green.`;
 
     const countNote = isExactLookup
-      ? `This is an EXACT company lookup for "${query}". Return 1 factory tied to that specific company name.`
-      : `Return 6 factories matching this market scan.`;
+      ? `The user is looking up a specific company: "${trimmedQuery}". Return exactly 1 factory for that company. Use the actual company name in the "name" field.`
+      : `Market scan for "${trimmedQuery}". Return 6 relevant factories.`;
+
+    const countryLine = effectiveCountry ? `Country filter: "${effectiveCountry}"` : `Country: Best-fit manufacturing country for this query`;
+    const categoryLine = effectiveCategory ? `Category filter: "${effectiveCategory}"` : `Category: Best-fit category for this query`;
 
     const userPrompt = `${countNote}
-
-Query: "${query || 'manufacturer search'}"
-Country: "${effectiveCountry}"
-Category: "${effectiveCategory}"
+${countryLine}
+${categoryLine}
 Risk tolerance: "${riskTolerance || 'Any'}"
 
 Return JSON:
@@ -174,7 +177,7 @@ Return JSON:
       "id": "string",
       "name": "string",
       "city": "string",
-      "country": "${effectiveCountry}",
+      "country": "string",
       "speciality": "string",
       "riskScore": 0,
       "financialScore": 0,
@@ -209,8 +212,8 @@ Return JSON:
         'content-type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'claude-haiku-4-5-20251001',
-        max_tokens: 2500,
+        model: 'claude-sonnet-4-6',
+        max_tokens: 3000,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       }),
