@@ -138,40 +138,82 @@ export default async function handler(req) {
   const selectedCountry = (country && country !== 'Any') ? country : null;
   const selectedCategory = (category && category !== 'Any') ? category : null;
 
+  // Bug 2 fix: strip country names and generic noise from query before passing to Claude
+  const countryNames = ['china', 'vietnam', 'indonesia', 'india', 'bangladesh',
+    'thailand', 'malaysia', 'taiwan', 'south korea', 'cambodia', 'myanmar'];
+  let cleanQuery = (query || '').trim();
+  countryNames.forEach(c => {
+    cleanQuery = cleanQuery.replace(new RegExp(`\\b${c}\\b`, 'gi'), '').trim();
+  });
+  cleanQuery = cleanQuery.replace(/\b(factory|supplier|manufacturer|company|ltd|co)\b/gi, '').replace(/\s+/g, ' ').trim();
+  if (!cleanQuery || cleanQuery.length < 3) {
+    cleanQuery = selectedCategory || 'general manufacturer';
+  }
+
+  // Bug 3 fix: detect specific factory lookup vs category browse
+  const knownFactories = [
+    'foxconn', 'samsung', 'lg', 'sony', 'toyota', 'honda', 'nike', 'adidas',
+    'apple', 'huawei', 'xiaomi', 'oppo', 'vivo', 'haier', 'midea', 'gree',
+    'baosteel', 'byd', 'geely', 'cosco', 'yue yuen', 'pou chen',
+    'crystal group', 'shenzhou', 'luxshare', 'hon hai', 'pegatron',
+    'wistron', 'quanta', 'compal', 'flextronics', 'jabil', 'uniqlo',
+    'h&m', 'zara', 'inditex', 'esquel', 'TAL', 'eclat',
+  ];
+  const isSpecificLookup = knownFactories.some(f =>
+    cleanQuery.toLowerCase().includes(f)
+  ) || (
+    cleanQuery.length > 2 &&
+    !cleanQuery.includes(' ') &&
+    !selectedCategory &&
+    !selectedCountry
+  );
+
+  const cty = selectedCountry || 'China';
+  const cat = selectedCategory || 'General Manufacturing';
+
+  const modeBlock = isSpecificLookup
+    ? `MODE: Specific factory lookup.
+The user is searching for: '${cleanQuery}'
+Result 1 MUST be this exact factory with its real headquarters, real founding year, real employee count, real certifications.
+Results 2-6 should be 5 real competitors or similar factories in the same country and product category.`
+    : `MODE: Category browse.
+Return 6 diverse, realistic factories that make ${cat} products in ${cty}. Cover different cities and sub-specialities within the category. Do not repeat the same city twice.`;
+
   try {
-    const systemPrompt = `You are a factory intelligence database for OrcaTrade. You return structured JSON data about real manufacturers.
+    const systemPrompt = `You are a factory intelligence database. You return JSON data about real and realistic Asian manufacturers.
 
-CRITICAL RULES — you must follow every one of these exactly:
-1. COUNTRY: Every single factory you return MUST be located in the country specified. If the country is China, ALL factories are in China. If Vietnam, ALL are in Vietnam. No exceptions.
-2. CATEGORY: Every factory MUST produce products in the specified category. If Electronics, all factories make electronic products. If Textiles, all make garments or fabric. No mixing.
-3. REAL NAMES: Use real, plausible manufacturer names for that country. Chinese factories use names like 'Shenzhen [X] Technology Co., Ltd.' Vietnamese factories use 'Vietnam [X] Manufacturing JSC.' Do not invent Western-sounding names for Asian factories.
-4. REAL CITIES: Only use real manufacturing cities in the specified country. For China: Shenzhen, Guangzhou, Dongguan, Shanghai, Hangzhou, Suzhou, Ningbo, Qingdao, Tianjin. For Vietnam: Ho Chi Minh City, Hanoi, Binh Duong, Dong Nai, Hai Phong. For Indonesia: Jakarta, Surabaya, Bandung, Semarang, Bekasi.
-5. SPECIFIC QUERY: If the user has typed a specific factory name in the query, include that factory as the first result and find 5 similar factories in the same country and category.
-6. SCORE CONSISTENCY: riskScore MUST equal this formula rounded to nearest integer: (financialScore * 0.30) + (complianceScore * 0.25) + (capacityScore * 0.25) + (auditScore * 0.20). Never generate riskScore independently.
-7. REALISTIC SCORES: Do not make every factory high-scoring. Include genuine variation — some factories should score in the 40s, some in the 80s. A realistic distribution looks like real due diligence data, not a marketing brochure.
-8. Return ONLY valid JSON. No markdown. No explanation. No text outside the JSON object.`;
+COUNTRY RULE — absolute: Every factory MUST be in '${cty}'. Zero exceptions. If country is Vietnam, all 6 factories are in Vietnam. If China, all 6 in China.
 
-    const q = query || '';
-    const cat = selectedCategory || 'General Manufacturing';
-    const cty = selectedCountry || 'China';
+CATEGORY RULE — absolute: Every factory MUST produce products within '${cat}'. A textile search never returns electronics.
 
-    const userPrompt = `Generate exactly 6 factory results for this search.
+NAMING RULES — critical:
+- Use realistic local naming conventions (see examples below)
+- NEVER use the user's search query words in factory names
+- NEVER use patterns like '[City] [query words] Manufacturing Co.'
+- Chinese names: 'Shenzhen Mindray Bio-Medical Electronics Co.', 'Luxshare Precision Industry Co., Ltd.', 'BYD Company Limited'
+- Vietnamese names: 'Viet Huong Garment JSC', 'Thanh Cong Textile Garment Investment Trading JSC'
+- Indonesian names: 'PT Sri Rejeki Isman Tbk', 'PT Pan Brothers Tbk'
 
-Search query: '${q}'
+SPECIALITY RULE: The speciality field must be a specific product type WITHIN the category. For Electronics: 'PCB assembly', 'power semiconductor packaging', 'LCD module production'. NEVER copy the search query into the speciality field.
+
+SCORE RULE: riskScore MUST equal this calculation rounded to nearest integer: (financialScore × 0.30) + (complianceScore × 0.25) + (capacityScore × 0.25) + (auditScore × 0.20). Calculate this yourself. Never set riskScore independently.
+
+REALISM RULE: Not all factories are good. Include genuine variation — some score 45-55 (at risk), some 65-75 (acceptable), some 80+ (strong). A believable dataset is not all green.
+
+Return ONLY valid JSON. No markdown. No text outside the JSON.`;
+
+    const userPrompt = `${modeBlock}
+
 Product category: '${cat}' — ALL factories must produce this.
 Country: '${cty}' — ALL factories must be located here.
 Risk filter: '${riskTolerance || 'Any'}'
 
-If the query contains a specific company name, make that company result 1 and find 5 similar companies in the same country/category.
-
-If the query is a product type or generic, return 6 factories that make '${cat}' products in '${cty}' specifically.
-
 Validation checklist — verify each factory before including:
 ✓ factory.country matches '${cty}' exactly
 ✓ factory.city is a real city in '${cty}'
-✓ factory.speciality is a product within '${cat}'
-✓ factory.riskScore = round((financial*0.3)+(compliance*0.25)+(capacity*0.25)+(audit*0.20))
-✓ factory name sounds like a real ${cty} manufacturer
+✓ factory.speciality is a specific product type within '${cat}' (not the search query)
+✓ factory.name does NOT contain any words from the search query
+✓ factory.riskScore = round((financial×0.3)+(compliance×0.25)+(capacity×0.25)+(audit×0.20))
 
 Return this exact JSON structure:
 {
