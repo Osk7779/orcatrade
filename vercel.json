@@ -1,7 +1,7 @@
 {
   "functions": {
-
-    "api/check.js": { "maxDuration": 30 },
-    "api/report.js": { "maxDuration": 30 }
+    "api/factory-score.js": { "maxDuration": 60 },
+    "api/check.js": { "maxDuration": 60 },
+    "api/report.js": { "maxDuration": 60 }
   }
 }
