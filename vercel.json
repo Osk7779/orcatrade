@@ -1,6 +1,6 @@
 {
   "functions": {
-    "api/chat.js": { "runtime": "nodejs20.x" },
+
     "api/check.js": { "maxDuration": 30 },
     "api/report.js": { "maxDuration": 30 }
   }
