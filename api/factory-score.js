@@ -124,9 +124,9 @@ export default async function handler(req) {
     });
   }
 
-  let query, category, country, riskTolerance;
+  let query, category, country;
   try {
-    ({ query, category, country, riskTolerance } = await req.json());
+    ({ query, category, country } = await req.json());
   } catch (_) {
     return mockResponse();
   }
@@ -138,68 +138,60 @@ export default async function handler(req) {
   const selectedCountry = (country && country !== 'Any') ? country : null;
   const selectedCategory = (category && category !== 'Any') ? category : null;
 
-  const rawQuery = (query || '').trim();
+  // Strip only country names from query — NOT category words (breaks "Samsung Electronics")
+  const countryNames = ['china', 'vietnam', 'indonesia', 'india', 'bangladesh',
+    'thailand', 'malaysia', 'taiwan', 'south korea'];
+  let cleanQuery = (query || '').trim();
+  countryNames.forEach(c => {
+    cleanQuery = cleanQuery.replace(new RegExp(`\\b${c}\\b`, 'gi'), '').trim();
+  });
+  if (!cleanQuery || cleanQuery.length < 2) cleanQuery = '';
+
   const cty = selectedCountry || 'China';
   const cat = selectedCategory || 'General Manufacturing';
 
-  // Bug 2: detect specific company name vs generic category search
-  const genericTerms = ['electronics', 'textiles', 'food', 'packaging', 'steel',
-    'chemical', 'ceramic', 'rubber', 'manufacturer', 'factory', 'supplier',
-    'furniture', 'plastics', 'apparel', 'components'];
-  const isSpecificFactory = rawQuery.length > 2 &&
-    !genericTerms.some(g => rawQuery.toLowerCase() === g);
+  const genericSearchTerms = ['electronics', 'textiles', 'food', 'packaging', 'steel',
+    'chemical', 'ceramic', 'rubber', 'any', 'manufacturer', 'factory', 'supplier'];
+  const isSpecificCompany = cleanQuery.length > 2 &&
+    !genericSearchTerms.includes(cleanQuery.toLowerCase());
 
-  const modeBlock = isSpecificFactory && rawQuery
-    ? `IMPORTANT: The user is searching for a specific company: '${rawQuery}'
-Result number 1 MUST be this exact company with its real name. Use the company's real name verbatim.
-If you know this company, use its real data (headquarters city, founding year, certifications).
-If uncertain, still list it first with plausible data based on its name and industry.
-Results 2-6 should be real competitors in the same country and product category.`
-    : `Return 6 diverse factories making ${cat} products in ${cty}. Cover different cities and sub-specialities. Do not repeat the same city twice.`;
+  const specificBlock = isSpecificCompany
+    ? `IMPORTANT: "${cleanQuery}" appears to be a specific company name. Result 1 MUST use this exact company name: "${cleanQuery}". Do not replace it with a different company name.`
+    : `Return 6 diverse realistic factories making ${cat} products in ${cty}.`;
 
   try {
-    const systemPrompt = `You are a factory intelligence database. You return JSON data about real and realistic manufacturers.
+    const systemPrompt = `You are a factory intelligence database for OrcaTrade. You return JSON data about manufacturers.
 
-COUNTRY ENFORCEMENT: Every factory.country field MUST contain exactly '${cty}'. Not a variant, not an abbreviation. If you cannot find 6 real factories in ${cty}, invent plausible ones there. Never return a factory in any other country.
+SPECIFIC FACTORY LOOKUP RULE — most important rule:
+If the user's query contains a specific company name (not a generic word like "electronics" or "textiles"), you MUST return that exact company as result number 1. Use its real name. Do not invent a different company name.
 
-CATEGORY RULE — absolute: Every factory MUST produce products within '${cat}'. No mixing categories.
+Examples of specific names: "Unilumin", "Foxconn", "BYD", "Samsung", "Haier", "Midea", "Luxshare"
 
-NAMING RULES:
-- Use realistic local naming conventions
-- Chinese: 'Shenzhen Mindray Bio-Medical Electronics Co.', 'Luxshare Precision Industry Co., Ltd.'
-- Vietnamese: 'Viet Huong Garment JSC', 'Thanh Cong Textile Garment Investment Trading JSC'
-- Indonesian: 'PT Sri Rejeki Isman Tbk', 'PT Pan Brothers Tbk'
-- NEVER generate patterns like '[City] [query words] Manufacturing Co.'
+Unilumin Group Co., Ltd. is a real company. It is headquartered in Shenzhen, China. It manufactures LED display screens and fine-pitch LED panels. Founded 2004. ~8000 employees. Ticker: 300055 on Shenzhen Stock Exchange.
 
-SPECIALITY RULE: speciality must be a specific product sub-type within ${cat}. Never copy the search query.
+If you recognise the searched company, use its real data.
+If you don't recognise it, still use the exact name the user typed as result 1 and generate plausible data for it.
 
-SCORE RULE: riskScore = round((financialScore×0.30)+(complianceScore×0.25)+(capacityScore×0.25)+(auditScore×0.20)). Never set riskScore independently.
+COUNTRY RULE: Every factory must be located in: ${cty}. factory.country must equal "${cty}" exactly.
+SCORE RULE: riskScore = round((financial*0.3)+(compliance*0.25)+(capacity*0.25)+(audit*0.20))
+REALISM: Include score variation — some 45-55, some 65-75, some 80+. Not all green.
+OUTPUT RULE: Return ONLY valid JSON. No markdown. No explanation.`;
 
-REALISM: Include genuine score variation — some 45-55, some 65-75, some 80+. Not all green.
+    const userPrompt = `Search query: "${cleanQuery}"
+Country: ${cty}
+Category: ${cat}
 
-Return ONLY valid JSON. No markdown. No text outside the JSON.`;
+${specificBlock}
 
-    const userPrompt = `${modeBlock}
-
-Product category: '${cat}' — ALL factories must produce this.
-Country: '${cty}' — ALL factories must be located here. factory.country = '${cty}' exactly.
-Risk filter: '${riskTolerance || 'Any'}'
-
-Verify before returning:
-✓ factory.country = '${cty}' (exactly, no variants)
-✓ factory.city is a real manufacturing city in ${cty}
-✓ factory.speciality is a specific product type within ${cat}
-✓ factory.riskScore = round((financial×0.3)+(compliance×0.25)+(capacity×0.25)+(audit×0.20))
-
-Return this exact JSON structure:
+Return exactly this JSON structure:
 {
   "factories": [
     {
       "id": "unique-string",
-      "name": "Real manufacturer name",
-      "city": "Real city in ${cty}",
+      "name": "exact company name — must be ${cleanQuery || 'realistic local name'} for result 1 if it is a specific company",
+      "city": "real city in ${cty}",
       "country": "${cty}",
-      "speciality": "Specific product type within ${cat}",
+      "speciality": "specific product type within ${cat}",
       "riskScore": 0,
       "financialScore": 0,
       "complianceScore": 0,
@@ -208,19 +200,19 @@ Return this exact JSON structure:
       "complianceStatus": "Verified | Pending | At Risk",
       "capacityStatus": "Full | Partial | Low",
       "auditStatus": "Passed | Due | Overdue",
-      "established": 2010,
-      "employees": "500-1000",
+      "established": 2005,
+      "employees": "1000-5000",
       "exportMarkets": ["EU", "US"],
       "certifications": ["ISO 9001"],
-      "moq": "realistic MOQ",
-      "leadTime": "e.g. 25-35 days",
-      "paymentTerms": ["T/T", "L/C"],
+      "moq": "1000 units",
+      "leadTime": "25-35 days",
+      "paymentTerms": ["T/T"],
       "orcatradeStatus": "Verified Partner | Under Review | Flagged",
       "findings": [{ "text": "specific finding", "severity": "green | amber | red" }],
-      "requiredActions": ["action if any"],
-      "eudr": { "status": "Compliant | At Risk | N/A", "reason": "one line" },
-      "cbam": { "status": "Compliant | At Risk | N/A", "reason": "one line" },
-      "csddd": { "status": "Compliant | At Risk | N/A", "reason": "one line" }
+      "requiredActions": [],
+      "eudr": { "status": "N/A", "reason": "not applicable" },
+      "cbam": { "status": "N/A", "reason": "not applicable" },
+      "csddd": { "status": "N/A", "reason": "below threshold" }
     }
   ]
 }`;
