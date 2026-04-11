@@ -135,50 +135,53 @@ export default async function handler(req) {
     return mockResponse();
   }
 
-  const effectiveCountry = (country && country !== 'Any') ? country : null;
-  const effectiveCategory = (category && category !== 'Any') ? category : null;
-
-  // Detect if user is looking for a specific named company vs a general market scan
-  const trimmedQuery = (query || '').trim();
-  const genericTerms = /^(manufacturer|supplier|factory|factories|suppliers|manufacturer search|search)s?$/i;
-  const isExactLookup = Boolean(
-    trimmedQuery.length > 1 &&
-    !genericTerms.test(trimmedQuery) &&
-    !/\b(manufacturers|suppliers|factories|find|best|top|show|list)\b/i.test(trimmedQuery)
-  );
+  const selectedCountry = (country && country !== 'Any') ? country : null;
+  const selectedCategory = (category && category !== 'Any') ? category : null;
 
   try {
-    const systemPrompt = `You are OrcaTrade Intelligence's factory scoring engine with deep knowledge of global manufacturing.
+    const systemPrompt = `You are a factory intelligence database for OrcaTrade. You return structured JSON data about real manufacturers.
 
-CRITICAL RULE: The search query is the most important input. You must return factories that directly match what was searched.
-- If the query is a company name (e.g. "Nike", "Samsung", "Foxconn", "BYD"), return that company's actual manufacturing operations.
-- If the query describes a product or market (e.g. "shoe manufacturers", "electronics suppliers"), return relevant factories in that space.
-- NEVER return unrelated factories. The name, speciality, and findings must all relate to the query.
-- riskScore MUST equal Math.round(financialScore*0.3 + complianceScore*0.25 + capacityScore*0.25 + auditScore*0.2)
-- Return only valid JSON. No markdown, no explanation.
-- Vary scores realistically — not everything should be green.`;
+CRITICAL RULES — you must follow every one of these exactly:
+1. COUNTRY: Every single factory you return MUST be located in the country specified. If the country is China, ALL factories are in China. If Vietnam, ALL are in Vietnam. No exceptions.
+2. CATEGORY: Every factory MUST produce products in the specified category. If Electronics, all factories make electronic products. If Textiles, all make garments or fabric. No mixing.
+3. REAL NAMES: Use real, plausible manufacturer names for that country. Chinese factories use names like 'Shenzhen [X] Technology Co., Ltd.' Vietnamese factories use 'Vietnam [X] Manufacturing JSC.' Do not invent Western-sounding names for Asian factories.
+4. REAL CITIES: Only use real manufacturing cities in the specified country. For China: Shenzhen, Guangzhou, Dongguan, Shanghai, Hangzhou, Suzhou, Ningbo, Qingdao, Tianjin. For Vietnam: Ho Chi Minh City, Hanoi, Binh Duong, Dong Nai, Hai Phong. For Indonesia: Jakarta, Surabaya, Bandung, Semarang, Bekasi.
+5. SPECIFIC QUERY: If the user has typed a specific factory name in the query, include that factory as the first result and find 5 similar factories in the same country and category.
+6. SCORE CONSISTENCY: riskScore MUST equal this formula rounded to nearest integer: (financialScore * 0.30) + (complianceScore * 0.25) + (capacityScore * 0.25) + (auditScore * 0.20). Never generate riskScore independently.
+7. REALISTIC SCORES: Do not make every factory high-scoring. Include genuine variation — some factories should score in the 40s, some in the 80s. A realistic distribution looks like real due diligence data, not a marketing brochure.
+8. Return ONLY valid JSON. No markdown. No explanation. No text outside the JSON object.`;
 
-    const countNote = isExactLookup
-      ? `The user is looking up a specific company: "${trimmedQuery}". Return exactly 1 factory for that company. Use the actual company name in the "name" field.`
-      : `Market scan for "${trimmedQuery}". Return 6 relevant factories.`;
+    const q = query || '';
+    const cat = selectedCategory || 'General Manufacturing';
+    const cty = selectedCountry || 'China';
 
-    const countryLine = effectiveCountry ? `Country filter: "${effectiveCountry}"` : `Country: Best-fit manufacturing country for this query`;
-    const categoryLine = effectiveCategory ? `Category filter: "${effectiveCategory}"` : `Category: Best-fit category for this query`;
+    const userPrompt = `Generate exactly 6 factory results for this search.
 
-    const userPrompt = `${countNote}
-${countryLine}
-${categoryLine}
-Risk tolerance: "${riskTolerance || 'Any'}"
+Search query: '${q}'
+Product category: '${cat}' — ALL factories must produce this.
+Country: '${cty}' — ALL factories must be located here.
+Risk filter: '${riskTolerance || 'Any'}'
 
-Return JSON:
+If the query contains a specific company name, make that company result 1 and find 5 similar companies in the same country/category.
+
+If the query is a product type or generic, return 6 factories that make '${cat}' products in '${cty}' specifically.
+
+Validation checklist — verify each factory before including:
+✓ factory.country matches '${cty}' exactly
+✓ factory.city is a real city in '${cty}'
+✓ factory.speciality is a product within '${cat}'
+✓ factory.riskScore = round((financial*0.3)+(compliance*0.25)+(capacity*0.25)+(audit*0.20))
+✓ factory name sounds like a real ${cty} manufacturer
+
+Return this exact JSON structure:
 {
   "factories": [
     {
-      "id": "string",
-      "name": "string",
-      "city": "string",
-      "country": "string",
-      "speciality": "string",
+      "id": "unique-string",
+      "name": "Real manufacturer name",
+      "city": "Real city in ${cty}",
+      "country": "${cty}",
+      "speciality": "Specific product type within ${cat}",
       "riskScore": 0,
       "financialScore": 0,
       "complianceScore": 0,
@@ -191,15 +194,15 @@ Return JSON:
       "employees": "500-1000",
       "exportMarkets": ["EU", "US"],
       "certifications": ["ISO 9001"],
-      "moq": "1000 units",
-      "leadTime": "25-35 days",
-      "paymentTerms": ["T/T"],
+      "moq": "realistic MOQ",
+      "leadTime": "e.g. 25-35 days",
+      "paymentTerms": ["T/T", "L/C"],
       "orcatradeStatus": "Verified Partner | Under Review | Flagged",
-      "findings": [{ "text": "string", "severity": "green | amber | red" }],
-      "requiredActions": ["string"],
-      "eudr": { "status": "Compliant | At Risk | N/A", "reason": "string" },
-      "cbam": { "status": "Compliant | At Risk | N/A", "reason": "string" },
-      "csddd": { "status": "Compliant | At Risk", "reason": "string" }
+      "findings": [{ "text": "specific finding", "severity": "green | amber | red" }],
+      "requiredActions": ["action if any"],
+      "eudr": { "status": "Compliant | At Risk | N/A", "reason": "one line" },
+      "cbam": { "status": "Compliant | At Risk | N/A", "reason": "one line" },
+      "csddd": { "status": "Compliant | At Risk | N/A", "reason": "one line" }
     }
   ]
 }`;
@@ -213,7 +216,8 @@ Return JSON:
       },
       body: JSON.stringify({
         model: 'claude-sonnet-4-6',
-        max_tokens: 3000,
+        max_tokens: 4000,
+        temperature: 0.3,
         system: systemPrompt,
         messages: [{ role: 'user', content: userPrompt }],
       }),
@@ -237,16 +241,33 @@ Return JSON:
     const match = textResponse.match(/\{[\s\S]*\}/);
     if (match) textResponse = match[0];
 
+    let parsed;
     try {
-      const parsed = JSON.parse(textResponse);
-      if (!parsed.factories || !parsed.factories.length) return mockResponse();
-      return new Response(JSON.stringify(parsed), {
-        status: 200,
-        headers: { 'Content-Type': 'application/json' },
-      });
+      parsed = JSON.parse(textResponse);
     } catch (_) {
       return mockResponse();
     }
+
+    if (!parsed.factories || !parsed.factories.length) return mockResponse();
+
+    // Hard validation: filter out factories that don't match the requested country
+    if (selectedCountry) {
+      parsed.factories = parsed.factories.filter(f =>
+        f.country && f.country.toLowerCase().includes(selectedCountry.toLowerCase())
+      );
+    }
+
+    if (!parsed.factories.length) {
+      return new Response(JSON.stringify({
+        error: 'No matching factories found for this country and category combination.',
+        factories: [],
+      }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+    }
+
+    return new Response(JSON.stringify(parsed), {
+      status: 200,
+      headers: { 'Content-Type': 'application/json' },
+    });
 
   } catch (err) {
     console.error('Factory score error:', err.message);
