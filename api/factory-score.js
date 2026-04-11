@@ -2,7 +2,6 @@ const { CATEGORY_SPECIALITIES, COUNTRY_CITIES } = require('../lib/intelligence/c
 const { extractAnthropicText, requestAnthropicMessage } = require('../lib/intelligence/model-runtime');
 const {
   extractRequestedFactoryName,
-  findDirectoryFactories,
   isSpecificFactoryLookup,
   normalizeFactorySearch,
   sanitizeFactoryResults,
@@ -38,24 +37,12 @@ module.exports = async function handler(req, res) {
   const filters = normalizeFactorySearch(req.body || {});
   const exactFactorySearch = isSpecificFactoryLookup(filters);
   const requestedFactoryName = extractRequestedFactoryName(filters.query, filters);
-  const directoryCandidates = findDirectoryFactories(filters, exactFactorySearch ? 1 : 6);
-  const directoryPreview = exactFactorySearch && directoryCandidates.length
-    ? sanitizeFactoryResults({ factories: directoryCandidates }, filters)
-    : null;
   const fallbackOptions = exactFactorySearch ? {} : { strictDirectoryOnly: true };
   const allowedCities = (COUNTRY_CITIES[filters.country] || COUNTRY_CITIES.China).join(', ');
   const allowedSpecialities = (CATEGORY_SPECIALITIES[filters.category] || CATEGORY_SPECIALITIES.Other).join(', ');
 
   if (!process.env.ORCATRADE_OS_API) {
     return sendFactoryResponse(res, sanitizeFactoryResults(null, filters, fallbackOptions), 'deterministic_fallback');
-  }
-
-  if (exactFactorySearch && directoryPreview && directoryPreview.resultMode === 'verified_directory_match') {
-    return sendFactoryResponse(res, directoryPreview, 'directory_match');
-  }
-
-  if (!exactFactorySearch) {
-    return sendFactoryResponse(res, sanitizeFactoryResults(null, filters, { strictDirectoryOnly: true }), 'directory_network');
   }
 
   try {

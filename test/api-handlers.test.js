@@ -286,7 +286,7 @@ test('factory-score endpoint returns verified directory network results for mark
     });
 
     assert.equal(response.statusCode, 200);
-    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'directory_network');
+    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'deterministic_fallback');
     assert.equal(response.body.queryMode, 'market_scan');
     assert.equal(response.body.resultMode, 'directory_only_market_scan');
     assert.equal(response.body.factories.length, 2);
@@ -318,7 +318,7 @@ test('factory-score endpoint recovers implicit company-like searches as provisio
     });
 
     assert.equal(response.statusCode, 200);
-    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'directory_network');
+    assert.equal(response.getHeader('x-orcatrade-generation-mode'), 'deterministic_fallback');
     assert.equal(response.body.queryMode, 'exact_factory');
     assert.equal(response.body.resultMode, 'provisional_exact_lookup');
     assert.equal(response.body.factories.length, 1);

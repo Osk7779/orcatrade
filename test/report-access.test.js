@@ -15,8 +15,8 @@ test('report access token roundtrip verifies for the matching report', () => {
   process.env.ORCATRADE_REPORT_SECRET = 'test-report-secret';
 
   const access = createReportAccessToken('OT-COMP-SECURE-001', {
-    issuedAtMs: Date.parse('2026-04-09T10:00:00.000Z'),
-    expiresAtMs: Date.parse('2026-04-11T10:00:00.000Z'),
+    issuedAtMs: Date.now(),
+    expiresAtMs: Date.now() + 7 * 24 * 60 * 60 * 1000,
   });
 
   const verification = verifyReportAccessToken('OT-COMP-SECURE-001', access.token);
@@ -53,8 +53,8 @@ test('account access token verifies for the matching owner fingerprint', () => {
   process.env.ORCATRADE_REPORT_SECRET = 'test-report-secret';
 
   const access = createAccountAccessToken('owner-fingerprint-001', {
-    issuedAtMs: Date.parse('2026-04-09T10:00:00.000Z'),
-    expiresAtMs: Date.parse('2026-04-11T10:00:00.000Z'),
+    issuedAtMs: Date.now(),
+    expiresAtMs: Date.now() + 7 * 24 * 60 * 60 * 1000,
   });
 
   const verification = verifyAccountAccessToken('owner-fingerprint-001', access.token);
@@ -66,8 +66,8 @@ test('workspace access token verifies for the matching workspace fingerprint', (
   process.env.ORCATRADE_REPORT_SECRET = 'test-report-secret';
 
   const access = createWorkspaceAccessToken('workspace-fingerprint-001', {
-    issuedAtMs: Date.parse('2026-04-09T10:00:00.000Z'),
-    expiresAtMs: Date.parse('2026-04-11T10:00:00.000Z'),
+    issuedAtMs: Date.now(),
+    expiresAtMs: Date.now() + 7 * 24 * 60 * 60 * 1000,
   });
 
   const verification = verifyWorkspaceAccessToken('workspace-fingerprint-001', access.token);
