@@ -107,8 +107,8 @@ Return this exact JSON shape:
 
     const message = await requestAnthropicMessage({
       apiKey: process.env.ORCATRADE_OS_API,
-      model: 'claude-sonnet-4-6',
-      maxTokens: 3200,
+      model: 'claude-haiku-4-5-20251001',
+      maxTokens: 2000,
       system: systemPrompt,
       messages: [{ role: 'user', content: userPrompt }],
       timeoutMs: FACTORY_SEARCH_TIMEOUT_MS,
