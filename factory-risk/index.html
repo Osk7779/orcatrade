@@ -197,6 +197,8 @@
         }
         .filter-select:focus { border-color: rgba(184,190,200,0.9); }
         .filter-select option { background: #0d0e12; }
+        .optional-fields { margin-top: 0.75rem; }
+        .optional-label { font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 0.5rem; opacity: 0.7; }
         .search-btn {
             width: 100%;
             background: linear-gradient(135deg, var(--gold), var(--gold-soft));
@@ -555,6 +557,45 @@
                 </select>
             </div>
 
+            <div class="optional-fields">
+                <div class="optional-label">Optional — improves accuracy</div>
+                <div class="filters-row">
+                    <select id="employeeSelect" class="filter-select">
+                        <option value="">Employee count (unknown)</option>
+                        <option value="1-50">1–50 (micro)</option>
+                        <option value="50-200">50–200 (small)</option>
+                        <option value="200-1000">200–1,000 (medium)</option>
+                        <option value="1000-5000">1,000–5,000 (large)</option>
+                        <option value="5000+">5,000+ (enterprise)</option>
+                    </select>
+                    <select id="ageSelect" class="filter-select">
+                        <option value="">Years operating (unknown)</option>
+                        <option value="0-2">0–2 years (new)</option>
+                        <option value="2-5">2–5 years</option>
+                        <option value="5-10">5–10 years</option>
+                        <option value="10-20">10–20 years</option>
+                        <option value="20+">20+ years (established)</option>
+                    </select>
+                    <select id="certSelect" class="filter-select">
+                        <option value="">Certifications (none known)</option>
+                        <option value="ISO9001">ISO 9001</option>
+                        <option value="ISO9001,ISO14001">ISO 9001 + ISO 14001</option>
+                        <option value="BSCI">BSCI</option>
+                        <option value="SA8000">SA 8000</option>
+                        <option value="GOTS">GOTS (textiles)</option>
+                        <option value="FSC">FSC (wood/paper)</option>
+                        <option value="multiple">Multiple certifications</option>
+                    </select>
+                    <select id="euSelect" class="filter-select">
+                        <option value="">EU export experience (unknown)</option>
+                        <option value="none">No EU exports</option>
+                        <option value="some">Some EU experience</option>
+                        <option value="established">Established EU exporter</option>
+                        <option value="primary">Primary market is EU</option>
+                    </select>
+                </div>
+            </div>
+
             <button type="submit" class="search-btn" id="searchBtn">Search Factories &rarr;</button>
         </form>
 
@@ -730,9 +771,11 @@
             const category      = document.getElementById('categorySelect').value || 'Any';
             const country       = document.getElementById('countrySelect').value  || 'Any';
             const riskTolerance = document.getElementById('riskSelect').value;
+            const employees     = document.getElementById('employeeSelect').value;
+            const yearsOp       = document.getElementById('ageSelect').value;
+            const certifications = document.getElementById('certSelect').value;
+            const euExperience  = document.getElementById('euSelect').value;
             let   query         = document.getElementById('searchInput').value.trim();
-
-            // Send raw user input only — country and category go as separate fields
 
             btn.innerHTML = 'Scoring factories...';
             btn.style.opacity = '0.7';
@@ -748,7 +791,7 @@
                 const response = await fetch('/api/factory-score', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query, category, country, riskTolerance })
+                    body: JSON.stringify({ query, category, country, riskTolerance, employees, yearsOp, certifications, euExperience })
                 });
 
                 if (!response.ok) {
@@ -760,41 +803,38 @@
 
                 stopScanOverlay();
 
-                if (data.mode === 'not_found' || (data.factories && data.factories.length === 0 && data.message)) {
+                if (!data.factories || data.factories.length === 0) {
                     const sq = data.searchQuery || query;
                     grid.innerHTML = `
                         <div style="grid-column:1/-1;text-align:center;padding:2.5rem 1rem;">
-                            <p style="color:var(--text);margin-bottom:0.75rem;">No verified data found for <strong>${sq}</strong>.</p>
-                            <p style="color:var(--muted);margin-bottom:1.5rem;max-width:480px;margin-left:auto;margin-right:auto;">Submit this company to OrcaTrade for a ground-level verification by our Hong Kong team — completed within 3 weeks.</p>
+                            <p style="color:var(--text);margin-bottom:0.75rem;">No results for <strong>${sq || 'this search'}</strong>.</p>
+                            <p style="color:var(--muted);margin-bottom:1.5rem;max-width:480px;margin-left:auto;margin-right:auto;">Submit this company to OrcaTrade for ground-level verification by our Hong Kong team — completed within 3 weeks.</p>
                             <a href="../#contact" style="display:inline-block;padding:0.6rem 1.4rem;background:var(--accent);color:#fff;text-decoration:none;font-size:0.875rem;letter-spacing:0.05em;">Submit for verification &rarr;</a>
                         </div>`;
                     grid.style.display = 'grid';
-                } else if (data.factories && data.factories.length > 0) {
-
-                    // Mode banner
+                } else {
+                    // Confidence banner
                     const banner = document.createElement('div');
-                    banner.style.cssText = 'grid-column:1/-1;padding:0.75rem 1rem;font-size:0.82rem;letter-spacing:0.04em;margin-bottom:0.25rem;border-left:3px solid;';
-                    if (data.mode === 'category_browse') {
-                        banner.style.background = 'rgba(0,100,200,0.08)';
-                        banner.style.borderColor = '#4a90d9';
-                        banner.style.color = 'var(--text)';
-                        banner.textContent = `MARKET OVERVIEW — Illustrative examples of ${category !== 'Any' ? category : 'manufacturers'} in ${country !== 'Any' ? country : 'Asia'}. Search by exact company name for verified data.`;
-                    } else if (data.dataConfidence === 'verified') {
-                        banner.style.background = 'rgba(0,160,80,0.08)';
-                        banner.style.borderColor = '#00a050';
-                        banner.style.color = 'var(--text)';
+                    banner.style.cssText = 'grid-column:1/-1;padding:0.75rem 1rem;font-size:0.8rem;letter-spacing:0.04em;margin-bottom:0.25rem;border-left:3px solid;';
+                    const conf = data.dataConfidence || (data.mode === 'category_browse' ? 'illustrative' : 'low');
+                    if (conf === 'illustrative' || data.mode === 'category_browse') {
+                        banner.style.cssText += 'background:rgba(80,80,140,0.10);border-color:#6a6abf;color:var(--text);';
+                        banner.textContent = `MARKET OVERVIEW — Illustrative examples of ${category !== 'Any' ? category : 'manufacturers'} in ${country !== 'Any' ? country : 'Asia'}. Search by exact company name for a scored assessment.`;
+                    } else if (conf === 'high') {
+                        banner.style.cssText += 'background:rgba(0,160,80,0.08);border-color:#00a050;color:var(--text);';
                         banner.textContent = 'VERIFIED DATA — Sourced from public company records and OrcaTrade intelligence database.';
+                    } else if (conf === 'medium') {
+                        banner.style.cssText += 'background:rgba(0,120,220,0.08);border-color:#4a90d9;color:var(--text);';
+                        banner.textContent = 'SIGNAL-BASED ASSESSMENT — Score derived from provided signals. Submit for OrcaTrade ground verification to confirm.';
                     } else {
-                        banner.style.background = 'rgba(255,180,0,0.10)';
-                        banner.style.borderColor = '#ffb400';
-                        banner.style.color = 'var(--text)';
-                        banner.textContent = '⚠ ESTIMATED DATA — Based on available intelligence. Submit for full OrcaTrade verification for confirmed scores.';
+                        banner.style.cssText += 'background:rgba(255,180,0,0.10);border-color:#ffb400;color:var(--text);';
+                        banner.textContent = '⚠ PRELIMINARY ESTIMATE — Minimal signals available. Add company details above or submit for full OrcaTrade verification.';
                     }
                     grid.appendChild(banner);
 
                     context.textContent = [
                         data.mode === 'category_browse' ? `${data.factories.length} factories` : (data.searchQuery || query),
-                        data.mode === 'category_browse' ? 'Market overview' : (data.dataConfidence === 'verified' ? 'Verified' : 'Estimated'),
+                        conf === 'illustrative' ? 'Market overview' : conf === 'high' ? 'Verified' : conf === 'medium' ? 'Signal-based' : 'Preliminary estimate',
                         country !== 'Any' ? country : null,
                     ].filter(Boolean).join(' · ');
                     context.style.display = 'block';
@@ -802,9 +842,15 @@
                     data.factories.forEach((factory, i) => {
                         grid.appendChild(renderFactoryCard(factory, i));
                     });
-                    grid.style.display = 'grid';
-                } else {
-                    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:var(--muted);">No results. Try a company name like "Foxconn" or browse by category.</p>';
+
+                    // CTA for low/medium confidence specific lookups
+                    if (data.mode === 'specific_lookup' && (conf === 'low' || conf === 'medium')) {
+                        const cta = document.createElement('div');
+                        cta.style.cssText = 'grid-column:1/-1;text-align:center;padding:1.25rem;border:1px solid var(--border);margin-top:0.5rem;';
+                        cta.innerHTML = `<p style="color:var(--muted);font-size:0.85rem;margin-bottom:0.75rem;">Improve this score — submit for OrcaTrade ground verification.</p><a href="../#contact" style="display:inline-block;padding:0.5rem 1.2rem;background:var(--accent);color:#fff;text-decoration:none;font-size:0.82rem;letter-spacing:0.04em;">Submit for verification &rarr;</a>`;
+                        grid.appendChild(cta);
+                    }
+
                     grid.style.display = 'grid';
                 }
 
