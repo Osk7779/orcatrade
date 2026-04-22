@@ -146,32 +146,37 @@
           <a href="pl/index.html" class="lang-btn">PL</a>
           <a href="de/index.html" class="lang-btn">DE</a>
         </div>
+        <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
       </div>
     </header>
 
     <main>
       <!-- HERO -->
       <section class="section section--hero-center" id="top">
-        <video class="hero-video-bg" autoplay muted loop playsinline>
+        <video class="hero-video-bg" autoplay muted loop playsinline data-parallax data-parallax-strength="24">
           <source src="assets/hero-bg.mp4" type="video/mp4">
         </video>
-        <div class="hero-kicker">Warsaw, London & Hong Kong • Europe ↔ Asia</div>
-        <h1 class="hero-title-center">
+        <div class="hero-kicker" data-reveal="hero">Warsaw, London & Hong Kong • Europe ↔ Asia</div>
+        <h1 class="hero-title-center" data-reveal="hero">
           Four business units.<br><span>One group.</span>
         </h1>
-        <p class="hero-body-center">
+        <p class="hero-body-center" data-reveal="hero">
           OrcaTrade Group connects European buyers with Asian manufacturers through sourcing,
           intelligence, factory search, and trade finance — four focused units covering
           China, Vietnam, and India end to end.
         </p>
 
-        <div class="hero-meta hero-meta--center">
+        <div class="hero-meta hero-meta--center" data-reveal="hero">
           <div class="hero-tag">Group</div>
           <div class="hero-divider"></div>
           <div class="hero-detail">Warsaw, London & Hong Kong • CET, GMT & China Standard Time</div>
         </div>
 
-        <div class="hero-actions hero-actions--center">
+        <div class="hero-actions hero-actions--center" data-reveal="hero">
           <a class="btn btn-primary" href="#group">Explore our units</a>
           <a class="btn btn-ghost" href="#contact">Get in touch</a>
         </div>
@@ -271,11 +276,106 @@
         </div>
       </section>
 
+      <!-- PINNED STORY -->
+      <section class="section section--story" aria-label="Why OrcaTrade Intelligence matters" data-story-section data-story-step="1">
+        <div class="story-shell">
+          <div class="story-panel" data-story-panel>
+            <div class="story-copy-column">
+              <div class="section-kicker" data-reveal="heading">Pinned narrative · OrcaTrade Intelligence</div>
+              <p class="story-overline" data-reveal="copy">
+                Built for import teams navigating fragmented sourcing, shipment handoffs, and rising EU compliance pressure.
+              </p>
+
+              <div class="story-copy-stack">
+                <article class="story-copy is-active" data-story-copy>
+                  <div class="story-index">01</div>
+                  <h2 class="story-title">Global trade is still fragmented at the exact moments that matter.</h2>
+                  <p class="story-text">
+                    Supplier discovery, factory approval, shipment updates and document checks usually live in separate inboxes,
+                    spreadsheets and partner systems. Decisions move, but context does not.
+                  </p>
+                </article>
+
+                <article class="story-copy" data-story-copy>
+                  <div class="story-index">02</div>
+                  <h2 class="story-title">Compliance pressure keeps arriving later, heavier, and with less room for error.</h2>
+                  <p class="story-text">
+                    CBAM, evidence requests and evolving EU requirements add a second layer of operational risk. What used to be
+                    a logistics problem is now a regulatory one too.
+                  </p>
+                </article>
+
+                <article class="story-copy" data-story-copy>
+                  <div class="story-index">03</div>
+                  <h2 class="story-title">OrcaTrade Intelligence connects sourcing, logistics and regulation into one operating view.</h2>
+                  <p class="story-text">
+                    The platform links supplier context, shipment visibility and compliance workflows so import teams can move
+                    faster with traceable evidence, clearer ownership and fewer blind spots.
+                  </p>
+                </article>
+              </div>
+            </div>
+
+            <div class="story-visual-column">
+              <div class="story-board" aria-hidden="true">
+                <div class="story-board-grid"></div>
+
+                <div class="story-board-sources">
+                  <div class="story-board-node story-board-node--source">
+                    <span class="story-node-label">Sourcing</span>
+                    <strong>Factory fit</strong>
+                    <p>Capability, MOQ, quality, commercial approvals.</p>
+                  </div>
+
+                  <div class="story-board-node story-board-node--logistics">
+                    <span class="story-node-label">Logistics</span>
+                    <strong>Shipment flow</strong>
+                    <p>Milestones, documents, route changes, handovers.</p>
+                  </div>
+
+                  <div class="story-board-node story-board-node--regulation">
+                    <span class="story-node-label">Regulation</span>
+                    <strong>CBAM &amp; EU evidence</strong>
+                    <p>Declarations, supplier proof, audit readiness.</p>
+                  </div>
+                </div>
+
+                <div class="story-board-node story-board-node--orca">
+                  <span class="story-node-label">OrcaTrade Intelligence</span>
+                  <strong>Connected operating layer</strong>
+                  <p>One view across sourcing, logistics and compliance for faster, lower-friction decisions.</p>
+                </div>
+
+                <div class="story-board-line story-board-line--source"></div>
+                <div class="story-board-line story-board-line--logistics"></div>
+                <div class="story-board-line story-board-line--regulation"></div>
+                <div class="story-board-pulse"></div>
+              </div>
+
+              <div class="story-signal-strip" data-stagger-group="stat" data-stagger-step="90">
+                <div class="story-signal is-active" data-stagger-item="stat">
+                  <span>Before</span>
+                  <strong>Fragmented handoffs</strong>
+                </div>
+                <div class="story-signal" data-stagger-item="stat">
+                  <span>Pressure</span>
+                  <strong>Compliance load rising</strong>
+                </div>
+                <div class="story-signal" data-stagger-item="stat">
+                  <span>After</span>
+                  <strong>Connected trade intelligence</strong>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       <!-- VIDEO -->
       <section class="section section--visual" aria-label="OrcaTrade Group in Motion">
         <div class="section-kicker">OrcaTrade Group in Motion</div>
         <div class="trade-visual" style="margin-top:1.2rem;">
-          <video class="trade-video" src="assets/orcatrade-overview-2.mp4" autoplay muted loop playsinline></video>
+          <video class="trade-video" src="assets/orcatrade-overview-2.mp4" autoplay muted loop playsinline data-parallax></video>
           <div class="trade-visual-overlay">
             <div class="trade-visual-kicker">Sea &amp; air coordination</div>
             <div class="trade-visual-title">Sea freight, air freight, customs, and last-mile — coordinated from one desk.</div>
@@ -523,6 +623,10 @@
         link.appendChild(footer);
         article.appendChild(link);
         grid.appendChild(article);
+
+        if (window.OrcaMotion && typeof window.OrcaMotion.refresh === 'function') {
+          window.OrcaMotion.refresh(grid);
+        }
       }
 
       function renderNews(articles) {
@@ -594,6 +698,10 @@
           article.appendChild(link);
           grid.appendChild(article);
         });
+
+        if (window.OrcaMotion && typeof window.OrcaMotion.refresh === 'function') {
+          window.OrcaMotion.refresh(grid);
+        }
       }
 
       fetch('/api/news')
