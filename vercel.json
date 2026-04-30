@@ -3,5 +3,11 @@
     "api/factory-score.js": { "maxDuration": 60 },
     "api/check.js": { "maxDuration": 60 },
     "api/report.js": { "maxDuration": 60 }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/app/:path*",
+      "destination": "https://orcatrade-intelligence.vercel.app/app/:path*"
+    }
+  ]
 }
