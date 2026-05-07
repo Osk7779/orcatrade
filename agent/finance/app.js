@@ -78,10 +78,10 @@ function markToolResult(callId, ok, errorMessage) {
     row.appendChild(note);
   }
 }
-function appendTextDelta(text) { const el = ensureTextEl(); if (!el) return; el.dataset.raw = (el.dataset.raw || '') + text; el.innerHTML = citationsToChips(el.dataset.raw); scrollToBottom(); }
+function appendTextDelta(text) { const el = ensureTextEl(); if (!el) return; el.dataset.raw = (el.dataset.raw || '') + text; el.innerHTML = OrcaMarkdown.render(el.dataset.raw); scrollToBottom(); }
 function finalizeAgentMessage(finalText) {
   clearAgentStatus();
-  if (finalText) { const el = ensureTextEl(); if (el && !el.dataset.raw) { el.dataset.raw = finalText; el.innerHTML = citationsToChips(finalText); } }
+  if (finalText) { const el = ensureTextEl(); if (el && !el.dataset.raw) { el.dataset.raw = finalText; el.innerHTML = OrcaMarkdown.render(finalText); } }
   state.messages.push({ role: 'assistant', content: finalText || '' });
   state.currentAgentMsg = null;
   state.currentToolTrace = null;

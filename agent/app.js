@@ -126,7 +126,7 @@ function appendTextDelta(text) {
   if (!el) return;
   // Re-render entire content from buffer for citation chip parsing
   el.dataset.raw = (el.dataset.raw || '') + text;
-  el.innerHTML = citationsToChips(el.dataset.raw);
+  el.innerHTML = OrcaMarkdown.render(el.dataset.raw);
   scrollToBottom();
 }
 
@@ -136,7 +136,7 @@ function finalizeAgentMessage(finalText) {
     const el = ensureTextEl();
     if (el && !el.dataset.raw) {
       el.dataset.raw = finalText;
-      el.innerHTML = citationsToChips(finalText);
+      el.innerHTML = OrcaMarkdown.render(finalText);
     }
   }
   // Push assistant text into history (text-only, agent loop handles its own tool memory)

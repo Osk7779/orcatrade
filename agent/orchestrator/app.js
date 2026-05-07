@@ -143,7 +143,7 @@ function appendTextDelta(text) {
   const el = ensureTextEl();
   if (!el) return;
   el.dataset.raw = (el.dataset.raw || '') + text;
-  el.innerHTML = citationsToChips(el.dataset.raw);
+  el.innerHTML = OrcaMarkdown.render(el.dataset.raw);
   scrollToBottom();
 }
 
@@ -163,7 +163,7 @@ function finalizeAgentMessage(finalText, domains) {
     const el = ensureTextEl();
     if (el && !el.dataset.raw) {
       el.dataset.raw = finalText;
-      el.innerHTML = citationsToChips(finalText);
+      el.innerHTML = OrcaMarkdown.render(finalText);
     }
   }
   if (domains) appendDomainsSummary(domains);
