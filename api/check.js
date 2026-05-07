@@ -301,7 +301,7 @@ module.exports = async function handler(req, res) {
     const year = new Date().getFullYear();
     reportId = `OT-COMP-${year}-${Math.floor(100000 + Math.random() * 900000)}`;
     timestamp = new Date().toISOString();
-    const anthropicApiKey = process.env.ORCATRADE_OS_API;
+    const anthropicApiKey = (process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API);
     if (!anthropicApiKey) {
       const fallbackReport = buildDeterministicFallbackReport(orderData, {
         reportId,

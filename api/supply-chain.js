@@ -28,7 +28,7 @@ module.exports = async function handler(req, res) {
       year: 'numeric',
     });
 
-    if (!process.env.ORCATRADE_OS_API) {
+    if (!(process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API)) {
       return res.status(200).json(buildSupplyChainMock(input));
     }
 
@@ -128,7 +128,7 @@ Return this exact JSON shape:
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'x-api-key': process.env.ORCATRADE_OS_API,
+        'x-api-key': (process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API),
         'anthropic-version': '2023-06-01',
         'content-type': 'application/json',
       },

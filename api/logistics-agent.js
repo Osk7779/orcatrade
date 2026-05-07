@@ -476,8 +476,8 @@ module.exports = async (req, res) => {
     return res.status(400).json({ error: 'messages array is required' });
   }
 
-  if (!process.env.ORCATRADE_OS_API) {
-    return res.status(503).json({ error: 'Logistics Agent requires ORCATRADE_OS_API to be configured.' });
+  if (!(process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API)) {
+    return res.status(503).json({ error: 'Logistics Agent requires ANTHROPIC_API_KEY to be configured.' });
   }
 
   const trimmedMessages = messages.slice(-12).map(m => ({
@@ -499,7 +499,7 @@ module.exports = async (req, res) => {
   try {
     while (toolTurns < AGENT_MAX_TOOL_TURNS) {
       const response = await callAnthropic({
-        apiKey: process.env.ORCATRADE_OS_API,
+        apiKey: (process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API),
         system: systemForTurn,
         tools: TOOLS,
         messages: workingMessages,

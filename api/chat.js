@@ -76,13 +76,13 @@ module.exports = async (req, res) => {
     }
   }
 
-  if (!process.env.ORCATRADE_OS_API) {
+  if (!(process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API)) {
     return streamStaticReply(res, buildLocalFallbackReply(intent));
   }
 
   try {
     await streamAnthropicMessage({
-      apiKey: process.env.ORCATRADE_OS_API,
+      apiKey: (process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API),
       model: 'claude-sonnet-4-6',
       maxTokens: 420,
       system: buildFocusedSystemPrompt(intent),

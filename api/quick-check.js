@@ -165,7 +165,7 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  if (!process.env.ORCATRADE_OS_API) {
+  if (!(process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API)) {
     const fallbackPayload = {
       verdict: buildFallbackVerdict(orderData, applicability),
       status,
@@ -205,7 +205,7 @@ module.exports = async function handler(req, res) {
       .join(', ') || 'None';
 
     const modelResponse = await requestAnthropicMessage({
-      apiKey: process.env.ORCATRADE_OS_API,
+      apiKey: (process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API),
       model: 'claude-sonnet-4-6',
       maxTokens: 160,
       system: 'You are OrcaTrade Intelligence. Return a 2-3 sentence compliance verdict for the given product/origin. State which regulations apply, the key obligation, and the single most urgent action. Be direct and specific. No markdown.',

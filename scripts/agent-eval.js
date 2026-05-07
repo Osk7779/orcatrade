@@ -4,9 +4,9 @@
 // asserts tools called, citations present, expected keywords in final text, and stop reason.
 //
 // Usage:
-//   ORCATRADE_OS_API=sk-ant-... node scripts/agent-eval.js
-//   ORCATRADE_OS_API=sk-ant-... node scripts/agent-eval.js cbam-steel-china       # single case
-//   ORCATRADE_OS_API=sk-ant-... node scripts/agent-eval.js --bail                  # stop on first failure
+//   ANTHROPIC_API_KEY=sk-ant-... node scripts/agent-eval.js
+//   ANTHROPIC_API_KEY=sk-ant-... node scripts/agent-eval.js cbam-steel-china       # single case
+//   ANTHROPIC_API_KEY=sk-ant-... node scripts/agent-eval.js --bail                  # stop on first failure
 //
 // Exit code: 0 if all pass, 1 if any fail. Suitable for CI.
 
@@ -31,8 +31,8 @@ function color(text, c) {
   return `${COLOR[c] || ''}${text}${COLOR.reset}`;
 }
 
-if (!process.env.ORCATRADE_OS_API) {
-  console.error(color('ORCATRADE_OS_API is required for the agent eval. Aborting.', 'red'));
+if (!(process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API)) {
+  console.error(color('ANTHROPIC_API_KEY is required for the agent eval. Aborting.', 'red'));
   process.exit(2);
 }
 

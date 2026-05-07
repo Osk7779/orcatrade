@@ -532,9 +532,9 @@ module.exports = async (req, res) => {
     return emitDone(res);
   }
 
-  if (!process.env.ORCATRADE_OS_API) {
+  if (!(process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API)) {
     emitSection(res, 'narrative', {
-      fallback: 'Narrative generation requires ORCATRADE_OS_API. Deterministic sections above are complete and citation-grounded.',
+      fallback: 'Narrative generation requires ANTHROPIC_API_KEY. Deterministic sections above are complete and citation-grounded.',
     });
     return emitDone(res);
   }
@@ -544,7 +544,7 @@ module.exports = async (req, res) => {
 
   try {
     await streamAnthropicMessage({
-      apiKey: process.env.ORCATRADE_OS_API,
+      apiKey: (process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API),
       model: ANALYSIS_MODEL,
       maxTokens: ANALYSIS_MAX_TOKENS,
       system: buildSystemPrompt(regulationsInScope),

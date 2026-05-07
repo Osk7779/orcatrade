@@ -18,7 +18,7 @@ export default async function handler(req) {
     euExperience = '',
   } = body;
 
-  if (!process.env.ORCATRADE_OS_API) {
+  if (!(process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API)) {
     return new Response(JSON.stringify({ error: 'API not configured', factories: [] }),
       { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
@@ -192,7 +192,7 @@ Return exactly this JSON:
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'x-api-key': process.env.ORCATRADE_OS_API,
+        'x-api-key': (process.env.ANTHROPIC_API_KEY || process.env.ORCATRADE_OS_API),
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
