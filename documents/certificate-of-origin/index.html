@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Certificate of Origin — Trade Documentation Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Generate a non-preferential Certificate of Origin. HS codes per line, marks & numbers. Ready for chamber-of-commerce stamping.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="../shared/form.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <div class="doc-form-shell">
+        <a href="../" style="font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); text-decoration: none;">← Documentation Hub</a>
+
+        <div style="margin-top: 1.2rem;">
+          <div class="hero-kicker">Document type · Live</div>
+          <h1 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.6rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0.5rem 0 0.6rem; color: rgba(255,255,255,0.97);">Certificate of Origin</h1>
+          <p style="font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 60ch;">
+            Non-preferential CoO. Most CoOs require a chamber-of-commerce stamp before use — this generates the data sheet ready for stamping.
+          </p>
+
+          <div class="scenario-row">
+            <button type="button" class="scenario-btn" data-scenario="vn-furniture">Demo · VN furniture</button>
+            <button type="button" class="scenario-btn" data-scenario="import-invoice">Import from Commercial Invoice draft</button>
+            <button type="button" class="scenario-btn" data-scenario="clear">Clear form</button>
+          </div>
+        </div>
+
+        <form id="coo-form">
+          <div class="doc-form-grid">
+
+            <div class="doc-form-section">
+              <h2>Exporter / Seller</h2>
+              <div class="field"><label>Company name</label><input name="exporter.companyName" /></div>
+              <div class="field"><label>Street address</label><input name="exporter.streetAddress" /></div>
+              <div class="field-row">
+                <div class="field"><label>City</label><input name="exporter.city" /></div>
+                <div class="field"><label>Country</label><input name="exporter.country" /></div>
+              </div>
+              <div class="field"><label>Tax ID / VAT</label><input name="exporter.taxId" /></div>
+              <div class="field"><label>Email</label><input name="exporter.email" type="email" /></div>
+            </div>
+
+            <div class="doc-form-section">
+              <h2>Consignee</h2>
+              <div class="field"><label>Company name</label><input name="consignee.companyName" /></div>
+              <div class="field"><label>Street address</label><input name="consignee.streetAddress" /></div>
+              <div class="field-row">
+                <div class="field"><label>City</label><input name="consignee.city" /></div>
+                <div class="field"><label>Country</label><input name="consignee.country" /></div>
+              </div>
+              <div class="field"><label>EORI</label><input name="consignee.eori" /></div>
+            </div>
+
+            <div class="doc-form-section">
+              <h2>Origin &amp; reference</h2>
+              <div class="field"><label>Country of origin</label><input name="countryOfOrigin" required placeholder="e.g. China, Vietnam" /></div>
+              <div class="field"><label>Invoice number reference</label><input name="invoiceNumber" required /></div>
+              <div class="field"><label>Invoice date</label><input name="invoiceDate" type="date" /></div>
+              <div class="field"><label>Country of destination</label><input name="countryOfDestination" /></div>
+              <div class="field"><label>Mode of transport</label><input name="transportMode" /></div>
+              <div class="field"><label>Vessel / Flight no.</label><input name="vesselFlightNo" /></div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Line items</h2>
+              <table class="line-items-table">
+                <thead>
+                  <tr>
+                    <th style="width: 2rem;">No.</th>
+                    <th>Description</th>
+                    <th style="width: 7rem;">HS code</th>
+                    <th style="width: 6rem;">Quantity</th>
+                    <th style="width: 4rem;">Unit</th>
+                    <th>Marks &amp; numbers</th>
+                    <th style="width: 5rem;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="line-items-tbody"></tbody>
+              </table>
+              <div class="form-actions" style="margin-top: 0.7rem;">
+                <button type="button" class="btn-ghost" id="add-line">+ Add line item</button>
+              </div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Signature</h2>
+              <p style="font-size: 0.84rem; color: rgba(255,255,255,0.6); line-height: 1.6; margin-bottom: 1rem;">
+                The output sheet contains a pre-formatted declaration paragraph and a stamp box for the chamber of commerce.
+              </p>
+              <div class="field-row">
+                <div class="field"><label>Signed by — name</label><input name="signedByName" /></div>
+                <div class="field"><label>Signed by — title</label><input name="signedByTitle" /></div>
+              </div>
+              <div class="field"><label>Signed date</label><input name="signedDate" type="date" /></div>
+            </div>
+          </div>
+
+          <div class="form-msg" id="form-msg"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Generate certificate</button>
+            <button type="button" class="btn-ghost" id="save-draft">Save draft locally</button>
+            <span style="font-size: 0.74rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em;">Auto-saves while you type</span>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer><div class="footer-inner"><span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span><span><a href="../../index.html">Back to OrcaTrade Group</a></span></div></footer>
+  </div>
+
+  <script src="../../js/site-nav.js"></script>
+  <script src="../../js/main.js"></script>
+  <script src="../shared/form.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

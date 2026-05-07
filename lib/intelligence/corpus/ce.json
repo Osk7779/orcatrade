@@ -1,0 +1,175 @@
+{
+  "regulation": {
+    "id": "ce",
+    "shortName": "CE",
+    "longName": "CE Marking — EU Conformity Framework",
+    "instrument": "Regulation (EC) 765/2008 + Decision 768/2008/EC + product-specific directives",
+    "scope_note": "CE marking is not a single regulation but a framework spanning multiple New Approach / New Legislative Framework directives and regulations. The applicability test is per-directive: each product is checked against the directives that govern its product class.",
+    "elsLandingUrl": "https://single-market-economy.ec.europa.eu/single-market/ce-marking_en",
+    "directives": [
+      { "id": "lvd", "shortName": "LVD", "instrument": "Directive 2014/35/EU", "title": "Low Voltage Directive" },
+      { "id": "emc", "shortName": "EMC", "instrument": "Directive 2014/30/EU", "title": "Electromagnetic Compatibility Directive" },
+      { "id": "machinery", "shortName": "Machinery", "instrument": "Regulation (EU) 2023/1230", "title": "Machinery Regulation (replaces Directive 2006/42/EC from 2027-01-20)" },
+      { "id": "toy_safety", "shortName": "Toy Safety", "instrument": "Directive 2009/48/EC", "title": "Toy Safety Directive" },
+      { "id": "ppe", "shortName": "PPE", "instrument": "Regulation (EU) 2016/425", "title": "Personal Protective Equipment Regulation" },
+      { "id": "red", "shortName": "RED", "instrument": "Directive 2014/53/EU", "title": "Radio Equipment Directive" },
+      { "id": "rohs", "shortName": "RoHS", "instrument": "Directive 2011/65/EU", "title": "Restriction of Hazardous Substances" }
+    ]
+  },
+  "chunks": [
+    {
+      "id": "ce-framework-765-2008",
+      "article": "Reg. 765/2008",
+      "title": "Accreditation and market surveillance framework",
+      "summary": "Regulation (EC) 765/2008 lays down the rules for accreditation of conformity-assessment bodies and the market-surveillance framework for products in the EU. It establishes the legal basis for the CE marking and harmonised approach to product compliance across all New Approach directives.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 765/2008",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2008/765/oj",
+      "topics": ["framework", "accreditation", "market-surveillance", "ce-marking-basis"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-framework-768-2008",
+      "article": "Dec. 768/2008",
+      "title": "Common framework for the marketing of products",
+      "summary": "Decision No 768/2008/EC sets out reference provisions used in CE-related directives: definitions of operators (manufacturer, authorised representative, importer, distributor), conformity-assessment modules (A through H), CE-marking rules, and obligations of each operator. Importers must verify that the manufacturer has carried out conformity assessment, drawn up technical documentation, affixed the CE marking, and provided required documentation.",
+      "verbatim": null,
+      "citation": "Decision No 768/2008/EC",
+      "source_url": "https://eur-lex.europa.eu/eli/dec/2008/768/oj",
+      "topics": ["framework", "operator-obligations", "modules", "importer-obligation"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-importer-obligations",
+      "article": "Common importer obligations",
+      "title": "What an EU importer must verify before placing a CE-marked product on the market",
+      "summary": "The importer must: (1) verify that the manufacturer has carried out the appropriate conformity-assessment procedure; (2) verify that the manufacturer has drawn up the technical documentation; (3) verify that the product bears the required conformity marking (CE) and is accompanied by the required documents; (4) verify that the manufacturer has complied with the requirements set out in the applicable directives, including any traceability requirements (manufacturer name and contact, type/batch/serial number); (5) ensure storage and transport conditions do not jeopardise compliance. Where the manufacturer is established outside the EU, the importer must in addition ensure that an Authorised Representative has been designated and is identifiable on the product or accompanying documentation.",
+      "verbatim": null,
+      "citation": "Decision 768/2008/EC, Art. R4 (importer obligations)",
+      "source_url": "https://eur-lex.europa.eu/eli/dec/2008/768/oj",
+      "topics": ["importer-verification", "doc", "technical-documentation", "ce-marking", "authorised-representative"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-doc",
+      "article": "EU Declaration of Conformity",
+      "title": "Declaration of Conformity (DoC)",
+      "summary": "Each CE-marked product must be accompanied by an EU Declaration of Conformity (DoC) drawn up and signed by the manufacturer. The DoC lists: product identification (model, type, batch/serial number); manufacturer name and address; authorised representative if applicable; the directives the product complies with; references to harmonised standards or technical specifications used; identity of any Notified Body involved; signatory name and date. The importer must verify the DoC exists and matches the product before placing it on the market, and keep a copy for at least 10 years.",
+      "verbatim": null,
+      "citation": "Common across CE directives — see e.g. Decision 768/2008/EC, Annex III",
+      "source_url": "https://single-market-economy.ec.europa.eu/single-market/ce-marking/manufacturers/eu-declaration-conformity_en",
+      "topics": ["doc", "declaration-of-conformity", "manufacturer-signature", "10-year-retention"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-technical-file",
+      "article": "Technical File",
+      "title": "Technical documentation requirements",
+      "summary": "The manufacturer must compile a Technical File documenting how the product meets the essential requirements of each applicable directive. Typical contents: product description and intended use; design and manufacturing drawings; risk assessment; list of harmonised standards applied; test reports (in-house and third-party); quality assurance procedures; instructions and warnings. The Technical File must be kept by the manufacturer (or Authorised Representative) for at least 10 years after the last unit is placed on the market and must be made available to market-surveillance authorities on request.",
+      "verbatim": null,
+      "citation": "Common across CE directives — see e.g. Decision 768/2008/EC, Annex II",
+      "source_url": "https://single-market-economy.ec.europa.eu/single-market/ce-marking/manufacturers/technical-documentation_en",
+      "topics": ["technical-file", "risk-assessment", "harmonised-standards", "10-year-retention", "market-surveillance"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-authorised-representative",
+      "article": "Authorised Representative",
+      "title": "Authorised Representative (AR) for non-EU manufacturers",
+      "summary": "A non-EU manufacturer may, by written mandate, designate a natural or legal person established within the EU as Authorised Representative. The AR performs tasks specified in the mandate — typically holding the Technical File, providing it to market-surveillance authorities, cooperating on corrective actions, and being identifiable on the product or in the accompanying documents. The AR is not a substitute for the manufacturer's responsibility but is the EU-side legal contact. Some directives mandate an AR even for products placed by importers.",
+      "verbatim": null,
+      "citation": "Common across CE directives — see e.g. Decision 768/2008/EC, Art. R3",
+      "source_url": "https://single-market-economy.ec.europa.eu/single-market/ce-marking_en",
+      "topics": ["authorised-representative", "ar", "non-eu-manufacturer", "mandate", "market-surveillance"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-notified-body",
+      "article": "Notified Body",
+      "title": "Notified Body involvement",
+      "summary": "For higher-risk products, conformity assessment must involve a Notified Body — a third-party conformity-assessment organisation accredited by a Member State. The NB carries out testing, certification, or production-quality auditing under specific conformity-assessment modules (B, C2, D, E, F, G, H). The NB issues an EC type-examination certificate or quality-system approval. The NB's four-digit identification number must appear next to the CE marking when its involvement was required during production-stage assessment. NB involvement is mandatory for, e.g., Toy Safety (where applicable), most PPE Category III products, RED radio equipment with restricted spectrum, certain machinery (Annex IV).",
+      "verbatim": null,
+      "citation": "Regulation (EC) 765/2008 + product-specific directives",
+      "source_url": "https://ec.europa.eu/growth/tools-databases/nando/",
+      "topics": ["notified-body", "nb", "conformity-assessment", "modules", "four-digit-number"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-lvd",
+      "article": "LVD 2014/35/EU",
+      "title": "Low Voltage Directive — electrical equipment 50–1000 V AC / 75–1500 V DC",
+      "summary": "The Low Voltage Directive applies to electrical equipment designed for use within voltage ranges of 50–1000 V for alternating current and 75–1500 V for direct current. Conformity-assessment route: manufacturer self-certification (Module A, internal production control) — no Notified Body required. Manufacturer must compile a Technical File, draw up a DoC, and affix the CE marking. Common products: power supplies, switches, sockets, lamps, cables, household appliances, control panels.",
+      "verbatim": null,
+      "citation": "Directive 2014/35/EU",
+      "source_url": "https://eur-lex.europa.eu/eli/dir/2014/35/oj",
+      "topics": ["lvd", "low-voltage", "module-a", "self-certification"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-emc",
+      "article": "EMC 2014/30/EU",
+      "title": "Electromagnetic Compatibility Directive",
+      "summary": "The EMC Directive applies to apparatus and fixed installations that are liable to cause electromagnetic disturbance or whose performance is liable to be affected by such disturbance. Most apparatus follows Module A (internal production control). Module B (EU-type examination) plus Module C may apply for products tested against non-harmonised standards. Common products: any electrical / electronic apparatus including IT equipment, lighting, audio/video, household appliances, telecom terminals (combined with RED for radio).",
+      "verbatim": null,
+      "citation": "Directive 2014/30/EU",
+      "source_url": "https://eur-lex.europa.eu/eli/dir/2014/30/oj",
+      "topics": ["emc", "electromagnetic", "module-a", "module-b", "harmonised-standards"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-machinery",
+      "article": "Reg. (EU) 2023/1230",
+      "title": "Machinery Regulation (effective 20 January 2027)",
+      "summary": "Regulation (EU) 2023/1230 replaces the Machinery Directive 2006/42/EC and applies from 20 January 2027 (transition period). It applies to machinery, interchangeable equipment, safety components, lifting accessories, chains, ropes, webbing, removable mechanical transmission devices, and partly completed machinery. Conformity-assessment routes: Module A (most machinery), Modules B+C (Annex IV / high-risk machinery, Notified Body involvement required). Manufacturer must conduct a risk assessment, compile a Technical File, draw up a DoC, and affix the CE marking. Importers must verify these elements.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1230",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1230/oj",
+      "topics": ["machinery", "annex-iv", "high-risk", "risk-assessment", "transition-2027"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-toy-safety",
+      "article": "Dir. 2009/48/EC",
+      "title": "Toy Safety Directive",
+      "summary": "The Toy Safety Directive applies to products designed or intended (whether or not exclusively) for use in play by children under 14 years of age. Essential safety requirements: physical and mechanical properties; flammability; chemical (CMR substances, fragrance allergens, heavy metals); electrical; hygiene; radioactivity. Conformity-assessment routes: Module A (internal production control) where harmonised standards are fully applied; Module B+C (EU-type examination + production control) where standards are partly applied or product is high-risk. A Notified Body is required for the EU-type examination route. Specific Annex II Part III restrictions on chemical substances apply, in addition to REACH Annex XVII.",
+      "verbatim": null,
+      "citation": "Directive 2009/48/EC",
+      "source_url": "https://eur-lex.europa.eu/eli/dir/2009/48/oj",
+      "topics": ["toy-safety", "children-under-14", "annex-ii", "chemical-restrictions", "flammability"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-ppe",
+      "article": "Reg. (EU) 2016/425",
+      "title": "Personal Protective Equipment Regulation",
+      "summary": "Regulation (EU) 2016/425 applies to PPE designed and manufactured to be worn or held by a person for protection against one or more risks to health or safety. PPE is divided into three risk categories: I (minimal risks; Module A), II (intermediate risks; Module B + C2 with Notified Body), III (serious risks including respiratory protection, falls from height, electrical risks; Module B + D or B + E with Notified Body in production-stage). Manufacturer holds Technical File 10 years post last placement; importer must verify CE marking, AR (if non-EU manufacturer), and DoC.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2016/425",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2016/425/oj",
+      "topics": ["ppe", "category-i-ii-iii", "notified-body", "module-b"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-red",
+      "article": "RED 2014/53/EU",
+      "title": "Radio Equipment Directive",
+      "summary": "The Radio Equipment Directive applies to electrical or electronic products that intentionally emit and/or receive radio waves for the purpose of radio communication or radiodetermination, using the spectrum allocated to terrestrial/space radio communication. This covers Wi-Fi, Bluetooth, mobile, IoT, RFID, broadcast receivers, etc. Module A is permitted only when harmonised standards are fully applied; otherwise Module B (EU-type examination by Notified Body) plus Module C is required. Additional delegated acts impose cybersecurity requirements (effective 1 August 2025) for certain Internet-connected radio equipment.",
+      "verbatim": null,
+      "citation": "Directive 2014/53/EU",
+      "source_url": "https://eur-lex.europa.eu/eli/dir/2014/53/oj",
+      "topics": ["red", "radio-equipment", "wifi", "bluetooth", "iot", "cybersecurity-2025"],
+      "confidence": "summary"
+    },
+    {
+      "id": "ce-rohs",
+      "article": "RoHS 2011/65/EU",
+      "title": "Restriction of Hazardous Substances Directive",
+      "summary": "RoHS Directive 2011/65/EU restricts the use of ten substances in electrical and electronic equipment (EEE): lead, cadmium, mercury, hexavalent chromium, polybrominated biphenyls (PBB), polybrominated diphenyl ethers (PBDE), and four phthalates (DEHP, BBP, DBP, DIBP). Maximum concentration values: 0.1% w/w in homogeneous materials (0.01% for cadmium). RoHS conformity is part of the CE marking process for in-scope EEE — manufacturer self-declares via Module A and includes RoHS compliance in the DoC. Substances may be exempt under specific applications listed in Annexes III and IV. Importers must verify RoHS compliance evidence in the technical file.",
+      "verbatim": null,
+      "citation": "Directive 2011/65/EU",
+      "source_url": "https://eur-lex.europa.eu/eli/dir/2011/65/oj",
+      "topics": ["rohs", "ten-substances", "0.1-percent", "cadmium-0.01-percent", "module-a", "exemptions"],
+      "confidence": "summary"
+    }
+  ]
+}

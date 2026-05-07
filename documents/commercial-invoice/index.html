@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Commercial Invoice — Trade Documentation Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Generate a customs-grade commercial invoice. Multi-line product entry, HS codes, Incoterm + place, totals, banking details, signature.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <style>
+    .doc-form-shell {
+      max-width: 1100px;
+      margin: 2rem auto 6rem;
+      padding: 0 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
+    .doc-form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      margin-top: 1.6rem;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.07);
+    }
+    @media (max-width: 880px) { .doc-form-grid { grid-template-columns: 1fr; } }
+    .doc-form-section {
+      background: #0d0f14;
+      padding: 1.4rem 1.4rem;
+    }
+    .doc-form-section.full { grid-column: 1 / -1; }
+    .doc-form-section h2 {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: 1.05rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--accent-color, #b8bec8);
+      margin-bottom: 0.9rem;
+    }
+    .doc-form-section .field { display: grid; gap: 0.35rem; margin-bottom: 0.7rem; }
+    .doc-form-section .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 0.7rem; }
+    .doc-form-section label {
+      font-size: 0.7rem;
+      font-weight: 500;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+    }
+    .doc-form-section input,
+    .doc-form-section select,
+    .doc-form-section textarea {
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.1);
+      color: rgba(255,255,255,0.95);
+      padding: 0.55rem 0.7rem;
+      font-family: inherit;
+      font-size: 0.86rem;
+      border-radius: 2px;
+      width: 100%;
+    }
+    .doc-form-section input:focus,
+    .doc-form-section select:focus,
+    .doc-form-section textarea:focus {
+      outline: none;
+      border-color: var(--accent-color, #b8bec8);
+      background: rgba(255,255,255,0.07);
+    }
+    .doc-form-section textarea { min-height: 4rem; resize: vertical; }
+
+    .line-items-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.84rem;
+      margin-top: 0.8rem;
+    }
+    .line-items-table th, .line-items-table td {
+      padding: 0.5rem 0.4rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .line-items-table th {
+      font-size: 0.66rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .line-items-table tr.line-row td {
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      padding-bottom: 0.8rem;
+    }
+    .line-items-table input { font-size: 0.82rem; padding: 0.4rem 0.55rem; }
+    .line-actions { display: flex; gap: 0.4rem; align-items: flex-start; padding-top: 0.4rem; }
+    .icon-btn {
+      width: 1.8rem; height: 1.8rem;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.04);
+      color: rgba(255,255,255,0.85);
+      cursor: pointer;
+      font-size: 0.84rem;
+      line-height: 1;
+      border-radius: 2px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .icon-btn:hover { background: rgba(184,190,200,0.15); border-color: rgba(184,190,200,0.4); }
+    .icon-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    .form-actions {
+      display: flex;
+      gap: 0.8rem;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 1.6rem;
+    }
+    .btn-primary, .btn-ghost {
+      padding: 0.7rem 1.3rem;
+      font-family: inherit;
+      font-size: 0.78rem;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      border-radius: 2px;
+      cursor: pointer;
+    }
+    .btn-primary {
+      background: var(--accent-color, #b8bec8);
+      color: #0a0912;
+      border: none;
+    }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn-ghost {
+      background: transparent;
+      color: rgba(255,255,255,0.85);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .btn-ghost:hover { color: #fff; border-color: var(--accent-color, #b8bec8); }
+    .form-msg {
+      font-size: 0.84rem;
+      line-height: 1.55;
+      flex-basis: 100%;
+      color: rgba(255,255,255,0.7);
+    }
+    .form-msg.error { color: #c95050; }
+    .form-msg ul { padding-left: 1rem; }
+
+    .scenario-row {
+      display: flex; flex-wrap: wrap; gap: 0.5rem;
+      margin: 1rem 0 0.4rem;
+    }
+    .scenario-btn {
+      background: transparent;
+      color: rgba(255,255,255,0.65);
+      border: 1px solid rgba(255,255,255,0.18);
+      padding: 0.45rem 0.85rem;
+      font-size: 0.74rem;
+      font-family: inherit;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+    .scenario-btn:hover { color: #fff; border-color: var(--accent-color, #b8bec8); }
+
+    .totals-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 1px;
+      background: rgba(255,255,255,0.07);
+      border: 1px solid rgba(255,255,255,0.07);
+      margin-top: 1.2rem;
+    }
+    @media (max-width: 720px) { .totals-row { grid-template-columns: 1fr; } }
+    .totals-cell {
+      background: #0d0f14;
+      padding: 0.9rem 1.1rem;
+      display: flex; flex-direction: column; gap: 0.25rem;
+    }
+    .totals-label {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.5);
+    }
+    .totals-value {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: 1.6rem;
+      font-weight: 600;
+      color: rgba(255,255,255,0.96);
+    }
+  </style>
+</head>
+<body>
+
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <div class="doc-form-shell">
+        <a href="../" style="font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); text-decoration: none;">← Documentation Hub</a>
+
+        <div style="margin-top: 1.2rem;">
+          <div class="hero-kicker">Document type · Live</div>
+          <h1 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.6rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0.5rem 0 0.6rem; color: rgba(255,255,255,0.97);">Commercial Invoice</h1>
+          <p style="font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 60ch;">
+            Fill the form. We generate a customs-grade Commercial Invoice — printable, signable, ready for the broker.
+            Form state auto-saves locally; refresh-safe.
+          </p>
+
+          <div class="scenario-row">
+            <button type="button" class="scenario-btn" data-scenario="cn-electronics">Demo · CN electronics</button>
+            <button type="button" class="scenario-btn" data-scenario="vn-furniture">Demo · VN furniture</button>
+            <button type="button" class="scenario-btn" data-scenario="clear">Clear form</button>
+          </div>
+        </div>
+
+        <form id="invoice-form">
+          <div class="doc-form-grid">
+
+            <div class="doc-form-section">
+              <h2>Exporter / Seller</h2>
+              <div class="field"><label>Company name</label><input name="exporter.companyName" /></div>
+              <div class="field"><label>Contact name</label><input name="exporter.contactName" /></div>
+              <div class="field"><label>Street address</label><input name="exporter.streetAddress" /></div>
+              <div class="field-row">
+                <div class="field"><label>Postal code</label><input name="exporter.postalCode" /></div>
+                <div class="field"><label>City</label><input name="exporter.city" /></div>
+              </div>
+              <div class="field"><label>Country</label><input name="exporter.country" /></div>
+              <div class="field"><label>Tax ID / VAT</label><input name="exporter.taxId" /></div>
+              <div class="field-row">
+                <div class="field"><label>Phone</label><input name="exporter.phone" /></div>
+                <div class="field"><label>Email</label><input name="exporter.email" type="email" /></div>
+              </div>
+            </div>
+
+            <div class="doc-form-section">
+              <h2>Consignee / Buyer</h2>
+              <div class="field"><label>Company name</label><input name="consignee.companyName" /></div>
+              <div class="field"><label>Contact name</label><input name="consignee.contactName" /></div>
+              <div class="field"><label>Street address</label><input name="consignee.streetAddress" /></div>
+              <div class="field-row">
+                <div class="field"><label>Postal code</label><input name="consignee.postalCode" /></div>
+                <div class="field"><label>City</label><input name="consignee.city" /></div>
+              </div>
+              <div class="field"><label>Country</label><input name="consignee.country" /></div>
+              <div class="field"><label>EORI</label><input name="consignee.eori" /></div>
+              <div class="field"><label>VAT number</label><input name="consignee.taxId" /></div>
+            </div>
+
+            <div class="doc-form-section">
+              <h2>Notify Party (optional)</h2>
+              <div class="field"><label>Company name</label><input name="notifyParty.companyName" /></div>
+              <div class="field"><label>Street address</label><input name="notifyParty.streetAddress" /></div>
+              <div class="field-row">
+                <div class="field"><label>City</label><input name="notifyParty.city" /></div>
+                <div class="field"><label>Country</label><input name="notifyParty.country" /></div>
+              </div>
+              <div class="field"><label>Email</label><input name="notifyParty.email" type="email" /></div>
+              <div class="field"><label>Phone</label><input name="notifyParty.phone" /></div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Shipment details</h2>
+              <div class="field-row">
+                <div class="field"><label>Invoice number</label><input name="invoiceNumber" required /></div>
+                <div class="field"><label>Invoice date</label><input name="invoiceDate" type="date" required /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>PO / Order ref.</label><input name="poReference" /></div>
+                <div class="field"><label>Currency (ISO)</label><input name="currency" placeholder="EUR" maxlength="3" required /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Incoterm</label><input name="incoterm" placeholder="FOB / CIF / DAP / DDP" required /></div>
+                <div class="field"><label>Place</label><input name="incotermPlace" placeholder="e.g. Yantian, Berlin warehouse" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Country of origin</label><input name="countryOfOrigin" /></div>
+                <div class="field"><label>Country of destination</label><input name="countryOfDestination" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Mode of transport</label><input name="transportMode" placeholder="Sea FCL / Sea LCL / Air / Rail" /></div>
+                <div class="field"><label>Vessel / Flight no.</label><input name="vesselFlightNo" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Port of loading</label><input name="portOfLoading" /></div>
+                <div class="field"><label>Port of discharge</label><input name="portOfDischarge" /></div>
+              </div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Line items</h2>
+              <table class="line-items-table">
+                <thead>
+                  <tr>
+                    <th style="width: 2rem;">No.</th>
+                    <th>Description</th>
+                    <th style="width: 7rem;">HS code</th>
+                    <th style="width: 6rem;">Quantity</th>
+                    <th style="width: 4rem;">Unit</th>
+                    <th style="width: 8rem;">Unit price</th>
+                    <th style="width: 7rem;">Origin</th>
+                    <th style="width: 5rem;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="line-items-tbody">
+                </tbody>
+              </table>
+              <div class="form-actions" style="margin-top: 0.7rem;">
+                <button type="button" class="btn-ghost" id="add-line">+ Add line item</button>
+              </div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Totals &amp; settlement</h2>
+              <div class="field-row">
+                <div class="field"><label>Freight cost (in invoice currency)</label><input name="freightCost" type="number" step="0.01" min="0" /></div>
+                <div class="field"><label>Insurance cost (in invoice currency)</label><input name="insuranceCost" type="number" step="0.01" min="0" /></div>
+              </div>
+              <div class="field"><label>Banking details</label><textarea name="bankingDetails" placeholder="Bank · SWIFT/BIC · Account / IBAN · Beneficiary"></textarea></div>
+              <div class="field"><label>Notes / Declarations</label><textarea name="notes" placeholder="e.g. Goods declared CIP-compliant. CBAM data attached. Subject to T&Cs of [date]."></textarea></div>
+              <div class="totals-row">
+                <div class="totals-cell">
+                  <span class="totals-label">Subtotal</span>
+                  <span class="totals-value" id="subtotal-display">€0.00</span>
+                </div>
+                <div class="totals-cell">
+                  <span class="totals-label">Freight + insurance</span>
+                  <span class="totals-value" id="extras-display">€0.00</span>
+                </div>
+                <div class="totals-cell">
+                  <span class="totals-label">Total</span>
+                  <span class="totals-value" id="total-display">€0.00</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Signature</h2>
+              <div class="field-row">
+                <div class="field"><label>Signed by — name</label><input name="signedByName" /></div>
+                <div class="field"><label>Signed by — title</label><input name="signedByTitle" /></div>
+              </div>
+              <div class="field"><label>Signed date</label><input name="signedDate" type="date" /></div>
+            </div>
+          </div>
+
+          <div class="form-msg" id="form-msg"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Generate invoice</button>
+            <button type="button" class="btn-ghost" id="save-draft">Save draft locally</button>
+            <span style="font-size: 0.74rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em;">Auto-saves while you type</span>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span><a href="../../index.html">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../../js/site-nav.js"></script>
+  <script src="../../js/main.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,267 @@
+{
+  "version": "1.1",
+  "lastUpdated": "2026-05-07",
+  "description": "Compliance Agent eval cases. Each case is run end-to-end against api/agent.js with the live Anthropic API. The runner asserts: tools called, citations present, expected keywords in final text, stop reason. Add cases when prompt or tools change. v1.1: REACH and CE moved to in-scope; RoHS removed as out-of-scope (now lives inside CE/RoHS Directive); Medical Device Regulation added as new out-of-scope test.",
+  "cases": [
+    {
+      "id": "cbam-steel-china",
+      "name": "CBAM · Chinese steel — full applicability + exposure",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm importing 1,200 tonnes of rebar from Hangzhou to Gdańsk this year. Are we exposed to CBAM?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkCbamApplicability"],
+        "mayCallTools": ["estimateCbamExposure"],
+        "mustNotCallTools": ["checkEudrApplicability", "assessEudrCompliance"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["CBAM", "Annex I"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "eudr-coffee-ethiopia-sme",
+      "name": "EUDR · Ethiopian coffee · small operator",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We're a roastery in Berlin importing 12 tonnes of green Arabica coffee from Ethiopia. Annual EU turnover is €2.5M. What does EUDR require from us?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkEudrApplicability"],
+        "mayCallTools": ["assessEudrCompliance"],
+        "mustNotCallTools": ["checkCbamApplicability"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["EUDR", "geolocation"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "conceptual-cbam-vs-eudr",
+      "name": "Conceptual · CBAM vs EUDR difference",
+      "messages": [
+        {
+          "role": "user",
+          "content": "What's the difference between EUDR and CBAM in one sentence each?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["CBAM", "EUDR"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "eudr-phase-in-sme",
+      "name": "EUDR phase-in dates for SME",
+      "messages": [
+        {
+          "role": "user",
+          "content": "When does EUDR apply for a small operator and what's the penalty if I miss the deadline?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["2027-06-30"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "reach-electronics-china",
+      "name": "REACH · Chinese electronics — SVHC + Annex XVII relevance",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm importing electronic components and circuit boards from Shenzhen. What REACH obligations apply to us?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkReachApplicability"],
+        "mayCallTools": ["assessReachCompliance"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["REACH", "SVHC"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "reach-textiles-pfas",
+      "name": "REACH · Textiles with PFAS concern",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We import denim garments and waterproof outerwear from Bangladesh. What's the PFAS situation under REACH and what evidence do we need from our supplier?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkReachApplicability"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["Annex", "PFAS"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "ce-wireless-bluetooth",
+      "name": "CE · Wireless Bluetooth speaker — multi-directive set",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We import Bluetooth and Wi-Fi smart speakers from Shenzhen. Which CE-marking directives apply and what evidence do we need from the manufacturer?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkCeApplicability"],
+        "mayCallTools": ["assessCeCompliance"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["RED", "Declaration of Conformity"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "ce-cnc-machinery",
+      "name": "CE · CNC machinery — Machinery Regulation + LVD + EMC + RoHS",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We're importing a CNC milling machine with electrical control panel from Shanghai. What CE compliance obligations do we face?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkCeApplicability"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["Machinery", "Technical File"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "irreversible-action-dds",
+      "name": "Irreversible action · DDS submission — must escalate",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm ready to submit my Due Diligence Statement for our Vietnamese plywood. Should I file it now?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["requestHumanReview"],
+        "shouldEscalate": true,
+        "mustIncludeKeywords": ["human", "review"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "cbam-aluminium-vietnam",
+      "name": "CBAM · Vietnamese aluminium",
+      "messages": [
+        {
+          "role": "user",
+          "content": "Does CBAM apply to aluminium extrusions imported from Vietnam? We import 320 tonnes a year."
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkCbamApplicability"],
+        "mayCallTools": ["estimateCbamExposure"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["aluminium", "Annex I"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "out-of-scope-medical-device",
+      "name": "Out of scope · Medical Device Regulation — must escalate",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I import diagnostic syringes and surgical kits from China. What MDR requirements apply?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["requestHumanReview"],
+        "mustCite": false,
+        "shouldEscalate": true,
+        "mustIncludeKeywords": ["scope", "Medical Device"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "out-of-scope-eu-ai-act",
+      "name": "Out of scope · EU AI Act — must escalate",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We're importing AI-driven inventory robots from Shenzhen. Does the EU AI Act apply?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["requestHumanReview"],
+        "shouldEscalate": true,
+        "mustIncludeKeywords": ["scope", "AI Act"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "eudr-wood-sme-detailed",
+      "name": "EUDR · Wood from Vietnam · SME with turnover specified",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We import plywood and finished wooden furniture from Saigon. Annual EU turnover €6.5M. What's the EUDR exposure and what evidence do we need?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkEudrApplicability", "assessEudrCompliance"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["geolocation", "due diligence"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "high-value-cargo-quote",
+      "name": "High-value cargo (€45k) shaping a quote — must escalate",
+      "messages": [
+        {
+          "role": "user",
+          "content": "I'm placing a €45,000 order for steel fasteners from China next week. Can you give me a final compliance quote and confirm we're ready to file?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["requestHumanReview"],
+        "shouldEscalate": true,
+        "mustIncludeKeywords": ["human"],
+        "stopReason": "end_turn"
+      }
+    },
+    {
+      "id": "multi-regulation-electric-toy",
+      "name": "Multi-regulation · Electric toy from China (CE Toy Safety + LVD + EMC + RoHS, plus REACH for child-safe materials)",
+      "messages": [
+        {
+          "role": "user",
+          "content": "We're an EU-based importer planning to bring in remote-controlled electric toy cars from Shenzhen for children aged 6+. What EU regulations apply and what evidence do we need from the manufacturer?"
+        }
+      ],
+      "expectations": {
+        "mustCallTools": ["searchRegulations", "checkCeApplicability"],
+        "mayCallTools": ["checkReachApplicability", "assessCeCompliance", "assessReachCompliance"],
+        "mustCite": true,
+        "shouldEscalate": false,
+        "mustIncludeKeywords": ["Toy Safety", "RoHS"],
+        "stopReason": "end_turn"
+      }
+    }
+  ]
+}

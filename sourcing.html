@@ -18,43 +18,24 @@
 </head>
 
 <body>
+
+  <!-- AURORA · drifting accent blobs -->
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <!-- PAGE TOC · right-edge dot navigation -->
+  <nav class="page-toc" aria-label="Page navigation">
+    <a href="#top" data-toc="top"><span>Top</span></a>
+    <a href="#services" data-toc="services"><span>Services</span></a>
+    <a href="#process" data-toc="process"><span>Process</span></a>
+    <a href="#inquiry" data-toc="inquiry"><span>Inquiry</span></a>
+  </nav>
+
   <div class="page">
-    <header>
-      <div class="nav">
-        <div class="brand">
-          <a href="index.html">
-            <div class="brand-logo">
-              <img src="orcatrade_logo.png" alt="OrcaTrade Group logo">
-            </div>
-            <div class="brand-text">
-              <span>OrcaTrade</span>
-              <span>group</span>
-            </div>
-          </a>
-        </div>
-        <nav class="nav-links">
-          <a href="index.html">Home</a>
-          <a href="index.html#group">Group</a>
-          <div class="nav-dropdown">
-            <button class="nav-dropdown-toggle">Units ▾</button>
-            <div class="nav-dropdown-menu">
-              <a href="sourcing.html">Sourcing</a>
-              <a href="intelligence.html">Intelligence</a>
-              <a href="search/">Search</a>
-              <a href="finance.html">Finance</a>
-            </div>
-          </div>
-          <a href="index.html#representatives">Leadership</a>
-          <a href="index.html#news">News</a>
-          <a href="index.html#contact">Contact</a>
-        </nav>
-        <div class="lang-switcher">
-          <a href="sourcing.html" class="lang-btn lang-active">EN</a>
-          <a href="pl/sourcing.html" class="lang-btn">PL</a>
-          <a href="de/sourcing.html" class="lang-btn">DE</a>
-        </div>
-      </div>
-    </header>
+    <header data-site-header></header>
 
     <main>
       <!-- HERO -->
@@ -114,7 +95,7 @@
         <p class="section-intro">One aligned team across sourcing, quality and logistics.</p>
 
         <div class="service-grid">
-          <article class="card">
+          <article class="card spotlight">
             <div class="card-tag">Sourcing & procurement</div>
             <h3 class="card-title">Supplier scouting with real filters.</h3>
             <p class="card-body">
@@ -129,7 +110,7 @@
             </ul>
           </article>
 
-          <article class="card">
+          <article class="card spotlight">
             <div class="card-tag">Quality & compliance</div>
             <h3 class="card-title">From drawings to cartons — under control.</h3>
             <p class="card-body">
@@ -144,7 +125,7 @@
             </ul>
           </article>
 
-          <article class="card">
+          <article class="card spotlight">
             <div class="card-tag">Logistics coordination</div>
             <h3 class="card-title">We sit between factory, forwarder & finance.</h3>
             <p class="card-body">
@@ -317,9 +298,49 @@
     </footer>
   </div>
 
+  <script src="./js/site-nav.js"></script>
   <script src="js/main.js"></script>
   <script src="js/chat.js"></script>
   <script src="js/forms.js"></script>
   <script src="js/transitions.js"></script>
+  <script>
+    /* ── PAGE TOC SCROLL-SPY + NAV LIFT ── */
+    (function () {
+      var links = document.querySelectorAll('.page-toc a');
+      var headerEl = document.querySelector('header');
+      var sections = Array.prototype.map.call(links, function (link) {
+        var id = link.getAttribute('href').slice(1);
+        return document.getElementById(id);
+      }).filter(Boolean);
+      function onScroll() {
+        if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 24);
+        if (!sections.length) return;
+        var fromTop = window.scrollY + 140;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= fromTop) current = sections[i];
+        }
+        if (!current) return;
+        var activeId = current.id;
+        Array.prototype.forEach.call(links, function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
+        });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    /* ── CURSOR-FOLLOWING SPOTLIGHT ── */
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelectorAll('.spotlight').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+          var rect = card.getBoundingClientRect();
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

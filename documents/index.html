@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Trade Documentation Hub — OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Generate trade documents that customs accepts. Commercial invoice, packing list, certificate of origin, proforma invoice — fill the form, AI populates, you download or print.">
+  <meta property="og:title" content="OrcaTrade Trade Documentation Hub" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <section class="section unit-hero" id="top">
+        <a href="../index.html" class="back-link">← Back to OrcaTrade Group</a>
+        <div class="hero-kicker" data-reveal="hero">Trade Documentation Hub</div>
+        <h1 class="unit-hero-title" data-reveal="hero" style="max-width: 22ch;">Generate the documents customs accepts.</h1>
+        <p class="unit-hero-body" data-reveal="hero" style="max-width: 60ch;">
+          Most SMEs prepare commercial invoices and packing lists in Word, with errors that cost them at customs.
+          Fill our forms once. We generate clean, customs-grade documents — printable, signable, ready for the broker.
+        </p>
+      </section>
+
+      <section class="section" style="padding-top: 1rem;">
+        <div class="section-kicker">Available document types</div>
+        <h2 class="section-title">Six documents · one form pattern.</h2>
+        <p class="section-intro">Forms remember your details across documents — fill the exporter, consignee, and shipment data once.</p>
+
+        <div class="service-grid" style="margin-top: 2.5rem;">
+          <a href="commercial-invoice/" class="card spotlight" style="display: block; text-decoration: none; color: inherit;">
+            <div class="card-tag" style="color: #6fa66f;">Live</div>
+            <h3 class="card-title">Commercial Invoice</h3>
+            <p class="card-body">The core import document. Required for customs valuation, duty/VAT calculation, and banking settlement.</p>
+            <ul class="card-list">
+              <li>Multi-line products with HS codes and origin per line</li>
+              <li>Incoterm + place + currency</li>
+              <li>Banking details, freight + insurance lines, totals</li>
+              <li>Signature and stamp blocks</li>
+            </ul>
+          </a>
+
+          <a href="packing-list/" class="card spotlight" style="display: block; text-decoration: none; color: inherit;">
+            <div class="card-tag" style="color: #6fa66f;">Live</div>
+            <h3 class="card-title">Packing List</h3>
+            <p class="card-body">Quantity, weight, dimensions, and packaging detail per line. Pairs with the Commercial Invoice for customs.</p>
+            <ul class="card-list">
+              <li>Cartons, gross/net weight, dimensions per line</li>
+              <li>Auto-imports exporter / consignee from Commercial Invoice draft</li>
+              <li>Live totals (cartons, gross, net)</li>
+            </ul>
+          </a>
+
+          <a href="certificate-of-origin/" class="card spotlight" style="display: block; text-decoration: none; color: inherit;">
+            <div class="card-tag" style="color: #6fa66f;">Live</div>
+            <h3 class="card-title">Certificate of Origin</h3>
+            <p class="card-body">Non-preferential. States the country of manufacture. Output is ready for chamber-of-commerce stamping.</p>
+            <ul class="card-list">
+              <li>HS codes per line</li>
+              <li>Marks &amp; numbers</li>
+              <li>Pre-formatted declaration paragraph</li>
+            </ul>
+          </a>
+
+          <a href="proforma-invoice/" class="card spotlight" style="display: block; text-decoration: none; color: inherit;">
+            <div class="card-tag" style="color: #6fa66f;">Live</div>
+            <h3 class="card-title">Proforma Invoice</h3>
+            <p class="card-body">Pre-shipment quote document used for buyer authorisation, advance payment, and import-permit applications.</p>
+            <ul class="card-list">
+              <li>Validity period (Valid Until date)</li>
+              <li>Re-uses Commercial Invoice line schema</li>
+              <li>Banking details + payment terms section</li>
+            </ul>
+          </a>
+
+          <article class="card spotlight" style="opacity: 0.6;">
+            <div class="card-tag">Roadmap</div>
+            <h3 class="card-title">Bill of Lading (Draft)</h3>
+            <p class="card-body">Sea freight BL draft for forwarder review. The carrier issues the final original BL; this is the data sheet.</p>
+          </article>
+
+          <article class="card spotlight" style="opacity: 0.6;">
+            <div class="card-tag">Roadmap</div>
+            <h3 class="card-title">Fumigation Certificate</h3>
+            <p class="card-body">Required for imports of wood-packed goods (ISPM-15 standard). Data sheet for the licensed fumigation provider.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" style="padding-top: 1rem;">
+        <div class="section-kicker">How it works</div>
+        <h2 class="section-title">No PDF tools. No Word documents. No customs delays.</h2>
+        <p class="section-intro">All documents are generated server-side as printable HTML. Print to PDF from any browser.</p>
+        <div class="feature-grid" style="margin-top: 2rem;">
+          <div class="feature-card">
+            <div class="feature-num">01</div>
+            <div class="feature-title">Fill the form</div>
+            <div class="feature-desc">Multi-section form with auto-saved draft state. Add or remove line items, paste banking details, declare country of origin per line.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">02</div>
+            <div class="feature-title">Generate</div>
+            <div class="feature-desc">We render the document server-side. No browser quirks, no font fallbacks. Customs-clean formatting, every time.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">03</div>
+            <div class="feature-title">Print or save as PDF</div>
+            <div class="feature-desc">Use your browser's print dialog → "Save as PDF". Ready for the broker, the customer, or the bank.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">04</div>
+            <div class="feature-title">Re-use the data</div>
+            <div class="feature-desc">Your exporter / consignee / shipment details are saved locally. The next document re-uses them — fill once, print many.</div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span><a href="../index.html">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../js/cache-preferences.js"></script>
+  <script src="../js/site-nav.js"></script>
+  <script src="../js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

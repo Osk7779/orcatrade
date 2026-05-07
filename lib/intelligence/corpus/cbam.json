@@ -1,0 +1,210 @@
+{
+  "regulation": {
+    "id": "cbam",
+    "shortName": "CBAM",
+    "longName": "Carbon Border Adjustment Mechanism",
+    "instrument": "Regulation (EU) 2023/956",
+    "adoptedOn": "2023-05-10",
+    "publishedOn": "2023-05-16",
+    "officialJournal": "OJ L 130, 16.5.2023, p. 52",
+    "celex": "32023R0956",
+    "elsLandingUrl": "https://eur-lex.europa.eu/eli/reg/2023/956/oj",
+    "phases": [
+      {
+        "name": "Transitional period",
+        "from": "2023-10-01",
+        "to": "2025-12-31",
+        "summary": "Quarterly reporting of embedded emissions only. No financial obligation. Implementing Regulation (EU) 2023/1773 governs the reporting format."
+      },
+      {
+        "name": "Definitive period",
+        "from": "2026-01-01",
+        "to": null,
+        "summary": "Authorised CBAM declarants must surrender CBAM certificates equivalent to embedded emissions of imported covered goods. Annual declaration by 31 May for previous calendar year."
+      }
+    ],
+    "implementingActs": [
+      {
+        "instrument": "Implementing Regulation (EU) 2023/1773",
+        "scope": "Reporting obligations for the transitional period",
+        "url": "https://eur-lex.europa.eu/eli/reg_impl/2023/1773/oj"
+      }
+    ],
+    "covered_goods_categories": [
+      "cement",
+      "electricity",
+      "fertilisers",
+      "iron_and_steel",
+      "aluminium",
+      "hydrogen"
+    ],
+    "covered_goods_note": "Exact CN codes are listed in Annex I of Regulation (EU) 2023/956. The list includes selected downstream products (e.g. screws, bolts, structural steel)."
+  },
+  "chunks": [
+    {
+      "id": "cbam-art-1",
+      "article": "Art. 1",
+      "title": "Subject matter",
+      "summary": "Establishes the Carbon Border Adjustment Mechanism (CBAM) for addressing greenhouse gas emissions embedded in goods listed in Annex I when imported into the customs territory of the Union, with the aim of preventing carbon leakage.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 1",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_1",
+      "topics": ["scope", "purpose", "carbon-leakage"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-2",
+      "article": "Art. 2",
+      "title": "Scope",
+      "summary": "CBAM applies to goods listed in Annex I originating in a third country when those goods, or processed products from those goods resulting from inward processing, are imported into the customs territory of the Union. Excludes goods of negligible value (intrinsic value not exceeding 150 EUR per consignment) and goods originating in EEA countries and Switzerland under specific conditions.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 2",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_2",
+      "topics": ["scope", "annex-i-goods", "de-minimis", "eea-exemption"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-3-declarant",
+      "article": "Art. 3",
+      "title": "Definitions — authorised CBAM declarant",
+      "summary": "An authorised CBAM declarant is a person granted authorisation by a competent national authority under Article 17 to import goods listed in Annex I into the customs territory of the Union during the definitive period. From 1 January 2026, only authorised CBAM declarants may import covered goods.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 3 and Art. 5",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_5",
+      "topics": ["authorised-declarant", "import-authorisation", "definitive-period"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-5",
+      "article": "Art. 5",
+      "title": "Application for authorised CBAM declarant status",
+      "summary": "An importer established in a Member State must apply for authorisation to that Member State's competent authority before importing covered goods in the definitive period. The application requires importer identification (name, address, EORI number), business activity, estimated import volumes per good type, and Member States of import. Indirect customs representatives may apply on behalf of importers.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 5",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_5",
+      "topics": ["authorisation", "eori", "competent-authority", "indirect-representative"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-6",
+      "article": "Art. 6",
+      "title": "CBAM declaration",
+      "summary": "By 31 May each year, every authorised CBAM declarant must submit a CBAM declaration via the CBAM registry covering the preceding calendar year. The declaration includes: total quantity of each type of imported good (megawatt-hours for electricity, tonnes for other goods); total embedded emissions; total CBAM certificates to surrender (after deductions for carbon price paid abroad and free allocation under EU ETS); and verifier reports. First declaration is due 31 May 2027 for goods imported in 2026.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 6",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_6",
+      "topics": ["declaration", "annual-deadline", "registry", "embedded-emissions"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-7",
+      "article": "Art. 7",
+      "title": "Calculation of embedded emissions",
+      "summary": "Embedded emissions are calculated according to the methodology set out in Annex IV. For complex goods, embedded emissions include emissions of relevant precursors. Where actual emissions cannot be adequately determined, default values established by the Commission must be used. Default values reflect the average emissions intensity of each exporting country plus a proportionate mark-up.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 7 and Annex IV",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_7",
+      "topics": ["embedded-emissions", "calculation", "annex-iv", "default-values", "precursors"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-8",
+      "article": "Art. 8",
+      "title": "Verification of embedded emissions",
+      "summary": "Embedded emissions declared in the CBAM declaration must be verified by an accredited verifier in accordance with the principles in Annex VI. The verifier issues a verification report concluding whether the declared embedded emissions are free from material misstatement.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 8 and Annex VI",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_8",
+      "topics": ["verification", "accredited-verifier", "annex-vi", "material-misstatement"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-9",
+      "article": "Art. 9",
+      "title": "Carbon price paid in a country of origin",
+      "summary": "An authorised CBAM declarant may claim a reduction in the number of CBAM certificates to surrender corresponding to a carbon price effectively paid in the country of origin for the embedded emissions of the imported goods. The claim must be supported by documentation verified by an independent person, and must not include amounts subject to export rebate or any form of compensation.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 9",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_9",
+      "topics": ["carbon-price", "third-country", "reduction", "documentation"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-16",
+      "article": "Art. 16",
+      "title": "Sale of CBAM certificates",
+      "summary": "The Commission sells CBAM certificates to authorised CBAM declarants via a central platform. The price of each certificate is calculated weekly as the average closing price of EU ETS allowances on the common auction platform for that calendar week. Certificates are sold in EUR.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 16 and Art. 21",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_21",
+      "topics": ["certificate-sale", "central-platform", "ets-price", "weekly-average"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-22",
+      "article": "Art. 22",
+      "title": "Surrender of CBAM certificates",
+      "summary": "By 31 May each year, every authorised CBAM declarant must surrender, via the CBAM registry, a number of CBAM certificates equal to the embedded emissions declared under Article 6 for the preceding calendar year, after deductions for carbon price paid abroad (Art. 9) and free allocation phase-out under the EU ETS. On the last working day of each quarter, the declarant must hold at least 80% of the embedded emissions of imports made since the start of the calendar year, in CBAM certificates on their account.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 22",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_22",
+      "topics": ["surrender", "annual-deadline", "quarterly-80-rule", "registry-balance"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-24",
+      "article": "Art. 24",
+      "title": "Repurchase of CBAM certificates",
+      "summary": "Upon request submitted by 30 June each year, the Commission repurchases excess CBAM certificates at the price paid by the declarant. The repurchase is limited to one-third of the total certificates purchased by the declarant in the previous calendar year.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 24",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_24",
+      "topics": ["repurchase", "excess-certificates", "one-third-cap"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-26",
+      "article": "Art. 26",
+      "title": "Penalties",
+      "summary": "An authorised CBAM declarant who fails to surrender by 31 May the number of CBAM certificates corresponding to embedded emissions of goods imported during the previous calendar year is liable for a penalty identical to the excess emissions penalty under Article 16(3) and (4) of Directive 2003/87/EC (the EU ETS Directive) — i.e. EUR 100 per tonne of CO2 equivalent of excess unsurrendered emissions, indexed to the European Index of Consumer Prices. A person who imports covered goods into the Union without being an authorised CBAM declarant is liable for a penalty of three to five times that amount per tonne of unaccounted embedded emissions. Payment of the penalty does not relieve the declarant of the obligation to surrender certificates.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 26",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_26",
+      "topics": ["penalty", "100-eur-per-tonne", "non-authorised-importer", "ets-link"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-art-30-review",
+      "article": "Art. 30",
+      "title": "Review and reporting by the Commission",
+      "summary": "Before the end of the transitional period, the Commission reports to the European Parliament and the Council on the application of CBAM, including possible extension of the scope to other goods listed in Annex II (other than those already in Annex I), other indirect emissions, downstream products, and methodology adjustments. Reviews continue at regular intervals during the definitive period.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Art. 30",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#art_30",
+      "topics": ["scope-review", "expansion", "downstream-products", "annex-ii"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-annex-i",
+      "article": "Annex I",
+      "title": "List of covered goods (CN codes)",
+      "summary": "Annex I lists the covered goods by combined nomenclature (CN) code, organised by category: cement (CN 2507 00 80, 2523), electricity (CN 2716 00 00), fertilisers (CN 2808, 2814, 2834 21, 3102, 3105 — excluding 3105 60 00), iron and steel (CN 7201, 7202 (selected), 7203, 7205-7229, plus selected downstream items in chapters 73), aluminium (CN 7601, 7603-7614, plus selected downstream), hydrogen (CN 2804 10 000). Selected downstream goods (e.g. screws, bolts, structural elements) were added to the original Annex.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/956, Annex I",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/956/oj#anx_I",
+      "topics": ["covered-goods", "cn-codes", "categories", "downstream"],
+      "confidence": "summary"
+    },
+    {
+      "id": "cbam-impl-2023-1773",
+      "article": "Implementing Regulation 2023/1773",
+      "title": "Transitional period reporting obligations",
+      "summary": "During the transitional period (1 October 2023 — 31 December 2025), reporting declarants (the importer or indirect customs representative) must submit a quarterly CBAM report to the CBAM Transitional Registry no later than one month after the end of each quarter. The report covers: total quantity of imported covered goods (per CN code, per country of origin, per installation), total embedded direct and indirect emissions, and any carbon price paid abroad. No financial obligation arises in the transitional period.",
+      "verbatim": null,
+      "citation": "Implementing Regulation (EU) 2023/1773",
+      "source_url": "https://eur-lex.europa.eu/eli/reg_impl/2023/1773/oj",
+      "topics": ["transitional-reporting", "quarterly-report", "transitional-registry", "no-financial-obligation"],
+      "confidence": "summary"
+    }
+  ]
+}

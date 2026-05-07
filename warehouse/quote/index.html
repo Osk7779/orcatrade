@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Warehouse Quote — OrcaTrade 3PL Comparison</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Compare six EU 3PL hubs side-by-side: Rotterdam, Hamburg, Frankfurt, Poznań, Prague, Barcelona. Storage + pick/pack + outbound shipping + value-added services on your real volume.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="../../documents/shared/form.css">
+  <style>
+    .quote-shell { max-width: 1280px; margin: 2rem auto 6rem; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .form-and-result { display: grid; grid-template-columns: 380px 1fr; gap: 1.6rem; margin-top: 2rem; align-items: start; }
+    @media (max-width: 1080px) { .form-and-result { grid-template-columns: 1fr; } }
+
+    .recommendation-banner {
+      background: linear-gradient(135deg, rgba(184,190,200,0.1), rgba(184,190,200,0.02));
+      border: 1px solid rgba(184,190,200,0.4);
+      padding: 1.4rem 1.6rem;
+      margin-bottom: 1.4rem;
+    }
+    .recommendation-banner .label { font-size: 0.66rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.4rem; }
+    .recommendation-banner .verdict { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.4rem; font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.5rem; }
+    .recommendation-banner .reasoning { font-size: 0.85rem; line-height: 1.55; color: rgba(255,255,255,0.7); }
+
+    .hubs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); }
+    @media (max-width: 1200px) { .hubs-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 700px) { .hubs-grid { grid-template-columns: 1fr; } }
+
+    .hub-card { background: #0d0f14; padding: 1.3rem 1.2rem; display: flex; flex-direction: column; gap: 0.55rem; min-height: 380px; }
+    .hub-card.recommended { background: linear-gradient(180deg, rgba(184,190,200,0.06), #0d0f14 40%); }
+    .hub-card .hub-header { display: flex; justify-content: space-between; align-items: baseline; gap: 0.5rem; }
+    .hub-card .hub-tag { font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.45); }
+    .hub-card .hub-tag.recommended { color: #6fa66f; }
+    .hub-card h3 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.1rem; font-weight: 600; color: rgba(255,255,255,0.97); margin: 0; }
+    .hub-card .hub-country { font-size: 0.74rem; color: rgba(255,255,255,0.55); }
+    .hub-card .hub-cost { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.7rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: rgba(255,255,255,0.97); margin: 0.2rem 0 0.05rem; }
+    .hub-card .hub-cost-sub { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.55); letter-spacing: 0.04em; }
+    .hub-card .hub-meta { font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.62); display: grid; gap: 0.2rem; margin-top: 0.4rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); }
+    .hub-card .hub-meta .row { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem; }
+    .hub-card .hub-meta .row .lbl { color: rgba(255,255,255,0.5); font-size: 0.7rem; }
+    .hub-card .hub-breakdown { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.55); margin-top: 0.4rem; padding-top: 0.5rem; border-top: 1px solid rgba(255,255,255,0.05); display: grid; gap: 0.18rem; }
+    .hub-card .hub-breakdown .row { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; }
+    .hub-card .hub-breakdown .row .val { color: rgba(255,255,255,0.85); }
+    .hub-card .hub-pros { font-size: 0.72rem; color: rgba(255,255,255,0.6); margin-top: 0.5rem; padding-top: 0.4rem; border-top: 1px solid rgba(255,255,255,0.05); line-height: 1.45; }
+    .hub-card .hub-pros b { color: rgba(255,255,255,0.85); display: block; margin-bottom: 0.2rem; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; }
+
+    .quote-empty { text-align: center; padding: 4rem 1rem; color: rgba(255,255,255,0.55); font-size: 0.92rem; line-height: 1.6; }
+
+    .next-steps-list { display: grid; gap: 0.4rem; font-size: 0.84rem; line-height: 1.55; color: rgba(255,255,255,0.85); margin-top: 1.4rem; }
+    .next-steps-list li { padding-left: 1rem; position: relative; }
+    .next-steps-list li::before { content: "→"; position: absolute; left: 0; color: var(--accent-color, #b8bec8); }
+
+    .education-box { margin-top: 1.6rem; padding: 1.2rem 1.4rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.06); }
+    .education-box h3 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1rem; font-weight: 600; color: var(--accent-color, #b8bec8); margin-bottom: 0.7rem; }
+    .education-box p { font-size: 0.82rem; line-height: 1.6; color: rgba(255,255,255,0.75); margin-bottom: 0.5rem; }
+    .education-box p:last-child { margin-bottom: 0; }
+    .education-box b { color: rgba(255,255,255,0.95); }
+
+    .vas-checkbox-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+    .vas-checkbox-grid label { display: flex; align-items: center; gap: 0.4rem; font-size: 0.78rem; color: rgba(255,255,255,0.75); padding: 0.3rem 0.4rem; border: 1px solid rgba(255,255,255,0.06); cursor: pointer; }
+    .vas-checkbox-grid label:hover { background: rgba(255,255,255,0.03); }
+    .vas-checkbox-grid input[type="checkbox"] { margin: 0; }
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <div class="quote-shell">
+        <a href="../" style="font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); text-decoration: none;">← Warehouse &amp; 3PL</a>
+
+        <div style="margin-top: 1.2rem;">
+          <div class="hero-kicker">3PL hub comparison</div>
+          <h1 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.6rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0.5rem 0 0.6rem; color: rgba(255,255,255,0.97);">Six EU hubs, side by side, on your real numbers</h1>
+          <p style="font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 60ch;">
+            Tell us monthly orders, average units per order, pallets held, average order weight, and where most of your customers live. We price all six hubs and recommend the right balance between cost and customer-experience.
+          </p>
+
+          <div class="scenario-row">
+            <button type="button" class="scenario-btn" data-scenario="dtc-de">Demo · 1.5k orders DACH-focused</button>
+            <button type="button" class="scenario-btn" data-scenario="dtc-fr">Demo · 1.5k orders FR-focused</button>
+            <button type="button" class="scenario-btn" data-scenario="iberian-3k">Demo · 3k orders ES-focused</button>
+            <button type="button" class="scenario-btn" data-scenario="enterprise-8k">Demo · 8k orders + value-added</button>
+          </div>
+        </div>
+
+        <div class="form-and-result">
+          <form id="warehouse-form">
+            <div class="doc-form-grid">
+              <div class="doc-form-section full">
+                <h2>Order profile</h2>
+                <div class="field-row">
+                  <div class="field"><label>Monthly orders</label><input name="monthlyOrders" type="number" min="1" step="1" value="1500" required /></div>
+                  <div class="field"><label>Avg units / order</label><input name="avgUnitsPerOrder" type="number" min="1" step="0.1" value="1.5" required /></div>
+                </div>
+                <div class="field-row">
+                  <div class="field"><label>Avg lines / order</label><input name="avgLinesPerOrder" type="number" min="1" step="0.1" value="1.2" required /></div>
+                  <div class="field"><label>Avg order weight (kg)</label><input name="avgOrderWeightKg" type="number" min="0.1" step="0.1" value="2" required /></div>
+                </div>
+              </div>
+              <div class="doc-form-section full">
+                <h2>Storage &amp; destination</h2>
+                <div class="field"><label>Pallets held on average</label><input name="avgPalletsHeld" type="number" min="1" step="1" value="50" required /></div>
+                <div class="field"><label>Primary destination country (ISO-2)</label><input name="primaryDestination" maxlength="2" value="DE" placeholder="DE, FR, ES, IT, NL…" required /></div>
+                <div class="field"><label>SKU count (for one-off photography setup, optional)</label><input name="skuCount" type="number" min="0" step="1" value="0" /></div>
+              </div>
+              <div class="doc-form-section full">
+                <h2>Value-added services (optional)</h2>
+                <div class="vas-checkbox-grid">
+                  <label><input type="checkbox" name="vas" value="qc_inspection" /> Inbound QC inspection</label>
+                  <label><input type="checkbox" name="vas" value="labelling" /> Labelling</label>
+                  <label><input type="checkbox" name="vas" value="kitting" /> Kitting / bundling</label>
+                  <label><input type="checkbox" name="vas" value="photography" /> Product photography</label>
+                  <label><input type="checkbox" name="vas" value="returns" /> Returns processing</label>
+                  <label><input type="checkbox" name="vas" value="gift_wrapping" /> Gift wrapping</label>
+                </div>
+                <div class="field"><label>Returns rate (% of orders, for returns processing math)</label><input name="returnsRate" type="number" min="0" max="100" step="1" value="0" /></div>
+              </div>
+            </div>
+            <div class="form-msg" id="form-msg"></div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Compare hubs</button>
+              <span style="font-size: 0.74rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em;">Live recalc on input</span>
+            </div>
+          </form>
+
+          <aside id="quote-result">
+            <div class="quote-empty" id="quote-empty">Enter your shipper profile to compare all six EU hubs side-by-side.</div>
+            <div id="quote-content" style="display: none;">
+              <div class="recommendation-banner">
+                <div class="label">Recommendation</div>
+                <div class="verdict" id="rec-verdict">—</div>
+                <div class="reasoning" id="rec-reasoning">—</div>
+              </div>
+
+              <div class="hubs-grid" id="hubs-grid"></div>
+
+              <div class="education-box">
+                <h3>How EU 3PL pricing actually works</h3>
+                <p id="edu-what">—</p>
+                <p id="edu-hub">—</p>
+                <p id="edu-multi">—</p>
+                <p id="edu-neg">—</p>
+              </div>
+
+              <ul class="next-steps-list" id="next-steps-list"></ul>
+
+              <div class="form-actions" style="margin-top: 1.4rem;">
+                <a href="../../index.html#contact" class="btn-primary" style="text-decoration: none; flex: 1; text-align: center;">Get introductions to hubs in our partner network</a>
+              </div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer><div class="footer-inner"><span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span><span><a href="../../index.html">Back to OrcaTrade Group</a></span></div></footer>
+  </div>
+
+  <script src="../../js/site-nav.js"></script>
+  <script src="../../js/main.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

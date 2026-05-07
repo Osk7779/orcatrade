@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Buyer Check — OrcaTrade Buyer Verification</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Check a European buyer's risk profile before extending trade credit. Public-registry verification, credit-band signals, recommended terms.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="../../documents/shared/form.css">
+  <style>
+    .check-shell { max-width: 1100px; margin: 2rem auto 6rem; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .check-grid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 1.6rem; margin-top: 2rem; align-items: start; }
+    @media (max-width: 880px) { .check-grid { grid-template-columns: 1fr; } }
+
+    .check-result {
+      background: #0d0f14;
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 2rem;
+      position: sticky;
+      top: 6rem;
+    }
+    .check-result h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; color: var(--accent-color, #b8bec8); margin-bottom: 1.2rem; }
+
+    .verdict-display {
+      padding: 1.5rem;
+      border: 1px solid rgba(184,190,200,0.2);
+      margin-bottom: 1.4rem;
+    }
+    .verdict-display.acceptable { background: rgba(111,166,111,0.08); border-color: rgba(111,166,111,0.4); }
+    .verdict-display.require_security { background: rgba(201,162,86,0.08); border-color: rgba(201,162,86,0.4); }
+    .verdict-display.decline { background: rgba(201,80,80,0.08); border-color: rgba(201,80,80,0.4); }
+    .verdict-display.verify_required { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.18); }
+
+    .verdict-band {
+      font-size: 0.7rem;
+      font-weight: 700;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 0.6rem;
+    }
+    .verdict-band.low { color: #6fa66f; }
+    .verdict-band.medium { color: #c9a256; }
+    .verdict-band.high { color: #c95050; }
+    .verdict-band.unknown { color: rgba(255,255,255,0.65); }
+    .verdict-headline { font-size: 1rem; line-height: 1.55; color: rgba(255,255,255,0.95); }
+
+    .profile-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6rem; margin: 1.4rem 0; padding: 1rem; border: 1px solid rgba(255,255,255,0.08); }
+    @media (max-width: 600px) { .profile-grid { grid-template-columns: 1fr; } }
+    .profile-cell { display: flex; flex-direction: column; gap: 0.2rem; }
+    .profile-label { font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+    .profile-value { font-size: 0.86rem; color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; }
+    .profile-value.serif { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1rem; font-weight: 600; }
+
+    .signals-list, .flags-list, .next-steps-list { display: grid; gap: 0.4rem; font-size: 0.84rem; line-height: 1.55; color: rgba(255,255,255,0.85); margin: 0.7rem 0; }
+    .signals-list li, .next-steps-list li { padding-left: 1rem; position: relative; }
+    .signals-list li::before { content: "▸"; position: absolute; left: 0; color: var(--accent-color, #b8bec8); }
+    .next-steps-list li::before { content: "→"; position: absolute; left: 0; color: var(--accent-color, #b8bec8); }
+    .flags-list li { padding-left: 1.4rem; position: relative; color: #c95050; }
+    .flags-list li::before { content: "⚠"; position: absolute; left: 0; }
+
+    .registry-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3rem;
+      font-size: 0.78rem;
+      color: var(--accent-color, #b8bec8);
+      border-bottom: 1px dotted rgba(184,190,200,0.4);
+      text-decoration: none;
+      margin-top: 0.4rem;
+    }
+    .registry-link:hover { color: #fff; }
+
+    .check-empty { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.55); font-size: 0.92rem; line-height: 1.6; }
+
+    .section-block-label { font-size: 0.66rem; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-top: 1.2rem; margin-bottom: 0.5rem; }
+
+    .disclaimer { font-size: 0.72rem; color: rgba(255,255,255,0.55); margin-top: 1.4rem; padding: 0.8rem; background: rgba(255,255,255,0.03); border-left: 2px solid rgba(255,255,255,0.18); line-height: 1.55; }
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <div class="check-shell">
+        <a href="../" style="font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); text-decoration: none;">← Buyer Verification</a>
+
+        <div style="margin-top: 1.2rem;">
+          <div class="hero-kicker">Buyer check</div>
+          <h1 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.6rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0.5rem 0 0.6rem; color: rgba(255,255,255,0.97);">Pre-check a European buyer.</h1>
+          <p style="font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 60ch;">
+            Tell us the buyer name and country. We match against curated known buyers, point at the right public registry, and recommend payment terms.
+          </p>
+
+          <div class="scenario-row">
+            <button type="button" class="scenario-btn" data-scenario="mediamarkt">Demo · MediaMarkt (DE)</button>
+            <button type="button" class="scenario-btn" data-scenario="allegro">Demo · Allegro (PL)</button>
+            <button type="button" class="scenario-btn" data-scenario="ikea">Demo · IKEA (NL)</button>
+            <button type="button" class="scenario-btn" data-scenario="unknown">Demo · Unknown buyer</button>
+          </div>
+        </div>
+
+        <div class="check-grid">
+          <form id="check-form">
+            <div class="doc-form-grid">
+              <div class="doc-form-section full">
+                <h2>Buyer details</h2>
+                <div class="field"><label>Buyer company name</label><input name="companyName" required placeholder="e.g. MediaMarkt Saturn, Allegro, Inditex" /></div>
+                <div class="field"><label>Country (ISO-2)</label><input name="country" maxlength="2" placeholder="DE / PL / NL / GB / FR / IT / ES…" /></div>
+                <div class="field"><label>Registry ID (optional)</label><input name="registryId" placeholder="HRB 12345 · KRS 0000123456 · 12345678" /></div>
+              </div>
+            </div>
+            <div class="form-msg" id="form-msg"></div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Check buyer</button>
+              <span style="font-size: 0.74rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em;">Indicative pre-check · binding credit pull recommended for orders above €50k</span>
+            </div>
+          </form>
+
+          <aside class="check-result" id="check-result">
+            <div class="check-empty" id="check-empty">
+              Submit a buyer check to see the verdict, profile, and recommended next steps.
+            </div>
+            <div id="check-content" style="display: none;">
+              <h2>Verdict</h2>
+              <div class="verdict-display" id="verdict-display">
+                <div class="verdict-band" id="verdict-band">—</div>
+                <div class="verdict-headline" id="verdict-headline">—</div>
+              </div>
+
+              <div class="section-block-label">Profile</div>
+              <div class="profile-grid" id="profile-grid"></div>
+
+              <div id="signals-block" style="display: none;">
+                <div class="section-block-label">Public signals</div>
+                <ul class="signals-list" id="signals-list"></ul>
+              </div>
+
+              <div id="flags-block" style="display: none;">
+                <div class="section-block-label">Flags</div>
+                <ul class="flags-list" id="flags-list"></ul>
+              </div>
+
+              <div class="section-block-label">Next steps</div>
+              <ul class="next-steps-list" id="next-steps-list"></ul>
+
+              <div class="disclaimer" id="disclaimer">—</div>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer><div class="footer-inner"><span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span><span><a href="../../index.html">Back to OrcaTrade Group</a></span></div></footer>
+  </div>
+
+  <script src="../../js/site-nav.js"></script>
+  <script src="../../js/main.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

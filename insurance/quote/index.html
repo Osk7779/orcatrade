@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Insurance Quote Calculator — OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Marine cargo insurance quote calculator. Cargo value, mode, goods type, route → indicative premium with the math shown.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="../../documents/shared/form.css">
+  <style>
+    .quote-shell { max-width: 1100px; margin: 2rem auto 6rem; padding: 0 1.5rem; position: relative; z-index: 1; }
+    .quote-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 1.6rem; margin-top: 2rem; align-items: start; }
+    @media (max-width: 880px) { .quote-grid { grid-template-columns: 1fr; } }
+
+    .quote-result {
+      background: #0d0f14;
+      border: 1px solid rgba(255,255,255,0.07);
+      padding: 2rem;
+      position: sticky;
+      top: 6rem;
+    }
+    .quote-result h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.1rem; font-weight: 600; letter-spacing: -0.01em; color: var(--accent-color, #b8bec8); margin-bottom: 1.2rem; }
+
+    .premium-display {
+      text-align: center;
+      padding: 1.5rem 1rem;
+      border: 1px solid rgba(184,190,200,0.2);
+      background: rgba(184,190,200,0.04);
+      margin-bottom: 1.5rem;
+    }
+    .premium-label {
+      font-size: 0.66rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.55);
+      margin-bottom: 0.6rem;
+    }
+    .premium-amount {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: 3rem;
+      font-weight: 700;
+      line-height: 1;
+      color: rgba(255,255,255,0.97);
+      margin-bottom: 0.6rem;
+      letter-spacing: -0.02em;
+    }
+    .premium-rate {
+      font-family: 'Geist Mono', monospace;
+      font-size: 0.78rem;
+      color: rgba(255,255,255,0.55);
+    }
+    .premium-savings {
+      margin-top: 1rem;
+      padding: 0.7rem 1rem;
+      background: rgba(111,166,111,0.08);
+      border-left: 2px solid #6fa66f;
+      font-size: 0.84rem;
+      color: rgba(255,255,255,0.85);
+      text-align: left;
+      line-height: 1.55;
+    }
+
+    .calc-rows { display: grid; gap: 0.5rem; margin: 1.4rem 0; font-family: 'Geist Mono', monospace; font-size: 0.82rem; }
+    .calc-row { display: grid; grid-template-columns: 1fr auto; gap: 0.5rem; padding: 0.4rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+    .calc-row.formula { padding-top: 0.7rem; border-top: 2px solid rgba(184,190,200,0.4); border-bottom: none; color: rgba(255,255,255,0.95); font-weight: 600; }
+
+    .coverage-toggle { display: flex; gap: 0.4rem; margin: 1.2rem 0; flex-wrap: wrap; }
+    .coverage-toggle button {
+      flex: 1; min-width: 6rem;
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.18);
+      color: rgba(255,255,255,0.7);
+      padding: 0.55rem 0.7rem;
+      font-family: inherit;
+      font-size: 0.74rem;
+      cursor: pointer;
+      letter-spacing: 0.04em;
+    }
+    .coverage-toggle button.active {
+      background: var(--accent-color, #b8bec8);
+      color: #0a0912;
+      border-color: var(--accent-color, #b8bec8);
+      font-weight: 600;
+    }
+
+    .next-steps { font-size: 0.82rem; line-height: 1.65; color: rgba(255,255,255,0.75); display: grid; gap: 0.45rem; margin-top: 1.4rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); }
+    .next-steps li { padding-left: 1rem; position: relative; }
+    .next-steps li::before { content: "▸"; position: absolute; left: 0; color: var(--accent-color, #b8bec8); }
+
+    .quote-empty { text-align: center; padding: 3rem 1rem; color: rgba(255,255,255,0.55); font-size: 0.92rem; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <div class="quote-shell">
+        <a href="../" style="font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); text-decoration: none;">← Insurance Marketplace</a>
+
+        <div style="margin-top: 1.2rem;">
+          <div class="hero-kicker">Quote calculator</div>
+          <h1 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.6rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0.5rem 0 0.6rem; color: rgba(255,255,255,0.97);">Marine cargo quote · indicative</h1>
+          <p style="font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 60ch;">
+            Tell us the four key parameters. We calculate the rate against base × goods × route × coverage and show you the math.
+          </p>
+
+          <div class="scenario-row">
+            <button type="button" class="scenario-btn" data-scenario="cn-electronics">Demo · CN electronics €250k</button>
+            <button type="button" class="scenario-btn" data-scenario="vn-furniture">Demo · VN furniture €100k</button>
+            <button type="button" class="scenario-btn" data-scenario="in-textiles">Demo · IN textiles €60k</button>
+          </div>
+        </div>
+
+        <div class="quote-grid">
+          <form id="quote-form">
+            <div class="doc-form-grid">
+              <div class="doc-form-section full">
+                <h2>Cargo &amp; route</h2>
+                <div class="field"><label>Cargo value (insured value, EUR)</label><input name="cargoValueEur" type="number" min="100" step="100" required placeholder="e.g. 250000" /></div>
+                <div class="field"><label>Goods type</label>
+                  <select name="goodsType" required>
+                    <option value="general">General cargo</option>
+                    <option value="electronics">Electronics &amp; electrical</option>
+                    <option value="textiles">Textiles &amp; apparel</option>
+                    <option value="furniture">Furniture &amp; wood</option>
+                    <option value="machinery">Machinery &amp; industrial</option>
+                    <option value="food_dry">Food (dry)</option>
+                    <option value="food_refrigerated">Food (refrigerated)</option>
+                    <option value="cosmetics">Cosmetics</option>
+                    <option value="toys">Toys</option>
+                    <option value="fragile">Fragile (glass, ceramics, art)</option>
+                    <option value="hazardous">Hazardous (DG class)</option>
+                    <option value="high_value">High-value goods</option>
+                  </select>
+                </div>
+                <div class="field"><label>Transport mode</label>
+                  <select name="transportMode" required>
+                    <option value="sea_fcl">Sea FCL</option>
+                    <option value="sea_lcl">Sea LCL</option>
+                    <option value="air">Air freight</option>
+                    <option value="rail">Rail (China-Europe)</option>
+                  </select>
+                </div>
+                <div class="field-row">
+                  <div class="field"><label>Origin country (ISO-2)</label><input name="originCountry" maxlength="2" placeholder="CN" /></div>
+                  <div class="field"><label>Destination country (ISO-2)</label><input name="destinationCountry" maxlength="2" placeholder="DE" /></div>
+                </div>
+                <div class="field"><label>Coverage clause</label>
+                  <div class="coverage-toggle" id="coverage-toggle">
+                    <button type="button" data-coverage="icc_a" class="active">ICC (A) · all-risks</button>
+                    <button type="button" data-coverage="icc_b">ICC (B) · named perils</button>
+                    <button type="button" data-coverage="icc_c">ICC (C) · major casualties</button>
+                  </div>
+                  <input type="hidden" name="coverage" value="icc_a" />
+                </div>
+              </div>
+            </div>
+            <div class="form-msg" id="form-msg"></div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Calculate premium</button>
+              <span style="font-size: 0.74rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em;">Quote refreshes as you change inputs</span>
+            </div>
+          </form>
+
+          <aside class="quote-result" id="quote-result">
+            <div class="quote-empty" id="quote-empty">
+              Fill in the form to see an indicative premium. Quote updates as you type.
+            </div>
+            <div id="quote-content" style="display: none;">
+              <h2>Indicative premium</h2>
+              <div class="premium-display">
+                <div class="premium-label">Premium · all-in</div>
+                <div class="premium-amount" id="premium-amount">€0</div>
+                <div class="premium-rate" id="premium-rate"></div>
+                <div class="premium-savings" id="premium-savings"></div>
+              </div>
+
+              <div class="calc-rows" id="calc-rows"></div>
+
+              <div style="font-size: 0.74rem; color: rgba(255,255,255,0.55); margin-top: 1rem; padding: 0.8rem; background: rgba(255,255,255,0.03); border-left: 2px solid var(--accent-color, #b8bec8);">
+                <b>Coverage:</b> <span id="coverage-label">—</span><br/>
+                <span id="coverage-what" style="line-height: 1.55;"></span>
+              </div>
+
+              <ul class="next-steps" id="next-steps"></ul>
+
+              <div class="form-actions" style="margin-top: 1.4rem;">
+                <a id="bind-cta" href="../../index.html#contact" class="btn-primary" style="text-decoration: none; flex: 1; text-align: center;">Request binding quote</a>
+              </div>
+
+              <p style="font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-top: 1rem; line-height: 1.55;">
+                Indicative premium based on snapshot rates as of <span id="snapshot-date">—</span>.
+                A binding quote follows from the partner broker following customer details.
+              </p>
+            </div>
+          </aside>
+        </div>
+      </div>
+    </main>
+
+    <footer><div class="footer-inner"><span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span><span><a href="../../index.html">Back to OrcaTrade Group</a></span></div></footer>
+  </div>
+
+  <script src="../../js/site-nav.js"></script>
+  <script src="../../js/main.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

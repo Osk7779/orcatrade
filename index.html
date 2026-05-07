@@ -103,6 +103,23 @@
 
 <body>
 
+  <!-- AURORA · slow-drifting background blobs -->
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <!-- PAGE TOC · right-edge dot navigation -->
+  <nav class="page-toc" aria-label="Page navigation">
+    <a href="#top" data-toc="top"><span>Top</span></a>
+    <a href="#mission" data-toc="mission"><span>Mission</span></a>
+    <a href="#group" data-toc="group"><span>Units</span></a>
+    <a href="#representatives" data-toc="representatives"><span>Leadership</span></a>
+    <a href="#news" data-toc="news"><span>News</span></a>
+    <a href="#contact" data-toc="contact"><span>Contact</span></a>
+  </nav>
+
   <!-- INTRO OVERLAY -->
   <div id="intro-overlay" aria-hidden="true">
     <div class="intro-inner">
@@ -112,47 +129,7 @@
   </div>
 
   <div class="page">
-    <header>
-      <div class="nav">
-        <div class="brand">
-          <a href="index.html">
-            <div class="brand-logo">
-              <img src="orcatrade_logo.png" alt="OrcaTrade Group logo">
-            </div>
-            <div class="brand-text">
-              <span>OrcaTrade</span>
-              <span>group</span>
-            </div>
-          </a>
-        </div>
-        <nav class="nav-links">
-          <a href="#top">Home</a>
-          <a href="#group">Group</a>
-          <div class="nav-dropdown">
-            <button class="nav-dropdown-toggle">Units ▾</button>
-            <div class="nav-dropdown-menu">
-              <a href="sourcing.html">Sourcing</a>
-              <a href="intelligence.html">Intelligence</a>
-              <a href="search/">Search</a>
-              <a href="finance.html">Finance</a>
-            </div>
-          </div>
-          <a href="#representatives">Leadership</a>
-          <a href="#news">News</a>
-          <a href="#contact">Contact</a>
-        </nav>
-        <div class="lang-switcher">
-          <a href="index.html" class="lang-btn lang-active">EN</a>
-          <a href="pl/index.html" class="lang-btn">PL</a>
-          <a href="de/index.html" class="lang-btn">DE</a>
-        </div>
-        <button class="nav-toggle" aria-label="Open navigation" aria-expanded="false">
-          <span></span>
-          <span></span>
-          <span></span>
-        </button>
-      </div>
-    </header>
+    <header data-site-header></header>
 
     <main>
       <!-- HERO -->
@@ -160,23 +137,23 @@
         <video class="hero-video-bg" autoplay muted loop playsinline data-parallax data-parallax-strength="24">
           <source src="assets/hero-bg.mp4" type="video/mp4">
         </video>
-        <div class="hero-kicker" data-reveal="hero">Warsaw, London & Hong Kong • Europe ↔ Asia</div>
+        <div class="hero-kicker" data-reveal="hero">One platform · Asia → Europe</div>
         <h1 class="hero-title-center" data-reveal="hero">
-          Four business units.<br><span>One group.</span>
+          Find it. Verify it.<br>Ship it. <span>Finance it.</span>
         </h1>
         <p class="hero-body-center" data-reveal="hero">
-          Sourcing, intelligence, factory search, and trade finance — four focused units covering China, Vietnam, and India end to end.
+          Your import operations team, available 24/7 — that knows every supplier, every shipment, every regulation. One platform, five pillars, Asia to Europe.
         </p>
 
         <div class="hero-meta hero-meta--center" data-reveal="hero">
-          <div class="hero-tag">Group</div>
+          <div class="hero-tag">Five-stage journey</div>
           <div class="hero-divider"></div>
-          <div class="hero-detail">Warsaw, London & Hong Kong • CET, GMT & China Standard Time</div>
+          <div class="hero-detail">Search · Sourcing · Intelligence · Logistics · Finance</div>
         </div>
 
         <div class="hero-actions hero-actions--center" data-reveal="hero">
-          <a class="btn btn-primary" href="#group">Explore our units</a>
-          <a class="btn btn-ghost" href="#contact">Get in touch</a>
+          <a class="btn btn-primary" href="platform/">See the platform</a>
+          <a class="btn btn-ghost" href="analysis/">Run a free EU compliance brief</a>
         </div>
       </section>
 
@@ -203,11 +180,11 @@
         </div>
       </section>
 
-      <!-- FIVE UNITS -->
+      <!-- FIVE PILLARS -->
       <section class="section section--group" id="group">
-        <div class="section-kicker">Business units</div>
-        <h2 class="section-title">Four focused units. One complete operation.</h2>
-        <p class="section-intro">Each unit addresses a distinct layer of the global trade stack.</p>
+        <div class="section-kicker">The journey</div>
+        <h2 class="section-title">Five stages. One platform.</h2>
+        <p class="section-intro">Each stage answers one question — from "where do I find it?" to "how do I pay for it?"</p>
 
         <div class="group-tree">
           <div class="group-tree-node">OrcaTrade Group</div>
@@ -217,33 +194,9 @@
 
         <div class="group-grid">
 
-          <article class="group-card">
+          <article class="group-card spotlight">
             <div class="group-card-top">
-              <div class="group-unit-kicker">Sourcing & procurement</div>
-              <span class="group-badge group-badge--live">Live</span>
-            </div>
-            <h3 class="group-unit-name">OrcaTrade Sourcing</h3>
-            <p class="group-unit-desc">Asia procurement &amp; quality control, end-to-end from supplier scouting to shipment.</p>
-            <div class="group-card-footer">
-              <a href="sourcing.html" class="group-visit-link">Visit Sourcing →</a>
-            </div>
-          </article>
-
-          <article class="group-card group-card--flagship">
-            <div class="group-card-top">
-              <div class="group-unit-kicker group-unit-kicker--flagship">Flagship · Three live pillars</div>
-              <span class="group-badge group-badge--live">Live Now</span>
-            </div>
-            <h3 class="group-unit-name">OrcaTrade Intelligence</h3>
-            <p class="group-unit-desc">Shipment visibility, factory scoring, and EU compliance — one operating layer for import teams.</p>
-            <div class="group-card-footer">
-              <a href="intelligence.html" class="group-visit-link">Visit Intelligence →</a>
-            </div>
-          </article>
-
-          <article class="group-card">
-            <div class="group-card-top">
-              <div class="group-unit-kicker">Factory discovery</div>
+              <div class="group-unit-kicker">Stage 01 · Find it</div>
               <span class="group-badge group-badge--dev">Beta</span>
             </div>
             <h3 class="group-unit-name">OrcaTrade Search</h3>
@@ -253,13 +206,49 @@
             </div>
           </article>
 
-          <article class="group-card">
+          <article class="group-card spotlight">
             <div class="group-card-top">
-              <div class="group-unit-kicker">Trade finance</div>
+              <div class="group-unit-kicker">Stage 02 · Source it</div>
+              <span class="group-badge group-badge--live">Live</span>
+            </div>
+            <h3 class="group-unit-name">OrcaTrade Sourcing</h3>
+            <p class="group-unit-desc">Asia procurement &amp; quality control, end-to-end from supplier scouting to shipment.</p>
+            <div class="group-card-footer">
+              <a href="sourcing.html" class="group-visit-link">Visit Sourcing →</a>
+            </div>
+          </article>
+
+          <article class="group-card group-card--flagship spotlight">
+            <div class="group-card-top">
+              <div class="group-unit-kicker group-unit-kicker--flagship">Stage 03 · Verify it · Flagship</div>
+              <span class="group-badge group-badge--live">Live Now</span>
+            </div>
+            <h3 class="group-unit-name">OrcaTrade Intelligence</h3>
+            <p class="group-unit-desc">Shipment visibility, factory scoring, and EU compliance — one operating layer for import teams.</p>
+            <div class="group-card-footer">
+              <a href="intelligence.html" class="group-visit-link">Visit Intelligence →</a>
+            </div>
+          </article>
+
+          <article class="group-card spotlight">
+            <div class="group-card-top">
+              <div class="group-unit-kicker">Stage 04 · Ship it</div>
+              <span class="group-badge group-badge--live">New</span>
+            </div>
+            <h3 class="group-unit-name">OrcaTrade Logistics</h3>
+            <p class="group-unit-desc">Asset-light import management — booking, customs, last-mile, all from one desk.</p>
+            <div class="group-card-footer">
+              <a href="logistics/" class="group-visit-link">Visit Logistics →</a>
+            </div>
+          </article>
+
+          <article class="group-card spotlight">
+            <div class="group-card-top">
+              <div class="group-unit-kicker">Stage 05 · Finance it</div>
               <span class="group-badge group-badge--soon">Coming Soon</span>
             </div>
             <h3 class="group-unit-name">OrcaTrade Finance</h3>
-            <p class="group-unit-desc">Trade finance & cross-border payment facilitation for European importers sourcing from Asia.</p>
+            <p class="group-unit-desc">Trade finance &amp; cross-border payment facilitation for European importers sourcing from Asia.</p>
             <div class="group-card-footer">
               <a href="finance.html" class="group-visit-link">Visit Finance →</a>
             </div>
@@ -383,7 +372,7 @@
         </p>
 
         <div class="rep-grid">
-          <article class="rep-card">
+          <article class="rep-card spotlight">
             <div class="rep-photo-wrap" aria-label="Jay Xie portrait">
               <img class="rep-photo" src="assets/PHOTO-2026-03-19-17-53-41.jpg" alt="Jay Xie portrait" />
               <div class="rep-photo-shine" aria-hidden="true"></div>
@@ -397,7 +386,7 @@
             </div>
           </article>
 
-          <article class="rep-card">
+          <article class="rep-card spotlight">
             <div class="rep-photo-wrap" aria-label="Arman Sirin portrait">
               <img class="rep-photo" src="assets/90eedc58-9d6b-45c1-a35d-3fa99c92601c.png" alt="Arman Sirin portrait" />
               <div class="rep-photo-shine" aria-hidden="true"></div>
@@ -411,7 +400,7 @@
             </div>
           </article>
 
-          <article class="rep-card">
+          <article class="rep-card spotlight">
             <div class="rep-photo-wrap" aria-label="Yiu Cheung portrait">
               <img class="rep-photo" src="assets/dd0ec64c-9768-447b-89d8-8b6899e61ccd.png" alt="Yiu Cheung portrait" />
               <div class="rep-photo-shine" aria-hidden="true"></div>
@@ -425,7 +414,7 @@
             </div>
           </article>
 
-          <article class="rep-card">
+          <article class="rep-card spotlight">
             <div class="rep-photo-wrap" aria-label="Oskar portrait">
               <img class="rep-photo" src="assets/IMG_6380.jpg" alt="Oskar portrait" />
               <div class="rep-photo-shine" aria-hidden="true"></div>
@@ -535,8 +524,47 @@
       setTimeout(dismiss, 3500);
       window.addEventListener('scroll', dismiss, { once: true, passive: true });
     })();
+
+    /* ── PAGE TOC SCROLL-SPY + NAV LIFT ── */
+    (function () {
+      var links = document.querySelectorAll('.page-toc a');
+      var headerEl = document.querySelector('header');
+      var sections = Array.prototype.map.call(links, function (link) {
+        var id = link.getAttribute('href').slice(1);
+        return document.getElementById(id);
+      }).filter(Boolean);
+      function onScroll() {
+        if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 24);
+        if (!sections.length) return;
+        var fromTop = window.scrollY + 140;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= fromTop) current = sections[i];
+        }
+        if (!current) return;
+        var activeId = current.id;
+        Array.prototype.forEach.call(links, function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
+        });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    /* ── CURSOR-FOLLOWING SPOTLIGHT ── */
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelectorAll('.spotlight').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+          var rect = card.getBoundingClientRect();
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        });
+      });
+    })();
   </script>
   <script src="js/cache-preferences.js"></script>
+  <script src="js/site-nav.js"></script>
   <script src="js/main.js"></script>
   <script src="js/form.js"></script>
   <script src="js/chat.js"></script>

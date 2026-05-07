@@ -46,15 +46,84 @@
         radial-gradient(circle at 90% 100%, rgba(143,151,166,0.09) 0, transparent 55%);
       mix-blend-mode: soft-light; z-index: 0;
     }
+    /* ── AURORA · slow-drifting accent blobs behind the hero ── */
+    .aurora { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .aurora-blob {
+      position: absolute; border-radius: 50%; filter: blur(96px);
+      mix-blend-mode: screen; opacity: 0.55;
+      will-change: transform;
+    }
+    .aurora-blob.b1 {
+      width: 56vmax; height: 56vmax; top: -22vmax; left: -18vmax;
+      background: radial-gradient(circle, rgba(184,190,200,0.22) 0%, rgba(140,149,173,0.10) 40%, transparent 70%);
+      animation: aurora-drift-1 38s ease-in-out infinite alternate;
+    }
+    .aurora-blob.b2 {
+      width: 48vmax; height: 48vmax; bottom: -20vmax; right: -16vmax;
+      background: radial-gradient(circle, rgba(143,151,166,0.20) 0%, rgba(111,119,131,0.10) 40%, transparent 70%);
+      animation: aurora-drift-2 46s ease-in-out infinite alternate;
+    }
+    .aurora-blob.b3 {
+      width: 32vmax; height: 32vmax; top: 38%; left: 50%; transform: translate(-50%, -50%);
+      background: radial-gradient(circle, rgba(184,190,200,0.10) 0%, transparent 65%);
+      animation: aurora-drift-3 60s ease-in-out infinite alternate;
+      opacity: 0.45;
+    }
+    @keyframes aurora-drift-1 {
+      0%   { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(8vmax, 6vmax) scale(1.12); }
+    }
+    @keyframes aurora-drift-2 {
+      0%   { transform: translate(0, 0) scale(1); }
+      100% { transform: translate(-7vmax, -5vmax) scale(1.18); }
+    }
+    @keyframes aurora-drift-3 {
+      0%   { transform: translate(-50%, -50%) scale(0.9); opacity: 0.3; }
+      100% { transform: translate(-46%, -54%) scale(1.15); opacity: 0.55; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .aurora-blob { animation: none; }
+    }
     a { color: inherit; text-decoration: none; }
     img { max-width: 100%; display: block; }
+
+    /* ── MOTION SYSTEM (consumed by js/main.js) ── */
+    .motion-safe [data-reveal],
+    .motion-safe [data-stagger-item] {
+      transition:
+        opacity var(--reveal-duration, 760ms) cubic-bezier(0.18, 1, 0.32, 1),
+        transform var(--reveal-duration, 760ms) cubic-bezier(0.18, 1, 0.32, 1);
+      transition-delay: var(--reveal-delay, 0ms);
+      will-change: opacity, transform;
+    }
+    .motion-safe [data-reveal]:not(.is-visible),
+    .motion-safe [data-stagger-item]:not(.is-visible) {
+      opacity: 0;
+      transform: translate3d(0, var(--reveal-y, 24px), 0) scale(var(--reveal-scale, 1));
+    }
+    .motion-safe [data-reveal].is-visible,
+    .motion-safe [data-stagger-item].is-visible {
+      opacity: 1;
+      transform: translate3d(0, 0, 0) scale(1);
+    }
+    .motion-reduced [data-reveal],
+    .motion-reduced [data-stagger-item] {
+      opacity: 1; transform: none;
+    }
 
     /* ── NAV ── */
     .nav {
       position: sticky; top: 0; z-index: 50;
       border-bottom: 1px solid var(--border);
-      background: linear-gradient(to bottom, rgba(4,9,20,0.96), rgba(4,9,20,0.84), transparent);
-      backdrop-filter: blur(16px);
+      background: linear-gradient(to bottom, rgba(4,9,20,0.78), rgba(4,9,20,0.55), transparent);
+      backdrop-filter: blur(12px);
+      transition: background 0.32s ease, border-color 0.32s ease, box-shadow 0.32s ease, backdrop-filter 0.32s ease;
+    }
+    .nav.scrolled {
+      background: rgba(4,9,20,0.92);
+      border-bottom-color: rgba(255,255,255,0.12);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.45);
+      backdrop-filter: blur(20px);
     }
     .nav-inner {
       max-width: 1160px; margin: 0 auto;
@@ -159,12 +228,19 @@
       gap: 1.2rem; margin-top: 2.5rem;
     }
     .tool-card {
+      position: relative; overflow: hidden; isolation: isolate;
       background: linear-gradient(145deg, #111d3a, #060b17);
       border: 1px solid var(--border);
       padding: 2.2rem 1.8rem;
-      transition: transform 0.22s ease, box-shadow 0.22s ease;
+      transition: transform 0.32s cubic-bezier(0.18, 1, 0.32, 1), box-shadow 0.32s ease, border-color 0.32s ease;
     }
-    .tool-card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,0.5); }
+    .tool-card::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none; z-index: -1;
+      background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(184,190,200,0.14), transparent 55%);
+      opacity: 0; transition: opacity 0.4s ease;
+    }
+    .tool-card:hover { transform: translateY(-6px); box-shadow: 0 24px 60px rgba(0,0,0,0.55); border-color: rgba(184,190,200,0.22); }
+    .tool-card:hover::before { opacity: 1; }
     .tool-card--accent { background: linear-gradient(145deg, #152040, #080f1e); border-color: rgba(184,190,200,0.2); }
     .tool-num {
       font-family: var(--font-h); font-size: 0.62rem; font-weight: 700;
@@ -354,6 +430,68 @@
     .fit-item { padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.07); }
     @media (max-width: 860px) { .lead-grid { grid-template-columns: 1fr; } }
 
+    /* ── PAGE TOC ── */
+    .page-toc {
+      position: fixed; top: 50%; right: 1.4rem; transform: translateY(-50%); z-index: 40;
+      display: flex; flex-direction: column; gap: 0.4rem;
+      padding: 0.8rem 0.6rem;
+      background: rgba(8,12,22,0.6); backdrop-filter: blur(12px);
+      border: 1px solid var(--border); border-radius: 2px;
+    }
+    .page-toc a {
+      display: block; width: 1.3rem; height: 0.3rem; border-radius: 1px;
+      background: rgba(255,255,255,0.12); transition: background 0.18s, width 0.18s;
+    }
+    .page-toc a:hover, .page-toc a.active { background: var(--accent); width: 1.7rem; }
+    .page-toc a span {
+      position: absolute; right: calc(100% + 0.6rem); top: 50%; transform: translateY(-50%);
+      white-space: nowrap; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--muted); opacity: 0; transition: opacity 0.18s; pointer-events: none;
+    }
+    .page-toc a:hover span { opacity: 1; color: var(--text); }
+    @media (max-width: 1100px) { .page-toc { display: none; } }
+
+    /* ── PROCESS DIAGRAM ── */
+    .process {
+      display: grid; grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 0; margin-top: 2.5rem; align-items: stretch;
+      border: 1px solid var(--border); background: var(--border);
+    }
+    .process-step {
+      position: relative; overflow: hidden;
+      background: var(--bg-card); padding: 2rem 1.6rem;
+      display: flex; flex-direction: column; gap: 0.6rem;
+      transition: background 0.4s ease;
+    }
+    .process-step::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none;
+      background: linear-gradient(180deg, rgba(184,190,200,0.08), transparent 70%);
+      opacity: 0; transition: opacity 0.4s ease;
+    }
+    .process-step:hover::before { opacity: 1; }
+    .process-step .num {
+      font-family: var(--font-h); font-size: 2.4rem; font-weight: 700;
+      color: var(--accent); line-height: 1; letter-spacing: -0.02em;
+      font-feature-settings: "tnum";
+    }
+    .process-step .label {
+      font-family: var(--font-h); font-size: 1.05rem; font-weight: 600;
+      color: var(--text); letter-spacing: -0.01em;
+    }
+    .process-step .hint { font-size: 0.82rem; color: var(--muted); line-height: 1.55; }
+    .process-arrow {
+      background: var(--bg-card); display: flex; align-items: center; justify-content: center;
+      padding: 0 1rem; color: var(--accent);
+    }
+    .process-arrow svg { width: 22px; height: 22px; overflow: visible; }
+    .process-arrow svg path { stroke-dasharray: 30; stroke-dashoffset: 30; transition: stroke-dashoffset 1.1s cubic-bezier(0.18, 1, 0.32, 1) 0.4s; opacity: 0.55; }
+    .process.is-visible .process-arrow svg path { stroke-dashoffset: 0; }
+    .process.is-visible .process-arrow:nth-of-type(4) svg path { transition-delay: 0.85s; }
+    @media (max-width: 800px) {
+      .process { grid-template-columns: 1fr; }
+      .process-arrow { padding: 0.6rem 0; transform: rotate(90deg); }
+    }
+
     /* ── FOOTER ── */
     .footer { border-top: 1px solid var(--border); padding: 1.8rem 1.5rem; }
     .footer-inner {
@@ -373,14 +511,34 @@
 
 <body>
 
+  <!-- ── AURORA · slow-drifting background blobs ─────── -->
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <!-- ── PAGE TOC ─────────────────────────────────────── -->
+  <nav class="page-toc" aria-label="Page navigation">
+    <a href="#top" data-toc="top" style="position:relative;"><span>Top</span></a>
+    <a href="#pillars" data-toc="pillars" style="position:relative;"><span>Pillars</span></a>
+    <a href="#cbam-analysis-feature" data-toc="cbam-analysis-feature" style="position:relative;"><span>Analysis</span></a>
+    <a href="#how-it-works" data-toc="how-it-works" style="position:relative;"><span>How it works</span></a>
+    <a href="#quick-check" data-toc="quick-check" style="position:relative;"><span>Try it</span></a>
+    <a href="#roi-model" data-toc="roi-model" style="position:relative;"><span>Workload</span></a>
+    <a href="#setup-plan" data-toc="setup-plan" style="position:relative;"><span>Setup</span></a>
+  </nav>
+
   <nav class="nav">
     <div class="nav-inner">
       <div class="brand">ORCATRADE.<span>OS</span></div>
       <div class="nav-links">
-        <a href="index.html">Group</a>
-        <a href="sourcing.html">Sourcing</a>
+        <a href="index.html">Home</a>
+        <a href="platform/">Platform</a>
         <a href="intelligence.html" class="active">Intelligence</a>
-        <a href="search/">Search</a>
+        <a href="agent/">Agent</a>
+        <a href="documents/">Documents</a>
+        <a href="pricing/">Pricing</a>
       </div>
       <div class="lang-switcher">
         <a href="intelligence.html" class="lang-btn active">EN</a>
@@ -393,83 +551,100 @@
 
   <!-- ── HERO ─────────────────────────────────────────── -->
   <section class="section hero" id="top">
-    <a href="index.html" class="back">← OrcaTrade Group</a>
-    <div class="kicker">OrcaTrade Intelligence · Three Live Pillars</div>
-    <h1 class="title">Track shipments.<br>Score factories.<br><span>Check compliance.</span></h1>
-    <p class="subtitle">
-      One place for shipments, factory risk, and EU compliance. See what is moving, what is risky,
-      what applies, and what your team needs to do next.
-    </p>
-    <div class="hero-actions">
-      <a href="#pillars" class="btn-primary">See The Three Pillars →</a>
-      <a href="#quick-check" class="btn-ghost">Run Instant Compliance Check →</a>
+    <a href="index.html" class="back" data-reveal="hero">← OrcaTrade Group</a>
+    <div class="kicker" data-reveal="hero">OrcaTrade Intelligence</div>
+    <h1 class="title" data-reveal="hero">Track shipments.<br>Score factories.<br><span>Check compliance.</span></h1>
+    <p class="subtitle" data-reveal="hero">Shipments. Factory risk. EU compliance. One operating layer.</p>
+    <div class="hero-actions" data-reveal="hero">
+      <a href="/analysis/" class="btn-primary">Generate CBAM analysis →</a>
+      <a href="#quick-check" class="btn-ghost">Try the instant check →</a>
     </div>
   </section>
 
   <hr class="divider">
 
   <!-- ── THREE LIVE TOOLS ─────────────────────────────── -->
-  <section class="section" id="pillars">
-    <div class="kicker">Live tools — open now</div>
-    <h2 class="title title--md" style="margin-bottom:0.5rem;">Three live pillars. Each solves one job clearly.</h2>
-    <p style="font-size:0.92rem; color:var(--muted); line-height:1.65; max-width:58ch; margin-bottom:0;">
-      Use OrcaTrade Intelligence when you need to understand what is happening across inbound orders,
-      suppliers, and EU trade obligations without jumping between separate tools.
-    </p>
+  <section class="section" id="pillars" data-reveal="section">
+    <div class="kicker" data-reveal="heading">Live tools</div>
+    <h2 class="title title--md" style="margin-bottom:0;" data-reveal="heading">Three pillars. Each solves one job.</h2>
 
-    <div class="tools-grid">
-      <a href="supply-chain/" class="tool-card" style="display:block;">
-        <div class="tool-num">Pillar 01 · Live Now</div>
-        <h3 class="tool-title">Track Your Shipments</h3>
-        <p class="tool-desc">See live inbound orders, route pressure, delay risk, and supplier movement so operations and compliance stay tied to the same shipment reality.</p>
-        <div class="tool-cta">Open Dashboard →</div>
+    <div class="tools-grid" data-stagger-group="card" data-stagger-step="100">
+      <a href="supply-chain/" class="tool-card spotlight" data-stagger-item="card" style="display:block;">
+        <div class="tool-num">Pillar 01</div>
+        <h3 class="tool-title">Track shipments</h3>
+        <p class="tool-desc">Inbound orders, route pressure, delay risk.</p>
+        <div class="tool-cta">Open dashboard →</div>
       </a>
-      <a href="factory-risk/" class="tool-card tool-card--accent" style="display:block;">
-        <div class="tool-num">Pillar 02 · Live Now</div>
-        <h3 class="tool-title">Find &amp; Score Any Factory</h3>
-        <p class="tool-desc">Review factory risk, compliance posture, audit freshness, and capacity signals so sourcing teams know where deeper scrutiny is needed.</p>
-        <div class="tool-cta">Open Dashboard →</div>
+      <a href="factory-risk/" class="tool-card tool-card--accent spotlight" data-stagger-item="card" style="display:block;">
+        <div class="tool-num">Pillar 02</div>
+        <h3 class="tool-title">Score any factory</h3>
+        <p class="tool-desc">Risk, audit freshness, capacity signals.</p>
+        <div class="tool-cta">Open dashboard →</div>
       </a>
-      <a href="compliance/" class="tool-card" style="display:block;">
-        <div class="tool-num">Pillar 03 · Live Now</div>
-        <h3 class="tool-title">Check Order Compliance</h3>
-        <p class="tool-desc">Run CBAM, EUDR, and diligence checks on real import orders, see what applies, what is missing, and what your team needs to do next.</p>
-        <div class="tool-cta">Open Dashboard →</div>
+      <a href="compliance/" class="tool-card spotlight" data-stagger-item="card" style="display:block;">
+        <div class="tool-num">Pillar 03</div>
+        <h3 class="tool-title">Check order compliance</h3>
+        <p class="tool-desc">CBAM, EUDR, diligence — what applies, what's missing.</p>
+        <div class="tool-cta">Open dashboard →</div>
       </a>
     </div>
   </section>
 
   <hr class="divider">
 
-  <!-- ── HOW IT WORKS ─────────────────────────────────── -->
-  <section class="section" id="command-center">
-    <div class="kicker">How it works</div>
-    <h2 class="title title--md" style="margin-bottom:0.5rem;">One workflow, not three disconnected tools.</h2>
-    <p class="subtitle" style="max-width:58ch; margin-bottom:2.2rem;">
-      The workflow is simple: bring in the order, supplier, or shipment you are worried about,
-      let OrcaTrade decide what matters, then act on the missing facts, risks, and next steps.
-    </p>
+  <!-- ── FEATURED · EU COMPLIANCE BRIEF ─────────────────── -->
+  <section class="section" id="cbam-analysis-feature" data-reveal="section" style="padding-top:3.5rem; padding-bottom:3.5rem;">
+    <div style="border:1px solid var(--border); background:linear-gradient(135deg, rgba(184,190,200,0.04), rgba(184,190,200,0.01)); padding:clamp(2rem,4vw,3.5rem); display:grid; grid-template-columns:1.1fr 0.9fr; gap:clamp(1.5rem,3vw,3rem); align-items:center;">
+      <div>
+        <div class="kicker" style="color:var(--accent); margin-bottom:0.8rem;">New · Citation-grounded · CBAM + EUDR</div>
+        <h2 class="title title--md" style="margin-bottom:0.8rem;">An EU compliance <em style="font-style:italic; color:var(--accent);">brief</em> in seconds.</h2>
+        <p style="font-size:0.95rem; color:var(--muted); line-height:1.72; max-width:48ch; margin-bottom:1.6rem;">
+          CBAM and EUDR applicability, exposure math, evidence gaps, ranked actions — every claim cited to the regulation.
+        </p>
+        <a href="/analysis/" class="btn-primary" style="font-size:0.85rem;">Generate compliance brief →</a>
+      </div>
+      <ul style="list-style:none; padding:0; margin:0; display:grid; gap:0.9rem; font-size:0.88rem; color:var(--text); line-height:1.55;">
+        <li style="display:flex; gap:0.7rem;"><span style="color:var(--accent); flex-shrink:0;">▸</span><span><b style="font-weight:600;">CBAM</b> — Annex I applicability, tonnes × intensity × ETS-price exposure, Art. 26 penalty model.</span></li>
+        <li style="display:flex; gap:0.7rem;"><span style="color:var(--accent); flex-shrink:0;">▸</span><span><b style="font-weight:600;">EUDR</b> — Annex I commodity match, geolocation requirements, 4%-of-turnover penalty ceiling.</span></li>
+        <li style="display:flex; gap:0.7rem;"><span style="color:var(--accent); flex-shrink:0;">▸</span><span><b style="font-weight:600;">Combined timeline</b> with phase-in dates flagged for SME vs non-SME operator.</span></li>
+        <li style="display:flex; gap:0.7rem;"><span style="color:var(--accent); flex-shrink:0;">▸</span><span><b style="font-weight:600;">Confidence badges</b> — missing evidence is never marked ready.</span></li>
+      </ul>
+    </div>
+    <style>
+      @media (max-width: 800px) {
+        #cbam-analysis-feature > div { grid-template-columns: 1fr !important; }
+      }
+    </style>
+  </section>
 
-    <div class="feature-grid">
-      <div class="feature-card">
-        <div class="feature-num">01</div>
-        <div class="feature-title">Bring In The Real Context</div>
-        <div class="feature-desc">Start from a shipment, a supplier, or an import order. The platform works best when operations, sourcing, and compliance all point at the same real-world flow.</div>
+  <hr class="divider">
+
+  <!-- ── HOW IT WORKS ─────────────────────────────────── -->
+  <section class="section" id="how-it-works" data-reveal="section">
+    <div class="kicker" data-reveal="heading">How it works</div>
+    <h2 class="title title--md" style="margin-bottom:0;" data-reveal="heading">One workflow, three steps.</h2>
+
+    <div class="process" data-process>
+      <div class="process-step">
+        <div class="num">01</div>
+        <div class="label">Bring the case</div>
+        <div class="hint">Shipment, supplier, or import order.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-num">02</div>
-        <div class="feature-title">See What Applies</div>
-        <div class="feature-desc">OrcaTrade shows which regulations apply, which factories look risky, which shipments need attention, and which facts are still missing before a safe decision can be made.</div>
+      <div class="process-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
       </div>
-      <div class="feature-card">
-        <div class="feature-num">03</div>
-        <div class="feature-title">Move The Workflow Forward</div>
-        <div class="feature-desc">Every result points to the next action: collect evidence, escalate a supplier, review a factory, or run the full compliance flow with article-level detail.</div>
+      <div class="process-step">
+        <div class="num">02</div>
+        <div class="label">See what applies</div>
+        <div class="hint">Regulations, risks, evidence gaps — cited.</div>
       </div>
-      <div class="feature-card">
-        <div class="feature-num">04</div>
-        <div class="feature-title">Work From One Exception Queue</div>
-        <div class="feature-desc">Instead of inboxes and scattered notes, the important issues land in one place with the right urgency, owner, and operational context.</div>
+      <div class="process-arrow" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+      </div>
+      <div class="process-step">
+        <div class="num">03</div>
+        <div class="label">Move it forward</div>
+        <div class="hint">Owner, deadline, next action.</div>
       </div>
     </div>
   </section>
@@ -477,12 +652,10 @@
   <hr class="divider">
 
   <!-- ── TRY IT LIVE ──────────────────────────────────── -->
-  <section class="section" id="quick-check">
-    <div class="kicker">Try it now</div>
-    <h2 class="title title--md" style="margin-bottom:0.5rem;">Instant compliance check.</h2>
-    <p class="subtitle" style="margin-bottom:0;">
-      Enter your product and origin. We'll tell you which regulations apply and what your exposure looks like — in seconds.
-    </p>
+  <section class="section" id="quick-check" data-reveal="section">
+    <div class="kicker" data-reveal="heading">Try it now</div>
+    <h2 class="title title--md" style="margin-bottom:0.5rem;" data-reveal="heading">Instant compliance check.</h2>
+    <p class="subtitle" style="margin-bottom:0;" data-reveal="copy">Product and origin. Verdict in seconds.</p>
 
     <div class="qc-shell">
       <div class="qc-form-side">
@@ -535,51 +708,11 @@
 
   <hr class="divider">
 
-  <!-- ── ENTRY POINTS ────────────────────────────────── -->
-  <section class="section" id="offer-stack">
-    <div class="kicker">Choose your entry point</div>
-    <h2 class="title title--md" style="margin-bottom:0.7rem;">Start where the pressure is highest.</h2>
-    <p class="subtitle" style="max-width:56ch;">
-      If compliance is urgent, begin there. If supplier selection or inbound delivery risk is the
-      real problem, jump straight into factory scoring or shipment tracking. The same workspace ties
-      them together once the workflow grows.
-    </p>
-
-    <div class="tiers-grid">
-      <div class="tier-card">
-        <div class="tier-label">Compliance first</div>
-        <div class="tier-title">Compliance Workflow</div>
-        <div class="tier-desc">Check CBAM, EUDR, and diligence scope, identify missing evidence, and move from uncertainty to a structured next action.</div>
-        <a href="compliance/" class="btn-primary" style="width:100%; justify-content:center;">Open Compliance →</a>
-        <div class="tier-trust">Scope · Evidence · Next action</div>
-      </div>
-      <div class="tier-card">
-        <div class="tier-label">Supplier first</div>
-        <div class="tier-title">Factory Intelligence</div>
-        <div class="tier-desc">Score factories and suppliers when audit freshness, risk posture, or sourcing confidence are the first issue that needs attention.</div>
-        <a href="factory-risk/" class="btn-primary" style="width:100%; justify-content:center;">Open Factory Scoring →</a>
-        <div class="tier-trust">Risk · Audit freshness · Capacity</div>
-      </div>
-      <div class="tier-card">
-        <div class="tier-label">Operations first</div>
-        <div class="tier-title">Shipment Intelligence</div>
-        <div class="tier-desc">Track inbound movement, route pressure, and delay exposure when the immediate problem is delivery risk or operational disruption.</div>
-        <a href="supply-chain/" class="btn-primary" style="width:100%; justify-content:center;">Open Shipment Tracking →</a>
-        <div class="tier-trust">Inbound flow · Delays · Exceptions</div>
-      </div>
-    </div>
-  </section>
-
-  <hr class="divider">
-
   <!-- ── ROI ESTIMATOR ───────────────────────────────── -->
-  <section class="section" id="roi-model">
-    <div class="kicker">Model your workload</div>
-    <h2 class="title title--md" style="margin-bottom:0.7rem;">Estimate how heavy the compliance workload really is.</h2>
-    <p class="subtitle" style="max-width:58ch;">
-      This is a directional model, not a legal verdict. Use it to estimate the admin load behind
-      your import flow and decide whether you need a simple workflow or a more complete operating layer.
-    </p>
+  <section class="section" id="roi-model" data-reveal="section">
+    <div class="kicker" data-reveal="heading">Model your workload</div>
+    <h2 class="title title--md" style="margin-bottom:0.5rem;" data-reveal="heading">How heavy is the admin load really?</h2>
+    <p class="subtitle" style="margin-bottom:0;" data-reveal="copy">Directional model, not a legal verdict.</p>
 
     <div class="roi-shell">
       <div class="roi-form-side">
@@ -642,14 +775,11 @@
   <hr class="divider">
 
   <!-- ── CONTACT ──────────────────────────────────────── -->
-  <section class="section" id="setup-plan">
+  <section class="section" id="setup-plan" data-reveal="section">
     <div style="text-align:center; margin-bottom:2.5rem;">
       <div class="kicker">Get started</div>
       <h2 class="title title--md">Get your async setup plan.</h2>
-      <p style="font-size:0.92rem; color:var(--muted); max-width:48ch; margin:0 auto;">
-        Tell us what you import and where the workflow breaks down. We’ll shape a self-serve
-        setup path around your use case and send the next steps by email. No sales call required.
-      </p>
+      <p style="font-size:0.92rem; color:var(--muted); max-width:48ch; margin:0 auto;">Tell us what you import. We email the next steps. No sales call.</p>
     </div>
     <div class="waitlist-box">
       <div class="lead-grid">
@@ -681,13 +811,11 @@
         </form>
 
         <div class="fit-panel">
-          <div class="kicker" style="margin-bottom:0.7rem;">Built for autonomous teams</div>
-          <h3 class="title" style="font-size:clamp(1.1rem,2vw,1.5rem); margin-bottom:0.8rem;">This fits best if you want the product to do the heavy lifting first.</h3>
+          <div class="kicker" style="margin-bottom:0.7rem;">Best fit</div>
+          <h3 class="title" style="font-size:clamp(1.1rem,2vw,1.5rem); margin-bottom:0.8rem;">Software first. Implementation second.</h3>
           <div class="fit-list">
-            <div class="fit-item">You need one place to understand what is moving, what is risky, and what regulation applies.</div>
-            <div class="fit-item">You want to start with software, not with a consulting process or a long implementation cycle.</div>
-            <div class="fit-item">Your current workflow is still spread across spreadsheets, inboxes, supplier follow-ups, and customs dependencies you cannot fully see.</div>
-            <div class="fit-item">You want a clear self-serve path now, with human help added later only if the exceptions justify it.</div>
+            <div class="fit-item">One place for what's moving, what's risky, and what applies.</div>
+            <div class="fit-item">Self-serve path now. Human help only if exceptions justify it.</div>
           </div>
         </div>
       </div>
@@ -710,23 +838,101 @@
     </div>
   </footer>
 
+  <script src="js/main.js"></script>
   <script src="js/cache-preferences.js"></script>
   <script>
     document.getElementById('year').textContent = new Date().getFullYear();
+
+    /* ── PAGE TOC SCROLL-SPY + NAV LIFT ── */
+    (function () {
+      var links = document.querySelectorAll('.page-toc a');
+      var nav = document.querySelector('.nav');
+      var sections = Array.prototype.map.call(links, function (link) {
+        var id = link.getAttribute('href').slice(1);
+        return document.getElementById(id);
+      }).filter(Boolean);
+      function onScroll() {
+        if (nav) nav.classList.toggle('scrolled', window.scrollY > 24);
+        if (!links.length) return;
+        var fromTop = window.scrollY + 140;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= fromTop) current = sections[i];
+        }
+        if (!current) return;
+        var activeId = current.id;
+        Array.prototype.forEach.call(links, function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
+        });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    /* ── CURSOR-FOLLOWING SPOTLIGHT ── */
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelectorAll('.spotlight').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+          var rect = card.getBoundingClientRect();
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        });
+      });
+    })();
+
+    /* ── PROCESS DIAGRAM REVEAL (triggers arrow draw) ── */
+    (function () {
+      var processes = document.querySelectorAll('[data-process]');
+      if (!processes.length || !('IntersectionObserver' in window)) {
+        processes.forEach(function (p) { p.classList.add('is-visible'); });
+        return;
+      }
+      var io = new IntersectionObserver(function (entries) {
+        entries.forEach(function (entry) {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            io.unobserve(entry.target);
+          }
+        });
+      }, { threshold: 0.3 });
+      processes.forEach(function (p) { io.observe(p); });
+    })();
 
     /* ── ROI ESTIMATOR ── */
     (function () {
       var fields = ['annualImportValue', 'activeSuppliers', 'monthlyShipments', 'internalHours'].map(function (id) {
         return document.getElementById(id);
       });
+      var prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
       function fmtCurrency(value) {
         if (value >= 1000000) return '€' + (value / 1000000).toFixed(1) + 'm';
         if (value >= 1000) return '€' + Math.round(value / 1000) + 'k';
         return '€' + Math.round(value);
       }
+      function fmtInt(value) { return Math.round(value).toLocaleString('en-GB'); }
 
-      function updateModel() {
+      function setText(id, text) {
+        var el = document.getElementById(id); if (el) el.textContent = text;
+      }
+      function animateValue(id, from, to, formatter, duration) {
+        var el = document.getElementById(id); if (!el) return;
+        if (prefersReducedMotion || from === to) { el.textContent = formatter(to); return; }
+        var start = performance.now();
+        var dur = duration || 1100;
+        function frame(now) {
+          var t = Math.min(1, (now - start) / dur);
+          var eased = 1 - Math.pow(1 - t, 3);
+          el.textContent = formatter(from + (to - from) * eased);
+          if (t < 1) requestAnimationFrame(frame);
+        }
+        requestAnimationFrame(frame);
+      }
+
+      var animatedOnce = false;
+
+      function compute() {
         var value = Math.max(100000, Number(fields[0].value) || 0);
         var suppliers = Math.max(1, Number(fields[1].value) || 1);
         var shipments = Math.max(1, Number(fields[2].value) || 1);
@@ -743,26 +949,52 @@
           title = 'Start with the unified compliance workspace.';
           copy = 'Your operation is large enough that supplier chasing, shipment context, and compliance decisions should sit in one structured system rather than scattered admin work.';
         }
-
         if (value >= 20000000 || suppliers >= 35 || shipments >= 45 || hours >= 110) {
           motion = 'Control Room';
           title = 'You need the full operating layer.';
           copy = 'At this scale, the real opportunity is centralising the whole flow: evidence collection, exception handling, shipment visibility, and supplier risk in one control surface.';
         }
+        return { value: value, coordination: coordination, redirectedHours: redirectedHours, motion: motion, title: title, copy: copy };
+      }
 
-        document.getElementById('scopeManaged').textContent = fmtCurrency(value);
-        document.getElementById('coordinationEvents').textContent = coordination.toLocaleString('en-GB');
-        document.getElementById('hoursRedirected').textContent = redirectedHours.toLocaleString('en-GB');
-        document.getElementById('recommendedMotion').textContent = motion;
-        document.getElementById('recommendedPackage').textContent = title;
-        document.getElementById('recommendedCopy').textContent = copy;
+      function renderInstant() {
+        var m = compute();
+        setText('scopeManaged', fmtCurrency(m.value));
+        setText('coordinationEvents', fmtInt(m.coordination));
+        setText('hoursRedirected', fmtInt(m.redirectedHours));
+        setText('recommendedMotion', m.motion);
+        setText('recommendedPackage', m.title);
+        setText('recommendedCopy', m.copy);
+      }
+      function renderAnimated() {
+        var m = compute();
+        animateValue('scopeManaged', 0, m.value, fmtCurrency, 1300);
+        animateValue('coordinationEvents', 0, m.coordination, fmtInt, 1100);
+        animateValue('hoursRedirected', 0, m.redirectedHours, fmtInt, 1100);
+        setText('recommendedMotion', m.motion);
+        setText('recommendedPackage', m.title);
+        setText('recommendedCopy', m.copy);
       }
 
       if (fields.every(Boolean)) {
+        renderInstant();
         fields.forEach(function (field) {
-          field.addEventListener('input', updateModel);
+          field.addEventListener('input', renderInstant);
         });
-        updateModel();
+
+        var roiSection = document.getElementById('roi-model');
+        if (roiSection && 'IntersectionObserver' in window && !prefersReducedMotion) {
+          var io = new IntersectionObserver(function (entries) {
+            entries.forEach(function (entry) {
+              if (entry.isIntersecting && !animatedOnce) {
+                animatedOnce = true;
+                renderAnimated();
+                io.disconnect();
+              }
+            });
+          }, { threshold: 0.35 });
+          io.observe(roiSection);
+        }
       }
     })();
 

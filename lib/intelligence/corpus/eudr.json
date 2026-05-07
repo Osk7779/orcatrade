@@ -1,0 +1,212 @@
+{
+  "regulation": {
+    "id": "eudr",
+    "shortName": "EUDR",
+    "longName": "EU Deforestation Regulation",
+    "instrument": "Regulation (EU) 2023/1115",
+    "adoptedOn": "2023-05-31",
+    "publishedOn": "2023-06-09",
+    "officialJournal": "OJ L 150, 9.6.2023, p. 206",
+    "celex": "32023R1115",
+    "elsLandingUrl": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj",
+    "phases": [
+      {
+        "name": "Entry into force",
+        "from": "2023-06-29",
+        "to": null,
+        "summary": "The Regulation entered into force on the twentieth day following its publication in the Official Journal."
+      },
+      {
+        "name": "Application — non-SME operators",
+        "from": "2026-12-30",
+        "to": null,
+        "summary": "Operators and traders other than micro and small enterprises must comply from 30 December 2026. From this date, only deforestation-free covered products may be placed on or made available on the EU market."
+      },
+      {
+        "name": "Application — micro and small operators",
+        "from": "2027-06-30",
+        "to": null,
+        "summary": "Micro and small enterprises must comply from 30 June 2027."
+      }
+    ],
+    "covered_commodities": [
+      "cattle",
+      "cocoa",
+      "coffee",
+      "oil_palm",
+      "rubber",
+      "soya",
+      "wood"
+    ],
+    "covered_commodities_note": "EUDR applies to seven primary commodities and to a defined list of relevant products derived from or containing them, as listed in Annex I (by CN code).",
+    "cut_off_date": "2020-12-31",
+    "cut_off_note": "Covered commodities and products may not be associated with land that was subject to deforestation or forest degradation after 31 December 2020."
+  },
+  "chunks": [
+    {
+      "id": "eudr-art-1",
+      "article": "Art. 1",
+      "title": "Subject matter and scope",
+      "summary": "Lays down rules to ensure that relevant commodities and relevant products listed in Annex I — when placed or made available on the EU market or exported from the Union — are deforestation-free, produced in accordance with the relevant legislation of the country of production, and covered by a due diligence statement.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 1",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_1",
+      "topics": ["scope", "deforestation-free", "annex-i", "due-diligence-statement"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-2-deforestation-free",
+      "article": "Art. 2",
+      "title": "Definitions — 'deforestation-free' and 'cut-off date'",
+      "summary": "'Deforestation-free' means relevant commodities and products that are produced on land that has not been subject to deforestation after 31 December 2020 (the cut-off date), and where the wood specifically is harvested without inducing forest degradation after that date.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 2",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_2",
+      "topics": ["deforestation-free", "cut-off-date", "forest-degradation", "definitions"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-3-prohibition",
+      "article": "Art. 3",
+      "title": "Prohibition",
+      "summary": "Relevant commodities and relevant products must not be placed on the market, made available, or exported unless they are deforestation-free, have been produced in accordance with the relevant legislation of the country of production, and are covered by a due diligence statement.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 3",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_3",
+      "topics": ["prohibition", "placing-on-market", "due-diligence-statement"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-4-due-diligence",
+      "article": "Art. 4",
+      "title": "Obligations of operators — due diligence",
+      "summary": "Operators must exercise due diligence prior to placing relevant commodities or products on the market or exporting them. They must collect the information required under Article 9, conduct a risk assessment under Article 10, and apply risk-mitigation measures under Article 11. A due diligence statement must be submitted to the information system established under Article 33 before placing on the market.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 4",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_4",
+      "topics": ["due-diligence", "operator-obligations", "information-system", "due-diligence-statement"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-9-information",
+      "article": "Art. 9",
+      "title": "Information requirements",
+      "summary": "Operators must collect specific information for each relevant commodity or product, including: description, quantity, country of production, geolocation of all plots of land where the commodities were produced, date or time range of production, name and contact details of suppliers, and conclusive evidence that the commodities were produced in accordance with the relevant legislation. Geolocation must include latitude and longitude with at least six decimal places; for plots of land larger than four hectares used for cattle, polygons describing the perimeter are required.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 9",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_9",
+      "topics": ["information", "geolocation", "supplier-data", "country-of-production", "polygon"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-10-risk-assessment",
+      "article": "Art. 10",
+      "title": "Risk assessment",
+      "summary": "Operators must verify and analyse the information collected under Article 9 and document the risk assessment. The assessment must consider, among others: the risk classification of the country of production assigned under Article 29, the presence of forests, the prevalence of deforestation, the presence of indigenous peoples, complexity of supply chain, and risk of mixing with products of unknown origin or from non-compliant areas.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 10",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_10",
+      "topics": ["risk-assessment", "country-classification", "supply-chain-complexity", "indigenous-peoples"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-11-risk-mitigation",
+      "article": "Art. 11",
+      "title": "Risk mitigation",
+      "summary": "Where the risk assessment identifies a non-negligible risk of non-compliance, operators must adopt risk-mitigation procedures and measures to achieve no or only a negligible risk before placing on the market. Where risk cannot be reduced, operators must not place the commodity or product on the market.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 11",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_11",
+      "topics": ["risk-mitigation", "negligible-risk", "non-placement"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-13-trader-obligations",
+      "article": "Art. 13",
+      "title": "Obligations of traders",
+      "summary": "Traders that are not SMEs are considered operators for the purposes of this Regulation. SME traders must collect and keep, for at least five years, information identifying their suppliers and the operators or traders to which they have supplied relevant products, including reference numbers of due diligence statements, and provide this on request to competent authorities.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 13",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_13",
+      "topics": ["traders", "sme-traders", "supplier-records", "five-year-retention"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-29-country-benchmarking",
+      "article": "Art. 29",
+      "title": "Country benchmarking — risk classification",
+      "summary": "The Commission classifies countries (or parts thereof) into low, standard, or high risk of producing relevant commodities that are not deforestation-free. The classification influences the level of due diligence required: simplified due diligence applies for low-risk sourcing, full due diligence for standard-risk, and enhanced scrutiny for high-risk.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 29",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_29",
+      "topics": ["country-risk", "low-risk", "high-risk", "simplified-due-diligence"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-13-simplified-dd",
+      "article": "Art. 13",
+      "title": "Simplified due diligence — low-risk countries",
+      "summary": "Where the country of production has been classified as low-risk under Article 29, operators may apply simplified due diligence. They must still collect the information required under Article 9 and verify there is no co-mingling with products of unknown origin or from countries classified as standard or high risk. The risk assessment under Article 10 is not required for purely low-risk-sourced products.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 13",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_13",
+      "topics": ["simplified-due-diligence", "low-risk", "co-mingling"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-25-checks",
+      "article": "Art. 25",
+      "title": "Checks on operators and traders",
+      "summary": "Competent authorities must annually carry out checks covering at least 9% of operators and traders dealing with products from high-risk countries, 3% from standard-risk countries, and 1% from low-risk countries (after the country benchmarking system applies). Checks include verification of due diligence statements, on-site inspections, document checks, and laboratory analysis where relevant.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 25",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_25",
+      "topics": ["enforcement-checks", "9-3-1-percent", "annual-inspection"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-25-penalties",
+      "article": "Art. 25",
+      "title": "Penalties",
+      "summary": "Member States must lay down rules on penalties applicable to infringements. Penalties must be effective, proportionate, and dissuasive, and must include: a maximum fine of at least 4% of the operator's or trader's total annual EU-wide turnover in the preceding financial year; confiscation of the relevant commodities or products and of the revenues gained; temporary exclusion from public procurement and public funding; temporary prohibition from placing or making available on the market relevant commodities or products in case of serious or repeated infringements.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 25",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_25",
+      "topics": ["penalties", "4-percent-turnover", "confiscation", "market-exclusion"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-33-information-system",
+      "article": "Art. 33",
+      "title": "Information system (TRACES)",
+      "summary": "The Commission establishes and maintains an information system through which operators submit due diligence statements before placing relevant commodities or products on the EU market. Each statement receives a reference number that must be communicated to customs authorities. The system links into customs declarations: customs may release covered goods only after the due diligence statement reference is verified.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 33",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_33",
+      "topics": ["information-system", "traces", "due-diligence-statement-reference", "customs-link"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-art-38-application",
+      "article": "Art. 38",
+      "title": "Entry into force and application",
+      "summary": "The Regulation entered into force on 29 June 2023. It applies from 30 December 2026 to operators and traders other than SMEs. Micro and small enterprises (within the meaning of Directive 2013/34/EU) must comply from 30 June 2027.",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Art. 38",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#art_38",
+      "topics": ["entry-into-force", "application-date", "sme-deferred-date", "phase-in"],
+      "confidence": "summary"
+    },
+    {
+      "id": "eudr-annex-i",
+      "article": "Annex I",
+      "title": "Covered commodities and products (CN codes)",
+      "summary": "Annex I lists the seven covered commodities (cattle, cocoa, coffee, oil palm, rubber, soya, wood) together with the relevant products that contain or have been made using them, identified by CN code. Notable inclusions: hides and leather (cattle), chocolate and cocoa products (cocoa), roasted and ground coffee (coffee), palm-oil derivatives (oil palm), rubber tires and articles (rubber), soya-based animal feed and oils (soya), printed paper, charcoal, plywood, furniture, and wood pulp (wood).",
+      "verbatim": null,
+      "citation": "Regulation (EU) 2023/1115, Annex I",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2023/1115/oj#anx_I",
+      "topics": ["annex-i", "covered-commodities", "cn-codes", "derivative-products"],
+      "confidence": "summary"
+    }
+  ]
+}

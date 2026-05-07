@@ -100,7 +100,7 @@ document.addEventListener('DOMContentLoaded', function () {
       if (!element.dataset.reveal) applyRevealPreset(element, 'hero');
     });
 
-    queryAllIncludingSelf(root, '.card, .process-card, .foundation-card, .cta-box').forEach(function (element) {
+    queryAllIncludingSelf(root, '.card, .process-card, .cta-box').forEach(function (element) {
       if (!element.dataset.reveal) applyRevealPreset(element, 'card');
     });
 

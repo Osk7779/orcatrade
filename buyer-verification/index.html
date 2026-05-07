@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Buyer Verification — OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Score European buyers before extending trade credit. Public-registry verification, credit-band signals, recommended payment terms. Doubles the platform — built for the export side.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <section class="section unit-hero" id="top">
+        <a href="../index.html" class="back-link">← Back to OrcaTrade Group</a>
+        <div class="hero-kicker" data-reveal="hero">Buyer Verification · For exporters</div>
+        <h1 class="unit-hero-title" data-reveal="hero" style="max-width: 22ch;">Score European buyers before you extend trade credit.</h1>
+        <p class="unit-hero-body" data-reveal="hero" style="max-width: 60ch;">
+          The reverse of factory risk scoring — built for Asian exporters and European distributors checking the buyer side. Public-registry verification, credit-band signals, recommended payment terms. The first step before issuing an invoice on Net-30, Net-60, or extending any open-account credit.
+        </p>
+        <div class="hero-actions" data-reveal="hero" style="margin-top:1.4rem;">
+          <a class="btn btn-primary" href="check/">Check a buyer</a>
+          <a class="btn btn-ghost" href="#how">How it works</a>
+        </div>
+      </section>
+
+      <section class="section" id="how" style="padding-top: 1rem;">
+        <div class="section-kicker">How it works</div>
+        <h2 class="section-title">Snapshot pre-check now · binding credit pull next.</h2>
+        <p class="section-intro">v1 returns an indicative pre-check. Production-grade verification connects to Creditreform / D&amp;B / Atradius for binding credit reports.</p>
+
+        <div class="feature-grid" style="margin-top: 2rem;">
+          <div class="feature-card">
+            <div class="feature-num">01</div>
+            <div class="feature-title">Tell us the buyer name + country</div>
+            <div class="feature-desc">Optional registry ID (KRS / Handelsregister / Companies House) speeds up verification. Most fields are optional in v1; a country code is enough to point at the right registry.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">02</div>
+            <div class="feature-title">Check against the snapshot</div>
+            <div class="feature-desc">We match against curated known-buyer profiles (tier-1 European retailers, distributors, marketplaces). Match → instant low-risk verdict with a recommended trade-credit cap.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">03</div>
+            <div class="feature-title">Heuristic fallback for unknown buyers</div>
+            <div class="feature-desc">If the buyer isn't in our snapshot, we point at the right public registry (KRS / Handelsregister / KvK / Companies House) and recommend a paid credit pull (€30–€150) before extending credit.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-num">04</div>
+            <div class="feature-title">Recommendation drives the payment-term decision</div>
+            <div class="feature-desc">Acceptable → Net-30/60. Require security → LC at sight or trade-credit insurance. Decline → 100% advance payment only. Each verdict ties back to the recommended OrcaTrade Trade Finance route.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-kicker">Public registries we point at</div>
+        <h2 class="section-title">EU + UK + EEA — verification starts in the registry.</h2>
+
+        <div class="service-grid" style="margin-top: 2rem;">
+          <article class="card spotlight">
+            <div class="card-tag">Poland</div>
+            <h3 class="card-title">KRS</h3>
+            <p class="card-body">Krajowy Rejestr Sądowy — public Polish business register. Free lookup at krs.ms.gov.pl for legal-entity confirmation; rejestr.io is the most usable mirror.</p>
+          </article>
+          <article class="card spotlight">
+            <div class="card-tag">Germany</div>
+            <h3 class="card-title">Handelsregister</h3>
+            <p class="card-body">German commercial register. Public lookup at handelsregister.de for legal-entity records; full extracts are paid (€4.50 per document).</p>
+          </article>
+          <article class="card spotlight">
+            <div class="card-tag">United Kingdom</div>
+            <h3 class="card-title">Companies House</h3>
+            <p class="card-body">Free, fully public UK companies register. Excellent API. Best-quality data of any in-scope registry.</p>
+          </article>
+          <article class="card spotlight">
+            <div class="card-tag">Netherlands</div>
+            <h3 class="card-title">KvK</h3>
+            <p class="card-body">Kamer van Koophandel — Dutch chamber of commerce. Mostly paid lookups; basic legal-entity confirmation is public.</p>
+          </article>
+          <article class="card spotlight">
+            <div class="card-tag">Spain · Italy · France</div>
+            <h3 class="card-title">National registers</h3>
+            <p class="card-body">Registro Mercantil (ES), Registro Imprese (IT), Infogreffe (FR). Paid for full extracts; basic confirmation public.</p>
+          </article>
+          <article class="card spotlight">
+            <div class="card-tag">Pan-EU</div>
+            <h3 class="card-title">BRIS</h3>
+            <p class="card-body">EU Business Registers Interconnection System — federated search across Member-State registers. Useful for cross-border lookups.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-kicker">Credit data partners</div>
+        <h2 class="section-title">Beyond the registry — paid credit pulls.</h2>
+        <p class="section-intro">Public registries verify the legal entity exists. Credit pulls quantify default risk and recommended cap. v1 routes to one of these:</p>
+
+        <div class="feature-grid" style="margin-top: 2rem;">
+          <div class="feature-card">
+            <div class="feature-title">Creditreform</div>
+            <div class="feature-desc">Pan-European, strong on DACH region. €30–€80 per credit report. Direct registry mirror plus default-risk scoring.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-title">Dun &amp; Bradstreet</div>
+            <div class="feature-desc">Global. €50–€150 per report. DUNS number is the most quoted ID in international trade.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-title">Atradius</div>
+            <div class="feature-desc">Trade-credit insurer. Insures the receivable in addition to scoring it. Useful when the order size warrants risk-shift.</div>
+          </div>
+          <div class="feature-card">
+            <div class="feature-title">Coface</div>
+            <div class="feature-desc">European trade-credit insurer. Country-risk reports plus buyer-level scoring. Strong on EU + emerging markets.</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" style="text-align: center;">
+        <div class="section-kicker">Ready</div>
+        <h2 class="section-title" style="max-width: 24ch; margin: 0 auto 1rem;">Two minutes. One verdict.</h2>
+        <p class="section-intro" style="margin: 0 auto 2rem;">Pre-check before you commit to terms. Free. No log-in.</p>
+        <a class="btn btn-primary" href="check/">Check a buyer →</a>
+      </section>
+    </main>
+
+    <footer><div class="footer-inner"><span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span><span><a href="../index.html">Back to OrcaTrade Group</a></span></div></footer>
+  </div>
+
+  <script src="../js/cache-preferences.js"></script>
+  <script src="../js/site-nav.js"></script>
+  <script src="../js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

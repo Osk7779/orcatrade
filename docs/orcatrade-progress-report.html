@@ -1,0 +1,1125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>OrcaTrade — Platform Progress Report · May 2026</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  @page :first { margin: 0; }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: "Helvetica Neue", "Inter", "Segoe UI", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: #1f2937;
+    background: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: "Cormorant Garant", "Cormorant Garamond", "Garamond", "Times New Roman", serif;
+    color: #0a1628;
+    font-weight: 600;
+    line-height: 1.18;
+    margin: 0 0 0.5em;
+  }
+  h1 { font-size: 28pt; letter-spacing: -0.01em; }
+  h2 {
+    font-size: 18pt;
+    letter-spacing: -0.005em;
+    padding-bottom: 0.35em;
+    margin-top: 1.4em;
+    border-bottom: 1.5px solid #c8a85a;
+    page-break-before: always !important;
+    break-before: page !important;
+  }
+  h2.no-break, h2:first-of-type { page-break-before: auto !important; break-before: auto !important; }
+  h3 { font-size: 13pt; margin-top: 1.2em; color: #0f2540; }
+  h4 { font-size: 11pt; margin-top: 1em; color: #2c3e50; }
+
+  p { margin: 0 0 0.55em; }
+  strong, b { color: #0a1628; font-weight: 600; }
+  em { font-style: italic; color: #354150; }
+
+  ul, ol { margin: 0 0 0.7em; padding-left: 1.3em; }
+  li { margin-bottom: 0.18em; }
+
+  .cover {
+    page-break-after: always;
+    height: 297mm;
+    width: 210mm;
+    background: linear-gradient(180deg, #0a1628 0%, #0f2540 60%, #102a4a 100%);
+    color: #f5efe2;
+    padding: 30mm 22mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+  }
+  .cover::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5mm;
+    background: linear-gradient(90deg, #c8a85a 0%, #d4b97a 50%, #c8a85a 100%);
+  }
+  .cover-top { display: flex; align-items: center; gap: 14px; }
+  .cover-top img { width: 56px; height: 56px; }
+  .cover-brand {
+    font-family: "Cormorant Garant", "Cormorant Garamond", serif;
+    font-size: 22pt; font-weight: 600; color: #f5efe2; line-height: 1;
+  }
+  .cover-brand .sub {
+    display: block; font-size: 9pt; letter-spacing: 0.32em;
+    text-transform: uppercase; color: #c8a85a; margin-top: 4px;
+    font-family: "Helvetica Neue", sans-serif; font-weight: 400;
+  }
+  .cover-title-block { margin-top: auto; }
+  .cover-kicker {
+    font-size: 9pt; letter-spacing: 0.36em; text-transform: uppercase;
+    color: #c8a85a; margin-bottom: 14px;
+  }
+  .cover-title {
+    font-family: "Cormorant Garant", "Cormorant Garamond", serif;
+    font-size: 40pt; font-weight: 600; color: #f5efe2;
+    line-height: 1.05; margin: 0; letter-spacing: -0.015em;
+  }
+  .cover-title .accent { color: #c8a85a; font-style: italic; }
+  .cover-subtitle {
+    font-size: 13pt; color: rgba(245,239,226,0.78);
+    margin-top: 18px; line-height: 1.45; max-width: 130mm;
+    font-family: "Helvetica Neue", sans-serif;
+  }
+  .cover-meta {
+    margin-top: 30mm; display: grid;
+    grid-template-columns: 1fr 1fr; gap: 6mm 12mm;
+    font-size: 9.5pt; color: rgba(245,239,226,0.85);
+    border-top: 1px solid rgba(200,168,90,0.35); padding-top: 8mm;
+  }
+  .cover-meta .label {
+    display: block; font-size: 8pt; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #c8a85a; margin-bottom: 3px;
+  }
+
+  .kicker {
+    font-size: 8.5pt; letter-spacing: 0.26em; text-transform: uppercase;
+    color: #c8a85a; margin-bottom: 6px; font-weight: 600;
+  }
+
+  .toc { list-style: none; padding: 0; margin: 0; counter-reset: toc; }
+  .toc li {
+    counter-increment: toc; display: flex; align-items: baseline;
+    gap: 10px; padding: 6px 0; border-bottom: 1px dotted #d6dbe2; font-size: 11pt;
+  }
+  .toc li::before {
+    content: counter(toc, decimal-leading-zero);
+    font-family: "Cormorant Garant", serif; font-size: 12pt;
+    color: #c8a85a; font-weight: 600; width: 28px;
+  }
+  .toc li .title { flex: 1; color: #0a1628; font-weight: 500; }
+  .toc li .desc { font-size: 9pt; color: #6b7280; }
+
+  .stat-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    gap: 10px; margin: 14px 0 18px;
+  }
+  .stat {
+    background: #f7f5ee; padding: 12px 14px;
+    border-left: 3px solid #c8a85a; page-break-inside: avoid;
+  }
+  .stat .num {
+    font-family: "Cormorant Garant", "Cormorant Garamond", serif;
+    font-size: 24pt; font-weight: 700; color: #0a1628;
+    line-height: 1; letter-spacing: -0.02em;
+  }
+  .stat .label {
+    font-size: 8pt; letter-spacing: 0.14em; text-transform: uppercase;
+    color: #6b7280; margin-top: 6px; line-height: 1.3;
+  }
+
+  .module-card {
+    border: 1px solid #e2e6ec; background: #fafbfc;
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .module-card .module-title {
+    font-family: "Cormorant Garant", serif;
+    font-size: 13pt; font-weight: 600; color: #0a1628; margin: 0 0 4px;
+  }
+  .module-card .module-meta {
+    font-size: 8.5pt; letter-spacing: 0.12em; text-transform: uppercase;
+    color: #c8a85a; margin-bottom: 8px;
+  }
+  .module-card p { font-size: 10pt; line-height: 1.5; }
+  .module-card .files {
+    font-family: "SF Mono", "Menlo", "Consolas", monospace;
+    font-size: 8.5pt; color: #4b5563; background: #ffffff;
+    padding: 6px 10px; border-left: 2px solid #c8a85a;
+    margin-top: 6px; word-break: break-all;
+  }
+
+  .pillars {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    gap: 8px; margin: 16px 0 8px;
+  }
+  .pillar {
+    background: #fafbfc; border: 1px solid #e2e6ec;
+    padding: 10px 12px; page-break-inside: avoid;
+  }
+  .pillar .num {
+    font-family: "Cormorant Garant", serif;
+    font-size: 18pt; font-weight: 700; color: #c8a85a; line-height: 1;
+  }
+  .pillar h4 { margin: 4px 0 6px; font-size: 10.5pt; color: #0a1628; }
+  .pillar p { font-size: 8.5pt; line-height: 1.4; color: #4b5563; margin: 0; }
+
+  table.sprint-table {
+    width: 100%; border-collapse: collapse; margin-top: 14px; font-size: 9.5pt;
+  }
+  table.sprint-table th {
+    background: #0a1628; color: #f5efe2; text-align: left;
+    padding: 8px 10px; font-size: 8.5pt; letter-spacing: 0.12em;
+    text-transform: uppercase; font-weight: 600;
+  }
+  table.sprint-table td {
+    padding: 7px 10px; border-bottom: 1px solid #e2e6ec; vertical-align: top;
+  }
+  table.sprint-table td:first-child {
+    font-weight: 600; color: #c8a85a; width: 90px;
+    font-family: "Cormorant Garant", serif; font-size: 11pt;
+  }
+  table.sprint-table tr:nth-child(even) td:not(:first-child) { background: #fafbfc; }
+
+  .quote-block {
+    border-left: 3px solid #c8a85a; padding: 8px 14px;
+    background: #faf7ed; margin: 14px 0; font-style: italic;
+    color: #354150; font-size: 10.5pt;
+  }
+
+  .footer-line {
+    margin-top: 22mm; padding-top: 6mm; border-top: 1px solid #d6dbe2;
+    font-size: 8.5pt; color: #6b7280; display: flex; justify-content: space-between;
+  }
+
+  .pill {
+    display: inline-block; padding: 2px 8px;
+    background: #c8a85a; color: #0a1628; font-size: 8pt;
+    font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+    border-radius: 2px; margin-right: 6px;
+  }
+  .pill.green { background: #4d8b6a; color: #ffffff; }
+
+  .two-col { columns: 2; column-gap: 18px; }
+  .two-col p { break-inside: avoid; }
+
+  .roadmap-section {
+    margin-bottom: 16px; padding-left: 12px;
+    border-left: 2px solid #e2e6ec;
+  }
+  .roadmap-section.done { border-left-color: #4d8b6a; }
+  .roadmap-section.now { border-left-color: #c8a85a; }
+  .roadmap-section.future { border-left-color: #6b7280; }
+  .roadmap-section h4 { margin-top: 0; }
+
+  @media print {
+    body { font-size: 10pt; }
+    h1, h2, h3, h4 { page-break-after: avoid; }
+    .stat, .pillar { page-break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<!-- =============== COVER =============== -->
+<div class="cover">
+  <div class="cover-top">
+    <img src="../orcatrade_logo.png" alt="OrcaTrade Group">
+    <div class="cover-brand">
+      OrcaTrade
+      <span class="sub">Group · Holding</span>
+    </div>
+  </div>
+
+  <div class="cover-title-block">
+    <div class="cover-kicker">Platform Progress Report</div>
+    <h1 class="cover-title">
+      From a trading company<br>
+      to an <span class="accent">operating system</span><br>
+      for Asia–Europe trade.
+    </h1>
+    <p class="cover-subtitle">
+      A comprehensive review of the OrcaTrade platform — five pillars, AI agents,
+      transactional tools for SMEs, and the EU compliance infrastructure shipped
+      across twenty-two development sprints.
+    </p>
+  </div>
+
+  <div class="cover-meta">
+    <div>
+      <span class="label">Document version</span>
+      Report v1.0 · Sprint 22
+    </div>
+    <div>
+      <span class="label">As of</span>
+      7 May 2026
+    </div>
+    <div>
+      <span class="label">Author</span>
+      Oskar Klepuszewski · Co-Founder &amp; CFO
+    </div>
+    <div>
+      <span class="label">Locations</span>
+      Warsaw · London · Hong Kong
+    </div>
+  </div>
+</div>
+
+<!-- =============== EXECUTIVE SUMMARY =============== -->
+<div class="kicker">Section 01</div>
+<h2>Executive summary</h2>
+
+<p>
+Over the last twenty-two development sprints, OrcaTrade Holding has executed a
+strategic transformation from a Europe–Asia trading and sourcing company into
+a full-stack import &amp; export platform spanning the entire <strong>Find it · Verify it ·
+Ship it · Finance it</strong> journey. The platform is built on a Vercel serverless
+architecture, with an AI layer powered by the Anthropic API (Claude 4.X family) and
+a deterministic computational layer for operations that demand auditability.
+</p>
+
+<div class="stat-grid">
+  <div class="stat">
+    <div class="num">22</div>
+    <div class="label">Sprints completed</div>
+  </div>
+  <div class="stat">
+    <div class="num">381</div>
+    <div class="label">Automated tests · zero failures</div>
+  </div>
+  <div class="stat">
+    <div class="num">8</div>
+    <div class="label">Calculator modules in production</div>
+  </div>
+  <div class="stat">
+    <div class="num">9</div>
+    <div class="label">Compliance Agent tools</div>
+  </div>
+</div>
+
+<p>
+The full EU regulatory compliance layer (CBAM, EUDR, REACH, CE) has been delivered,
+together with a conversational agent running a tool-use loop with nine tools. All five
+<strong>Tier 1</strong> expansions (Documentation Hub, Insurance, Buyer Verification,
+Samples, Returns) are live, and three of the five <strong>Tier 2</strong> items
+(Multi-modal Routing, Customs &amp; Bonded, Warehouse / 3PL) have shipped. Each
+tool ships with a public landing page, an interactive quote form with live
+recalculation, and an API endpoint ready to integrate with the customer dashboard.
+</p>
+
+<p>
+This level of progress closes Phase 1 (the "five-stage import journey") and marks
+substantial advancement on Phase 2 (the operational backbone — the customer dashboard
+skeleton and stub auth shipped in Sprint 18). The remaining Tier 2 items (Marketplace,
+Export Services to Asia) and a production-grade authentication integration remain
+on the roadmap.
+</p>
+
+<div class="quote-block">
+  The project's north star, set by the founder, is unambiguous: <strong>"let's make
+  orcatrade big."</strong> The platform thesis is sound, the market differentiation
+  is real, and the execution sequence is clear. What remains is the disciplined
+  delivery of subsequent roadmap items.
+</div>
+
+<!-- =============== TABLE OF CONTENTS =============== -->
+<div class="kicker">Contents</div>
+<h2>Inside this report</h2>
+
+<ol class="toc">
+  <li><span class="title">Executive summary</span><span class="desc">The platform at a glance</span></li>
+  <li><span class="title">What OrcaTrade is today</span><span class="desc">Positioning, ICP, the moat</span></li>
+  <li><span class="title">The five-pillar import journey</span><span class="desc">Find · Verify · Ship · Comply · Finance</span></li>
+  <li><span class="title">Platform architecture</span><span class="desc">Stack, the self-contained pattern, runtime</span></li>
+  <li><span class="title">EU compliance layer</span><span class="desc">CBAM, EUDR, REACH, CE — 56 corpus chunks</span></li>
+  <li><span class="title">Compliance Agent</span><span class="desc">9 tools · tool-use loop · streaming SSE</span></li>
+  <li><span class="title">Tier 1 — Five trade services</span><span class="desc">Documentation Hub · Insurance · Buyer Verification · Samples · Returns</span></li>
+  <li><span class="title">Tier 2 — Three logistics services</span><span class="desc">Routing · Customs &amp; Bonded · Warehouse / 3PL</span></li>
+  <li><span class="title">Customer Dashboard</span><span class="desc">The logged-in product layer skeleton</span></li>
+  <li><span class="title">Test coverage and engineering quality</span><span class="desc">381 tests, agent eval, engineering discipline</span></li>
+  <li><span class="title">Sprint chronicle (12–22)</span><span class="desc">A complete record of the last eleven sprints</span></li>
+  <li><span class="title">Roadmap and conclusions</span><span class="desc">What remains · what's next · where the leverage is</span></li>
+</ol>
+
+<!-- =============== SECTION 2 — WHAT IS ORCATRADE =============== -->
+<div class="kicker">Section 02</div>
+<h2>What OrcaTrade is today</h2>
+
+<p>
+OrcaTrade is the <strong>operating system for European SMEs importing from Asia</strong>.
+The combination of AI agents, verified supplier infrastructure, and physical presence
+in Hong Kong moves a buyer from <em>"I don't know how to do this"</em> all the way
+through to goods on the EU warehouse floor.
+</p>
+
+<h3>2.1 Brand positioning</h3>
+
+<div class="quote-block">
+  <strong>Find it · Verify it · Ship it · Finance it — one platform, Asia to Europe.</strong><br>
+  Your import operations team, available 24/7 — that knows every supplier,
+  every shipment, every regulation.
+</div>
+
+<h3>2.2 Ideal Customer Profile (ICP)</h3>
+
+<p>
+Polish, German, and broader Central-European SMEs with annual import volume of
+50,000–2,000,000 EUR from China and broader Asia, doing 2–50 shipments per year.
+Big enough to need help, small enough not to afford an in-house import team and
+not get the attention of DSV, K+N, or DB Schenker.
+</p>
+
+<h4>Entry segments — first targets:</h4>
+<ul>
+  <li>Polish e-commerce founders — particularly Allegro sellers and Amazon FBA operators.</li>
+  <li>German Mittelstand SMEs sourcing manufactured components from Asia.</li>
+  <li>Specialty retailers and brand owners doing 5–50 shipments per year.</li>
+</ul>
+
+<h3>2.3 Four elements of competitive advantage (the moat)</h3>
+
+<ul>
+  <li>
+    <strong>Proprietary supplier and factory data</strong> — accumulated through Sourcing
+    and Factory Search work; competitors cannot replicate this without years of
+    operational effort.
+  </li>
+  <li>
+    <strong>Hong Kong physical presence</strong> — in-person supplier verification,
+    sample consolidation, dispute resolution. Pure-digital forwarders (Flexport, Forto)
+    cannot match this at the SME price point.
+  </li>
+  <li>
+    <strong>EU-specific compliance knowledge</strong> — CBAM, EUDR, REACH, CE, RoHS,
+    EU AI Act. Most American AI platforms in this space are US-centric.
+  </li>
+  <li>
+    <strong>AI-native architecture from day one</strong> — agent infrastructure built
+    into the platform, not bolted on after the fact.
+  </li>
+</ul>
+
+<!-- =============== SECTION 3 — FIVE PILLARS =============== -->
+<div class="kicker">Section 03</div>
+<h2>The five-pillar import journey</h2>
+
+<p>
+The entire product is organised around a single strategic frame: the five-stage
+journey an importer actually walks through. What used to be four scattered products
+(Factory Search, Sourcing, Intelligence, Finance) has been reframed as <em>stages
+of one path</em>, with the missing link added: the logistics layer.
+</p>
+
+<div class="pillars">
+  <div class="pillar">
+    <div class="num">01</div>
+    <h4>Factory Search</h4>
+    <p>Where do I find the right supplier?</p>
+  </div>
+  <div class="pillar">
+    <div class="num">02</div>
+    <h4>Sourcing</h4>
+    <p>How do I negotiate, sample, and contract?</p>
+  </div>
+  <div class="pillar">
+    <div class="num">03</div>
+    <h4>Intelligence</h4>
+    <p>Is the supplier safe? Am I compliant?</p>
+  </div>
+  <div class="pillar">
+    <div class="num">04</div>
+    <h4>Logistics</h4>
+    <p>How do I physically move and clear the goods?</p>
+  </div>
+  <div class="pillar">
+    <div class="num">05</div>
+    <h4>Finance</h4>
+    <p>How do I pay, hedge, and finance the deal?</p>
+  </div>
+</div>
+
+<h3>3.1 Commercial model</h3>
+
+<p>
+The platform sells through a layered subscription model with transactional revenue
+on top of execution services:
+</p>
+
+<ul>
+  <li><strong>Free</strong> — entry point with limits; brand-awareness builder.</li>
+  <li><strong>Starter — 99 EUR / month</strong> — SMEs starting to import.</li>
+  <li><strong>Growth — 399 EUR / month</strong> — established importers, 5–50 shipments per year.</li>
+  <li><strong>Scale — 999 EUR / month</strong> — multi-channel sellers and growing brands.</li>
+  <li><strong>Enterprise — custom pricing</strong> — with SLAs and custom integration.</li>
+</ul>
+
+<p>
+The transactional layer covers insurance commissions (12% baked in), shipment fees
+in the Freight Forwarding Lite model (8–15% margin), service fees for full import
+management, and origination fees on buyer verification and sample consolidation
+work.
+</p>
+
+<!-- =============== SECTION 4 — ARCHITECTURE =============== -->
+<div class="kicker">Section 04</div>
+<h2>Platform architecture</h2>
+
+<h3>4.1 Technology stack</h3>
+
+<div class="two-col">
+  <p>
+  <strong>Runtime &amp; hosting:</strong> Vercel serverless functions (CommonJS, no
+  npm dependencies in <code>api/</code>); regional edge for static assets; the
+  rate-limit layer lives in <code>lib/intelligence/runtime-store.js</code>.
+  </p>
+  <p>
+  <strong>AI layer:</strong> Anthropic API (Claude 4.X family — Opus, Sonnet, Haiku
+  selected by task profile). Strict tool-use loop, streaming SSE, 8-call cap per turn,
+  30-second timeout per tool invocation, hard human-in-the-loop discipline for
+  irreversible actions.
+  </p>
+  <p>
+  <strong>Frontend:</strong> Vanilla JavaScript without a framework — a deliberate
+  choice for simplicity, zero dependencies, and a stable component lifecycle.
+  Cormorant Garant + Geist as the typographic stack. The aurora animated background
+  and cursor-spotlight effects deliver the "wow" layer while remaining print-ready.
+  </p>
+  <p>
+  <strong>Persistence:</strong> localStorage for form drafts. Supabase / Auth.js / Clerk
+  are the candidate production authentication providers (the architectural decision
+  remains on the roadmap; the stub-auth skeleton was delivered in Sprint 18).
+  </p>
+  <p>
+  <strong>Other components:</strong> Resend for transactional email, embedded BM25
+  retrieval over the regulatory corpus (pure JS, no external vector-database service).
+  </p>
+</div>
+
+<h3>4.2 The self-contained tool pattern</h3>
+
+<p>
+Every platform tool has been built as a self-contained package
+(the <em>self-contained tool pattern</em>) replicated eight times to date:
+</p>
+
+<ol>
+  <li><code>lib/intelligence/[name].js</code> — pure deterministic computation logic with unit tests.</li>
+  <li><code>api/[name].js</code> — serverless endpoint with input validation, rate limiting, and a JSON response with a detailed breakdown.</li>
+  <li><code>/[name]/index.html</code> — landing page with the product manifesto and a CTA into the tool.</li>
+  <li><code>/[name]/quote/index.html</code> — interactive quote form with live recalculation every 200&nbsp;ms.</li>
+  <li><code>test/[name]-quote.test.js</code> — test pack covering constants, validation, scenarios, and recommendations.</li>
+</ol>
+
+<p>
+The repeatability of this pattern means adding a new tool (Marketplace,
+Export Services to Asia) is mechanical and predictable. The architecture does not
+require a "big-bang refactor" for each subsequent roadmap item.
+</p>
+
+<!-- =============== SECTION 5 — COMPLIANCE LAYER =============== -->
+<div class="kicker">Section 05</div>
+<h2>EU regulatory compliance layer</h2>
+
+<p>
+Compliance is the strategic plan's declared <em>"highest-value first build"</em> —
+and a fully delivered platform layer. Four EU regulations have been distilled into
+two concentric layers: deterministic applicability assessment (boolean + numerical
+exposures) and a narrative brief generated by Claude with citations to the
+underlying legal acts.
+</p>
+
+<div class="stat-grid">
+  <div class="stat">
+    <div class="num">4</div>
+    <div class="label">EU regulations fully covered</div>
+  </div>
+  <div class="stat">
+    <div class="num">56</div>
+    <div class="label">Corpus chunks (searchable)</div>
+  </div>
+  <div class="stat">
+    <div class="num">9</div>
+    <div class="label">Compliance Agent tools</div>
+  </div>
+  <div class="stat">
+    <div class="num">15</div>
+    <div class="label">Eval harness cases (v1.1)</div>
+  </div>
+</div>
+
+<div class="module-card">
+  <div class="module-meta">CBAM · Reg (EU) 2023/956</div>
+  <div class="module-title">Carbon Border Adjustment Mechanism</div>
+  <p>
+    15 corpus chunks (Art. 1–36 + Annex I + Implementing Reg 2023/1773).
+    Applicability module, default emissions intensity model, certificate-cost
+    calculation, Art. 26 penalty model, reporting-period timeline, country
+    carbon-price credit.
+  </p>
+  <div class="files">lib/intelligence/cbam-analysis.js · lib/intelligence/corpus/cbam.json</div>
+</div>
+
+<div class="module-card">
+  <div class="module-meta">EUDR · Reg (EU) 2023/1115</div>
+  <div class="module-title">EU Deforestation Regulation</div>
+  <p>
+    15 corpus chunks (Art. 1–38 + Annex I). Coverage of seven commodity groups
+    (cocoa, coffee, soy, palm, rubber, wood, cattle), country-risk indicator,
+    company-size classification per Directive 2013/34/EU, 4%-of-turnover penalty
+    ceiling, Article 9 evidence-gap matrix.
+  </p>
+  <div class="files">lib/intelligence/eudr-analysis.js · lib/intelligence/corpus/eudr.json</div>
+</div>
+
+<div class="module-card">
+  <div class="module-meta">REACH · Reg (EC) 1907/2006</div>
+  <div class="module-title">REACH — chemical substances</div>
+  <p>
+    12 corpus chunks (Art. 1, 5, 7, 8, 14, 31, 33, 56–59, 67–68, 126, importer
+    definition, SVHC Candidate List). Eight high-relevance product categories
+    with concern lists tied to Annex XVII / SVHC entries; member-state penalty
+    notes for PL / DE / FR / NL / IT.
+  </p>
+  <div class="files">lib/intelligence/reach-analysis.js · lib/intelligence/corpus/reach.json</div>
+</div>
+
+<div class="module-card">
+  <div class="module-meta">CE · framework of product directives</div>
+  <div class="module-title">CE marking — conformity assessment</div>
+  <p>
+    14 corpus chunks (Reg 765/2008 + Decision 768/2008/EC) plus seven product
+    directives (LVD, EMC, Machinery, Toy Safety, PPE, RED, RoHS) and cross-cutting
+    concepts (DoC, Technical File, AR, Notified Body). Nine product classes mapped
+    to directive sets (e.g. bluetooth speaker → RED + EMC + LVD + RoHS;
+    CNC machinery → Machinery + LVD + EMC + RoHS).
+  </p>
+  <div class="files">lib/intelligence/ce-analysis.js · lib/intelligence/corpus/ce.json</div>
+</div>
+
+<h3>5.1 BM25 retrieval and orchestration</h3>
+
+<p>
+Corpus search runs through a pure-JS BM25 implementation with topic boost
+(<code>lib/intelligence/retrieval.js</code>) — zero external dependencies, zero
+vector-database cost, fully deterministic. The endpoint <code>api/analysis.js</code>
+orchestrates all four regulations in parallel and emits a merged timeline tagged
+by <code>regulationId</code>, with citations sourced from all four corpora.
+</p>
+
+<!-- =============== SECTION 6 — COMPLIANCE AGENT =============== -->
+<div class="kicker">Section 06</div>
+<h2>Compliance Agent — agent in production</h2>
+
+<p>
+The first of five planned platform agents (Sourcing, Compliance, Logistics,
+Finance, plus an Operations Orchestrator) has been fully deployed. The agent runs
+the full Anthropic API tool-use loop with SSE streaming, strict human-in-the-loop
+discipline for irreversible actions, and a complete audit trail of tool calls.
+</p>
+
+<h3>6.1 The nine agent tools</h3>
+
+<ol>
+  <li><code>searchRegulations</code> — BM25 search across the four-regulation corpus.</li>
+  <li><code>checkCbamApplicability</code> — does CBAM apply to a given import (HS code, country of origin).</li>
+  <li><code>estimateCbamExposure</code> — projected number of CBAM certificates, cost, deadlines.</li>
+  <li><code>checkEudrApplicability</code> — commodity coverage and source-country risk.</li>
+  <li><code>assessEudrCompliance</code> — Art. 9 due-diligence gaps.</li>
+  <li><code>checkReachApplicability</code> — product category and SVHC.</li>
+  <li><code>assessReachCompliance</code> — registration path vs. exemption, importer policy.</li>
+  <li><code>checkCeApplicability</code>, <code>assessCeCompliance</code> — directive sets, conformity-assessment paths.</li>
+  <li><code>lookupHsCode</code> — returns CN8 + description for a natural-language query.</li>
+  <li><code>requestHumanReview</code> — escalation to an operator; the only "write" semantic action.</li>
+</ol>
+
+<h3>6.2 Runtime discipline</h3>
+
+<ul>
+  <li>Hard cap of 8 tool invocations per turn — bounded loop.</li>
+  <li>30-second timeout per individual tool call.</li>
+  <li>Rate limiting at 12 requests per minute per IP — cost control.</li>
+  <li>SSE streaming with events: <em>thinking → tool-call → tool-result → text-delta → final → done</em>.</li>
+  <li>Full call-path logging for compliance audit.</li>
+</ul>
+
+<h3>6.3 Agent frontend</h3>
+
+<p>
+The <code>/agent/</code> page provides a full-screen conversational interface with
+cursor spotlight effect, starter suggestions, tool-call traces with ✓/✗ indicators,
+and citation chips that link to EUR-Lex. The agent specification
+(<code>docs/compliance-agent-spec.md</code>) contains the system prompt, nine tool
+JSON schemas, four sample conversation flows, and requirements covering memory,
+context, and logging.
+</p>
+
+<!-- =============== SECTION 7 — TIER 1 =============== -->
+<div class="kicker">Section 07</div>
+<h2>Tier 1 — Five trade services</h2>
+
+<p>
+All five Tier 1 expansions have been delivered to MVP state across sprints 12–17.
+Each tool ships with a landing page, an interactive calculator with live
+recalculation, a deterministic math breakdown, and a ready API endpoint.
+</p>
+
+<div class="module-card">
+  <span class="pill green">Sprint 12–13 · Live</span>
+  <div class="module-title">Trade Documentation Hub</div>
+  <p>
+    Four trade-document types rendered through the browser:
+    Commercial Invoice, Packing List, Proforma Invoice, Certificate of Origin.
+    All four forms share <code>documents/shared/form.css</code> and
+    <code>form.js</code>; drafts auto-save to localStorage and survive page refresh.
+    Multi-line schema with HS codes, Incoterms, banking details, freight + insurance,
+    signatures. The HTML renderer is pure-JS with proper escaping and a field-level
+    validator. Two more types (Bill of Lading Draft, Fumigation Certificate) sit
+    on the roadmap.
+  </p>
+  <div class="files">lib/intelligence/document-generator.js · /documents/ + 4 sub-routes</div>
+</div>
+
+<div class="module-card">
+  <span class="pill green">Sprint 14 · Live</span>
+  <div class="module-title">Insurance Marketplace</div>
+  <p>
+    Premium calculator for marine cargo insurance. Base rate by transport mode,
+    goods-type loading, route-corridor loading (Asia–EU mainline / periphery /
+    intra-EU / Africa / Middle East / Americas / default), ICC A/B/C clause
+    multipliers, minimum premium 35 EUR, fixed OrcaTrade commission of 12%.
+    The endpoint returns a deterministic breakdown of the formula and a delta
+    versus the retail offer.
+  </p>
+  <div class="files">lib/intelligence/insurance-quote.js · api/insurance.js · /insurance/ + /quote/</div>
+</div>
+
+<div class="module-card">
+  <span class="pill green">Sprint 15 · Live</span>
+  <div class="module-title">Buyer Verification</div>
+  <p>
+    The platform's only export-side product (aimed at Asian suppliers verifying
+    European buyers). Six curated tier-1 buyer profiles (MediaMarkt, Allegro, IKEA,
+    Inditex, Kaufland, Biedronka), a 17-jurisdiction company-registry directory
+    with public-lookup URLs, and name normalisation that strips legal-entity
+    suffixes (sp. z o.o., GmbH, AG, BV…). Heuristic fallback for unknown buyers
+    with a "verify-required" verdict and an LC-or-advance security suggestion.
+  </p>
+  <div class="files">lib/intelligence/buyer-verification.js · api/buyer-verification.js · /buyer-verification/ + /check/</div>
+</div>
+
+<div class="module-card">
+  <span class="pill green">Sprint 16 · Live</span>
+  <div class="module-title">Sample Management Service</div>
+  <p>
+    HK office sample consolidation: 40 EUR base + 15 EUR per supplier consolidation
+    fee. Six-band shipping pricing (25 EUR to 180 EUR by total weight),
+    seven-region destination surcharge (EU mainland / CEE-Baltics / UK / Nordics /
+    Southern EU / Switzerland / Other), express +35 EUR and rush +30 EUR toggles.
+    Live recalculation every 200 ms, three demo scenarios, deterministic breakdown
+    shown to the customer.
+  </p>
+  <div class="files">lib/intelligence/sample-quote.js · api/samples.js · /samples/ + /request/</div>
+</div>
+
+<div class="module-card">
+  <span class="pill green">Sprint 17 · Live</span>
+  <div class="module-title">Returns &amp; Reverse Logistics</div>
+  <p>
+    Three-route return-cost calculation: (1) return to supplier in Asia
+    (120 EUR handling + 80 EUR docs + reverse shipping); (2) local refurbishment
+    (60 EUR transport + 12 EUR/piece diagnostic + 30 EUR/piece labour − 8 EUR/piece
+    parts recovery); (3) local scrap (60 EUR pickup + 25 EUR/100 kg disposal +
+    35 EUR WEEE plus metal-recovery credit). Assessment fee 100 EUR base + 5 EUR/
+    piece capped at 500 EUR. The recommendation engine prefers refurb when declared
+    value ≥ 1.5× refurb cost and return-to-supplier when ≥ 2× shipping cost.
+  </p>
+  <div class="files">lib/intelligence/returns-quote.js · api/returns.js · /returns/ + /quote/</div>
+</div>
+
+<!-- =============== SECTION 8 — TIER 2 =============== -->
+<div class="kicker">Section 08</div>
+<h2>Tier 2 — Three logistics services</h2>
+
+<p>
+Three of the five Tier 2 items have shipped across sprints 19–21, closing the
+"physical supply chain" arc — from "how do I ship?" through "what duties apply?"
+to "where does it sit in the EU?" The remaining two (Marketplace, Export Services
+to Asia) are still in the queue.
+</p>
+
+<div class="module-card">
+  <span class="pill green">Sprint 19 · Live</span>
+  <div class="module-title">Multi-modal Routing — choosing the transport mode</div>
+  <p>
+    A four-mode comparison engine for Asia–Europe transport (sea FCL / sea LCL /
+    air / rail). Base rates: sea FCL 0.55 EUR/kg, sea LCL 1.40 EUR/kg, rail
+    1.85 EUR/kg, air 6.50 EUR/kg. Origin multipliers (CN baseline 1.00; IN, VN,
+    BD, ID, TH, MY, PK 1.05–1.30). Rail viability gate: origin ∈ {CN, KZ, KG} AND
+    destination ∈ 17 EU/CEE codes (China–Europe Railway Express via Khorgos /
+    Brest / Małaszewicze).
+  </p>
+  <p>
+    CO₂ math: 10 / 14 / 600 / 30 g per tonne-km (sea FCL / sea LCL / air / rail).
+    Recommendation engine: urgency &lt;14 days → air; 200–5000 kg China–EU → rail
+    (the sweet spot); ≥5000 kg → sea FCL; &lt;200 kg → air. The
+    <em>railEducation</em> block exposes the Małaszewicze rail corridor — the
+    option most forwarders never pitch despite being 10–15 days faster than sea
+    and 70% cheaper than air.
+  </p>
+  <div class="files">lib/intelligence/routing-quote.js · api/routing.js · /routing/ + /quote/</div>
+</div>
+
+<div class="module-card">
+  <span class="pill green">Sprint 20 · Live</span>
+  <div class="module-title">Customs &amp; Bonded Solutions — clearance and bonded warehousing</div>
+  <p>
+    A landed-cost estimator with two side-by-side scenarios. <strong>Scenario 1:
+    standard clearance</strong> — duty (HS chapter MFN) × customs value + import
+    VAT × (customs value + duty) + brokerage (45 EUR base + 8 EUR/line capped
+    250 EUR) + 25 EUR ENS pre-arrival filing. <strong>Scenario 2: bonded
+    warehouse</strong> — 95 EUR entry + 0.30 EUR/cbm/day storage + 1.2% bond fee
+    on customs value + 65 EUR exit (or 35 EUR re-export); duty + VAT either
+    deferred (cash-flow benefit at a 6% annual cost-of-capital) or avoided
+    entirely on re-export.
+  </p>
+  <p>
+    The HS chapter rate table covers ~50 chapters (apparel 12%, footwear 11%,
+    textiles 7–12%, machinery 2.5–3.5%, furniture 2.7%). Origin overlay: Chinese
+    anti-dumping duties (steel chapters 72/73 +18%/+10%, aluminium 76 +10%,
+    footwear 64 +4%) and preferential FTAs (VN EVFTA 70% reduction, BD/KH EBA
+    full exemption, PK GSP+ 50%, TR customs union 95%). Import-VAT rates for all
+    27 EU member states.
+  </p>
+  <div class="files">lib/intelligence/customs-quote.js · api/customs.js · /customs/ + /quote/</div>
+</div>
+
+<div class="module-card">
+  <span class="pill green">Sprint 21 · Live</span>
+  <div class="module-title">Warehouse / 3PL — six-hub EU benchmark</div>
+  <p>
+    Benchmark across six EU logistics hubs (Rotterdam NL / Hamburg DE / Frankfurt DE /
+    Poznań PL / Prague CZ / Barcelona ES). Each hub has storage (12–19 EUR/pallet/
+    month), inbound receipt (9–14 EUR/pallet), pick &amp; pack (per-order base +
+    per-line + per-unit), packaging materials, and a one-off setup fee amortised
+    over 12 months.
+  </p>
+  <p>
+    Outbound shipping is calculated from a 6×6 region-to-region rate matrix
+    (CENTRAL / NORDIC / IBERIAN / MEDITERRANEAN / EAST / UK) with base + per-kg +
+    transit-day fields. Six value-added services (QC inspection, labelling,
+    kitting, photography, returns processing, gift wrapping). The recommendation
+    engine prefers the cheapest hub when its region matches the primary destination
+    region; otherwise it compares the cheapest against the cheapest-in-destination-
+    region and recommends the faster option only when the premium is ≤10%.
+  </p>
+  <div class="files">lib/intelligence/warehouse-quote.js · api/warehouse.js · /warehouse/ + /quote/</div>
+</div>
+
+<!-- =============== SECTION 9 — DASHBOARD =============== -->
+<div class="kicker">Section 09</div>
+<h2>Customer Dashboard — the logged-in product layer skeleton</h2>
+
+<p>
+The first product layer beyond marketing pages and one-shot calculators. The
+dashboard aggregates state from all seven platform tools (4 document forms +
+Insurance / Samples / Returns), groups activity by resource type (documents,
+quotes), and surfaces the relevant stats and action paths.
+</p>
+
+<h3>9.1 Components delivered in Sprint 18</h3>
+
+<ul>
+  <li>
+    <strong><code>lib/dashboard/state-aggregator.js</code></strong> — an
+    environment-agnostic state aggregator (Node-testable, browser-runnable).
+    Reads localStorage drafts, summarises each (invoice number, parties, line
+    count, currency for documents; cargo, mode, route for quotes). Session helpers
+    <code>buildSession</code>, <code>saveSession</code>, <code>loadSession</code>,
+    <code>clearSession</code> with role validation.
+  </li>
+  <li>
+    <strong><code>dashboard/index.html</code></strong> — sidebar layout with four
+    navigation sections (Workspace / Documents / Tier 1 services / Pillars),
+    a topbar showing workspace name + user + tier, a stats row (drafts /
+    documents / quotes / plan tier), document and quote panels, a 6-up
+    quick-actions grid, and a roadmap panel.
+  </li>
+  <li>
+    <strong>Stub auth</strong> — <code>dashboard/auth.js</code> +
+    <code>/login/</code> + <code>/signup/</code>. Browser-side, with explicit
+    demo-mode banners. The <code>OrcaAuth</code> API mirrors what will be
+    replaced by a production integration (Supabase / Auth.js / Clerk).
+  </li>
+</ul>
+
+<h3>9.2 The next architectural decision</h3>
+
+<p>
+Choosing the authentication provider and migrating from localStorage to
+server-persisted state is a deliberately deferred decision. The strategic plan
+calls this out as the "next architectural decision" — worth being made consciously
+after gathering signals from initial pilots, rather than committed to in isolation.
+</p>
+
+<!-- =============== SECTION 10 — TESTS =============== -->
+<div class="kicker">Section 10</div>
+<h2>Test coverage and engineering quality</h2>
+
+<div class="stat-grid">
+  <div class="stat">
+    <div class="num">381</div>
+    <div class="label">Unit and integration tests</div>
+  </div>
+  <div class="stat">
+    <div class="num">0</div>
+    <div class="label">Failures in the test pack</div>
+  </div>
+  <div class="stat">
+    <div class="num">15</div>
+    <div class="label">Agent eval cases (v1.1)</div>
+  </div>
+  <div class="stat">
+    <div class="num">22</div>
+    <div class="label">Test files</div>
+  </div>
+</div>
+
+<p>
+The test pack uses Node's built-in <code>node:test</code> with no external
+frameworks, preserving the zero-dependency policy of the
+<code>lib/intelligence/*</code> modules. Tests cover input validation,
+recommendation scenarios, pricing-snapshot constants, mathematical identities
+(e.g. <em>landed cost = customs value + duty + VAT</em>), and edge cases.
+</p>
+
+<h3>10.1 Agent eval harness</h3>
+
+<p>
+The file <code>test/agent-eval-cases.json</code> (v1.1) contains 15 scenarios:
+3× CBAM, 3× EUDR, 2× REACH, 3× CE, 1× multi-regulation, 3× escalation paths,
+2× out-of-scope. The script <code>scripts/agent-eval.js</code> runs cases against
+the agent handler, asserts called tools, citation presence, keywords, escalation,
+and stop reason. <code>--bail</code> and single-case-by-id are supported;
+exit codes are CI-suitable.
+</p>
+
+<h3>10.2 Engineering discipline</h3>
+
+<ul>
+  <li><strong>Zero-dependency policy</strong> in the computational layer — pure JS, no npm packages in production <code>api/</code> modules.</li>
+  <li><strong>Deterministic calculations</strong> — every form shows the formula and the math breakdown to the customer.</li>
+  <li><strong>Pricing snapshot</strong> in every module with <code>asOf</code> and <code>source</code> fields — auditable and refreshed quarterly.</li>
+  <li><strong>Validation at system boundaries</strong> — internal code trusts data, validation lives at API and UI inputs.</li>
+  <li><strong>Per-IP, per-endpoint rate limiting</strong> — cost control on Anthropic API.</li>
+</ul>
+
+<!-- =============== SECTION 11 — SPRINT CHRONICLE =============== -->
+<div class="kicker">Section 11</div>
+<h2>Sprint chronicle (12–22)</h2>
+
+<p>
+The complete chronology of the last eleven development sprints. Each sprint
+delivered a closed product artefact with tests and versioned documentation in
+<code>docs/strategic-platform-plan.md</code>.
+</p>
+
+<table class="sprint-table">
+  <thead>
+    <tr>
+      <th>Sprint</th>
+      <th>Delivered</th>
+      <th>Significance</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>12</td>
+      <td>Trade Documentation Hub — landing + Commercial Invoice + Packing List</td>
+      <td>First of the schema-sharing forms</td>
+    </tr>
+    <tr>
+      <td>13</td>
+      <td>Documentation Hub — Proforma Invoice + Certificate of Origin</td>
+      <td>Four trade-document types live</td>
+    </tr>
+    <tr>
+      <td>14</td>
+      <td>Insurance Marketplace MVP</td>
+      <td>Marine cargo calculator, ICC A/B/C, 12% commission</td>
+    </tr>
+    <tr>
+      <td>15</td>
+      <td>Buyer Verification MVP</td>
+      <td>17 registry jurisdictions, 6 tier-1 buyers</td>
+    </tr>
+    <tr>
+      <td>16</td>
+      <td>Sample Management Service MVP</td>
+      <td>HK consolidation, 6 weight bands, 7 regions</td>
+    </tr>
+    <tr>
+      <td>17</td>
+      <td>Returns &amp; Reverse Logistics MVP</td>
+      <td>3-route comparison, category viability, recovery engine</td>
+    </tr>
+    <tr>
+      <td>18</td>
+      <td>Customer Dashboard — skeleton, stub auth, aggregator</td>
+      <td>First logged-in layer; architectural decision deferred</td>
+    </tr>
+    <tr>
+      <td>19</td>
+      <td>Multi-modal Routing — Tier 2 #1</td>
+      <td>4-mode comparison, China–EU rail viability gate</td>
+    </tr>
+    <tr>
+      <td>20</td>
+      <td>Customs &amp; Bonded Solutions — Tier 2 #2</td>
+      <td>HS duty + 27 VAT rates, preferential FTAs, bonded math</td>
+    </tr>
+    <tr>
+      <td>21</td>
+      <td>Warehouse / 3PL — Tier 2 #3</td>
+      <td>6 EU hubs, 6×6 outbound matrix, 6 VAS services</td>
+    </tr>
+    <tr>
+      <td>22</td>
+      <td>Platform navigation restructure</td>
+      <td>Single source of truth (<code>js/site-nav.js</code>); 14 links → 5 grouped</td>
+    </tr>
+  </tbody>
+</table>
+
+<h3>11.1 Sprint 22 — navigation restructure</h3>
+
+<p>
+After three new Tier 2 tools shipped in sprints 19–21, the platform's primary
+navigation had grown to fourteen top-level links. Sprint 22 refactored it into
+a <strong>single source of truth</strong> in <code>js/site-nav.js</code>. Thirty
+pages now use the placeholder <code>&lt;header data-site-header&gt;&lt;/header&gt;</code>,
+which is rendered by that script.
+</p>
+
+<p>
+The new structure has <strong>five top-level items</strong>: Home · Platform ·
+<em>Tools ▾</em> · Dashboard · Pricing. The <em>Tools</em> mega-dropdown groups
+the nine tools into three sections (Compliance &amp; Docs / Trade Services /
+Logistics) with a one-line description for each. Adding new tools (Marketplace,
+Export Services to Asia) now requires editing the <code>NAV</code> object in
+a single file — not 32 HTML files.
+</p>
+
+<!-- =============== SECTION 12 — ROADMAP =============== -->
+<div class="kicker">Section 12</div>
+<h2>Roadmap and conclusions</h2>
+
+<div class="roadmap-section done">
+  <h4>✓ Completed — Phase 1 + Tier 1 + 3 of 5 Tier 2</h4>
+  <ul>
+    <li>Compliance Engine: 4 regulations, 56 chunks, agent with 9 tools</li>
+    <li>Tier 1: Documentation Hub · Insurance · Buyer Verification · Samples · Returns</li>
+    <li>Tier 2: Multi-modal Routing · Customs &amp; Bonded · Warehouse / 3PL</li>
+    <li>Customer Dashboard skeleton with stub auth</li>
+    <li>Platform navigation restructure (Sprint 22)</li>
+  </ul>
+</div>
+
+<div class="roadmap-section now">
+  <h4>→ Next steps — directional choice</h4>
+  <p>
+    The next candidates, ordered by potential leverage:
+  </p>
+  <ul>
+    <li>
+      <strong>Phase 2 — operational backbone:</strong> production authentication
+      integration (Supabase / Auth.js / Clerk), server-persisted dashboard state,
+      document portal on S3 / Supabase, internal quote-to-booking workflow tool.
+    </li>
+    <li>
+      <strong>Tier 2 — remaining items:</strong> Marketplace (a two-sided
+      supplier–buyer marketplace), Export Services to Asia (the reverse flow).
+    </li>
+    <li>
+      <strong>Remaining agents:</strong> Sourcing Agent, Logistics Agent, Finance
+      Agent, Operations Orchestrator (sits in the dashboard, routes across the
+      four specialists).
+    </li>
+    <li>
+      <strong>Monetisation:</strong> Stripe Billing wired to pricing CTAs,
+      Stripe Tax for EU VAT, usage tracking from day one.
+    </li>
+  </ul>
+</div>
+
+<div class="roadmap-section future">
+  <h4>○ Tier 3 — 18+ month horizon</h4>
+  <ul>
+    <li>Embedded Finance — built-in trade finance</li>
+    <li>Sustainability &amp; ESG Reporting — CSRD/Scope 3 reporting</li>
+    <li>OrcaTrade Academy — SME import education</li>
+    <li>Industry Verticalisation — sector-specific specialisations</li>
+    <li>Trade Data Product — a trade-data product line</li>
+  </ul>
+</div>
+
+<h3>12.1 Strategic conclusions</h3>
+
+<p>
+After eleven sprints, the platform is at a stage where its product base covers
+<strong>the entire material span of the five-stage import journey</strong>. Each
+of the nine tools functions independently while simultaneously closing the larger
+whole. Engineering discipline (zero-dep, deterministic calculations, pricing
+snapshots, 381 tests) ensures that adding subsequent tools does not generate
+technical debt.
+</p>
+
+<p>
+Three signals indicating project maturity:
+</p>
+
+<ol>
+  <li>
+    <strong>Repeatability of the implementation pattern</strong> — each of the
+    three Tier 2 tools shipped in a single sprint with an identical package
+    (lib + api + landing + quote + tests). The unit-cost of adding a new tool
+    is predictable.
+  </li>
+  <li>
+    <strong>Architecture holds up under growth</strong> — the navigation refactor
+    (Sprint 22) was needed but cheap. A good signal that the architecture is not
+    falling into a technical-debt trap as features accumulate.
+  </li>
+  <li>
+    <strong>No gap in the compliance layer</strong> — where competitors focus on
+    a single regulation (most often CBAM), OrcaTrade has four in production with
+    a conversational agent able to orchestrate them in a single client conversation.
+  </li>
+</ol>
+
+<div class="quote-block">
+  The direction remains unchanged — the project's north star, set by the founder,
+  is <strong>"let's make orcatrade big."</strong> The platform thesis finds confirmation
+  in shipped product. The next move is the disciplined delivery of the remaining
+  roadmap items and the first commercial pilots with Polish and German SMEs in the
+  e-commerce segment.
+</div>
+
+<div class="footer-line">
+  <span>OrcaTrade Group · Holding · Warsaw · London · Hong Kong</span>
+  <span>Platform Progress Report · v1.0 · 7 May 2026</span>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaTrade Platform — Asia → Europe Import Operating System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="From 'I don't know how to do this' to goods on the warehouse floor. Five stages of the import journey — Find it · Verify it · Ship it · Finance it — coordinated on one platform.">
+  <meta property="og:title" content="OrcaTrade Platform — Asia → Europe Import Operating System" />
+  <meta property="og:description" content="Five stages of the import journey, on one platform. AI agents, verified suppliers, EU-first compliance, Hong Kong feet on the ground." />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/platform/" />
+  <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/platforma/" />
+  <link rel="alternate" hreflang="de" href="https://www.orcatrade.pl/de/plattform/" />
+  <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/platform/" />
+  <style>
+    /* ── PLATFORM-SPECIFIC ── */
+    .stage {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: clamp(2rem, 4vw, 4rem);
+      align-items: start;
+      padding: clamp(3rem, 6vw, 6rem) 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .stage:first-of-type { border-top: none; }
+    @media (max-width: 880px) {
+      .stage { grid-template-columns: 1fr; }
+    }
+    .stage-marker {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      position: sticky;
+      top: 7rem;
+    }
+    .stage-num {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: clamp(3rem, 6vw, 4.4rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .stage-num em {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--accent-color, #b8bec8);
+    }
+    .stage-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-color, #b8bec8);
+      opacity: 0.85;
+    }
+    .stage-product {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .stage-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.66rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.7);
+      width: fit-content;
+    }
+    .stage-status--live { color: #6fa66f; border-color: rgba(111, 166, 111, 0.4); background: rgba(111, 166, 111, 0.06); }
+    .stage-status--new { color: var(--accent-color, #b8bec8); border-color: rgba(184, 190, 200, 0.4); background: rgba(184, 190, 200, 0.06); }
+    .stage-status--soon { color: #c9a256; border-color: rgba(201, 162, 86, 0.4); background: rgba(201, 162, 86, 0.06); }
+    .stage-status--beta { color: rgba(255, 255, 255, 0.85); border-color: rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.04); }
+
+    .stage-question {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: clamp(1.6rem, 2.4vw + 0.6rem, 2.4rem);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+      color: rgba(255, 255, 255, 0.96);
+    }
+    .stage-question em { font-style: italic; color: var(--accent-color, #b8bec8); }
+    .stage-answer {
+      font-size: 1rem;
+      line-height: 1.72;
+      color: rgba(255, 255, 255, 0.78);
+      margin-bottom: 1.6rem;
+      max-width: 56ch;
+    }
+    .stage-bullets {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.8rem;
+      display: grid;
+      gap: 0.7rem;
+    }
+    .stage-bullets li {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+      display: flex;
+      gap: 0.7rem;
+    }
+    .stage-bullets li::before {
+      content: "▸";
+      flex-shrink: 0;
+      color: var(--accent-color, #b8bec8);
+    }
+    .stage-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.84rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--accent-color, #b8bec8);
+      padding-bottom: 0.2rem;
+      border-bottom: 1px solid rgba(184, 190, 200, 0.4);
+      transition: border-color 0.18s, color 0.18s;
+    }
+    .stage-link:hover { color: #fff; border-color: #fff; }
+
+    /* Stage rail — vertical timeline element */
+    .stage-rail {
+      position: fixed;
+      left: 1.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem 0.7rem;
+      background: rgba(8, 12, 22, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .stage-rail a {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.18s;
+      text-decoration: none;
+    }
+    .stage-rail a::before {
+      content: "";
+      width: 0.55rem;
+      height: 0.55rem;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .stage-rail a.active { color: #fff; }
+    .stage-rail a.active::before { background: var(--accent-color, #b8bec8); border-color: var(--accent-color, #b8bec8); }
+    .stage-rail a:hover { color: rgba(255, 255, 255, 0.9); }
+    @media (max-width: 1280px) { .stage-rail { display: none; } }
+
+    /* Manifesto section */
+    .manifesto {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-top: 2.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.07);
+    }
+    .manifesto-card {
+      background: #0d0f14;
+      padding: 1.8rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .manifesto-card .h {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .manifesto-card .p {
+      font-size: 0.86rem;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.72);
+    }
+    @media (max-width: 720px) { .manifesto { grid-template-columns: 1fr; } }
+  </style>
+</head>
+
+<body>
+
+  <!-- AURORA -->
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <!-- STAGE RAIL · vertical journey indicator (desktop) -->
+  <nav class="stage-rail" aria-label="Journey stages">
+    <a href="#stage-1" data-rail="stage-1">01 · Find</a>
+    <a href="#stage-2" data-rail="stage-2">02 · Source</a>
+    <a href="#stage-3" data-rail="stage-3">03 · Verify</a>
+    <a href="#stage-4" data-rail="stage-4">04 · Ship</a>
+    <a href="#stage-5" data-rail="stage-5">05 · Finance</a>
+  </nav>
+
+  <!-- PAGE TOC · right-edge dot navigation -->
+  <nav class="page-toc" aria-label="Page navigation">
+    <a href="#top" data-toc="top"><span>Top</span></a>
+    <a href="#journey" data-toc="journey"><span>Journey</span></a>
+    <a href="#why" data-toc="why"><span>Why us</span></a>
+    <a href="#cta" data-toc="cta"><span>Engage</span></a>
+  </nav>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <!-- HERO -->
+      <section class="section unit-hero" id="top">
+        <a href="../index.html" class="back-link">← Back to OrcaTrade Group</a>
+        <div class="hero-kicker" data-reveal="hero">The platform · One operating layer</div>
+        <h1 class="unit-hero-title" data-reveal="hero">From <em>"I don't know how to do this"</em><br>to goods on the warehouse floor.</h1>
+        <p class="unit-hero-body" data-reveal="hero">
+          Importing from Asia is a five-stage journey. Most importers stitch it together themselves across
+          freight forwarders, sourcing agents, customs brokers, compliance consultants, and banks. We
+          built one platform that runs the whole flow — backed by AI agents, verified suppliers, EU-first
+          compliance, and feet on the ground in Hong Kong.
+        </p>
+
+        <div class="hero-meta" data-reveal="hero">
+          <div class="hero-tag">Find · Verify · Ship · Finance</div>
+          <div class="hero-divider"></div>
+          <div class="hero-detail">5 stages · 1 platform · Asia → Europe</div>
+        </div>
+
+        <div class="hero-actions" data-reveal="hero" style="margin-top:1.4rem;">
+          <a class="btn btn-primary" href="#journey">See the five stages</a>
+          <a class="btn btn-ghost" href="../pricing/">See pricing</a>
+        </div>
+      </section>
+
+      <!-- JOURNEY -->
+      <section class="section" id="journey">
+        <div class="section-kicker">The five-stage journey</div>
+        <h2 class="section-title">Each stage answers one question.</h2>
+        <p class="section-intro">Five products, but the customer experiences one journey from "where do I find it?" to "how do I pay for it?"</p>
+
+        <!-- STAGE 01 · FIND -->
+        <article class="stage" id="stage-1">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 01</div>
+            <div class="stage-num"><em>Find</em> it</div>
+            <div class="stage-product">OrcaTrade Search</div>
+            <div class="stage-status stage-status--beta">Beta</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"Where do I <em>find</em> the right supplier?"</h3>
+            <p class="stage-answer">
+              AI factory search across vetted Asian manufacturers. Filter by category, country,
+              MOQ, and certifications. No more weeks of digging through Alibaba or 1688 trying to
+              tell real factories from trading companies.
+            </p>
+            <ul class="stage-bullets">
+              <li>Curated database of pre-vetted manufacturers across China, Vietnam, India</li>
+              <li>Filter by capability, capacity, MOQ, certifications, export track record</li>
+              <li>Two-mode search: real knowledge mode and honesty mode</li>
+              <li>Returns 3–5 candidates with comparable scoring, not 500 unranked results</li>
+            </ul>
+            <a href="../search/" class="stage-link">Open Search →</a>
+          </div>
+        </article>
+
+        <!-- STAGE 02 · SOURCE -->
+        <article class="stage" id="stage-2">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 02</div>
+            <div class="stage-num"><em>Source</em> it</div>
+            <div class="stage-product">OrcaTrade Sourcing</div>
+            <div class="stage-status stage-status--live">Live</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"How do I <em>negotiate</em>, sample, and contract?"</h3>
+            <p class="stage-answer">
+              Asia procurement and quality control, end-to-end. Sample coordination,
+              price negotiation, factory audits, and structured QC gates so you don't catch
+              defects at your warehouse dock.
+            </p>
+            <ul class="stage-bullets">
+              <li>Supplier scouting and vetting against your spec, volume, and compliance needs</li>
+              <li>Sample coordination and golden-sample lock-down</li>
+              <li>Pre-prod, mid-prod, and pre-shipment QC inspections</li>
+              <li>Price and payment-term negotiation on your behalf</li>
+            </ul>
+            <a href="../sourcing.html" class="stage-link">Open Sourcing →</a>
+          </div>
+        </article>
+
+        <!-- STAGE 03 · VERIFY -->
+        <article class="stage" id="stage-3">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 03 · Flagship</div>
+            <div class="stage-num"><em>Verify</em> it</div>
+            <div class="stage-product">OrcaTrade Intelligence</div>
+            <div class="stage-status stage-status--live">Live</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"Is this supplier <em>safe</em>? Am I <em>compliant</em>?"</h3>
+            <p class="stage-answer">
+              Three live pillars: shipment visibility, factory risk scoring, EU compliance.
+              The new flagship CBAM analysis returns a regulatory brief in seconds — every claim cited
+              to the regulation, every figure with the math shown.
+            </p>
+            <ul class="stage-bullets">
+              <li>Shipment tracking with route pressure and disruption forecasts</li>
+              <li>Factory scoring across risk, audit, capacity, stability, compliance</li>
+              <li>CBAM, EUDR, CSDDD applicability with article-level citations</li>
+              <li>Confidence badges throughout — missing evidence is never marked ready</li>
+            </ul>
+            <a href="../intelligence.html" class="stage-link">Open Intelligence →</a>
+          </div>
+        </article>
+
+        <!-- STAGE 04 · SHIP -->
+        <article class="stage" id="stage-4">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 04 · New</div>
+            <div class="stage-num"><em>Ship</em> it</div>
+            <div class="stage-product">OrcaTrade Logistics</div>
+            <div class="stage-status stage-status--new">New</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"How do I <em>actually move</em> and clear the goods?"</h3>
+            <p class="stage-answer">
+              Asset-light import management. We coordinate forwarders, brokers, and inspectors
+              from one desk so you don't get buried in email chains. Hong Kong feet on the ground,
+              Polish licensed customs broker partner, EU-wide last-mile.
+            </p>
+            <ul class="stage-bullets">
+              <li>Tier 1 — Freight Forwarding Lite: booking via vetted forwarders, transactional</li>
+              <li>Tier 2 — Full Import Management: end-to-end run, supplier to warehouse</li>
+              <li>Tier 3 — Compliance &amp; Advisory: CBAM, CE, REACH, EUDR audit packages</li>
+              <li>Sea, air, and China–Europe rail via Małaszewicze</li>
+            </ul>
+            <a href="../logistics/" class="stage-link">Open Logistics →</a>
+          </div>
+        </article>
+
+        <!-- STAGE 05 · FINANCE -->
+        <article class="stage" id="stage-5">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 05</div>
+            <div class="stage-num"><em>Finance</em> it</div>
+            <div class="stage-product">OrcaTrade Finance</div>
+            <div class="stage-status stage-status--soon">Coming Soon</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"How do I <em>pay</em>, hedge, and finance the deal?"</h3>
+            <p class="stage-answer">
+              Trade finance and cross-border payments designed around the realities of European
+              SMEs sourcing from Asia. Payment-term recommendations, FX hedging suggestions,
+              working-capital options that use the platform's own shipment and supplier data.
+            </p>
+            <ul class="stage-bullets">
+              <li>Payment-term recommendations (LC vs TT vs DA/DP) tied to supplier risk score</li>
+              <li>FX exposure modelling and hedging guidance</li>
+              <li>Trade finance options for cash-flow-constrained importers</li>
+              <li>Multi-currency wallet across EUR, USD, CNY, HKD, PLN</li>
+            </ul>
+            <a href="../finance.html" class="stage-link">Open Finance →</a>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- WHY -->
+      <section class="section" id="why">
+        <div class="section-kicker">Why this works</div>
+        <h2 class="section-title">The moat is operational, not technical.</h2>
+        <p class="section-intro">A horizontal AI platform is easy to build and easy to copy. What you can't copy: years of supplier data, an HK office, and an EU-compliance posture built in from day one.</p>
+
+        <div class="manifesto">
+          <article class="manifesto-card">
+            <div class="h">Hong Kong feet on the ground.</div>
+            <p class="p">Yiu Cheung leads logistics out of Hong Kong. Pure-digital forwarders can't match in-person supplier verification, sample consolidation, or dispute resolution at the SME price point. We can.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">EU-first regulation, not an afterthought.</div>
+            <p class="p">CBAM, EUDR, REACH, CE, RoHS, EU AI Act. Most platforms are American-centric and treat EU regs as bolt-ons. Our compliance engine is the front door, not a sidebar.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">AI agents that operate the platform.</div>
+            <p class="p">Sourcing, Compliance, Logistics, Finance, and an Operations orchestrator. Agents route, execute, and escalate to humans when it matters. Every irreversible action stays human-approved.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">Asset-light by design.</div>
+            <p class="p">No directly operated ships, planes, trucks, or warehouses. We coordinate the partners who already own that capacity. Margins stay healthy and capital requirements bounded.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">Built for SME reality.</div>
+            <p class="p">€50k–€2M annual import volume, 2–50 shipments per year. Big enough to need help, small enough that DSV and K+N won't return your call. We sit in that gap.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">Polish, German, and English first.</div>
+            <p class="p">Every meaningful page lives in EN, PL, and DE. Polish e-commerce founders, German Mittelstand, broader CEE — we speak the languages and the customs systems.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="section" id="cta">
+        <div style="text-align:center; margin-bottom:2rem;">
+          <div class="section-kicker">Engage</div>
+          <h2 class="section-title">Two ways to start.</h2>
+          <p class="section-intro" style="margin: 0 auto;">Run a real CBAM analysis to see the depth of the platform, or request a logistics quote to put a real shipment through.</p>
+        </div>
+
+        <div class="manifesto" style="grid-template-columns: 1fr 1fr;">
+          <article class="manifesto-card spotlight">
+            <div class="h">Generate an EU compliance brief.</div>
+            <p class="p">Tell us what you import. We check CBAM and EUDR — applicability, exposure math, evidence gaps, ranked actions, every claim cited. Free.</p>
+            <a href="../analysis/" class="stage-link" style="margin-top:1rem;">Run the brief →</a>
+          </article>
+          <article class="manifesto-card spotlight">
+            <div class="h">Request a logistics quote.</div>
+            <p class="p">Multi-step form, ~2 minutes. Cargo type, volume, route, Incoterm. We respond within one business day with a quote across our three service tiers.</p>
+            <a href="../logistics/#inquiry" class="stage-link" style="margin-top:1rem;">Request a quote →</a>
+          </article>
+        </div>
+
+        <p style="text-align:center; margin-top:2.5rem; font-size:0.84rem; color: rgba(255,255,255,0.55); letter-spacing: 0.04em;">
+          Or just <a href="../index.html#contact" style="color: var(--accent-color, #b8bec8); border-bottom: 1px dotted rgba(184,190,200,0.4);">say hello</a> and we'll route you.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span>Warsaw, London &amp; Hong Kong • Europe ↔ Asia</span>
+        <span><a href="#top">Back to top</a></span>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/orcatradegroup?igsh=MWpra3YwMGthaWcyMw==" target="_blank" rel="noopener" aria-label="OrcaTrade Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://www.linkedin.com/company/orcatrade-holding/" target="_blank" rel="noopener" aria-label="OrcaTrade LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../js/cache-preferences.js"></script>
+  <script src="../js/site-nav.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/chat.js"></script>
+  <script src="../js/transitions.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    /* PAGE TOC + STAGE RAIL SCROLL-SPY + NAV LIFT */
+    (function () {
+      var tocLinks = document.querySelectorAll('.page-toc a');
+      var railLinks = document.querySelectorAll('.stage-rail a');
+      var headerEl = document.querySelector('header');
+
+      var tocSections = Array.prototype.map.call(tocLinks, function (link) {
+        return document.getElementById(link.getAttribute('href').slice(1));
+      }).filter(Boolean);
+
+      var stages = Array.prototype.map.call(railLinks, function (link) {
+        return document.getElementById(link.getAttribute('href').slice(1));
+      }).filter(Boolean);
+
+      function setActive(links, sections) {
+        if (!sections.length) return;
+        var fromTop = window.scrollY + 160;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= fromTop) current = sections[i];
+        }
+        var activeId = current.id;
+        Array.prototype.forEach.call(links, function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
+        });
+      }
+
+      function onScroll() {
+        if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 24);
+        setActive(tocLinks, tocSections);
+        setActive(railLinks, stages);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    /* CURSOR-FOLLOWING SPOTLIGHT */
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelectorAll('.spotlight').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+          var rect = card.getBoundingClientRect();
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>

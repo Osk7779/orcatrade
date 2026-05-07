@@ -1,0 +1,154 @@
+{
+  "regulation": {
+    "id": "reach",
+    "shortName": "REACH",
+    "longName": "Registration, Evaluation, Authorisation and Restriction of Chemicals",
+    "instrument": "Regulation (EC) No 1907/2006",
+    "adoptedOn": "2006-12-18",
+    "publishedOn": "2006-12-30",
+    "officialJournal": "OJ L 396, 30.12.2006, p. 1",
+    "celex": "32006R1907",
+    "elsLandingUrl": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj",
+    "inForceSince": "2007-06-01",
+    "scope_note": "REACH potentially applies to almost any product imported into the EU that contains chemical substances. Specific obligations depend on substance identity, concentration, and tonnage per importer per year.",
+    "key_thresholds": {
+      "registrationThresholdTonnesPerYear": 1,
+      "svhcConcentrationPercentWW": 0.1,
+      "svhcCommunicationDeadlineDays": 45
+    }
+  },
+  "chunks": [
+    {
+      "id": "reach-art-1",
+      "article": "Art. 1",
+      "title": "Aim and scope",
+      "summary": "REACH lays down rules ensuring a high level of protection of human health and the environment from chemical substances, including the obligation on industry to provide safety information through the supply chain. It applies to substances on their own, in mixtures, and in articles, with specific obligations triggered above defined thresholds.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 1",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_1",
+      "topics": ["scope", "substances", "mixtures", "articles", "supply-chain"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-5-no-data",
+      "article": "Art. 5",
+      "title": "'No data, no market'",
+      "summary": "Substances on their own, in mixtures, or in articles must not be manufactured in or placed on the EU market unless they have been registered under REACH where required. Importers (including non-EU manufacturers acting through an Only Representative) must register substances they import in quantities of one tonne or more per year per legal entity.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 5 and Art. 6",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_5",
+      "topics": ["registration", "no-data-no-market", "tonnage-threshold", "only-representative"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-7-articles",
+      "article": "Art. 7",
+      "title": "Registration and notification of substances in articles",
+      "summary": "Producers and importers of articles must register a substance contained in those articles if both: (a) the substance is present in those articles in quantities totalling over one tonne per producer or importer per year; and (b) the substance is intended to be released under normal or reasonably foreseeable conditions of use. They must notify ECHA of substances on the Candidate List (SVHCs) present above 0.1% w/w and over one tonne per year, unless exposure can be excluded.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 7",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_7",
+      "topics": ["articles", "intentional-release", "svhc-notification", "echa", "0.1-percent-threshold"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-14-csr",
+      "article": "Art. 14",
+      "title": "Chemical safety report",
+      "summary": "For each substance subject to registration in quantities of 10 tonnes or more per year per registrant, a chemical safety assessment must be performed and a chemical safety report (CSR) prepared. The CSR documents the assessment of identified hazards, exposure scenarios, and risk management measures.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 14",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_14",
+      "topics": ["chemical-safety-report", "10-tonnes", "exposure-scenarios", "risk-management"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-31-sds",
+      "article": "Art. 31",
+      "title": "Requirements for Safety Data Sheets",
+      "summary": "Suppliers of substances or mixtures must provide a Safety Data Sheet (SDS) compiled in accordance with Annex II when: the substance/mixture is hazardous; or contains an SVHC at or above 0.1% w/w; or has Community workplace exposure limits. The SDS must be provided in the official language(s) of the Member State(s) where the substance/mixture is placed on the market.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 31",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_31",
+      "topics": ["sds", "safety-data-sheet", "annex-ii", "language-requirements"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-33-svhc-articles",
+      "article": "Art. 33",
+      "title": "Duty to communicate SVHC presence in articles",
+      "summary": "Any supplier of an article containing a substance on the Candidate List (SVHC) at or above 0.1% w/w must provide recipients with sufficient information, available to the supplier, to allow safe use of the article — including, as a minimum, the name of the substance. On request from a consumer, the same information must be provided free of charge within 45 days. The threshold applies per article placed on the market (the 'once an article, always an article' interpretation).",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 33",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_33",
+      "topics": ["svhc-communication", "candidate-list", "0.1-percent", "consumer-request", "45-days"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-56-59-authorisation",
+      "article": "Art. 56–59",
+      "title": "Authorisation procedure (Annex XIV)",
+      "summary": "Substances on Annex XIV (the Authorisation List) cannot be placed on the market or used after the sunset date specified for that substance, unless an authorisation has been granted by the Commission for the specific use, or the use is exempt. The Candidate List (SVHCs identified under Art. 59) is the precursor to Annex XIV.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 56–59 and Annex XIV",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_56",
+      "topics": ["authorisation", "annex-xiv", "sunset-date", "candidate-list", "specific-use"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-67-68-restrictions",
+      "article": "Art. 67–68",
+      "title": "Restrictions (Annex XVII)",
+      "summary": "Substances on their own, in mixtures, or in articles, for which Annex XVII contains a restriction, must not be manufactured, placed on the market, or used unless they comply with the conditions of that restriction. Annex XVII covers substances such as lead in jewellery, cadmium in plastics, certain phthalates in toys, PFOA, asbestos, and many more. The restriction may be a complete ban, a concentration limit, or specific use prohibitions.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 67–68 and Annex XVII",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_67",
+      "topics": ["restrictions", "annex-xvii", "concentration-limit", "ban", "specific-use"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-8-only-representative",
+      "article": "Art. 8",
+      "title": "Only Representative of non-Community manufacturer",
+      "summary": "A natural or legal person established outside the EU who manufactures a substance, formulates a mixture, or produces an article that is imported into the EU may, by mutual agreement, appoint a natural or legal person established in the EU to fulfil the obligations of importers under REACH (Only Representative). Importers covered by an OR are then regarded as downstream users.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 8",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_8",
+      "topics": ["only-representative", "or", "non-eu-manufacturer", "downstream-user"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-art-126-penalties",
+      "article": "Art. 126",
+      "title": "Penalties",
+      "summary": "Member States lay down the provisions on penalties applicable for infringement of REACH. Penalties must be effective, proportionate, and dissuasive. Typical national maxima include criminal liability (imprisonment for serious violations) and administrative fines that can reach low single-digit percentages of annual turnover or fixed-amount caps depending on the member state. Polish CIT-related fines under REACH can reach PLN 60,000+ per violation; German fines can exceed €100,000 per breach. The actual exposure depends on the national legal framework.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 126",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_126",
+      "topics": ["penalties", "member-state", "national-implementation", "criminal-liability"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-svhc-candidate-list",
+      "article": "Candidate List (Art. 59)",
+      "title": "Candidate List of Substances of Very High Concern",
+      "summary": "ECHA maintains a Candidate List of SVHCs identified under Art. 59. The list is updated approximately twice a year (June and December). As of mid-2025, the list contains over 240 entries covering carcinogens, mutagens, reproductive toxins (CMRs), persistent bioaccumulative toxic substances (PBT), endocrine disruptors, and substances of equivalent concern. Inclusion on the Candidate List triggers Art. 33 communication obligations and Art. 7(2) notification obligations.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 59 — ECHA Candidate List",
+      "source_url": "https://echa.europa.eu/candidate-list-table",
+      "topics": ["svhc", "candidate-list", "echa", "cmr", "pbt", "endocrine-disruptor"],
+      "confidence": "summary"
+    },
+    {
+      "id": "reach-importer-definition",
+      "article": "Art. 3(11)",
+      "title": "Definition of 'importer'",
+      "summary": "An 'importer' under REACH means any natural or legal person established within the Union who is responsible for import. Import means the physical introduction into the customs territory of the Union. Each importer has obligations independently — registration, notification, and SDS provision are per-importer, not aggregated across multiple importers of the same substance.",
+      "verbatim": null,
+      "citation": "Regulation (EC) 1907/2006, Art. 3(11)",
+      "source_url": "https://eur-lex.europa.eu/eli/reg/2006/1907/oj#art_3",
+      "topics": ["importer-definition", "customs-territory", "per-importer-obligation"],
+      "confidence": "summary"
+    }
+  ]
+}

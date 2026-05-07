@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Proforma Invoice — Trade Documentation Hub</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Generate a proforma invoice for buyer authorisation, advance payment, or import-permit applications.">
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../../css/styles.css">
+  <link rel="stylesheet" href="../shared/form.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <div class="doc-form-shell">
+        <a href="../" style="font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); text-decoration: none;">← Documentation Hub</a>
+
+        <div style="margin-top: 1.2rem;">
+          <div class="hero-kicker">Document type · Live</div>
+          <h1 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.6rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin: 0.5rem 0 0.6rem; color: rgba(255,255,255,0.97);">Proforma Invoice</h1>
+          <p style="font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.65; max-width: 60ch;">
+            Pre-shipment quote document used for buyer authorisation, advance payment, and import-permit applications. Includes a validity period.
+          </p>
+
+          <div class="scenario-row">
+            <button type="button" class="scenario-btn" data-scenario="cn-electronics">Demo · CN electronics</button>
+            <button type="button" class="scenario-btn" data-scenario="import-invoice">Import from Commercial Invoice draft</button>
+            <button type="button" class="scenario-btn" data-scenario="clear">Clear form</button>
+          </div>
+        </div>
+
+        <form id="proforma-form">
+          <div class="doc-form-grid">
+
+            <div class="doc-form-section">
+              <h2>Exporter / Seller</h2>
+              <div class="field"><label>Company name</label><input name="exporter.companyName" /></div>
+              <div class="field"><label>Street address</label><input name="exporter.streetAddress" /></div>
+              <div class="field-row">
+                <div class="field"><label>City</label><input name="exporter.city" /></div>
+                <div class="field"><label>Country</label><input name="exporter.country" /></div>
+              </div>
+              <div class="field"><label>Tax ID / VAT</label><input name="exporter.taxId" /></div>
+              <div class="field"><label>Email</label><input name="exporter.email" type="email" /></div>
+            </div>
+
+            <div class="doc-form-section">
+              <h2>Consignee / Buyer</h2>
+              <div class="field"><label>Company name</label><input name="consignee.companyName" /></div>
+              <div class="field"><label>Street address</label><input name="consignee.streetAddress" /></div>
+              <div class="field-row">
+                <div class="field"><label>City</label><input name="consignee.city" /></div>
+                <div class="field"><label>Country</label><input name="consignee.country" /></div>
+              </div>
+              <div class="field"><label>EORI</label><input name="consignee.eori" /></div>
+              <div class="field"><label>VAT</label><input name="consignee.taxId" /></div>
+            </div>
+
+            <div class="doc-form-section">
+              <h2>Validity &amp; quote details</h2>
+              <div class="field"><label>Proforma number</label><input name="invoiceNumber" required /></div>
+              <div class="field"><label>Issue date</label><input name="invoiceDate" type="date" required /></div>
+              <div class="field"><label>Valid until</label><input name="validUntil" type="date" required /></div>
+              <div class="field"><label>Currency (ISO)</label><input name="currency" placeholder="EUR" maxlength="3" required /></div>
+              <div class="field"><label>Incoterm</label><input name="incoterm" placeholder="FOB / CIF / DAP / DDP" /></div>
+              <div class="field"><label>Place</label><input name="incotermPlace" /></div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Shipment context (optional)</h2>
+              <div class="field-row">
+                <div class="field"><label>Country of origin</label><input name="countryOfOrigin" /></div>
+                <div class="field"><label>Country of destination</label><input name="countryOfDestination" /></div>
+              </div>
+              <div class="field-row">
+                <div class="field"><label>Mode of transport</label><input name="transportMode" /></div>
+                <div class="field"><label>Estimated lead time</label><input name="poReference" placeholder="e.g. 30 days from PO" /></div>
+              </div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Line items</h2>
+              <table class="line-items-table">
+                <thead>
+                  <tr>
+                    <th style="width: 2rem;">No.</th>
+                    <th>Description</th>
+                    <th style="width: 7rem;">HS code</th>
+                    <th style="width: 6rem;">Quantity</th>
+                    <th style="width: 4rem;">Unit</th>
+                    <th style="width: 8rem;">Unit price</th>
+                    <th style="width: 7rem;">Origin</th>
+                    <th style="width: 5rem;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="line-items-tbody"></tbody>
+              </table>
+              <div class="form-actions" style="margin-top: 0.7rem;">
+                <button type="button" class="btn-ghost" id="add-line">+ Add line item</button>
+              </div>
+            </div>
+
+            <div class="doc-form-section full">
+              <h2>Totals &amp; settlement</h2>
+              <div class="field-row">
+                <div class="field"><label>Freight cost</label><input name="freightCost" type="number" step="0.01" min="0" /></div>
+                <div class="field"><label>Insurance cost</label><input name="insuranceCost" type="number" step="0.01" min="0" /></div>
+              </div>
+              <div class="field"><label>Banking details</label><textarea name="bankingDetails" placeholder="Bank · SWIFT/BIC · Account / IBAN · Beneficiary"></textarea></div>
+              <div class="field"><label>Notes / Terms</label><textarea name="notes" placeholder="Payment terms, delivery terms, validity, special conditions…"></textarea></div>
+              <div class="totals-row">
+                <div class="totals-cell"><span class="totals-label">Subtotal</span><span class="totals-value" id="subtotal-display">€0.00</span></div>
+                <div class="totals-cell"><span class="totals-label">Freight + insurance</span><span class="totals-value" id="extras-display">€0.00</span></div>
+                <div class="totals-cell"><span class="totals-label">Total</span><span class="totals-value" id="total-display">€0.00</span></div>
+              </div>
+              <div class="field-row" style="margin-top: 1.2rem;">
+                <div class="field"><label>Signed by — name</label><input name="signedByName" /></div>
+                <div class="field"><label>Signed by — title</label><input name="signedByTitle" /></div>
+              </div>
+              <div class="field"><label>Signed date</label><input name="signedDate" type="date" /></div>
+            </div>
+          </div>
+
+          <div class="form-msg" id="form-msg"></div>
+
+          <div class="form-actions">
+            <button type="submit" class="btn-primary">Generate proforma invoice</button>
+            <button type="button" class="btn-ghost" id="save-draft">Save draft locally</button>
+            <span style="font-size: 0.74rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em;">Auto-saves while you type</span>
+          </div>
+        </form>
+      </div>
+    </main>
+
+    <footer><div class="footer-inner"><span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span><span><a href="../../index.html">Back to OrcaTrade Group</a></span></div></footer>
+  </div>
+
+  <script src="../../js/site-nav.js"></script>
+  <script src="../../js/main.js"></script>
+  <script src="../shared/form.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

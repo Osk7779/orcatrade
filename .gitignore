@@ -1,0 +1,34 @@
+# OS / editor
+.DS_Store
+*.swp
+*.swo
+.vscode/
+.idea/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Vercel
+.vercel
+
+# Build / cache
+.cache/
+dist/
+out/
+
+# Logs
+logs/
+*.log
+
+# Claude / agent transient state
+/tmp/
+*.pdf
+!docs/*.pdf
