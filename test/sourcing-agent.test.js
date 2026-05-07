@@ -3,7 +3,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const handler = require('../api/sourcing-agent');
+const handler = require('../lib/handlers/sourcing-agent');
 const { TOOLS, toolImpls } = handler;
 
 test('TOOLS exposes 7 named tool schemas', () => {

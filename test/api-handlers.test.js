@@ -1,11 +1,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const evidenceHandler = require('../api/evidence');
-const quickCheckHandler = require('../api/quick-check');
-const reportHandler = require('../api/report');
-const reportsHandler = require('../api/reports');
-const workspaceHandler = require('../api/workspace');
+const evidenceHandler = require('../lib/handlers/evidence');
+const quickCheckHandler = require('../lib/handlers/quick-check');
+const reportHandler = require('../lib/handlers/report');
+const reportsHandler = require('../lib/handlers/reports');
+const workspaceHandler = require('../lib/handlers/workspace');
 const { buildDeterministicFallbackReport } = require('../lib/intelligence/compliance');
 const { createAccountAccessToken, createReportAccessToken, createWorkspaceAccessToken } = require('../lib/intelligence/report-access');
 const { persistComplianceReport } = require('../lib/intelligence/runtime-store');

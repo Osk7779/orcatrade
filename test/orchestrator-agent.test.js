@@ -5,11 +5,11 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const orchestrator = require('../api/orchestrator');
-const compliance = require('../api/agent');
-const logistics = require('../api/logistics-agent');
-const sourcing = require('../api/sourcing-agent');
-const finance = require('../api/finance-agent');
+const orchestrator = require('../lib/handlers/orchestrator');
+const compliance = require('../lib/handlers/agent');
+const logistics = require('../lib/handlers/logistics-agent');
+const sourcing = require('../lib/handlers/sourcing-agent');
+const finance = require('../lib/handlers/finance-agent');
 
 const { TOOLS, toolImpls, classifyTool } = orchestrator;
 

@@ -6,7 +6,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const handler = require('../api/logistics-agent');
+const handler = require('../lib/handlers/logistics-agent');
 const { TOOLS, toolImpls } = handler;
 
 // ── Tool catalogue ───────────────────────────────────────

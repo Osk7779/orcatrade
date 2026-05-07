@@ -68,7 +68,10 @@ function notFound(res) {
 }
 
 async function handleApi(req, res, apiName) {
-  const handlerPath = path.join(ROOT, 'api', `${apiName}.js`);
+  // After Sprint 27 consolidation: handlers live in lib/handlers/, dispatched
+  // through api/[...path].js in production. The dev server skips the dispatcher
+  // and resolves handlers directly for faster reloads.
+  const handlerPath = path.join(ROOT, 'lib', 'handlers', `${apiName}.js`);
   if (!fs.existsSync(handlerPath)) return notFound(res);
   const handler = require(handlerPath);
 
