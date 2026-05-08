@@ -204,6 +204,53 @@ function renderPlan(plan) {
     `;
   }
 
+  const sens = plan.originSensitivity;
+  const originSensitivitySection = sens && sens.matrix && sens.matrix.length > 1 ? `
+    <div class="result-section">
+      <h3>${T.secOriginSensitivity}</h3>
+      <p>${T.originSensitivityIntro}</p>
+      ${sens.savingEurVsUserOrigin > 0 && sens.savingPctVsUserOrigin >= 5
+        ? `<div class="origin-saving-callout">
+             <p>${T.originSensitivitySaving(sens.savingEurVsUserOrigin, sens.savingPctVsUserOrigin, escapeHtml(sens.cheapestOrigin))}</p>
+           </div>` : ''}
+      <div class="origin-matrix-wrap">
+        <table class="origin-matrix">
+          <thead>
+            <tr>
+              <th>${T.originColCountry}</th>
+              <th>${T.originColDuty}</th>
+              <th>${T.originColTransport}</th>
+              <th>${T.originColMode}</th>
+              <th>${T.originColLanded}</th>
+              ${sens.shipmentsPerYear ? `<th>${T.originColAnnual}</th>` : ''}
+              <th>${T.originColPreferential}</th>
+              <th>${T.originColTradeDefence}</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${sens.matrix.map((e, i) => {
+              const isCheapest = i === 0 && !e.isUserChoice;
+              const cls = e.isUserChoice ? 'is-user' : (isCheapest ? 'is-cheapest' : '');
+              const tag = e.isUserChoice
+                ? `<span class="origin-tag user">${T.originSensitivityYourPick}</span>`
+                : (isCheapest ? `<span class="origin-tag cheapest">${T.originSensitivityCheapest}</span>` : '');
+              return `<tr class="${cls}">
+                <td><strong>${escapeHtml(e.origin)}</strong> ${tag}</td>
+                <td>${e.dutyRatePct.toFixed(1)}%</td>
+                <td>${fmtEur(e.transportEur)}</td>
+                <td>${escapeHtml(e.transportMode)}</td>
+                <td><strong>${fmtEur(e.perShipmentLandedTotal)}</strong></td>
+                ${sens.shipmentsPerYear ? `<td>${fmtEur(e.annualLandedTotal)}</td>` : ''}
+                <td>${e.preferentialApplied ? `<span class="badge pref">${escapeHtml(e.preferentialApplied)}</span>` : '—'}</td>
+                <td>${e.tradeDefenceMeasures.length ? `<span class="badge td">${e.tradeDefenceMeasures.length} measure${e.tradeDefenceMeasures.length > 1 ? 's' : ''}</span>` : '—'}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  ` : '';
+
   const complianceRegimes = plan.compliance?.regimes || [];
   const complianceSection = `
     <div class="result-section">
@@ -289,6 +336,8 @@ function renderPlan(plan) {
       ${preferentialBlock}
       ${originNotes}
     </div>
+
+    ${originSensitivitySection}
 
     ${complianceSection}
 
