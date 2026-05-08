@@ -428,5 +428,6 @@ prefers a different ordering than I would naively pick.
 | 2026-05-08 | Sprint M — Trade defence SEO pages | 1 page per AD/CVD measure × 3 locales = 96 new pages. Each cites EU regulation, includes worked landed-cost example, CTAs into wizard with HS pre-filled. Total guides: 351 → 447. 699/699 tests. |
 | 2026-05-08 | Sprint N — Preferential origin SEO pages | 7 regime guides (EBA/GSP+/GSP/EVFTA/EUKFTA/EUJEPA/ATR) + 7 country pivots × 3 locales = 45 new pages. Total guides: 447 → 492. 719/719 tests. |
 | 2026-05-08 | Sprint O — Compliance overlay SEO pages | 13 regimes (CBAM/EUDR/REACH/CE×2/RoHS/WEEE/Battery/Toy/Cosmetics/GPSR/PPWR/Footwear) × 3 locales = 42 new pages. Total guides: 492 → 534. Completes the H0→SEO trilogy. 737/737 tests. |
+| 2026-05-08 | Sprint H — Annual TCO calculator | Procurement-grade view: annual scaling, inventory carrying cost (avg inventory × WACC × days/365), 3PL roll-up, bonded deferral hint, sensitivity at 6/12/24/52 shipments/year. New wizard fields shipmentsPerYear / waccPct / daysInInventory in step 5. 757/757 tests. |
 
 When you complete a sprint, append here.

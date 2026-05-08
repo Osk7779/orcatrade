@@ -112,6 +112,11 @@ select { cursor: pointer; }
 .compliance-link { display: inline-block; margin-top: 0.5rem; font-size: 0.82rem; color: var(--accent-color, #b8bec8); text-decoration: none; font-weight: 600; }
 .compliance-link:hover { color: rgba(255,255,255,0.95); }
 
+.tco-stats .result-stat .sub { font-size: 0.7rem; color: rgba(255,255,255,0.4); margin-top: 0.3rem; line-height: 1.4; }
+.tco-sensitivity-heading { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.1rem; font-weight: 600; color: rgba(255,255,255,0.9); margin: 1.6rem 0 0.4rem; }
+.origin-matrix.tco-sensitivity tbody tr.is-user { background: rgba(95, 181, 107, 0.08); }
+.origin-matrix.tco-sensitivity tbody tr.is-user td { color: rgba(255,255,255,0.97); }
+
 .fx-callout { margin: 1rem 0; padding: 1rem 1.2rem; border-left: 3px solid; }
 .fx-callout p { margin-bottom: 0.5em; font-size: 0.92rem; line-height: 1.6; color: rgba(255,255,255,0.85); max-width: none; }
 .fx-callout .fx-rec { font-family: 'Geist Mono', monospace; font-size: 0.84rem; letter-spacing: 0.06em; margin-top: 0.6rem; }

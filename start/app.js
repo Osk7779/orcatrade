@@ -20,6 +20,7 @@ const SHARE_KEYS = [
   'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg',
   'claimPreferential', 'hsCode', 'moq', 'targetFobUnitEur',
   'quoteCurrency', 'paymentTermsDays',
+  'shipmentsPerYear', 'waccPct', 'daysInInventory',
 ];
 
 function encodeShareInputs(inputs) {
@@ -109,7 +110,7 @@ function readForm() {
     if (v === '') continue;
     out[k] = v;
   }
-  ['customsValueEur', 'weightKg', 'linesCount', 'urgencyWeeks', 'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg', 'paymentTermsDays'].forEach(k => {
+  ['customsValueEur', 'weightKg', 'linesCount', 'urgencyWeeks', 'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg', 'paymentTermsDays', 'shipmentsPerYear', 'waccPct', 'daysInInventory'].forEach(k => {
     if (out[k] !== undefined) out[k] = Number(out[k]);
   });
   out.claimPreferential = out.claimPreferential === 'true';
@@ -201,6 +202,55 @@ function renderPlan(plan) {
       <div class="preferential-callout warning">
         <div class="pref-header">ℹ ${escapeHtml(prefAvailable.name)}</div>
         <p>${escapeHtml(prefAvailable.notes)}</p>
+      </div>
+    `;
+  }
+
+  const tcoData = plan.tco;
+  let tcoSection = '';
+  if (tcoData && tcoData.ok) {
+    const m = tcoData.main;
+    const i = tcoData.inputs;
+    const sensitivityRows = tcoData.sensitivity.map(s => `
+      <tr${s.shipmentsPerYear === i.shipmentsPerYear ? ' class="is-user"' : ''}>
+        <td><strong>${s.shipmentsPerYear}</strong>${s.shipmentsPerYear === i.shipmentsPerYear ? ' ✓' : ''}</td>
+        <td>${fmtEur(s.annualCustomsValueEur)}</td>
+        <td>${fmtEur(s.annualTransportEur)}</td>
+        <td>${fmtEur(s.inventoryCarryingCostEur)}</td>
+        <td><strong>${fmtEur(s.annualNetCost)}</strong></td>
+      </tr>
+    `).join('');
+
+    tcoSection = `
+      <div class="result-section">
+        <h3>${T.secTco}</h3>
+        <p>${T.tcoIntro(i.shipmentsPerYear)}</p>
+        <div class="result-stats tco-stats">
+          <div class="result-stat"><div class="num">${fmtEur(m.annualNetCostWithWarehouse)}</div><div class="label">${T.tcoStatNet}</div><div class="sub">${T.tcoStatNetSub}</div></div>
+          <div class="result-stat"><div class="num">${fmtEur(m.annualCashFlowCostWithWarehouse)}</div><div class="label">${T.tcoStatCash}</div><div class="sub">${T.tcoStatCashSub}</div></div>
+          <div class="result-stat"><div class="num">${fmtEur(m.annualCustomsValueEur)}</div><div class="label">${T.tcoStatThroughput}</div><div class="sub">${T.tcoStatThroughputSub}</div></div>
+          <div class="result-stat"><div class="num">${fmtEur(m.inventoryCarryingCostEur)}</div><div class="label">${T.tcoStatCarrying}</div><div class="sub">${T.tcoStatCarryingSub(i.daysInInventory, i.waccPct)}</div></div>
+        </div>
+        <p>${T.tcoCostPerEur(tcoData.costPerEurThroughputBp)}</p>
+        ${tcoData.bonded.worthExploring ? `<p class="secondary-note">${T.tcoBondedHint(tcoData.bonded.potentialDeferralValueEur)}</p>` : ''}
+
+        <h4 class="tco-sensitivity-heading">${T.tcoSensitivity}</h4>
+        <div class="origin-matrix-wrap">
+          <table class="origin-matrix tco-sensitivity">
+            <thead>
+              <tr>
+                <th>${T.tcoColFreq}</th>
+                <th>${T.tcoColCustoms}</th>
+                <th>${T.tcoColTransport}</th>
+                <th>${T.tcoColCarrying}</th>
+                <th>${T.tcoColNet}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${sensitivityRows}
+            </tbody>
+          </table>
+        </div>
       </div>
     `;
   }
@@ -361,6 +411,8 @@ function renderPlan(plan) {
       ${preferentialBlock}
       ${originNotes}
     </div>
+
+    ${tcoSection}
 
     ${fxSection}
 

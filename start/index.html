@@ -209,6 +209,20 @@
                 <input type="number" id="avgOrderWeightKg" name="avgOrderWeightKg" min="0.1" step="0.1" value="2" />
               </div>
             </div>
+            <div class="field-row three">
+              <div>
+                <label for="shipmentsPerYear">Shipments / year (TCO)</label>
+                <input type="number" id="shipmentsPerYear" name="shipmentsPerYear" min="1" max="365" value="12" />
+              </div>
+              <div>
+                <label for="waccPct">Cost of capital (%)</label>
+                <input type="number" id="waccPct" name="waccPct" min="0" max="50" step="0.5" value="8" />
+              </div>
+              <div>
+                <label for="daysInInventory">Avg days in inventory</label>
+                <input type="number" id="daysInInventory" name="daysInInventory" min="0" max="365" value="60" />
+              </div>
+            </div>
           </div>
 
           <!-- STEP 6: Email -->
