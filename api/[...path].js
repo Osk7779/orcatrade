@@ -41,6 +41,8 @@ const handlers = {
   // and GET /api/billing/me. Webhook needs raw-body access for signature
   // verification — see getRawBody() in the handler.
   billing: require('../lib/handlers/billing'),
+  // RSS / Atom feed (Sprint AE). /feed.xml + /atom.xml rewrite to here.
+  feed: require('../lib/handlers/feed'),
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),
