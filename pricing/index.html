@@ -676,6 +676,45 @@
       }).catch(function () { /* silent */ });
     })();
 
+    /* SPRINT 41 — Stripe Checkout for subscribe-action CTAs. Falls back to
+       /account/ (sign-in) when the user is not authenticated, and to the
+       contact page when Stripe is not configured server-side. */
+    (function () {
+      function billingCycle() { return document.body.getAttribute('data-billing') || 'monthly'; }
+      var ctas = document.querySelectorAll('[data-action="subscribe"]');
+      ctas.forEach(function (cta) {
+        cta.addEventListener('click', function (e) {
+          var tierId = cta.getAttribute('data-tier');
+          if (!tierId || tierId === 'free' || tierId === 'enterprise') return; // honour href
+          e.preventDefault();
+          cta.classList.add('cta-loading');
+          fetch('/api/billing/checkout', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tierId: tierId, billingCycle: billingCycle() }),
+          }).then(function (r) {
+            return r.json().then(function (j) { return { status: r.status, json: j }; });
+          }).then(function (out) {
+            cta.classList.remove('cta-loading');
+            if (out.status === 401) {
+              window.location.href = '/account/?return=' + encodeURIComponent('/pricing/');
+              return;
+            }
+            if (out.status === 200 && out.json.url) {
+              window.location.href = out.json.url;
+              return;
+            }
+            // Fallback: keep the original contact href the user expected
+            window.location.href = cta.getAttribute('href') || '/';
+          }).catch(function () {
+            cta.classList.remove('cta-loading');
+            window.location.href = cta.getAttribute('href') || '/';
+          });
+        });
+      });
+    })();
+
     /* CURSOR-FOLLOWING SPOTLIGHT */
     (function () {
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;

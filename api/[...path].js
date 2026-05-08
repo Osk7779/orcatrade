@@ -37,6 +37,10 @@ const handlers = {
   // Subscription tier catalogue + per-user resolution (Sprint 40).
   // GET /api/tiers (public) | GET /api/tiers/me (auth).
   tiers: require('../lib/handlers/tiers'),
+  // Stripe billing (Sprint 41). POST /api/billing/{checkout,portal,webhook}
+  // and GET /api/billing/me. Webhook needs raw-body access for signature
+  // verification — see getRawBody() in the handler.
+  billing: require('../lib/handlers/billing'),
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),
