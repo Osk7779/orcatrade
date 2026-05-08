@@ -434,5 +434,6 @@ prefers a different ordering than I would naively pick.
 | 2026-05-08 | Sprint S — Wizard PDF export | @media print CSS rules (A4, light theme, hide chrome, page breaks, URLs after links). Print-only header with brand/route summary/date. "Save as PDF" + "Print" buttons calling window.print(). i18n EN/PL/DE. 811/811 tests. |
 | 2026-05-08 | Sprint Y — Worked example gallery | 8 curated import scenarios (CN apparel, BD-EBA, VN-EVFTA, CN e-bikes 87% AD+CVD, CN aluminium+CBAM, TR steel A.TR+AD, IN cosmetics, KR machinery EUKFTA) × 3 locales = 27 pages. Each runs composePlan, surfaces real numbers, links to wizard with permalink. Total guides: 534 → 561. 828/828 tests. |
 | 2026-05-08 | Sprint AA — Homepage examples feature | New "Worked examples" section between hero and mission on EN/PL/DE homepages. 3 featured cards (e-bike 87% AD+CVD, BD EBA, TR A.TR+AD) + "See all 8 examples" link. PL/DE homepages also gained a primary `/start/` CTA replacing the old `#group` anchor. 846/846 tests. |
+| 2026-05-08 | Sprint R — Sitemap hreflang | xhtml:link rel="alternate" hreflang=en/pl/de/x-default emitted in sitemap.xml + sitemap-guides.xml for all 210+ H0 + example URLs. Sub-generators now expose hreflangAlternates on return; sitemap builder consumes it. 840 xhtml:link entries total. 857/857 tests. |
 
 When you complete a sprint, append here.

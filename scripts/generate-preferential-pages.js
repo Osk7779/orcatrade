@@ -534,6 +534,7 @@ function generateRegimePage(regime, locale) {
     canonical,
     relPath: `${locale === 'en' ? '' : locale + '/'}guides/preferential-origin/${regime.slug}/index.html`,
     html: pageShell({ locale, title, description, canonical, jsonLd, body, hreflangAlternates }),
+    hreflangAlternates,
   };
 }
 
@@ -623,6 +624,7 @@ function generatePivotPage(pivot, locale) {
     canonical,
     relPath: `${locale === 'en' ? '' : locale + '/'}guides/preferential-origin/from-${originLower}/index.html`,
     html: pageShell({ locale, title, description, canonical, jsonLd, body, hreflangAlternates }),
+    hreflangAlternates,
   };
 }
 
@@ -705,6 +707,7 @@ function generateIndexPage(locale) {
       body,
       hreflangAlternates,
     }),
+    hreflangAlternates,
   };
 }
 

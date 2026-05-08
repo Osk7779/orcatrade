@@ -428,6 +428,7 @@ function generateDetailPage(measure, locale) {
     canonical,
     relPath: `${locale === 'en' ? '' : locale + '/'}guides/trade-defence/${measureSlug}/index.html`,
     html: pageShell({ locale, title, description, canonical, jsonLd, body, hreflangAlternates }),
+    hreflangAlternates,
   };
 }
 
@@ -510,6 +511,7 @@ function generateIndexPage(locale) {
       body,
       hreflangAlternates,
     }),
+    hreflangAlternates,
   };
 }
 

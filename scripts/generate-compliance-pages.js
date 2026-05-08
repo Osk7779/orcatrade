@@ -370,6 +370,7 @@ function generateDetailPage(regime, locale) {
     canonical,
     relPath: `${locale === 'en' ? '' : locale + '/'}guides/compliance/${slug}/index.html`,
     html: pageShell({ locale, title, description, canonical, jsonLd, body, hreflangAlternates }),
+    hreflangAlternates,
   };
 }
 
@@ -447,6 +448,7 @@ function generateIndexPage(locale) {
       body,
       hreflangAlternates,
     }),
+    hreflangAlternates,
   };
 }
 

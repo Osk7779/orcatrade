@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
     <loc>https://orcatrade.pl/</loc>
     <lastmod>2026-05-08</lastmod>
@@ -2330,1260 +2330,2100 @@
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-bicycles/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bicycles/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-bicycle-parts/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bicycle-parts/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-e-bikes-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-e-bikes-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-bev-passenger-cars/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bev-passenger-cars/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-aluminum-extrusions/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-extrusions/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-aluminum-flat-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-aluminum-converter-foil/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-converter-foil/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-hot-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-hot-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-cold-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-cold-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-steel-fasteners/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-steel-fasteners/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-steel-wire-rod/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-steel-wire-rod/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-welded-tubes/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-welded-tubes/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/tr-cold-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/tr-cold-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/id-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/id-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/in-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/in-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-ceramic-tiles/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tiles/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-ceramic-tableware/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tableware/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-tableware-glass/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-tableware-glass/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/eg-fiberglass-fabric/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/eg-fiberglass-fabric/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-citric-acid/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-citric-acid/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-plywood/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-plywood/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-polyester-staple-fibre/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-polyester-staple-fibre/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-hand-pallet-trucks/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-hand-pallet-trucks/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-ironing-boards/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ironing-boards/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/trade-defence/cn-disposable-lighters/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-disposable-lighters/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-bicycles/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bicycles/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-bicycle-parts/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bicycle-parts/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-e-bikes-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-e-bikes-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-bev-passenger-cars/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bev-passenger-cars/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-pneumatic-tyres-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-pneumatic-tyres-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-extrusions/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-extrusions/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-flat-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-converter-foil/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-converter-foil/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-hot-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-hot-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-cold-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-cold-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-steel-fasteners/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-steel-fasteners/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-steel-wire-rod/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-steel-wire-rod/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-welded-tubes/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-welded-tubes/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/tr-cold-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/tr-cold-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/id-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/id-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/in-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/in-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-ceramic-tiles/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tiles/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-ceramic-tableware/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tableware/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-tableware-glass/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-tableware-glass/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-fiberglass-fabric-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-fiberglass-fabric-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/eg-fiberglass-fabric/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/eg-fiberglass-fabric/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-citric-acid/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-citric-acid/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-plywood/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-plywood/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-polyester-staple-fibre/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-polyester-staple-fibre/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-hand-pallet-trucks/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-hand-pallet-trucks/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-ironing-boards/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ironing-boards/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/trade-defence/cn-disposable-lighters/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-disposable-lighters/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-bicycles/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bicycles/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bicycles/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-bicycle-parts/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bicycle-parts/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bicycle-parts/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-e-bikes-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-e-bikes-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-e-bikes-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-e-bikes-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-e-bikes-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-bev-passenger-cars/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-bev-passenger-cars/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-bev-passenger-cars/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-pneumatic-tyres-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-pneumatic-tyres-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-pneumatic-tyres-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-pneumatic-tyres-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-extrusions/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-extrusions/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-extrusions/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-flat-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-flat-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-flat-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-converter-foil/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-aluminum-converter-foil/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-aluminum-converter-foil/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-hot-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-hot-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-hot-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-cold-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-cold-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-steel-fasteners/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-steel-fasteners/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-steel-fasteners/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-steel-wire-rod/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-steel-wire-rod/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-steel-wire-rod/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-welded-tubes/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-welded-tubes/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-welded-tubes/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/tr-cold-rolled-steel/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/tr-cold-rolled-steel/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/tr-cold-rolled-steel/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/id-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/id-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/id-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/in-stainless-cold-rolled/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/in-stainless-cold-rolled/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/in-stainless-cold-rolled/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-ceramic-tiles/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ceramic-tiles/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tiles/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-ceramic-tableware/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ceramic-tableware/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ceramic-tableware/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-tableware-glass/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-tableware-glass/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-tableware-glass/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-fiberglass-fabric-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-fiberglass-fabric-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-fiberglass-fabric-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-fiberglass-fabric-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/eg-fiberglass-fabric/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/eg-fiberglass-fabric/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/eg-fiberglass-fabric/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-citric-acid/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-citric-acid/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-citric-acid/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-plywood/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-plywood/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-plywood/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-polyester-staple-fibre/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-polyester-staple-fibre/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-polyester-staple-fibre/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-hand-pallet-trucks/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-hand-pallet-trucks/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-hand-pallet-trucks/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-ironing-boards/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-ironing-boards/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-ironing-boards/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/trade-defence/cn-disposable-lighters/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/cn-disposable-lighters/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/cn-disposable-lighters/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/eba/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eba/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/gsp-plus/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/gsp-plus/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/gsp-standard/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/gsp-standard/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/evfta/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/evfta/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/eukfta/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eukfta/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/eujepa/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eujepa/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/atr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/atr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/from-bd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-bd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/from-vn/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-vn/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/from-kr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-kr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/from-jp/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-jp/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/from-tr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-tr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/from-in/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-in/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/preferential-origin/from-pk/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-pk/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/eba/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eba/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/gsp-plus/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/gsp-plus/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/gsp-standard/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/gsp-standard/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/evfta/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/evfta/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/eukfta/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eukfta/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/eujepa/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eujepa/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/atr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/atr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/from-bd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-bd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/from-vn/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-vn/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/from-kr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-kr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/from-jp/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-jp/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/from-tr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-tr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/from-in/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-in/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/preferential-origin/from-pk/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-pk/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/eba/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eba/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eba/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/gsp-plus/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/gsp-plus/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/gsp-plus/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/gsp-standard/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/gsp-standard/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/gsp-standard/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/evfta/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/evfta/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/evfta/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/eukfta/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eukfta/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eukfta/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/eujepa/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/eujepa/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/eujepa/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/atr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/atr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/atr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/from-bd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-bd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-bd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/from-vn/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-vn/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-vn/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/from-kr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-kr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-kr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/from-jp/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-jp/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-jp/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/from-tr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-tr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-tr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/from-in/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-in/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-in/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/preferential-origin/from-pk/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/preferential-origin/from-pk/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/preferential-origin/from-pk/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/cbam/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/cbam/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/eudr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/eudr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/reach/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/reach/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/ce-machinery/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ce-machinery/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/ce-lvd-emc-red/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ce-lvd-emc-red/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/rohs/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/rohs/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/weee/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/weee/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/battery/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/battery/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/toy-safety/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/toy-safety/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/cosmetics/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/cosmetics/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/gpsr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/gpsr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/ppwr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ppwr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/guides/compliance/footwear-labelling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/footwear-labelling/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/cbam/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/cbam/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/eudr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/eudr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/reach/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/reach/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/ce-machinery/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ce-machinery/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/ce-lvd-emc-red/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ce-lvd-emc-red/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/rohs/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/rohs/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/weee/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/weee/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/battery/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/battery/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/toy-safety/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/toy-safety/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/cosmetics/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/cosmetics/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/gpsr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/gpsr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/ppwr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ppwr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/guides/compliance/footwear-labelling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/footwear-labelling/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/cbam/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/cbam/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/cbam/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/eudr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/eudr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/eudr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/reach/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/reach/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/reach/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/ce-machinery/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ce-machinery/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ce-machinery/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/ce-lvd-emc-red/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ce-lvd-emc-red/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ce-lvd-emc-red/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/rohs/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/rohs/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/rohs/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/weee/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/weee/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/weee/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/battery/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/battery/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/battery/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/toy-safety/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/toy-safety/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/toy-safety/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/cosmetics/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/cosmetics/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/cosmetics/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/gpsr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/gpsr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/gpsr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/ppwr/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/ppwr/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/ppwr/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/guides/compliance/footwear-labelling/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/compliance/footwear-labelling/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/compliance/footwear-labelling/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/polish-apparel-importer-from-china/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/polish-apparel-importer-from-china/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/bangladesh-apparel-eba-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/bangladesh-apparel-eba-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/vietnam-electronics-evfta-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/vietnam-electronics-evfta-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/cn-aluminium-cbam-plus-32pct-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/turkey-cold-rolled-steel-atr-with-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/cosmetics-india-reach-cosmetics-regulation/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/examples/south-korea-machinery-eukfta-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/south-korea-machinery-eukfta-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/polish-apparel-importer-from-china/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/polish-apparel-importer-from-china/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/bangladesh-apparel-eba-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/bangladesh-apparel-eba-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/vietnam-electronics-evfta-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/vietnam-electronics-evfta-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/cn-aluminium-cbam-plus-32pct-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/turkey-cold-rolled-steel-atr-with-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/cosmetics-india-reach-cosmetics-regulation/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/pl/examples/south-korea-machinery-eukfta-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/south-korea-machinery-eukfta-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/polish-apparel-importer-from-china/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/polish-apparel-importer-from-china/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/polish-apparel-importer-from-china/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/bangladesh-apparel-eba-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/bangladesh-apparel-eba-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/bangladesh-apparel-eba-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/vietnam-electronics-evfta-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/vietnam-electronics-evfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/vietnam-electronics-evfta-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/chinese-ebike-importer-87pct-combined-ad-cvd/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/chinese-ebike-importer-87pct-combined-ad-cvd/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/cn-aluminium-cbam-plus-32pct-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/cn-aluminium-cbam-plus-32pct-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/cn-aluminium-cbam-plus-32pct-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/turkey-cold-rolled-steel-atr-with-ad/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/turkey-cold-rolled-steel-atr-with-ad/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/turkey-cold-rolled-steel-atr-with-ad/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/cosmetics-india-reach-cosmetics-regulation/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/cosmetics-india-reach-cosmetics-regulation/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/cosmetics-india-reach-cosmetics-regulation/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://orcatrade.pl/de/examples/south-korea-machinery-eukfta-zero-duty/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/south-korea-machinery-eukfta-zero-duty/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/south-korea-machinery-eukfta-zero-duty/" />
     <lastmod>2026-05-08</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>

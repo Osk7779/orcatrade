@@ -520,6 +520,7 @@ function generateExamplePage(example, locale) {
     canonical,
     relPath: `${locale === 'en' ? '' : locale + '/'}examples/${example.slug}/index.html`,
     html: pageShell({ locale, title, description, canonical, jsonLd, body, hreflangAlternates }),
+    hreflangAlternates,
   };
 }
 
@@ -573,6 +574,7 @@ function generateIndexPage(locale) {
       description: t.indexDescription,
       canonical, jsonLd, body, hreflangAlternates,
     }),
+    hreflangAlternates,
   };
 }
 

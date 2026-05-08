@@ -2684,12 +2684,24 @@ function generateGuidesRoot() {
 }
 
 // ── Sitemap ────────────────────────────────────────────────
+//
+// When a URL group has hreflangAlternates supplied, we emit each variant
+// as a separate <url> entry with <xhtml:link rel="alternate" hreflang>
+// pointers to the others. Google reads hreflang from sitemap entries even
+// when it skips the in-page <link> tags — so this is the canonical signal.
+
+function renderHreflangLinks(alternates) {
+  if (!alternates || !alternates.length) return '';
+  return '\n    ' + alternates.map(a =>
+    `<xhtml:link rel="alternate" hreflang="${a.lang}" href="${a.href}" />`
+  ).join('\n    ');
+}
 
 function generateSitemap(urls) {
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${urls.map(u => `  <url>
-    <loc>${u.canonical}</loc>
+    <loc>${u.canonical}</loc>${renderHreflangLinks(u.hreflangAlternates)}
     <lastmod>${TODAY}</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -2742,14 +2754,19 @@ function generateMasterSitemap(generatedGuides) {
     { loc: `${SITE_URL}/de/`,                       priority: '0.8', changefreq: 'weekly' },
   ];
 
-  const guideUrls = generatedGuides.map(g => ({ loc: g.canonical, priority: '0.7', changefreq: 'monthly' }));
+  const guideUrls = generatedGuides.map(g => ({
+    loc: g.canonical,
+    priority: '0.7',
+    changefreq: 'monthly',
+    hreflangAlternates: g.hreflangAlternates,
+  }));
 
   const all = [...sitePages, ...guideUrls];
 
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
 ${all.map(u => `  <url>
-    <loc>${u.loc}</loc>
+    <loc>${u.loc}</loc>${renderHreflangLinks(u.hreflangAlternates)}
     <lastmod>${TODAY}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
@@ -2932,7 +2949,7 @@ function run() {
   const tdGenerator = require('./generate-trade-defence-pages');
   const tdPages = tdGenerator.build();
   for (const tdPage of tdPages) {
-    generated.push({ canonical: tdPage.canonical });
+    generated.push({ canonical: tdPage.canonical, hreflangAlternates: tdPage.hreflangAlternates });
   }
   console.log(`Trade defence pages: ${tdPages.length} (already written by sub-generator).`);
 
@@ -2940,7 +2957,7 @@ function run() {
   const prefGenerator = require('./generate-preferential-pages');
   const prefPages = prefGenerator.build();
   for (const p of prefPages) {
-    generated.push({ canonical: p.canonical });
+    generated.push({ canonical: p.canonical, hreflangAlternates: p.hreflangAlternates });
   }
   console.log(`Preferential origin pages: ${prefPages.length} (already written by sub-generator).`);
 
@@ -2948,7 +2965,7 @@ function run() {
   const complianceGenerator = require('./generate-compliance-pages');
   const compliancePages = complianceGenerator.build();
   for (const p of compliancePages) {
-    generated.push({ canonical: p.canonical });
+    generated.push({ canonical: p.canonical, hreflangAlternates: p.hreflangAlternates });
   }
   console.log(`Compliance pages: ${compliancePages.length} (already written by sub-generator).`);
 
@@ -2956,7 +2973,7 @@ function run() {
   const examplesGenerator = require('./generate-example-plans');
   const examplePages = examplesGenerator.build();
   for (const p of examplePages) {
-    generated.push({ canonical: p.canonical });
+    generated.push({ canonical: p.canonical, hreflangAlternates: p.hreflangAlternates });
   }
   console.log(`Example-plan pages: ${examplePages.length} (already written by sub-generator).`);
 
