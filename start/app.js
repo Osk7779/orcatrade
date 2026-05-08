@@ -58,7 +58,16 @@ const els = {
   hero: document.getElementById('hero'),
 };
 
-const state = { current: 1, submitting: false };
+const state = {
+  current: 1,
+  submitting: false,
+  // Sprint AG: scenario toggle state — when the user clicks "re-run with
+  // preferential claimed", we remember the original (baseline) inputs so
+  // they can switch back. scenarioClaimed=true means the current view is
+  // the "claimed" alternate, not the baseline.
+  scenarioClaimed: false,
+  baselineInputs: null,
+};
 
 function showStep(n) {
   state.current = n;
@@ -178,6 +187,16 @@ function renderPlan(plan) {
   const prefAvailable = customs?.preferentialAvailable;
   const prefSavingEur = customs?.preferentialSavingEur || 0;
 
+  // When the user is currently viewing a "what-if claimed" scenario (after
+  // pressing the rerun button), state.scenarioClaimed is true. Show a
+  // sticky banner with a Switch-back button.
+  const scenarioClaimedBanner = state.scenarioClaimed && prefApplied
+    ? `<div class="scenario-banner">
+         <span>${T.scenarioBannerActive(escapeHtml(prefApplied.name))}</span>
+         <button class="btn-text" type="button" id="switchBackBtn">${T.btnScenarioSwitchBack}</button>
+       </div>`
+    : '';
+
   let preferentialBlock = '';
   if (prefApplied) {
     preferentialBlock = `
@@ -194,6 +213,9 @@ function renderPlan(plan) {
         <p>${T.preferentialAvailableBody(escapeHtml(prefAvailable.name), prefSavingEur, escapeHtml(prefAvailable.document || '—'))}</p>
         ${prefAvailable.notes ? `<p class="secondary-note">${escapeHtml(prefAvailable.notes)}</p>` : ''}
         ${prefAvailable.approximate ? `<p class="secondary-note"><em>${T.preferentialApproximate}</em></p>` : ''}
+        <div class="pref-rerun-actions">
+          <button class="btn-secondary pref-rerun-btn" type="button" id="rerunWithPrefBtn">${T.btnRerunWithPref}</button>
+        </div>
       </div>
     `;
   } else if (prefAvailable && !prefAvailable.mfnReplaced && prefAvailable.notes) {
@@ -435,6 +457,8 @@ function renderPlan(plan) {
       <div class="ph-meta">${escapeHtml(T.printHeaderMeta(plan.asOf || new Date().toISOString().slice(0,10)))}</div>
     </div>
 
+    ${scenarioClaimedBanner}
+
     <div class="result-hero">
       <h2>${T.resultReady}</h2>
       <p>${headerNote}</p>
@@ -566,6 +590,58 @@ function renderPlan(plan) {
         renderComparison(plan, targetOrigin, comparisonPanel);
       });
     });
+  }
+
+  // Sprint AG: scenario toggle — re-run the plan with claimPreferential=true
+  // when the user clicks the "Re-run with this claimed" button. Switch
+  // back returns to the baseline inputs.
+  const rerunBtn = document.getElementById('rerunWithPrefBtn');
+  if (rerunBtn) {
+    rerunBtn.addEventListener('click', () => {
+      const claimedInputs = { ...inputs, claimPreferential: true };
+      // Stash baseline so the user can switch back
+      state.baselineInputs = { ...inputs };
+      state.scenarioClaimed = true;
+      rerunPlan(claimedInputs);
+    });
+  }
+  const switchBackBtn = document.getElementById('switchBackBtn');
+  if (switchBackBtn && state.baselineInputs) {
+    switchBackBtn.addEventListener('click', () => {
+      const baseline = state.baselineInputs;
+      state.scenarioClaimed = false;
+      state.baselineInputs = null;
+      rerunPlan(baseline);
+    });
+  }
+}
+
+// Sprint AG: helper to re-fetch /api/start with modified inputs and
+// re-render the result. Reuses the same network plumbing as submitPlan
+// but skips form validation since the inputs are programmatic.
+async function rerunPlan(inputs) {
+  els.result.innerHTML = `<div class="result-hero"><h2>${T.loadingSharedTitle}</h2><p>${T.loadingSharedBody}</p></div>`;
+  try {
+    const payload = { ...inputs, locale: LOCALE };
+    const response = await fetch('/api/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload),
+    });
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      throw new Error((errBody.errors && errBody.errors.join('; ')) || errBody.error || `${T.errServer} ${response.status}`);
+    }
+    const json = await response.json();
+    if (!json.ok || !json.plan) throw new Error(T.errSubmit);
+    renderPlan({ ...json.plan, email: { sent: false, shared: true } });
+    window.scrollTo({ top: els.result.offsetTop - 20, behavior: 'smooth' });
+  } catch (err) {
+    els.result.innerHTML = `
+      <div class="result-hero">
+        <h2>${T.sharedFailedTitle}</h2>
+        <p>${escapeHtml(err.message || 'Unknown error')}.</p>
+      </div>`;
   }
 }
 
