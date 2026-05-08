@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Conversion analytics — OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Conversion analytics dashboard — counts by category, route, and locale, sourced from durable event log." />
+  <link rel="canonical" href="https://orcatrade.pl/dashboard/leads/" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .leads-shell { max-width: 1080px; margin: 0 auto; padding: 3rem 1.5rem 5rem; position: relative; z-index: 1; }
+    .leads-shell h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3.5vw + 0.6rem, 2.6rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.4rem; line-height: 1.15; letter-spacing: -0.02em; }
+    .leads-shell .subtitle { font-size: 0.92rem; line-height: 1.55; color: rgba(255,255,255,0.6); margin-bottom: 1.6rem; }
+    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
+    .breadcrumbs a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .breadcrumbs a:hover { color: rgba(255,255,255,0.95); }
+
+    .token-form { padding: 1.6rem 1.8rem; background: rgba(184,168,114,0.06); border: 1px solid rgba(200, 168, 90, 0.3); margin-bottom: 1.5rem; }
+    .token-form label { display: block; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; font-weight: 500; }
+    .token-form input { width: 100%; max-width: 480px; padding: 0.6rem 0.8rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.85rem; }
+    .token-form button { padding: 0.6rem 1.1rem; margin-left: 0.6rem; font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: var(--accent-color, #b8bec8); color: #0a0912; border: 1px solid var(--accent-color, #b8bec8); cursor: pointer; }
+    .token-form .err { font-size: 0.82rem; color: #c95050; margin-top: 0.5rem; }
+
+    .tile-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.6rem; }
+    .tile { padding: 1.1rem 1.2rem; background: rgba(13, 15, 20, 0.55); border: 1px solid rgba(255,255,255,0.07); }
+    .tile .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 0.35rem; }
+    .tile .value { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.95rem; font-weight: 600; color: rgba(255,255,255,0.97); line-height: 1.05; letter-spacing: -0.01em; }
+    .tile .sub { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; }
+
+    .panel { padding: 1.4rem 1.6rem; background: rgba(13, 15, 20, 0.45); border: 1px solid rgba(255,255,255,0.07); margin-bottom: 1rem; }
+    .panel h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.9rem; }
+    .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9rem; margin-bottom: 1rem; }
+
+    .bar-row { display: grid; grid-template-columns: 100px 1fr 50px; gap: 0.65rem; align-items: center; padding: 0.32rem 0; }
+    .bar-row .key { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .bar-row .bar { height: 0.5rem; background: linear-gradient(to right, rgba(184,190,200,0.55), rgba(184,190,200,0.2)); border-radius: 1px; }
+    .bar-row .count { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.75); text-align: right; }
+
+    table.recent { width: 100%; border-collapse: collapse; }
+    table.recent th, table.recent td { padding: 0.45rem 0.7rem; text-align: left; font-family: 'Geist Mono', monospace; font-size: 0.74rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.78); }
+    table.recent th { color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.66rem; }
+    table.recent td.email-yes { color: #5fb56b; }
+    table.recent td.email-no { color: rgba(255,255,255,0.45); }
+
+    .empty { padding: 1.4rem 1.6rem; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); text-align: center; font-size: 0.92rem; color: rgba(255,255,255,0.6); }
+    .meta-line { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 1rem; letter-spacing: 0.06em; }
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+  <div class="page">
+    <header data-site-header></header>
+    <main>
+      <section class="leads-shell">
+        <div class="breadcrumbs">
+          <a href="/">Home</a> /
+          <a href="/dashboard/">Dashboard</a> /
+          Conversion analytics
+        </div>
+        <h1>Conversion analytics</h1>
+        <p class="subtitle">Aggregated event log: which categories convert, which routes win, where users drop off. Sourced from the durable event store.</p>
+
+        <!-- Token entry -->
+        <div class="token-form" id="token-form">
+          <label for="token">Access token</label>
+          <input type="password" id="token" placeholder="Paste ORCATRADE_LEADS_TOKEN value" autocomplete="off"/>
+          <button type="button" id="token-submit">Open</button>
+          <div class="err" id="token-err"></div>
+          <p style="font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-top: 0.7rem; line-height: 1.5;">
+            This page is gated by an env-var token. Set <code>ORCATRADE_LEADS_TOKEN</code> in Vercel → pass it via <code>?token=…</code>.
+          </p>
+        </div>
+
+        <!-- Loaded dashboard -->
+        <div id="dashboard" hidden>
+          <div class="tile-row" id="tiles"></div>
+          <div class="panel-grid">
+            <div class="panel"><h2>Top categories</h2><div id="bars-category"></div></div>
+            <div class="panel"><h2>Top routes</h2><div id="bars-route"></div></div>
+            <div class="panel"><h2>Origins</h2><div id="bars-origin"></div></div>
+            <div class="panel"><h2>Destinations</h2><div id="bars-dest"></div></div>
+            <div class="panel"><h2>Locales</h2><div id="bars-locale"></div></div>
+            <div class="panel"><h2>Event types</h2><div id="bars-type"></div></div>
+          </div>
+          <div class="panel">
+            <h2>Recent events</h2>
+            <table class="recent" id="recent-table"></table>
+          </div>
+          <div class="meta-line" id="meta-line"></div>
+        </div>
+
+        <div id="empty" class="empty" hidden>
+          <p>No events yet. Submit a plan via the wizard, then refresh.</p>
+        </div>
+      </section>
+    </main>
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span><a href="/">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/dashboard/leads/app.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -31,6 +31,9 @@ const handlers = {
   auth: require('../lib/handlers/auth'),
   // Saved plans. POST/GET /api/plans, GET/DELETE /api/plans/<id>.
   plans: require('../lib/handlers/plans'),
+  // Conversion analytics summary (Sprint 36). Token-gated via the
+  // ORCATRADE_LEADS_TOKEN env var; consumed by /dashboard/leads/.
+  leads: require('../lib/handlers/leads'),
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),
