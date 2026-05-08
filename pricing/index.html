@@ -308,6 +308,10 @@
     /* Hide annual prices when monthly is active and vice versa */
     .pricing-page[data-billing="monthly"] .price-annual { display: none; }
     .pricing-page[data-billing="annual"] .price-monthly { display: none; }
+
+    /* Sprint 40: highlight the user's current tier when signed in */
+    .tier.tier--current { box-shadow: inset 0 0 0 1px rgba(95, 181, 107, 0.55); }
+    .tier-current-flag { position: absolute; top: -1px; right: -1px; padding: 0.32rem 0.7rem; background: rgba(95, 181, 107, 0.95); color: #0a0912; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
   </style>
 </head>
 
@@ -359,7 +363,7 @@
             <div class="tier-who">Lead-gen · evaluators</div>
             <div class="tier-price">€0<span class="tier-price-unit">forever</span></div>
             <div class="tier-price-note">Permanent free tier</div>
-            <a href="../analysis/" class="tier-cta tier-cta--ghost">Start exploring</a>
+            <a href="../analysis/" class="tier-cta tier-cta--ghost" data-tier="free" data-action="start">Start exploring</a>
             <ul class="tier-features">
               <li>20 agent queries / month</li>
               <li>10 supplier views / month</li>
@@ -381,7 +385,7 @@
               <span class="price-monthly">Or €990 / yr (save €198)</span>
               <span class="price-annual">€990 / year</span>
             </div>
-            <a href="../index.html#contact" class="tier-cta">Get started</a>
+            <a href="../index.html#contact" class="tier-cta" data-tier="starter" data-action="subscribe">Get started</a>
             <ul class="tier-features">
               <li>200 agent queries / month</li>
               <li>Full Factory Search access</li>
@@ -404,7 +408,7 @@
               <span class="price-monthly">Or €3,990 / yr (save €798)</span>
               <span class="price-annual">€3,990 / year</span>
             </div>
-            <a href="../index.html#contact" class="tier-cta">Get started</a>
+            <a href="../index.html#contact" class="tier-cta" data-tier="growth" data-action="subscribe">Get started</a>
             <ul class="tier-features">
               <li>1,000 agent queries / month</li>
               <li>All five agents (Sourcing, Compliance, Logistics, Finance, Operations)</li>
@@ -427,7 +431,7 @@
               <span class="price-monthly">Or €9,990 / yr (save €1,998)</span>
               <span class="price-annual">€9,990 / year</span>
             </div>
-            <a href="../index.html#contact" class="tier-cta tier-cta--ghost">Talk to sales</a>
+            <a href="../index.html#contact" class="tier-cta tier-cta--ghost" data-tier="scale" data-action="contact">Talk to sales</a>
             <ul class="tier-features">
               <li>Unlimited agent queries</li>
               <li>Custom agent training on your supplier base</li>
@@ -444,7 +448,7 @@
             <div class="tier-who">Manufacturers · distributors · retail chains</div>
             <div class="tier-price">Custom<span class="tier-price-unit">from €2,500</span></div>
             <div class="tier-price-note">SLA · ERP integration · white-label</div>
-            <a href="../index.html#contact" class="tier-cta tier-cta--ghost">Talk to sales</a>
+            <a href="../index.html#contact" class="tier-cta tier-cta--ghost" data-tier="enterprise" data-action="contact">Talk to sales</a>
             <ul class="tier-features">
               <li>ERP integration (SAP · Dynamics · Comarch)</li>
               <li>White-label / private deployment</li>
@@ -648,6 +652,28 @@
       }
       window.addEventListener('scroll', onScroll, { passive: true });
       onScroll();
+    })();
+
+    /* SPRINT 40 — surface the user's current tier when signed in. Best-effort:
+       fails silently if not signed in, never blocks page render. */
+    (function () {
+      fetch('/api/tiers/me', { credentials: 'same-origin' }).then(function (r) {
+        return r.ok ? r.json() : null;
+      }).then(function (data) {
+        if (!data || !data.tierId) return;
+        var ctas = document.querySelectorAll('[data-tier="' + data.tierId + '"]');
+        ctas.forEach(function (cta) {
+          var tier = cta.closest('.tier');
+          if (!tier) return;
+          tier.classList.add('tier--current');
+          if (!tier.querySelector('.tier-current-flag')) {
+            var flag = document.createElement('div');
+            flag.className = 'tier-current-flag';
+            flag.textContent = 'Your plan';
+            tier.appendChild(flag);
+          }
+        });
+      }).catch(function () { /* silent */ });
     })();
 
     /* CURSOR-FOLLOWING SPOTLIGHT */

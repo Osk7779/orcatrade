@@ -34,6 +34,9 @@ const handlers = {
   // Conversion analytics summary (Sprint 36). Token-gated via the
   // ORCATRADE_LEADS_TOKEN env var; consumed by /dashboard/leads/.
   leads: require('../lib/handlers/leads'),
+  // Subscription tier catalogue + per-user resolution (Sprint 40).
+  // GET /api/tiers (public) | GET /api/tiers/me (auth).
+  tiers: require('../lib/handlers/tiers'),
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),
