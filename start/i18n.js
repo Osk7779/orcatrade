@@ -32,6 +32,27 @@ window.START_I18N = {
     btnCopiedOk: 'Copied ✓',
     btnSaveAsPdf: 'Save as PDF',
     btnPrint: 'Print',
+    btnCompare: 'Compare',
+    compareTitle: (user, alt) => `${user} vs ${alt}`,
+    compareIntro: (user, alt) => `Same goods, same destination — what changes if you source from <strong>${alt}</strong> instead of <strong>${user}</strong>? Side-by-side from the wizard's matrix.`,
+    compareYourPick: 'Your pick',
+    compareAlt: 'Alternative',
+    compareDelta: 'Δ (alt vs your pick)',
+    compareClose: 'Close comparison',
+    compareVerdict: (user, alt, landedDelta, annualDelta, ships) => {
+      if (Math.abs(landedDelta) < 100) return `${alt} produces almost the same per-shipment landed cost as ${user}. Origin choice driven by non-cost factors (lead time, IP risk, preferential pathway documentation).`;
+      const cheaper = landedDelta < 0;
+      const eurPer = '€' + Math.round(Math.abs(landedDelta)).toLocaleString('en-IE');
+      const eurAnnual = ships ? '€' + Math.round(Math.abs(annualDelta)).toLocaleString('en-IE') : null;
+      if (cheaper) {
+        return eurAnnual
+          ? `Sourcing from ${alt} saves <strong>${eurPer} per shipment</strong> (~${eurAnnual}/year at ${ships} shipments). The wizard's preferential and trade-defence overlays already account for it — verify HS/exporter eligibility before committing.`
+          : `Sourcing from ${alt} saves <strong>${eurPer} per shipment</strong>. Verify HS/exporter eligibility before committing.`;
+      }
+      return eurAnnual
+        ? `Sourcing from ${alt} costs <strong>${eurPer} more per shipment</strong> (~${eurAnnual}/year). Make the switch only if non-cost factors (lead time, quality, IP) justify it.`
+        : `Sourcing from ${alt} costs <strong>${eurPer} more per shipment</strong>. Make the switch only if non-cost factors justify it.`;
+    },
     printHeaderBrand: 'OrcaTrade — Import Plan',
     printHeaderSummary: (i) => `${i.productCategory} · ${i.originCountry} → ${i.destinationCountry} · €${(i.customsValueEur || 0).toLocaleString('en-IE')} customs value · ${i.weightKg} kg`,
     printHeaderMeta: (asOf) => `Generated ${asOf} · orcatrade.pl/start/`,
@@ -198,6 +219,27 @@ window.START_I18N = {
     btnCopiedOk: 'Skopiowano ✓',
     btnSaveAsPdf: 'Zapisz jako PDF',
     btnPrint: 'Drukuj',
+    btnCompare: 'Porównaj',
+    compareTitle: (user, alt) => `${user} vs ${alt}`,
+    compareIntro: (user, alt) => `Te same towary, ten sam cel — co się zmieni, jeśli sourcujesz z <strong>${alt}</strong> zamiast z <strong>${user}</strong>? Porównanie z macierzy kreatora.`,
+    compareYourPick: 'Twój wybór',
+    compareAlt: 'Alternatywa',
+    compareDelta: 'Δ (alt vs Twój wybór)',
+    compareClose: 'Zamknij porównanie',
+    compareVerdict: (user, alt, landedDelta, annualDelta, ships) => {
+      if (Math.abs(landedDelta) < 100) return `${alt} daje prawie taki sam landed cost na przesyłkę jak ${user}. Wybór pochodzenia decyduje się czynnikami nie-kosztowymi (czas dostawy, ryzyko IP, dokumentacja preferencyjna).`;
+      const cheaper = landedDelta < 0;
+      const eurPer = '€' + Math.round(Math.abs(landedDelta)).toLocaleString('pl-PL');
+      const eurAnnual = ships ? '€' + Math.round(Math.abs(annualDelta)).toLocaleString('pl-PL') : null;
+      if (cheaper) {
+        return eurAnnual
+          ? `Sourcing z ${alt} oszczędza <strong>${eurPer} na przesyłkę</strong> (~${eurAnnual}/rok przy ${ships} przesyłkach). Kreator już uwzględnia preferencje i środki ochrony handlu — sprawdź uprawnienia HS/eksportera przed zobowiązaniem.`
+          : `Sourcing z ${alt} oszczędza <strong>${eurPer} na przesyłkę</strong>. Sprawdź uprawnienia HS/eksportera przed zobowiązaniem.`;
+      }
+      return eurAnnual
+        ? `Sourcing z ${alt} kosztuje <strong>${eurPer} więcej na przesyłkę</strong> (~${eurAnnual}/rok). Zmień tylko jeśli czynniki nie-kosztowe (czas, jakość, IP) to uzasadniają.`
+        : `Sourcing z ${alt} kosztuje <strong>${eurPer} więcej na przesyłkę</strong>. Zmień tylko jeśli czynniki nie-kosztowe to uzasadniają.`;
+    },
     printHeaderBrand: 'OrcaTrade — Plan importu',
     printHeaderSummary: (i) => `${i.productCategory} · ${i.originCountry} → ${i.destinationCountry} · €${(i.customsValueEur || 0).toLocaleString('pl-PL')} wartość celna · ${i.weightKg} kg`,
     printHeaderMeta: (asOf) => `Wygenerowano ${asOf} · orcatrade.pl/pl/start/`,
@@ -353,6 +395,27 @@ window.START_I18N = {
     btnCopiedOk: 'Kopiert ✓',
     btnSaveAsPdf: 'Als PDF speichern',
     btnPrint: 'Drucken',
+    btnCompare: 'Vergleichen',
+    compareTitle: (user, alt) => `${user} vs ${alt}`,
+    compareIntro: (user, alt) => `Dieselbe Ware, dasselbe Ziel — was ändert sich, wenn Sie aus <strong>${alt}</strong> statt aus <strong>${user}</strong> sourcen? Gegenüberstellung aus der Wizard-Matrix.`,
+    compareYourPick: 'Ihre Wahl',
+    compareAlt: 'Alternative',
+    compareDelta: 'Δ (Alt. vs Ihre Wahl)',
+    compareClose: 'Vergleich schließen',
+    compareVerdict: (user, alt, landedDelta, annualDelta, ships) => {
+      if (Math.abs(landedDelta) < 100) return `${alt} liefert fast dieselben Landed Costs pro Sendung wie ${user}. Ursprungswahl wird durch nicht-Kosten-Faktoren bestimmt (Lieferzeit, IP-Risiko, Präferenz-Dokumentation).`;
+      const cheaper = landedDelta < 0;
+      const eurPer = '€' + Math.round(Math.abs(landedDelta)).toLocaleString('de-DE');
+      const eurAnnual = ships ? '€' + Math.round(Math.abs(annualDelta)).toLocaleString('de-DE') : null;
+      if (cheaper) {
+        return eurAnnual
+          ? `Sourcing aus ${alt} spart <strong>${eurPer} pro Sendung</strong> (~${eurAnnual}/Jahr bei ${ships} Sendungen). Der Wizard berücksichtigt Präferenzen und Handelsschutz bereits — HS/Exporteur-Eignung vor verbindlicher Bestellung prüfen.`
+          : `Sourcing aus ${alt} spart <strong>${eurPer} pro Sendung</strong>. HS/Exporteur-Eignung vor verbindlicher Bestellung prüfen.`;
+      }
+      return eurAnnual
+        ? `Sourcing aus ${alt} kostet <strong>${eurPer} mehr pro Sendung</strong> (~${eurAnnual}/Jahr). Wechsel nur, wenn nicht-Kosten-Faktoren (Lieferzeit, Qualität, IP) es rechtfertigen.`
+        : `Sourcing aus ${alt} kostet <strong>${eurPer} mehr pro Sendung</strong>. Wechsel nur, wenn nicht-Kosten-Faktoren es rechtfertigen.`;
+    },
     printHeaderBrand: 'OrcaTrade — Importplan',
     printHeaderSummary: (i) => `${i.productCategory} · ${i.originCountry} → ${i.destinationCountry} · €${(i.customsValueEur || 0).toLocaleString('de-DE')} Zollwert · ${i.weightKg} kg`,
     printHeaderMeta: (asOf) => `Erstellt ${asOf} · orcatrade.pl/de/start/`,

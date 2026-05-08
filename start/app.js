@@ -351,6 +351,7 @@ function renderPlan(plan) {
               ${sens.shipmentsPerYear ? `<th>${T.originColAnnual}</th>` : ''}
               <th>${T.originColPreferential}</th>
               <th>${T.originColTradeDefence}</th>
+              <th></th>
             </tr>
           </thead>
           <tbody>
@@ -360,6 +361,9 @@ function renderPlan(plan) {
               const tag = e.isUserChoice
                 ? `<span class="origin-tag user">${T.originSensitivityYourPick}</span>`
                 : (isCheapest ? `<span class="origin-tag cheapest">${T.originSensitivityCheapest}</span>` : '');
+              const compareBtn = e.isUserChoice
+                ? ''
+                : `<button class="compare-btn" type="button" data-compare-origin="${escapeHtml(e.origin)}">${T.btnCompare}</button>`;
               return `<tr class="${cls}">
                 <td><strong>${escapeHtml(e.origin)}</strong> ${tag}</td>
                 <td>${e.dutyRatePct.toFixed(1)}%</td>
@@ -369,11 +373,13 @@ function renderPlan(plan) {
                 ${sens.shipmentsPerYear ? `<td>${fmtEur(e.annualLandedTotal)}</td>` : ''}
                 <td>${e.preferentialApplied ? `<span class="badge pref">${escapeHtml(e.preferentialApplied)}</span>` : '—'}</td>
                 <td>${e.tradeDefenceMeasures.length ? `<span class="badge td">${e.tradeDefenceMeasures.length} measure${e.tradeDefenceMeasures.length > 1 ? 's' : ''}</span>` : '—'}</td>
+                <td>${compareBtn}</td>
               </tr>`;
             }).join('')}
           </tbody>
         </table>
       </div>
+      <div class="comparison-panel" id="comparisonPanel" hidden></div>
     </div>
   ` : '';
 
@@ -548,6 +554,118 @@ function renderPlan(plan) {
   const printBtn = document.getElementById('printBtn');
   if (savePdfBtn) savePdfBtn.addEventListener('click', () => window.print());
   if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+  // Origin comparison — clicking a "Compare" button in the sensitivity
+  // matrix renders a side-by-side panel using data already on the plan.
+  const compareButtons = document.querySelectorAll('.compare-btn[data-compare-origin]');
+  const comparisonPanel = document.getElementById('comparisonPanel');
+  if (comparisonPanel && compareButtons.length) {
+    compareButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const targetOrigin = btn.getAttribute('data-compare-origin');
+        renderComparison(plan, targetOrigin, comparisonPanel);
+      });
+    });
+  }
+}
+
+// ── Origin comparison: side-by-side from the sensitivity matrix ──
+// Uses data already in plan.originSensitivity.matrix — no extra fetch.
+// User's pick is the baseline; alt is the alternative origin selected.
+function renderComparison(plan, altOriginCode, panelEl) {
+  const sens = plan.originSensitivity;
+  if (!sens) return;
+  const userEntry = sens.matrix.find(e => e.isUserChoice);
+  const altEntry = sens.matrix.find(e => e.origin === altOriginCode);
+  if (!userEntry || !altEntry) return;
+
+  // Deltas (alt minus user) — negative = saving, positive = penalty
+  const dutyDelta = altEntry.dutyRatePct - userEntry.dutyRatePct;
+  const transportDelta = altEntry.transportEur - userEntry.transportEur;
+  const landedDelta = altEntry.perShipmentLandedTotal - userEntry.perShipmentLandedTotal;
+  const annualDelta = (altEntry.annualLandedTotal || 0) - (userEntry.annualLandedTotal || 0);
+
+  function deltaBadge(deltaEur, isPercent = false) {
+    if (Math.abs(deltaEur) < (isPercent ? 0.05 : 1)) return `<span class="delta-zero">±0</span>`;
+    const cls = deltaEur < 0 ? 'delta-saving' : 'delta-penalty';
+    const sign = deltaEur < 0 ? '−' : '+';
+    const formatted = isPercent
+      ? `${Math.abs(deltaEur).toFixed(1)}%`
+      : fmtEur(Math.abs(deltaEur));
+    return `<span class="${cls}">${sign}${formatted}</span>`;
+  }
+
+  function tdMeasureSummary(e) {
+    if (!e.tradeDefenceMeasures.length) return '—';
+    return e.tradeDefenceMeasures.map(m => `${m.type} ${m.rateTypicalPct}%`).join(', ');
+  }
+
+  const html = `
+    <div class="comparison-header">
+      <span class="comparison-title">${T.compareTitle(escapeHtml(userEntry.origin), escapeHtml(altEntry.origin))}</span>
+      <button class="compare-close" type="button" id="closeComparisonBtn" aria-label="${T.compareClose}">×</button>
+    </div>
+    <p class="comparison-intro">${T.compareIntro(escapeHtml(userEntry.origin), escapeHtml(altEntry.origin))}</p>
+    <table class="comparison-table">
+      <thead>
+        <tr>
+          <th></th>
+          <th class="col-user">${T.compareYourPick} (${escapeHtml(userEntry.origin)})</th>
+          <th class="col-alt">${T.compareAlt} (${escapeHtml(altEntry.origin)})</th>
+          <th class="col-delta">${T.compareDelta}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>${T.originColDuty}</td>
+          <td>${userEntry.dutyRatePct.toFixed(1)}%</td>
+          <td>${altEntry.dutyRatePct.toFixed(1)}%</td>
+          <td>${deltaBadge(dutyDelta, true)}</td>
+        </tr>
+        <tr>
+          <td>${T.originColTransport}</td>
+          <td>${fmtEur(userEntry.transportEur)} (${escapeHtml(userEntry.transportMode)})</td>
+          <td>${fmtEur(altEntry.transportEur)} (${escapeHtml(altEntry.transportMode)})</td>
+          <td>${deltaBadge(transportDelta)}</td>
+        </tr>
+        <tr class="comparison-headline-row">
+          <td><strong>${T.originColLanded}</strong></td>
+          <td><strong>${fmtEur(userEntry.perShipmentLandedTotal)}</strong></td>
+          <td><strong>${fmtEur(altEntry.perShipmentLandedTotal)}</strong></td>
+          <td><strong>${deltaBadge(landedDelta)}</strong></td>
+        </tr>
+        ${sens.shipmentsPerYear ? `<tr class="comparison-headline-row">
+          <td><strong>${T.originColAnnual}</strong></td>
+          <td><strong>${fmtEur(userEntry.annualLandedTotal)}</strong></td>
+          <td><strong>${fmtEur(altEntry.annualLandedTotal)}</strong></td>
+          <td><strong>${deltaBadge(annualDelta)}</strong></td>
+        </tr>` : ''}
+        <tr>
+          <td>${T.originColPreferential}</td>
+          <td>${userEntry.preferentialApplied || '—'}</td>
+          <td>${altEntry.preferentialApplied || '—'}</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>${T.originColTradeDefence}</td>
+          <td>${tdMeasureSummary(userEntry)}</td>
+          <td>${tdMeasureSummary(altEntry)}</td>
+          <td>—</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="comparison-verdict">${T.compareVerdict(escapeHtml(userEntry.origin), escapeHtml(altEntry.origin), landedDelta, annualDelta, sens.shipmentsPerYear)}</p>
+  `;
+
+  panelEl.innerHTML = html;
+  panelEl.hidden = false;
+  panelEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  const closeBtn = document.getElementById('closeComparisonBtn');
+  if (closeBtn) closeBtn.addEventListener('click', () => {
+    panelEl.hidden = true;
+    panelEl.innerHTML = '';
+  });
 }
 
 function localePrefix() {
