@@ -24,6 +24,8 @@ const handlers = {
   warehouse: require('../lib/handlers/warehouse'),
   'sourcing-quote': require('../lib/handlers/sourcing-quote'),
   'finance-quote': require('../lib/handlers/finance-quote'),
+  // Import Plan Builder
+  start: require('../lib/handlers/start'),
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),

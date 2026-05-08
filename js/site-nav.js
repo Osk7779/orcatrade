@@ -20,6 +20,7 @@
     primary: [
       { label: 'Home', href: '/', match: ['/', '/index.html'] },
       { label: 'Platform', href: '/platform/', match: ['/platform/'] },
+      { label: 'Build a plan', href: '/start/', match: ['/start/'] },
       // Tools is a grouped mega-dropdown — defined separately below
     ],
     tools: {
