@@ -75,7 +75,16 @@ function writePage(relativePath, html) {
 
 // ── Page shell ─────────────────────────────────────────────
 
-function pageShell({ title, description, canonical, jsonLd, body, locale = 'en', hreflangAlternates = [] }) {
+// Cross-link helper — re-resolved from disk so the path stays portable.
+const { findRelatedH0, renderRelatedH0Aside } = require('./find-related-h0');
+
+function pageShell({ title, description, canonical, jsonLd, body, locale = 'en', hreflangAlternates = [], relatedH0LinksHtml = '', linkContext = null }) {
+  // If linkContext is supplied, compute related-H0 links from it. This is the
+  // ergonomic path used by every generator. Pre-rendered relatedH0LinksHtml
+  // remains supported for cases where the generator wants to override.
+  if (linkContext && !relatedH0LinksHtml) {
+    relatedH0LinksHtml = renderRelatedH0Aside(findRelatedH0({ ...linkContext, locale }), locale);
+  }
   const ogImage = `${SITE_URL}/orcatrade_logo.png`;
   const hreflangTags = hreflangAlternates.map(a =>
     `<link rel="alternate" hreflang="${a.lang}" href="${a.href}" />`
@@ -181,6 +190,7 @@ function pageShell({ title, description, canonical, jsonLd, body, locale = 'en',
     <main>
       <article class="guide-shell">
         ${body}
+        ${relatedH0LinksHtml}
         <aside style="margin-top: 3rem; padding: 1.6rem 1.8rem; background: linear-gradient(135deg, rgba(184,168,114,0.08), rgba(184,190,200,0.03)); border: 1px solid rgba(200, 168, 90, 0.3); text-align: center;">
           <div style="font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(200, 168, 90, 0.95); margin-bottom: 0.4rem; font-weight: 600;">${cta.kicker}</div>
           <h3 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.97); margin: 0 0 0.4rem;">${cta.heading}</h3>
@@ -367,6 +377,7 @@ function generateSourcingPagePL(country, categoryKey) {
       { lang: 'pl', href: canonical },
       { lang: 'x-default', href: enCanonical },
     ],
+    linkContext: { category: categoryKey, origin: country, pageType: 'sourcing' },
   });
 
   return { path: `pl/guides/sourcing/${slugUrl}`, canonical, html };
@@ -642,6 +653,7 @@ function generateSourcingPageDE(country, categoryKey) {
       { lang: 'de', href: canonical },
       { lang: 'x-default', href: enCanonical },
     ],
+    linkContext: { category: categoryKey, origin: country, pageType: 'sourcing' },
   });
 
   return { path: `de/guides/sourcing/${slugUrl}`, canonical, html };
@@ -946,6 +958,7 @@ function generateSourcingPage(country, categoryKey) {
         { lang: 'de', href: deCanonical },
         { lang: 'x-default', href: canonical },
       ],
+      linkContext: { category: categoryKey, origin: country, pageType: 'sourcing' },
     }),
   };
 }
@@ -1117,6 +1130,7 @@ function generateRoutingPage(origin, destination) {
         { lang: 'de', href: deCanonical },
         { lang: 'x-default', href: canonical },
       ],
+      linkContext: { origin, destination, pageType: 'routing' },
     }),
   };
 }
@@ -1245,7 +1259,7 @@ function generateRoutingPagePL(origin, destination) {
     </aside>
   `;
 
-  return { path: `pl/guides/routing/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+  return { path: `pl/guides/routing/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'x-default', href: enCanonical }], linkContext: { origin, destination, pageType: 'routing' } }) };
 }
 
 function generateRoutingIndexPL() {
@@ -1411,7 +1425,7 @@ function generateRoutingPageDE(origin, destination) {
     </aside>
   `;
 
-  return { path: `de/guides/routing/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+  return { path: `de/guides/routing/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }], linkContext: { origin, destination, pageType: 'routing' } }) };
 }
 
 function generateRoutingIndexDE() {
@@ -1690,6 +1704,7 @@ function generateCustomsPage(chapter, destination) {
         { lang: 'de', href: deCanonical },
         { lang: 'x-default', href: canonical },
       ],
+      linkContext: { hsChapter: chapter.code, destination, pageType: 'customs' },
     }),
   };
 }
@@ -1800,7 +1815,7 @@ function generateCustomsPagePL(chapter, destination) {
   `;
 
   const deCanonical = `${SITE_URL}/de/guides/customs/${(de.CUSTOMS_CHAPTER_DE[chapter.code]?.slug || chapter.slug)}-${slug(destination)}/`;
-  return { path: `pl/guides/customs/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'de', href: deCanonical }, { lang: 'x-default', href: enCanonical }] }) };
+  return { path: `pl/guides/customs/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'de', href: deCanonical }, { lang: 'x-default', href: enCanonical }], linkContext: { hsChapter: chapter.code, destination, pageType: 'customs' } }) };
 }
 
 function generateCustomsIndexPL() {
@@ -1949,7 +1964,7 @@ function generateCustomsPageDE(chapter, destination) {
     </aside>
   `;
 
-  return { path: `de/guides/customs/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+  return { path: `de/guides/customs/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }], linkContext: { hsChapter: chapter.code, destination, pageType: 'customs' } }) };
 }
 
 function generateCustomsIndexDE() {
@@ -2187,6 +2202,7 @@ function generateWarehousePage(hubKey) {
         { lang: 'de', href: deCanonical },
         { lang: 'x-default', href: canonical },
       ],
+      linkContext: { destination: hub.country, pageType: 'warehouse' },
     }),
   };
 }
@@ -2305,7 +2321,7 @@ function generateWarehousePagePL(hubKey) {
 
   const deCityForSlug = de.CITY_DE[hub.name] || hub.name;
   const deCanonical = `${SITE_URL}/de/guides/warehouse/${slug(deCityForSlug)}-3pl/`;
-  return { path: `pl/guides/warehouse/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'de', href: deCanonical }, { lang: 'x-default', href: enCanonical }] }) };
+  return { path: `pl/guides/warehouse/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'de', href: deCanonical }, { lang: 'x-default', href: enCanonical }], linkContext: { destination: hub.country, pageType: 'warehouse' } }) };
 }
 
 function generateWarehouseIndexPL() {
@@ -2458,7 +2474,7 @@ function generateWarehousePageDE(hubKey) {
     </aside>
   `;
 
-  return { path: `de/guides/warehouse/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+  return { path: `de/guides/warehouse/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }], linkContext: { destination: hub.country, pageType: 'warehouse' } }) };
 }
 
 function generateWarehouseIndexDE() {
