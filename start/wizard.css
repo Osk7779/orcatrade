@@ -213,6 +213,26 @@ select { cursor: pointer; }
 .currency-btn.active { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); font-weight: 700; }
 .currency-asof { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 0.4rem; min-height: 1em; }
 
+/* Sprint AI — Implementation roadmap */
+.rm-phase { margin-top: 1.2rem; background: rgba(13, 15, 20, 0.4); border: 1px solid rgba(255,255,255,0.07); }
+.rm-phase-header { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.9rem; padding: 0.85rem 1.1rem; background: rgba(184,190,200,0.04); border-bottom: 1px solid rgba(255,255,255,0.07); }
+.rm-phase-name { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.15rem; font-weight: 600; color: rgba(255,255,255,0.95); }
+.rm-phase-window { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); }
+.rm-phase-count { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-left: auto; }
+.rm-table { width: 100%; border-collapse: collapse; }
+.rm-table td { padding: 0.7rem 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.04); vertical-align: top; font-size: 0.9rem; line-height: 1.55; color: rgba(255,255,255,0.85); }
+.rm-table tr:last-child td { border-bottom: none; }
+.rm-when { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.65); white-space: nowrap; width: 5.5rem; }
+.rm-owner { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.04em; color: rgba(255,255,255,0.55); white-space: nowrap; width: 9rem; text-transform: capitalize; }
+.rm-deliverable { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 0.25rem; padding: 0.3rem 0.6rem; background: rgba(184,190,200,0.04); border-left: 2px solid rgba(184,190,200,0.35); display: inline-block; }
+.rm-evidence { font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; }
+.rm-meta { font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.5); text-align: right; margin-top: 0.7rem; }
+@media (max-width: 720px) {
+  .rm-table td { padding: 0.6rem 0.7rem; }
+  .rm-when { width: 4.5rem; }
+  .rm-owner { display: block; width: auto; padding-top: 0.2rem; }
+}
+
 /* ─── Print styles: A4 portrait, light theme, no chrome ─── */
 @media print {
   @page { size: A4; margin: 18mm 16mm 18mm 16mm; }

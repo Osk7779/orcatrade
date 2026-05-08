@@ -202,6 +202,45 @@ function fmtEur(value, decimals = 0) {
   return '<span class="amt" data-eur="' + n + '" data-decimals="' + decimals + '">' + formatted + '</span>';
 }
 
+// Sprint AI: turn the structured roadmap from composePlan into a phased
+// task list. Each phase becomes a card; tasks are rendered as a 3-column
+// table (when, action, owner) with optional deliverable/evidence chips.
+function renderRoadmap(roadmap) {
+  if (!roadmap || !roadmap.ok || !roadmap.phases || !roadmap.phases.length) return '';
+  const phaseRows = roadmap.phases.filter(p => p.tasks && p.tasks.length).map(phase => {
+    const taskRows = phase.tasks.map(t => `
+      <tr>
+        <td class="rm-when">${escapeHtml(t.when || '')}</td>
+        <td class="rm-action">
+          <div>${escapeHtml(t.action || '')}</div>
+          ${t.deliverable ? `<div class="rm-deliverable">${escapeHtml(t.deliverable)}</div>` : ''}
+          ${t.evidence ? `<div class="rm-evidence">${escapeHtml(t.evidence)}</div>` : ''}
+        </td>
+        <td class="rm-owner">${escapeHtml(t.owner || '')}</td>
+      </tr>`).join('');
+    const window = `T${phase.windowWeeks[0] >= 0 ? '+' : ''}${phase.windowWeeks[0]}w → T${phase.windowWeeks[1] >= 0 ? '+' : ''}${phase.windowWeeks[1]}w`;
+    return `
+      <div class="rm-phase">
+        <div class="rm-phase-header">
+          <span class="rm-phase-name">${escapeHtml(phase.name)}</span>
+          <span class="rm-phase-window">${escapeHtml(window)}</span>
+          <span class="rm-phase-count">${phase.tasks.length} ${phase.tasks.length === 1 ? T.roadmapTaskOne || 'task' : T.roadmapTaskMany || 'tasks'}</span>
+        </div>
+        <table class="rm-table">
+          <tbody>${taskRows}</tbody>
+        </table>
+      </div>`;
+  }).join('');
+  return `
+    <div class="result-section">
+      <h3>${T.secRoadmap || 'Implementation roadmap'}</h3>
+      <p>${T.roadmapBody || 'A week-by-week sequence to actually execute this plan. Conditional tasks (preferential origin, trade-defence surveillance, FX hedge, CBAM reporting) are added based on what your plan requires.'}</p>
+      ${phaseRows}
+      <div class="rm-meta">${T.roadmapTotalTasks || 'Total tasks'}: ${roadmap.tasksTotal}</div>
+    </div>
+  `;
+}
+
 function renderPlan(plan) {
   const { sourcing, routing, customs, warehouse, totals, inputs } = plan;
 
@@ -574,6 +613,8 @@ function renderPlan(plan) {
     ${complianceSection}
 
     ${warehouseSection}
+
+    ${renderRoadmap(plan.roadmap)}
 
     <div class="result-section">
       <h3>${T.secNextSteps}</h3>
