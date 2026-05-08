@@ -83,3 +83,12 @@ Started.
 - Per-URL priority weighting: 1.0 homepage, 0.9 agents, 0.8 tool/agent landings, 0.7 guides, 0.6 forms, 0.5 dashboard
 - Added "Guides" link to homepage nav secondary group (sits between Tools dropdown and Dashboard)
 - All generated pages already had per-page JSON-LD structured data + Open Graph + Twitter Card from iter 1 (carried through iters 2-4)
+
+### Iteration 6 — 2026-05-08 ~05:30
+
+**Done:**
+- 21-test generator test suite covering: slug helper (ASCII, diacritics, multi-word, edge cases), escapeHtml (XSS-safe), generated-page structural assertions (SEO meta, BreadcrumbList JSON-LD, anti-dumping conditional rendering, rail-corridor conditional rendering), sitemap content, robots.txt declarations, generator idempotence, and exact page-count check (40+30+36+6+5 = 117)
+- **Two bug fixes caught by tests:**
+  1. `escapeHtml` wasn't escaping single quotes — fixed (`'` → `&#39;`).
+  2. `slug` was stripping `Ł` (Polish capital L with stroke) entirely because Unicode NFD doesn't decompose it. Added explicit override table: Ł/ł, Ø/ø, Đ/đ, Þ/þ, ß, Æ, Œ all map to ASCII equivalents.
+- Full suite: **518 / 518 passing** (497 pre-existing + 21 new generator tests).

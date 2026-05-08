@@ -30,13 +30,31 @@ function escapeHtml(s) {
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
 }
 
+// Map Latin-script letters that don't decompose under NFD to ASCII equivalents.
+// (Ł is U+0141, a precomposed Polish letter that NFD leaves intact; same for ß, æ, etc.)
+const SLUG_OVERRIDES = {
+  'Ł': 'L', 'ł': 'l',
+  'Ø': 'O', 'ø': 'o',
+  'Đ': 'D', 'đ': 'd',
+  'Ð': 'D', 'ð': 'd',
+  'Þ': 'Th', 'þ': 'th',
+  'ß': 'ss',
+  'Æ': 'Ae', 'æ': 'ae',
+  'Œ': 'Oe', 'œ': 'oe',
+};
+
 function slug(s) {
-  return String(s)
-    .normalize('NFD')                  // decompose accented chars (Poznań → Poznan + combining ́)
-    .replace(/[̀-ͯ]/g, '')   // strip combining marks
+  let str = String(s);
+  for (const [ch, repl] of Object.entries(SLUG_OVERRIDES)) {
+    str = str.split(ch).join(repl);
+  }
+  return str
+    .normalize('NFD')                       // decompose accented chars (Poznań → Poznan + combining ́)
+    .replace(/[̀-ͯ]/g, '')        // strip combining marks
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '');
