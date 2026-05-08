@@ -1,8 +1,44 @@
 // Import Plan Builder wizard.
 // Multi-step form, client-side validation, single POST to /api/start,
 // renders the resulting plan inline on the same page.
+//
+// Share-permalink behaviour: if the URL has `?p=<base64>`, the wizard is
+// skipped — we decode the inputs, regenerate the plan against current
+// pricing, and render it directly. See lib/utils/plan-codec.js for the
+// canonical Node-side codec; the browser-side version below is kept in
+// sync with that whitelist.
 
 const TOTAL_STEPS = 6;
+
+const SHARE_KEYS = [
+  'productCategory', 'originCountry', 'destinationCountry',
+  'customsValueEur', 'weightKg', 'linesCount', 'urgencyWeeks',
+  'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg',
+  'claimPreferential', 'hsCode', 'moq', 'targetFobUnitEur',
+];
+
+function encodeShareInputs(inputs) {
+  const minimal = {};
+  for (const k of SHARE_KEYS) {
+    if (inputs[k] !== undefined && inputs[k] !== null && inputs[k] !== '') minimal[k] = inputs[k];
+  }
+  const json = JSON.stringify(minimal);
+  const bytes = new TextEncoder().encode(json);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
+function decodeShareInputs(b64url) {
+  const padded = b64url.replace(/-/g, '+').replace(/_/g, '/') + '='.repeat((4 - (b64url.length % 4)) % 4);
+  const binary = atob(padded);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  const parsed = JSON.parse(new TextDecoder().decode(bytes));
+  const safe = {};
+  for (const k of SHARE_KEYS) if (parsed[k] !== undefined) safe[k] = parsed[k];
+  return safe;
+}
 
 const els = {
   form: document.getElementById('wizard'),
@@ -195,11 +231,42 @@ function renderPlan(plan) {
       </div>
     </div>
 
+    <div class="result-section">
+      <h3>Share this plan</h3>
+      <p>Send this URL to a colleague, supplier, or your finance team. The plan stays linked to live pricing — they'll see fresh duty rates and freight numbers if our calculators update.</p>
+      <div class="share-row">
+        <input class="share-url" id="shareUrl" readonly value="${escapeHtml(buildShareUrl(inputs))}">
+        <button class="btn btn-primary" type="button" id="copyShareBtn">Copy link</button>
+      </div>
+    </div>
+
     <div class="result-section" style="text-align: center;">
       <a class="btn btn-primary" href="/start/" style="margin-right: 0.6rem;">Run another plan</a>
       <a class="btn" href="/guides/">Browse 351 guides</a>
     </div>
   `;
+
+  const copyBtn = document.getElementById('copyShareBtn');
+  const shareInput = document.getElementById('shareUrl');
+  if (copyBtn && shareInput) {
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(shareInput.value);
+        copyBtn.textContent = 'Copied ✓';
+        setTimeout(() => { copyBtn.textContent = 'Copy link'; }, 2000);
+      } catch (_) {
+        shareInput.select();
+        document.execCommand('copy');
+        copyBtn.textContent = 'Copied ✓';
+        setTimeout(() => { copyBtn.textContent = 'Copy link'; }, 2000);
+      }
+    });
+  }
+}
+
+function buildShareUrl(inputs) {
+  const encoded = encodeShareInputs(inputs);
+  return `${window.location.origin}/start/?p=${encoded}`;
 }
 
 async function submitPlan() {
@@ -270,4 +337,41 @@ els.form.addEventListener('keydown', e => {
   }
 });
 
-showStep(1);
+async function loadFromShareUrl(b64url) {
+  els.hero.style.display = 'none';
+  document.getElementById('progress').style.display = 'none';
+  els.form.style.display = 'none';
+  els.result.classList.add('active');
+  els.result.innerHTML = '<div class="result-hero"><h2>Loading shared plan…</h2><p>Recomputing against current pricing.</p></div>';
+
+  try {
+    const inputs = decodeShareInputs(b64url);
+    const response = await fetch('/api/start', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(inputs),
+    });
+    if (!response.ok) {
+      const errBody = await response.json().catch(() => ({}));
+      throw new Error((errBody.errors && errBody.errors.join('; ')) || errBody.error || `Server returned ${response.status}`);
+    }
+    const json = await response.json();
+    if (!json.ok || !json.plan) throw new Error('Plan generation failed');
+    renderPlan({ ...json.plan, email: { sent: false, reason: 'shared-plan-view' } });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  } catch (err) {
+    els.result.innerHTML = `
+      <div class="result-hero">
+        <h2>This shared link couldn't be loaded.</h2>
+        <p>${escapeHtml(err.message || 'Unknown error')}.</p>
+        <p><a class="btn btn-primary" href="/start/">Build a new plan</a></p>
+      </div>`;
+  }
+}
+
+const sharedPlanParam = new URLSearchParams(window.location.search).get('p');
+if (sharedPlanParam) {
+  loadFromShareUrl(sharedPlanParam);
+} else {
+  showStep(1);
+}
