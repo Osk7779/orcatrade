@@ -97,6 +97,19 @@
     .news-skeleton-tag   { height: 0.85rem; width: 5rem; margin-bottom: 1rem; }
     .news-skeleton-title { height: 1.1rem;  width: 85%;  margin-bottom: 0.8rem; }
     .news-skeleton-body  { height: 4rem;    width: 100%; }
+
+    /* Worked examples section */
+    #examples-feature .examples-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); margin-top: 2rem; }
+    @media (max-width: 900px) { #examples-feature .examples-grid { grid-template-columns: 1fr; } }
+    #examples-feature .example-card { background: #0d0f14; padding: 1.5rem 1.6rem; text-decoration: none; transition: background 0.15s; display: flex; flex-direction: column; }
+    #examples-feature .example-card:hover { background: rgba(184,190,200,0.04); }
+    #examples-feature .example-tag { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.6rem; font-weight: 600; }
+    #examples-feature .example-card h3 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.15rem; font-weight: 600; color: rgba(255,255,255,0.97); margin: 0 0 0.6rem; line-height: 1.3; }
+    #examples-feature .example-card p { font-size: 0.88rem; color: rgba(255,255,255,0.7); line-height: 1.55; margin: 0 0 1rem; flex: 1; }
+    #examples-feature .example-link { font-family: 'Geist Mono', monospace; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-color, #b8bec8); font-weight: 600; }
+    #examples-feature .examples-footer { text-align: center; margin-top: 2rem; }
+    #examples-feature .examples-all-link { font-family: 'Geist Mono', monospace; font-size: 0.78rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.85); text-decoration: none; padding: 0.7rem 1.3rem; border: 1px solid rgba(184,190,200,0.4); transition: all 0.18s; }
+    #examples-feature .examples-all-link:hover { background: rgba(184,190,200,0.06); color: rgba(255,255,255,0.97); }
   </style>
 </head>
 
@@ -176,8 +189,40 @@
         </div>
 
         <div class="hero-actions hero-actions--center">
-          <a class="btn btn-primary" href="#group">Unsere Einheiten erkunden</a>
-          <a class="btn btn-ghost" href="#contact">Kontakt aufnehmen</a>
+          <a class="btn btn-primary" href="start/">Importplan erstellen</a>
+          <a class="btn btn-ghost" href="examples/">Beispiele ansehen</a>
+        </div>
+      </section>
+
+      <!-- WORKED EXAMPLES -->
+      <section class="section" id="examples-feature" aria-label="Importplan-Beispiele">
+        <div class="section-kicker">Beispiele</div>
+        <h2 class="section-title">Drei reale Szenarien. Kalkulator-basierte Zahlen.</h2>
+        <p class="section-intro">Skeptisch gegenüber Demos? Jedes Beispiel unten wird aus derselben composePlan()-Funktion generiert, die den Live-Wizard antreibt — dieselbe Handelsschutz-Datenbank, dieselben Präferenzursprungs-Pfade, dieselbe Compliance-Überlagerung. Klicken Sie auf eine Karte, um den vollständigen Plan zu sehen, oder öffnen Sie ihn direkt im Wizard.</p>
+
+        <div class="examples-grid">
+          <a class="example-card" href="examples/chinese-ebike-importer-87pct-combined-ad-cvd/">
+            <div class="example-tag">E-Bikes · CN→PL</div>
+            <h3>87% kombiniertes AD + CVD auf chinesische E-Bikes</h3>
+            <p>€97.300 Zoll pro €100.000-Sendung. AD 70,1% + CVD 17,2% zusätzlich zu 10% MFN. Importeure, die mit MFN-Zahlen planen, gehen am Hafen pleite.</p>
+            <span class="example-link">Vollständigen Plan ansehen →</span>
+          </a>
+          <a class="example-card" href="examples/bangladesh-apparel-eba-zero-duty/">
+            <div class="example-tag">Bekleidung · BD→PL</div>
+            <h3>Null EU-Zoll unter Everything But Arms</h3>
+            <p>Ersparnis €6.000 pro €50.000-Bekleidungssendung mit gültigem REX. Bangladesch verlässt 2026 den LDC-Status — EBA läuft bis 2029 in der Übergangsphase.</p>
+            <span class="example-link">Vollständigen Plan ansehen →</span>
+          </a>
+          <a class="example-card" href="examples/turkey-cold-rolled-steel-atr-with-ad/">
+            <div class="example-tag">Stahl · TR→DE</div>
+            <h3>A.TR-Zollunion hebt 23,3% AD NICHT auf</h3>
+            <p>Häufiges Missverständnis: "TR-Waren sind unter A.TR zollfrei". Stimmt für MFN — aber Handelsschutz hat Vorrang. €23.300 AD pro €100.000-Sendung trotz Zollunion.</p>
+            <span class="example-link">Vollständigen Plan ansehen →</span>
+          </a>
+        </div>
+
+        <div class="examples-footer">
+          <a class="examples-all-link" href="examples/">Alle 8 Beispiele ansehen →</a>
         </div>
       </section>
 
