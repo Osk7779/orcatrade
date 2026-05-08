@@ -117,3 +117,45 @@ test('PL trade-defence URL has all 3 hreflang pointers (incl. back to EN)', () =
   assert.match(block, /hreflang="en" href="https:\/\/orcatrade\.pl\/guides\/trade-defence\/cn-bicycles\/"/);
   assert.match(block, /hreflang="pl" href="https:\/\/orcatrade\.pl\/pl\/guides\/trade-defence\/cn-bicycles\/"/);
 });
+
+// ── Sprint AD: Legacy guides also have hreflang ───────
+
+test('legacy sourcing URL has hreflang block with locale-specific slugs', () => {
+  const sitemap = readSitemap('sitemap.xml');
+  const block = sitemap.match(/<url>\s*<loc>https:\/\/orcatrade\.pl\/guides\/sourcing\/apparel-from-cn\/<\/loc>[\s\S]*?<\/url>/);
+  assert.ok(block, 'EN sourcing apparel-from-cn block present');
+  // PL slug differs: apparel-z-cn
+  assert.match(block[0], /hreflang="pl" href="https:\/\/orcatrade\.pl\/pl\/guides\/sourcing\/apparel-z-cn\/"/);
+  // DE slug differs: apparel-cn (no separator)
+  assert.match(block[0], /hreflang="de" href="https:\/\/orcatrade\.pl\/de\/guides\/sourcing\/apparel-cn\/"/);
+});
+
+test('legacy routing URL has hreflang block', () => {
+  const sitemap = readSitemap('sitemap.xml');
+  const block = sitemap.match(/<url>\s*<loc>https:\/\/orcatrade\.pl\/guides\/routing\/cn-to-de\/<\/loc>[\s\S]*?<\/url>/);
+  assert.ok(block);
+  assert.match(block[0], /hreflang="pl" href="https:\/\/orcatrade\.pl\/pl\/guides\/routing\/cn-do-de\/"/);
+  assert.match(block[0], /hreflang="de" href="https:\/\/orcatrade\.pl\/de\/guides\/routing\/cn-de\/"/);
+});
+
+test('legacy customs URL has hreflang block', () => {
+  const sitemap = readSitemap('sitemap.xml');
+  const block = sitemap.match(/<url>\s*<loc>https:\/\/orcatrade\.pl\/guides\/customs\/electronics-into-pl\/<\/loc>[\s\S]*?<\/url>/);
+  assert.ok(block);
+  assert.match(block[0], /hreflang="pl"/);
+  assert.match(block[0], /hreflang="de"/);
+});
+
+test('legacy warehouse URL has hreflang block', () => {
+  const sitemap = readSitemap('sitemap.xml');
+  // Find the first warehouse URL with hreflang
+  const block = sitemap.match(/<url>\s*<loc>https:\/\/orcatrade\.pl\/guides\/warehouse\/[^<]+<\/loc>\s*<xhtml:link[\s\S]*?<\/url>/);
+  assert.ok(block, 'at least one warehouse URL has hreflang block');
+});
+
+test('xhtml:link entry count is now substantially higher (legacy guides included)', () => {
+  const sitemap = readSitemap('sitemap.xml');
+  const matches = sitemap.match(/<xhtml:link/g);
+  // Was ~840 before Sprint AD; should be ~2000+ now
+  assert.ok(matches && matches.length >= 1500, `expected ≥1500 xhtml:link entries, got ${matches?.length || 0}`);
+});
