@@ -600,10 +600,14 @@ function renderComparison(plan, altOriginCode, panelEl) {
     return e.tradeDefenceMeasures.map(m => `${m.type} ${m.rateTypicalPct}%`).join(', ');
   }
 
+  const compareUrl = buildComparisonUrl(plan.inputs, altEntry.origin);
   const html = `
     <div class="comparison-header">
       <span class="comparison-title">${T.compareTitle(escapeHtml(userEntry.origin), escapeHtml(altEntry.origin))}</span>
-      <button class="compare-close" type="button" id="closeComparisonBtn" aria-label="${T.compareClose}">×</button>
+      <div class="comparison-actions">
+        <button class="compare-copy-btn" type="button" id="copyComparisonBtn" data-compare-url="${escapeHtml(compareUrl)}">${T.btnCopyComparisonUrl}</button>
+        <button class="compare-close" type="button" id="closeComparisonBtn" aria-label="${T.compareClose}">×</button>
+      </div>
     </div>
     <p class="comparison-intro">${T.compareIntro(escapeHtml(userEntry.origin), escapeHtml(altEntry.origin))}</p>
     <table class="comparison-table">
@@ -666,6 +670,28 @@ function renderComparison(plan, altOriginCode, panelEl) {
     panelEl.hidden = true;
     panelEl.innerHTML = '';
   });
+
+  const copyBtn = document.getElementById('copyComparisonBtn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', async () => {
+      const url = copyBtn.getAttribute('data-compare-url');
+      try {
+        await navigator.clipboard.writeText(url);
+        copyBtn.textContent = T.btnCopiedOk;
+        setTimeout(() => { copyBtn.textContent = T.btnCopyComparisonUrl; }, 2000);
+      } catch (_) {
+        // Clipboard API blocked — fall back to a temporary input + execCommand
+        const tmp = document.createElement('input');
+        tmp.value = url;
+        document.body.appendChild(tmp);
+        tmp.select();
+        document.execCommand('copy');
+        document.body.removeChild(tmp);
+        copyBtn.textContent = T.btnCopiedOk;
+        setTimeout(() => { copyBtn.textContent = T.btnCopyComparisonUrl; }, 2000);
+      }
+    });
+  }
 }
 
 function localePrefix() {
@@ -683,6 +709,10 @@ function agentBase(name) {
 function buildShareUrl(inputs) {
   const encoded = encodeShareInputs(inputs);
   return `${window.location.origin}${wizardHome()}?p=${encoded}`;
+}
+
+function buildComparisonUrl(inputs, altOriginCode) {
+  return `${buildShareUrl(inputs)}&c=${encodeURIComponent(altOriginCode)}`;
 }
 
 async function submitPlan() {
@@ -751,7 +781,7 @@ els.form.addEventListener('keydown', e => {
   }
 });
 
-async function loadFromShareUrl(b64url) {
+async function loadFromShareUrl(b64url, compareWithOrigin = null) {
   els.hero.style.display = 'none';
   document.getElementById('progress').style.display = 'none';
   els.form.style.display = 'none';
@@ -774,6 +804,22 @@ async function loadFromShareUrl(b64url) {
     if (!json.ok || !json.plan) throw new Error(T.errSubmit);
     renderPlan({ ...json.plan, email: { sent: false, shared: true } });
     window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    // If a comparison origin was passed in the URL, auto-trigger the
+    // comparison panel so the recipient lands on exactly the same view
+    // the sender intended (not just the base plan).
+    if (compareWithOrigin) {
+      const panel = document.getElementById('comparisonPanel');
+      if (panel) {
+        // Validate the origin exists in the matrix and is not the user's pick
+        const altEntry = json.plan.originSensitivity?.matrix?.find(
+          e => e.origin === compareWithOrigin && !e.isUserChoice,
+        );
+        if (altEntry) {
+          renderComparison(json.plan, compareWithOrigin, panel);
+        }
+      }
+    }
   } catch (err) {
     els.result.innerHTML = `
       <div class="result-hero">
@@ -789,9 +835,11 @@ if (els.backBtn) els.backBtn.textContent = T.btnBack;
 if (els.nextBtn) els.nextBtn.textContent = T.btnNext;
 if (els.submitBtn) els.submitBtn.textContent = T.btnSubmit;
 
-const sharedPlanParam = new URLSearchParams(window.location.search).get('p');
+const urlParams = new URLSearchParams(window.location.search);
+const sharedPlanParam = urlParams.get('p');
+const compareWithParam = urlParams.get('c');
 if (sharedPlanParam) {
-  loadFromShareUrl(sharedPlanParam);
+  loadFromShareUrl(sharedPlanParam, compareWithParam);
 } else {
   showStep(1);
 }
