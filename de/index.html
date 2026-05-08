@@ -200,7 +200,7 @@
         <h2 class="section-title">Drei reale Szenarien. Kalkulator-basierte Zahlen.</h2>
         <p class="section-intro">Skeptisch gegenüber Demos? Jedes Beispiel unten wird aus derselben composePlan()-Funktion generiert, die den Live-Wizard antreibt — dieselbe Handelsschutz-Datenbank, dieselben Präferenzursprungs-Pfade, dieselbe Compliance-Überlagerung. Klicken Sie auf eine Karte, um den vollständigen Plan zu sehen, oder öffnen Sie ihn direkt im Wizard.</p>
 
-        <div class="examples-grid">
+        <div class="examples-grid" data-shuffle-pool>
           <a class="example-card" href="examples/chinese-ebike-importer-87pct-combined-ad-cvd/">
             <div class="example-tag">E-Bikes · CN→PL</div>
             <h3>87% kombiniertes AD + CVD auf chinesische E-Bikes</h3>
@@ -217,6 +217,24 @@
             <div class="example-tag">Stahl · TR→DE</div>
             <h3>A.TR-Zollunion hebt 23,3% AD NICHT auf</h3>
             <p>Häufiges Missverständnis: "TR-Waren sind unter A.TR zollfrei". Stimmt für MFN — aber Handelsschutz hat Vorrang. €23.300 AD pro €100.000-Sendung trotz Zollunion.</p>
+            <span class="example-link">Vollständigen Plan ansehen →</span>
+          </a>
+          <a class="example-card" href="examples/vietnam-electronics-evfta-zero-duty/">
+            <div class="example-tag">Elektronik · VN→DE</div>
+            <h3>EVFTA: null Zoll + CE/RoHS/WEEE-Stack</h3>
+            <p>EU-Vietnam-FTA gewährt 0% Zoll mit REX-Erklärung auf der Rechnung. Doch Kapitel 85 löst CE LVD/EMC/RED + RoHS + WEEE-Herstellerregistrierung aus. Vier parallele Compliance-Regime neben der Zollersparnis.</p>
+            <span class="example-link">Vollständigen Plan ansehen →</span>
+          </a>
+          <a class="example-card" href="examples/cn-aluminium-cbam-plus-32pct-ad/">
+            <div class="example-tag">Aluminium · CN→DE</div>
+            <h3>CBAM-Anmelder-Status + 32% Antidumpingzoll</h3>
+            <p>Aluminium-Strangpressteile aus China tragen beides: 32% AD zusätzlich zu 6% MFN UND CBAM-Anmelder-Status (aktiver definitiver Zeitraum seit Januar 2026). Importeur muss sich registrieren, Emissionserklärungen abgeben und CBAM-Zertifikate kaufen.</p>
+            <span class="example-link">Vollständigen Plan ansehen →</span>
+          </a>
+          <a class="example-card" href="examples/cosmetics-india-reach-cosmetics-regulation/">
+            <div class="example-tag">Kosmetik · IN→DE</div>
+            <h3>Verantwortliche Person + CPNP-Notifizierung vor Markt</h3>
+            <p>Kosmetik Kapitel 33 löst die Kosmetikverordnung 1223/2009 aus: jedes Produkt benötigt eine EU-Verantwortliche Person, ein Produktinformations-Dossier und eine CPNP-Notifizierung vor Marktzulassung. Die Compliance-Überlagerung allein verzögert die Erstsendung 3–6 Monate.</p>
             <span class="example-link">Vollständigen Plan ansehen →</span>
           </a>
         </div>
@@ -655,6 +673,24 @@
           renderNews(data && data.articles);
         })
         .catch(renderFallback);
+    })();
+  </script>
+
+  <!-- Sprint AB: shuffle 6 example cards down to 3 visible per page load -->
+  <script>
+    (function shuffleExampleCards() {
+      var pool = document.querySelector('[data-shuffle-pool]');
+      if (!pool) return;
+      var cards = Array.prototype.slice.call(pool.querySelectorAll('.example-card'));
+      if (cards.length <= 3) return;
+      for (var i = cards.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+      }
+      cards.forEach(function (card, idx) {
+        card.style.display = idx < 3 ? '' : 'none';
+        if (idx < 3) pool.appendChild(card);
+      });
     })();
   </script>
 </body>

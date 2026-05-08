@@ -176,7 +176,7 @@
         <h2 class="section-title">Three real scenarios. Calculator-grounded numbers.</h2>
         <p class="section-intro">Skeptical of demos? Each example below is generated from the same composePlan() function that powers the live wizard — same trade-defence database, same preferential-origin pathways, same compliance overlay. Click any card to see the full plan, or open it directly in the wizard.</p>
 
-        <div class="examples-grid">
+        <div class="examples-grid" data-shuffle-pool>
           <a class="example-card" href="examples/chinese-ebike-importer-87pct-combined-ad-cvd/">
             <div class="example-tag">e-bikes · CN→PL</div>
             <h3>87% combined AD + CVD on Chinese e-bikes</h3>
@@ -193,6 +193,24 @@
             <div class="example-tag">steel · TR→DE</div>
             <h3>A.TR Customs Union doesn't waive 23.3% AD</h3>
             <p>The procurement misconception: "TR goods are duty-free under A.TR." True for MFN — but trade defence overrides preferential origin. €23,300 AD per €100,000 shipment despite the Customs Union.</p>
+            <span class="example-link">See the full plan →</span>
+          </a>
+          <a class="example-card" href="examples/vietnam-electronics-evfta-zero-duty/">
+            <div class="example-tag">electronics · VN→DE</div>
+            <h3>EVFTA: zero duty + RoHS/WEEE/CE compliance stack</h3>
+            <p>EU-Vietnam FTA gives 0% duty with a REX origin declaration on the invoice. But chapter 85 triggers CE LVD/EMC/RED + RoHS + WEEE producer registration. Four parallel compliance regimes alongside the duty saving.</p>
+            <span class="example-link">See the full plan →</span>
+          </a>
+          <a class="example-card" href="examples/cn-aluminium-cbam-plus-32pct-ad/">
+            <div class="example-tag">aluminium · CN→DE</div>
+            <h3>CBAM declarant status + 32% anti-dumping duty</h3>
+            <p>Aluminium extrusions from China carry both: 32% AD on top of 6% MFN AND CBAM declarant status (active definitive period from Jan 2026). Importer must register, file emissions reports, and buy CBAM certificates.</p>
+            <span class="example-link">See the full plan →</span>
+          </a>
+          <a class="example-card" href="examples/cosmetics-india-reach-cosmetics-regulation/">
+            <div class="example-tag">cosmetics · IN→DE</div>
+            <h3>Responsible Person + CPNP notification before market</h3>
+            <p>Cosmetics chapter 33 triggers Cosmetics Regulation 1223/2009: every product needs an EU Responsible Person, a Product Information File, and CPNP notification before market placement. Compliance overlay alone delays first shipment 3–6 months.</p>
             <span class="example-link">See the full plan →</span>
           </a>
         </div>
@@ -765,6 +783,31 @@
           renderNews(data && data.articles);
         })
         .catch(renderFallback);
+    })();
+  </script>
+
+  <!-- Sprint AB: shuffle the 6 example cards down to 3 visible per page load.
+       All 6 stay in the source HTML so search engines see the full pool;
+       the user just sees a random trio each visit. -->
+  <script>
+    (function shuffleExampleCards() {
+      var pool = document.querySelector('[data-shuffle-pool]');
+      if (!pool) return;
+      var cards = Array.prototype.slice.call(pool.querySelectorAll('.example-card'));
+      if (cards.length <= 3) return;
+      // Fisher-Yates shuffle, then hide all but the first 3.
+      for (var i = cards.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+      }
+      cards.forEach(function (card, idx) {
+        card.style.display = idx < 3 ? '' : 'none';
+        // Also reorder so visible cards stay in DOM-source order at the top
+        if (idx < 3) pool.appendChild(card);
+      });
+      // Bring hidden cards back at the end so SEO source order is preserved
+      // when crawlers fetch the static HTML (this rearrangement is only for
+      // the rendered DOM).
     })();
   </script>
 </body>

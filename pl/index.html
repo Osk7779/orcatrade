@@ -200,7 +200,7 @@
         <h2 class="section-title">Trzy realne scenariusze. Liczby z kalkulatorów.</h2>
         <p class="section-intro">Sceptyczny wobec demonstracji? Każdy poniższy przykład jest generowany z tej samej funkcji composePlan(), która zasila kreator — ta sama baza środków ochrony handlu, te same ścieżki preferencyjnego pochodzenia, ta sama nakładka zgodności. Kliknij dowolną kartę, aby zobaczyć pełny plan, lub otwórz go bezpośrednio w kreatorze.</p>
 
-        <div class="examples-grid">
+        <div class="examples-grid" data-shuffle-pool>
           <a class="example-card" href="examples/chinese-ebike-importer-87pct-combined-ad-cvd/">
             <div class="example-tag">e-bike · CN→PL</div>
             <h3>87% połączonego AD + CVD na chińskie e-bike</h3>
@@ -217,6 +217,24 @@
             <div class="example-tag">stal · TR→DE</div>
             <h3>A.TR Unia Celna NIE znosi 23,3% AD</h3>
             <p>Częste nieporozumienie: "Towary z TR są bez cła w ramach A.TR". Prawda dla MFN — ale środki ochrony handlu mają pierwszeństwo. €23 300 AD na przesyłce €100 000 mimo Unii Celnej.</p>
+            <span class="example-link">Zobacz pełny plan →</span>
+          </a>
+          <a class="example-card" href="examples/vietnam-electronics-evfta-zero-duty/">
+            <div class="example-tag">elektronika · VN→DE</div>
+            <h3>EVFTA: zerowe cło + stos CE/RoHS/WEEE</h3>
+            <p>Umowa EU-Wietnam daje 0% cła z deklaracją REX na fakturze. Ale dział 85 uruchamia CE LVD/EMC/RED + RoHS + rejestrację producenta WEEE. Cztery równoległe reżimy zgodności obok oszczędności cła.</p>
+            <span class="example-link">Zobacz pełny plan →</span>
+          </a>
+          <a class="example-card" href="examples/cn-aluminium-cbam-plus-32pct-ad/">
+            <div class="example-tag">aluminium · CN→DE</div>
+            <h3>Status zgłaszającego CBAM + 32% antydumping</h3>
+            <p>Profile aluminiowe z Chin niosą oba: 32% AD nad 6% MFN ORAZ status zgłaszającego CBAM (aktywny okres ostateczny od stycznia 2026). Importer musi się zarejestrować, składać deklaracje emisji i kupować świadectwa CBAM.</p>
+            <span class="example-link">Zobacz pełny plan →</span>
+          </a>
+          <a class="example-card" href="examples/cosmetics-india-reach-cosmetics-regulation/">
+            <div class="example-tag">kosmetyki · IN→DE</div>
+            <h3>Responsible Person + zgłoszenie CPNP przed rynkiem</h3>
+            <p>Kosmetyki dział 33 uruchamiają Rozporządzenie Kosmetyczne 1223/2009: każdy produkt potrzebuje Responsible Person UE, Dossier Produktu i zgłoszenia CPNP przed wprowadzeniem na rynek. Sama warstwa zgodności opóźnia pierwszą przesyłkę 3–6 miesięcy.</p>
             <span class="example-link">Zobacz pełny plan →</span>
           </a>
         </div>
@@ -649,6 +667,24 @@
           renderNews(data && data.articles);
         })
         .catch(renderFallback);
+    })();
+  </script>
+
+  <!-- Sprint AB: shuffle 6 example cards down to 3 visible per page load -->
+  <script>
+    (function shuffleExampleCards() {
+      var pool = document.querySelector('[data-shuffle-pool]');
+      if (!pool) return;
+      var cards = Array.prototype.slice.call(pool.querySelectorAll('.example-card'));
+      if (cards.length <= 3) return;
+      for (var i = cards.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        var tmp = cards[i]; cards[i] = cards[j]; cards[j] = tmp;
+      }
+      cards.forEach(function (card, idx) {
+        card.style.display = idx < 3 ? '' : 'none';
+        if (idx < 3) pool.appendChild(card);
+      });
     })();
   </script>
 </body>
