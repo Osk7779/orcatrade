@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Account | OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Sign in to your OrcaTrade account to save and revisit your import plans." />
+  <link rel="canonical" href="https://orcatrade.pl/account/" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .account-shell { max-width: 560px; margin: 0 auto; padding: 4rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .account-card { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); padding: 2.5rem 2.6rem; }
+    @media (max-width: 600px) { .account-card { padding: 1.6rem 1.2rem; } }
+    .account-card h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.7rem, 3vw + 0.5rem, 2.2rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 1rem; line-height: 1.15; letter-spacing: -0.01em; }
+    .account-card p { font-size: 0.95rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 1.2rem; }
+    .account-state { display: none; }
+    .account-state.active { display: block; animation: fadeIn 0.25s ease-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+    label { display: block; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; font-weight: 500; }
+    input[type="email"] { width: 100%; padding: 0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s; }
+    input[type="email"]:focus { border-color: rgba(184,190,200,0.4); background: rgba(8, 11, 19, 0.85); }
+    .btn { padding: 0.85rem 1.4rem; font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; background: transparent; color: rgba(255,255,255,0.92); margin-top: 1rem; }
+    .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
+    .btn-primary { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .err { font-size: 0.82rem; color: #c95050; margin-top: 0.5rem; min-height: 1.2em; }
+    .ok-msg { padding: 0.9rem 1.1rem; background: rgba(80, 180, 100, 0.06); border-left: 2px solid #5fb56b; color: rgba(255,255,255,0.92); font-size: 0.92rem; line-height: 1.6; margin-top: 1rem; }
+    .signed-in-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); flex-wrap: wrap; gap: 1rem; }
+    .signed-in-row .email { font-family: 'Geist Mono', monospace; font-size: 0.88rem; color: rgba(255,255,255,0.85); }
+    .quick-links { margin-top: 1.5rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); }
+    .quick-links h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.8rem; }
+    .quick-links a { display: block; padding: 0.7rem 0.9rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 0.5rem; text-decoration: none; transition: background 0.15s, border 0.15s; }
+    .quick-links a:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); }
+    .quick-links .ql-title { display: block; font-family: 'Cormorant Garant', Georgia, serif; font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.95); }
+    .quick-links .ql-sub { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 0.15rem; }
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+  <div class="page">
+    <header data-site-header></header>
+    <main>
+      <section class="account-shell">
+        <div class="account-card">
+
+          <!-- Loading state (default while we check /api/auth/me) -->
+          <div class="account-state active" id="state-loading">
+            <h1>Loading…</h1>
+            <p>Checking your sign-in status.</p>
+          </div>
+
+          <!-- Sign-in form (shown when not signed in) -->
+          <div class="account-state" id="state-signin">
+            <h1>Sign in to OrcaTrade</h1>
+            <p>Enter your email and we'll send you a sign-in link. No password — the link is good for 15 minutes.</p>
+            <form id="signin-form">
+              <label for="email">Email address</label>
+              <input type="email" id="email" name="email" placeholder="you@company.com" required autocomplete="email" />
+              <button type="submit" class="btn btn-primary" id="signin-btn">Send me a sign-in link</button>
+              <div class="err" id="signin-err"></div>
+            </form>
+          </div>
+
+          <!-- Sent state (after request) -->
+          <div class="account-state" id="state-sent">
+            <h1>Check your inbox</h1>
+            <p>If <span id="sent-email"></span> is a valid address, we've sent you a sign-in link. Click the link in your email — it expires in 15 minutes.</p>
+            <p class="ok-msg">No email after a minute? Check spam, or <a href="#" id="resend-link" style="color: var(--accent-color, #b8bec8);">try again</a>.</p>
+          </div>
+
+          <!-- Signed-in state -->
+          <div class="account-state" id="state-signedin">
+            <h1>Welcome back</h1>
+            <p>You're signed in. From here you can revisit any plans you've saved (saved plans coming soon — for now, every plan you build has its own permalink under <code>/start/?p=…</code>).</p>
+            <div class="signed-in-row">
+              <span class="email" id="signedin-email"></span>
+              <button class="btn" type="button" id="logout-btn">Sign out</button>
+            </div>
+            <div class="quick-links">
+              <h2>Quick links</h2>
+              <a href="/start/">
+                <span class="ql-title">Build a new import plan</span>
+                <span class="ql-sub">6 questions · full landed-cost analysis</span>
+              </a>
+              <a href="/examples/">
+                <span class="ql-title">Browse worked examples</span>
+                <span class="ql-sub">8 curated scenarios with calculator-grounded numbers</span>
+              </a>
+              <a href="/agent/orchestrator/">
+                <span class="ql-title">Talk to the Orchestrator agent</span>
+                <span class="ql-sub">One agent, 16 tools, every domain</span>
+              </a>
+            </div>
+          </div>
+
+        </div>
+      </section>
+    </main>
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span><a href="/">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/account/app.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

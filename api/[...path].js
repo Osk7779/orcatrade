@@ -26,6 +26,9 @@ const handlers = {
   'finance-quote': require('../lib/handlers/finance-quote'),
   // Import Plan Builder
   start: require('../lib/handlers/start'),
+  // Auth (magic-link). Sub-actions resolved inside the handler from the
+  // second URL segment: request / verify / me / logout.
+  auth: require('../lib/handlers/auth'),
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),
