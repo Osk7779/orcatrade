@@ -204,6 +204,34 @@ function renderPlan(plan) {
     `;
   }
 
+  const complianceRegimes = plan.compliance?.regimes || [];
+  const complianceSection = `
+    <div class="result-section">
+      <h3>${T.secCompliance}</h3>
+      ${complianceRegimes.length === 0
+        ? `<p class="secondary-note">${T.complianceEmpty}</p>`
+        : `<p>${T.complianceIntro(complianceRegimes.length)}</p>
+           <div class="compliance-list">
+             ${complianceRegimes.map(r => `
+               <div class="compliance-card sev-${escapeHtml(r.severity)}">
+                 <div class="compliance-head">
+                   <span class="compliance-name">${escapeHtml(r.name)}</span>
+                   <span class="compliance-sev">${T['severity' + r.severity.charAt(0).toUpperCase() + r.severity.slice(1)] || r.severity}</span>
+                 </div>
+                 <div class="compliance-status">${T.complianceStatus}: ${escapeHtml(r.status)}</div>
+                 <div class="compliance-obligation"><strong>${T.complianceObligation}:</strong> ${escapeHtml(r.importerObligation)}</div>
+                 ${r.matchedTrigger ? `<div class="compliance-trigger">Matched on: ${escapeHtml(r.matchedTrigger)}</div>` : ''}
+                 ${r.keyDates ? `<div class="compliance-dates"><strong>${T.complianceKeyDates}:</strong> ${escapeHtml(r.keyDates)}</div>` : ''}
+                 ${r.note ? `<div class="compliance-note">${escapeHtml(r.note)}</div>` : ''}
+                 ${r.additionalNote ? `<div class="compliance-note">${escapeHtml(r.additionalNote)}</div>` : ''}
+                 ${r.deeperGuide ? `<a class="compliance-link" href="${escapeHtml(r.deeperGuide)}">${T.complianceMore} →</a>` : ''}
+               </div>
+             `).join('')}
+           </div>`
+      }
+    </div>
+  `;
+
   const warehouseSection = warehouse && !warehouse.skipped && warehouse.recommendedHub ? `
     <div class="result-section">
       <h3>${T.secWarehouse}</h3>
@@ -261,6 +289,8 @@ function renderPlan(plan) {
       ${preferentialBlock}
       ${originNotes}
     </div>
+
+    ${complianceSection}
 
     ${warehouseSection}
 

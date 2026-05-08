@@ -93,6 +93,25 @@ select { cursor: pointer; }
 .preferential-callout.warning { background: rgba(120, 160, 200, 0.05); border-left-color: rgba(140, 180, 220, 0.85); }
 .preferential-callout.warning .pref-header { color: rgba(170, 200, 230, 1); }
 
+.compliance-list { display: grid; gap: 0.7rem; margin-top: 1rem; }
+.compliance-card { padding: 1rem 1.2rem; background: rgba(255,255,255,0.03); border-left: 3px solid rgba(184,190,200,0.3); border-radius: 2px; }
+.compliance-card.sev-high { background: rgba(201, 80, 80, 0.05); border-left-color: #c95050; }
+.compliance-card.sev-medium { background: rgba(200, 168, 90, 0.04); border-left-color: rgba(200, 168, 90, 0.7); }
+.compliance-card.sev-low { background: rgba(184, 190, 200, 0.03); border-left-color: rgba(184, 190, 200, 0.4); }
+.compliance-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.4rem; gap: 1rem; flex-wrap: wrap; }
+.compliance-name { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.05rem; font-weight: 600; color: rgba(255,255,255,0.97); line-height: 1.3; }
+.compliance-sev { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 0.18rem 0.55rem; border-radius: 1px; flex-shrink: 0; }
+.compliance-card.sev-high .compliance-sev { color: #e88080; background: rgba(201, 80, 80, 0.12); }
+.compliance-card.sev-medium .compliance-sev { color: rgba(220, 188, 110, 1); background: rgba(200, 168, 90, 0.1); }
+.compliance-card.sev-low .compliance-sev { color: rgba(184,190,200,0.85); background: rgba(184,190,200,0.06); }
+.compliance-status { font-size: 0.84rem; color: rgba(255,255,255,0.6); margin-bottom: 0.4rem; font-style: italic; }
+.compliance-obligation { font-size: 0.9rem; color: rgba(255,255,255,0.85); line-height: 1.55; margin-bottom: 0.4rem; }
+.compliance-trigger { font-size: 0.78rem; color: rgba(255,255,255,0.5); margin-bottom: 0.3rem; font-family: 'Geist Mono', monospace; }
+.compliance-dates { font-size: 0.84rem; color: rgba(255,255,255,0.65); margin-bottom: 0.3rem; }
+.compliance-note { font-size: 0.84rem; color: rgba(255,255,255,0.6); font-style: italic; margin: 0.3rem 0; line-height: 1.5; }
+.compliance-link { display: inline-block; margin-top: 0.5rem; font-size: 0.82rem; color: var(--accent-color, #b8bec8); text-decoration: none; font-weight: 600; }
+.compliance-link:hover { color: rgba(255,255,255,0.95); }
+
 .share-row { display: flex; gap: 0.6rem; align-items: stretch; margin-top: 0.6rem; max-width: 70ch; }
 .share-url { flex: 1; min-width: 0; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.78rem; border-radius: 2px; }
 .share-url:focus { outline: none; border-color: var(--accent-color, #b8bec8); }
