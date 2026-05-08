@@ -23,6 +23,8 @@ const warehouse = require(path.join(ROOT, 'lib/intelligence/warehouse-quote'));
 const SITE_URL = 'https://orcatrade.pl';
 const TODAY = new Date().toISOString().slice(0, 10);
 
+const pl = require('./seo-pl-translations');
+
 // ── Helpers ────────────────────────────────────────────────
 
 function escapeHtml(s) {
@@ -72,8 +74,11 @@ function writePage(relativePath, html) {
 
 // ── Page shell ─────────────────────────────────────────────
 
-function pageShell({ title, description, canonical, jsonLd, body, locale = 'en' }) {
+function pageShell({ title, description, canonical, jsonLd, body, locale = 'en', hreflangAlternates = [] }) {
   const ogImage = `${SITE_URL}/orcatrade_logo.png`;
+  const hreflangTags = hreflangAlternates.map(a =>
+    `<link rel="alternate" hreflang="${a.lang}" href="${a.href}" />`
+  ).join('\n  ');
   return `<!DOCTYPE html>
 <html lang="${locale}">
 <head>
@@ -82,6 +87,7 @@ function pageShell({ title, description, canonical, jsonLd, body, locale = 'en' 
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="${escapeHtml(description)}" />
   <link rel="canonical" href="${canonical}" />
+  ${hreflangTags}
   <meta property="og:type" content="article" />
   <meta property="og:title" content="${escapeHtml(title)}" />
   <meta property="og:description" content="${escapeHtml(description)}" />
@@ -184,6 +190,279 @@ function pageShell({ title, description, canonical, jsonLd, body, locale = 'en' 
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>`;
+}
+
+// ── Sourcing pages — Polish ─────────────────────────────────
+
+function generateSourcingPagePL(country, categoryKey) {
+  const countryInfo = sourcing.COUNTRIES[country];
+  const category = sourcing.CATEGORIES[categoryKey];
+  const profile = category.countryProfiles[country];
+  if (!profile) return null;
+
+  const countryNamePL = pl.COUNTRY_PL[country] || countryInfo.name;
+  const countryGenPL = pl.COUNTRY_PL_GENITIVE[country] || countryNamePL;
+  const cat = pl.CATEGORY_PL[categoryKey];
+  if (!cat) return null;
+  const regionPL = pl.REGION_PL[countryInfo.region] || countryInfo.region;
+  const L = pl.LABEL_PL;
+
+  const slugUrl = `${slug(categoryKey)}-z-${slug(country)}`;
+  const title = `${cat.label} z ${countryGenPL} — koszt FOB · MOQ · czas dostawy | OrcaTrade`;
+  const description = `Sourcing ${cat.genitive} z ${countryGenPL}: wskaźnik FOB ${profile.fobIndex}× względem Chin, ${profile.leadTimeWeeks} tyg. produkcji + ${countryInfo.seaTransitWeeks} tyg. transport morski, MOQ ${profile.minMoq}–${profile.typicalMoq}. Ryzyko jakości: ${pl.RISK_LABEL_PL[profile.qualityRisk]}, ryzyko IP: ${pl.RISK_LABEL_PL[profile.ipRisk]}.`.slice(0, 300);
+  const canonical = `${SITE_URL}/pl/guides/sourcing/${slugUrl}/`;
+  const enCanonical = `${SITE_URL}/guides/sourcing/${slug(categoryKey)}-from-${slug(country)}/`;
+  const totalLeadTimeWeeks = profile.leadTimeWeeks + countryInfo.seaTransitWeeks;
+
+  const samples = sourcing.SAMPLE_SUPPLIERS[country]?.[categoryKey] || [];
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: title,
+        description,
+        datePublished: TODAY,
+        dateModified: TODAY,
+        inLanguage: 'pl',
+        author: { '@type': 'Organization', name: 'OrcaTrade Group' },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/pl/guides/` },
+          { '@type': 'ListItem', position: 2, name: L.sourcingBreadcrumb, item: `${SITE_URL}/pl/guides/sourcing/` },
+          { '@type': 'ListItem', position: 3, name: `${cat.label} z ${countryGenPL}`, item: canonical },
+        ],
+      },
+    ],
+  });
+
+  const allCountries = Object.keys(sourcing.COUNTRIES).filter(c => c !== country);
+  const related = allCountries
+    .filter(c => category.countryProfiles[c])
+    .sort((a, b) => category.countryProfiles[a].fobIndex - category.countryProfiles[b].fobIndex)
+    .slice(0, 3);
+
+  const samplesSection = samples.length > 0 ? `
+    <section class="guide-section">
+      <h2>${L.sampleSuppliers}</h2>
+      <p>Anonimizowane przykłady z portfolio biura HK OrcaTrade. Realne wprowadzenia i raporty audytowe dostępne na żądanie partnerstwa.</p>
+      <table class="data-table">
+        <thead><tr><th>${L.city}</th><th>${L.specialty}</th><th>${L.sampleLeadTimeCol}</th><th>${L.minMoq}</th></tr></thead>
+        <tbody>
+          ${samples.map(s => `<tr><td>${escapeHtml(s.city)}</td><td>${escapeHtml(s.specialty)}</td><td>${escapeHtml(s.sampleLeadTime)}</td><td class="num">${s.minMoq}</td></tr>`).join('')}
+        </tbody>
+      </table>
+    </section>` : '';
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/pl/">${L.homeBreadcrumb}</a> · <a href="/pl/guides/">${L.guidesBreadcrumb}</a> · <a href="/pl/guides/sourcing/">${L.sourcingBreadcrumb}</a> · ${escapeHtml(cat.label)} z ${escapeHtml(countryGenPL)}
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">${L.sourcingGuide} · ${escapeHtml(regionPL)}</p>
+      <h1>Sourcing ${escapeHtml(cat.genitive)} z ${escapeHtml(countryGenPL)}</h1>
+      <p class="lead">${escapeHtml(cat.description)}. Poniżej: realny koszt FOB względem chińskiej linii bazowej, pełny czas dostawy łącznie z frachtem morskim do Rotterdamu, minimalne ilości zamówienia, oraz dyscyplina audytowa, której wymaga ta kombinacja kraju i kategorii przed pierwszym PO.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${profile.fobIndex}×</div><div class="label">${L.fobIndex}</div></div>
+      <div class="guide-stat"><div class="num">${totalLeadTimeWeeks} ${L.weeks}</div><div class="label">${L.totalLeadTime}</div></div>
+      <div class="guide-stat"><div class="num">${profile.minMoq}</div><div class="label">${L.minMoq}</div></div>
+      <div class="guide-stat"><div class="num">${pl.RISK_LABEL_PL[profile.qualityRisk]}</div><div class="label">${L.qualityRisk}</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>${L.costAndLeadAtAGlance}</h2>
+      <p>Dla ${escapeHtml(cat.genitive)} sourcowanych z ${escapeHtml(countryGenPL)}, benchmark OrcaTrade to <strong>wskaźnik FOB ${profile.fobIndex}</strong> względem chińskiej fabryki tier-2 (CN = 1,00). Oznacza to, że jednostka kupowana za 10 € FOB w Chinach kosztuje typowo ${(10 * profile.fobIndex).toFixed(2).replace('.', ',')} € w ${escapeHtml(countryGenPL)} — przed cłem, frachtem i ewentualnymi roszczeniami z tytułu preferencyjnego pochodzenia.</p>
+      <p>Produkcja zajmuje ${profile.leadTimeWeeks} tygodni w fabryce; fracht morski z ${escapeHtml(countryGenPL)} do Rotterdamu dodaje <strong>${countryInfo.seaTransitWeeks} ${profile.leadTimeWeeks > 1 ? 'tygodnie' : 'tygodni'}</strong>. Łącznie od portu nadania do magazynu w EU: <strong>${totalLeadTimeWeeks} ${L.weeks}</strong>. Fracht lotniczy oszczędza 3-4 tygodnie przy znacznym narzucie kosztowym; dla zakresu 200-5000 kg z Chin kolej przez Małaszewicze jest 10-15 dni szybsza od morza.</p>
+      <p>Zakresy MOQ: minimum to około <strong>${profile.minMoq}</strong> jednostek, typowe zamówienia to <strong>${profile.typicalMoq}</strong> jednostek. Poniżej minimum fabryki często deprioritetyzują małe zamówienia i dodają 1+ tydzień do terminu.</p>
+    </section>
+
+    <section class="guide-section">
+      <h2>Specjalność i profil ryzyka</h2>
+      <div class="specialty-block">
+        <div class="label">${L.whereExcels}: ${escapeHtml(countryNamePL)}</div>
+        <p style="margin: 0; color: rgba(255,255,255,0.85);">${escapeHtml(profile.specialty)}</p>
+      </div>
+      <div class="caution-block">
+        <div class="label">${L.whereWatch}</div>
+        <p style="margin: 0; color: rgba(255,255,255,0.85);">${escapeHtml(profile.caution)}</p>
+      </div>
+    </section>
+
+    ${samplesSection}
+
+    <section class="guide-section">
+      <h2>${L.compareWithOthers}</h2>
+      <p>Dla tej samej kategorii — ${escapeHtml(cat.genitive)} — w benchmarku OrcaTrade:</p>
+      <table class="data-table">
+        <thead><tr><th>Kraj</th><th>${L.fobIndex}</th><th>${L.productionLeadTime}</th><th>${L.seaTransit}</th><th>${L.totalLeadTime}</th><th>${L.qualityRisk}</th></tr></thead>
+        <tbody>
+          ${Object.keys(sourcing.COUNTRIES).map(c => {
+            const ci = sourcing.COUNTRIES[c];
+            const cp = category.countryProfiles[c];
+            if (!cp) return '';
+            const isCurrent = c === country;
+            return `<tr${isCurrent ? ' style="background: rgba(184, 190, 200, 0.06);"' : ''}>
+              <td>${escapeHtml(pl.COUNTRY_PL[c] || ci.name)}${isCurrent ? ' <span style="opacity:0.6;font-size:0.78em;">(ten przewodnik)</span>' : ''}</td>
+              <td class="num">${cp.fobIndex}×</td>
+              <td class="num">${cp.leadTimeWeeks} ${L.weeks}</td>
+              <td class="num">${ci.seaTransitWeeks} ${L.weeks}</td>
+              <td class="num">${cp.leadTimeWeeks + ci.seaTransitWeeks} ${L.weeks}</td>
+              <td>${pl.RISK_LABEL_PL[cp.qualityRisk]}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>${L.runComparison}</h3>
+        <p>${L.runComparisonText}</p>
+      </div>
+      <a href="/agent/sourcing/?prompt=Szukam%20${encodeURIComponent(cat.genitive)}%20z%20${encodeURIComponent(countryNamePL)}.%20Por%C3%B3wnaj%20z%20innymi%20krajami%20pod%20k%C4%85tem%20kosztu%2C%20czasu%20dostawy%20i%20ryzyka%20IP.">Sourcing Agent →</a>
+    </aside>
+
+    <section class="guide-section">
+      <h2>Powiązane przewodniki</h2>
+      <div class="related-grid">
+        ${related.map(c => {
+          const ci = sourcing.COUNTRIES[c];
+          const cp = category.countryProfiles[c];
+          return `<a class="related-card" href="/pl/guides/sourcing/${slug(categoryKey)}-z-${slug(c)}/">
+            <div class="related-tag">${escapeHtml(pl.REGION_PL[ci.region] || ci.region)}</div>
+            <h3>${escapeHtml(cat.label)} z ${escapeHtml(pl.COUNTRY_PL_GENITIVE[c] || pl.COUNTRY_PL[c] || ci.name)}</h3>
+            <div class="related-desc">FOB ${cp.fobIndex}× · ${cp.leadTimeWeeks + ci.seaTransitWeeks} ${L.weeks} · ryzyko jakości: ${pl.RISK_LABEL_PL[cp.qualityRisk]}</div>
+          </a>`;
+        }).join('')}
+      </div>
+    </section>
+  `;
+
+  const html = pageShell({
+    title, description, canonical, jsonLd, body, locale: 'pl',
+    hreflangAlternates: [
+      { lang: 'en', href: enCanonical },
+      { lang: 'pl', href: canonical },
+      { lang: 'x-default', href: enCanonical },
+    ],
+  });
+
+  return { path: `pl/guides/sourcing/${slugUrl}`, canonical, html };
+}
+
+function generateSourcingIndexPL() {
+  const L = pl.LABEL_PL;
+  const title = 'Przewodniki sourcing — Azja → Europa według kraju i kategorii | OrcaTrade';
+  const description = '40 przewodników sourcing pokrywających 5 krajów (Chiny / Wietnam / Indie / Bangladesz / Turcja) × 8 kategorii produktów. Koszt FOB, czas dostawy, MOQ, ryzyko jakości i IP dla każdej kombinacji.';
+  const canonical = `${SITE_URL}/pl/guides/sourcing/`;
+  const enCanonical = `${SITE_URL}/guides/sourcing/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    inLanguage: 'pl',
+    url: canonical,
+  });
+
+  const sections = Object.keys(sourcing.CATEGORIES).map(catKey => {
+    const cat = pl.CATEGORY_PL[catKey];
+    if (!cat) return '';
+    const links = Object.keys(sourcing.COUNTRIES).map(country => {
+      const ci = sourcing.COUNTRIES[country];
+      const cp = sourcing.CATEGORIES[catKey].countryProfiles[country];
+      if (!cp) return '';
+      const cnPL = pl.COUNTRY_PL_GENITIVE[country] || pl.COUNTRY_PL[country] || ci.name;
+      return `<a class="related-card" href="/pl/guides/sourcing/${slug(catKey)}-z-${slug(country)}/">
+        <div class="related-tag">${escapeHtml(pl.COUNTRY_PL[country] || ci.name)}</div>
+        <h3>${escapeHtml(cat.label)} z ${escapeHtml(cnPL)}</h3>
+        <div class="related-desc">FOB ${cp.fobIndex}× · ${cp.leadTimeWeeks + ci.seaTransitWeeks} tyg. · ${pl.RISK_LABEL_PL[cp.qualityRisk]}</div>
+      </a>`;
+    }).join('');
+    return `<section class="guide-section"><h2>${escapeHtml(cat.label)}</h2><p>${escapeHtml(cat.description)}</p><div class="related-grid">${links}</div></section>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/pl/">${L.homeBreadcrumb}</a> · <a href="/pl/guides/">${L.guidesBreadcrumb}</a> · ${L.sourcingBreadcrumb}</nav>
+    <header class="guide-hero">
+      <p class="kicker">Przewodniki sourcing</p>
+      <h1>Skąd sourcować. Według kraju i kategorii.</h1>
+      <p class="lead">40 przewodników pokrywających pięć głównych azjatyckich rynków sourcingowych (Chiny, Wietnam, Indie, Bangladesz, Turcja) w ośmiu kategoriach produktowych. Każdy przewodnik niesie benchmark OrcaTrade dla wskaźnika FOB, czasu dostawy, zakresu MOQ, ryzyka jakości i IP.</p>
+    </header>
+    ${sections}
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Użyj Sourcing Agenta dla porównania na Twoich danych</h3>
+        <p>Pomiń przeglądanie — opisz swój produkt, docelowe FOB, MOQ i pilność. Agent porówna pięć krajów na Twoim konkretnym briefie.</p>
+      </div>
+      <a href="/agent/sourcing/">Sourcing Agent →</a>
+    </aside>
+  `;
+
+  return {
+    path: 'pl/guides/sourcing',
+    canonical,
+    html: pageShell({
+      title, description, canonical, jsonLd, body, locale: 'pl',
+      hreflangAlternates: [
+        { lang: 'en', href: enCanonical },
+        { lang: 'pl', href: canonical },
+        { lang: 'x-default', href: enCanonical },
+      ],
+    }),
+  };
+}
+
+function generateGuidesRootPL() {
+  const title = 'OrcaTrade — przewodniki dla importerów Azja-Europa';
+  const description = 'Długie formy treści dla europejskich MŚP importujących z Azji. Porównania krajów sourcingowych, wybór trybu transportu, kalkulacje kosztów celnych, benchmark hubów 3PL w UE. Oparte na deterministycznych kalkulatorach.';
+  const canonical = `${SITE_URL}/pl/guides/`;
+  const enCanonical = `${SITE_URL}/guides/`;
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    inLanguage: 'pl',
+    url: canonical,
+  });
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/pl/">Strona główna</a> · Przewodniki</nav>
+    <header class="guide-hero">
+      <p class="kicker">Przewodniki OrcaTrade</p>
+      <h1>Przewodniki oparte na kalkulatorach dla handlu Azja–Europa.</h1>
+      <p class="lead">Bez treści wypełniającej. Każdy przewodnik jest zakotwiczony w deterministycznych kalkulatorach OrcaTrade dla sourcingu, routingu, ceł i magazynowania — więc liczby, które czytasz, to te same liczby, które otrzymałbyś od agenta. Przeglądaj według domeny.</p>
+    </header>
+
+    <section class="guide-section">
+      <h2>Sourcing</h2>
+      <p>Skąd sourcować — porównania krajów dla Chin / Wietnamu / Indii / Bangladeszu / Turcji w ośmiu kategoriach produktów.</p>
+      <a href="/pl/guides/sourcing/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Przeglądaj 40 przewodników →</a>
+    </section>
+  `;
+
+  return {
+    path: 'pl/guides',
+    canonical,
+    html: pageShell({
+      title, description, canonical, jsonLd, body, locale: 'pl',
+      hreflangAlternates: [
+        { lang: 'en', href: enCanonical },
+        { lang: 'pl', href: canonical },
+        { lang: 'x-default', href: enCanonical },
+      ],
+    }),
+  };
 }
 
 // ── Sourcing pages ──────────────────────────────────────────
@@ -1021,7 +1300,14 @@ function generateSourcingIndex() {
   return {
     path: 'guides/sourcing',
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: `${SITE_URL}/pl/guides/sourcing/` },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
 }
 
@@ -1075,7 +1361,14 @@ function generateGuidesRoot() {
   return {
     path: 'guides',
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: `${SITE_URL}/pl/guides/` },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
 }
 
@@ -1216,6 +1509,25 @@ function run() {
   const gRoot = generateGuidesRoot();
   writePage(gRoot.path, gRoot.html);
   generated.push(gRoot);
+
+  // ── Polish (PL) localisations ──
+  // Currently sourcing only — routing/customs/warehouse PL coming in later iters.
+  for (const country of Object.keys(sourcing.COUNTRIES)) {
+    for (const category of Object.keys(sourcing.CATEGORIES)) {
+      const page = generateSourcingPagePL(country, category);
+      if (page) {
+        writePage(page.path, page.html);
+        generated.push(page);
+      }
+    }
+  }
+  const sIndexPL = generateSourcingIndexPL();
+  writePage(sIndexPL.path, sIndexPL.html);
+  generated.push(sIndexPL);
+
+  const gRootPL = generateGuidesRootPL();
+  writePage(gRootPL.path, gRootPL.html);
+  generated.push(gRootPL);
 
   // Sitemap (guides only)
   generateSitemap(generated);

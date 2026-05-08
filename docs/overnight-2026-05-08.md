@@ -92,3 +92,16 @@ Started.
   1. `escapeHtml` wasn't escaping single quotes — fixed (`'` → `&#39;`).
   2. `slug` was stripping `Ł` (Polish capital L with stroke) entirely because Unicode NFD doesn't decompose it. Added explicit override table: Ł/ł, Ø/ø, Đ/đ, Þ/þ, ß, Æ, Œ all map to ASCII equivalents.
 - Full suite: **518 / 518 passing** (497 pre-existing + 21 new generator tests).
+
+### Iteration 7 — 2026-05-08 ~06:00
+
+**Done:**
+- New `scripts/seo-pl-translations.js` — Polish dictionary: country names + genitive cases, region names, category labels + genitive forms + descriptions, risk-level labels, all UI strings
+- Added Polish branch to generator: `generateSourcingPagePL`, `generateSourcingIndexPL`, `generateGuidesRootPL`
+- All 40 sourcing × {country, category} pages now exist in Polish at `/pl/guides/sourcing/{slug}-z-{country}/`
+- Plus `/pl/guides/sourcing/` index and `/pl/guides/` root
+- **42 new Polish pages**, total now **159 guide pages**
+- Master sitemap.xml updated to **196 indexable URLs**
+- **hreflang tags wired across both EN and PL**: each page declares all available locales + x-default to EN. Google can now serve the right locale per searcher.
+- Polish grammar correction: H1 changed from "Jak sourcować [genitive]" to "Sourcing [genitive]" (noun-phrase reads better than verb construct, also matches the keyword Polish founders actually search)
+- Sample URL: `/pl/guides/sourcing/elektronika-z-vn/` returns 200 with correct Polish copy + hreflang
