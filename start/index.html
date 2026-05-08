@@ -155,6 +155,29 @@
                 </select>
               </div>
             </div>
+            <div class="field-row">
+              <div>
+                <label for="quoteCurrency">Supplier quotes in</label>
+                <select id="quoteCurrency" name="quoteCurrency">
+                  <option value="EUR">EUR (no FX risk)</option>
+                  <option value="USD">USD — most common for CN/VN/IN/BD</option>
+                  <option value="CNY">CNY — direct CN supplier</option>
+                  <option value="VND">VND — direct VN supplier</option>
+                  <option value="INR">INR — direct IN supplier</option>
+                  <option value="BDT">BDT — direct BD supplier</option>
+                  <option value="TRY">TRY — direct TR supplier</option>
+                  <option value="HKD">HKD — Hong Kong</option>
+                  <option value="TWD">TWD — Taiwan</option>
+                  <option value="KRW">KRW — South Korea</option>
+                  <option value="JPY">JPY — Japan</option>
+                  <option value="GBP">GBP — UK supplier</option>
+                </select>
+              </div>
+              <div>
+                <label for="paymentTermsDays">Payment terms (days)</label>
+                <input type="number" id="paymentTermsDays" name="paymentTermsDays" min="0" max="180" value="60" />
+              </div>
+            </div>
           </div>
 
           <!-- STEP 5: Volume + urgency (optional warehouse) -->

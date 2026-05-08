@@ -112,6 +112,18 @@ select { cursor: pointer; }
 .compliance-link { display: inline-block; margin-top: 0.5rem; font-size: 0.82rem; color: var(--accent-color, #b8bec8); text-decoration: none; font-weight: 600; }
 .compliance-link:hover { color: rgba(255,255,255,0.95); }
 
+.fx-callout { margin: 1rem 0; padding: 1rem 1.2rem; border-left: 3px solid; }
+.fx-callout p { margin-bottom: 0.5em; font-size: 0.92rem; line-height: 1.6; color: rgba(255,255,255,0.85); max-width: none; }
+.fx-callout .fx-rec { font-family: 'Geist Mono', monospace; font-size: 0.84rem; letter-spacing: 0.06em; margin-top: 0.6rem; }
+.fx-callout.rec-hedge { background: rgba(201, 80, 80, 0.05); border-left-color: #c95050; }
+.fx-callout.rec-hedge .fx-rec { color: #e88080; }
+.fx-callout.rec-consider { background: rgba(200, 168, 90, 0.05); border-left-color: rgba(200, 168, 90, 0.85); }
+.fx-callout.rec-consider .fx-rec { color: rgba(220, 188, 110, 1); }
+.fx-callout.rec-accept { background: rgba(80, 180, 100, 0.05); border-left-color: #5fb56b; }
+.fx-callout.rec-accept .fx-rec { color: #7ed28a; }
+.fx-callout.rec-skip { background: rgba(184, 190, 200, 0.04); border-left-color: rgba(184, 190, 200, 0.4); }
+.fx-callout.rec-skip .fx-rec { color: rgba(184, 190, 200, 0.85); }
+
 .origin-saving-callout { padding: 1rem 1.2rem; background: rgba(80, 180, 100, 0.06); border-left: 3px solid #5fb56b; margin: 1rem 0; }
 .origin-saving-callout p { margin: 0; font-size: 0.95rem; line-height: 1.6; color: rgba(255,255,255,0.9); }
 .origin-matrix-wrap { overflow-x: auto; margin-top: 1rem; }

@@ -19,6 +19,7 @@ const SHARE_KEYS = [
   'customsValueEur', 'weightKg', 'linesCount', 'urgencyWeeks',
   'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg',
   'claimPreferential', 'hsCode', 'moq', 'targetFobUnitEur',
+  'quoteCurrency', 'paymentTermsDays',
 ];
 
 function encodeShareInputs(inputs) {
@@ -108,7 +109,7 @@ function readForm() {
     if (v === '') continue;
     out[k] = v;
   }
-  ['customsValueEur', 'weightKg', 'linesCount', 'urgencyWeeks', 'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg'].forEach(k => {
+  ['customsValueEur', 'weightKg', 'linesCount', 'urgencyWeeks', 'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg', 'paymentTermsDays'].forEach(k => {
     if (out[k] !== undefined) out[k] = Number(out[k]);
   });
   out.claimPreferential = out.claimPreferential === 'true';
@@ -200,6 +201,30 @@ function renderPlan(plan) {
       <div class="preferential-callout warning">
         <div class="pref-header">ℹ ${escapeHtml(prefAvailable.name)}</div>
         <p>${escapeHtml(prefAvailable.notes)}</p>
+      </div>
+    `;
+  }
+
+  const fxRisk = plan.fx;
+  let fxSection = '';
+  if (fxRisk && fxRisk.ok && !fxRisk.noFxRisk) {
+    const recKey = 'fxRecommendation' + fxRisk.recommendation.charAt(0).toUpperCase() + fxRisk.recommendation.slice(1);
+    const cls = fxRisk.recommendation === 'hedge' ? 'rec-hedge'
+      : fxRisk.recommendation === 'accept' ? 'rec-accept'
+      : fxRisk.recommendation === 'consider' ? 'rec-consider'
+      : 'rec-skip';
+    fxSection = `
+      <div class="result-section">
+        <h3>${T.secFx}</h3>
+        <p>${T.fxIntro(escapeHtml(fxRisk.currency), fxRisk.paymentTermsDays)}</p>
+        <p class="secondary-note">${T.fxSpotRate(escapeHtml(fxRisk.currency), fxRisk.spotRateForeignPerEur.toFixed(4), fxRisk.spotRateEurPerForeign.toFixed(6))}</p>
+        <p>${T.fxQuoteEquivalent(escapeHtml(fxRisk.equivalentForeignFormatted), fxRisk.customsValueEur.toLocaleString(T.currencyLocale))}</p>
+        <div class="fx-callout ${cls}">
+          <p>${T.fxRiskScenario(fxRisk.riskEur1Sigma90d, fxRisk.vol90dPct)}</p>
+          <p>${T.fxHedgeCost(fxRisk.hedgeCostEur, fxRisk.hedgeCostBp)}</p>
+          <p class="fx-rec">${T[recKey] || `Recommendation: ${fxRisk.recommendation}`}</p>
+          <p class="secondary-note">${escapeHtml(fxRisk.rationale)}</p>
+        </div>
       </div>
     `;
   }
@@ -336,6 +361,8 @@ function renderPlan(plan) {
       ${preferentialBlock}
       ${originNotes}
     </div>
+
+    ${fxSection}
 
     ${originSensitivitySection}
 

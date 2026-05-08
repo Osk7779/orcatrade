@@ -155,6 +155,29 @@
                 </select>
               </div>
             </div>
+            <div class="field-row">
+              <div>
+                <label for="quoteCurrency">Lieferant fakturiert in</label>
+                <select id="quoteCurrency" name="quoteCurrency">
+                  <option value="EUR">EUR (kein FX-Risiko)</option>
+                  <option value="USD">USD — am häufigsten für CN/VN/IN/BD</option>
+                  <option value="CNY">CNY — direkter CN-Lieferant</option>
+                  <option value="VND">VND — direkter VN-Lieferant</option>
+                  <option value="INR">INR — direkter IN-Lieferant</option>
+                  <option value="BDT">BDT — direkter BD-Lieferant</option>
+                  <option value="TRY">TRY — direkter TR-Lieferant</option>
+                  <option value="HKD">HKD — Hongkong</option>
+                  <option value="TWD">TWD — Taiwan</option>
+                  <option value="KRW">KRW — Südkorea</option>
+                  <option value="JPY">JPY — Japan</option>
+                  <option value="GBP">GBP — UK-Lieferant</option>
+                </select>
+              </div>
+              <div>
+                <label for="paymentTermsDays">Zahlungsziel (Tage)</label>
+                <input type="number" id="paymentTermsDays" name="paymentTermsDays" min="0" max="180" value="60" />
+              </div>
+            </div>
           </div>
 
           <!-- SCHRITT 5: Volumen + Dringlichkeit -->

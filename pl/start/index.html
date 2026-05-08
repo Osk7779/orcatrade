@@ -155,6 +155,29 @@
                 </select>
               </div>
             </div>
+            <div class="field-row">
+              <div>
+                <label for="quoteCurrency">Dostawca wycenia w</label>
+                <select id="quoteCurrency" name="quoteCurrency">
+                  <option value="EUR">EUR (bez ryzyka FX)</option>
+                  <option value="USD">USD — najczęstsze dla CN/VN/IN/BD</option>
+                  <option value="CNY">CNY — bezpośrednio dostawca CN</option>
+                  <option value="VND">VND — bezpośrednio dostawca VN</option>
+                  <option value="INR">INR — bezpośrednio dostawca IN</option>
+                  <option value="BDT">BDT — bezpośrednio dostawca BD</option>
+                  <option value="TRY">TRY — bezpośrednio dostawca TR</option>
+                  <option value="HKD">HKD — Hongkong</option>
+                  <option value="TWD">TWD — Tajwan</option>
+                  <option value="KRW">KRW — Korea Południowa</option>
+                  <option value="JPY">JPY — Japonia</option>
+                  <option value="GBP">GBP — dostawca UK</option>
+                </select>
+              </div>
+              <div>
+                <label for="paymentTermsDays">Termin płatności (dni)</label>
+                <input type="number" id="paymentTermsDays" name="paymentTermsDays" min="0" max="180" value="60" />
+              </div>
+            </div>
           </div>
 
           <!-- KROK 5: Wolumen + pilność -->
