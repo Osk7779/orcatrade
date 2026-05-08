@@ -546,6 +546,7 @@ function renderPlan(plan) {
       <div class="print-actions">
         <button class="btn btn-primary" type="button" id="savePdfBtn">${T.btnSaveAsPdf}</button>
         <button class="btn" type="button" id="printBtn">${T.btnPrint}</button>
+        <button class="btn" type="button" id="savePlanBtn" hidden>${T.btnSavePlan}</button>
       </div>
       <div style="margin-top: 1.4rem;">
         <a class="btn btn-primary" href="${wizardHome()}" style="margin-right: 0.6rem;">${T.btnRunAnother}</a>
@@ -578,6 +579,43 @@ function renderPlan(plan) {
   const printBtn = document.getElementById('printBtn');
   if (savePdfBtn) savePdfBtn.addEventListener('click', () => window.print());
   if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+  // Sprint 39: "Save plan to my account" — visible only when /api/auth/me
+  // returns a signed-in user. Posts the plan inputs to /api/plans.
+  const savePlanBtn = document.getElementById('savePlanBtn');
+  if (savePlanBtn) {
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (data && data.user && data.user.email) {
+          savePlanBtn.hidden = false;
+          savePlanBtn.addEventListener('click', async () => {
+            savePlanBtn.disabled = true;
+            const orig = savePlanBtn.textContent;
+            savePlanBtn.textContent = '...';
+            try {
+              const resp = await fetch('/api/plans', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ inputs: plan.inputs }),
+              });
+              if (resp.ok) {
+                savePlanBtn.textContent = T.btnSavedOk;
+                setTimeout(() => { savePlanBtn.textContent = orig; savePlanBtn.disabled = false; }, 2500);
+              } else {
+                savePlanBtn.textContent = orig;
+                savePlanBtn.disabled = false;
+              }
+            } catch (_) {
+              savePlanBtn.textContent = orig;
+              savePlanBtn.disabled = false;
+            }
+          });
+        }
+      })
+      .catch(() => { /* ignore — button stays hidden */ });
+  }
 
   // Origin comparison — clicking a "Compare" button in the sensitivity
   // matrix renders a side-by-side panel using data already on the plan.

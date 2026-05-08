@@ -29,6 +29,8 @@ const handlers = {
   // Auth (magic-link). Sub-actions resolved inside the handler from the
   // second URL segment: request / verify / me / logout.
   auth: require('../lib/handlers/auth'),
+  // Saved plans. POST/GET /api/plans, GET/DELETE /api/plans/<id>.
+  plans: require('../lib/handlers/plans'),
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),
