@@ -345,6 +345,215 @@ function generateSourcingPage(country, categoryKey) {
   };
 }
 
+// ── Routing pages ──────────────────────────────────────────
+
+const ROUTING_ORIGINS = ['CN', 'VN', 'IN', 'HK', 'TR'];
+const ROUTING_DESTINATIONS = ['DE', 'PL', 'NL', 'FR', 'IT', 'ES'];
+const COUNTRY_NAMES = {
+  CN: 'China', VN: 'Vietnam', IN: 'India', HK: 'Hong Kong', TR: 'Türkiye',
+  DE: 'Germany', PL: 'Poland', NL: 'Netherlands', FR: 'France', IT: 'Italy', ES: 'Spain',
+};
+
+function generateRoutingPage(origin, destination) {
+  const originName = COUNTRY_NAMES[origin];
+  const destName = COUNTRY_NAMES[destination];
+
+  // Compute representative quotes for three weight bands so the page has real data
+  const bands = [
+    { kg: 200, label: '200 kg' },
+    { kg: 1000, label: '1,000 kg' },
+    { kg: 5000, label: '5,000 kg' },
+  ];
+  const quotes = bands.map(b => ({
+    band: b.label,
+    weightKg: b.kg,
+    quote: routing.calculateQuote({ weightKg: b.kg, volumeCbm: b.kg / 200, originCountry: origin, destinationCountry: destination }),
+  }));
+
+  const railViable = routing.isRailViable({ originCountry: origin, destinationCountry: destination });
+
+  const slugUrl = `${slug(origin)}-to-${slug(destination)}`;
+  const title = `Ship from ${originName} to ${destName} — sea, rail, air comparison | OrcaTrade`;
+  const description = `Multi-modal freight comparison ${originName} → ${destName}: sea FCL, sea LCL, air, ${railViable ? 'and rail (China-Europe corridor) ' : ''}with cost, transit time, CO₂ per shipment band. Calculator-grounded.`.slice(0, 300);
+  const canonical = `${SITE_URL}/guides/routing/${slugUrl}/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: title,
+        description,
+        datePublished: TODAY,
+        dateModified: TODAY,
+        author: { '@type': 'Organization', name: 'OrcaTrade Group' },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Guides', item: `${SITE_URL}/guides/` },
+          { '@type': 'ListItem', position: 2, name: 'Routing', item: `${SITE_URL}/guides/routing/` },
+          { '@type': 'ListItem', position: 3, name: `${originName} → ${destName}`, item: canonical },
+        ],
+      },
+    ],
+  });
+
+  // Build representative-quote table for a 1-tonne shipment
+  const oneTonne = quotes.find(q => q.weightKg === 1000);
+  const modeRows = oneTonne.quote.quotes.map(m => {
+    if (!m.viable) {
+      return `<tr><td>${escapeHtml(m.label)}</td><td colspan="4" style="opacity:0.6;font-style:italic;">${escapeHtml(m.viabilityReason || 'Not viable')}</td></tr>`;
+    }
+    return `<tr>
+      <td>${escapeHtml(m.label)}</td>
+      <td class="num">€${m.totalEur}</td>
+      <td>${escapeHtml(m.transitDaysLabel)}</td>
+      <td class="num">${m.chargeableWeightKg} kg</td>
+      <td class="num">${m.co2kg} kg</td>
+    </tr>`;
+  }).join('');
+
+  // Build per-band recommendation summary
+  const bandRecommendations = quotes.map(q => {
+    if (!q.quote.ok) return '';
+    const rec = q.quote.recommendation;
+    return `<tr><td><strong>${escapeHtml(q.band)}</strong></td><td>${escapeHtml(rec.primary.replace('_', ' ').toUpperCase())}</td><td style="font-size:0.85em;color:rgba(255,255,255,0.7);">${escapeHtml(rec.reasoning || '')}</td></tr>`;
+  }).join('');
+
+  const railSection = railViable ? `
+    <section class="guide-section">
+      <h2>The China-Europe rail corridor</h2>
+      <p>${escapeHtml(originName)} → ${escapeHtml(destName)} is part of the <strong>China-Europe Railway Express</strong> corridor (rails into Małaszewicze, the largest rail border-crossing point on the EU's eastern frontier). For shipments in the 200-5000 kg sweet spot, rail beats sea on transit (10-15 days faster) and air on cost (around 70% cheaper). Most freight forwarders never propose it because their margins on sea are higher and rail capacity is lumpier.</p>
+      <p>Rail is most useful when:</p>
+      <ul>
+        <li>Volume is too small to justify FCL but too time-sensitive for sea LCL.</li>
+        <li>Air freight cost would erode product margin (rail saves ~70% vs air).</li>
+        <li>You need predictable departures (multiple weekly services).</li>
+      </ul>
+      <p>Rail is wrong for:</p>
+      <ul>
+        <li>Sub-200 kg shipments (sea/air consolidation economics work better).</li>
+        <li>Above 5000 kg (FCL becomes more cost-effective).</li>
+        <li>Goods sensitive to rail-route temperature swings (high summer, deep winter).</li>
+      </ul>
+    </section>` : '';
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/">Home</a> · <a href="/guides/">Guides</a> · <a href="/guides/routing/">Routing</a> · ${escapeHtml(originName)} → ${escapeHtml(destName)}
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">Routing guide · Asia → Europe</p>
+      <h1>How to ship from ${escapeHtml(originName)} to ${escapeHtml(destName)}</h1>
+      <p class="lead">Sea FCL, sea LCL, air, ${railViable ? 'and rail' : 'and (where viable) rail'} — all four modes with cost, transit, and CO₂ for the ${escapeHtml(originName)} → ${escapeHtml(destName)} corridor. Numbers come from OrcaTrade's deterministic routing calculator. Refreshed quarterly against forwarder rate cards.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'sea_fcl')?.totalEur || '—'}</div><div class="label">Sea FCL · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'sea_lcl')?.totalEur || '—'}</div><div class="label">Sea LCL · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'air')?.totalEur || '—'}</div><div class="label">Air · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'rail' && m.viable)?.totalEur || (railViable ? '—' : 'n/a')}</div><div class="label">Rail · 1 t</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>Cost and transit, side by side</h2>
+      <p>For a 1-tonne shipment from ${escapeHtml(originName)} to ${escapeHtml(destName)}, here's how the four modes compare. Costs include base rate × chargeable weight × origin multiplier; CO₂ comes from g/tonne-km × corridor distance.</p>
+      <table class="data-table">
+        <thead><tr><th>Mode</th><th>Cost</th><th>Transit</th><th>Chargeable wt</th><th>CO₂</th></tr></thead>
+        <tbody>${modeRows}</tbody>
+      </table>
+    </section>
+
+    <section class="guide-section">
+      <h2>Recommendation by shipment size</h2>
+      <p>OrcaTrade's recommendation engine picks the right mode based on weight band, urgency, and cost priority. For ${escapeHtml(originName)} → ${escapeHtml(destName)}:</p>
+      <table class="data-table">
+        <thead><tr><th>Weight</th><th>Recommended mode</th><th>Why</th></tr></thead>
+        <tbody>${bandRecommendations}</tbody>
+      </table>
+    </section>
+
+    ${railSection}
+
+    <section class="guide-section">
+      <h2>What's not in the cost</h2>
+      <p>The figures above cover transport. They do not include:</p>
+      <ul>
+        <li><strong>EU import duty + VAT</strong> — see the customs landed-cost calculator for HS-chapter-specific math.</li>
+        <li><strong>Customs brokerage</strong> — typically €45 base + €8 per invoice line, capped at €250.</li>
+        <li><strong>Cargo insurance</strong> — recommended above €5,000 declared value; ICC A/B/C clauses available.</li>
+        <li><strong>Last-mile delivery</strong> — from EU port/rail terminus to your warehouse.</li>
+      </ul>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Run the live comparison</h3>
+        <p>The Logistics Agent compares all four modes on your specific weight, volume, and urgency — and composes a full plan with customs and warehouse if you ask.</p>
+      </div>
+      <a href="/agent/logistics/?prompt=I%27m%20shipping%20from%20${encodeURIComponent(originName)}%20to%20${encodeURIComponent(destName)}.%20Compare%20sea%2C%20rail%2C%20air%20for%20a%20typical%201-tonne%20shipment.">Open Logistics Agent →</a>
+    </aside>
+  `;
+
+  return {
+    path: `guides/routing/${slugUrl}`,
+    canonical,
+    html: pageShell({ title, description, canonical, jsonLd, body }),
+  };
+}
+
+function generateRoutingIndex() {
+  const title = 'Routing guides — Asia → Europe corridor comparisons | OrcaTrade';
+  const description = '30 multi-modal routing guides for the major Asia-Europe shipping corridors. Sea FCL, sea LCL, air, rail comparisons with cost, transit, CO₂.';
+  const canonical = `${SITE_URL}/guides/routing/`;
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: title,
+    description,
+    url: canonical,
+  });
+
+  const sections = ROUTING_ORIGINS.map(origin => {
+    const links = ROUTING_DESTINATIONS.map(dest => {
+      const railHint = routing.isRailViable({ originCountry: origin, destinationCountry: dest }) ? ' · rail viable' : '';
+      return `<a class="related-card" href="/guides/routing/${slug(origin)}-to-${slug(dest)}/">
+        <div class="related-tag">${escapeHtml(COUNTRY_NAMES[origin])} → ${escapeHtml(COUNTRY_NAMES[dest])}</div>
+        <h3>${escapeHtml(COUNTRY_NAMES[origin])} → ${escapeHtml(COUNTRY_NAMES[dest])}</h3>
+        <div class="related-desc">Sea, air${railHint}</div>
+      </a>`;
+    }).join('');
+    return `<section class="guide-section"><h2>From ${escapeHtml(COUNTRY_NAMES[origin])}</h2><div class="related-grid">${links}</div></section>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/">Home</a> · <a href="/guides/">Guides</a> · Routing</nav>
+    <header class="guide-hero">
+      <p class="kicker">Routing guides</p>
+      <h1>How to ship between Asia and Europe.</h1>
+      <p class="lead">30 corridor guides covering the major Asia → Europe shipping lanes. Each compares sea FCL, sea LCL, air, and rail (where viable) with calculator-grounded cost, transit, and CO₂ per shipment band.</p>
+    </header>
+    ${sections}
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Run a tailored mode comparison</h3>
+        <p>Logistics Agent compares all four modes for your specific weight, urgency, and origin/destination — plus composes the full landed-cost picture if you ask.</p>
+      </div>
+      <a href="/agent/logistics/">Open Logistics Agent →</a>
+    </aside>
+  `;
+
+  return {
+    path: 'guides/routing',
+    canonical,
+    html: pageShell({ title, description, canonical, jsonLd, body }),
+  };
+}
+
 // ── Index pages (one per category) ──────────────────────────
 
 function generateSourcingIndex() {
@@ -426,6 +635,12 @@ function generateGuidesRoot() {
       <p>Where to source — country comparisons across CN / VN / IN / BD / TR for eight product categories. FOB index, lead time, MOQ, quality and IP risk per combination.</p>
       <a href="/guides/sourcing/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 40 sourcing guides →</a>
     </section>
+
+    <section class="guide-section">
+      <h2>Routing</h2>
+      <p>How to ship between Asia and Europe — corridor guides covering sea FCL, sea LCL, air, and rail (where viable) for the major lanes. Calculator-grounded cost, transit, and CO₂ per shipment band.</p>
+      <a href="/guides/routing/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 30 routing guides →</a>
+    </section>
   `;
 
   return {
@@ -469,6 +684,19 @@ function run() {
   const sIndex = generateSourcingIndex();
   writePage(sIndex.path, sIndex.html);
   generated.push(sIndex);
+
+  // 30 routing pages (5 origins × 6 destinations)
+  for (const origin of ROUTING_ORIGINS) {
+    for (const dest of ROUTING_DESTINATIONS) {
+      const page = generateRoutingPage(origin, dest);
+      writePage(page.path, page.html);
+      generated.push(page);
+    }
+  }
+  // Routing index
+  const rIndex = generateRoutingIndex();
+  writePage(rIndex.path, rIndex.html);
+  generated.push(rIndex);
 
   // Guides root
   const gRoot = generateGuidesRoot();

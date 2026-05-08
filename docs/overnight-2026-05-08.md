@@ -45,3 +45,14 @@ Started.
 - `.claude/settings.local.json` added per user instruction so overnight tools don't stall
 
 **Sample URL:** `/guides/sourcing/apparel-from-cn/` returns 200 with full content.
+
+### Iteration 2 — 2026-05-08 ~03:30
+
+**Done:**
+- Extended `scripts/generate-seo-pages.js` with routing-page generator
+- Generated 30 routing corridor pages: 5 origins (CN, VN, IN, HK, TR) × 6 destinations (DE, PL, NL, FR, IT, ES) at `/guides/routing/`
+- Plus routing index = 31 new pages this iteration, **73 pages total**
+- Per page: 4-mode comparison table (sea FCL / sea LCL / air / rail), per-band recommendations (200kg / 1t / 5t), rail-corridor explainer for CN-origin pages, "what's not in the cost" footnote
+- Sticky agent CTA pre-fills the Logistics Agent with origin/destination
+- Sitemap updated to 73 URLs
+- Sample URL: `/guides/routing/cn-to-pl/` returns 200 with full rail-corridor section
