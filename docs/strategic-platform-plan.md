@@ -413,7 +413,7 @@ In rough order of probability:
 
 ## What's already shipped (current build state)
 
-This section is updated as the platform progresses. **Last updated: 2026-05-07 (after Sprint 26).**
+This section is updated as the platform progresses. **Last updated: 2026-05-08 (after Sprint 28).**
 
 ### Pages live on the site
 
@@ -500,6 +500,15 @@ This section is updated as the platform progresses. **Last updated: 2026-05-07 (
 - Spec at `docs/finance-agent-spec.md` — system prompt, tool schemas, four example flows
 - `api/orchestrator.js` updated to merge Finance Agent's 8 tools — Orchestrator now exposes **25 unique tools** (Compliance 11 + Logistics 8 + Sourcing 7 + Finance 8 - 9 shared instances). `classifyTool` extended with `finance` domain
 - All five agent pages now share a 5-tab switcher: Orchestrator / Sourcing / Compliance / Logistics / Finance — completing the planned 4-specialist + orchestrator suite
+
+### Frontend — Agent Hub + deep-linking + persistence (Sprint 28)
+
+- `/agents/` — new polished landing page that frames the entire agent suite as a single product surface. Featured Orchestrator card at the top (positioned as the recommended entry), then 2×2 grid of specialist cards (Sourcing / Compliance / Logistics / Finance). Each card has 2–3 demo prompts as `<a href>` links that deep-link into the relevant agent with the prompt pre-filled. Below the grid: a "How they work together" composition story with 4-step cross-domain flow (sourcing → compliance → logistics → finance). Stats row (5 agents · 25 tools · 4 EU regulations · 497 tests) and CTA back to the Orchestrator
+- All 5 agent app.js files extended with **URL `?prompt=...` deep-linking** — the agent reads the URL parameter on page load and pre-fills the input box. Enables shareable links and the Hub's demo-prompt cards
+- All 5 agent app.js files extended with **localStorage conversation persistence** — messages survive page refresh. Storage key namespaced per-agent (`orcatrade.compliance.messages.v1`, `orcatrade.orchestrator.messages.v1`, etc.). Last 30 turns retained
+- **"Clear conversation" button** injected dynamically into each agent page's conversation header
+- Markdown rendering preserved on persistence-restore via shared `OrcaMarkdown.render`
+- Nav updated: `Agent Hub` is now the first item in the AI Agents group, sitting above the 5 specialist links
 
 ### Backend — Trade Documentation Hub
 

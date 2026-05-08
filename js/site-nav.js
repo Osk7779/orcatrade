@@ -28,6 +28,7 @@
         {
           heading: 'AI Agents',
           items: [
+            { label: 'Agent Hub', desc: 'All 5 agents · cross-domain stories · demo prompts', href: '/agents/' },
             { label: 'Operations Orchestrator', desc: 'One agent · every domain · cross-domain plans', href: '/agent/orchestrator/' },
             { label: 'Sourcing Agent', desc: 'Where to source · supplier shortlists · risk', href: '/agent/sourcing/' },
             { label: 'Compliance Agent', desc: 'CBAM · EUDR · REACH · CE marking', href: '/agent/' },

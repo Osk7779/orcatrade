@@ -270,3 +270,112 @@ els.suggestions.querySelectorAll('.suggestion-btn').forEach(btn => {
     els.input.focus();
   });
 });
+
+// ── URL prompt deep-linking + conversation persistence ──────────────
+// Added Sprint 28. Reads ?prompt=... from the URL on load and pre-fills the
+// input. Persists messages to localStorage so refresh doesn't lose history.
+// Adds a Clear-conversation button to the conversation header.
+
+const STORAGE_KEY = 'orcatrade.logistics.messages.v1';
+
+function persistMessages() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state.messages.slice(-30))); } catch {}
+}
+
+function loadPersistedMessages() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return [];
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return [];
+    return arr.slice(-30);
+  } catch { return []; }
+}
+
+function rerenderConversation() {
+  // Clear all messages except the original agent intro (the first article)
+  const allMsgs = els.conversation.querySelectorAll('.msg');
+  allMsgs.forEach((m, idx) => { if (idx > 0) m.remove(); });
+
+  // Rebuild from state.messages
+  for (const m of state.messages) {
+    if (m.role === 'user') {
+      appendUserMessage(m.content);
+    } else if (m.role === 'assistant' && m.content) {
+      const article = document.createElement('article');
+      article.className = 'msg msg--agent';
+      article.innerHTML = `<span class="role-tag">Agent</span><div class="msg-content"></div>`;
+      els.conversation.appendChild(article);
+      const body = article.querySelector('.msg-content');
+      body.dataset.raw = m.content;
+      body.innerHTML = (window.OrcaMarkdown ? window.OrcaMarkdown.render(m.content) : m.content);
+    }
+  }
+}
+
+function clearConversation() {
+  state.messages = [];
+  try { localStorage.removeItem(STORAGE_KEY); } catch {}
+  rerenderConversation();
+}
+
+function injectClearButton() {
+  if (!els.conversation || els.conversation.dataset.clearWired) return;
+  els.conversation.dataset.clearWired = 'true';
+  const btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = 'Clear conversation';
+  btn.style.cssText = 'align-self: flex-end; background: transparent; border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); padding: 4px 12px; font-family: inherit; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; cursor: pointer; transition: all 0.15s; margin-bottom: -0.4rem;';
+  btn.addEventListener('mouseover', () => { btn.style.color = 'rgba(255,255,255,0.95)'; btn.style.borderColor = 'rgba(184,190,200,0.4)'; });
+  btn.addEventListener('mouseout',  () => { btn.style.color = 'rgba(255,255,255,0.6)'; btn.style.borderColor = 'rgba(255,255,255,0.12)'; });
+  btn.addEventListener('click', () => {
+    if (state.messages.length === 0) return;
+    if (confirm('Clear this conversation? History will be deleted.')) clearConversation();
+  });
+  els.conversation.parentNode.insertBefore(btn, els.conversation);
+}
+
+// Hook into send() so persistence fires on every turn — wrap the existing fn.
+const _originalSend = send;
+send = async function (text) {
+  await _originalSend(text);
+  persistMessages();
+};
+
+// Hook into finalizeAgentMessage too — captures full final text after streaming.
+const _originalFinalize = finalizeAgentMessage;
+finalizeAgentMessage = function (finalText, ...rest) {
+  const result = _originalFinalize.call(this, finalText, ...rest);
+  persistMessages();
+  return result;
+};
+
+// On page load: restore messages, prefill from URL, inject Clear button.
+document.addEventListener('DOMContentLoaded', () => {
+  injectClearButton();
+
+  const persisted = loadPersistedMessages();
+  if (persisted.length) {
+    state.messages = persisted;
+    rerenderConversation();
+  }
+
+  const params = new URLSearchParams(window.location.search);
+  const promptParam = params.get('prompt');
+  if (promptParam) {
+    els.input.value = promptParam;
+    autoResize();
+    els.input.focus();
+  }
+});
+
+// Edge case: if DOMContentLoaded already fired before this script ran (rare),
+// run init synchronously.
+if (document.readyState !== 'loading') {
+  injectClearButton();
+  const persisted = loadPersistedMessages();
+  if (persisted.length) { state.messages = persisted; rerenderConversation(); }
+  const params = new URLSearchParams(window.location.search);
+  const p = params.get('prompt');
+  if (p) { els.input.value = p; autoResize(); els.input.focus(); }
+}
