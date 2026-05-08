@@ -2952,6 +2952,14 @@ function run() {
   }
   console.log(`Compliance pages: ${compliancePages.length} (already written by sub-generator).`);
 
+  // Worked-example plans (8 curated scenarios × 3 locales + indexes).
+  const examplesGenerator = require('./generate-example-plans');
+  const examplePages = examplesGenerator.build();
+  for (const p of examplePages) {
+    generated.push({ canonical: p.canonical });
+  }
+  console.log(`Example-plan pages: ${examplePages.length} (already written by sub-generator).`);
+
   // Sitemap (guides only)
   generateSitemap(generated);
   // Master sitemap (everything indexable)
