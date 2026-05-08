@@ -113,12 +113,13 @@ test('resolveDutyRate adds CN anti-dumping on steel', () => {
   assert.ok(r.rate > HS_CHAPTER_DUTY['73'].rate, 'rate should exceed MFN');
 });
 
-test('resolveDutyRate applies VN preferential reduction when claimed', () => {
+test('resolveDutyRate applies VN EVFTA preferential rate when claimed', () => {
   const noClaim = resolveDutyRate({ hsCode: '6203', originCountry: 'VN', claimPreferential: false });
   const withClaim = resolveDutyRate({ hsCode: '6203', originCountry: 'VN', claimPreferential: true });
   assert.ok(withClaim.rate < noClaim.rate);
-  // Discount is 70% of MFN 12% → ~3.6%
-  assert.ok(Math.abs(withClaim.rate - 0.036) < 0.001);
+  // EVFTA replaces MFN 12% with 0% (with valid origin declaration)
+  assert.equal(withClaim.rate, 0);
+  assert.equal(withClaim.preferentialApplied?.code, 'EVFTA');
 });
 
 test('resolveDutyRate applies BD EBA full duty exemption when claimed', () => {

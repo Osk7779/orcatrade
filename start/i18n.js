@@ -71,6 +71,13 @@ window.START_I18N = {
     tradeDefenceTitle: 'Trade defence alert',
     tradeDefenceIntro: (n) => `${n} active anti-dumping or countervailing measure${n > 1 ? 's apply' : ' applies'} to this HS code + origin combination. These are <strong>additional duties on top of the MFN rate</strong> and are already included in the duty figure above.`,
     tradeDefenceVerify: 'Always verify exporter eligibility on TARIC before commitments — named cooperating exporters often have lower individual rates.',
+    preferentialAppliedTitle: 'Preferential origin applied',
+    preferentialAppliedBody: (regime, document) => `Duty calculation uses the <strong>${regime}</strong> preferential rate. Required document: ${document}.`,
+    preferentialAvailableTitle: 'You may qualify for zero or reduced duty',
+    preferentialAvailableBody: (regime, savingEur, document) => savingEur > 0
+      ? `<strong>${regime}</strong> would save approximately <strong>€${savingEur.toLocaleString('en-IE')}</strong> on this shipment if your supplier provides ${document}. The rate above is MFN — request the document and re-run with "preferential origin: yes".`
+      : `<strong>${regime}</strong> may apply to this origin/category — verify TARIC for the specific HS line. Required: ${document || 'origin proof'}.`,
+    preferentialApproximate: 'Note: actual rate varies per HS line — this is a typical estimate.',
     // Warehouse
     warehouseTotalCost: (eur, perOrder) => `Total monthly cost <strong>${eur}</strong> at ${perOrder}/order.`,
     warehouseRecommended: (hub, country) => `Recommended hub: <strong>${hub}</strong> (${country}).`,
@@ -148,6 +155,13 @@ window.START_I18N = {
     tradeDefenceTitle: 'Alert ochrony handlu',
     tradeDefenceIntro: (n) => `${n} aktywn${n > 1 ? 'e środki antydumpingowe lub wyrównawcze obowiązują' : 'y środek antydumpingowy lub wyrównawczy obowiązuje'} dla tej kombinacji kodu HS i pochodzenia. To <strong>dodatkowe cła doliczane do stawki MFN</strong> — są już uwzględnione w kwocie cła powyżej.`,
     tradeDefenceVerify: 'Zawsze weryfikuj uprawnienia eksportera w TARIC przed zobowiązaniem — wymienieni kooperujący eksporterzy często mają niższe stawki indywidualne.',
+    preferentialAppliedTitle: 'Pochodzenie preferencyjne zastosowane',
+    preferentialAppliedBody: (regime, document) => `Cło obliczone według preferencyjnej stawki <strong>${regime}</strong>. Wymagany dokument: ${document}.`,
+    preferentialAvailableTitle: 'Możesz kwalifikować się do zerowego lub obniżonego cła',
+    preferentialAvailableBody: (regime, savingEur, document) => savingEur > 0
+      ? `<strong>${regime}</strong> oszczędziłoby około <strong>€${savingEur.toLocaleString('pl-PL')}</strong> na tej przesyłce, jeśli dostawca dostarczy ${document}. Powyższa stawka to MFN — poproś o dokument i przelicz z opcją "pochodzenie preferencyjne: tak".`
+      : `<strong>${regime}</strong> może mieć zastosowanie do tego pochodzenia/kategorii — sprawdź TARIC dla konkretnego kodu HS. Wymagane: ${document || 'dowód pochodzenia'}.`,
+    preferentialApproximate: 'Uwaga: rzeczywista stawka różni się dla poszczególnych pozycji HS — to typowy szacunek.',
     warehouseTotalCost: (eur, perOrder) => `Łączny koszt miesięczny <strong>${eur}</strong> przy ${perOrder}/zamówienie.`,
     warehouseRecommended: (hub, country) => `Rekomendowany hub: <strong>${hub}</strong> (${country}).`,
     warehouseTransitTo: (dest, transit) => `Tranzyt dalej do ${dest}: ${transit}.`,
@@ -220,6 +234,13 @@ window.START_I18N = {
     tradeDefenceTitle: 'Handelsschutz-Hinweis',
     tradeDefenceIntro: (n) => `${n} aktive Antidumping- oder Ausgleichszollmaßnahme${n > 1 ? 'n gelten' : ' gilt'} für diese HS-Code-/Ursprungs-Kombination. Es handelt sich um <strong>zusätzliche Zölle zum MFN-Satz</strong> — sie sind bereits in der Zollangabe oben enthalten.`,
     tradeDefenceVerify: 'Prüfen Sie die Eignung des Exporteurs immer in TARIC vor verbindlichen Bestellungen — namentlich genannte kooperierende Exporteure haben oft niedrigere individuelle Sätze.',
+    preferentialAppliedTitle: 'Präferenzursprung angewendet',
+    preferentialAppliedBody: (regime, document) => `Zollberechnung verwendet den Präferenzsatz <strong>${regime}</strong>. Erforderliches Dokument: ${document}.`,
+    preferentialAvailableTitle: 'Sie können für Null- oder reduzierten Zoll qualifizieren',
+    preferentialAvailableBody: (regime, savingEur, document) => savingEur > 0
+      ? `<strong>${regime}</strong> würde rund <strong>€${savingEur.toLocaleString('de-DE')}</strong> auf dieser Sendung sparen, wenn Ihr Lieferant ${document} bereitstellt. Der obige Satz ist MFN — fordern Sie das Dokument an und führen Sie die Berechnung mit "Präferenzursprung: ja" erneut durch.`
+      : `<strong>${regime}</strong> könnte für diesen Ursprung/diese Kategorie gelten — prüfen Sie TARIC für die spezifische HS-Linie. Erforderlich: ${document || 'Ursprungsnachweis'}.`,
+    preferentialApproximate: 'Hinweis: Tatsächlicher Satz variiert pro HS-Linie — dies ist eine typische Schätzung.',
     warehouseTotalCost: (eur, perOrder) => `Gesamtkosten monatlich <strong>${eur}</strong> bei ${perOrder}/Bestellung.`,
     warehouseRecommended: (hub, country) => `Empfohlener Hub: <strong>${hub}</strong> (${country}).`,
     warehouseTransitTo: (dest, transit) => `Weiterfracht nach ${dest}: ${transit}.`,

@@ -172,6 +172,38 @@ function renderPlan(plan) {
     </div>
   ` : '';
 
+  const prefApplied = customs?.preferentialApplied;
+  const prefAvailable = customs?.preferentialAvailable;
+  const prefSavingEur = customs?.preferentialSavingEur || 0;
+
+  let preferentialBlock = '';
+  if (prefApplied) {
+    preferentialBlock = `
+      <div class="preferential-callout applied">
+        <div class="pref-header">✓ ${T.preferentialAppliedTitle}</div>
+        <p>${T.preferentialAppliedBody(escapeHtml(prefApplied.name), escapeHtml(prefApplied.document || '—'))}</p>
+        ${prefApplied.notes ? `<p class="secondary-note">${escapeHtml(prefApplied.notes)}</p>` : ''}
+      </div>
+    `;
+  } else if (prefAvailable && prefAvailable.mfnReplaced && prefSavingEur > 0) {
+    preferentialBlock = `
+      <div class="preferential-callout available">
+        <div class="pref-header">€ ${T.preferentialAvailableTitle}</div>
+        <p>${T.preferentialAvailableBody(escapeHtml(prefAvailable.name), prefSavingEur, escapeHtml(prefAvailable.document || '—'))}</p>
+        ${prefAvailable.notes ? `<p class="secondary-note">${escapeHtml(prefAvailable.notes)}</p>` : ''}
+        ${prefAvailable.approximate ? `<p class="secondary-note"><em>${T.preferentialApproximate}</em></p>` : ''}
+      </div>
+    `;
+  } else if (prefAvailable && !prefAvailable.mfnReplaced && prefAvailable.notes) {
+    // E.g. TR_AGRI_EXCLUDED — informational warning
+    preferentialBlock = `
+      <div class="preferential-callout warning">
+        <div class="pref-header">ℹ ${escapeHtml(prefAvailable.name)}</div>
+        <p>${escapeHtml(prefAvailable.notes)}</p>
+      </div>
+    `;
+  }
+
   const warehouseSection = warehouse && !warehouse.skipped && warehouse.recommendedHub ? `
     <div class="result-section">
       <h3>${T.secWarehouse}</h3>
@@ -226,6 +258,7 @@ function renderPlan(plan) {
         <tr class="total"><td>${T.customsBreakdown.total}</td><td>${fmtEur(totals.perShipmentLandedTotal)}</td></tr>
       </table>
       ${tradeDefenceBlock}
+      ${preferentialBlock}
       ${originNotes}
     </div>
 

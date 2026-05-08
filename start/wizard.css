@@ -83,6 +83,16 @@ select { cursor: pointer; }
 .trade-defence-callout .td-meta { color: rgba(255,255,255,0.5); font-size: 0.84rem; }
 .trade-defence-callout .td-note { font-size: 0.84rem; color: rgba(255,255,255,0.65); margin-top: 0.3rem; font-style: italic; line-height: 1.5; }
 
+.preferential-callout { margin: 1.4rem 0 0.8rem; padding: 1.1rem 1.3rem; border-left: 3px solid; }
+.preferential-callout p { font-size: 0.92rem; line-height: 1.6; color: rgba(255,255,255,0.85); margin-bottom: 0.7em; max-width: none; }
+.preferential-callout .pref-header { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 700; margin-bottom: 0.5rem; }
+.preferential-callout.applied { background: rgba(80, 180, 100, 0.05); border-left-color: #5fb56b; }
+.preferential-callout.applied .pref-header { color: #7ed28a; }
+.preferential-callout.available { background: rgba(200, 168, 90, 0.06); border-left-color: rgba(200, 168, 90, 0.85); }
+.preferential-callout.available .pref-header { color: rgba(220, 188, 110, 1); }
+.preferential-callout.warning { background: rgba(120, 160, 200, 0.05); border-left-color: rgba(140, 180, 220, 0.85); }
+.preferential-callout.warning .pref-header { color: rgba(170, 200, 230, 1); }
+
 .share-row { display: flex; gap: 0.6rem; align-items: stretch; margin-top: 0.6rem; max-width: 70ch; }
 .share-url { flex: 1; min-width: 0; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.78rem; border-radius: 2px; }
 .share-url:focus { outline: none; border-color: var(--accent-color, #b8bec8); }
