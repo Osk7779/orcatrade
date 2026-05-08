@@ -23,6 +23,63 @@ const SHARE_KEYS = [
   'shipmentsPerYear', 'waccPct', 'daysInInventory', 'daysReceivable',
 ];
 
+// Sprint AH: client-side currency toggle. Mirror of lib/intelligence/data/fx-snapshot.js
+// for the 5 currencies an EU SME importer most commonly wants to see numbers in.
+// Snapshot rates — refresh quarterly. The asOf date surfaces in the toggle UI.
+const FX_DISPLAY = {
+  asOf: '2026-05-08',
+  // 1 EUR = X foreign
+  rates: { EUR: 1.0, USD: 1.08, CNY: 7.85, VND: 26300, PLN: 4.30 },
+  symbols: { EUR: '€', USD: '$', CNY: '¥', VND: '₫', PLN: 'zł' },
+  // Currencies that round to whole units in display (low-precision)
+  zeroDp: new Set(['VND']),
+};
+const CURRENCY_PREF_KEY = 'orcatrade.start.displayCurrency';
+
+function getCurrencyPreference() {
+  try {
+    const v = localStorage.getItem(CURRENCY_PREF_KEY);
+    return FX_DISPLAY.rates[v] ? v : 'EUR';
+  } catch (_e) { return 'EUR'; }
+}
+function setCurrencyPreference(code) {
+  try { localStorage.setItem(CURRENCY_PREF_KEY, code); } catch (_e) {}
+}
+
+function formatInCurrency(eurAmount, currencyCode, decimalsHint) {
+  const rate = FX_DISPLAY.rates[currencyCode];
+  if (rate == null) return null;
+  const value = Number(eurAmount) * rate;
+  if (!Number.isFinite(value)) return null;
+  const symbol = FX_DISPLAY.symbols[currencyCode] || currencyCode;
+  // Force 0 dp for low-precision currencies regardless of the original EUR
+  // decimals hint (showing "₫27,500.00" reads worse than "₫27,500").
+  const dp = FX_DISPLAY.zeroDp.has(currencyCode) ? 0 : Math.max(0, Math.min(2, Number(decimalsHint) || 0));
+  const formatted = value.toLocaleString('en-IE', { maximumFractionDigits: dp, minimumFractionDigits: dp });
+  // EUR uses native Intl rendering (matches fmtEur output). All others:
+  // symbol prefix for €/$/¥/zł, suffix for ₫ to match local convention.
+  if (currencyCode === 'EUR') return symbol + formatted;
+  if (currencyCode === 'VND') return formatted + ' ' + symbol;
+  if (currencyCode === 'PLN') return formatted + ' ' + symbol;
+  return symbol + formatted;
+}
+
+function applyDisplayCurrency(currencyCode, root = document) {
+  const nodes = root.querySelectorAll('.amt[data-eur]');
+  nodes.forEach(function (n) {
+    const eur = n.getAttribute('data-eur');
+    const dp = Number(n.getAttribute('data-decimals')) || 0;
+    const formatted = formatInCurrency(eur, currencyCode, dp);
+    if (formatted != null) n.textContent = formatted;
+  });
+  const banner = root.querySelector('#currency-asof-banner');
+  if (banner) {
+    banner.textContent = currencyCode === 'EUR'
+      ? ''
+      : 'Displayed in ' + currencyCode + ' at ' + FX_DISPLAY.asOf + ' snapshot rates · indicative only';
+  }
+}
+
 function encodeShareInputs(inputs) {
   const minimal = {};
   for (const k of SHARE_KEYS) {
@@ -133,9 +190,16 @@ function escapeHtml(s) {
   return d.innerHTML;
 }
 
+// Sprint AH: each formatted EUR amount carries data-eur so the currency
+// toggle can re-render in USD/CNY/VND/PLN without re-running composePlan.
+// data-decimals is preserved so warehouse-cost-per-order keeps its 2dp.
 function fmtEur(value, decimals = 0) {
-  if (value == null || !Number.isFinite(Number(value))) return '€0';
-  return new Intl.NumberFormat(T.currencyLocale, { style: 'currency', currency: 'EUR', maximumFractionDigits: decimals }).format(Number(value));
+  if (value == null || !Number.isFinite(Number(value))) {
+    return '<span class="amt" data-eur="0" data-decimals="' + decimals + '">€0</span>';
+  }
+  const n = Number(value);
+  const formatted = new Intl.NumberFormat(T.currencyLocale, { style: 'currency', currency: 'EUR', maximumFractionDigits: decimals }).format(n);
+  return '<span class="amt" data-eur="' + n + '" data-decimals="' + decimals + '">' + formatted + '</span>';
 }
 
 function renderPlan(plan) {
@@ -543,6 +607,11 @@ function renderPlan(plan) {
     </div>
 
     <div class="result-section" style="text-align: center;">
+      <div class="currency-toggle" role="group" aria-label="Display currency">
+        <span class="currency-toggle-label">${T.displayCurrencyLabel || 'Display in'}:</span>
+        ${Object.keys(FX_DISPLAY.rates).map(code => `<button type="button" class="currency-btn" data-currency="${code}">${code}</button>`).join('')}
+      </div>
+      <div id="currency-asof-banner" class="currency-asof"></div>
       <div class="print-actions">
         <button class="btn btn-primary" type="button" id="savePdfBtn">${T.btnSaveAsPdf}</button>
         <button class="btn" type="button" id="printBtn">${T.btnPrint}</button>
@@ -579,6 +648,24 @@ function renderPlan(plan) {
   const printBtn = document.getElementById('printBtn');
   if (savePdfBtn) savePdfBtn.addEventListener('click', () => window.print());
   if (printBtn) printBtn.addEventListener('click', () => window.print());
+
+  // Sprint AH: currency toggle. Buttons live in .currency-toggle; clicking
+  // re-renders every .amt[data-eur] node. Selection persists in localStorage.
+  const currencyButtons = document.querySelectorAll('.currency-btn');
+  function activateCurrencyButton(code) {
+    currencyButtons.forEach(b => b.classList.toggle('active', b.getAttribute('data-currency') === code));
+  }
+  currencyButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const code = btn.getAttribute('data-currency');
+      applyDisplayCurrency(code);
+      activateCurrencyButton(code);
+      setCurrencyPreference(code);
+    });
+  });
+  const initialCurrency = getCurrencyPreference();
+  activateCurrencyButton(initialCurrency);
+  if (initialCurrency !== 'EUR') applyDisplayCurrency(initialCurrency);
 
   // Sprint 39: "Save plan to my account" — visible only when /api/auth/me
   // returns a signed-in user. Posts the plan inputs to /api/plans.
