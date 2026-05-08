@@ -1077,6 +1077,67 @@ ${urls.map(u => `  <url>
   fs.writeFileSync(path.join(ROOT, 'sitemap-guides.xml'), xml);
 }
 
+function generateMasterSitemap(generatedGuides) {
+  // Hand-curated list of canonical site pages — high-priority entries.
+  const sitePages = [
+    { loc: `${SITE_URL}/`,                          priority: '1.0', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/agents/`,                   priority: '0.9', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/agent/orchestrator/`,       priority: '0.9', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/agent/`,                    priority: '0.9', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/agent/sourcing/`,           priority: '0.9', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/agent/logistics/`,          priority: '0.9', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/agent/finance/`,            priority: '0.9', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/platform/`,                 priority: '0.8', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/pricing/`,                  priority: '0.8', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/routing/`,                  priority: '0.8', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/routing/quote/`,            priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/customs/`,                  priority: '0.8', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/customs/quote/`,            priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/warehouse/`,                priority: '0.8', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/warehouse/quote/`,          priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/insurance/`,                priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/insurance/quote/`,          priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/buyer-verification/`,       priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/buyer-verification/check/`, priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/samples/`,                  priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/samples/request/`,          priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/returns/`,                  priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/returns/quote/`,            priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/documents/`,                priority: '0.7', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/documents/commercial-invoice/`, priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/documents/packing-list/`,   priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/documents/proforma-invoice/`, priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/documents/certificate-of-origin/`, priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/dashboard/`,                priority: '0.5', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/sourcing.html`,             priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/finance.html`,              priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/intelligence.html`,         priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/orcatrade.html`,            priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/contact.html`,              priority: '0.6', changefreq: 'monthly' },
+    { loc: `${SITE_URL}/process.html`,              priority: '0.5', changefreq: 'monthly' },
+    // PL + DE locale roots
+    { loc: `${SITE_URL}/pl/`,                       priority: '0.8', changefreq: 'weekly' },
+    { loc: `${SITE_URL}/de/`,                       priority: '0.8', changefreq: 'weekly' },
+  ];
+
+  const guideUrls = generatedGuides.map(g => ({ loc: g.canonical, priority: '0.7', changefreq: 'monthly' }));
+
+  const all = [...sitePages, ...guideUrls];
+
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${all.map(u => `  <url>
+    <loc>${u.loc}</loc>
+    <lastmod>${TODAY}</lastmod>
+    <changefreq>${u.changefreq}</changefreq>
+    <priority>${u.priority}</priority>
+  </url>`).join('\n')}
+</urlset>
+`;
+  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), xml);
+  return all.length;
+}
+
 // ── Run ────────────────────────────────────────────────────
 
 function run() {
@@ -1138,11 +1199,14 @@ function run() {
   writePage(gRoot.path, gRoot.html);
   generated.push(gRoot);
 
-  // Sitemap
+  // Sitemap (guides only)
   generateSitemap(generated);
+  // Master sitemap (everything indexable)
+  const masterCount = generateMasterSitemap(generated);
 
-  console.log(`Generated ${generated.length} pages.`);
+  console.log(`Generated ${generated.length} guide pages.`);
   console.log(`Sitemap: sitemap-guides.xml (${generated.length} URLs)`);
+  console.log(`Master sitemap: sitemap.xml (${masterCount} URLs)`);
 }
 
 if (require.main === module) {

@@ -57,6 +57,7 @@
       ],
     },
     secondary: [
+      { label: 'Guides', href: '/guides/', match: ['/guides/'] },
       { label: 'Dashboard', href: '/dashboard/', match: ['/dashboard/'] },
       { label: 'Pricing', href: '/pricing/', match: ['/pricing/'] },
     ],

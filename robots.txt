@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+# Crawl optimisation: disallow internal API endpoints (no SEO value)
+Disallow: /api/
+
+# Sitemaps
+Sitemap: https://orcatrade.pl/sitemap.xml
+Sitemap: https://orcatrade.pl/sitemap-guides.xml

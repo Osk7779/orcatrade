@@ -74,3 +74,12 @@ Started.
 - Per page: full pricing breakdown table, pros/cons, sample monthly cost for typical 1500-order SME profile, 6-hub comparison ranking, "what's not in the cost" footnote
 - Sticky CTA pre-fills the Logistics Agent with the hub-comparison context
 - **Bug fix:** slug function was stripping diacritics → `pozna-3pl` (broken). Now NFD-normalises and strips combining marks → `poznan-3pl` (correct). Future Polish/German/Czech additions will slug cleanly.
+
+### Iteration 5 — 2026-05-08 ~05:00
+
+**Done:**
+- `robots.txt` at site root with both sitemaps declared, `/api/` disallowed (no SEO value, save crawl budget)
+- Master `sitemap.xml` covering all 154 indexable URLs: homepage, /platform/, all 5 agents, all tool landing+quote pages, document forms, dashboard, existing pillar pages (sourcing/intelligence/finance/orcatrade), 117 generated guides, PL+DE locale roots
+- Per-URL priority weighting: 1.0 homepage, 0.9 agents, 0.8 tool/agent landings, 0.7 guides, 0.6 forms, 0.5 dashboard
+- Added "Guides" link to homepage nav secondary group (sits between Tools dropdown and Dashboard)
+- All generated pages already had per-page JSON-LD structured data + Open Graph + Twitter Card from iter 1 (carried through iters 2-4)
