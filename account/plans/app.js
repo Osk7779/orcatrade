@@ -57,6 +57,40 @@
     if (isNaN(d.getTime())) return iso;
     return d.toISOString().slice(0, 10);
   }
+  function fmtEur(n) {
+    if (!Number.isFinite(Number(n))) return '';
+    return '€' + Math.round(Number(n)).toLocaleString('en-IE');
+  }
+  function driverLabel(d) {
+    return ({ duty: 'duty', vat: 'VAT', transport: 'freight', brokerage: 'brokerage' }[d]) || 'pricing';
+  }
+
+  // Diff badge: only render when we have both a saved snapshot and a recomputed
+  // total. Significance threshold (≥5%) comes from the server.
+  function renderDelta(r) {
+    if (!r.delta || !r.snapshot || !r.current) return '';
+    var d = r.delta;
+    var direction = d.landedDeltaEur > 0 ? 'up' : (d.landedDeltaEur < 0 ? 'down' : 'flat');
+    var cls = 'delta-' + direction + (d.significant ? ' delta-significant' : '');
+    var arrow = direction === 'up' ? '▲' : (direction === 'down' ? '▼' : '·');
+    var sign = d.landedDeltaEur > 0 ? '+' : '';
+    var pctSign = d.landedDeltaPct > 0 ? '+' : '';
+    var headline;
+    if (direction === 'flat' || Math.abs(d.landedDeltaEur) < 1) {
+      headline = 'Pricing steady since you saved this';
+    } else {
+      headline = 'Landed cost ' + (direction === 'up' ? 'up' : 'down') +
+        ' ' + sign + fmtEur(d.landedDeltaEur) + ' (' + pctSign + d.landedDeltaPct + '%)' +
+        (d.primaryDriver ? ' — ' + driverLabel(d.primaryDriver) + ' moved most' : '');
+    }
+    var savedLine = 'Saved at ' + fmtEur(r.snapshot.perShipmentLandedTotal) +
+      ' · now ' + fmtEur(r.current.perShipmentLandedTotal);
+    return '<div class="plan-delta ' + cls + '">' +
+        '<span class="delta-arrow">' + arrow + '</span>' +
+        '<span class="delta-text">' + escapeHtml(headline) + '</span>' +
+        '<span class="delta-sub">' + escapeHtml(savedLine) + '</span>' +
+      '</div>';
+  }
 
   // ── Render ──────────────────────────────────────────
 
@@ -72,6 +106,7 @@
         '<div class="plan-info">' +
           '<div class="plan-label">' + escapeHtml(r.label || '(unnamed plan)') + '</div>' +
           '<div class="plan-meta">' + escapeHtml(r.id) + ' · saved ' + escapeHtml(fmtDate(r.savedAt)) + '</div>' +
+          renderDelta(r) +
         '</div>' +
         '<div class="plan-actions">' +
           '<a href="' + url + '">Open</a>' +

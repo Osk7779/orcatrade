@@ -36,6 +36,18 @@
     .empty-state .btn { display: inline-block; padding: 0.7rem 1.3rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; }
     .signin-required { padding: 1.6rem 1.8rem; background: rgba(184,168,114,0.06); border: 1px solid rgba(200, 168, 90, 0.3); margin-bottom: 1.5rem; }
     .signin-required p { font-size: 0.94rem; line-height: 1.6; color: rgba(255,255,255,0.85); margin-bottom: 0.8rem; }
+    .plan-delta { margin-top: 0.55rem; font-size: 0.78rem; line-height: 1.45; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.45rem; padding: 0.5rem 0.7rem; border-left: 2px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.025); }
+    .plan-delta .delta-arrow { font-family: 'Geist Mono', monospace; font-size: 0.72rem; }
+    .plan-delta .delta-text { color: rgba(255,255,255,0.82); }
+    .plan-delta .delta-sub { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; flex-basis: 100%; }
+    .plan-delta.delta-up { border-left-color: rgba(220, 110, 90, 0.6); }
+    .plan-delta.delta-up .delta-arrow { color: #d97a6a; }
+    .plan-delta.delta-down { border-left-color: rgba(95, 181, 107, 0.6); }
+    .plan-delta.delta-down .delta-arrow { color: #5fb56b; }
+    .plan-delta.delta-flat { border-left-color: rgba(255,255,255,0.18); }
+    .plan-delta.delta-flat .delta-arrow { color: rgba(255,255,255,0.45); }
+    .plan-delta.delta-significant { background: rgba(218, 110, 90, 0.05); }
+    .plan-delta.delta-significant.delta-down { background: rgba(95, 181, 107, 0.05); }
   </style>
 </head>
 <body>

@@ -159,6 +159,40 @@ test('deletePlan: ownership check — wrong email returns false, plan persists',
   assert.equal(got.id, r.id);
 });
 
+test('savePlan: persists optional snapshot when provided', async () => {
+  kv._resetMemoryStore();
+  const snapshot = {
+    asOf: '2026-05-08',
+    perShipmentLandedTotal: 28425,
+    dutyEur: 3000, vatEur: 5500, transportEur: 4500, brokerageEur: 425,
+    dutyRatePct: 12,
+  };
+  const r = await savedPlans.savePlan({ email: 'snap@example.com', inputs: BASE_INPUTS, snapshot });
+  assert.equal(r.snapshot.perShipmentLandedTotal, 28425);
+  assert.equal(r.snapshot.dutyRatePct, 12);
+  // Round-trips through KV
+  const got = await savedPlans.getPlan(r.id, 'snap@example.com');
+  assert.equal(got.snapshot.perShipmentLandedTotal, 28425);
+});
+
+test('savePlan: snapshot is null when not provided (legacy plans)', async () => {
+  kv._resetMemoryStore();
+  const r = await savedPlans.savePlan({ email: 'nosnap@example.com', inputs: BASE_INPUTS });
+  assert.equal(r.snapshot, null);
+});
+
+test('savePlan: snapshot strips arbitrary fields (defence in depth)', async () => {
+  kv._resetMemoryStore();
+  const r = await savedPlans.savePlan({
+    email: 'safe@example.com',
+    inputs: BASE_INPUTS,
+    snapshot: { perShipmentLandedTotal: 100, attacker: 'pwn', __proto__: { polluted: true } },
+  });
+  assert.equal(r.snapshot.attacker, undefined);
+  assert.equal(r.snapshot.polluted, undefined);
+  assert.equal(r.snapshot.perShipmentLandedTotal, 100);
+});
+
 test('savePlan: caps user list at MAX_PLANS_PER_USER', async () => {
   kv._resetMemoryStore();
   for (let i = 0; i < savedPlans.MAX_PLANS_PER_USER + 5; i++) {
@@ -222,6 +256,37 @@ test('handler: POST + GET round-trip', async () => {
   const listJson = JSON.parse(listRes.body);
   assert.equal(listJson.plans.length, 1);
   assert.equal(listJson.plans[0].id, saveJson.plan.id);
+});
+
+test('handler: POST snapshots landed total + GET enriches with current + delta', async () => {
+  kv._resetMemoryStore();
+  const saveReq = authedReq('POST', { inputs: BASE_INPUTS });
+  const saveRes = mockRes();
+  await plansHandler(saveReq, saveRes);
+  const saveJson = JSON.parse(saveRes.body);
+  // Snapshot was computed and stored
+  assert.ok(saveJson.plan.snapshot, 'snapshot persisted on save');
+  assert.ok(saveJson.plan.snapshot.perShipmentLandedTotal > 0);
+
+  // GET single plan returns the record + current + delta
+  const planId = saveJson.plan.id;
+  const getReq = authedReq('GET', null, ['plans', planId], `/api/plans/${planId}`);
+  const getRes = mockRes();
+  await plansHandler(getReq, getRes);
+  const getJson = JSON.parse(getRes.body);
+  assert.ok(getJson.plan.current, 'current snapshot attached');
+  assert.ok(getJson.plan.delta, 'delta attached');
+  // Same calculator → no change at zero days
+  assert.equal(getJson.plan.delta.landedDeltaEur, 0);
+  assert.equal(getJson.plan.delta.significant, false);
+
+  // GET list also enriches each record
+  const listReq = authedReq('GET');
+  const listRes = mockRes();
+  await plansHandler(listReq, listRes);
+  const listJson = JSON.parse(listRes.body);
+  assert.ok(listJson.plans[0].current);
+  assert.ok(listJson.plans[0].delta);
 });
 
 test('handler: GET /api/plans/<id> with ownership', async () => {
