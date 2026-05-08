@@ -355,9 +355,10 @@ function localePrefix() {
 function wizardHome() { return `${localePrefix()}/start/`; }
 function guidesHome() { return `${localePrefix()}/guides/`; }
 function agentBase(name) {
-  // Agents are not yet localised — keep them at /agent/<name>/ for all locales.
-  // Localisation can flow through the prompt seed itself.
-  return `/agent/${name}/`;
+  // Locale-routed: /pl/agent/<name>/, /de/agent/<name>/, or /agent/<name>/ for EN.
+  // The compliance agent lives at /agent/ (not /agent/compliance/).
+  const segment = name === 'compliance' ? '' : `${name}/`;
+  return LOCALE === 'en' ? `/agent/${segment}` : `/${LOCALE}/agent/${segment}`;
 }
 
 function buildShareUrl(inputs) {

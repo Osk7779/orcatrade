@@ -422,5 +422,6 @@ prefers a different ordering than I would naively pick.
 | 2026-05-08 | H0 Sprint A — Trade defence DB | 30+ AD/CVD measures wired into customs calc. Bicycles ex-CN: 10% → 58.5% duty. 581/581 tests. |
 | 2026-05-08 | H0 Sprint B — Preferential origin | EBA/GSP/FTAs/ATR proper regime DB. BD apparel: 0% with REX. AD stacks on top of preferential (TR steel). 605/605 tests. |
 | 2026-05-08 | H0 Sprint C — Compliance overlay | 12 regimes (CBAM/EUDR/REACH/CE/RoHS/WEEE/Battery/Toys/Cosmetics/PPWR/GPSR/Footwear). Severity-sorted in plan output. 634/634 tests. |
+| 2026-05-08 | Sprint 34 — Localised AI agents | 5 agents × 3 locales. EN/PL/DE landing pages, locale directive injected into system prompts, wizard CTAs route locale-correct. 648/648 tests. |
 
 When you complete a sprint, append here.
