@@ -554,6 +554,223 @@ function generateRoutingIndex() {
   };
 }
 
+// ── Customs pages ──────────────────────────────────────────
+
+// SME-relevant HS chapters with searcher-friendly slugs.
+const CUSTOMS_CHAPTERS = [
+  { code: '61', slug: 'knitted-apparel', name: 'Knitted apparel' },
+  { code: '62', slug: 'woven-apparel', name: 'Woven apparel' },
+  { code: '63', slug: 'home-textiles', name: 'Home textiles & made-up textile articles' },
+  { code: '64', slug: 'footwear', name: 'Footwear' },
+  { code: '85', slug: 'electronics', name: 'Electrical machinery & electronics' },
+  { code: '94', slug: 'furniture', name: 'Furniture & lighting' },
+];
+const CUSTOMS_DESTINATIONS = ['DE', 'PL', 'NL', 'FR', 'IT', 'ES'];
+
+function generateCustomsPage(chapter, destination) {
+  const destInfo = customs.EU_VAT[destination];
+  const chapterInfo = customs.HS_CHAPTER_DUTY[chapter.code];
+
+  // Sample quote for €25,000 of CN-origin goods (most common SME volume)
+  const sampleQuote = customs.calculateQuote({
+    customsValueEur: 25000,
+    hsCode: chapter.code,
+    destinationCountry: destination,
+    originCountry: 'CN',
+    linesCount: 4,
+  });
+
+  // Comparison: same chapter from VN claiming preferential
+  const vnPreferentialQuote = customs.calculateQuote({
+    customsValueEur: 25000,
+    hsCode: chapter.code,
+    destinationCountry: destination,
+    originCountry: 'VN',
+    linesCount: 4,
+    claimPreferential: true,
+  });
+
+  const slugUrl = `${chapter.slug}-into-${slug(destination)}`;
+  const title = `Import ${chapter.name.toLowerCase()} into ${destInfo.name} — duty + VAT calculator | OrcaTrade`;
+  const description = `Landed-cost calculation for HS chapter ${chapter.code} (${chapter.name.toLowerCase()}) imported into ${destInfo.name}. MFN duty rate, ${(destInfo.rate * 100).toFixed(0)}% VAT, brokerage fees, bonded warehouse alternative. Calculator-grounded.`.slice(0, 300);
+  const canonical = `${SITE_URL}/guides/customs/${slugUrl}/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: title,
+        description,
+        datePublished: TODAY,
+        dateModified: TODAY,
+        author: { '@type': 'Organization', name: 'OrcaTrade Group' },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Guides', item: `${SITE_URL}/guides/` },
+          { '@type': 'ListItem', position: 2, name: 'Customs', item: `${SITE_URL}/guides/customs/` },
+          { '@type': 'ListItem', position: 3, name: `${chapter.name} into ${destInfo.name}`, item: canonical },
+        ],
+      },
+    ],
+  });
+
+  const standard = sampleQuote.quotes.find(q => q.routeKey === 'standard_clearance');
+  const vnStandard = vnPreferentialQuote.ok ? vnPreferentialQuote.quotes.find(q => q.routeKey === 'standard_clearance') : null;
+
+  const dutyDeltaEur = vnStandard ? Math.round(standard.dutyEur - vnStandard.dutyEur) : 0;
+
+  // Anti-dumping note for chapters where it's relevant
+  const antiDumpingChapters = ['72', '73', '76', '64'];
+  const antiDumpingNote = antiDumpingChapters.includes(chapter.code) ? `
+    <div class="caution-block">
+      <div class="label">Anti-dumping risk · CN origin</div>
+      <p style="margin:0;color:rgba(255,255,255,0.85);">Chinese-origin goods in chapter ${chapter.code} attract anti-dumping duties on top of the MFN rate. Always verify TARIC for the specific 8-digit code before commitment. The OrcaTrade customs calculator surfaces the overlay automatically.</p>
+    </div>` : '';
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/">Home</a> · <a href="/guides/">Guides</a> · <a href="/guides/customs/">Customs</a> · ${escapeHtml(chapter.name)} into ${escapeHtml(destInfo.name)}
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">Customs guide · HS ${escapeHtml(chapter.code)}</p>
+      <h1>Import ${escapeHtml(chapter.name.toLowerCase())} into ${escapeHtml(destInfo.name)}: full landed cost</h1>
+      <p class="lead">Working through the duty + VAT + brokerage on HS chapter ${escapeHtml(chapter.code)} (${escapeHtml(chapterInfo.label.toLowerCase())}) entering ${escapeHtml(destInfo.name)}. Numbers come from OrcaTrade's customs calculator — MFN duty rates, ${(destInfo.rate * 100).toFixed(1)}% national VAT, EU brokerage benchmarks, plus the bonded-warehouse alternative most SMEs don't price in.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${(chapterInfo.rate * 100).toFixed(2)}%</div><div class="label">MFN duty rate</div></div>
+      <div class="guide-stat"><div class="num">${(destInfo.rate * 100).toFixed(1)}%</div><div class="label">${escapeHtml(destInfo.name)} VAT</div></div>
+      <div class="guide-stat"><div class="num">€${standard?.totalEur || '—'}</div><div class="label">Total · €25k CN goods</div></div>
+      <div class="guide-stat"><div class="num">€${standard ? Math.round(standard.totalEur - 25000) : '—'}</div><div class="label">Of which: tax + fees</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>The math, line by line</h2>
+      <p>For a sample shipment of <strong>€25,000 customs value</strong> of HS ${escapeHtml(chapter.code)} from China to ${escapeHtml(destInfo.name)}, with 4 lines on the commercial invoice:</p>
+      <table class="data-table">
+        <thead><tr><th>Component</th><th>Calculation</th><th>Amount</th></tr></thead>
+        <tbody>
+          <tr><td>Customs value (CIF)</td><td>—</td><td class="num">€${standard?.customsValueEur.toLocaleString('en-IE')}</td></tr>
+          <tr><td>Import duty</td><td class="num">${(standard?.dutyRate * 100).toFixed(2)}% × €${standard?.customsValueEur.toLocaleString('en-IE')}</td><td class="num">€${Math.round(standard?.dutyEur).toLocaleString('en-IE')}</td></tr>
+          <tr><td>Import VAT</td><td class="num">${(standard?.vatRate * 100).toFixed(1)}% × (customs value + duty)</td><td class="num">€${Math.round(standard?.vatEur).toLocaleString('en-IE')}</td></tr>
+          <tr><td>Brokerage</td><td>€45 base + €8 × 4 lines</td><td class="num">€${standard?.brokerageEur}</td></tr>
+          <tr><td>ENS pre-arrival</td><td>flat</td><td class="num">€${standard?.entrySummaryDeclarationEur}</td></tr>
+          <tr style="background: rgba(184,190,200,0.08);"><td><strong>Total cash out</strong></td><td>—</td><td class="num"><strong>€${standard?.totalEur.toLocaleString('en-IE')}</strong></td></tr>
+        </tbody>
+      </table>
+      <p>VAT is recoverable for VAT-registered importers on the next return — effectively a cash-flow line, not a net cost. Duty is non-recoverable; that's the actual tariff cost of the import.</p>
+    </section>
+
+    ${antiDumpingNote}
+
+    <section class="guide-section">
+      <h2>Preferential origin alternative · Vietnam (EVFTA)</h2>
+      <p>For HS chapter ${escapeHtml(chapter.code)} from Vietnam, the EU-Vietnam Free Trade Agreement (EVFTA) typically gives a 70% duty reduction with valid origin proof (REX or invoice declaration). For the same €25,000 shipment:</p>
+      <table class="data-table">
+        <thead><tr><th>Origin</th><th>Effective duty rate</th><th>Duty paid</th><th>Total cash out</th></tr></thead>
+        <tbody>
+          <tr><td>China (MFN)</td><td class="num">${standard?.dutyRate ? (standard.dutyRate * 100).toFixed(2) + '%' : '—'}</td><td class="num">€${Math.round(standard?.dutyEur || 0).toLocaleString('en-IE')}</td><td class="num">€${standard?.totalEur.toLocaleString('en-IE')}</td></tr>
+          ${vnStandard ? `<tr style="background: rgba(111, 166, 111, 0.06);"><td>Vietnam (EVFTA preferential)</td><td class="num">${(vnStandard.dutyRate * 100).toFixed(2)}%</td><td class="num">€${Math.round(vnStandard.dutyEur).toLocaleString('en-IE')}</td><td class="num">€${vnStandard.totalEur.toLocaleString('en-IE')}</td></tr>` : ''}
+        </tbody>
+      </table>
+      ${dutyDeltaEur > 100 ? `<p>The duty saving from sourcing in Vietnam with valid EVFTA proof: <strong>€${dutyDeltaEur.toLocaleString('en-IE')}</strong> on the same €25,000 shipment. For high-volume SKUs, this often justifies the supplier-switch cost.</p>` : ''}
+    </section>
+
+    <section class="guide-section">
+      <h2>The bonded warehouse alternative</h2>
+      <p>If the goods will sit longer than 30 days before sale (slow-moving stock, seasonal goods, anything possibly re-exported), bonded warehousing defers the duty + VAT — and avoids them entirely on re-export. For €25,000 of HS ${escapeHtml(chapter.code)}:</p>
+      <ul>
+        <li><strong>Standard clearance</strong> — pay duty + VAT + brokerage on day 1.</li>
+        <li><strong>Bonded warehouse</strong> — €95 entry + €0.30/cbm/day storage + 1.2% bond fee + €65 exit. Duty + VAT paid only on release into free circulation, or never (if re-exported).</li>
+      </ul>
+      <p>Cash-flow benefit at 6% annual cost of capital × N days storage. Worth running the bonded scenario through the Customs Agent if your category has any re-export probability.</p>
+    </section>
+
+    <section class="guide-section">
+      <h2>Other EU destinations · same chapter</h2>
+      <p>For comparison, here's the same €25,000 CN-origin shipment of HS ${escapeHtml(chapter.code)} into different EU member states:</p>
+      <table class="data-table">
+        <thead><tr><th>Destination</th><th>VAT rate</th><th>Total landed cost</th></tr></thead>
+        <tbody>
+          ${CUSTOMS_DESTINATIONS.map(d => {
+            const dInfo = customs.EU_VAT[d];
+            const q = customs.calculateQuote({ customsValueEur: 25000, hsCode: chapter.code, destinationCountry: d, originCountry: 'CN', linesCount: 4 });
+            const std = q.ok ? q.quotes.find(qq => qq.routeKey === 'standard_clearance') : null;
+            const isCurrent = d === destination;
+            return `<tr${isCurrent ? ' style="background: rgba(184,190,200,0.06);"' : ''}>
+              <td>${escapeHtml(dInfo.name)}${isCurrent ? ' <span style="opacity:0.6;font-size:0.78em;">(this guide)</span>' : ` <a href="/guides/customs/${chapter.slug}-into-${slug(d)}/" style="font-size:0.85em; opacity:0.7;">[guide →]</a>`}</td>
+              <td class="num">${(dInfo.rate * 100).toFixed(1)}%</td>
+              <td class="num">€${std?.totalEur.toLocaleString('en-IE') || '—'}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Run the calculator on your real numbers</h3>
+        <p>Customs Agent works the math for any HS code, any EU destination, any origin (with anti-dumping overlays + preferential FTA detection).</p>
+      </div>
+      <a href="/agent/?prompt=Working%20out%20landed%20cost%20on%20a%20%E2%82%AC25k%20shipment%20of%20HS%20${chapter.code}%20goods%20from%20China%20to%20${encodeURIComponent(destInfo.name)}.%20Walk%20me%20through%20the%20duty%20%2B%20VAT%20%2B%20brokerage%20math%2C%20and%20flag%20whether%20bonded%20makes%20sense.">Open Customs Agent →</a>
+    </aside>
+  `;
+
+  return {
+    path: `guides/customs/${slugUrl}`,
+    canonical,
+    html: pageShell({ title, description, canonical, jsonLd, body }),
+  };
+}
+
+function generateCustomsIndex() {
+  const title = 'Customs guides — landed-cost calculations for EU imports | OrcaTrade';
+  const description = '36 customs landed-cost guides for major HS chapters × EU destinations. MFN duty rates, national VAT, brokerage, bonded warehouse alternatives. Calculator-grounded.';
+  const canonical = `${SITE_URL}/guides/customs/`;
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, url: canonical });
+
+  const sections = CUSTOMS_CHAPTERS.map(ch => {
+    const links = CUSTOMS_DESTINATIONS.map(d => {
+      const dInfo = customs.EU_VAT[d];
+      return `<a class="related-card" href="/guides/customs/${ch.slug}-into-${slug(d)}/">
+        <div class="related-tag">HS ${escapeHtml(ch.code)} → ${escapeHtml(dInfo.name)}</div>
+        <h3>${escapeHtml(ch.name)} into ${escapeHtml(dInfo.name)}</h3>
+        <div class="related-desc">${(customs.HS_CHAPTER_DUTY[ch.code].rate * 100).toFixed(2)}% MFN · ${(dInfo.rate * 100).toFixed(0)}% VAT</div>
+      </a>`;
+    }).join('');
+    return `<section class="guide-section"><h2>HS ${escapeHtml(ch.code)} · ${escapeHtml(ch.name)}</h2><div class="related-grid">${links}</div></section>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/">Home</a> · <a href="/guides/">Guides</a> · Customs</nav>
+    <header class="guide-hero">
+      <p class="kicker">Customs guides</p>
+      <h1>Landed-cost calculations for EU imports.</h1>
+      <p class="lead">36 guides covering the most-imported HS chapters × six major EU destinations. Each carries the duty + VAT + brokerage math for a sample €25,000 shipment, comparison against preferential origins (EVFTA Vietnam etc.), and the bonded-warehouse alternative.</p>
+    </header>
+    ${sections}
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Calculate landed cost for your real shipment</h3>
+        <p>The Compliance Agent's customs tools cover all 50+ HS chapters, all 27 EU member states, with anti-dumping overlays and preferential-FTA detection.</p>
+      </div>
+      <a href="/agent/">Open Compliance Agent →</a>
+    </aside>
+  `;
+
+  return {
+    path: 'guides/customs',
+    canonical,
+    html: pageShell({ title, description, canonical, jsonLd, body }),
+  };
+}
+
 // ── Index pages (one per category) ──────────────────────────
 
 function generateSourcingIndex() {
@@ -641,6 +858,12 @@ function generateGuidesRoot() {
       <p>How to ship between Asia and Europe — corridor guides covering sea FCL, sea LCL, air, and rail (where viable) for the major lanes. Calculator-grounded cost, transit, and CO₂ per shipment band.</p>
       <a href="/guides/routing/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 30 routing guides →</a>
     </section>
+
+    <section class="guide-section">
+      <h2>Customs</h2>
+      <p>Landed-cost calculations for the major HS chapters across six EU member states. Duty + VAT + brokerage math, preferential FTA comparisons, bonded-warehouse alternatives.</p>
+      <a href="/guides/customs/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 36 customs guides →</a>
+    </section>
   `;
 
   return {
@@ -697,6 +920,19 @@ function run() {
   const rIndex = generateRoutingIndex();
   writePage(rIndex.path, rIndex.html);
   generated.push(rIndex);
+
+  // 36 customs pages (6 chapters × 6 destinations)
+  for (const chapter of CUSTOMS_CHAPTERS) {
+    for (const dest of CUSTOMS_DESTINATIONS) {
+      const page = generateCustomsPage(chapter, dest);
+      writePage(page.path, page.html);
+      generated.push(page);
+    }
+  }
+  // Customs index
+  const cIndex = generateCustomsIndex();
+  writePage(cIndex.path, cIndex.html);
+  generated.push(cIndex);
 
   // Guides root
   const gRoot = generateGuidesRoot();

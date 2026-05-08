@@ -56,3 +56,12 @@ Started.
 - Sticky agent CTA pre-fills the Logistics Agent with origin/destination
 - Sitemap updated to 73 URLs
 - Sample URL: `/guides/routing/cn-to-pl/` returns 200 with full rail-corridor section
+
+### Iteration 3 — 2026-05-08 ~04:00
+
+**Done:**
+- Added customs landed-cost page generator: 6 SME-relevant HS chapters × 6 EU destinations = 36 pages at `/guides/customs/`
+- Plus customs index = 37 new pages this iteration, **110 pages total**
+- Per page: full duty + VAT + brokerage math line-by-line, anti-dumping warning for chapters 64/72/73/76 (CN-origin), Vietnam EVFTA preferential comparison showing exact duty saving, bonded warehouse alternative explainer, cross-destination comparison table
+- Sticky CTA pre-fills the Compliance Agent with the chapter + destination context
+- Sample URL: `/guides/customs/footwear-into-pl/` returns 200
