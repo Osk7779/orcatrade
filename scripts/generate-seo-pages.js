@@ -2920,6 +2920,14 @@ function run() {
   }
   console.log(`Trade defence pages: ${tdPages.length} (already written by sub-generator).`);
 
+  // Preferential origin guides (regime pages + country pivots).
+  const prefGenerator = require('./generate-preferential-pages');
+  const prefPages = prefGenerator.build();
+  for (const p of prefPages) {
+    generated.push({ canonical: p.canonical });
+  }
+  console.log(`Preferential origin pages: ${prefPages.length} (already written by sub-generator).`);
+
   // Sitemap (guides only)
   generateSitemap(generated);
   // Master sitemap (everything indexable)
