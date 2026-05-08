@@ -413,7 +413,7 @@ In rough order of probability:
 
 ## What's already shipped (current build state)
 
-This section is updated as the platform progresses. **Last updated: 2026-05-08 (after Sprint 28).**
+This section is updated as the platform progresses. **Last updated: 2026-05-08 (after Sprint 29 — overnight programmatic SEO).**
 
 ### Pages live on the site
 
@@ -510,6 +510,28 @@ This section is updated as the platform progresses. **Last updated: 2026-05-08 (
 - Markdown rendering preserved on persistence-restore via shared `OrcaMarkdown.render`
 - Nav updated: `Agent Hub` is now the first item in the AI Agents group, sitting above the 5 specialist links
 
+### Frontend — Programmatic SEO (Sprint 29 — autonomous overnight)
+
+- `scripts/generate-seo-pages.js` — pure-JS programmatic page generator. Reads from `lib/intelligence/{sourcing,routing,customs,warehouse}-quote.js` and emits static HTML to `/guides/`. Re-runnable, idempotent
+- **201 guide pages** generated:
+  - **40 sourcing × 3 languages = 120** at `/guides/sourcing/{slug}-from-{cc}/`, `/pl/guides/sourcing/{slug}-z-{cc}/`, `/de/guides/sourcing/{slug}-{cc}/`
+  - **30 routing** corridor pages (5 origins × 6 destinations) at `/guides/routing/{cc}-to-{cc}/` — EN only this sprint, PL+DE in follow-up
+  - **36 customs** landed-cost pages (6 HS chapters × 6 EU destinations) at `/guides/customs/{chapter-slug}-into-{cc}/` — EN only
+  - **6 warehouse** hub profile pages at `/guides/warehouse/{hub-slug}-3pl/` — EN only
+  - **9 index pages** across EN/PL/DE for guides root + sourcing/routing/customs/warehouse sections
+- Per-page SEO essentials: keyword-tuned `<title>` + `<meta description>`, canonical URL, full Open Graph + Twitter Card, JSON-LD Article + BreadcrumbList structured data, hreflang alternates (EN/PL/DE/x-default on all sourcing pages)
+- Conversion: every page has a sticky agent CTA pre-filling the relevant agent (Sourcing / Logistics / Compliance) with locale-matched prompt
+- Cross-linking: each page lists 3 related guides + a full cross-origin / cross-destination comparison table with links to siblings
+- Special-case content: rail-corridor explainer auto-renders only on CN-origin routing pages (where `isRailViable` returns true); anti-dumping warning auto-renders only on chapters where the CN overlay applies (64 footwear, etc.)
+- `sitemap.xml` (238 URLs, master) + `sitemap-guides.xml` (201 URLs, guides only) + `robots.txt` (declares both, disallows `/api/`)
+- Slug helper handles Polish/Czech/etc. precomposed Latin letters (Ł, ø, ß, æ, œ) via NFD normalisation + override map (Poznań → poznan, Łódź → lodz)
+- `test/generate-seo-pages.test.js` — 21 tests covering slug + escapeHtml helpers, generated-page structural assertions, sitemap content, robots.txt declarations, generator idempotence, exact page count
+- Polish dictionary at `scripts/seo-pl-translations.js` (country names + genitive cases, regions, categories with descriptions, UI labels)
+- German dictionary at `scripts/seo-de-translations.js` (country names with dative cases, regions, categories with accusative, Sie-form register)
+- Nav updated: "Guides" added to homepage nav secondary group between Tools dropdown and Dashboard
+
+**Live deploys:** all 8 iterations pushed to origin/main as separate commits during overnight session, every iteration ending with full test suite green (518 / 518). Vercel auto-deploys on each push.
+
 ### Backend — Trade Documentation Hub
 
 - `lib/intelligence/document-generator.js` — schema for 4 document types (Commercial Invoice, Packing List, Proforma Invoice, Certificate of Origin); pure-JS HTML renderer with HTML escaping; field-level validator
@@ -563,7 +585,7 @@ This section is updated as the platform progresses. **Last updated: 2026-05-08 (
 - Anthropic API key as `ORCATRADE_OS_API`
 - Resend for transactional email
 
-### Test suite — 497 tests, 0 failures
+### Test suite — 518 tests, 0 failures
 
 - `test/cbam-analysis.test.js` — 22 tests
 - `test/eudr-analysis.test.js` — 23 tests
