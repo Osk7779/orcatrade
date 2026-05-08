@@ -2910,6 +2910,16 @@ function run() {
   writePage(gRootDE.path, gRootDE.html);
   generated.push(gRootDE);
 
+  // Trade defence guides (delegated to a separate generator that owns its
+  // own data + i18n). Each entry { canonical, relPath, html } is included
+  // in both sitemaps so search engines pick up the full surface.
+  const tdGenerator = require('./generate-trade-defence-pages');
+  const tdPages = tdGenerator.build();
+  for (const tdPage of tdPages) {
+    generated.push({ canonical: tdPage.canonical });
+  }
+  console.log(`Trade defence pages: ${tdPages.length} (already written by sub-generator).`);
+
   // Sitemap (guides only)
   generateSitemap(generated);
   // Master sitemap (everything indexable)

@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Środki ochrony handlu UE — baza ceł antydumpingowych i wyrównawczych | OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Skalibrowany snapshot aktywnych środków ochrony handlu UE. Każdy środek cytuje rozporządzenie UE, wymienia objęte kody HS i pochodzenia oraz pokazuje przykładowy koszt landed." />
+  <link rel="canonical" href="https://orcatrade.pl/pl/guides/trade-defence/" />
+  <link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/trade-defence/" />
+  <link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/trade-defence/" />
+  <link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/trade-defence/" />
+  <link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/trade-defence/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Środki ochrony handlu UE — baza ceł antydumpingowych i wyrównawczych | OrcaTrade" />
+  <meta property="og:description" content="Skalibrowany snapshot aktywnych środków ochrony handlu UE. Każdy środek cytuje rozporządzenie UE, wymienia objęte kody HS i pochodzenia oraz pokazuje przykładowy koszt landed." />
+  <meta property="og:url" content="https://orcatrade.pl/pl/guides/trade-defence/" />
+  <meta property="og:image" content="https://orcatrade.pl/orcatrade_logo.png" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .guide-shell { max-width: 880px; margin: 0 auto; padding: 3rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
+    .breadcrumbs a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .breadcrumbs a:hover { color: rgba(255,255,255,0.95); }
+    .kicker { font-family: 'Geist Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: rgba(200, 168, 90, 0.95); margin-bottom: 0.8rem; }
+    h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3.5vw + 0.6rem, 2.8rem); font-weight: 600; line-height: 1.15; letter-spacing: -0.02em; color: rgba(255,255,255,0.97); margin-bottom: 1.4rem; }
+    h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.45rem; font-weight: 600; color: rgba(255,255,255,0.95); margin: 2.5rem 0 0.8rem; line-height: 1.25; }
+    p { font-size: 0.98rem; line-height: 1.75; color: rgba(255,255,255,0.82); margin-bottom: 1.1em; max-width: 70ch; }
+    code { font-family: 'Geist Mono', monospace; font-size: 0.88rem; background: rgba(184,190,200,0.08); padding: 0.1rem 0.45rem; color: rgba(220, 224, 232, 1); border-radius: 2px; }
+    .example-table { width: 100%; border-collapse: collapse; margin: 1.4rem 0; font-size: 0.92rem; }
+    .example-table td { padding: 0.55rem 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.85); font-family: 'Geist Mono', monospace; }
+    .example-table td:first-child { font-family: inherit; color: rgba(255,255,255,0.7); }
+    .example-table tr.total td { font-weight: 600; color: rgba(255,255,255,0.97); padding-top: 0.7rem; border-top: 1px solid rgba(184,190,200,0.3); border-bottom: none; }
+    .citation-callout { background: rgba(184, 168, 114, 0.06); border-left: 3px solid rgba(200, 168, 90, 0.85); padding: 1rem 1.3rem; margin: 1.5rem 0; }
+    .citation-callout p { margin-bottom: 0; }
+    .verify-callout { background: rgba(120, 160, 200, 0.04); border-left: 3px solid rgba(140, 180, 220, 0.7); padding: 1rem 1.3rem; margin: 1.5rem 0; font-size: 0.9rem; }
+    .cta-block { margin: 2.5rem 0 1rem; padding: 1.6rem 1.8rem; background: linear-gradient(135deg, rgba(184,168,114,0.08), rgba(184,190,200,0.03)); border: 1px solid rgba(200, 168, 90, 0.3); text-align: center; }
+    .cta-block h3 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.3rem; font-weight: 600; color: rgba(255,255,255,0.97); margin: 0 0 0.5rem; }
+    .cta-block p { font-size: 0.92rem; color: rgba(255,255,255,0.75); max-width: 56ch; margin: 0 auto 1rem; }
+    .cta-block a.cta-btn { display: inline-block; padding: 0.85rem 1.5rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; }
+    .cta-block a.cta-btn:hover { filter: brightness(1.08); }
+    .as-of-footer { font-size: 0.78rem; color: rgba(255,255,255,0.45); margin-top: 3rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); font-style: italic; }
+    .measures-table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin-top: 1.5rem; }
+    .measures-table thead th { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.12); text-align: left; font-weight: 500; }
+    .measures-table tbody td { padding: 0.65rem 0.8rem; border-bottom: 1px solid rgba(255,255,255,0.05); color: rgba(255,255,255,0.85); }
+    .measures-table tbody tr:hover { background: rgba(255,255,255,0.02); }
+    .measures-table a { color: rgba(220, 224, 232, 1); text-decoration: none; }
+    .measures-table a:hover { color: rgba(255,255,255,0.97); }
+    @media (max-width: 700px) { .measures-table { font-size: 0.82rem; } .measures-table thead { display: none; } .measures-table tbody tr { display: block; padding: 0.8rem 0; border-bottom: 1px solid rgba(255,255,255,0.07); } .measures-table tbody td { display: block; padding: 0.2rem 0; border: none; } }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"Aktywne środki ochrony handlu UE","description":"Skalibrowany snapshot aktywnych środków ochrony handlu UE. Każdy środek cytuje rozporządzenie UE, wymienia objęte kody HS i pochodzenia oraz pokazuje przykładowy koszt landed.","url":"https://orcatrade.pl/pl/guides/trade-defence/"}</script>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+  <div class="page">
+    <header data-site-header></header>
+    <main>
+      <article class="guide-shell">
+        
+    <div class="breadcrumbs">
+    <a href="/pl/">Strona główna</a> /
+    <a href="/pl/guides/">Poradniki</a> /
+    Środki ochrony handlu
+  </div>
+    <p class="kicker">Środek ochrony handlu UE</p>
+    <h1>Aktywne środki ochrony handlu UE</h1>
+    <p>Poniżej znajdują się środki ochrony handlu, które najczęściej dotykają importerów MŚP — skoncentrowane na Chinach, z istotnymi środkami z Turcji, Indonezji i Indii. Każdy wpis pokazuje stawkę nagłówkową, rozporządzenie UE i przykład.</p>
+    <table class="measures-table">
+      <thead>
+        <tr>
+          <th>Środek</th>
+          <th>Pochodzenie</th>
+          <th>Typ</th>
+          <th>Stawka</th>
+          <th>Rozporządzenie</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+      <td><a href="/pl/guides/trade-defence/cn-aluminum-converter-foil/">Aluminium converter foil (for further processing)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>28.5%</td>
+      <td><code>Reg. (EU) 2021/2170 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-aluminum-extrusions/">Aluminium extrusions (bars, rods, profiles, tubes)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>32.1%</td>
+      <td><code>Reg. (EU) 2021/546</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-aluminum-flat-rolled/">Aluminium flat-rolled products (sheet, plate, strip)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>24.6%</td>
+      <td><code>Reg. (EU) 2021/983</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-bev-passenger-cars/">Battery electric passenger cars</a></td>
+      <td>China</td>
+      <td>CVD</td>
+      <td>35.3%</td>
+      <td><code>Reg. (EU) 2024/2754 (October 2024)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-bicycles/">Bicycles (non-electric)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>48.5%</td>
+      <td><code>Reg. (EU) 2019/1379</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-ceramic-tableware/">Ceramic tableware and kitchenware</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>36.1%</td>
+      <td><code>Reg. (EU) 2019/1198 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-ceramic-tiles/">Ceramic tiles (floor and wall)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>69.7%</td>
+      <td><code>Reg. (EU) 2017/2227 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-citric-acid/">Citric acid and trisodium citrate</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>42.7%</td>
+      <td><code>Reg. (EU) 2021/607</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-cold-rolled-steel/">Cold-rolled flat steel products (non-alloy)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>22.1%</td>
+      <td><code>Reg. (EU) 2016/1328 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-disposable-lighters/">Disposable pocket flint and gas lighters</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>0.065%</td>
+      <td><code>Reg. (EU) 2014/1062 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-e-bikes-ad/">Electric bicycles (e-bikes)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>70.1%</td>
+      <td><code>Reg. (EU) 2019/73</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-e-bikes-cvd/">Electric bicycles (e-bikes) — countervailing</a></td>
+      <td>China</td>
+      <td>CVD</td>
+      <td>17.2%</td>
+      <td><code>Reg. (EU) 2019/72</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-bicycle-parts/">Essential bicycle parts (frames, forks, brakes, pedals, wheels, gears)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>48.5%</td>
+      <td><code>Reg. (EU) 2020/45 (anti-circumvention extension of Reg. 2019/1379)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-fiberglass-fabric-cvd/">Glass fibre fabrics — countervailing</a></td>
+      <td>China</td>
+      <td>CVD</td>
+      <td>30.7%</td>
+      <td><code>Reg. (EU) 2020/870</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-fiberglass-fabric-ad/">Glass fibre fabrics (woven and stitched)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>55.8%</td>
+      <td><code>Reg. (EU) 2020/776</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-tableware-glass/">Glass tableware and kitchenware</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>28%</td>
+      <td><code>Reg. (EU) 2018/1042 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-hand-pallet-trucks/">Hand pallet trucks and parts</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>70.8%</td>
+      <td><code>Reg. (EU) 2017/2206 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-hot-rolled-steel/">Hot-rolled flat steel products (non-alloy and certain alloy)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>35.9%</td>
+      <td><code>Reg. (EU) 2017/649 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-steel-fasteners/">Iron or steel fasteners (screws, bolts, nuts, washers)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>86.5%</td>
+      <td><code>Reg. (EU) 2022/191</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-ironing-boards/">Ironing boards (free-standing or built-in)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>42.3%</td>
+      <td><code>Reg. (EU) 2019/1167 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-plywood/">Plywood (birch and tropical hardwood faces)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>66%</td>
+      <td><code>Reg. (EU) 2017/648 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-pneumatic-tyres-ad/">Pneumatic tyres for buses and lorries</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>35.7%</td>
+      <td><code>Reg. (EU) 2018/1690</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-pneumatic-tyres-cvd/">Pneumatic tyres for buses and lorries — countervailing</a></td>
+      <td>China</td>
+      <td>CVD</td>
+      <td>51%</td>
+      <td><code>Reg. (EU) 2018/1579</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-polyester-staple-fibre/">Polyester staple fibres (PSF)</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>9.8%</td>
+      <td><code>Reg. (EU) 2019/1810 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-stainless-cold-rolled/">Stainless steel cold-rolled flat products</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>25.3%</td>
+      <td><code>Reg. (EU) 2015/1429 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-welded-tubes/">Welded tubes and pipes of iron or non-alloy steel</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>90.6%</td>
+      <td><code>Reg. (EU) 2015/110 (renewed)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/cn-steel-wire-rod/">Wire rod of iron or non-alloy steel</a></td>
+      <td>China</td>
+      <td>AD</td>
+      <td>17.9%</td>
+      <td><code>Reg. (EU) 2022/619</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/eg-fiberglass-fabric/">Glass fibre fabrics (Egypt)</a></td>
+      <td>Egypt</td>
+      <td>CVD</td>
+      <td>13.6%</td>
+      <td><code>Reg. (EU) 2020/870</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/id-stainless-cold-rolled/">Stainless steel cold-rolled flat products (Indonesia)</a></td>
+      <td>Indonesia</td>
+      <td>BOTH</td>
+      <td>21.4%</td>
+      <td><code>Reg. (EU) 2021/2287 (AD) + Reg. (EU) 2021/2306 (CVD)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/in-stainless-cold-rolled/">Stainless steel cold-rolled flat products (India)</a></td>
+      <td>India</td>
+      <td>BOTH</td>
+      <td>13.6%</td>
+      <td><code>Reg. (EU) 2021/2287 (AD) + Reg. (EU) 2021/2306 (CVD)</code></td>
+    </tr>
+<tr>
+      <td><a href="/pl/guides/trade-defence/tr-cold-rolled-steel/">Cold-rolled flat steel products from Türkiye</a></td>
+      <td>Türkiye</td>
+      <td>AD</td>
+      <td>23.3%</td>
+      <td><code>Reg. (EU) 2022/802</code></td>
+    </tr>
+      </tbody>
+    </table>
+    <p class="as-of-footer">Snapshot na dzień 2026-05-08. Aktualizowany okresowo. Zweryfikuj w TARIC przed zobowiązaniami.</p>
+  
+      </article>
+    </main>
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group.</span>
+        <span><a href="/">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -425,5 +425,6 @@ prefers a different ordering than I would naively pick.
 | 2026-05-08 | Sprint 34 — Localised AI agents | 5 agents × 3 locales. EN/PL/DE landing pages, locale directive injected into system prompts, wizard CTAs route locale-correct. 648/648 tests. |
 | 2026-05-08 | Sprint G — Origin sensitivity matrix | Re-runs customs+freight for CN/VN/IN/BD/TR + user origin. Surfaces cheapest alternative + €/% saving. Annual estimate when monthly volume given. 660/660 tests. |
 | 2026-05-08 | Sprint I — Currency / FX risk overlay | 13-currency snapshot table, fx-quote calculator with vol-90d + hedge cost + recommendation logic. Wizard step 4 has currency + payment-terms fields. 681/681 tests. |
+| 2026-05-08 | Sprint M — Trade defence SEO pages | 1 page per AD/CVD measure × 3 locales = 96 new pages. Each cites EU regulation, includes worked landed-cost example, CTAs into wizard with HS pre-filled. Total guides: 351 → 447. 699/699 tests. |
 
 When you complete a sprint, append here.
