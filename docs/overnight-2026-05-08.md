@@ -105,3 +105,16 @@ Started.
 - **hreflang tags wired across both EN and PL**: each page declares all available locales + x-default to EN. Google can now serve the right locale per searcher.
 - Polish grammar correction: H1 changed from "Jak sourcować [genitive]" to "Sourcing [genitive]" (noun-phrase reads better than verb construct, also matches the keyword Polish founders actually search)
 - Sample URL: `/pl/guides/sourcing/elektronika-z-vn/` returns 200 with correct Polish copy + hreflang
+
+### Iteration 8 — 2026-05-08 ~06:30
+
+**Done:**
+- New `scripts/seo-de-translations.js` — German dictionary: country names with dative cases (`aus China`, `aus der Türkei`), regions, categories with accusative + descriptions, risk levels, all UI strings (Sie-form register)
+- Added German branch to generator: `generateSourcingPageDE`, `generateSourcingIndexDE`, `generateGuidesRootDE`
+- All 40 sourcing × {country, category} pages now exist in German at `/de/guides/sourcing/{slug}-{country}/`
+- Plus DE sourcing index + DE guides root
+- **42 new German pages**, total now **201 guide pages**
+- 4-way hreflang on every sourcing page (EN, PL, DE, x-default) — Google can serve the right locale to UK / Polish / German searchers respectively
+- Master sitemap.xml: **238 URLs**
+- 518 / 518 tests passing
+- Sample URL: `/de/guides/sourcing/electronics-vn/` returns 200 with native German copy + 4-way hreflang
