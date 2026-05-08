@@ -162,3 +162,92 @@ select { cursor: pointer; }
 .agent-cta-card .ac-tag { font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.4rem; font-weight: 600; }
 .agent-cta-card h4 { font-family: 'Cormorant Garant', serif; font-size: 1.05rem; font-weight: 600; color: rgba(255,255,255,0.95); margin: 0 0 0.4rem; }
 .agent-cta-card p { font-size: 0.84rem; color: rgba(255,255,255,0.65); line-height: 1.55; margin: 0; }
+
+/* Print-only header (visible only when printing) */
+.print-header { display: none; }
+
+/* Save-as-PDF button (visible only on screen) */
+.print-actions { display: flex; justify-content: center; gap: 0.6rem; margin: 2rem 0 0; }
+
+/* ─── Print styles: A4 portrait, light theme, no chrome ─── */
+@media print {
+  @page { size: A4; margin: 18mm 16mm 18mm 16mm; }
+
+  /* Hide everything that's not part of the plan content */
+  .aurora, header[data-site-header], .nav, .progress-bar, .start-hero,
+  .wizard, .agent-cta-grid, .share-row, .actions, .print-actions,
+  .footer-inner, footer, .related-h0 { display: none !important; }
+
+  /* Light theme override for print */
+  body, .page, .start-shell, .result, .result-section { background: white !important; color: #1a1a1a !important; }
+  .result-section { border-top: 1px solid #ccc !important; padding-top: 0.6cm !important; margin-top: 0.5cm !important; page-break-inside: avoid; }
+  .result-section h3 { color: #1a1a1a !important; font-size: 14pt; margin-bottom: 0.2cm; page-break-after: avoid; }
+  .result-section h4 { color: #333 !important; font-size: 12pt; margin: 0.4cm 0 0.2cm; page-break-after: avoid; }
+  .result-section p { color: #333 !important; font-size: 10pt; line-height: 1.45; margin-bottom: 0.3cm; max-width: none; }
+  .result-section .secondary-note, .secondary-note { color: #666 !important; font-size: 9pt; }
+
+  /* Print-only header: logo + plan summary line + generated date */
+  .print-header {
+    display: block !important;
+    border-bottom: 2pt solid #1a1a1a;
+    padding-bottom: 0.4cm;
+    margin-bottom: 0.6cm;
+  }
+  .print-header .ph-brand { font-family: 'Cormorant Garant', Georgia, serif; font-size: 14pt; font-weight: 700; color: #1a1a1a; }
+  .print-header .ph-summary { font-size: 10pt; color: #444; margin-top: 0.15cm; }
+  .print-header .ph-meta { font-family: 'Geist Mono', monospace; font-size: 8pt; color: #777; margin-top: 0.1cm; }
+
+  /* Result hero: keep the headline tight */
+  .result-hero { text-align: left !important; margin-bottom: 0.5cm !important; }
+  .result-hero h2 { color: #1a1a1a !important; font-size: 18pt !important; }
+  .result-hero p { color: #555 !important; font-size: 10pt !important; }
+
+  /* Stats grid: print as a 4-column inline list */
+  .result-stats, .tco-stats, .wc-stats { display: grid !important; grid-template-columns: repeat(4, 1fr) !important; gap: 0 !important; background: white !important; border: 1pt solid #999 !important; margin: 0.4cm 0 !important; }
+  .result-stat { background: white !important; padding: 0.3cm 0.4cm !important; border-right: 1pt solid #ddd !important; }
+  .result-stat:last-child { border-right: none !important; }
+  .result-stat .num { color: #1a1a1a !important; font-size: 11pt !important; }
+  .result-stat .label { color: #555 !important; font-size: 7pt !important; }
+  .result-stat .sub { color: #777 !important; font-size: 6.5pt !important; }
+
+  /* Tables: thin borders, condensed */
+  .breakdown-table, .origin-matrix, .example-table { font-size: 8.5pt !important; }
+  .breakdown-table td, .origin-matrix td, .origin-matrix th, .example-table td, .example-table th {
+    padding: 4pt 6pt !important; color: #1a1a1a !important; border-color: #ccc !important;
+  }
+  .breakdown-table tr.total td, .origin-matrix tr.is-user td, .origin-matrix tr.is-cheapest td {
+    background: #f4f4f4 !important; border-top: 1pt solid #999 !important;
+  }
+  .origin-matrix tbody tr.is-user { background: #f8f8f8 !important; }
+
+  /* Callouts: light-theme-friendly */
+  .trade-defence-callout, .preferential-callout, .compliance-card, .fx-callout, .origin-saving-callout, .doc-callout, .warn-callout {
+    background: #fafafa !important; border-color: #999 !important; color: #1a1a1a !important;
+    page-break-inside: avoid;
+  }
+  .trade-defence-callout .td-header, .preferential-callout .pref-header, .compliance-head .compliance-name, .fx-callout .fx-rec {
+    color: #1a1a1a !important;
+  }
+  .trade-defence-callout .td-note, .compliance-status, .compliance-trigger, .compliance-dates, .compliance-note {
+    color: #555 !important; font-size: 9pt !important;
+  }
+  .compliance-card.sev-high { border-left: 3pt solid #c95050 !important; }
+  .compliance-card.sev-medium { border-left: 3pt solid #b89060 !important; }
+  .compliance-card.sev-low { border-left: 3pt solid #999 !important; }
+  .sev-badge.sev-high { background: #ffe0e0 !important; color: #802020 !important; }
+  .sev-badge.sev-medium { background: #fff2dc !important; color: #6a4a10 !important; }
+  .sev-badge.sev-low { background: #f0f0f0 !important; color: #444 !important; }
+
+  /* Page breaks before major sections so each starts cleanly */
+  .result-section.page-break-before { page-break-before: always; }
+
+  /* Make links readable: show URL in parens */
+  a, a:visited { color: #1a1a1a !important; text-decoration: underline; }
+  .compliance-link::after, .related-list a::after { content: " (" attr(href) ")"; font-size: 7.5pt; color: #777; }
+
+  /* Verdict line */
+  .verdict-line { color: #1a1a1a !important; background: #f4f4f4 !important; border-color: #999 !important; font-size: 10pt !important; }
+
+  /* Annotations and footnotes */
+  .as-of-footer { color: #888 !important; font-size: 8pt !important; }
+}

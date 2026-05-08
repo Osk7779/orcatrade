@@ -423,6 +423,12 @@ function renderPlan(plan) {
     : (plan.email?.sent ? T.emailSent : T.emailNotSent);
 
   els.result.innerHTML = `
+    <div class="print-header" aria-hidden="true">
+      <div class="ph-brand">${T.printHeaderBrand}</div>
+      <div class="ph-summary">${escapeHtml(T.printHeaderSummary(inputs))}</div>
+      <div class="ph-meta">${escapeHtml(T.printHeaderMeta(plan.asOf || new Date().toISOString().slice(0,10)))}</div>
+    </div>
+
     <div class="result-hero">
       <h2>${T.resultReady}</h2>
       <p>${headerNote}</p>
@@ -507,8 +513,14 @@ function renderPlan(plan) {
     </div>
 
     <div class="result-section" style="text-align: center;">
-      <a class="btn btn-primary" href="${wizardHome()}" style="margin-right: 0.6rem;">${T.btnRunAnother}</a>
-      <a class="btn" href="${guidesHome()}">${T.btnBrowseGuides}</a>
+      <div class="print-actions">
+        <button class="btn btn-primary" type="button" id="savePdfBtn">${T.btnSaveAsPdf}</button>
+        <button class="btn" type="button" id="printBtn">${T.btnPrint}</button>
+      </div>
+      <div style="margin-top: 1.4rem;">
+        <a class="btn btn-primary" href="${wizardHome()}" style="margin-right: 0.6rem;">${T.btnRunAnother}</a>
+        <a class="btn" href="${guidesHome()}">${T.btnBrowseGuides}</a>
+      </div>
     </div>
   `;
 
@@ -528,6 +540,14 @@ function renderPlan(plan) {
       }
     });
   }
+
+  // Save as PDF / Print — both call window.print(), the browser's
+  // print-to-PDF dialog handles the actual file generation. Our
+  // @media print CSS in wizard.css does the layout work.
+  const savePdfBtn = document.getElementById('savePdfBtn');
+  const printBtn = document.getElementById('printBtn');
+  if (savePdfBtn) savePdfBtn.addEventListener('click', () => window.print());
+  if (printBtn) printBtn.addEventListener('click', () => window.print());
 }
 
 function localePrefix() {
