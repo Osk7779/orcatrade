@@ -50,10 +50,91 @@ customer has asked for.
 
 ## Open frontier — ranked by leverage
 
-### Horizon 1 — Conversion-side polish (next 2-3 sprints)
+### Horizon 0 — Intelligence depth (current focus)
 
-These close known gaps in the funnel that currently exists. High
-confidence, immediate impact, no new infrastructure.
+**Why this is now the priority:** the platform looks smart on the
+surface but has thin internals. Customs = duty + VAT + brokerage; an
+accountant builds that in Excel. Sourcing = country averages; an
+importer needs supplier-level signals. Without depth, paywalling the
+product (H3) is charging Pro fees for what a free Excel template
+replicates.
+
+H0 sprints are pure code/data — no auth, no KV, no infra. They could
+ship next week and double the perceived intelligence of every plan.
+
+#### Sprint A — EU trade defence: anti-dumping + countervailing duties
+
+**Why now:** Currently we compute MFN duty and stop. A user importing
+bicycles ex-CN sees 14% MFN — the actual landed duty is 62.5% (14% MFN
++ 48.5% ADD). We're under-quoting by 5-figures on the most common
+high-volume importable goods.
+
+**Scope:**
+- `lib/intelligence/data/eu-trade-defence.js` — curated dataset of ~50
+  active EU AD/CVD measures by HS chapter + origin. Fields: HS prefix,
+  origin, type (AD/CVD), rate range, regulation citation, notes.
+- Customs calculator looks up applicable measures, adds to duty line.
+- Result UI surfaces measure as a separate cost component.
+- Email summary includes the warning.
+- Tests for known cases: bicycles CN (AD 48.5%), e-bikes CN (AD+CVD),
+  aluminum extrusions CN, ceramic tiles CN, fiberglass fabric CN.
+
+**Deliverables:** dataset file, calculator extension, UI, 10+ tests.
+Disclaimer surfaced: "Curator data, not legally authoritative — verify
+on TARIC before commercial decisions."
+
+**Estimate:** 1 session.
+
+---
+
+#### Sprint B — Preferential origin pathways
+
+**Why now:** Bangladesh apparel ships at *zero duty* with valid EUR.1
+under EBA. Vietnam under EU-Vietnam FTA. Türkiye under the Customs
+Union with ATR. We currently apply flat MFN. A user with an LDC
+supplier sees 12% duty when they should see 0%.
+
+**Scope:**
+- Origin-pathway data: which (origin × HS chapter) pairs unlock which
+  preferential regime (GSP+, EBA, EU-VN FTA, EU-KR FTA, ATR, REX).
+- Wizard already asks `claimPreferential` boolean → extend to ask
+  *which regime* if user says yes, OR auto-detect best regime.
+- Customs calc applies preferential rate (often 0%) when valid claim.
+- Result explains what document the user needs (EUR.1 / Form A / REX
+  registration) to actually claim it.
+
+**Estimate:** 1 session.
+
+---
+
+#### Sprint C — Compliance overlay in the plan
+
+**Why now:** CBAM/EUDR/REACH/CE pages exist as standalone UI; the
+import-plan generator never surfaces them. A user importing aluminum
+windows from VN should see "CBAM applies — quarterly reporting from
+your importer-of-record." They don't.
+
+**Scope:**
+- HS-chapter → applicable regimes mapping (CBAM: chapters 25, 27, 28, 31,
+  72-76; EUDR: 09, 18, 40, 44, 47-49; REACH: substantively all chemicals;
+  CE: most electronics, machinery, toys, PPE).
+- Result section in wizard: "Compliance check" with applicable regimes,
+  next steps, and links to OrcaTrade's deeper guides.
+- Email body includes the same.
+
+**Estimate:** 1 session.
+
+---
+
+#### Sprint D — Live TARIC integration (deferred until Sprint 37 KV exists)
+
+**Why deferred:** EU TARIC has a free API but our customs snapshots
+become stale and need caching. Without KV, every API request hits
+TARIC, gets rate-limited, and breaks under load. Build after Sprint 37.
+
+---
+
+### Horizon 1 — Conversion-side polish (after H0)
 
 #### Sprint 34 — Localised AI agents
 
@@ -81,9 +162,15 @@ gets an English reply — broken UX.
 
 ---
 
-#### Sprint 35 — Plan-revision diff + email follow-ups
+#### Sprint 35 — Plan-revision diff + email follow-ups (deferred)
 
-**Why now:** Permalinks already let users return to a plan. But pricing
+**Why deferred:** Premature without recurring users (H2). Permalinks
+already exist; "what changed since you built this" is a *retention*
+feature, but we don't have repeat visitors to retain yet. Park until
+post-H2 when we have signed-in users and saved plans with history.
+
+**Original scope preserved for later:**
+- Permalinks already let users return to a plan. But pricing
 shifts (duty rates change quarterly, freight rates monthly). When a user
 revisits, they should see *what changed since they built it* — turning
 the permalink into a recurring-engagement mechanism.
@@ -108,9 +195,12 @@ the permalink into a recurring-engagement mechanism.
 
 ---
 
-#### Sprint 36 — Conversion analytics dashboard
+#### Sprint 36 — Conversion analytics dashboard (deferred)
 
-**Why now:** Every plan submission already logs a structured
+**Why deferred:** Need KV (Sprint 37) to store events durably across
+function instances. Build alongside H2 once persistent storage exists.
+
+**Why later:** Every plan submission already logs a structured
 `import_plan_generated` JSON event. Vercel captures stdout — it's just
 not surfaced. Without visibility, we can't tell which categories
 convert, which origin/destination pairs perform, or where users drop off.

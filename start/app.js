@@ -154,6 +154,24 @@ function renderPlan(plan) {
   const originNotes = (customs?.duty?.originNotes && customs.duty.originNotes.length)
     ? `<p class="secondary-note"><strong>${T.customsOriginOverlay}:</strong> ${customs.duty.originNotes.map(n => escapeHtml(n)).join(' · ')}</p>` : '';
 
+  const tdMeasures = customs?.tradeDefenceMeasures || [];
+  const tradeDefenceBlock = tdMeasures.length ? `
+    <div class="trade-defence-callout">
+      <div class="td-header">⚠ ${T.tradeDefenceTitle}</div>
+      <p>${T.tradeDefenceIntro(tdMeasures.length)}</p>
+      <ul class="td-list">
+        ${tdMeasures.map(m => `
+          <li>
+            <strong>${escapeHtml(m.type)} ${m.rateTypicalPct}%</strong> on ${escapeHtml(m.description)}
+            <span class="td-meta">— ${escapeHtml(m.citation)}</span>
+            <div class="td-note">${escapeHtml(m.notes || '')}</div>
+          </li>
+        `).join('')}
+      </ul>
+      <p class="secondary-note">${T.tradeDefenceVerify}</p>
+    </div>
+  ` : '';
+
   const warehouseSection = warehouse && !warehouse.skipped && warehouse.recommendedHub ? `
     <div class="result-section">
       <h3>${T.secWarehouse}</h3>
@@ -207,6 +225,7 @@ function renderPlan(plan) {
         <tr><td>${T.customsBreakdown.transport}</td><td>${fmtEur(totals.transportEur)}</td></tr>
         <tr class="total"><td>${T.customsBreakdown.total}</td><td>${fmtEur(totals.perShipmentLandedTotal)}</td></tr>
       </table>
+      ${tradeDefenceBlock}
       ${originNotes}
     </div>
 
