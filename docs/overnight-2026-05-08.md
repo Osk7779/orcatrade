@@ -65,3 +65,12 @@ Started.
 - Per page: full duty + VAT + brokerage math line-by-line, anti-dumping warning for chapters 64/72/73/76 (CN-origin), Vietnam EVFTA preferential comparison showing exact duty saving, bonded warehouse alternative explainer, cross-destination comparison table
 - Sticky CTA pre-fills the Compliance Agent with the chapter + destination context
 - Sample URL: `/guides/customs/footwear-into-pl/` returns 200
+
+### Iteration 4 — 2026-05-08 ~04:30
+
+**Done:**
+- Added warehouse hub generator: 6 hub pages (Rotterdam, Hamburg, Frankfurt, Poznań, Prague, Barcelona) at `/guides/warehouse/`
+- Plus warehouse index = 7 new pages this iteration, **117 pages total**
+- Per page: full pricing breakdown table, pros/cons, sample monthly cost for typical 1500-order SME profile, 6-hub comparison ranking, "what's not in the cost" footnote
+- Sticky CTA pre-fills the Logistics Agent with the hub-comparison context
+- **Bug fix:** slug function was stripping diacritics → `pozna-3pl` (broken). Now NFD-normalises and strips combining marks → `poznan-3pl` (correct). Future Polish/German/Czech additions will slug cleanly.

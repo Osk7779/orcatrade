@@ -34,7 +34,12 @@ function escapeHtml(s) {
 }
 
 function slug(s) {
-  return String(s).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+  return String(s)
+    .normalize('NFD')                  // decompose accented chars (Poznań → Poznan + combining ́)
+    .replace(/[̀-ͯ]/g, '')   // strip combining marks
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-|-$/g, '');
 }
 
 function ensureDir(p) {
@@ -771,6 +776,183 @@ function generateCustomsIndex() {
   };
 }
 
+// ── Warehouse hub pages ────────────────────────────────────
+
+function generateWarehousePage(hubKey) {
+  const hub = warehouse.HUBS[hubKey];
+
+  // Sample quote for a typical SME profile
+  const sampleQuote = warehouse.calculateQuote({
+    monthlyOrders: 1500,
+    avgUnitsPerOrder: 1.5,
+    avgLinesPerOrder: 1.2,
+    avgPalletsHeld: 50,
+    avgOrderWeightKg: 2,
+    primaryDestination: hub.country,
+  });
+
+  // Find this hub's quote
+  const thisHub = sampleQuote.quotes.find(h => h.hubKey === hubKey);
+  const cheapest = [...sampleQuote.quotes].sort((a, b) => a.totalMonthlyEur - b.totalMonthlyEur)[0];
+
+  const slugUrl = `${slug(hub.name)}-3pl`;
+  const title = `${hub.name} 3PL — pricing, capacity, fit | OrcaTrade`;
+  const description = `${hub.name} (${hub.countryName}) as an EU 3PL hub: storage from €${hub.storagePerPalletPerMonthEur}/pallet/month, pick & pack pricing, sea freight from Asia ${hub.transitFromAsiaSea}. When ${hub.name} is the right hub vs alternatives.`.slice(0, 300);
+  const canonical = `${SITE_URL}/guides/warehouse/${slugUrl}/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      {
+        '@type': 'Article',
+        headline: title,
+        description,
+        datePublished: TODAY,
+        dateModified: TODAY,
+        author: { '@type': 'Organization', name: 'OrcaTrade Group' },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+      },
+      {
+        '@type': 'BreadcrumbList',
+        itemListElement: [
+          { '@type': 'ListItem', position: 1, name: 'Guides', item: `${SITE_URL}/guides/` },
+          { '@type': 'ListItem', position: 2, name: 'Warehouse', item: `${SITE_URL}/guides/warehouse/` },
+          { '@type': 'ListItem', position: 3, name: hub.name, item: canonical },
+        ],
+      },
+    ],
+  });
+
+  const cheaperByEur = thisHub.totalMonthlyEur - cheapest.totalMonthlyEur;
+  const isCheapest = thisHub.hubKey === cheapest.hubKey;
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/">Home</a> · <a href="/guides/">Guides</a> · <a href="/guides/warehouse/">Warehouse</a> · ${escapeHtml(hub.name)} 3PL
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">Warehouse guide · ${escapeHtml(hub.region)}</p>
+      <h1>${escapeHtml(hub.name)} as an EU 3PL hub: pricing, capacity, fit</h1>
+      <p class="lead">${escapeHtml(hub.countryName)}'s ${escapeHtml(hub.name)} hub for SME importers fulfilling Asia-sourced inventory across the EU. Storage at €${hub.storagePerPalletPerMonthEur}/pallet/month list, pick & pack from €${hub.pickBaseEur}/order base, sea freight from Asia: ${escapeHtml(hub.transitFromAsiaSea)}.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">€${hub.storagePerPalletPerMonthEur}</div><div class="label">Storage · pallet/mo</div></div>
+      <div class="guide-stat"><div class="num">€${hub.pickBaseEur}</div><div class="label">Pick base · order</div></div>
+      <div class="guide-stat"><div class="num">€${hub.inboundReceiptPerPalletEur}</div><div class="label">Inbound · pallet</div></div>
+      <div class="guide-stat"><div class="num">€${hub.setupFeeEur}</div><div class="label">One-off setup</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>Where ${escapeHtml(hub.name)} excels</h2>
+      <ul>${hub.pros.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+    </section>
+
+    <section class="guide-section">
+      <h2>Where to push back</h2>
+      <ul>${hub.cons.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul>
+    </section>
+
+    <section class="guide-section">
+      <h2>Sample monthly cost · 1,500 orders to ${escapeHtml(hub.countryName)}</h2>
+      <p>For a typical SME shipper running 1,500 orders/month, 1.5 average units/order, 50 pallets held, average parcel 2 kg, primary destination ${escapeHtml(hub.countryName)}:</p>
+      <table class="data-table">
+        <thead><tr><th>Component</th><th>Monthly cost</th></tr></thead>
+        <tbody>
+          ${thisHub.breakdown.filter(b => !b.isVas).map(b => `<tr><td>${escapeHtml(b.label)}</td><td class="num">€${b.monthlyCostEur.toLocaleString('en-IE')}</td></tr>`).join('')}
+          <tr style="background: rgba(184,190,200,0.08);"><td><strong>Total monthly</strong></td><td class="num"><strong>€${thisHub.totalMonthlyEur.toLocaleString('en-IE')}</strong></td></tr>
+          <tr><td>Cost per order</td><td class="num">€${thisHub.costPerOrderEur}</td></tr>
+        </tbody>
+      </table>
+      ${!isCheapest ? `<p>${escapeHtml(hub.name)} costs <strong>€${Math.abs(cheaperByEur).toLocaleString('en-IE')}/month more</strong> than the cheapest alternative (${escapeHtml(cheapest.hubName)} at €${cheapest.totalMonthlyEur.toLocaleString('en-IE')}/mo). Whether that premium is justified depends on your customer-base geography and onward delivery time.</p>` : `<p>For this profile, ${escapeHtml(hub.name)} is the lowest-cost hub of the six benchmarked.</p>`}
+    </section>
+
+    <section class="guide-section">
+      <h2>${escapeHtml(hub.name)} vs all 6 EU hubs</h2>
+      <p>Same shipper profile (1,500 orders/month to ${escapeHtml(hub.countryName)}), all 6 hubs side by side:</p>
+      <table class="data-table">
+        <thead><tr><th>Hub</th><th>Region</th><th>Total monthly</th><th>Cost per order</th></tr></thead>
+        <tbody>
+          ${[...sampleQuote.quotes].sort((a, b) => a.totalMonthlyEur - b.totalMonthlyEur).map(h => {
+            const isCurrent = h.hubKey === hubKey;
+            return `<tr${isCurrent ? ' style="background: rgba(184,190,200,0.06);"' : ''}>
+              <td>${escapeHtml(h.hubName)}${isCurrent ? ' <span style="opacity:0.6;font-size:0.78em;">(this guide)</span>' : ` <a href="/guides/warehouse/${slug(h.hubName)}-3pl/" style="font-size:0.85em; opacity:0.7;">[guide →]</a>`}</td>
+              <td>${escapeHtml(h.hubRegion)}</td>
+              <td class="num">€${h.totalMonthlyEur.toLocaleString('en-IE')}</td>
+              <td class="num">€${h.costPerOrderEur}</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="guide-section">
+      <h2>What's not in the cost</h2>
+      <ul>
+        <li><strong>Value-added services</strong> — QC inspection, labelling, kitting, photography, returns processing, gift wrapping (each €0.15–€4.20 per unit/return).</li>
+        <li><strong>Last-mile shipping</strong> — included in pick &amp; pack but rate varies by destination region (within-region cheaper than cross-region).</li>
+        <li><strong>Returns handling</strong> — counts only if you opt into the returns VAS line.</li>
+        <li><strong>3PL contract terms</strong> — rates here are mid-market list. Above 3,000 orders/month negotiate 10–15% off; above 10,000 orders/month, 20–25%.</li>
+      </ul>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Run the comparison on your real volume</h3>
+        <p>The Logistics Agent benchmarks all 6 hubs on your specific monthly orders, units, pallets, and primary destination — and recommends the best fit.</p>
+      </div>
+      <a href="/agent/logistics/?prompt=I%27m%20looking%20at%20${encodeURIComponent(hub.name)}%20as%20my%20EU%203PL%20hub.%20Compare%20it%20against%20the%20other%205%20options%20on%20cost%20and%20customer-experience%20fit.">Open Logistics Agent →</a>
+    </aside>
+  `;
+
+  return {
+    path: `guides/warehouse/${slugUrl}`,
+    canonical,
+    html: pageShell({ title, description, canonical, jsonLd, body }),
+  };
+}
+
+function generateWarehouseIndex() {
+  const title = 'Warehouse / 3PL guides — six EU hubs benchmarked | OrcaTrade';
+  const description = 'Six EU 3PL hub profiles: Rotterdam, Hamburg, Frankfurt, Poznań, Prague, Barcelona. Storage cost, pick & pack, inbound, setup, sample monthly cost for SME shippers.';
+  const canonical = `${SITE_URL}/guides/warehouse/`;
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, url: canonical });
+
+  const links = Object.keys(warehouse.HUBS).map(hubKey => {
+    const hub = warehouse.HUBS[hubKey];
+    return `<a class="related-card" href="/guides/warehouse/${slug(hub.name)}-3pl/">
+      <div class="related-tag">${escapeHtml(hub.region)} · ${escapeHtml(hub.country)}</div>
+      <h3>${escapeHtml(hub.name)}</h3>
+      <div class="related-desc">€${hub.storagePerPalletPerMonthEur}/pallet/mo · €${hub.pickBaseEur} pick base</div>
+    </a>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/">Home</a> · <a href="/guides/">Guides</a> · Warehouse</nav>
+    <header class="guide-hero">
+      <p class="kicker">Warehouse / 3PL guides</p>
+      <h1>Six EU 3PL hubs, benchmarked.</h1>
+      <p class="lead">Profiles for the six EU 3PL hubs OrcaTrade benchmarks for SME shippers: Rotterdam, Hamburg, Frankfurt, Poznań, Prague, Barcelona. Each guide covers storage cost, pick &amp; pack pricing, inbound handling, setup fee, and sample monthly cost for a typical 1,500-order SME profile.</p>
+    </header>
+    <section class="guide-section"><div class="related-grid">${links}</div></section>
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Benchmark all 6 on your real volume</h3>
+        <p>The Logistics Agent compares all 6 hubs on your monthly orders, primary customer destination, and value-added service mix — and recommends the right balance of cost vs delivery speed.</p>
+      </div>
+      <a href="/agent/logistics/">Open Logistics Agent →</a>
+    </aside>
+  `;
+
+  return {
+    path: 'guides/warehouse',
+    canonical,
+    html: pageShell({ title, description, canonical, jsonLd, body }),
+  };
+}
+
 // ── Index pages (one per category) ──────────────────────────
 
 function generateSourcingIndex() {
@@ -864,6 +1046,12 @@ function generateGuidesRoot() {
       <p>Landed-cost calculations for the major HS chapters across six EU member states. Duty + VAT + brokerage math, preferential FTA comparisons, bonded-warehouse alternatives.</p>
       <a href="/guides/customs/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 36 customs guides →</a>
     </section>
+
+    <section class="guide-section">
+      <h2>Warehouse / 3PL</h2>
+      <p>Six EU 3PL hub profiles — Rotterdam, Hamburg, Frankfurt, Poznań, Prague, Barcelona. Storage cost, pick &amp; pack pricing, sample monthly cost for typical SME shippers.</p>
+      <a href="/guides/warehouse/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 6 warehouse guides →</a>
+    </section>
   `;
 
   return {
@@ -933,6 +1121,17 @@ function run() {
   const cIndex = generateCustomsIndex();
   writePage(cIndex.path, cIndex.html);
   generated.push(cIndex);
+
+  // 6 warehouse pages (one per hub)
+  for (const hubKey of Object.keys(warehouse.HUBS)) {
+    const page = generateWarehousePage(hubKey);
+    writePage(page.path, page.html);
+    generated.push(page);
+  }
+  // Warehouse index
+  const wIndex = generateWarehouseIndex();
+  writePage(wIndex.path, wIndex.html);
+  generated.push(wIndex);
 
   // Guides root
   const gRoot = generateGuidesRoot();
