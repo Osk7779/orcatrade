@@ -920,10 +920,20 @@ function generateSourcingPage(country, categoryKey) {
     </section>
   `;
 
+  const plCanonical = `${SITE_URL}/pl/guides/sourcing/${slug(categoryKey)}-z-${slug(country)}/`;
+  const deCanonical = `${SITE_URL}/de/guides/sourcing/${slug(categoryKey)}-${slug(country)}/`;
   return {
     path: `guides/sourcing/${slugUrl}`,
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: plCanonical },
+        { lang: 'de', href: deCanonical },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
 }
 
@@ -1081,11 +1091,353 @@ function generateRoutingPage(origin, destination) {
     </aside>
   `;
 
+  const plCanonical = `${SITE_URL}/pl/guides/routing/${slug(origin)}-do-${slug(destination)}/`;
+  const deCanonical = `${SITE_URL}/de/guides/routing/${slug(origin)}-${slug(destination)}/`;
   return {
     path: `guides/routing/${slugUrl}`,
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: plCanonical },
+        { lang: 'de', href: deCanonical },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
+}
+
+// ── Routing pages — Polish ─────────────────────────────────
+
+function generateRoutingPagePL(origin, destination) {
+  const originName = pl.COUNTRY_PL[origin] || COUNTRY_NAMES[origin];
+  const originGen  = pl.COUNTRY_PL_GENITIVE[origin] || originName;
+  const destName   = pl.COUNTRY_PL[destination] || COUNTRY_NAMES[destination];
+  const RL = pl.ROUTING_LABEL_PL;
+  const L = pl.LABEL_PL;
+
+  const bands = [
+    { kg: 200, label: '200 kg' },
+    { kg: 1000, label: '1 000 kg' },
+    { kg: 5000, label: '5 000 kg' },
+  ];
+  const quotes = bands.map(b => ({
+    band: b.label,
+    weightKg: b.kg,
+    quote: routing.calculateQuote({ weightKg: b.kg, volumeCbm: b.kg / 200, originCountry: origin, destinationCountry: destination }),
+  }));
+  const railViable = routing.isRailViable({ originCountry: origin, destinationCountry: destination });
+
+  const slugUrl = `${slug(origin)}-do-${slug(destination)}`;
+  const title = `Wysyłka z ${originGen} do ${destName} — porównanie morze, kolej, lotniczo | OrcaTrade`;
+  const description = `Porównanie multimodalne fracht ${originName} → ${destName}: sea FCL, sea LCL, lotniczo${railViable ? ', kolej (korytarz Chiny–Europa) ' : ''}z kosztem, czasem transportu, CO₂ na pasmo wagowe. Oparte na kalkulatorach.`.slice(0, 300);
+  const canonical = `${SITE_URL}/pl/guides/routing/${slugUrl}/`;
+  const enCanonical = `${SITE_URL}/guides/routing/${slug(origin)}-to-${slug(destination)}/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/pl/guides/` },
+        { '@type': 'ListItem', position: 2, name: RL.routingBreadcrumb, item: `${SITE_URL}/pl/guides/routing/` },
+        { '@type': 'ListItem', position: 3, name: `${originName} → ${destName}`, item: canonical },
+      ]},
+    ],
+  });
+
+  const oneTonne = quotes.find(q => q.weightKg === 1000);
+  const modeRows = oneTonne.quote.quotes.map(m => {
+    if (!m.viable) return `<tr><td>${escapeHtml(m.label)}</td><td colspan="4" style="opacity:0.6;font-style:italic;">${escapeHtml(m.viabilityReason || 'Niedostępne')}</td></tr>`;
+    return `<tr><td>${escapeHtml(m.label)}</td><td class="num">${m.totalEur} €</td><td>${escapeHtml(m.transitDaysLabel)}</td><td class="num">${m.chargeableWeightKg} kg</td><td class="num">${m.co2kg} kg</td></tr>`;
+  }).join('');
+
+  const bandRecommendations = quotes.map(q => {
+    if (!q.quote.ok) return '';
+    const rec = q.quote.recommendation;
+    return `<tr><td><strong>${escapeHtml(q.band)}</strong></td><td>${escapeHtml(rec.primary.replace('_', ' ').toUpperCase())}</td><td style="font-size:0.85em;color:rgba(255,255,255,0.7);">${escapeHtml(rec.reasoning || '')}</td></tr>`;
+  }).join('');
+
+  const railSection = railViable ? `
+    <section class="guide-section">
+      <h2>${RL.railCorridorTitle}</h2>
+      <p>${escapeHtml(originName)} → ${escapeHtml(destName)} jest częścią korytarza <strong>China-Europe Railway Express</strong> (kolej do Małaszewicz, największego punktu granicznego kolejowego na wschodniej granicy UE). Dla przesyłek w paśmie 200-5000 kg kolej pokonuje morze pod względem czasu transportu (10-15 dni szybciej) i lotnictwo pod względem kosztu (około 70% taniej). Większość spedytorów nigdy tego nie proponuje, ponieważ ich marże na morzu są wyższe, a przepustowość kolei nieregularna.</p>
+      <p>${RL.railUseful}</p>
+      <ul>
+        <li>Wolumen jest zbyt mały dla FCL ale zbyt pilny dla sea LCL.</li>
+        <li>Koszt frachtu lotniczego pochłonąłby marżę produktu (kolej oszczędza ~70% vs lotnictwo).</li>
+        <li>Potrzebujesz przewidywalnych odjazdów (kilka usług tygodniowo).</li>
+      </ul>
+      <p>${RL.railWrong}</p>
+      <ul>
+        <li>Przesyłki poniżej 200 kg (ekonomia konsolidacji morze/lot lepiej działa).</li>
+        <li>Powyżej 5000 kg (FCL staje się bardziej opłacalne).</li>
+      </ul>
+    </section>` : '';
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/pl/">${L.homeBreadcrumb}</a> · <a href="/pl/guides/">${L.guidesBreadcrumb}</a> · <a href="/pl/guides/routing/">${RL.routingBreadcrumb}</a> · ${escapeHtml(originName)} → ${escapeHtml(destName)}
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">${RL.routingGuide} · ${RL.asiaToEurope}</p>
+      <h1>Jak wysłać z ${escapeHtml(originGen)} do ${escapeHtml(destName)}</h1>
+      <p class="lead">Sea FCL, sea LCL, fracht lotniczy${railViable ? ' i kolej' : ''} — wszystkie cztery tryby z kosztem, czasem transportu i CO₂ dla korytarza ${escapeHtml(originName)} → ${escapeHtml(destName)}. Liczby pochodzą z deterministycznego kalkulatora OrcaTrade. Odświeżane kwartalnie względem stawek spedytorów.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'sea_fcl')?.totalEur || '—'} €</div><div class="label">Sea FCL · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'sea_lcl')?.totalEur || '—'} €</div><div class="label">Sea LCL · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'air')?.totalEur || '—'} €</div><div class="label">Lotniczo · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'rail' && m.viable)?.totalEur || (railViable ? '—' : 'n/a')} €</div><div class="label">Kolej · 1 t</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>${RL.modeComparison}</h2>
+      <p>Dla przesyłki 1-tonowej z ${escapeHtml(originGen)} do ${escapeHtml(destName)}, oto jak porównują się cztery tryby:</p>
+      <table class="data-table">
+        <thead><tr><th>${RL.modeColumn}</th><th>${RL.costColumn}</th><th>${RL.transitColumn}</th><th>${RL.chargeableColumn}</th><th>${RL.co2Column}</th></tr></thead>
+        <tbody>${modeRows}</tbody>
+      </table>
+    </section>
+
+    <section class="guide-section">
+      <h2>${RL.recommendedMode} według wagi</h2>
+      <table class="data-table">
+        <thead><tr><th>${RL.weightBand}</th><th>${RL.recommendedMode}</th><th>${RL.reasoning}</th></tr></thead>
+        <tbody>${bandRecommendations}</tbody>
+      </table>
+    </section>
+
+    ${railSection}
+
+    <section class="guide-section">
+      <h2>${RL.whatNotIncluded}</h2>
+      <ul>
+        <li><strong>${RL.duty} + VAT</strong> — zobacz kalkulator celny dla matematyki specyficznej dla rozdziału HS.</li>
+        <li><strong>${RL.brokerage}</strong> — typowo 45 € baza + 8 € za linię faktury, capped 250 €.</li>
+        <li><strong>${RL.insurance}</strong> — zalecane powyżej 5000 € wartości deklarowanej; klauzule ICC A/B/C dostępne.</li>
+        <li><strong>${RL.lastMile}</strong> — z portu/terminalu kolejowego do Twojego magazynu.</li>
+      </ul>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>${RL.runLiveComparison}</h3>
+        <p>${RL.runLiveComparisonText}</p>
+      </div>
+      <a href="/agent/logistics/?prompt=Wysy%C5%82am%20z%20${encodeURIComponent(originName)}%20do%20${encodeURIComponent(destName)}.%20Por%C3%B3wnaj%20morze%2C%20kolej%2C%20lot%20dla%20typowej%20przesy%C5%82ki%201-tonowej.">Logistics Agent →</a>
+    </aside>
+  `;
+
+  return { path: `pl/guides/routing/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+function generateRoutingIndexPL() {
+  const RL = pl.ROUTING_LABEL_PL;
+  const L = pl.LABEL_PL;
+  const title = 'Przewodniki routing — porównania korytarzy Azja → Europa | OrcaTrade';
+  const description = '30 multimodalnych przewodników routingowych dla głównych korytarzy żeglugowych Azja-Europa. Porównania sea FCL, sea LCL, lotniczo, kolej z kosztem, czasem transportu, CO₂.';
+  const canonical = `${SITE_URL}/pl/guides/routing/`;
+  const enCanonical = `${SITE_URL}/guides/routing/`;
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, inLanguage: 'pl', url: canonical });
+
+  const sections = ROUTING_ORIGINS.map(origin => {
+    const links = ROUTING_DESTINATIONS.map(dest => {
+      const railHint = routing.isRailViable({ originCountry: origin, destinationCountry: dest }) ? ' · kolej dostępna' : '';
+      return `<a class="related-card" href="/pl/guides/routing/${slug(origin)}-do-${slug(dest)}/">
+        <div class="related-tag">${escapeHtml(pl.COUNTRY_PL[origin] || COUNTRY_NAMES[origin])} → ${escapeHtml(pl.COUNTRY_PL[dest] || COUNTRY_NAMES[dest])}</div>
+        <h3>${escapeHtml(pl.COUNTRY_PL[origin] || COUNTRY_NAMES[origin])} → ${escapeHtml(pl.COUNTRY_PL[dest] || COUNTRY_NAMES[dest])}</h3>
+        <div class="related-desc">Morze, lot${railHint}</div>
+      </a>`;
+    }).join('');
+    return `<section class="guide-section"><h2>Z ${escapeHtml(pl.COUNTRY_PL_GENITIVE[origin] || pl.COUNTRY_PL[origin] || COUNTRY_NAMES[origin])}</h2><div class="related-grid">${links}</div></section>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/pl/">${L.homeBreadcrumb}</a> · <a href="/pl/guides/">${L.guidesBreadcrumb}</a> · ${RL.routingBreadcrumb}</nav>
+    <header class="guide-hero">
+      <p class="kicker">Przewodniki routing</p>
+      <h1>Jak wysłać między Azją a Europą.</h1>
+      <p class="lead">30 przewodników korytarzowych pokrywających główne szlaki żeglugowe Azja → Europa. Każdy porównuje sea FCL, sea LCL, fracht lotniczy oraz kolej (gdzie dostępna) z kosztem, czasem transportu i CO₂ dla każdego pasma wagowego.</p>
+    </header>
+    ${sections}
+    <aside class="agent-cta">
+      <div class="cta-text"><h3>${RL.runLiveComparison}</h3><p>${RL.runLiveComparisonText}</p></div>
+      <a href="/agent/logistics/">Logistics Agent →</a>
+    </aside>
+  `;
+
+  return { path: 'pl/guides/routing', canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+// ── Routing pages — German ─────────────────────────────────
+
+function generateRoutingPageDE(origin, destination) {
+  const originName = de.COUNTRY_DE[origin] || COUNTRY_NAMES[origin];
+  const originDative = de.COUNTRY_DE_DATIVE[origin] || `aus ${originName}`;
+  const destName = de.COUNTRY_DE[destination] || COUNTRY_NAMES[destination];
+  const RL = de.ROUTING_LABEL_DE;
+  const L = de.LABEL_DE;
+
+  const bands = [
+    { kg: 200, label: '200 kg' },
+    { kg: 1000, label: '1.000 kg' },
+    { kg: 5000, label: '5.000 kg' },
+  ];
+  const quotes = bands.map(b => ({
+    band: b.label,
+    weightKg: b.kg,
+    quote: routing.calculateQuote({ weightKg: b.kg, volumeCbm: b.kg / 200, originCountry: origin, destinationCountry: destination }),
+  }));
+  const railViable = routing.isRailViable({ originCountry: origin, destinationCountry: destination });
+
+  const slugUrl = `${slug(origin)}-${slug(destination)}`;
+  const title = `Versand ${originDative} nach ${destName} — Vergleich See, Schiene, Luft | OrcaTrade`;
+  const description = `Multimodaler Frachtvergleich ${originName} → ${destName}: Sea FCL, Sea LCL, Luftfracht${railViable ? ', Schiene (China-Europa-Korridor) ' : ''}mit Kosten, Transitzeit, CO₂ pro Gewichtsband. Calculator-fundiert.`.slice(0, 300);
+  const canonical = `${SITE_URL}/de/guides/routing/${slugUrl}/`;
+  const enCanonical = `${SITE_URL}/guides/routing/${slug(origin)}-to-${slug(destination)}/`;
+  const plCanonical = `${SITE_URL}/pl/guides/routing/${slug(origin)}-do-${slug(destination)}/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/de/guides/` },
+        { '@type': 'ListItem', position: 2, name: RL.routingBreadcrumb, item: `${SITE_URL}/de/guides/routing/` },
+        { '@type': 'ListItem', position: 3, name: `${originName} → ${destName}`, item: canonical },
+      ]},
+    ],
+  });
+
+  const oneTonne = quotes.find(q => q.weightKg === 1000);
+  const modeRows = oneTonne.quote.quotes.map(m => {
+    if (!m.viable) return `<tr><td>${escapeHtml(m.label)}</td><td colspan="4" style="opacity:0.6;font-style:italic;">${escapeHtml(m.viabilityReason || 'Nicht verfügbar')}</td></tr>`;
+    return `<tr><td>${escapeHtml(m.label)}</td><td class="num">${m.totalEur} €</td><td>${escapeHtml(m.transitDaysLabel)}</td><td class="num">${m.chargeableWeightKg} kg</td><td class="num">${m.co2kg} kg</td></tr>`;
+  }).join('');
+
+  const bandRecommendations = quotes.map(q => {
+    if (!q.quote.ok) return '';
+    const rec = q.quote.recommendation;
+    return `<tr><td><strong>${escapeHtml(q.band)}</strong></td><td>${escapeHtml(rec.primary.replace('_', ' ').toUpperCase())}</td><td style="font-size:0.85em;color:rgba(255,255,255,0.7);">${escapeHtml(rec.reasoning || '')}</td></tr>`;
+  }).join('');
+
+  const railSection = railViable ? `
+    <section class="guide-section">
+      <h2>${RL.railCorridorTitle}</h2>
+      <p>${escapeHtml(originName)} → ${escapeHtml(destName)} ist Teil des Korridors <strong>China-Europa-Schienenexpress</strong> (Schiene nach Małaszewicze, dem größten Bahn-Grenzübergang an der EU-Ostgrenze). Für Sendungen im Bereich 200-5000 kg schlägt die Schiene die See bei der Transitzeit (10-15 Tage schneller) und die Luft beim Preis (rund 70% günstiger). Die meisten Spediteure schlagen sie nie vor, weil ihre Margen auf See höher sind und die Bahnkapazität unregelmäßig ist.</p>
+      <p>${RL.railUseful}</p>
+      <ul>
+        <li>Volumen ist zu klein für FCL, aber zu zeitkritisch für Sea LCL.</li>
+        <li>Luftfrachtkosten würden die Produktmarge auffressen (Schiene spart ~70% vs. Luft).</li>
+        <li>Sie benötigen vorhersehbare Abfahrten (mehrere wöchentliche Verbindungen).</li>
+      </ul>
+      <p>${RL.railWrong}</p>
+      <ul>
+        <li>Sendungen unter 200 kg (Konsolidierungsökonomie See/Luft funktioniert besser).</li>
+        <li>Über 5000 kg (FCL wird kosteneffektiver).</li>
+      </ul>
+    </section>` : '';
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/de/">${L.homeBreadcrumb}</a> · <a href="/de/guides/">${L.guidesBreadcrumb}</a> · <a href="/de/guides/routing/">${RL.routingBreadcrumb}</a> · ${escapeHtml(originName)} → ${escapeHtml(destName)}
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">${RL.routingGuide} · ${RL.asiaToEurope}</p>
+      <h1>Versand ${escapeHtml(originDative)} nach ${escapeHtml(destName)}</h1>
+      <p class="lead">Sea FCL, Sea LCL, Luftfracht${railViable ? ' und Schiene' : ''} — alle vier Modi mit Kosten, Transitzeit und CO₂ für den Korridor ${escapeHtml(originName)} → ${escapeHtml(destName)}. Zahlen aus dem deterministischen OrcaTrade-Routing-Calculator. Vierteljährlich gegen Spediteur-Tarifkarten aktualisiert.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'sea_fcl')?.totalEur || '—'} €</div><div class="label">Sea FCL · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'sea_lcl')?.totalEur || '—'} €</div><div class="label">Sea LCL · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'air')?.totalEur || '—'} €</div><div class="label">Luftfracht · 1 t</div></div>
+      <div class="guide-stat"><div class="num">${oneTonne.quote.quotes.find(m => m.mode === 'rail' && m.viable)?.totalEur || (railViable ? '—' : 'n/v')} €</div><div class="label">Schiene · 1 t</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>${RL.modeComparison}</h2>
+      <p>Für eine 1-Tonnen-Sendung ${escapeHtml(originDative)} nach ${escapeHtml(destName)}, hier vergleichen sich die vier Modi:</p>
+      <table class="data-table">
+        <thead><tr><th>${RL.modeColumn}</th><th>${RL.costColumn}</th><th>${RL.transitColumn}</th><th>${RL.chargeableColumn}</th><th>${RL.co2Column}</th></tr></thead>
+        <tbody>${modeRows}</tbody>
+      </table>
+    </section>
+
+    <section class="guide-section">
+      <h2>${RL.recommendedMode} nach Sendungsgröße</h2>
+      <table class="data-table">
+        <thead><tr><th>${RL.weightBand}</th><th>${RL.recommendedMode}</th><th>${RL.reasoning}</th></tr></thead>
+        <tbody>${bandRecommendations}</tbody>
+      </table>
+    </section>
+
+    ${railSection}
+
+    <section class="guide-section">
+      <h2>${RL.whatNotIncluded}</h2>
+      <ul>
+        <li><strong>${RL.duty} + MwSt.</strong> — siehe Zoll-Calculator für HS-kapitelspezifische Mathematik.</li>
+        <li><strong>${RL.brokerage}</strong> — typischerweise 45 € Basis + 8 € pro Rechnungszeile, gedeckelt bei 250 €.</li>
+        <li><strong>${RL.insurance}</strong> — empfohlen ab 5.000 € deklariertem Wert; ICC A/B/C-Klauseln verfügbar.</li>
+        <li><strong>${RL.lastMile}</strong> — vom EU-Hafen/Bahnterminal zu Ihrem Lager.</li>
+      </ul>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>${RL.runLiveComparison}</h3>
+        <p>${RL.runLiveComparisonText}</p>
+      </div>
+      <a href="/agent/logistics/?prompt=Ich%20versende%20${encodeURIComponent(originDative)}%20nach%20${encodeURIComponent(destName)}.%20Vergleichen%20Sie%20See%2C%20Schiene%2C%20Luft%20f%C3%BCr%20eine%20typische%201-Tonnen-Sendung.">Logistics Agent →</a>
+    </aside>
+  `;
+
+  return { path: `de/guides/routing/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+function generateRoutingIndexDE() {
+  const RL = de.ROUTING_LABEL_DE;
+  const L = de.LABEL_DE;
+  const title = 'Routing-Leitfäden — Asien → Europa Korridor-Vergleiche | OrcaTrade';
+  const description = '30 multimodale Routing-Leitfäden für die wichtigsten Asien-Europa-Lieferkorridore. Vergleiche Sea FCL, Sea LCL, Luftfracht, Schiene mit Kosten, Transit, CO₂.';
+  const canonical = `${SITE_URL}/de/guides/routing/`;
+  const enCanonical = `${SITE_URL}/guides/routing/`;
+  const plCanonical = `${SITE_URL}/pl/guides/routing/`;
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, inLanguage: 'de', url: canonical });
+
+  const sections = ROUTING_ORIGINS.map(origin => {
+    const links = ROUTING_DESTINATIONS.map(dest => {
+      const railHint = routing.isRailViable({ originCountry: origin, destinationCountry: dest }) ? ' · Schiene verfügbar' : '';
+      return `<a class="related-card" href="/de/guides/routing/${slug(origin)}-${slug(dest)}/">
+        <div class="related-tag">${escapeHtml(de.COUNTRY_DE[origin] || COUNTRY_NAMES[origin])} → ${escapeHtml(de.COUNTRY_DE[dest] || COUNTRY_NAMES[dest])}</div>
+        <h3>${escapeHtml(de.COUNTRY_DE[origin] || COUNTRY_NAMES[origin])} → ${escapeHtml(de.COUNTRY_DE[dest] || COUNTRY_NAMES[dest])}</h3>
+        <div class="related-desc">See, Luft${railHint}</div>
+      </a>`;
+    }).join('');
+    return `<section class="guide-section"><h2>${escapeHtml(de.COUNTRY_DE_DATIVE[origin] || `aus ${de.COUNTRY_DE[origin] || COUNTRY_NAMES[origin]}`)}</h2><div class="related-grid">${links}</div></section>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/de/">${L.homeBreadcrumb}</a> · <a href="/de/guides/">${L.guidesBreadcrumb}</a> · ${RL.routingBreadcrumb}</nav>
+    <header class="guide-hero">
+      <p class="kicker">Routing-Leitfäden</p>
+      <h1>Versand zwischen Asien und Europa.</h1>
+      <p class="lead">30 Korridor-Leitfäden für die wichtigsten Asien → Europa-Lieferwege. Jeder vergleicht Sea FCL, Sea LCL, Luftfracht und Schiene (sofern verfügbar) mit calculator-fundierten Kosten, Transitzeiten und CO₂-Werten pro Gewichtsband.</p>
+    </header>
+    ${sections}
+    <aside class="agent-cta">
+      <div class="cta-text"><h3>${RL.runLiveComparison}</h3><p>${RL.runLiveComparisonText}</p></div>
+      <a href="/agent/logistics/">Logistics Agent →</a>
+    </aside>
+  `;
+
+  return { path: 'de/guides/routing', canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
 }
 
 function generateRoutingIndex() {
@@ -1132,7 +1484,15 @@ function generateRoutingIndex() {
   return {
     path: 'guides/routing',
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: `${SITE_URL}/pl/guides/routing/` },
+        { lang: 'de', href: `${SITE_URL}/de/guides/routing/` },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
 }
 
@@ -1304,11 +1664,320 @@ function generateCustomsPage(chapter, destination) {
     </aside>
   `;
 
+  const plCanonical = `${SITE_URL}/pl/guides/customs/${(pl.CUSTOMS_CHAPTER_PL[chapter.code]?.slug || chapter.slug)}-do-${slug(destination)}/`;
+  const deCanonical = `${SITE_URL}/de/guides/customs/${(de.CUSTOMS_CHAPTER_DE[chapter.code]?.slug || chapter.slug)}-${slug(destination)}/`;
   return {
     path: `guides/customs/${slugUrl}`,
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: plCanonical },
+        { lang: 'de', href: deCanonical },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
+}
+
+// ── Customs pages — Polish ─────────────────────────────────
+
+function generateCustomsPagePL(chapter, destination) {
+  const destInfo = customs.EU_VAT[destination];
+  const chapterInfo = customs.HS_CHAPTER_DUTY[chapter.code];
+  const destNamePL = pl.COUNTRY_PL[destination] || destInfo.name;
+  const chPL = pl.CUSTOMS_CHAPTER_PL[chapter.code] || { name: chapter.name, slug: chapter.slug };
+  const CL = pl.CUSTOMS_LABEL_PL;
+  const L = pl.LABEL_PL;
+
+  const sampleQuote = customs.calculateQuote({ customsValueEur: 25000, hsCode: chapter.code, destinationCountry: destination, originCountry: 'CN', linesCount: 4 });
+  const vnPreferentialQuote = customs.calculateQuote({ customsValueEur: 25000, hsCode: chapter.code, destinationCountry: destination, originCountry: 'VN', linesCount: 4, claimPreferential: true });
+  const standard = sampleQuote.quotes.find(q => q.routeKey === 'standard_clearance');
+  const vnStandard = vnPreferentialQuote.ok ? vnPreferentialQuote.quotes.find(q => q.routeKey === 'standard_clearance') : null;
+
+  const slugUrl = `${chPL.slug}-do-${slug(destination)}`;
+  const title = `Import ${chPL.name.toLowerCase()} do ${destNamePL} — kalkulator cła + VAT | OrcaTrade`;
+  const description = `Kalkulacja kosztu celnego dla rozdziału HS ${chapter.code} (${chPL.name.toLowerCase()}) importowanego do ${destNamePL}. Stawka cła MFN, VAT ${(destInfo.rate * 100).toFixed(0)}%, opłaty brokerage, alternatywa składu celnego. Oparte na kalkulatorach.`.slice(0, 300);
+  const canonical = `${SITE_URL}/pl/guides/customs/${slugUrl}/`;
+  const enCanonical = `${SITE_URL}/guides/customs/${chapter.slug}-into-${slug(destination)}/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/pl/guides/` },
+        { '@type': 'ListItem', position: 2, name: CL.customsBreadcrumb, item: `${SITE_URL}/pl/guides/customs/` },
+        { '@type': 'ListItem', position: 3, name: `${chPL.name} do ${destNamePL}`, item: canonical },
+      ]},
+    ],
+  });
+
+  const dutyDeltaEur = vnStandard ? Math.round(standard.dutyEur - vnStandard.dutyEur) : 0;
+  const antiDumpingChapters = ['72', '73', '76', '64'];
+  const antiDumpingNote = antiDumpingChapters.includes(chapter.code) ? `
+    <div class="caution-block">
+      <div class="label">${CL.antiDumpingTitle}</div>
+      <p style="margin:0;color:rgba(255,255,255,0.85);">Towary chińskiego pochodzenia w rozdziale ${chapter.code} przyciągają cła antydumpingowe na wierzch stawki MFN. Zawsze weryfikuj TARIC dla konkretnego kodu 8-cyfrowego przed zobowiązaniem.</p>
+    </div>` : '';
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/pl/">${L.homeBreadcrumb}</a> · <a href="/pl/guides/">${L.guidesBreadcrumb}</a> · <a href="/pl/guides/customs/">${CL.customsBreadcrumb}</a> · ${escapeHtml(chPL.name)} do ${escapeHtml(destNamePL)}
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">${CL.customsGuide} · ${CL.hsChapter} ${escapeHtml(chapter.code)}</p>
+      <h1>Import ${escapeHtml(chPL.name.toLowerCase())} do ${escapeHtml(destNamePL)}: pełny koszt celny</h1>
+      <p class="lead">Pracujemy nad cłem + VAT + brokerage dla rozdziału HS ${escapeHtml(chapter.code)} (${escapeHtml(chapterInfo.label.toLowerCase())}) wjeżdżającego do ${escapeHtml(destNamePL)}. Liczby pochodzą z kalkulatora celnego OrcaTrade — stawki cła MFN, VAT krajowy ${(destInfo.rate * 100).toFixed(1)}%, benchmarki brokerage UE oraz alternatywa składu celnego, której większość MŚP nie wycenia.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${(chapterInfo.rate * 100).toFixed(2)}%</div><div class="label">${CL.mfnDutyRate}</div></div>
+      <div class="guide-stat"><div class="num">${(destInfo.rate * 100).toFixed(1)}%</div><div class="label">${CL.vatRate} ${escapeHtml(destNamePL)}</div></div>
+      <div class="guide-stat"><div class="num">${standard?.totalEur || '—'} €</div><div class="label">${CL.totalCnGoods}</div></div>
+      <div class="guide-stat"><div class="num">${standard ? Math.round(standard.totalEur - 25000) : '—'} €</div><div class="label">${CL.taxAndFees}</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>${CL.mathLineByLine}</h2>
+      <p>Dla przykładowej przesyłki <strong>25 000 € wartości celnej</strong> HS ${escapeHtml(chapter.code)} z Chin do ${escapeHtml(destNamePL)}, z 4 liniami na fakturze:</p>
+      <table class="data-table">
+        <thead><tr><th>Komponent</th><th>Obliczenie</th><th>Kwota</th></tr></thead>
+        <tbody>
+          <tr><td>${CL.customsValue}</td><td>—</td><td class="num">${standard?.customsValueEur.toLocaleString('pl-PL')} €</td></tr>
+          <tr><td>${CL.importDuty}</td><td class="num">${(standard?.dutyRate * 100).toFixed(2)}% × ${standard?.customsValueEur.toLocaleString('pl-PL')} €</td><td class="num">${Math.round(standard?.dutyEur).toLocaleString('pl-PL')} €</td></tr>
+          <tr><td>${CL.importVat}</td><td class="num">${(standard?.vatRate * 100).toFixed(1)}% × (wartość celna + cło)</td><td class="num">${Math.round(standard?.vatEur).toLocaleString('pl-PL')} €</td></tr>
+          <tr><td>Brokerage</td><td>${CL.brokerageDesc}</td><td class="num">${standard?.brokerageEur} €</td></tr>
+          <tr><td>${CL.ensFiling}</td><td>flat</td><td class="num">${standard?.entrySummaryDeclarationEur} €</td></tr>
+          <tr style="background: rgba(184,190,200,0.08);"><td><strong>${CL.totalCashOut}</strong></td><td>—</td><td class="num"><strong>${standard?.totalEur.toLocaleString('pl-PL')} €</strong></td></tr>
+        </tbody>
+      </table>
+      <p>VAT jest odliczalny dla importerów zarejestrowanych jako VAT przy następnym zwrocie — efektywnie linia cash-flow, nie koszt netto. Cło jest niemożliwe do odzyskania; to jest faktyczny koszt taryfowy importu.</p>
+    </section>
+
+    ${antiDumpingNote}
+
+    <section class="guide-section">
+      <h2>${CL.evftaTitle}</h2>
+      <p>Dla rozdziału HS ${escapeHtml(chapter.code)} z Wietnamu, Umowa o Wolnym Handlu UE-Wietnam (EVFTA) typowo daje 70% redukcji cła z ważnym dowodem pochodzenia (REX lub deklaracja na fakturze). Dla tej samej przesyłki 25 000 €:</p>
+      <table class="data-table">
+        <thead><tr><th>Pochodzenie</th><th>Efektywna stawka cła</th><th>Cło zapłacone</th><th>${CL.totalCashOut}</th></tr></thead>
+        <tbody>
+          <tr><td>Chiny (MFN)</td><td class="num">${standard?.dutyRate ? (standard.dutyRate * 100).toFixed(2) + '%' : '—'}</td><td class="num">${Math.round(standard?.dutyEur || 0).toLocaleString('pl-PL')} €</td><td class="num">${standard?.totalEur.toLocaleString('pl-PL')} €</td></tr>
+          ${vnStandard ? `<tr style="background: rgba(111, 166, 111, 0.06);"><td>Wietnam (preferencyjnie EVFTA)</td><td class="num">${(vnStandard.dutyRate * 100).toFixed(2)}%</td><td class="num">${Math.round(vnStandard.dutyEur).toLocaleString('pl-PL')} €</td><td class="num">${vnStandard.totalEur.toLocaleString('pl-PL')} €</td></tr>` : ''}
+        </tbody>
+      </table>
+      ${dutyDeltaEur > 100 ? `<p>Oszczędność cła z sourcingu w Wietnamie z ważnym dowodem EVFTA: <strong>${dutyDeltaEur.toLocaleString('pl-PL')} €</strong> na tej samej przesyłce 25 000 €. Dla SKU o wysokim wolumenie często uzasadnia to koszt zmiany dostawcy.</p>` : ''}
+    </section>
+
+    <section class="guide-section">
+      <h2>${CL.bondedTitle}</h2>
+      <p>Jeśli towary będą leżały dłużej niż 30 dni przed sprzedażą, skład celny odracza cło + VAT — i unika ich całkowicie przy reeksporcie. Korzyść cash-flow przy 6% rocznym koszcie kapitału × N dni przechowywania.</p>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>${CL.runOnRealNumbers}</h3>
+        <p>${CL.runOnRealNumbersText}</p>
+      </div>
+      <a href="/agent/?prompt=Pracuj%C4%99%20nad%20landed%20cost%20dla%20przesy%C5%82ki%2025%20000%20%E2%82%AC%20HS%20${chapter.code}%20z%20Chin%20do%20${encodeURIComponent(destNamePL)}.">Compliance Agent →</a>
+    </aside>
+  `;
+
+  const deCanonical = `${SITE_URL}/de/guides/customs/${(de.CUSTOMS_CHAPTER_DE[chapter.code]?.slug || chapter.slug)}-${slug(destination)}/`;
+  return { path: `pl/guides/customs/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'de', href: deCanonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+function generateCustomsIndexPL() {
+  const CL = pl.CUSTOMS_LABEL_PL;
+  const L = pl.LABEL_PL;
+  const title = 'Przewodniki celne — kalkulacje landed cost dla importu UE | OrcaTrade';
+  const description = '36 przewodników kalkulacji kosztu celnego dla głównych rozdziałów HS × kierunków UE. Stawki cła MFN, krajowy VAT, brokerage, alternatywy składu celnego. Oparte na kalkulatorach.';
+  const canonical = `${SITE_URL}/pl/guides/customs/`;
+  const enCanonical = `${SITE_URL}/guides/customs/`;
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, inLanguage: 'pl', url: canonical });
+
+  const sections = CUSTOMS_CHAPTERS.map(ch => {
+    const chPL = pl.CUSTOMS_CHAPTER_PL[ch.code] || ch;
+    const links = CUSTOMS_DESTINATIONS.map(d => {
+      const dInfo = customs.EU_VAT[d];
+      const dNamePL = pl.COUNTRY_PL[d] || dInfo.name;
+      return `<a class="related-card" href="/pl/guides/customs/${chPL.slug}-do-${slug(d)}/">
+        <div class="related-tag">HS ${escapeHtml(ch.code)} → ${escapeHtml(dNamePL)}</div>
+        <h3>${escapeHtml(chPL.name)} do ${escapeHtml(dNamePL)}</h3>
+        <div class="related-desc">${(customs.HS_CHAPTER_DUTY[ch.code].rate * 100).toFixed(2)}% MFN · ${(dInfo.rate * 100).toFixed(0)}% VAT</div>
+      </a>`;
+    }).join('');
+    return `<section class="guide-section"><h2>HS ${escapeHtml(ch.code)} · ${escapeHtml(chPL.name)}</h2><div class="related-grid">${links}</div></section>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/pl/">${L.homeBreadcrumb}</a> · <a href="/pl/guides/">${L.guidesBreadcrumb}</a> · ${CL.customsBreadcrumb}</nav>
+    <header class="guide-hero">
+      <p class="kicker">Przewodniki celne</p>
+      <h1>Kalkulacje landed cost dla importu UE.</h1>
+      <p class="lead">36 przewodników pokrywających najczęściej importowane rozdziały HS × sześć głównych kierunków UE. Każdy zawiera matematykę cło + VAT + brokerage dla przykładowej przesyłki 25 000 €, porównanie z preferencyjnymi pochodzeniami (EVFTA Wietnam itp.) oraz alternatywę składu celnego.</p>
+    </header>
+    ${sections}
+    <aside class="agent-cta">
+      <div class="cta-text"><h3>${CL.runOnRealNumbers}</h3><p>${CL.runOnRealNumbersText}</p></div>
+      <a href="/agent/">Compliance Agent →</a>
+    </aside>
+  `;
+
+  return { path: 'pl/guides/customs', canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+// ── Customs pages — German ─────────────────────────────────
+
+function generateCustomsPageDE(chapter, destination) {
+  const destInfo = customs.EU_VAT[destination];
+  const chapterInfo = customs.HS_CHAPTER_DUTY[chapter.code];
+  const destNameDE = de.COUNTRY_DE[destination] || destInfo.name;
+  const chDE = de.CUSTOMS_CHAPTER_DE[chapter.code] || { name: chapter.name, slug: chapter.slug };
+  const CL = de.CUSTOMS_LABEL_DE;
+  const L = de.LABEL_DE;
+
+  const sampleQuote = customs.calculateQuote({ customsValueEur: 25000, hsCode: chapter.code, destinationCountry: destination, originCountry: 'CN', linesCount: 4 });
+  const vnPreferentialQuote = customs.calculateQuote({ customsValueEur: 25000, hsCode: chapter.code, destinationCountry: destination, originCountry: 'VN', linesCount: 4, claimPreferential: true });
+  const standard = sampleQuote.quotes.find(q => q.routeKey === 'standard_clearance');
+  const vnStandard = vnPreferentialQuote.ok ? vnPreferentialQuote.quotes.find(q => q.routeKey === 'standard_clearance') : null;
+
+  const slugUrl = `${chDE.slug}-${slug(destination)}`;
+  const title = `Import von ${chDE.name.toLowerCase()} nach ${destNameDE} — Zoll- und MwSt-Calculator | OrcaTrade`;
+  const description = `Landed-Cost-Berechnung für HS-Kapitel ${chapter.code} (${chDE.name.toLowerCase()}) Import nach ${destNameDE}. MFN-Zollsatz, ${(destInfo.rate * 100).toFixed(0)}% MwSt., Brokerage-Gebühren, Zolllageralternative. Calculator-fundiert.`.slice(0, 300);
+  const canonical = `${SITE_URL}/de/guides/customs/${slugUrl}/`;
+  const enCanonical = `${SITE_URL}/guides/customs/${chapter.slug}-into-${slug(destination)}/`;
+  const plCanonical = `${SITE_URL}/pl/guides/customs/${(pl.CUSTOMS_CHAPTER_PL[chapter.code]?.slug || chapter.slug)}-do-${slug(destination)}/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/de/guides/` },
+        { '@type': 'ListItem', position: 2, name: CL.customsBreadcrumb, item: `${SITE_URL}/de/guides/customs/` },
+        { '@type': 'ListItem', position: 3, name: `${chDE.name} nach ${destNameDE}`, item: canonical },
+      ]},
+    ],
+  });
+
+  const dutyDeltaEur = vnStandard ? Math.round(standard.dutyEur - vnStandard.dutyEur) : 0;
+  const antiDumpingChapters = ['72', '73', '76', '64'];
+  const antiDumpingNote = antiDumpingChapters.includes(chapter.code) ? `
+    <div class="caution-block">
+      <div class="label">${CL.antiDumpingTitle}</div>
+      <p style="margin:0;color:rgba(255,255,255,0.85);">Waren chinesischen Ursprungs in Kapitel ${chapter.code} ziehen Antidumpingzölle auf den MFN-Satz. Verifizieren Sie immer TARIC für den spezifischen 8-stelligen Code vor Verpflichtung.</p>
+    </div>` : '';
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/de/">${L.homeBreadcrumb}</a> · <a href="/de/guides/">${L.guidesBreadcrumb}</a> · <a href="/de/guides/customs/">${CL.customsBreadcrumb}</a> · ${escapeHtml(chDE.name)} nach ${escapeHtml(destNameDE)}
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">${CL.customsGuide} · ${CL.hsChapter} ${escapeHtml(chapter.code)}</p>
+      <h1>Import von ${escapeHtml(chDE.name.toLowerCase())} nach ${escapeHtml(destNameDE)}: vollständige Landed Cost</h1>
+      <p class="lead">Wir arbeiten Zoll + MwSt. + Brokerage auf HS-Kapitel ${escapeHtml(chapter.code)} (${escapeHtml(chapterInfo.label.toLowerCase())}) bei Eintritt nach ${escapeHtml(destNameDE)} aus. Zahlen aus dem OrcaTrade-Zoll-Calculator — MFN-Zollsätze, ${(destInfo.rate * 100).toFixed(1)}% nationale MwSt., EU-Brokerage-Benchmarks plus die Zolllageralternative, die die meisten KMU nicht einpreisen.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${(chapterInfo.rate * 100).toFixed(2)}%</div><div class="label">${CL.mfnDutyRate}</div></div>
+      <div class="guide-stat"><div class="num">${(destInfo.rate * 100).toFixed(1)}%</div><div class="label">${CL.vatRate} ${escapeHtml(destNameDE)}</div></div>
+      <div class="guide-stat"><div class="num">${standard?.totalEur || '—'} €</div><div class="label">${CL.totalCnGoods}</div></div>
+      <div class="guide-stat"><div class="num">${standard ? Math.round(standard.totalEur - 25000) : '—'} €</div><div class="label">${CL.taxAndFees}</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>${CL.mathLineByLine}</h2>
+      <p>Für eine Beispielsendung von <strong>25.000 € Zollwert</strong> HS ${escapeHtml(chapter.code)} aus China nach ${escapeHtml(destNameDE)}, mit 4 Rechnungszeilen:</p>
+      <table class="data-table">
+        <thead><tr><th>Komponente</th><th>Berechnung</th><th>Betrag</th></tr></thead>
+        <tbody>
+          <tr><td>${CL.customsValue}</td><td>—</td><td class="num">${standard?.customsValueEur.toLocaleString('de-DE')} €</td></tr>
+          <tr><td>${CL.importDuty}</td><td class="num">${(standard?.dutyRate * 100).toFixed(2)}% × ${standard?.customsValueEur.toLocaleString('de-DE')} €</td><td class="num">${Math.round(standard?.dutyEur).toLocaleString('de-DE')} €</td></tr>
+          <tr><td>${CL.importVat}</td><td class="num">${(standard?.vatRate * 100).toFixed(1)}% × (Zollwert + Zoll)</td><td class="num">${Math.round(standard?.vatEur).toLocaleString('de-DE')} €</td></tr>
+          <tr><td>Brokerage</td><td>${CL.brokerageDesc}</td><td class="num">${standard?.brokerageEur} €</td></tr>
+          <tr><td>${CL.ensFiling}</td><td>pauschal</td><td class="num">${standard?.entrySummaryDeclarationEur} €</td></tr>
+          <tr style="background: rgba(184,190,200,0.08);"><td><strong>${CL.totalCashOut}</strong></td><td>—</td><td class="num"><strong>${standard?.totalEur.toLocaleString('de-DE')} €</strong></td></tr>
+        </tbody>
+      </table>
+      <p>MwSt. ist für umsatzsteuerregistrierte Importeure auf der nächsten Erklärung erstattungsfähig — effektiv eine Cash-Flow-Position, kein Nettokostenpunkt. Zoll ist nicht erstattungsfähig; das ist die tatsächlichen Tarifkosten des Imports.</p>
+    </section>
+
+    ${antiDumpingNote}
+
+    <section class="guide-section">
+      <h2>${CL.evftaTitle}</h2>
+      <p>Für HS-Kapitel ${escapeHtml(chapter.code)} aus Vietnam gibt das EU-Vietnam-Freihandelsabkommen (EVFTA) typischerweise eine Zollreduktion von 70% mit gültigem Ursprungsnachweis (REX oder Rechnungserklärung). Für die gleiche Sendung von 25.000 €:</p>
+      <table class="data-table">
+        <thead><tr><th>Ursprung</th><th>Effektiver Zollsatz</th><th>Bezahlter Zoll</th><th>${CL.totalCashOut}</th></tr></thead>
+        <tbody>
+          <tr><td>China (MFN)</td><td class="num">${standard?.dutyRate ? (standard.dutyRate * 100).toFixed(2) + '%' : '—'}</td><td class="num">${Math.round(standard?.dutyEur || 0).toLocaleString('de-DE')} €</td><td class="num">${standard?.totalEur.toLocaleString('de-DE')} €</td></tr>
+          ${vnStandard ? `<tr style="background: rgba(111, 166, 111, 0.06);"><td>Vietnam (EVFTA-Präferenz)</td><td class="num">${(vnStandard.dutyRate * 100).toFixed(2)}%</td><td class="num">${Math.round(vnStandard.dutyEur).toLocaleString('de-DE')} €</td><td class="num">${vnStandard.totalEur.toLocaleString('de-DE')} €</td></tr>` : ''}
+        </tbody>
+      </table>
+      ${dutyDeltaEur > 100 ? `<p>Die Zollersparnis durch Sourcing in Vietnam mit gültigem EVFTA-Nachweis: <strong>${dutyDeltaEur.toLocaleString('de-DE')} €</strong> auf der gleichen 25.000-€-Sendung. Für hochvolumige SKUs rechtfertigt das oft die Lieferantenwechsel-Kosten.</p>` : ''}
+    </section>
+
+    <section class="guide-section">
+      <h2>${CL.bondedTitle}</h2>
+      <p>Wenn die Waren länger als 30 Tage vor dem Verkauf liegen, verschiebt das Zolllager Zoll + MwSt. — und vermeidet sie vollständig bei Re-Export. Cash-Flow-Vorteil bei 6% jährlichen Kapitalkosten × N Lagerungstage.</p>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>${CL.runOnRealNumbers}</h3>
+        <p>${CL.runOnRealNumbersText}</p>
+      </div>
+      <a href="/agent/?prompt=Ich%20arbeite%20Landed%20Cost%20auf%20einer%20Sendung%20von%2025.000%20%E2%82%AC%20HS%20${chapter.code}%20aus%20China%20nach%20${encodeURIComponent(destNameDE)}%20aus.">Compliance Agent →</a>
+    </aside>
+  `;
+
+  return { path: `de/guides/customs/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+function generateCustomsIndexDE() {
+  const CL = de.CUSTOMS_LABEL_DE;
+  const L = de.LABEL_DE;
+  const title = 'Zoll-Leitfäden — Landed-Cost-Berechnungen für EU-Importe | OrcaTrade';
+  const description = '36 Zoll-Landed-Cost-Leitfäden für die wichtigsten HS-Kapitel × EU-Destinationen. MFN-Zollsätze, nationale MwSt., Brokerage, Zolllager-Alternativen. Calculator-fundiert.';
+  const canonical = `${SITE_URL}/de/guides/customs/`;
+  const enCanonical = `${SITE_URL}/guides/customs/`;
+  const plCanonical = `${SITE_URL}/pl/guides/customs/`;
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, inLanguage: 'de', url: canonical });
+
+  const sections = CUSTOMS_CHAPTERS.map(ch => {
+    const chDE = de.CUSTOMS_CHAPTER_DE[ch.code] || ch;
+    const links = CUSTOMS_DESTINATIONS.map(d => {
+      const dInfo = customs.EU_VAT[d];
+      const dNameDE = de.COUNTRY_DE[d] || dInfo.name;
+      return `<a class="related-card" href="/de/guides/customs/${chDE.slug}-${slug(d)}/">
+        <div class="related-tag">HS ${escapeHtml(ch.code)} → ${escapeHtml(dNameDE)}</div>
+        <h3>${escapeHtml(chDE.name)} nach ${escapeHtml(dNameDE)}</h3>
+        <div class="related-desc">${(customs.HS_CHAPTER_DUTY[ch.code].rate * 100).toFixed(2)}% MFN · ${(dInfo.rate * 100).toFixed(0)}% MwSt.</div>
+      </a>`;
+    }).join('');
+    return `<section class="guide-section"><h2>HS ${escapeHtml(ch.code)} · ${escapeHtml(chDE.name)}</h2><div class="related-grid">${links}</div></section>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/de/">${L.homeBreadcrumb}</a> · <a href="/de/guides/">${L.guidesBreadcrumb}</a> · ${CL.customsBreadcrumb}</nav>
+    <header class="guide-hero">
+      <p class="kicker">Zoll-Leitfäden</p>
+      <h1>Landed-Cost-Berechnungen für EU-Importe.</h1>
+      <p class="lead">36 Leitfäden zu den meistimportierten HS-Kapiteln × sechs wichtigsten EU-Mitgliedstaaten. Jeder enthält die Zoll + MwSt. + Brokerage-Mathematik für eine Beispielsendung von 25.000 €, Vergleich gegen präferenzielle Ursprünge (EVFTA Vietnam etc.) und die Zolllageralternative.</p>
+    </header>
+    ${sections}
+    <aside class="agent-cta">
+      <div class="cta-text"><h3>${CL.runOnRealNumbers}</h3><p>${CL.runOnRealNumbersText}</p></div>
+      <a href="/agent/">Compliance Agent →</a>
+    </aside>
+  `;
+
+  return { path: 'de/guides/customs', canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
 }
 
 function generateCustomsIndex() {
@@ -1349,7 +2018,15 @@ function generateCustomsIndex() {
   return {
     path: 'guides/customs',
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: `${SITE_URL}/pl/guides/customs/` },
+        { lang: 'de', href: `${SITE_URL}/de/guides/customs/` },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
 }
 
@@ -1484,11 +2161,328 @@ function generateWarehousePage(hubKey) {
     </aside>
   `;
 
+  const plCanonical = `${SITE_URL}/pl/guides/warehouse/${slugUrl}/`;
+  const deCanonical = `${SITE_URL}/de/guides/warehouse/${slug(de.CITY_DE[hub.name] || hub.name)}-3pl/`;
   return {
     path: `guides/warehouse/${slugUrl}`,
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: plCanonical },
+        { lang: 'de', href: deCanonical },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
+}
+
+// ── Warehouse pages — Polish ───────────────────────────────
+
+function generateWarehousePagePL(hubKey) {
+  const hub = warehouse.HUBS[hubKey];
+  const cityPL = pl.CITY_PL[hub.name] || hub.name;
+  const countryPL = pl.COUNTRY_PL[hub.country] || hub.countryName;
+  const WL = pl.WAREHOUSE_LABEL_PL;
+  const L = pl.LABEL_PL;
+
+  const sampleQuote = warehouse.calculateQuote({ monthlyOrders: 1500, avgUnitsPerOrder: 1.5, avgLinesPerOrder: 1.2, avgPalletsHeld: 50, avgOrderWeightKg: 2, primaryDestination: hub.country });
+  const thisHub = sampleQuote.quotes.find(h => h.hubKey === hubKey);
+  const cheapest = [...sampleQuote.quotes].sort((a, b) => a.totalMonthlyEur - b.totalMonthlyEur)[0];
+
+  const slugUrl = `${slug(cityPL)}-3pl`;
+  const title = `${cityPL} 3PL — cennik, wydajność, dopasowanie | OrcaTrade`;
+  const description = `${cityPL} (${countryPL}) jako hub 3PL w UE: magazynowanie od ${hub.storagePerPalletPerMonthEur} €/paleta/mc, ceny pick & pack, fracht morski z Azji ${hub.transitFromAsiaSea}. Kiedy ${cityPL} jest właściwym hubem.`.slice(0, 300);
+  const canonical = `${SITE_URL}/pl/guides/warehouse/${slugUrl}/`;
+  const enCanonical = `${SITE_URL}/guides/warehouse/${slug(hub.name)}-3pl/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/pl/guides/` },
+        { '@type': 'ListItem', position: 2, name: WL.warehouseBreadcrumb, item: `${SITE_URL}/pl/guides/warehouse/` },
+        { '@type': 'ListItem', position: 3, name: `${cityPL} 3PL`, item: canonical },
+      ]},
+    ],
+  });
+
+  const cheaperByEur = thisHub.totalMonthlyEur - cheapest.totalMonthlyEur;
+  const isCheapest = thisHub.hubKey === cheapest.hubKey;
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/pl/">${L.homeBreadcrumb}</a> · <a href="/pl/guides/">${L.guidesBreadcrumb}</a> · <a href="/pl/guides/warehouse/">${WL.warehouseBreadcrumb}</a> · ${escapeHtml(cityPL)} 3PL
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">${WL.warehouseGuide} · ${escapeHtml(pl.REGION_PL[hub.region] || hub.region)}</p>
+      <h1>${escapeHtml(cityPL)} ${WL.asEuHub}: ${WL.pricingCapacityFit}</h1>
+      <p class="lead">${escapeHtml(countryPL)}, hub ${escapeHtml(cityPL)} dla MŚP-importerów realizujących azjatyckie zapasy w całej UE. Magazynowanie po ${hub.storagePerPalletPerMonthEur} €/paleta/mc cena listy, pick & pack od ${hub.pickBaseEur} €/zamówienie baza, fracht morski z Azji: ${escapeHtml(hub.transitFromAsiaSea)}.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${hub.storagePerPalletPerMonthEur} €</div><div class="label">${WL.storagePerPallet}</div></div>
+      <div class="guide-stat"><div class="num">${hub.pickBaseEur} €</div><div class="label">${WL.pickBase}</div></div>
+      <div class="guide-stat"><div class="num">${hub.inboundReceiptPerPalletEur} €</div><div class="label">${WL.inboundPerPallet}</div></div>
+      <div class="guide-stat"><div class="num">${hub.setupFeeEur} €</div><div class="label">${WL.oneOffSetup}</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>${WL.whereExcels}: ${escapeHtml(cityPL)}</h2>
+      <ul>${hub.pros.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+    </section>
+
+    <section class="guide-section">
+      <h2>${WL.wherePushBack}</h2>
+      <ul>${hub.cons.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul>
+    </section>
+
+    <section class="guide-section">
+      <h2>${WL.sampleMonthlyCost}</h2>
+      <p>${WL.forTypical1500} z 1,5 średnich jednostek/zamówienie, 50 palet utrzymywanych, średnia paczka 2 kg, główny kierunek ${escapeHtml(countryPL)}:</p>
+      <table class="data-table">
+        <thead><tr><th>Komponent</th><th>${WL.monthlyCost}</th></tr></thead>
+        <tbody>
+          ${thisHub.breakdown.filter(b => !b.isVas).map(b => `<tr><td>${escapeHtml(b.label)}</td><td class="num">${b.monthlyCostEur.toLocaleString('pl-PL')} €</td></tr>`).join('')}
+          <tr style="background: rgba(184,190,200,0.08);"><td><strong>${WL.totalMonthly}</strong></td><td class="num"><strong>${thisHub.totalMonthlyEur.toLocaleString('pl-PL')} €</strong></td></tr>
+          <tr><td>${WL.costPerOrder}</td><td class="num">${thisHub.costPerOrderEur} €</td></tr>
+        </tbody>
+      </table>
+      ${!isCheapest ? `<p>${escapeHtml(cityPL)} kosztuje <strong>${Math.abs(cheaperByEur).toLocaleString('pl-PL')} €/mc więcej</strong> niż najtańsza alternatywa (${escapeHtml(pl.CITY_PL[cheapest.hubName] || cheapest.hubName)} po ${cheapest.totalMonthlyEur.toLocaleString('pl-PL')} €/mc). Czy ta premia jest uzasadniona zależy od geografii bazy klientów i czasu dostawy.</p>` : `<p>Dla tego profilu, ${escapeHtml(cityPL)} jest najtańszym hubem z 6 zbenchmarkowanych.</p>`}
+    </section>
+
+    <section class="guide-section">
+      <h2>${escapeHtml(cityPL)} ${WL.vsAllSixHubs}</h2>
+      <table class="data-table">
+        <thead><tr><th>${WL.hub}</th><th>${WL.region}</th><th>${WL.totalMonthly}</th><th>${WL.costPerOrder}</th></tr></thead>
+        <tbody>
+          ${[...sampleQuote.quotes].sort((a, b) => a.totalMonthlyEur - b.totalMonthlyEur).map(h => {
+            const isCurrent = h.hubKey === hubKey;
+            const cityLocPL = pl.CITY_PL[h.hubName] || h.hubName;
+            return `<tr${isCurrent ? ' style="background: rgba(184,190,200,0.06);"' : ''}>
+              <td>${escapeHtml(cityLocPL)}${isCurrent ? ' <span style="opacity:0.6;font-size:0.78em;">(ten przewodnik)</span>' : ''}</td>
+              <td>${escapeHtml(h.hubRegion)}</td>
+              <td class="num">${h.totalMonthlyEur.toLocaleString('pl-PL')} €</td>
+              <td class="num">${h.costPerOrderEur} €</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="guide-section">
+      <h2>${WL.whatNotInCost}</h2>
+      <ul>
+        <li>${WL.vasNote}</li>
+        <li>${WL.contractTerms}</li>
+      </ul>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>${WL.runComparisonOnVolume}</h3>
+        <p>${WL.runComparisonText}</p>
+      </div>
+      <a href="/agent/logistics/?prompt=Patrz%C4%99%20na%20${encodeURIComponent(cityPL)}%20jako%20m%C3%B3j%20hub%203PL%20w%20UE.%20Por%C3%B3wnaj%20z%20pozosta%C5%82ymi%205%20opcjami.">Logistics Agent →</a>
+    </aside>
+  `;
+
+  const deCityForSlug = de.CITY_DE[hub.name] || hub.name;
+  const deCanonical = `${SITE_URL}/de/guides/warehouse/${slug(deCityForSlug)}-3pl/`;
+  return { path: `pl/guides/warehouse/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'de', href: deCanonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+function generateWarehouseIndexPL() {
+  const WL = pl.WAREHOUSE_LABEL_PL;
+  const L = pl.LABEL_PL;
+  const title = 'Przewodniki magazyn / 3PL — sześć hubów UE w benchmarku | OrcaTrade';
+  const description = 'Sześć profili hubów 3PL w UE: Rotterdam, Hamburg, Frankfurt, Poznań, Praga, Barcelona. Koszt magazynowania, pick & pack, inbound, setup, przykładowy koszt miesięczny dla MŚP.';
+  const canonical = `${SITE_URL}/pl/guides/warehouse/`;
+  const enCanonical = `${SITE_URL}/guides/warehouse/`;
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, inLanguage: 'pl', url: canonical });
+
+  const links = Object.keys(warehouse.HUBS).map(hubKey => {
+    const hub = warehouse.HUBS[hubKey];
+    const cityPL = pl.CITY_PL[hub.name] || hub.name;
+    return `<a class="related-card" href="/pl/guides/warehouse/${slug(cityPL)}-3pl/">
+      <div class="related-tag">${escapeHtml(hub.region)} · ${escapeHtml(hub.country)}</div>
+      <h3>${escapeHtml(cityPL)}</h3>
+      <div class="related-desc">${hub.storagePerPalletPerMonthEur} €/paleta/mc · ${hub.pickBaseEur} € pick base</div>
+    </a>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/pl/">${L.homeBreadcrumb}</a> · <a href="/pl/guides/">${L.guidesBreadcrumb}</a> · ${WL.warehouseBreadcrumb}</nav>
+    <header class="guide-hero">
+      <p class="kicker">Przewodniki magazyn / 3PL</p>
+      <h1>Sześć hubów 3PL w UE, w benchmarku.</h1>
+      <p class="lead">Profile dla sześciu hubów 3PL w UE, które OrcaTrade benchmarkuje dla MŚP-shipperów: Rotterdam, Hamburg, Frankfurt, Poznań, Praga, Barcelona. Każdy przewodnik pokrywa koszt magazynowania, ceny pick & pack, obsługę inbound, opłatę setupową i przykładowy koszt miesięczny dla typowego profilu MŚP z 1500 zamówieniami.</p>
+    </header>
+    <section class="guide-section"><div class="related-grid">${links}</div></section>
+    <aside class="agent-cta">
+      <div class="cta-text"><h3>${WL.runComparisonOnVolume}</h3><p>${WL.runComparisonText}</p></div>
+      <a href="/agent/logistics/">Logistics Agent →</a>
+    </aside>
+  `;
+
+  return { path: 'pl/guides/warehouse', canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'pl', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+// ── Warehouse pages — German ───────────────────────────────
+
+function generateWarehousePageDE(hubKey) {
+  const hub = warehouse.HUBS[hubKey];
+  const cityDE = de.CITY_DE[hub.name] || hub.name;
+  const countryDE = de.COUNTRY_DE[hub.country] || hub.countryName;
+  const WL = de.WAREHOUSE_LABEL_DE;
+  const L = de.LABEL_DE;
+
+  const sampleQuote = warehouse.calculateQuote({ monthlyOrders: 1500, avgUnitsPerOrder: 1.5, avgLinesPerOrder: 1.2, avgPalletsHeld: 50, avgOrderWeightKg: 2, primaryDestination: hub.country });
+  const thisHub = sampleQuote.quotes.find(h => h.hubKey === hubKey);
+  const cheapest = [...sampleQuote.quotes].sort((a, b) => a.totalMonthlyEur - b.totalMonthlyEur)[0];
+
+  const slugUrl = `${slug(cityDE)}-3pl`;
+  const title = `${cityDE} 3PL — Preise, Kapazität, Eignung | OrcaTrade`;
+  const description = `${cityDE} (${countryDE}) als EU-3PL-Hub: Lagerung ab ${hub.storagePerPalletPerMonthEur} €/Palette/Monat, Pick-and-Pack-Preise, Seefracht aus Asien ${hub.transitFromAsiaSea}. Wann ${cityDE} der richtige Hub ist.`.slice(0, 300);
+  const canonical = `${SITE_URL}/de/guides/warehouse/${slugUrl}/`;
+  const enCanonical = `${SITE_URL}/guides/warehouse/${slug(hub.name)}-3pl/`;
+  const plCityForSlug = pl.CITY_PL[hub.name] || hub.name;
+  const plCanonical = `${SITE_URL}/pl/guides/warehouse/${slug(plCityForSlug)}-3pl/`;
+
+  const jsonLd = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@graph': [
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'BreadcrumbList', itemListElement: [
+        { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/de/guides/` },
+        { '@type': 'ListItem', position: 2, name: WL.warehouseBreadcrumb, item: `${SITE_URL}/de/guides/warehouse/` },
+        { '@type': 'ListItem', position: 3, name: `${cityDE} 3PL`, item: canonical },
+      ]},
+    ],
+  });
+
+  const cheaperByEur = thisHub.totalMonthlyEur - cheapest.totalMonthlyEur;
+  const isCheapest = thisHub.hubKey === cheapest.hubKey;
+
+  const body = `
+    <nav class="guide-breadcrumb">
+      <a href="/de/">${L.homeBreadcrumb}</a> · <a href="/de/guides/">${L.guidesBreadcrumb}</a> · <a href="/de/guides/warehouse/">${WL.warehouseBreadcrumb}</a> · ${escapeHtml(cityDE)} 3PL
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">${WL.warehouseGuide} · ${escapeHtml(de.REGION_DE[hub.region] || hub.region)}</p>
+      <h1>${escapeHtml(cityDE)} ${WL.asEuHub}: ${WL.pricingCapacityFit}</h1>
+      <p class="lead">${escapeHtml(countryDE)}s ${escapeHtml(cityDE)}-Hub für KMU-Importeure, die asiatische Bestände in der EU abwickeln. Lagerung zu ${hub.storagePerPalletPerMonthEur} €/Palette/Monat Listenpreis, Pick-and-Pack ab ${hub.pickBaseEur} €/Auftrag Basis, Seefracht aus Asien: ${escapeHtml(hub.transitFromAsiaSea)}.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">${hub.storagePerPalletPerMonthEur} €</div><div class="label">${WL.storagePerPallet}</div></div>
+      <div class="guide-stat"><div class="num">${hub.pickBaseEur} €</div><div class="label">${WL.pickBase}</div></div>
+      <div class="guide-stat"><div class="num">${hub.inboundReceiptPerPalletEur} €</div><div class="label">${WL.inboundPerPallet}</div></div>
+      <div class="guide-stat"><div class="num">${hub.setupFeeEur} €</div><div class="label">${WL.oneOffSetup}</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>${WL.whereExcels}: ${escapeHtml(cityDE)}</h2>
+      <ul>${hub.pros.map(p => `<li>${escapeHtml(p)}</li>`).join('')}</ul>
+    </section>
+
+    <section class="guide-section">
+      <h2>${WL.wherePushBack}</h2>
+      <ul>${hub.cons.map(c => `<li>${escapeHtml(c)}</li>`).join('')}</ul>
+    </section>
+
+    <section class="guide-section">
+      <h2>${WL.sampleMonthlyCost}</h2>
+      <p>${WL.forTypical1500} mit 1,5 durchschnittlichen Einheiten/Auftrag, 50 Paletten gehalten, durchschnittliche Sendung 2 kg, Hauptdestination ${escapeHtml(countryDE)}:</p>
+      <table class="data-table">
+        <thead><tr><th>Komponente</th><th>${WL.monthlyCost}</th></tr></thead>
+        <tbody>
+          ${thisHub.breakdown.filter(b => !b.isVas).map(b => `<tr><td>${escapeHtml(b.label)}</td><td class="num">${b.monthlyCostEur.toLocaleString('de-DE')} €</td></tr>`).join('')}
+          <tr style="background: rgba(184,190,200,0.08);"><td><strong>${WL.totalMonthly}</strong></td><td class="num"><strong>${thisHub.totalMonthlyEur.toLocaleString('de-DE')} €</strong></td></tr>
+          <tr><td>${WL.costPerOrder}</td><td class="num">${thisHub.costPerOrderEur} €</td></tr>
+        </tbody>
+      </table>
+      ${!isCheapest ? `<p>${escapeHtml(cityDE)} kostet <strong>${Math.abs(cheaperByEur).toLocaleString('de-DE')} €/Monat mehr</strong> als die günstigste Alternative (${escapeHtml(de.CITY_DE[cheapest.hubName] || cheapest.hubName)} bei ${cheapest.totalMonthlyEur.toLocaleString('de-DE')} €/Monat). Ob diese Prämie gerechtfertigt ist, hängt von der Geografie Ihrer Kundenbasis und der Lieferzeit ab.</p>` : `<p>Für dieses Profil ist ${escapeHtml(cityDE)} der günstigste Hub der sechs benchmarkten.</p>`}
+    </section>
+
+    <section class="guide-section">
+      <h2>${escapeHtml(cityDE)} ${WL.vsAllSixHubs}</h2>
+      <table class="data-table">
+        <thead><tr><th>${WL.hub}</th><th>${WL.region}</th><th>${WL.totalMonthly}</th><th>${WL.costPerOrder}</th></tr></thead>
+        <tbody>
+          ${[...sampleQuote.quotes].sort((a, b) => a.totalMonthlyEur - b.totalMonthlyEur).map(h => {
+            const isCurrent = h.hubKey === hubKey;
+            const cityLocDE = de.CITY_DE[h.hubName] || h.hubName;
+            return `<tr${isCurrent ? ' style="background: rgba(184,190,200,0.06);"' : ''}>
+              <td>${escapeHtml(cityLocDE)}${isCurrent ? ' <span style="opacity:0.6;font-size:0.78em;">(dieser Leitfaden)</span>' : ''}</td>
+              <td>${escapeHtml(h.hubRegion)}</td>
+              <td class="num">${h.totalMonthlyEur.toLocaleString('de-DE')} €</td>
+              <td class="num">${h.costPerOrderEur} €</td>
+            </tr>`;
+          }).join('')}
+        </tbody>
+      </table>
+    </section>
+
+    <section class="guide-section">
+      <h2>${WL.whatNotInCost}</h2>
+      <ul>
+        <li>${WL.vasNote}</li>
+        <li>${WL.contractTerms}</li>
+      </ul>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>${WL.runComparisonOnVolume}</h3>
+        <p>${WL.runComparisonText}</p>
+      </div>
+      <a href="/agent/logistics/?prompt=Ich%20schaue%20mir%20${encodeURIComponent(cityDE)}%20als%20meinen%20EU-3PL-Hub%20an.%20Vergleichen%20Sie%20mit%20den%20anderen%205%20Optionen.">Logistics Agent →</a>
+    </aside>
+  `;
+
+  return { path: `de/guides/warehouse/${slugUrl}`, canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
+}
+
+function generateWarehouseIndexDE() {
+  const WL = de.WAREHOUSE_LABEL_DE;
+  const L = de.LABEL_DE;
+  const title = 'Lager- / 3PL-Leitfäden — sechs EU-Hubs im Benchmark | OrcaTrade';
+  const description = 'Sechs EU-3PL-Hub-Profile: Rotterdam, Hamburg, Frankfurt, Posen, Prag, Barcelona. Lagerkosten, Pick-and-Pack, Wareneingang, Setup, beispielhafte Monatskosten für KMU.';
+  const canonical = `${SITE_URL}/de/guides/warehouse/`;
+  const enCanonical = `${SITE_URL}/guides/warehouse/`;
+  const plCanonical = `${SITE_URL}/pl/guides/warehouse/`;
+  const jsonLd = JSON.stringify({ '@context': 'https://schema.org', '@type': 'CollectionPage', name: title, description, inLanguage: 'de', url: canonical });
+
+  const links = Object.keys(warehouse.HUBS).map(hubKey => {
+    const hub = warehouse.HUBS[hubKey];
+    const cityDE = de.CITY_DE[hub.name] || hub.name;
+    return `<a class="related-card" href="/de/guides/warehouse/${slug(cityDE)}-3pl/">
+      <div class="related-tag">${escapeHtml(hub.region)} · ${escapeHtml(hub.country)}</div>
+      <h3>${escapeHtml(cityDE)}</h3>
+      <div class="related-desc">${hub.storagePerPalletPerMonthEur} €/Palette/Monat · ${hub.pickBaseEur} € Pick-Basis</div>
+    </a>`;
+  }).join('');
+
+  const body = `
+    <nav class="guide-breadcrumb"><a href="/de/">${L.homeBreadcrumb}</a> · <a href="/de/guides/">${L.guidesBreadcrumb}</a> · ${WL.warehouseBreadcrumb}</nav>
+    <header class="guide-hero">
+      <p class="kicker">Lager- / 3PL-Leitfäden</p>
+      <h1>Sechs EU-3PL-Hubs, im Benchmark.</h1>
+      <p class="lead">Profile für die sechs EU-3PL-Hubs, die OrcaTrade für KMU-Versender benchmarkt: Rotterdam, Hamburg, Frankfurt, Posen, Prag, Barcelona. Jeder Leitfaden behandelt Lagerkosten, Pick-and-Pack-Preise, Wareneingangsabwicklung, Setup-Gebühr und beispielhafte Monatskosten für ein typisches KMU-Profil mit 1.500 Aufträgen.</p>
+    </header>
+    <section class="guide-section"><div class="related-grid">${links}</div></section>
+    <aside class="agent-cta">
+      <div class="cta-text"><h3>${WL.runComparisonOnVolume}</h3><p>${WL.runComparisonText}</p></div>
+      <a href="/agent/logistics/">Logistics Agent →</a>
+    </aside>
+  `;
+
+  return { path: 'de/guides/warehouse', canonical, html: pageShell({ title, description, canonical, jsonLd, body, locale: 'de', hreflangAlternates: [{ lang: 'en', href: enCanonical }, { lang: 'pl', href: plCanonical }, { lang: 'de', href: canonical }, { lang: 'x-default', href: enCanonical }] }) };
 }
 
 function generateWarehouseIndex() {
@@ -1526,7 +2520,15 @@ function generateWarehouseIndex() {
   return {
     path: 'guides/warehouse',
     canonical,
-    html: pageShell({ title, description, canonical, jsonLd, body }),
+    html: pageShell({
+      title, description, canonical, jsonLd, body,
+      hreflangAlternates: [
+        { lang: 'en', href: canonical },
+        { lang: 'pl', href: `${SITE_URL}/pl/guides/warehouse/` },
+        { lang: 'de', href: `${SITE_URL}/de/guides/warehouse/` },
+        { lang: 'x-default', href: canonical },
+      ],
+    }),
   };
 }
 
@@ -1805,6 +2807,40 @@ function run() {
   writePage(sIndexPL.path, sIndexPL.html);
   generated.push(sIndexPL);
 
+  // 30 PL routing pages
+  for (const origin of ROUTING_ORIGINS) {
+    for (const dest of ROUTING_DESTINATIONS) {
+      const page = generateRoutingPagePL(origin, dest);
+      writePage(page.path, page.html);
+      generated.push(page);
+    }
+  }
+  const rIndexPL = generateRoutingIndexPL();
+  writePage(rIndexPL.path, rIndexPL.html);
+  generated.push(rIndexPL);
+
+  // 36 PL customs pages
+  for (const ch of CUSTOMS_CHAPTERS) {
+    for (const dest of CUSTOMS_DESTINATIONS) {
+      const page = generateCustomsPagePL(ch, dest);
+      writePage(page.path, page.html);
+      generated.push(page);
+    }
+  }
+  const cIndexPL = generateCustomsIndexPL();
+  writePage(cIndexPL.path, cIndexPL.html);
+  generated.push(cIndexPL);
+
+  // 6 PL warehouse pages
+  for (const hubKey of Object.keys(warehouse.HUBS)) {
+    const page = generateWarehousePagePL(hubKey);
+    writePage(page.path, page.html);
+    generated.push(page);
+  }
+  const wIndexPL = generateWarehouseIndexPL();
+  writePage(wIndexPL.path, wIndexPL.html);
+  generated.push(wIndexPL);
+
   const gRootPL = generateGuidesRootPL();
   writePage(gRootPL.path, gRootPL.html);
   generated.push(gRootPL);
@@ -1822,6 +2858,40 @@ function run() {
   const sIndexDE = generateSourcingIndexDE();
   writePage(sIndexDE.path, sIndexDE.html);
   generated.push(sIndexDE);
+
+  // 30 DE routing pages
+  for (const origin of ROUTING_ORIGINS) {
+    for (const dest of ROUTING_DESTINATIONS) {
+      const page = generateRoutingPageDE(origin, dest);
+      writePage(page.path, page.html);
+      generated.push(page);
+    }
+  }
+  const rIndexDE = generateRoutingIndexDE();
+  writePage(rIndexDE.path, rIndexDE.html);
+  generated.push(rIndexDE);
+
+  // 36 DE customs pages
+  for (const ch of CUSTOMS_CHAPTERS) {
+    for (const dest of CUSTOMS_DESTINATIONS) {
+      const page = generateCustomsPageDE(ch, dest);
+      writePage(page.path, page.html);
+      generated.push(page);
+    }
+  }
+  const cIndexDE = generateCustomsIndexDE();
+  writePage(cIndexDE.path, cIndexDE.html);
+  generated.push(cIndexDE);
+
+  // 6 DE warehouse pages
+  for (const hubKey of Object.keys(warehouse.HUBS)) {
+    const page = generateWarehousePageDE(hubKey);
+    writePage(page.path, page.html);
+    generated.push(page);
+  }
+  const wIndexDE = generateWarehouseIndexDE();
+  writePage(wIndexDE.path, wIndexDE.html);
+  generated.push(wIndexDE);
 
   const gRootDE = generateGuidesRootDE();
   writePage(gRootDE.path, gRootDE.html);

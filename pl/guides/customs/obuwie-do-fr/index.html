@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Import obuwie do Francja — kalkulator cła + VAT | OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Kalkulacja kosztu celnego dla rozdziału HS 64 (obuwie) importowanego do Francja. Stawka cła MFN, VAT 20%, opłaty brokerage, alternatywa składu celnego. Oparte na kalkulatorach." />
+  <link rel="canonical" href="https://orcatrade.pl/pl/guides/customs/obuwie-do-fr/" />
+  <link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/customs/footwear-into-fr/" />
+  <link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/customs/obuwie-do-fr/" />
+  <link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/customs/schuhwaren-fr/" />
+  <link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/customs/footwear-into-fr/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Import obuwie do Francja — kalkulator cła + VAT | OrcaTrade" />
+  <meta property="og:description" content="Kalkulacja kosztu celnego dla rozdziału HS 64 (obuwie) importowanego do Francja. Stawka cła MFN, VAT 20%, opłaty brokerage, alternatywa składu celnego. Oparte na kalkulatorach." />
+  <meta property="og:url" content="https://orcatrade.pl/pl/guides/customs/obuwie-do-fr/" />
+  <meta property="og:image" content="https://orcatrade.pl/orcatrade_logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Import obuwie do Francja — kalkulator cła + VAT | OrcaTrade" />
+  <meta name="twitter:description" content="Kalkulacja kosztu celnego dla rozdziału HS 64 (obuwie) importowanego do Francja. Stawka cła MFN, VAT 20%, opłaty brokerage, alternatywa składu celnego. Oparte na kalkulatorach." />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .guide-shell { max-width: 920px; margin: 0 auto; padding: 3rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .guide-breadcrumb { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
+    .guide-breadcrumb a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    .guide-breadcrumb a:hover { color: rgba(255,255,255,0.95); }
+    .guide-hero h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2rem, 4vw + 0.5rem, 3rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 1rem; color: rgba(255,255,255,0.97); max-width: 24ch; }
+    .guide-hero .lead { font-size: 1rem; line-height: 1.7; color: rgba(255,255,255,0.72); max-width: 60ch; }
+    .guide-hero .kicker { font-family: 'Cormorant Garant', Georgia, serif; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent-color, #b8bec8); margin-bottom: 1rem; }
+
+    .guide-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); margin: 2rem 0; }
+    @media (max-width: 700px) { .guide-stats { grid-template-columns: repeat(2, 1fr); } }
+    .guide-stat { background: #0d0f14; padding: 1.1rem 1.2rem; }
+    .guide-stat .num { font-family: 'Cormorant Garant', serif; font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,0.97); line-height: 1; letter-spacing: -0.02em; }
+    .guide-stat .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 0.4rem; }
+
+    .guide-section { margin-top: 3rem; }
+    .guide-section h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: rgba(255,255,255,0.97); margin-bottom: 0.6rem; }
+    .guide-section p { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.78); margin-bottom: 0.8em; max-width: 70ch; }
+    .guide-section ul { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.78); padding-left: 1.4rem; max-width: 68ch; }
+    .guide-section ul li { margin-bottom: 0.3em; }
+    .guide-section strong { color: rgba(255,255,255,0.97); }
+
+    .specialty-block, .caution-block { padding: 1rem 1.3rem; margin: 1.2rem 0; }
+    .specialty-block { background: rgba(111, 166, 111, 0.06); border-left: 2px solid rgba(111, 166, 111, 0.5); }
+    .caution-block { background: rgba(201, 80, 80, 0.06); border-left: 2px solid rgba(201, 80, 80, 0.5); }
+    .specialty-block .label, .caution-block .label { font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; margin-bottom: 0.3rem; }
+    .specialty-block .label { color: rgba(111, 166, 111, 0.95); }
+    .caution-block .label { color: rgba(201, 80, 80, 0.85); }
+
+    .data-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+    .data-table th, .data-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.78); }
+    .data-table th { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.92); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .data-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+    .data-table .num { font-family: 'Geist Mono', monospace; }
+
+    .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); margin-top: 2rem; }
+    @media (max-width: 700px) { .related-grid { grid-template-columns: 1fr; } }
+    .related-card { background: #0d0f14; padding: 1rem 1.2rem; text-decoration: none; transition: background 0.15s; }
+    .related-card:hover { background: rgba(184, 190, 200, 0.05); }
+    .related-card .related-tag { font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.3rem; }
+    .related-card h3 { font-family: 'Cormorant Garant', serif; font-size: 0.98rem; font-weight: 600; color: rgba(255,255,255,0.94); margin-bottom: 0.2rem; line-height: 1.3; }
+    .related-card .related-desc { font-size: 0.78rem; color: rgba(255,255,255,0.6); line-height: 1.5; }
+
+    .agent-cta {
+      position: sticky; bottom: 1.5rem; margin: 2.5rem 0 0;
+      padding: 1.4rem 1.6rem;
+      background: linear-gradient(135deg, rgba(184,190,200,0.1), rgba(184,190,200,0.02));
+      border: 1px solid rgba(184,190,200,0.4);
+      display: flex; align-items: center; justify-content: space-between; gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .agent-cta .cta-text { flex: 1; min-width: 240px; }
+    .agent-cta .cta-text h3 { font-family: 'Cormorant Garant', serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.3rem; color: rgba(255,255,255,0.97); }
+    .agent-cta .cta-text p { font-size: 0.86rem; color: rgba(255,255,255,0.7); margin: 0; line-height: 1.5; }
+    .agent-cta a { padding: 0.7rem 1.2rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; transition: filter 0.18s, transform 0.18s; flex-shrink: 0; }
+    .agent-cta a:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Article","headline":"Import obuwie do Francja — kalkulator cła + VAT | OrcaTrade","description":"Kalkulacja kosztu celnego dla rozdziału HS 64 (obuwie) importowanego do Francja. Stawka cła MFN, VAT 20%, opłaty brokerage, alternatywa składu celnego. Oparte na kalkulatorach.","datePublished":"2026-05-08","dateModified":"2026-05-08","inLanguage":"pl","author":{"@type":"Organization","name":"OrcaTrade Group"},"publisher":{"@type":"Organization","name":"OrcaTrade Group","logo":{"@type":"ImageObject","url":"https://orcatrade.pl/orcatrade_logo.png"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://orcatrade.pl/pl/guides/customs/obuwie-do-fr/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Przewodniki","item":"https://orcatrade.pl/pl/guides/"},{"@type":"ListItem","position":2,"name":"Cła","item":"https://orcatrade.pl/pl/guides/customs/"},{"@type":"ListItem","position":3,"name":"Obuwie do Francja","item":"https://orcatrade.pl/pl/guides/customs/obuwie-do-fr/"}]}]}</script>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <article class="guide-shell">
+        
+    <nav class="guide-breadcrumb">
+      <a href="/pl/">Strona główna</a> · <a href="/pl/guides/">Przewodniki</a> · <a href="/pl/guides/customs/">Cła</a> · Obuwie do Francja
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">Przewodnik celny · Rozdział HS 64</p>
+      <h1>Import obuwie do Francja: pełny koszt celny</h1>
+      <p class="lead">Pracujemy nad cłem + VAT + brokerage dla rozdziału HS 64 (footwear) wjeżdżającego do Francja. Liczby pochodzą z kalkulatora celnego OrcaTrade — stawki cła MFN, VAT krajowy 20.0%, benchmarki brokerage UE oraz alternatywa składu celnego, której większość MŚP nie wycenia.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">11.00%</div><div class="label">Stawka cła MFN</div></div>
+      <div class="guide-stat"><div class="num">20.0%</div><div class="label">VAT Francja</div></div>
+      <div class="guide-stat"><div class="num">34602 €</div><div class="label">Łącznie · 25 000 € towarów z CN</div></div>
+      <div class="guide-stat"><div class="num">9602 €</div><div class="label">W tym: podatki + opłaty</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>Matematyka, linia po linii</h2>
+      <p>Dla przykładowej przesyłki <strong>25 000 € wartości celnej</strong> HS 64 z Chin do Francja, z 4 liniami na fakturze:</p>
+      <table class="data-table">
+        <thead><tr><th>Komponent</th><th>Obliczenie</th><th>Kwota</th></tr></thead>
+        <tbody>
+          <tr><td>Wartość celna (CIF)</td><td>—</td><td class="num">25 000 €</td></tr>
+          <tr><td>Cło importowe</td><td class="num">15.00% × 25 000 €</td><td class="num">3750 €</td></tr>
+          <tr><td>VAT importowy</td><td class="num">20.0% × (wartość celna + cło)</td><td class="num">5750 €</td></tr>
+          <tr><td>Brokerage</td><td>45 € baza + 8 € × 4 linie</td><td class="num">77 €</td></tr>
+          <tr><td>ENS pre-arrival</td><td>flat</td><td class="num">25 €</td></tr>
+          <tr style="background: rgba(184,190,200,0.08);"><td><strong>Łączny wypływ gotówki</strong></td><td>—</td><td class="num"><strong>34 602 €</strong></td></tr>
+        </tbody>
+      </table>
+      <p>VAT jest odliczalny dla importerów zarejestrowanych jako VAT przy następnym zwrocie — efektywnie linia cash-flow, nie koszt netto. Cło jest niemożliwe do odzyskania; to jest faktyczny koszt taryfowy importu.</p>
+    </section>
+
+    
+    <div class="caution-block">
+      <div class="label">Ryzyko anti-dumpingu · pochodzenie chińskie</div>
+      <p style="margin:0;color:rgba(255,255,255,0.85);">Towary chińskiego pochodzenia w rozdziale 64 przyciągają cła antydumpingowe na wierzch stawki MFN. Zawsze weryfikuj TARIC dla konkretnego kodu 8-cyfrowego przed zobowiązaniem.</p>
+    </div>
+
+    <section class="guide-section">
+      <h2>Alternatywa preferencyjnego pochodzenia · Wietnam (EVFTA)</h2>
+      <p>Dla rozdziału HS 64 z Wietnamu, Umowa o Wolnym Handlu UE-Wietnam (EVFTA) typowo daje 70% redukcji cła z ważnym dowodem pochodzenia (REX lub deklaracja na fakturze). Dla tej samej przesyłki 25 000 €:</p>
+      <table class="data-table">
+        <thead><tr><th>Pochodzenie</th><th>Efektywna stawka cła</th><th>Cło zapłacone</th><th>Łączny wypływ gotówki</th></tr></thead>
+        <tbody>
+          <tr><td>Chiny (MFN)</td><td class="num">15.00%</td><td class="num">3750 €</td><td class="num">34 602 €</td></tr>
+          <tr style="background: rgba(111, 166, 111, 0.06);"><td>Wietnam (preferencyjnie EVFTA)</td><td class="num">3.30%</td><td class="num">825 €</td><td class="num">31 092 €</td></tr>
+        </tbody>
+      </table>
+      <p>Oszczędność cła z sourcingu w Wietnamie z ważnym dowodem EVFTA: <strong>2925 €</strong> na tej samej przesyłce 25 000 €. Dla SKU o wysokim wolumenie często uzasadnia to koszt zmiany dostawcy.</p>
+    </section>
+
+    <section class="guide-section">
+      <h2>Alternatywa składu celnego</h2>
+      <p>Jeśli towary będą leżały dłużej niż 30 dni przed sprzedażą, skład celny odracza cło + VAT — i unika ich całkowicie przy reeksporcie. Korzyść cash-flow przy 6% rocznym koszcie kapitału × N dni przechowywania.</p>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Uruchom kalkulator na realnych liczbach</h3>
+        <p>Compliance Agent oblicza matematykę dla dowolnego kodu HS, dowolnego kierunku UE, dowolnego pochodzenia (z nakładkami anti-dumping + wykrywaniem preferencyjnych FTA).</p>
+      </div>
+      <a href="/agent/?prompt=Pracuj%C4%99%20nad%20landed%20cost%20dla%20przesy%C5%82ki%2025%20000%20%E2%82%AC%20HS%2064%20z%20Chin%20do%20Francja.">Compliance Agent →</a>
+    </aside>
+  
+      </article>
+    </main>
+
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span><a href="/">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

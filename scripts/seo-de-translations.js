@@ -85,6 +85,109 @@ const LABEL_DE = {
   related:                'Verwandte Leitfäden',
 };
 
+// ── Routing terms ──────────────────────────────────────────
+const ROUTING_LABEL_DE = {
+  routingGuide:        'Routing-Leitfaden',
+  shipFromTo:          'So versenden Sie',
+  modeComparison:      'Vergleich der Transportmodi',
+  modeColumn:          'Modus',
+  costColumn:          'Kosten',
+  transitColumn:       'Transitzeit',
+  chargeableColumn:    'Frachtgewicht',
+  co2Column:           'CO₂',
+  weightBand:          'Gewicht',
+  recommendedMode:     'Empfohlener Modus',
+  reasoning:           'Begründung',
+  whatNotIncluded:     'Was NICHT in den Kosten enthalten ist',
+  duty:                'Einfuhrzoll',
+  brokerage:           'Zollabwicklung',
+  insurance:           'Frachtversicherung',
+  lastMile:            'Letzte-Meile-Lieferung',
+  runLiveComparison:   'Logistics Agent öffnen',
+  runLiveComparisonText: 'Der Logistics Agent vergleicht alle vier Modi anhand Ihres konkreten Gewichts, Volumens und Ihrer Dringlichkeit — und erstellt einen vollständigen Plan mit Zoll und Lager.',
+  routingBreadcrumb:   'Routing',
+  asiaToEurope:        'Asien → Europa',
+  railCorridorTitle:   'Der China-Europa-Schienenkorridor',
+  railUseful:          'Schiene ist am sinnvollsten, wenn:',
+  railWrong:           'Schiene ist die falsche Wahl für:',
+};
+
+// ── Customs terms ──────────────────────────────────────────
+const CUSTOMS_LABEL_DE = {
+  customsGuide:        'Zoll-Leitfaden',
+  hsChapter:           'HS-Kapitel',
+  importInto:          'Import nach',
+  fullLandedCost:      'Vollständige Landed-Cost-Berechnung',
+  mfnDutyRate:         'MFN-Zollsatz',
+  vatRate:             'MwSt.',
+  totalCnGoods:        'Gesamt · 25.000 € CN-Ware',
+  taxAndFees:          'Davon: Steuern + Gebühren',
+  mathLineByLine:      'Die Mathematik, Zeile für Zeile',
+  customsValue:        'Zollwert (CIF)',
+  importDuty:          'Einfuhrzoll',
+  importVat:           'Einfuhr-MwSt.',
+  brokerageDesc:       '45 € Basis + 8 € × 4 Zeilen',
+  ensFiling:           'ENS Voranmeldung',
+  totalCashOut:        'Gesamter Liquiditätsabfluss',
+  evftaTitle:          'Präferenzieller Ursprung · Vietnam (EVFTA)',
+  bondedTitle:         'Zolllageralternative',
+  otherDestinations:   'Andere EU-Bestimmungen · gleiches Kapitel',
+  destination:         'Bestimmungsland',
+  totalLandedCost:     'Landed-Cost gesamt',
+  thisGuide:           '(dieser Leitfaden)',
+  guideArrow:          '[Leitfaden →]',
+  antiDumpingTitle:    'Anti-Dumping-Risiko · CN-Ursprung',
+  customsBreadcrumb:   'Zoll',
+  runOnRealNumbers:    'Calculator mit Ihren realen Zahlen ausführen',
+  runOnRealNumbersText:'Der Compliance Agent berechnet die Mathematik für jeden HS-Code, jede EU-Destination, jeden Ursprung (mit Anti-Dumping-Overlay + präferenzieller FTA-Erkennung).',
+};
+
+const CUSTOMS_CHAPTER_DE = {
+  '61': { name: 'Gewirkte Bekleidung',                slug: 'gewirkte-bekleidung' },
+  '62': { name: 'Gewebte Bekleidung',                  slug: 'gewebte-bekleidung' },
+  '63': { name: 'Heimtextilien',                       slug: 'heimtextilien' },
+  '64': { name: 'Schuhwaren',                          slug: 'schuhwaren' },
+  '85': { name: 'Elektrische Maschinen & Elektronik',  slug: 'elektronik' },
+  '94': { name: 'Möbel und Beleuchtung',               slug: 'moebel' },
+};
+
+// ── Warehouse terms ────────────────────────────────────────
+const WAREHOUSE_LABEL_DE = {
+  warehouseGuide:      'Lager-Leitfaden',
+  asEuHub:             'als EU-3PL-Hub',
+  pricingCapacityFit:  'Preise, Kapazität, Eignung',
+  storagePerPallet:    'Lagerung · Palette/Monat',
+  pickBase:            'Pick · Auftrag',
+  inboundPerPallet:    'Wareneingang · Palette',
+  oneOffSetup:         'Einmaliges Setup',
+  whereExcels:         'Wo dieser Hub glänzt',
+  wherePushBack:       'Wo Sie verhandeln sollten',
+  sampleMonthlyCost:   'Beispielhafte Monatskosten · 1500 Aufträge',
+  forTypical1500:      'Für einen typischen KMU-Versender mit 1500 Aufträgen/Monat',
+  monthlyCost:         'Monatskosten',
+  totalMonthly:        'Gesamt monatlich',
+  costPerOrder:        'Kosten pro Auftrag',
+  vsAllSixHubs:        'vs. alle 6 EU-Hubs',
+  hub:                 'Hub',
+  region:              'Region',
+  whatNotInCost:       'Was nicht in den Kosten enthalten ist',
+  vasNote:             'Mehrwertdienste (VAS) — QC-Inspektion, Etikettierung, Kitting, Fotografie, Retourenbearbeitung, Geschenkverpackung (jeweils 0,15 € bis 4,20 € pro Einheit/Retoure).',
+  contractTerms:       'Die Sätze sind Mid-Market-Listenpreise. Über 3.000 Aufträge/Monat verhandeln Sie 10–15% Rabatt; über 10.000 Aufträge sind 20–25% üblich.',
+  warehouseBreadcrumb: 'Lager',
+  runComparisonOnVolume: 'Vergleich auf Ihrem realen Volumen ausführen',
+  runComparisonText:   'Der Logistics Agent benchmarkt alle 6 Hubs anhand Ihres konkreten monatlichen Auftragsvolumens, Ihrer Einheiten, Paletten und Hauptdestination.',
+};
+
+// City names → DE form
+const CITY_DE = {
+  'Rotterdam': 'Rotterdam',
+  'Hamburg':   'Hamburg',
+  'Frankfurt': 'Frankfurt',
+  'Poznań':    'Posen',
+  'Prague':    'Prag',
+  'Barcelona': 'Barcelona',
+};
+
 module.exports = {
   COUNTRY_DE,
   COUNTRY_DE_DATIVE,
@@ -92,4 +195,9 @@ module.exports = {
   CATEGORY_DE,
   RISK_LABEL_DE,
   LABEL_DE,
+  ROUTING_LABEL_DE,
+  CUSTOMS_LABEL_DE,
+  CUSTOMS_CHAPTER_DE,
+  WAREHOUSE_LABEL_DE,
+  CITY_DE,
 };

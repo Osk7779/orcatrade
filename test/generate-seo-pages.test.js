@@ -154,7 +154,7 @@ test('Re-running the generator does not error', () => {
 
 // ── Page count check ───────────────────────────────────
 
-test('Total generated pages: 40 sourcing + 30 routing + 36 customs + 6 warehouse + 5 indexes = 117', () => {
+test('EN guide pages: 40 sourcing + 30 routing + 36 customs + 6 warehouse', () => {
   const sourcing = fs.readdirSync(path.join(ROOT, 'guides/sourcing')).filter(d => d !== 'index.html').length;
   const routing = fs.readdirSync(path.join(ROOT, 'guides/routing')).filter(d => d !== 'index.html').length;
   const customs = fs.readdirSync(path.join(ROOT, 'guides/customs')).filter(d => d !== 'index.html').length;
@@ -163,4 +163,53 @@ test('Total generated pages: 40 sourcing + 30 routing + 36 customs + 6 warehouse
   assert.equal(routing, 30);
   assert.equal(customs, 36);
   assert.equal(warehouse, 6);
+});
+
+test('PL guide pages: 40 sourcing + 30 routing + 36 customs + 6 warehouse', () => {
+  const sourcing = fs.readdirSync(path.join(ROOT, 'pl/guides/sourcing')).filter(d => d !== 'index.html').length;
+  const routing = fs.readdirSync(path.join(ROOT, 'pl/guides/routing')).filter(d => d !== 'index.html').length;
+  const customs = fs.readdirSync(path.join(ROOT, 'pl/guides/customs')).filter(d => d !== 'index.html').length;
+  const warehouse = fs.readdirSync(path.join(ROOT, 'pl/guides/warehouse')).filter(d => d !== 'index.html').length;
+  assert.equal(sourcing, 40);
+  assert.equal(routing, 30);
+  assert.equal(customs, 36);
+  assert.equal(warehouse, 6);
+});
+
+test('DE guide pages: 40 sourcing + 30 routing + 36 customs + 6 warehouse', () => {
+  const sourcing = fs.readdirSync(path.join(ROOT, 'de/guides/sourcing')).filter(d => d !== 'index.html').length;
+  const routing = fs.readdirSync(path.join(ROOT, 'de/guides/routing')).filter(d => d !== 'index.html').length;
+  const customs = fs.readdirSync(path.join(ROOT, 'de/guides/customs')).filter(d => d !== 'index.html').length;
+  const warehouse = fs.readdirSync(path.join(ROOT, 'de/guides/warehouse')).filter(d => d !== 'index.html').length;
+  assert.equal(sourcing, 40);
+  assert.equal(routing, 30);
+  assert.equal(customs, 36);
+  assert.equal(warehouse, 6);
+});
+
+test('PL routing page (cn-do-pl) renders with rail-corridor section', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'pl/guides/routing/cn-do-pl/index.html'), 'utf8');
+  assert.match(html, /China-Europe Railway Express/);
+  assert.match(html, /Małaszewicz/);
+});
+
+test('DE customs page (footwear → PL) shows anti-dumping callout in German', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'de/guides/customs/schuhwaren-pl/index.html'), 'utf8');
+  assert.match(html, /Anti-Dumping-Risiko/);
+});
+
+test('DE warehouse page uses Posen for Poznań (German city name)', () => {
+  // Should exist at /de/guides/warehouse/posen-3pl/
+  const dePath = path.join(ROOT, 'de/guides/warehouse/posen-3pl/index.html');
+  assert.ok(fs.existsSync(dePath), 'de/guides/warehouse/posen-3pl/ should exist');
+  const html = fs.readFileSync(dePath, 'utf8');
+  assert.match(html, /Posen/);
+});
+
+test('Sourcing page hreflang now includes en + pl + de + x-default', () => {
+  const html = fs.readFileSync(path.join(ROOT, 'guides/sourcing/apparel-from-cn/index.html'), 'utf8');
+  assert.match(html, /hreflang="en"/);
+  assert.match(html, /hreflang="pl"/);
+  assert.match(html, /hreflang="de"/);
+  assert.match(html, /hreflang="x-default"/);
 });

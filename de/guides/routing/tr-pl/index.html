@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Versand aus der Türkei nach Polen — Vergleich See, Schiene, Luft | OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Multimodaler Frachtvergleich Türkei → Polen: Sea FCL, Sea LCL, Luftfrachtmit Kosten, Transitzeit, CO₂ pro Gewichtsband. Calculator-fundiert." />
+  <link rel="canonical" href="https://orcatrade.pl/de/guides/routing/tr-pl/" />
+  <link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/routing/tr-to-pl/" />
+  <link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/routing/tr-do-pl/" />
+  <link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/guides/routing/tr-pl/" />
+  <link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/routing/tr-to-pl/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Versand aus der Türkei nach Polen — Vergleich See, Schiene, Luft | OrcaTrade" />
+  <meta property="og:description" content="Multimodaler Frachtvergleich Türkei → Polen: Sea FCL, Sea LCL, Luftfrachtmit Kosten, Transitzeit, CO₂ pro Gewichtsband. Calculator-fundiert." />
+  <meta property="og:url" content="https://orcatrade.pl/de/guides/routing/tr-pl/" />
+  <meta property="og:image" content="https://orcatrade.pl/orcatrade_logo.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Versand aus der Türkei nach Polen — Vergleich See, Schiene, Luft | OrcaTrade" />
+  <meta name="twitter:description" content="Multimodaler Frachtvergleich Türkei → Polen: Sea FCL, Sea LCL, Luftfrachtmit Kosten, Transitzeit, CO₂ pro Gewichtsband. Calculator-fundiert." />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .guide-shell { max-width: 920px; margin: 0 auto; padding: 3rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .guide-breadcrumb { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
+    .guide-breadcrumb a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    .guide-breadcrumb a:hover { color: rgba(255,255,255,0.95); }
+    .guide-hero h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2rem, 4vw + 0.5rem, 3rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 1rem; color: rgba(255,255,255,0.97); max-width: 24ch; }
+    .guide-hero .lead { font-size: 1rem; line-height: 1.7; color: rgba(255,255,255,0.72); max-width: 60ch; }
+    .guide-hero .kicker { font-family: 'Cormorant Garant', Georgia, serif; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent-color, #b8bec8); margin-bottom: 1rem; }
+
+    .guide-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); margin: 2rem 0; }
+    @media (max-width: 700px) { .guide-stats { grid-template-columns: repeat(2, 1fr); } }
+    .guide-stat { background: #0d0f14; padding: 1.1rem 1.2rem; }
+    .guide-stat .num { font-family: 'Cormorant Garant', serif; font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,0.97); line-height: 1; letter-spacing: -0.02em; }
+    .guide-stat .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 0.4rem; }
+
+    .guide-section { margin-top: 3rem; }
+    .guide-section h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: rgba(255,255,255,0.97); margin-bottom: 0.6rem; }
+    .guide-section p { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.78); margin-bottom: 0.8em; max-width: 70ch; }
+    .guide-section ul { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.78); padding-left: 1.4rem; max-width: 68ch; }
+    .guide-section ul li { margin-bottom: 0.3em; }
+    .guide-section strong { color: rgba(255,255,255,0.97); }
+
+    .specialty-block, .caution-block { padding: 1rem 1.3rem; margin: 1.2rem 0; }
+    .specialty-block { background: rgba(111, 166, 111, 0.06); border-left: 2px solid rgba(111, 166, 111, 0.5); }
+    .caution-block { background: rgba(201, 80, 80, 0.06); border-left: 2px solid rgba(201, 80, 80, 0.5); }
+    .specialty-block .label, .caution-block .label { font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; margin-bottom: 0.3rem; }
+    .specialty-block .label { color: rgba(111, 166, 111, 0.95); }
+    .caution-block .label { color: rgba(201, 80, 80, 0.85); }
+
+    .data-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+    .data-table th, .data-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.78); }
+    .data-table th { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.92); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .data-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+    .data-table .num { font-family: 'Geist Mono', monospace; }
+
+    .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); margin-top: 2rem; }
+    @media (max-width: 700px) { .related-grid { grid-template-columns: 1fr; } }
+    .related-card { background: #0d0f14; padding: 1rem 1.2rem; text-decoration: none; transition: background 0.15s; }
+    .related-card:hover { background: rgba(184, 190, 200, 0.05); }
+    .related-card .related-tag { font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.3rem; }
+    .related-card h3 { font-family: 'Cormorant Garant', serif; font-size: 0.98rem; font-weight: 600; color: rgba(255,255,255,0.94); margin-bottom: 0.2rem; line-height: 1.3; }
+    .related-card .related-desc { font-size: 0.78rem; color: rgba(255,255,255,0.6); line-height: 1.5; }
+
+    .agent-cta {
+      position: sticky; bottom: 1.5rem; margin: 2.5rem 0 0;
+      padding: 1.4rem 1.6rem;
+      background: linear-gradient(135deg, rgba(184,190,200,0.1), rgba(184,190,200,0.02));
+      border: 1px solid rgba(184,190,200,0.4);
+      display: flex; align-items: center; justify-content: space-between; gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .agent-cta .cta-text { flex: 1; min-width: 240px; }
+    .agent-cta .cta-text h3 { font-family: 'Cormorant Garant', serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.3rem; color: rgba(255,255,255,0.97); }
+    .agent-cta .cta-text p { font-size: 0.86rem; color: rgba(255,255,255,0.7); margin: 0; line-height: 1.5; }
+    .agent-cta a { padding: 0.7rem 1.2rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; transition: filter 0.18s, transform 0.18s; flex-shrink: 0; }
+    .agent-cta a:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Article","headline":"Versand aus der Türkei nach Polen — Vergleich See, Schiene, Luft | OrcaTrade","description":"Multimodaler Frachtvergleich Türkei → Polen: Sea FCL, Sea LCL, Luftfrachtmit Kosten, Transitzeit, CO₂ pro Gewichtsband. Calculator-fundiert.","datePublished":"2026-05-08","dateModified":"2026-05-08","inLanguage":"de","author":{"@type":"Organization","name":"OrcaTrade Group"},"publisher":{"@type":"Organization","name":"OrcaTrade Group","logo":{"@type":"ImageObject","url":"https://orcatrade.pl/orcatrade_logo.png"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://orcatrade.pl/de/guides/routing/tr-pl/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Leitfäden","item":"https://orcatrade.pl/de/guides/"},{"@type":"ListItem","position":2,"name":"Routing","item":"https://orcatrade.pl/de/guides/routing/"},{"@type":"ListItem","position":3,"name":"Türkei → Polen","item":"https://orcatrade.pl/de/guides/routing/tr-pl/"}]}]}</script>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <article class="guide-shell">
+        
+    <nav class="guide-breadcrumb">
+      <a href="/de/">Startseite</a> · <a href="/de/guides/">Leitfäden</a> · <a href="/de/guides/routing/">Routing</a> · Türkei → Polen
+    </nav>
+
+    <header class="guide-hero">
+      <p class="kicker">Routing-Leitfaden · Asien → Europa</p>
+      <h1>Versand aus der Türkei nach Polen</h1>
+      <p class="lead">Sea FCL, Sea LCL, Luftfracht — alle vier Modi mit Kosten, Transitzeit und CO₂ für den Korridor Türkei → Polen. Zahlen aus dem deterministischen OrcaTrade-Routing-Calculator. Vierteljährlich gegen Spediteur-Tarifkarten aktualisiert.</p>
+    </header>
+
+    <div class="guide-stats">
+      <div class="guide-stat"><div class="num">782.5 €</div><div class="label">Sea FCL · 1 t</div></div>
+      <div class="guide-stat"><div class="num">4070 €</div><div class="label">Sea LCL · 1 t</div></div>
+      <div class="guide-stat"><div class="num">3725 €</div><div class="label">Luftfracht · 1 t</div></div>
+      <div class="guide-stat"><div class="num">n/v €</div><div class="label">Schiene · 1 t</div></div>
+    </div>
+
+    <section class="guide-section">
+      <h2>Vergleich der Transportmodi</h2>
+      <p>Für eine 1-Tonnen-Sendung aus der Türkei nach Polen, hier vergleichen sich die vier Modi:</p>
+      <table class="data-table">
+        <thead><tr><th>Modus</th><th>Kosten</th><th>Transitzeit</th><th>Frachtgewicht</th><th>CO₂</th></tr></thead>
+        <tbody><tr><td>Sea FCL (40&#39; HC)</td><td class="num">782.5 €</td><td>30–40 days door-to-door</td><td class="num">1000 kg</td><td class="num">190 kg</td></tr><tr><td>Sea LCL</td><td class="num">4070 €</td><td>35–50 days door-to-door</td><td class="num">5000 kg</td><td class="num">266 kg</td></tr><tr><td>Air freight</td><td class="num">3725 €</td><td>4–9 days door-to-door</td><td class="num">1000 kg</td><td class="num">11400 kg</td></tr><tr><td>Rail (China–EU via Małaszewicze)</td><td colspan="4" style="opacity:0.6;font-style:italic;">Rail viable only on China-Europe corridors via Małaszewicze. Origin or destination outside the rail-network coverage.</td></tr></tbody>
+      </table>
+    </section>
+
+    <section class="guide-section">
+      <h2>Empfohlener Modus nach Sendungsgröße</h2>
+      <table class="data-table">
+        <thead><tr><th>Gewicht</th><th>Empfohlener Modus</th><th>Begründung</th></tr></thead>
+        <tbody><tr><td><strong>200 kg</strong></td><td>SEA LCL</td><td style="font-size:0.85em;color:rgba(255,255,255,0.7);">Sea LCL (€990, 35–50 days door-to-door) is the balanced choice given current inputs.</td></tr><tr><td><strong>1.000 kg</strong></td><td>SEA LCL</td><td style="font-size:0.85em;color:rgba(255,255,255,0.7);">Sea LCL (€4070, 35–50 days door-to-door) is the balanced choice given current inputs.</td></tr><tr><td><strong>5.000 kg</strong></td><td>SEA LCL</td><td style="font-size:0.85em;color:rgba(255,255,255,0.7);">Sea LCL (€19470, 35–50 days door-to-door) is the balanced choice given current inputs.</td></tr></tbody>
+      </table>
+    </section>
+
+    
+
+    <section class="guide-section">
+      <h2>Was NICHT in den Kosten enthalten ist</h2>
+      <ul>
+        <li><strong>Einfuhrzoll + MwSt.</strong> — siehe Zoll-Calculator für HS-kapitelspezifische Mathematik.</li>
+        <li><strong>Zollabwicklung</strong> — typischerweise 45 € Basis + 8 € pro Rechnungszeile, gedeckelt bei 250 €.</li>
+        <li><strong>Frachtversicherung</strong> — empfohlen ab 5.000 € deklariertem Wert; ICC A/B/C-Klauseln verfügbar.</li>
+        <li><strong>Letzte-Meile-Lieferung</strong> — vom EU-Hafen/Bahnterminal zu Ihrem Lager.</li>
+      </ul>
+    </section>
+
+    <aside class="agent-cta">
+      <div class="cta-text">
+        <h3>Logistics Agent öffnen</h3>
+        <p>Der Logistics Agent vergleicht alle vier Modi anhand Ihres konkreten Gewichts, Volumens und Ihrer Dringlichkeit — und erstellt einen vollständigen Plan mit Zoll und Lager.</p>
+      </div>
+      <a href="/agent/logistics/?prompt=Ich%20versende%20aus%20der%20T%C3%BCrkei%20nach%20Polen.%20Vergleichen%20Sie%20See%2C%20Schiene%2C%20Luft%20f%C3%BCr%20eine%20typische%201-Tonnen-Sendung.">Logistics Agent →</a>
+    </aside>
+  
+      </article>
+    </main>
+
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span><a href="/">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
