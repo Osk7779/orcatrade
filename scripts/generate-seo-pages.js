@@ -2928,6 +2928,14 @@ function run() {
   }
   console.log(`Preferential origin pages: ${prefPages.length} (already written by sub-generator).`);
 
+  // Compliance overlay guides (CBAM, EUDR, REACH, CE, RoHS, ...).
+  const complianceGenerator = require('./generate-compliance-pages');
+  const compliancePages = complianceGenerator.build();
+  for (const p of compliancePages) {
+    generated.push({ canonical: p.canonical });
+  }
+  console.log(`Compliance pages: ${compliancePages.length} (already written by sub-generator).`);
+
   // Sitemap (guides only)
   generateSitemap(generated);
   // Master sitemap (everything indexable)
