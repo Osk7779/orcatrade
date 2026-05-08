@@ -20,7 +20,7 @@ const SHARE_KEYS = [
   'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg',
   'claimPreferential', 'hsCode', 'moq', 'targetFobUnitEur',
   'quoteCurrency', 'paymentTermsDays',
-  'shipmentsPerYear', 'waccPct', 'daysInInventory',
+  'shipmentsPerYear', 'waccPct', 'daysInInventory', 'daysReceivable',
 ];
 
 function encodeShareInputs(inputs) {
@@ -110,7 +110,7 @@ function readForm() {
     if (v === '') continue;
     out[k] = v;
   }
-  ['customsValueEur', 'weightKg', 'linesCount', 'urgencyWeeks', 'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg', 'paymentTermsDays', 'shipmentsPerYear', 'waccPct', 'daysInInventory'].forEach(k => {
+  ['customsValueEur', 'weightKg', 'linesCount', 'urgencyWeeks', 'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg', 'paymentTermsDays', 'shipmentsPerYear', 'waccPct', 'daysInInventory', 'daysReceivable'].forEach(k => {
     if (out[k] !== undefined) out[k] = Number(out[k]);
   });
   out.claimPreferential = out.claimPreferential === 'true';
@@ -248,6 +248,57 @@ function renderPlan(plan) {
             </thead>
             <tbody>
               ${sensitivityRows}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+
+  const wc = plan.workingCapital;
+  let workingCapitalSection = '';
+  if (wc && wc.ok) {
+    const verdictKey = wc.verdict;
+    const verdictText = (T.wcVerdict && T.wcVerdict[verdictKey]) || verdictKey;
+    const cccCls = wc.ccc < 0 ? 'wc-supplier-funded'
+      : wc.ccc <= 30 ? 'wc-tight'
+      : wc.ccc <= 90 ? 'wc-standard'
+      : wc.ccc <= 150 ? 'wc-capital-intensive'
+      : 'wc-severe';
+    const leverRows = wc.levers.map(l => `
+      <tr>
+        <td>${escapeHtml(l.label)}</td>
+        <td>${l.cccDelta > 0 ? '+' : ''}${l.cccDelta} d</td>
+        <td>${fmtEur(Math.abs(l.workingCapitalDelta))}</td>
+        <td><strong>${fmtEur(Math.abs(l.annualCostDelta))}</strong></td>
+      </tr>
+    `).join('');
+
+    workingCapitalSection = `
+      <div class="result-section">
+        <h3>${T.secWorkingCapital}</h3>
+        <p>${T.wcIntro}</p>
+        <div class="result-stats wc-stats">
+          <div class="result-stat ${cccCls}"><div class="num">${wc.ccc} d</div><div class="label">${T.wcCccLabel}</div><div class="sub">${T.wcCccBreakdown(wc.dio, wc.dso, wc.dpo, wc.ccc)}</div></div>
+          <div class="result-stat"><div class="num">${fmtEur(wc.workingCapitalEur)}</div><div class="label">${T.wcWorkingCapitalLabel}</div><div class="sub">tied up at any moment</div></div>
+          <div class="result-stat"><div class="num">${fmtEur(wc.annualCapitalCostEur)}</div><div class="label">${T.wcAnnualCostLabel}</div><div class="sub">${wc.inputs.waccPct}% WACC × working capital</div></div>
+          <div class="result-stat"><div class="num">${fmtEur(wc.dayValueEur)}</div><div class="label">${T.wcDayValueLabel}</div><div class="sub">freed per day shaved</div></div>
+        </div>
+        <p class="verdict-line">${verdictText}</p>
+
+        <h4 class="tco-sensitivity-heading">${T.wcLeverHeading}</h4>
+        <div class="origin-matrix-wrap">
+          <table class="origin-matrix">
+            <thead>
+              <tr>
+                <th>${T.wcLeverColLabel}</th>
+                <th>${T.wcLeverColDelta}</th>
+                <th>${T.wcLeverColCapital}</th>
+                <th>${T.wcLeverColAnnual}</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${leverRows}
             </tbody>
           </table>
         </div>
@@ -413,6 +464,8 @@ function renderPlan(plan) {
     </div>
 
     ${tcoSection}
+
+    ${workingCapitalSection}
 
     ${fxSection}
 

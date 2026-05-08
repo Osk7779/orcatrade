@@ -429,5 +429,6 @@ prefers a different ordering than I would naively pick.
 | 2026-05-08 | Sprint N — Preferential origin SEO pages | 7 regime guides (EBA/GSP+/GSP/EVFTA/EUKFTA/EUJEPA/ATR) + 7 country pivots × 3 locales = 45 new pages. Total guides: 447 → 492. 719/719 tests. |
 | 2026-05-08 | Sprint O — Compliance overlay SEO pages | 13 regimes (CBAM/EUDR/REACH/CE×2/RoHS/WEEE/Battery/Toy/Cosmetics/GPSR/PPWR/Footwear) × 3 locales = 42 new pages. Total guides: 492 → 534. Completes the H0→SEO trilogy. 737/737 tests. |
 | 2026-05-08 | Sprint H — Annual TCO calculator | Procurement-grade view: annual scaling, inventory carrying cost (avg inventory × WACC × days/365), 3PL roll-up, bonded deferral hint, sensitivity at 6/12/24/52 shipments/year. New wizard fields shipmentsPerYear / waccPct / daysInInventory in step 5. 757/757 tests. |
+| 2026-05-08 | Sprint Q — Working capital cycle | CCC = DIO + DSO − DPO. Reuses paymentTermsDays as DPO + daysInInventory as DIO from prior sprints; adds daysReceivable. Surfaces working capital tied up + annual capital cost + verdict (tight/standard/capital-intensive/severe/supplier-funded) + 3 levers (DPO+30, DIO−20, DSO−15) with €/year savings each. 775/775 tests. |
 
 When you complete a sprint, append here.

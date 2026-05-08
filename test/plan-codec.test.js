@@ -122,7 +122,7 @@ test('SHARE_KEYS catalogue is stable and complete', () => {
     'monthlyOrders', 'avgUnitsPerOrder', 'avgPalletsHeld', 'avgOrderWeightKg',
     'claimPreferential', 'hsCode', 'moq', 'targetFobUnitEur',
     'quoteCurrency', 'paymentTermsDays',
-    'shipmentsPerYear', 'waccPct', 'daysInInventory',
+    'shipmentsPerYear', 'waccPct', 'daysInInventory', 'daysReceivable',
   ];
   assert.deepEqual(SHARE_KEYS, expected);
 });
