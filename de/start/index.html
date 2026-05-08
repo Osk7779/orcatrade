@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>Importplan in 60 Sekunden erstellen | OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Sagen Sie uns, was Sie importieren. Wir erstellen einen personalisierten Plan über Sourcing, Transport, Zollabwicklung und Lagerung — kalkulator-basiert, in 60 Sekunden bereit." />
+  <link rel="canonical" href="https://orcatrade.pl/de/start/" />
+  <link rel="alternate" hreflang="en" href="https://orcatrade.pl/start/" />
+  <link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/start/" />
+  <link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/start/" />
+  <link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/start/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Importplan in 60 Sekunden erstellen | OrcaTrade" />
+  <meta property="og:description" content="Personalisierter Importplan über Sourcing, Transport, Zollabwicklung und Lagerung. Kalkulator-basiert." />
+  <meta property="og:url" content="https://orcatrade.pl/de/start/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="/start/wizard.css">
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <section class="start-shell">
+        <div class="start-hero" id="hero">
+          <p class="kicker">Import Plan Builder · 60 Sekunden · Kostenlos</p>
+          <h1>Sagen Sie uns, was Sie importieren. Wir <em>erstellen den Plan</em>.</h1>
+          <p>Sechs Fragen. Wir komponieren Ihren personalisierten Plan über Sourcing, Transport, Zollabwicklung und Lagerung — kalkulator-basiert, mit Quellenangaben, sofort prüfbar.</p>
+        </div>
+
+        <div class="progress-bar" id="progress" role="progressbar" aria-label="Wizard-Fortschritt">
+          <div class="progress-step active" data-step="1"></div>
+          <div class="progress-step" data-step="2"></div>
+          <div class="progress-step" data-step="3"></div>
+          <div class="progress-step" data-step="4"></div>
+          <div class="progress-step" data-step="5"></div>
+          <div class="progress-step" data-step="6"></div>
+        </div>
+
+        <form class="wizard" id="wizard" novalidate>
+          <div class="global-err" id="globalErr" style="display:none;"></div>
+
+          <!-- SCHRITT 1: Kategorie -->
+          <div class="step active" data-step="1">
+            <p class="step-num">Schritt 1 von 6</p>
+            <h2>Was importieren Sie?</h2>
+            <p class="helper">Wählen Sie die passende Kategorie. Wir ordnen sie dem richtigen HS-Kapitel, Lieferanten-Benchmark und Compliance-Regime zu.</p>
+            <div class="field">
+              <label for="productCategory">Produktkategorie</label>
+              <select id="productCategory" name="productCategory" required>
+                <option value="">Kategorie wählen…</option>
+                <option value="apparel">Bekleidung & Textilien</option>
+                <option value="electronics">Konsumelektronik</option>
+                <option value="furniture">Möbel & Holzwaren</option>
+                <option value="toys">Spielzeug & Kinderartikel</option>
+                <option value="cosmetics">Kosmetik & Pflege</option>
+                <option value="homeware">Haushaltswaren & Küche</option>
+                <option value="footwear">Schuhwaren</option>
+                <option value="machinery">Maschinen & Industrie</option>
+              </select>
+              <div class="err" data-err-for="productCategory"></div>
+            </div>
+            <div class="field">
+              <label for="productDescription">Kurzbeschreibung (optional)</label>
+              <input type="text" id="productDescription" name="productDescription" placeholder="z.B. Baumwoll-T-Shirts, Bluetooth-Lautsprecher, Eichen-Esstische" />
+            </div>
+          </div>
+
+          <!-- SCHRITT 2: Herkunft -->
+          <div class="step" data-step="2">
+            <p class="step-num">Schritt 2 von 6</p>
+            <h2>Woher beziehen Sie?</h2>
+            <p class="helper">Falls Sie noch keinen Lieferanten haben, wählen Sie Ihre beste Schätzung — wir schlagen Alternativen vor, wenn ein anderes Land besser passt.</p>
+            <div class="field">
+              <label for="originCountry">Ursprungsland</label>
+              <select id="originCountry" name="originCountry" required>
+                <option value="">Ursprungsland wählen…</option>
+                <option value="CN">China</option>
+                <option value="VN">Vietnam</option>
+                <option value="IN">Indien</option>
+                <option value="BD">Bangladesch</option>
+                <option value="TR">Türkei</option>
+                <option value="HK">Hongkong</option>
+                <option value="TW">Taiwan</option>
+                <option value="KR">Südkorea</option>
+                <option value="JP">Japan</option>
+              </select>
+              <div class="err" data-err-for="originCountry"></div>
+            </div>
+          </div>
+
+          <!-- SCHRITT 3: Ziel -->
+          <div class="step" data-step="3">
+            <p class="step-num">Schritt 3 von 6</p>
+            <h2>Wo in der EU landet die Ware?</h2>
+            <p class="helper">Das EU-Mitgliedsland des Imports — bestimmt EUSt-Satz, Zollabwicklungs-Gebühren und 3PL-Hub-Empfehlung.</p>
+            <div class="field">
+              <label for="destinationCountry">EU-Zielland</label>
+              <select id="destinationCountry" name="destinationCountry" required>
+                <option value="">Zielland wählen…</option>
+                <option value="DE">Deutschland</option>
+                <option value="PL">Polen</option>
+                <option value="NL">Niederlande</option>
+                <option value="FR">Frankreich</option>
+                <option value="IT">Italien</option>
+                <option value="ES">Spanien</option>
+                <option value="BE">Belgien</option>
+                <option value="AT">Österreich</option>
+                <option value="CZ">Tschechien</option>
+                <option value="SE">Schweden</option>
+                <option value="DK">Dänemark</option>
+              </select>
+              <div class="err" data-err-for="destinationCountry"></div>
+            </div>
+          </div>
+
+          <!-- SCHRITT 4: Sendungsgröße -->
+          <div class="step" data-step="4">
+            <p class="step-num">Schritt 4 von 6</p>
+            <h2>Wie groß ist eine Sendung?</h2>
+            <p class="helper">Zollwert (CIF — Kaufpreis plus Fracht zum ersten EU-Hafen) und Gewicht bestimmen Zoll-, EUSt- und Transportkosten.</p>
+            <div class="field-row">
+              <div>
+                <label for="customsValueEur">Zollwert (€)</label>
+                <input type="number" id="customsValueEur" name="customsValueEur" min="1" placeholder="25000" required />
+                <div class="err" data-err-for="customsValueEur"></div>
+              </div>
+              <div>
+                <label for="weightKg">Gesamtgewicht (kg)</label>
+                <input type="number" id="weightKg" name="weightKg" min="1" placeholder="800" required />
+                <div class="err" data-err-for="weightKg"></div>
+              </div>
+            </div>
+            <div class="field-row">
+              <div>
+                <label for="linesCount">Positionen auf Handelsrechnung</label>
+                <input type="number" id="linesCount" name="linesCount" min="1" max="500" value="4" />
+              </div>
+              <div>
+                <label for="claimPreferential">Präferenzursprung?</label>
+                <select id="claimPreferential" name="claimPreferential">
+                  <option value="false">Nein / unsicher</option>
+                  <option value="true">Ja — gültiger Ursprungsnachweis vorhanden</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- SCHRITT 5: Volumen + Dringlichkeit -->
+          <div class="step" data-step="5">
+            <p class="step-num">Schritt 5 von 6</p>
+            <h2>Volumen und Dringlichkeit</h2>
+            <p class="helper">Optional. Wenn Sie aus EU-Lager fulfillen, bestimmt das monatliche Bestellvolumen die 3PL-Hub-Empfehlung. Dringlichkeit bestimmt den Transportmodus (Luft &lt;14 Tage).</p>
+            <div class="field-row">
+              <div>
+                <label for="urgencyWeeks">Frist (Wochen, optional)</label>
+                <input type="number" id="urgencyWeeks" name="urgencyWeeks" min="1" max="52" placeholder="16" />
+              </div>
+              <div>
+                <label for="monthlyOrders">Bestellungen pro Monat (opt.)</label>
+                <input type="number" id="monthlyOrders" name="monthlyOrders" min="0" placeholder="1500" />
+              </div>
+            </div>
+            <div class="field-row three">
+              <div>
+                <label for="avgUnitsPerOrder">Ø Stk. / Bestellung</label>
+                <input type="number" id="avgUnitsPerOrder" name="avgUnitsPerOrder" min="1" step="0.1" value="1.5" />
+              </div>
+              <div>
+                <label for="avgPalletsHeld">Paletten im Lager</label>
+                <input type="number" id="avgPalletsHeld" name="avgPalletsHeld" min="1" value="50" />
+              </div>
+              <div>
+                <label for="avgOrderWeightKg">Ø Paket (kg)</label>
+                <input type="number" id="avgOrderWeightKg" name="avgOrderWeightKg" min="0.1" step="0.1" value="2" />
+              </div>
+            </div>
+          </div>
+
+          <!-- SCHRITT 6: E-Mail -->
+          <div class="step" data-step="6">
+            <p class="step-num">Schritt 6 von 6</p>
+            <h2>Wohin senden wir den Plan?</h2>
+            <p class="helper">Wir erstellen den Plan jetzt, zeigen ihn auf dieser Seite und senden eine Kopie per E-Mail. Kein Newsletter, kein Spam — eine Zusammenfassung pro Anfrage.</p>
+            <div class="field-row">
+              <div>
+                <label for="email">E-Mail-Adresse</label>
+                <input type="email" id="email" name="email" placeholder="sie@firma.de" required />
+                <div class="err" data-err-for="email"></div>
+              </div>
+              <div>
+                <label for="name">Name (optional)</label>
+                <input type="text" id="name" name="name" placeholder="Anna Importeur" />
+              </div>
+            </div>
+            <div class="field">
+              <label for="companyName">Firma (optional)</label>
+              <input type="text" id="companyName" name="companyName" placeholder="Importeur GmbH" />
+            </div>
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn" id="backBtn" style="display:none;">← Zurück</button>
+            <div style="flex:1;"></div>
+            <button type="button" class="btn btn-primary" id="nextBtn">Weiter →</button>
+            <button type="submit" class="btn btn-primary" id="submitBtn" style="display:none;">Plan erstellen →</button>
+          </div>
+        </form>
+
+        <div class="result" id="result"></div>
+      </section>
+    </main>
+
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. Alle Rechte vorbehalten.</span>
+        <span><a href="/">Zurück zu OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script>window.LOCALE = 'de';</script>
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/start/i18n.js"></script>
+  <script src="/start/app.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>

@@ -80,6 +80,13 @@ function pageShell({ title, description, canonical, jsonLd, body, locale = 'en',
   const hreflangTags = hreflangAlternates.map(a =>
     `<link rel="alternate" hreflang="${a.lang}" href="${a.href}" />`
   ).join('\n  ');
+  const wizardHref = locale === 'en' ? '/start/' : `/${locale}/start/`;
+  const planCta = {
+    en: { kicker: 'Build your full plan', heading: "Don't just read — get a personalised plan in 60 seconds.", body: 'Six questions, all four calculators (sourcing, routing, customs, warehouse) compose your specific landed cost and recommendations. Free, calculator-grounded, no newsletter.', button: 'Build my plan →', backLink: 'Back to OrcaTrade Group', rights: 'All rights reserved.' },
+    pl: { kicker: 'Zbuduj pełny plan',   heading: 'Nie tylko czytaj — otrzymaj spersonalizowany plan w 60 sekund.', body: 'Sześć pytań, cztery kalkulatory (sourcing, transport, odprawa, magazyn) skomponują Twój konkretny koszt landed i rekomendacje. Bezpłatnie, w oparciu o kalkulatory, bez newslettera.', button: 'Zbuduj mój plan →', backLink: 'Powrót do OrcaTrade Group', rights: 'Wszelkie prawa zastrzeżone.' },
+    de: { kicker: 'Vollständigen Plan erstellen', heading: 'Nicht nur lesen — personalisierten Plan in 60 Sekunden erhalten.', body: 'Sechs Fragen, vier Kalkulatoren (Sourcing, Transport, Zoll, Lager) erstellen Ihre spezifischen Landed Costs und Empfehlungen. Kostenlos, kalkulator-basiert, kein Newsletter.', button: 'Plan erstellen →', backLink: 'Zurück zu OrcaTrade Group', rights: 'Alle Rechte vorbehalten.' },
+  }[locale] || null;
+  const cta = planCta || { kicker: 'Build your full plan', heading: "Don't just read — get a personalised plan in 60 seconds.", body: 'Six questions, all four calculators compose your specific landed cost.', button: 'Build my plan →', backLink: 'Back to OrcaTrade Group', rights: 'All rights reserved.' };
   return `<!DOCTYPE html>
 <html lang="${locale}">
 <head>
@@ -175,18 +182,18 @@ function pageShell({ title, description, canonical, jsonLd, body, locale = 'en',
       <article class="guide-shell">
         ${body}
         <aside style="margin-top: 3rem; padding: 1.6rem 1.8rem; background: linear-gradient(135deg, rgba(184,168,114,0.08), rgba(184,190,200,0.03)); border: 1px solid rgba(200, 168, 90, 0.3); text-align: center;">
-          <div style="font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(200, 168, 90, 0.95); margin-bottom: 0.4rem; font-weight: 600;">Build your full plan</div>
-          <h3 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.97); margin: 0 0 0.4rem;">Don't just read — get a personalised plan in 60 seconds.</h3>
-          <p style="font-size: 0.88rem; color: rgba(255,255,255,0.7); margin: 0 auto 1rem; max-width: 50ch; line-height: 1.6;">Six questions, all four calculators (sourcing, routing, customs, warehouse) compose your specific landed cost and recommendations. Free, calculator-grounded, no newsletter.</p>
-          <a href="/start/" style="display: inline-block; padding: 0.7rem 1.3rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;">Build my plan →</a>
+          <div style="font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(200, 168, 90, 0.95); margin-bottom: 0.4rem; font-weight: 600;">${cta.kicker}</div>
+          <h3 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.97); margin: 0 0 0.4rem;">${cta.heading}</h3>
+          <p style="font-size: 0.88rem; color: rgba(255,255,255,0.7); margin: 0 auto 1rem; max-width: 50ch; line-height: 1.6;">${cta.body}</p>
+          <a href="${wizardHref}" style="display: inline-block; padding: 0.7rem 1.3rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;">${cta.button}</a>
         </aside>
       </article>
     </main>
 
     <footer style="position: relative; z-index: 1;">
       <div class="footer-inner">
-        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
-        <span><a href="/">Back to OrcaTrade Group</a></span>
+        <span>© <span id="year"></span> OrcaTrade Group. ${cta.rights}</span>
+        <span><a href="/">${cta.backLink}</a></span>
       </div>
     </footer>
   </div>

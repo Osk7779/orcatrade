@@ -6,6 +6,10 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <meta name="description" content="Tell us what you're importing. We'll compose a personalised plan across sourcing, routing, customs, and warehousing — calculator-grounded, citation-backed, ready in 60 seconds." />
   <link rel="canonical" href="https://orcatrade.pl/start/" />
+  <link rel="alternate" hreflang="en" href="https://orcatrade.pl/start/" />
+  <link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/start/" />
+  <link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/start/" />
+  <link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/start/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="Build your import plan in 60 seconds | OrcaTrade" />
   <meta property="og:description" content="Personalised import plan across sourcing, routing, customs, and warehousing. Calculator-grounded." />
@@ -15,94 +19,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
   <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
   <link rel="stylesheet" href="/css/styles.css">
-  <style>
-    .start-shell { max-width: 880px; margin: 0 auto; padding: 3rem 1.5rem 6rem; position: relative; z-index: 1; }
-
-    .start-hero { text-align: center; margin-bottom: 3rem; }
-    .start-hero .kicker { font-family: 'Cormorant Garant', Georgia, serif; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent-color, #b8bec8); margin-bottom: 1rem; }
-    .start-hero h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2.2rem, 4.5vw + 0.5rem, 3.4rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.05; margin-bottom: 1rem; max-width: 18ch; margin-left: auto; margin-right: auto; }
-    .start-hero h1 em { font-style: italic; color: var(--accent-color, #b8bec8); }
-    .start-hero p { font-size: 1.05rem; line-height: 1.7; color: rgba(255,255,255,0.75); max-width: 60ch; margin: 0 auto; }
-
-    /* Progress */
-    .progress-bar { display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin: 2.5rem auto 2rem; max-width: 600px; }
-    .progress-step { height: 3px; background: rgba(255,255,255,0.08); transition: background 0.2s; }
-    .progress-step.active { background: var(--accent-color, #b8bec8); }
-
-    /* Step container */
-    .wizard { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); padding: 2.5rem 2.6rem 2rem; }
-    @media (max-width: 600px) { .wizard { padding: 1.6rem 1.2rem; } }
-
-    .step { display: none; }
-    .step.active { display: block; animation: fadeIn 0.25s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-
-    .step-num { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.5rem; }
-    .step h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.6rem; font-weight: 600; letter-spacing: -0.01em; color: rgba(255,255,255,0.97); margin-bottom: 0.4rem; }
-    .step .helper { font-size: 0.92rem; color: rgba(255,255,255,0.65); line-height: 1.6; margin-bottom: 1.6rem; max-width: 56ch; }
-
-    label { display: block; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; font-weight: 500; }
-    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1.2rem; }
-    .field-row.three { grid-template-columns: repeat(3, 1fr); }
-    .field-row.full { grid-template-columns: 1fr; }
-    @media (max-width: 600px) { .field-row, .field-row.three { grid-template-columns: 1fr; } }
-    .field { margin-bottom: 1.2rem; }
-
-    select, input[type="text"], input[type="email"], input[type="number"] {
-      width: 100%; padding: 0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6);
-      border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92);
-      font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none;
-      transition: border-color 0.15s, background 0.15s;
-    }
-    select:focus, input:focus { border-color: rgba(184,190,200,0.4); background: rgba(8, 11, 19, 0.85); }
-    select { cursor: pointer; }
-
-    .actions { display: flex; gap: 0.8rem; justify-content: space-between; margin-top: 2rem; }
-    .btn { padding: 0.85rem 1.4rem; font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; background: transparent; color: rgba(255,255,255,0.92); }
-    .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
-    .btn-primary { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); }
-    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-
-    .err { font-size: 0.82rem; color: #c95050; margin-top: 0.4rem; }
-    .global-err { padding: 0.8rem 1rem; background: rgba(201, 80, 80, 0.08); border-left: 2px solid #c95050; color: rgba(255,255,255,0.95); font-size: 0.88rem; margin-bottom: 1.2rem; }
-
-    /* Result */
-    .result { display: none; }
-    .result.active { display: block; animation: fadeIn 0.4s ease-out; }
-    .result-hero { text-align: center; margin-bottom: 2.5rem; }
-    .result-hero h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2rem, 4vw + 0.5rem, 2.6rem); font-weight: 600; letter-spacing: -0.02em; margin-bottom: 0.5rem; color: rgba(255,255,255,0.97); }
-    .result-hero p { font-size: 0.98rem; color: rgba(255,255,255,0.7); max-width: 56ch; margin: 0 auto; }
-
-    .result-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); margin: 2rem 0; }
-    @media (max-width: 700px) { .result-stats { grid-template-columns: repeat(2, 1fr); } }
-    .result-stat { background: #0d0f14; padding: 1.2rem 1.3rem; }
-    .result-stat .num { font-family: 'Cormorant Garant', serif; font-size: 1.55rem; font-weight: 700; color: rgba(255,255,255,0.97); line-height: 1; letter-spacing: -0.02em; }
-    .result-stat .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 0.4rem; }
-
-    .result-section { margin-top: 2rem; padding-top: 1.6rem; border-top: 1px solid rgba(255,255,255,0.07); }
-    .result-section h3 { font-family: 'Cormorant Garant', serif; font-size: 1.3rem; font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.5rem; }
-    .result-section p { font-size: 0.94rem; line-height: 1.65; color: rgba(255,255,255,0.78); margin-bottom: 0.8em; max-width: 70ch; }
-    .result-section .verdict-line { font-family: 'Cormorant Garant', serif; font-size: 1.1rem; font-style: italic; color: var(--accent-color, #b8bec8); padding: 0.6rem 1rem; background: rgba(184,190,200,0.05); border-left: 2px solid var(--accent-color, #b8bec8); margin: 0.8em 0; }
-    .result-section .secondary-note { font-size: 0.84rem; color: rgba(255,255,255,0.6); font-style: italic; }
-    .breakdown-table { width: 100%; border-collapse: collapse; margin-top: 0.8em; font-size: 0.9rem; }
-    .breakdown-table td { padding: 6px 10px; border-bottom: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.85); font-family: 'Geist Mono', monospace; }
-    .breakdown-table td:first-child { font-family: inherit; color: rgba(255,255,255,0.7); }
-    .breakdown-table tr.total td { font-weight: 600; color: rgba(255,255,255,0.97); padding-top: 10px; border-top: 1px solid rgba(184,190,200,0.3); border-bottom: none; }
-
-    .share-row { display: flex; gap: 0.6rem; align-items: stretch; margin-top: 0.6rem; max-width: 70ch; }
-    .share-url { flex: 1; min-width: 0; padding: 0.6rem 0.8rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.12); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.78rem; border-radius: 2px; }
-    .share-url:focus { outline: none; border-color: var(--accent-color, #b8bec8); }
-    @media (max-width: 600px) { .share-row { flex-direction: column; } }
-
-    .agent-cta-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(184,190,200,0.2); margin-top: 2rem; }
-    @media (max-width: 800px) { .agent-cta-grid { grid-template-columns: 1fr; } }
-    .agent-cta-card { background: #0d0f14; padding: 1.3rem 1.4rem; text-decoration: none; transition: background 0.15s; }
-    .agent-cta-card:hover { background: rgba(184,190,200,0.04); }
-    .agent-cta-card .ac-tag { font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.4rem; font-weight: 600; }
-    .agent-cta-card h4 { font-family: 'Cormorant Garant', serif; font-size: 1.05rem; font-weight: 600; color: rgba(255,255,255,0.95); margin: 0 0 0.4rem; }
-    .agent-cta-card p { font-size: 0.84rem; color: rgba(255,255,255,0.65); line-height: 1.55; margin: 0; }
-  </style>
+  <link rel="stylesheet" href="/start/wizard.css">
 </head>
 <body>
   <div class="aurora" aria-hidden="true">
@@ -314,10 +231,12 @@
     </footer>
   </div>
 
+  <script>window.LOCALE = 'en';</script>
   <script src="/js/cache-preferences.js"></script>
   <script src="/js/site-nav.js"></script>
   <script src="/js/main.js"></script>
-  <script src="app.js"></script>
+  <script src="/start/i18n.js"></script>
+  <script src="/start/app.js"></script>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 </body>
 </html>
