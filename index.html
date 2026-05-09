@@ -48,12 +48,18 @@
       max-width: 1100px;
       max-height: 1100px;
       z-index: 0;
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
       opacity: 0;
       transition: opacity 1.2s ease-out;
     }
     .hero-globe-bg.is-ready { opacity: 0.45; }
-    @media (max-width: 720px) {
+    .hero-globe-bg.is-grabbing { cursor: grabbing; }
+    /* Touch devices: keep the globe purely decorative — drag on a bg canvas
+       fights with vertical scroll on phones. */
+    @media (hover: none), (max-width: 720px) {
+      .hero-globe-bg { pointer-events: none; cursor: default; touch-action: auto; }
       .hero-globe-bg { width: 130vw; height: 130vw; }
       .hero-globe-bg.is-ready { opacity: 0.32; }
     }
