@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Outbound email composer | OrcaTrade founder tool</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Compose calibrated cold emails to import-side prospects. Drafts grounded in OrcaTrade's positioning and editorial voice." />
+  <link rel="canonical" href="https://orcatrade.pl/agent/outbound/" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .ob-shell { max-width: 980px; margin: 0 auto; padding: 4rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .ob-shell h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3.5vw + 0.6rem, 2.4rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.5rem; line-height: 1.15; letter-spacing: -0.02em; }
+    .ob-shell .lede { font-size: 0.95rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 1.6rem; max-width: 70ch; }
+    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
+    .breadcrumbs a { color: rgba(255,255,255,0.7); text-decoration: none; }
+
+    .ob-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.4rem; }
+    @media (max-width: 720px) { .ob-grid { grid-template-columns: 1fr; } }
+
+    .ob-card { padding: 1.5rem 1.7rem; background: rgba(13,15,20,0.55); border: 1px solid rgba(255,255,255,0.07); }
+    .ob-card h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; color: rgba(255,255,255,0.95); margin: 0 0 0.7rem; }
+    label { display: block; font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 0.9rem 0 0.3rem; font-weight: 500; }
+    input[type="text"], textarea, select { width: 100%; padding: 0.6rem 0.8rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.92rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s; box-sizing: border-box; }
+    textarea { resize: vertical; min-height: 5.5em; }
+    input:focus, textarea:focus, select:focus { border-color: rgba(184,190,200,0.4); background: rgba(8, 11, 19, 0.85); }
+    .btn { padding: 0.8rem 1.3rem; font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; background: transparent; color: rgba(255,255,255,0.92); margin-top: 1rem; }
+    .btn-primary { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); font-weight: 700; }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .draft-out { font-family: 'Geist Mono', monospace; font-size: 0.86rem; line-height: 1.65; color: rgba(255,255,255,0.92); background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 1rem 1.2rem; min-height: 12em; white-space: pre-wrap; }
+    .draft-actions { margin-top: 0.8rem; display: flex; gap: 0.6rem; }
+    .draft-actions .btn { margin-top: 0; }
+    .err { font-size: 0.85rem; color: #c95050; margin-top: 0.5rem; min-height: 1.2em; }
+    .meta-line { font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.45); margin-top: 0.6rem; letter-spacing: 0.06em; }
+  </style>
+</head>
+<body>
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+  <div class="page">
+    <header data-site-header></header>
+    <main>
+      <section class="ob-shell">
+        <div class="breadcrumbs"><a href="/">Home</a> / <a href="/agent/">Agents</a> / Outbound composer</div>
+        <h1>Outbound email composer</h1>
+        <p class="lede">Drafts a calibrated cold email grounded in OrcaTrade's brand voice and positioning. Built for the founder's outbound — useful when you've identified a prospect through Sales Navigator, a press hit, or a partner intro and want a starting draft you can sharpen by hand.</p>
+
+        <div class="ob-grid">
+          <div class="ob-card">
+            <h2>Brief</h2>
+            <form id="ob-form">
+              <label for="recipient">Recipient name + role</label>
+              <input type="text" id="recipient" placeholder="e.g. Anna Kowalska, Head of Operations at NordicHome" />
+
+              <label for="company">Recipient company + URL (if any)</label>
+              <input type="text" id="company" placeholder="e.g. NordicHome — nordichome.pl" />
+
+              <label for="hook">Hook (why now?)</label>
+              <textarea id="hook" placeholder="e.g. Saw their LinkedIn post about a Vietnam factory partnership; their site mentions €4M ARR, ~50% from Asia."></textarea>
+
+              <label for="goal">What's the ask?</label>
+              <select id="goal">
+                <option value="discovery_call">Discovery call (15 min)</option>
+                <option value="free_compliance_brief">Send a free CBAM/EUDR brief</option>
+                <option value="pricing_walkthrough">Pricing walkthrough (15 min)</option>
+                <option value="press_intro">Press / interview request</option>
+                <option value="partner_intro">Partner intro (forwarder, broker, etc.)</option>
+              </select>
+
+              <label for="tone">Tone</label>
+              <select id="tone">
+                <option value="warm">Warm (default — collegial, specific)</option>
+                <option value="terse">Terse (3 sentences max, founder-blunt)</option>
+                <option value="formal">Formal (multi-stakeholder context)</option>
+              </select>
+
+              <button type="submit" class="btn btn-primary" id="ob-submit">Draft email</button>
+              <div class="err" id="ob-err"></div>
+            </form>
+          </div>
+
+          <div class="ob-card">
+            <h2>Draft</h2>
+            <div class="draft-out" id="draft-out">— Fill the brief and hit "Draft email" — the output will appear here.</div>
+            <div class="draft-actions">
+              <button type="button" class="btn" id="copy-draft" disabled>Copy</button>
+              <button type="button" class="btn" id="regen-draft" disabled>Regenerate</button>
+            </div>
+            <div class="meta-line" id="meta-line"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span><a href="/">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/agent/outbound/app.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
