@@ -7,7 +7,6 @@
 | **Legal entity** | OrcaTrade Holding |
 | **Headquarters** | Warsaw, Poland |
 | **Operating presence** | Warsaw · London · Hong Kong |
-| **Founders** | Jay Xie (CEO) · Oskar Klepuszewski (CFO) · Arman Sirin · Yiu Cheung |
 | **Stage** | Pre-revenue · platform feature-complete · GTM commencing 2026 |
 | **Document** | v1.0 · 2026-05-09 · Authored by Oskar Klepuszewski |
 
@@ -80,7 +79,7 @@ Four sources of defensibility, in descending order of durability:
 
 1. **Calculator-grounded recommendations.** Every number in the platform — duty rates, freight cost, FX risk, working-capital impact, landed cost — is computed from a deterministic model the customer can audit. No black-box AI estimates. This is invisible against a flashy demo and decisive once a customer has been burned by an LLM hallucination.
 2. **EU-specific compliance knowledge.** CBAM, EUDR, REACH, CE, RoHS, AD/CVD, preferential-origin pathways. American AI platforms in this space don't have this. European compliance software is enterprise-tier. The middle is empty.
-3. **Hong Kong physical presence.** In-person supplier verification, sample consolidation, dispute resolution. Pure-digital forwarders cannot match this at the SME price point. Co-founder Yiu Cheung runs HK operations.
+3. **Hong Kong physical presence.** OrcaTrade's Hong Kong branch — operated by Nigel Lam — handles in-person supplier verification, sample consolidation, and dispute resolution. Pure-digital forwarders cannot match this at the SME price point.
 4. **AI-native architecture.** Five specialised agents plus an orchestrator, every claim cited against EUR-Lex chunks or a deterministic calculator output. Built day-one with full tool-use plumbing — not a chatbot grafted onto a legacy stack.
 
 ---
@@ -340,28 +339,9 @@ Forwarders, FX brokers, insurers, inspection agencies, compliance consultancies 
 
 ---
 
-## 11. Team
+## 11. Status and roadmap
 
-### 11.1 Founders
-
-- **Jay Xie** — CEO. Asia-side leadership, supplier-network architecture, commercial relationships into China and Vietnam.
-- **Oskar Klepuszewski** — Co-Founder & CFO. Polish-side commercial, financial modelling, product strategy. Information Management for Business at UCL School of Management. Author of this document.
-- **Arman Sirin** — Co-founder. Operational leadership across the Europe-Asia corridor.
-- **Yiu Cheung** — Co-founder. Hong Kong feet on the ground — supplier verification, sample consolidation, on-the-ground dispute resolution.
-
-### 11.2 Operating presence
-
-- **Warsaw** — primary commercial and engineering base, EU customer-facing operations.
-- **London** — strategic and capital-markets presence.
-- **Hong Kong** — Asia-side execution: supplier verification, sample handling, factory visits, dispute mediation.
-
-The HK presence is the single hardest competitive moat to replicate. Pure-digital competitors (Flexport, Forto) cannot match it at our price point. Traditional forwarders with HK offices do not serve our customer.
-
----
-
-## 12. Status and roadmap
-
-### 12.1 Shipped (as of 2026-05-09)
+### 11.1 Shipped (as of 2026-05-09)
 
 | Milestone | Description |
 |---|---|
@@ -386,7 +366,7 @@ The HK presence is the single hardest competitive moat to replicate. Pure-digita
 | Test discipline | 1,200 automated tests, GHA CI on every push |
 | Operational hardening | `.env.example`, sitemap registration, daily content rotation |
 
-### 12.2 Next 90 days
+### 11.2 Next 90 days
 
 | Workstream | Status |
 |---|---|
@@ -397,7 +377,7 @@ The HK presence is the single hardest competitive moat to replicate. Pure-digita
 | Sentry / production error tracking | 30-min integration once first customer signs |
 | Lighthouse / accessibility audit | Pre-scale-up hardening |
 
-### 12.3 Deliberately deferred
+### 11.3 Deliberately deferred
 
 Not because they are unimportant — because they are premature without traction:
 
@@ -410,7 +390,7 @@ Not because they are unimportant — because they are premature without traction
 
 ---
 
-## 13. Risks and mitigations
+## 12. Risks and mitigations
 
 | Risk | Likelihood | Mitigation |
 |---|---|---|
@@ -427,7 +407,7 @@ Not because they are unimportant — because they are premature without traction
 
 ---
 
-## 14. Closing thesis
+## 13. Closing thesis
 
 Every European SME that imports from Asia operates today inside a process so broken that 15–30% of landed cost is silently lost to FX margin, sub-optimal routing, missed preferential-origin pathways, uncalculated compliance exposure, and patchwork freight pricing. The market response so far has been Alibaba on one end (breadth, no calibration), enterprise GTM software on the other (€200k+ annual contracts), and a 50-strong gap of forwarders that ignore SMEs at this volume tier.
 
