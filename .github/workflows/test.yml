@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  node-test:
+    name: node --test (${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # Node 20 = first LTS shipping a stable test runner.
+        # Node 22 = current LTS. Both are deployable on Vercel.
+        node: ['20', '22']
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node ${{ matrix.node }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: 'npm'
+
+      # @anthropic-ai/sdk is the only dep and isn't required to run tests
+      # (handlers call api.anthropic.com via fetch directly), but install
+      # anyway so a future dep that *is* test-required doesn't silently break.
+      - name: Install dependencies
+        run: npm ci || npm install --no-audit --no-fund
+
+      - name: Run test suite
+        run: npm test
+        env:
+          # Pin a deterministic auth secret so test/auth.test.js + downstream
+          # tests don't depend on whatever happens to be in CI's environment.
+          ORCATRADE_AUTH_SECRET: ci-test-secret-do-not-use-in-prod
