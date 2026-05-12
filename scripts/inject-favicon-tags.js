@@ -17,35 +17,61 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const MARKER = '<!-- favicon set v4 injected by scripts/inject-favicon-tags.js -->';
+const MARKER = '<!-- favicon set v5 injected by scripts/inject-favicon-tags.js -->';
 const LEGACY_MARKERS = [
   '<!-- favicon set injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v2 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v3 injected by scripts/inject-favicon-tags.js -->',
+  '<!-- favicon set v4 injected by scripts/inject-favicon-tags.js -->',
 ];
 
-// Cache-busting query — bump on every favicon refresh. Without it browsers
-// (and Google) hold onto the "this page has no favicon" decision per-URL
-// long after the icons are actually live on the server.
-const V = '4';
-
-// The block we inject. Path-rooted so it works from any nested page.
-// Order matters: Google's favicon crawler prefers the first <link rel="icon">
-// and recommends a 48×48 minimum, ideally a multiple of 48 (96, 192). We list
-// the 192×192 first so Google picks the high-res version. /favicon.ico is
-// explicit (not just root fallback) so older crawlers find it reliably.
+// v5: Safari and Chrome cache "no favicon" decisions by document URL, not
+// favicon URL. ?v=4 cache-busters didn't help on pages where the browser
+// had already decided. Solution: move the files to a brand-new path the
+// browser has never seen (/icons/orca-*), and inject them dynamically via
+// inline JS so the link tags can't be pre-decided as missing.
 const FAVICON_BLOCK = `
   ${MARKER}
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png?v=${V}" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png?v=${V}" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png?v=${V}" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=${V}" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=${V}" />
-  <link rel="icon" href="/favicon.ico?v=${V}" sizes="any" />
-  <link rel="shortcut icon" href="/favicon.ico?v=${V}" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=${V}" />
-  <link rel="manifest" href="/site.webmanifest?v=${V}" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/orca-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/orca-512.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/icons/orca-48.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/orca-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/orca-16.png" />
+  <link rel="icon" href="/icons/orca.ico" sizes="any" />
+  <link rel="shortcut icon" href="/icons/orca.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/orca-apple.png" />
+  <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#0a1628" />
+  <script>
+    /* v5 defensive favicon: re-inject the icon link at runtime so the
+       browser can't reuse a stale "no favicon for this URL" decision
+       from before the icons were added. */
+    (function () {
+      try {
+        var existing = document.querySelectorAll('link[rel~="icon"]');
+        existing.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
+        var sizes = [
+          ['192x192', '/icons/orca-192.png'],
+          ['512x512', '/icons/orca-512.png'],
+          ['48x48',   '/icons/orca-48.png'],
+          ['32x32',   '/icons/orca-32.png'],
+          ['16x16',   '/icons/orca-16.png'],
+        ];
+        sizes.forEach(function (s) {
+          var l = document.createElement('link');
+          l.rel = 'icon'; l.type = 'image/png'; l.sizes = s[0]; l.href = s[1];
+          document.head.appendChild(l);
+        });
+        var ico = document.createElement('link');
+        ico.rel = 'icon'; ico.href = '/icons/orca.ico';
+        document.head.appendChild(ico);
+        var apple = document.createElement('link');
+        apple.rel = 'apple-touch-icon'; apple.setAttribute('sizes', '180x180');
+        apple.href = '/icons/orca-apple.png';
+        document.head.appendChild(apple);
+      } catch (e) {}
+    })();
+  </script>
 `;
 
 // Skip directories that don't contain user-facing pages.
@@ -92,7 +118,9 @@ function inject(filePath) {
     .replace(/\n\s*<link\s+rel="apple-touch-icon"[^>]*\/?>/gi, '')
     .replace(/\n\s*<link\s+rel="manifest"[^>]*\/?>/gi, '')
     .replace(/\n\s*<meta\s+name="theme-color"[^>]*\/?>/gi, '')
-    .replace(/\n\s*<!-- Favicon placeholder[^>]*-->/gi, '');
+    .replace(/\n\s*<!-- Favicon placeholder[^>]*-->/gi, '')
+    // Strip prior defensive favicon scripts so re-injection doesn't duplicate.
+    .replace(/\n\s*<script>\s*\/\* v\d+ defensive favicon[\s\S]*?<\/script>/g, '');
   for (const legacy of LEGACY_MARKERS) {
     stripped = stripped.split(legacy).join('');
   }

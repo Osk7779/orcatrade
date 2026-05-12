@@ -83,17 +83,47 @@
   <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"Article","headline":"Versand aus Vietnam nach Frankreich — Vergleich See, Schiene, Luft | OrcaTrade","description":"Multimodaler Frachtvergleich Vietnam → Frankreich: Sea FCL, Sea LCL, Luftfrachtmit Kosten, Transitzeit, CO₂ pro Gewichtsband. Calculator-fundiert.","datePublished":"2026-05-12","dateModified":"2026-05-12","inLanguage":"de","author":{"@type":"Organization","name":"OrcaTrade Group"},"publisher":{"@type":"Organization","name":"OrcaTrade Group","logo":{"@type":"ImageObject","url":"https://orcatrade.pl/orcatrade_logo.png"}},"mainEntityOfPage":{"@type":"WebPage","@id":"https://orcatrade.pl/de/guides/routing/vn-fr/"}},{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Leitfäden","item":"https://orcatrade.pl/de/guides/"},{"@type":"ListItem","position":2,"name":"Routing","item":"https://orcatrade.pl/de/guides/routing/"},{"@type":"ListItem","position":3,"name":"Vietnam → Frankreich","item":"https://orcatrade.pl/de/guides/routing/vn-fr/"}]}]}</script>
 
 
-  <!-- favicon set v4 injected by scripts/inject-favicon-tags.js -->
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png?v=4" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png?v=4" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png?v=4" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=4" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=4" />
-  <link rel="icon" href="/favicon.ico?v=4" sizes="any" />
-  <link rel="shortcut icon" href="/favicon.ico?v=4" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=4" />
-  <link rel="manifest" href="/site.webmanifest?v=4" />
+  <!-- favicon set v5 injected by scripts/inject-favicon-tags.js -->
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/orca-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/orca-512.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/icons/orca-48.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/icons/orca-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/orca-16.png" />
+  <link rel="icon" href="/icons/orca.ico" sizes="any" />
+  <link rel="shortcut icon" href="/icons/orca.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/orca-apple.png" />
+  <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#0a1628" />
+  <script>
+    /* v5 defensive favicon: re-inject the icon link at runtime so the
+       browser can't reuse a stale "no favicon for this URL" decision
+       from before the icons were added. */
+    (function () {
+      try {
+        var existing = document.querySelectorAll('link[rel~="icon"]');
+        existing.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
+        var sizes = [
+          ['192x192', '/icons/orca-192.png'],
+          ['512x512', '/icons/orca-512.png'],
+          ['48x48',   '/icons/orca-48.png'],
+          ['32x32',   '/icons/orca-32.png'],
+          ['16x16',   '/icons/orca-16.png'],
+        ];
+        sizes.forEach(function (s) {
+          var l = document.createElement('link');
+          l.rel = 'icon'; l.type = 'image/png'; l.sizes = s[0]; l.href = s[1];
+          document.head.appendChild(l);
+        });
+        var ico = document.createElement('link');
+        ico.rel = 'icon'; ico.href = '/icons/orca.ico';
+        document.head.appendChild(ico);
+        var apple = document.createElement('link');
+        apple.rel = 'apple-touch-icon'; apple.setAttribute('sizes', '180x180');
+        apple.href = '/icons/orca-apple.png';
+        document.head.appendChild(apple);
+      } catch (e) {}
+    })();
+  </script>
 </head>
 <body>
   <div class="aurora" aria-hidden="true">
