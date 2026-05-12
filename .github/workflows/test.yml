@@ -23,13 +23,15 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
-          cache: 'npm'
+          # No `cache: 'npm'` here — that requires package-lock.json,
+          # which this repo doesn't commit (single dep, install is fast).
 
       # @anthropic-ai/sdk is the only dep and isn't required to run tests
       # (handlers call api.anthropic.com via fetch directly), but install
-      # anyway so a future dep that *is* test-required doesn't silently break.
+      # anyway so a future dep that *is* test-required doesn't silently
+      # break. Using `npm install` (not `npm ci`) because there's no lockfile.
       - name: Install dependencies
-        run: npm ci || npm install --no-audit --no-fund
+        run: npm install --no-audit --no-fund
 
       - name: Run test suite
         run: npm test
