@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Weryfikacja kupującego — OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Oceń europejskich kupujących, zanim udzielisz kredytu kupieckiego. Weryfikacja z rejestrów publicznych, sygnały pasma kredytowego, rekomendowane warunki płatności. Druga strona platformy — zbudowana dla eksporterów.">
+  <link rel="canonical" href="https://orcatrade.pl/pl/buyer-verification/" />
+  <link rel="alternate" hreflang="en" href="https://orcatrade.pl/buyer-verification/" />
+  <link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/buyer-verification/" />
+  <link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/buyer-verification/" />
+  <link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/buyer-verification/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#0a1628" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+  <div class="page">
+    <header data-site-header></header>
+    <main>
+      <section class="section unit-hero" id="top">
+        <a href="/pl/" class="back-link">← Powrót do OrcaTrade Group</a>
+        <div class="hero-kicker" data-reveal="hero">Weryfikacja kupującego · dla eksporterów</div>
+        <h1 class="unit-hero-title" data-reveal="hero" style="max-width: 22ch;">Oceń europejskich kupujących, zanim udzielisz kredytu kupieckiego.</h1>
+        <p class="unit-hero-body" data-reveal="hero" style="max-width: 60ch;">
+          Odwrotność scoringu ryzyka fabryk — zbudowane dla azjatyckich eksporterów i europejskich dystrybutorów sprawdzających stronę kupującą. Weryfikacja z rejestrów publicznych, sygnały pasma kredytowego, rekomendowane warunki płatności. Pierwszy krok przed wystawieniem faktury Net-30, Net-60 czy udzieleniem jakiegokolwiek otwartego kredytu.
+        </p>
+        <div class="hero-actions" data-reveal="hero" style="margin-top:1.4rem;">
+          <a class="btn btn-primary" href="check/">Sprawdź kupującego</a>
+          <a class="btn btn-ghost" href="#how">Jak to działa</a>
+        </div>
+      </section>
+
+      <section class="section" id="how" style="padding-top: 1rem;">
+        <div class="section-kicker">Jak to działa</div>
+        <h2 class="section-title">Wstępne sprawdzenie ze snapshotu teraz · wiążący pull kredytowy potem.</h2>
+        <p class="section-intro">v1 zwraca wstępną ocenę. Wersja produkcyjna łączy się z Creditreform / D&amp;B / Atradius po wiążące raporty kredytowe.</p>
+        <div class="feature-grid" style="margin-top: 2rem;">
+          <div class="feature-card"><div class="feature-num">01</div><div class="feature-title">Podaj nazwę kupującego + kraj</div><div class="feature-desc">Opcjonalny identyfikator rejestru (KRS / Handelsregister / Companies House) przyspiesza weryfikację. Większość pól w v1 jest opcjonalna; kod kraju wystarczy, by wskazać właściwy rejestr.</div></div>
+          <div class="feature-card"><div class="feature-num">02</div><div class="feature-title">Sprawdzamy ze snapshotem</div><div class="feature-desc">Dopasowujemy do wyselekcjonowanych profili znanych kupujących (europejskich detalistów tier-1, dystrybutorów, marketplace'ów). Trafienie → natychmiastowa ocena niskiego ryzyka z rekomendowanym limitem kredytu kupieckiego.</div></div>
+          <div class="feature-card"><div class="feature-num">03</div><div class="feature-title">Heurystyczny fallback dla nieznanych kupujących</div><div class="feature-desc">Jeśli kupującego nie ma w naszym snapshocie, wskazujemy właściwy rejestr publiczny (KRS / Handelsregister / KvK / Companies House) i rekomendujemy płatny pull kredytowy (€30–€150) przed udzieleniem kredytu.</div></div>
+          <div class="feature-card"><div class="feature-num">04</div><div class="feature-title">Rekomendacja napędza decyzję o warunkach płatności</div><div class="feature-desc">Akceptowalny → Net-30/60. Wymaga zabezpieczenia → LC at sight lub ubezpieczenie kredytu kupieckiego. Odrzucony → tylko 100% przedpłaty. Każdy werdykt prowadzi do rekomendowanej ścieżki OrcaTrade Trade Finance.</div></div>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-kicker">Rejestry publiczne, do których wskazujemy</div>
+        <h2 class="section-title">UE + UK + EOG — weryfikacja zaczyna się w rejestrze.</h2>
+        <div class="service-grid" style="margin-top: 2rem;">
+          <article class="card spotlight"><div class="card-tag">Polska</div><h3 class="card-title">KRS</h3><p class="card-body">Krajowy Rejestr Sądowy — publiczny rejestr polski. Bezpłatne wyszukiwanie pod krs.ms.gov.pl dla potwierdzenia osobowości prawnej; rejestr.io to najwygodniejsze lustro.</p></article>
+          <article class="card spotlight"><div class="card-tag">Niemcy</div><h3 class="card-title">Handelsregister</h3><p class="card-body">Niemiecki rejestr handlowy. Publiczne wyszukiwanie pod handelsregister.de dla zapisów osób prawnych; pełne wyciągi płatne (€4,50 per dokument).</p></article>
+          <article class="card spotlight"><div class="card-tag">Wielka Brytania</div><h3 class="card-title">Companies House</h3><p class="card-body">Bezpłatny, w pełni publiczny rejestr brytyjskich spółek. Doskonałe API. Najwyższej jakości dane spośród rejestrów w zakresie.</p></article>
+          <article class="card spotlight"><div class="card-tag">Holandia</div><h3 class="card-title">KvK</h3><p class="card-body">Kamer van Koophandel — holenderska izba gospodarcza. Większość zapytań płatna; podstawowe potwierdzenie osobowości prawnej publiczne.</p></article>
+          <article class="card spotlight"><div class="card-tag">Hiszpania · Włochy · Francja</div><h3 class="card-title">Rejestry krajowe</h3><p class="card-body">Registro Mercantil (ES), Registro Imprese (IT), Infogreffe (FR). Pełne wyciągi płatne; podstawowe potwierdzenie publiczne.</p></article>
+          <article class="card spotlight"><div class="card-tag">Pan-UE</div><h3 class="card-title">BRIS</h3><p class="card-body">EU Business Registers Interconnection System — federacyjne wyszukiwanie między rejestrami państw członkowskich. Przydatne przy zapytaniach transgranicznych.</p></article>
+        </div>
+      </section>
+
+      <section class="section">
+        <div class="section-kicker">Partnerzy danych kredytowych</div>
+        <h2 class="section-title">Poza rejestrem — płatne pulle kredytowe.</h2>
+        <p class="section-intro">Rejestry publiczne weryfikują, że osoba prawna istnieje. Pulle kredytowe kwantyfikują ryzyko niewykonania zobowiązania i rekomendowany limit. v1 kieruje do jednego z poniższych:</p>
+        <div class="feature-grid" style="margin-top: 2rem;">
+          <div class="feature-card"><div class="feature-title">Creditreform</div><div class="feature-desc">Pan-europejski, silny w regionie DACH. €30–€80 per raport kredytowy. Bezpośrednie lustro rejestru plus scoring ryzyka.</div></div>
+          <div class="feature-card"><div class="feature-title">Dun &amp; Bradstreet</div><div class="feature-desc">Globalny. €50–€150 per raport. Numer DUNS to najczęściej cytowany ID w handlu międzynarodowym.</div></div>
+          <div class="feature-card"><div class="feature-title">Atradius</div><div class="feature-desc">Ubezpieczyciel kredytu kupieckiego. Ubezpiecza należność dodatkowo do jej scoringu. Przydatne, gdy wielkość zamówienia uzasadnia transfer ryzyka.</div></div>
+          <div class="feature-card"><div class="feature-title">Coface</div><div class="feature-desc">Europejski ubezpieczyciel kredytu kupieckiego. Raporty ryzyka kraju plus scoring na poziomie kupującego. Silny w UE + rynkach wschodzących.</div></div>
+        </div>
+      </section>
+
+      <section class="section" style="text-align: center;">
+        <div class="section-kicker">Gotów</div>
+        <h2 class="section-title" style="max-width: 24ch; margin: 0 auto 1rem;">Dwie minuty. Jeden werdykt.</h2>
+        <p class="section-intro" style="margin: 0 auto 2rem;">Pre-check, zanim zgodzisz się na warunki. Bezpłatne. Bez logowania.</p>
+        <a class="btn btn-primary" href="check/">Sprawdź kupującego →</a>
+      </section>
+    </main>
+    <footer><div class="footer-inner"><span>© <span id="year"></span> OrcaTrade Group. Wszelkie prawa zastrzeżone.</span><span><a href="/pl/">Powrót do OrcaTrade Group</a></span></div></footer>
+  </div>
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
