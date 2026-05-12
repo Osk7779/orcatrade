@@ -2534,6 +2534,10 @@ body::after {
 @media (max-width: 840px) {
   .nav-toggle { display: flex; }
 
+  /* Mobile menu overlay. z-index 1500 puts it above the sticky header
+     (1000), the cache widget (40), the first-visit cache modal (990),
+     and the page-toc dots (40). The hamburger close button (.nav-toggle,
+     z-1600) stays accessible on top. */
   .nav-links {
     display: none;
     position: fixed;
@@ -2542,18 +2546,43 @@ body::after {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    gap: 2.2rem;
-    z-index: 100;
+    gap: 1.6rem;
+    z-index: 1500;
     font-size: 1rem;
     letter-spacing: 0.14em;
+    padding: 5rem 1.5rem 2rem;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 
   .nav-links.is-open { display: flex; }
 
-  .nav-links a { opacity: 0.82; font-size: 1rem; }
-  .nav-links a:hover { opacity: 1; }
+  .nav-links a {
+    opacity: 0.92;
+    font-size: 1.05rem;
+    /* WCAG 2.5.5 — 44×44 minimum touch target */
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    padding: 0.4rem 0.8rem;
+  }
+  .nav-links a:hover, .nav-links a:active { opacity: 1; }
 
-  .nav-dropdown { position: static; }
+  .nav-dropdown { position: static; width: 100%; max-width: 320px; }
+  .nav-dropdown-toggle {
+    width: 100%;
+    background: none;
+    border: 1px solid rgba(255,255,255,0.12);
+    color: inherit;
+    font: inherit;
+    text-transform: inherit;
+    letter-spacing: inherit;
+    padding: 0.6rem 1rem;
+    min-height: 44px;
+    cursor: pointer;
+    -webkit-tap-highlight-color: rgba(255,255,255,0.08);
+  }
 
   .nav-dropdown-menu {
     position: static;
@@ -2563,8 +2592,8 @@ body::after {
     box-shadow: none;
     background: transparent;
     border: none;
-    padding: 0;
-    gap: 1.2rem;
+    padding: 0.6rem 0 0;
+    gap: 0.8rem;
     flex-direction: column;
     display: none;
     align-items: center;
@@ -2579,14 +2608,31 @@ body::after {
     min-width: auto;
     transform: none;
     left: auto;
-    padding: 0;
-    gap: 1rem;
+    padding: 0.6rem 0 0;
+    gap: 0.8rem;
   }
   .nav-dropdown.is-open .nav-dropdown-menu.grouped { display: grid; }
+  .nav-mega-section { padding: 0.4rem 0; }
   .nav-mega-heading { text-align: center; }
-  .nav-mega-item { align-items: center; text-align: center; }
+  .nav-mega-item {
+    align-items: center;
+    text-align: center;
+    min-height: 44px;
+    padding: 0.4rem 0.8rem;
+  }
 
-  .lang-switcher { z-index: 200; position: relative; }
+  /* Lang switcher pinned above the menu so it remains tappable. */
+  .lang-switcher {
+    z-index: 1600;
+    position: relative;
+  }
+
+  /* Hamburger button must always sit above the open menu overlay. */
+  .nav-toggle { z-index: 1600; position: relative; }
+
+  /* On first visit, the cache modal (z-990) intentionally outranks
+     normal UI. But once a preference is saved, the widget is hidden on
+     mobile (per its own @media rule), so the menu has free reign. */
 }
 
 /* ===== WOW · Aurora background (slow-drifting accent blobs) ===== */
