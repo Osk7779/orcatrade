@@ -17,19 +17,18 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const MARKER = '<!-- favicon set v5 injected by scripts/inject-favicon-tags.js -->';
+const MARKER = '<!-- favicon set v6 injected by scripts/inject-favicon-tags.js -->';
 const LEGACY_MARKERS = [
   '<!-- favicon set injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v2 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v3 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v4 injected by scripts/inject-favicon-tags.js -->',
+  '<!-- favicon set v5 injected by scripts/inject-favicon-tags.js -->',
 ];
 
-// v5: Safari and Chrome cache "no favicon" decisions by document URL, not
-// favicon URL. ?v=4 cache-busters didn't help on pages where the browser
-// had already decided. Solution: move the files to a brand-new path the
-// browser has never seen (/icons/orca-*), and inject them dynamically via
-// inline JS so the link tags can't be pre-decided as missing.
+// v6: Same /icons/orca-* paths and defensive script as v5, but the
+// underlying PNGs are regenerated from a mark-only crop of the source
+// logo — wordmark removed, so the icon is legible at 16/32 px.
 const FAVICON_BLOCK = `
   ${MARKER}
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/orca-192.png" />
