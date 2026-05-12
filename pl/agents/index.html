@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Agenci AI OrcaTrade — Pięciu specjalistów, jeden Orchestrator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Pięciu agentów AI OrcaTrade — Orchestrator, Sourcing, Compliance, Logistyka, Finanse — wszyscy działają na deterministycznych backendach kalkulatorów i korpusie czterech regulacji UE. 25 narzędzi na całej drodze importu.">
+  <meta property="og:title" content="Agenci AI OrcaTrade" />
+  <link rel="canonical" href="https://orcatrade.pl/pl/agents/" />
+  <link rel="alternate" hreflang="en" href="https://orcatrade.pl/agents/" />
+  <link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/agents/" />
+  <link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/agents/" />
+  <link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/agents/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .hub-shell { max-width: 1180px; margin: 0 auto; padding: 3rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .hub-hero { text-align: center; margin-bottom: 3.5rem; }
+    .hub-hero .kicker { font-family: 'Cormorant Garant', Georgia, serif; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.24em; color: var(--accent-color, #b8bec8); margin-bottom: 1.2rem; }
+    .hub-hero h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2.4rem, 5vw + 0.5rem, 3.8rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.04; margin-bottom: 1rem; }
+    .hub-hero h1 em { font-style: italic; color: var(--accent-color, #b8bec8); }
+    .hub-hero p { font-size: 1.05rem; line-height: 1.7; color: rgba(255, 255, 255, 0.72); max-width: 64ch; margin: 0 auto; }
+    .hub-stats { display: flex; justify-content: center; gap: 2.4rem; margin-top: 2rem; padding-top: 1.6rem; border-top: 1px solid rgba(255, 255, 255, 0.07); flex-wrap: wrap; }
+    .hub-stat { text-align: center; }
+    .hub-stat .num { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.9rem; font-weight: 700; color: rgba(255, 255, 255, 0.97); letter-spacing: -0.02em; line-height: 1; }
+    .hub-stat .label { font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255, 255, 255, 0.55); margin-top: 0.4rem; }
+    .hub-featured { background: linear-gradient(135deg, rgba(184, 190, 200, 0.08), rgba(184, 168, 114, 0.05) 50%, rgba(13, 15, 20, 0)); border: 1px solid rgba(184, 190, 200, 0.25); padding: 2.4rem 2.6rem; margin-bottom: 2.4rem; position: relative; }
+    .hub-featured::before { content: "Zalecane wejście"; position: absolute; top: -10px; left: 24px; background: #0a0912; padding: 4px 12px; font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-color, #b8bec8); border: 1px solid rgba(184, 190, 200, 0.3); }
+    .hub-featured h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.8rem; font-weight: 600; letter-spacing: -0.02em; color: rgba(255, 255, 255, 0.97); margin-bottom: 0.5rem; }
+    .hub-featured h2 em { color: var(--accent-color, #b8bec8); font-style: italic; }
+    .hub-featured .featured-tag { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.4rem; }
+    .hub-featured p { font-size: 0.97rem; line-height: 1.7; color: rgba(255, 255, 255, 0.78); margin-bottom: 1.4rem; max-width: 72ch; }
+    .hub-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.4rem; margin-bottom: 3rem; }
+    @media (max-width: 800px) { .hub-grid { grid-template-columns: 1fr; } }
+    .hub-card { background: #0d0f14; border: 1px solid rgba(255, 255, 255, 0.07); padding: 1.7rem 1.8rem 1.5rem; display: flex; flex-direction: column; transition: border-color 0.2s, transform 0.2s; }
+    .hub-card:hover { border-color: rgba(184, 190, 200, 0.3); transform: translateY(-2px); }
+    .hub-card .card-tag { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.5rem; }
+    .hub-card h3 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.4rem; font-weight: 600; letter-spacing: -0.01em; color: rgba(255, 255, 255, 0.97); margin-bottom: 0.5rem; }
+    .hub-card .card-desc { font-size: 0.92rem; line-height: 1.65; color: rgba(255, 255, 255, 0.72); margin-bottom: 1.1rem; }
+    .hub-card .card-tools { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255, 255, 255, 0.55); letter-spacing: 0.04em; margin-bottom: 1.2rem; padding-bottom: 0.9rem; border-bottom: 1px solid rgba(255, 255, 255, 0.06); }
+    .hub-card .card-prompts { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.2rem; }
+    .hub-card .prompt-link { display: block; font-size: 0.84rem; line-height: 1.55; color: rgba(255, 255, 255, 0.85); padding: 0.55rem 0.7rem; background: rgba(255, 255, 255, 0.025); border-left: 2px solid rgba(184, 190, 200, 0.3); text-decoration: none; transition: background 0.15s, border-color 0.15s, color 0.15s; }
+    .hub-card .prompt-link::before { content: "→ "; color: var(--accent-color, #b8bec8); margin-right: 4px; }
+    .hub-card .prompt-link:hover { background: rgba(184, 190, 200, 0.06); border-left-color: var(--accent-color, #b8bec8); color: rgba(255, 255, 255, 0.97); }
+    .hub-card .card-cta { margin-top: auto; display: inline-block; padding: 0.5rem 0.9rem; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600; color: rgba(255, 255, 255, 0.92); background: transparent; border: 1px solid rgba(184, 190, 200, 0.4); text-decoration: none; align-self: flex-start; transition: background 0.15s, color 0.15s; }
+    .hub-card .card-cta:hover { background: var(--accent-color, #b8bec8); color: #0a0912; }
+    .hub-composition { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); padding: 2rem 2.2rem; margin-bottom: 3rem; }
+    .hub-composition h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: rgba(255, 255, 255, 0.97); margin-bottom: 0.4rem; }
+    .hub-composition .lead { font-size: 0.92rem; line-height: 1.65; color: rgba(255, 255, 255, 0.72); margin-bottom: 1.3rem; max-width: 72ch; }
+    .composition-flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.7rem; margin-top: 1rem; }
+    @media (max-width: 800px) { .composition-flow { grid-template-columns: repeat(2, 1fr); } }
+    .flow-step { background: rgba(8, 12, 22, 0.6); border-left: 2px solid var(--accent-color, #b8bec8); padding: 0.85rem 1rem; }
+    .flow-step .num { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.4rem; font-weight: 700; color: var(--accent-color, #b8bec8); line-height: 1; margin-bottom: 0.35rem; }
+    .flow-step .step-label { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255, 255, 255, 0.65); margin-bottom: 0.35rem; }
+    .flow-step .step-text { font-size: 0.82rem; line-height: 1.55; color: rgba(255, 255, 255, 0.78); }
+    .hub-cta-row { text-align: center; padding: 2.4rem 1rem; }
+    .hub-cta-row p { font-size: 0.95rem; color: rgba(255, 255, 255, 0.68); margin-bottom: 1.2rem; max-width: 56ch; margin-left: auto; margin-right: auto; }
+    .hub-cta-row .btn-primary { display: inline-block; padding: 0.85rem 1.6rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.84rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; transition: filter 0.18s, transform 0.18s; }
+    .hub-cta-row .btn-primary:hover { filter: brightness(1.08); transform: translateY(-1px); }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#0a1628" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+  <div class="page">
+    <header data-site-header></header>
+    <main>
+      <section class="hub-shell">
+        <div class="hub-hero">
+          <p class="kicker">Agenci AI · Pięciu specjalistów · Jeden Orchestrator</p>
+          <h1>Znajdź. Zweryfikuj. Wyślij. <em>Sfinansuj.</em><br>Jeden stos agentów.</h1>
+          <p>Pięciu specjalistów działających na deterministycznych backendach kalkulatorów i korpusie regulacji UE (CBAM, EUDR, REACH, CE). 25 narzędzi w sourcingu, compliance, logistyce i finansach. Orchestrator łączy zestawy narzędzi wszystkich specjalistów w jednej rozmowie, kiedy pytanie przekracza domeny.</p>
+          <div class="hub-stats">
+            <div class="hub-stat"><div class="num">5</div><div class="label">Specjalistów + Orchestrator</div></div>
+            <div class="hub-stat"><div class="num">25</div><div class="label">Narzędzi w 4 domenach</div></div>
+            <div class="hub-stat"><div class="num">4</div><div class="label">Regulacji UE pokryte</div></div>
+            <div class="hub-stat"><div class="num">497</div><div class="label">Testów · 0 niepowodzeń</div></div>
+          </div>
+        </div>
+
+        <div class="hub-featured">
+          <div class="featured-tag">Operations Orchestrator · 25 narzędzi we wszystkich 4 domenach</div>
+          <h2>Jeden agent. <em>Każda domena.</em></h2>
+          <p>Orchestrator ma dostęp do każdego narzędzia, które mają specjaliści. Zadaj dowolne pytanie — wybiera odpowiednie narzędzia i kieruje przez domeny w sposób przejrzysty. Najlepszy do pytań dotykających więcej niż jednej specjalności (większość prawdziwych pytań ich dotyka). Gdy pytanie jest jedno-domenowe, działa równie dobrze jak dedykowany specjalista.</p>
+          <div class="card-prompts">
+            <a class="prompt-link" href="/agent/orchestrator/?prompt=Jestem%20polskim%20founderem%20e-commerce%2C%20rozwa%C5%BCam%20import%20800kg%20g%C5%82o%C5%9Bnik%C3%B3w%20bluetooth%20z%20Wietnamu%2C%20warto%C5%9B%C4%87%20celna%20%E2%82%AC15k.%20Co%20musz%C4%99%20wiedzie%C4%87%20%E2%80%94%20regulacyjnie%20i%20logistycznie%3F">VN głośniki bluetooth — zgodność CE + morze/kolej/lotnictwo + landed cost</a>
+            <a class="prompt-link" href="/agent/orchestrator/?prompt=Wysy%C5%82am%202%20tony%20wspornik%C3%B3w%20stalowych%20z%20Chin%20do%20Polski%2C%20warto%C5%9B%C4%87%20celna%20%E2%82%AC18k.%20Przeprowad%C5%BA%20mnie%20przez%20ryzyko%20antydumpingowe%20i%20stosowalno%C5%9B%C4%87%20CBAM%2C%20plus%20landed%20cost.">CN stal — antydumping + CBAM + landed cost w jednej odpowiedzi</a>
+            <a class="prompt-link" href="/agent/orchestrator/?prompt=Importujemy%205%20ton%20mebli%20z%20drewna%20litego%20z%20Wietnamu%20do%20Francji%20miesi%C4%99cznie%2C%20warto%C5%9B%C4%87%20celna%20%E2%82%AC42k%20na%20wysy%C5%82k%C4%99%2C%206%20linii%20na%20fakturze%2C%20realizujemy%201500%20zam%C3%B3wie%C5%84%20e-commerce%2Fmiesi%C4%85c%20z%20g%C5%82%C3%B3wn%C4%85%20destynacj%C4%85%20Francja.%20Zbuduj%20pe%C5%82en%20plan%20%E2%80%94%20EUDR%2C%20transport%2C%20c%C5%82o%2C%203PL%2C%20warunki%20p%C5%82atno%C5%9Bci%2C%20FX.">VN meble pełny plan — EUDR + transport + 3PL + płatność + FX</a>
+          </div>
+          <a class="card-cta" href="/agent/orchestrator/">Otwórz Orchestrator →</a>
+        </div>
+
+        <div class="hub-grid">
+          <div class="hub-card">
+            <div class="card-tag">Agent Sourcingu</div>
+            <h3>Gdzie sourcować. Do kogo się zwrócić.</h3>
+            <div class="card-desc">Porównuje CN / VN / IN / BD / TR dla dowolnej kategorii produktów. Wystawia indeks kosztu FOB, czas realizacji (produkcja + fracht morski), pasma MOQ, ryzyko jakości i IP, z kuratorowanymi krótkimi listami dostawców z portfolio OrcaTrade.</div>
+            <div class="card-tools">7 narzędzi · 5 krajów × 8 kategorii</div>
+            <div class="card-prompts">
+              <a class="prompt-link" href="/agent/sourcing/?prompt=Uruchamiam%20mark%C4%99%20t-shirt%C3%B3w%20bawe%C5%82nianych.%20Cel%20FOB%20%E2%82%AC4%20za%20sztuk%C4%99%2C%20MOQ%203000%2C%20musz%C4%99%20mie%C4%87%20produkt%20na%20p%C3%B3%C5%82ce%20w%2016%20tygodni.%20Sk%C4%85d%20powinienem%20sourcowa%C4%87%3F">T-shirty bawełniane — €4/szt., MOQ 3000, 16 tygodni</a>
+              <a class="prompt-link" href="/agent/sourcing/?prompt=Chc%C4%99%20sourcowa%C4%87%20g%C5%82o%C5%9Bniki%20bluetooth%20%E2%80%94%20cel%20FOB%20%E2%82%AC18%2C%20MOQ%202000.%20Por%C3%B3wnaj%20CN%20vs%20VN%20konkretnie%20pod%20k%C4%85tem%20ryzyka%20IP.">Elektronika — ryzyko IP CN vs VN</a>
+            </div>
+            <a class="card-cta" href="/agent/sourcing/">Otwórz Sourcing →</a>
+          </div>
+
+          <div class="hub-card">
+            <div class="card-tag">Agent Compliance</div>
+            <h3>Regulacje UE, z cytatami.</h3>
+            <div class="card-desc">Obejmuje CBAM, EUDR, REACH i oznakowanie CE. Wykonuje kontrole stosowalności, oblicza ekspozycję (certyfikaty CBAM, pułap kary EUDR), wystawia luki dowodowe i cytuje każde twierdzenie wobec 56-fragmentowego korpusu regulacji.</div>
+            <div class="card-tools">9 narzędzi · CBAM · EUDR · REACH · CE</div>
+            <div class="card-prompts">
+              <a class="prompt-link" href="/agent/?prompt=Importuj%C4%99%201200%20ton%20pr%C4%99t%C3%B3w%20zbrojeniowych%20z%20Hangzhou%20do%20Gda%C5%84ska%20w%20tym%20roku.%20Czy%20mamy%20ekspozycj%C4%99%20na%20CBAM%3F">CBAM — chiński pręt zbrojeniowy, ekspozycja</a>
+              <a class="prompt-link" href="/agent/?prompt=Jeste%C5%9Bmy%20palarni%C4%85%20w%20Berlinie%20importuj%C4%85c%C4%85%2012%20ton%20zielonej%20kawy%20Arabica%20z%20Etiopii.%20Roczne%20obroty%20w%20UE%20%E2%82%AC2%2C5M.%20Co%20EUDR%20od%20nas%20wymaga%3F">EUDR — etiopska kawa, importer MŚP</a>
+            </div>
+            <a class="card-cta" href="/agent/">Otwórz Compliance →</a>
+          </div>
+
+          <div class="hub-card">
+            <div class="card-tag">Agent Logistyki</div>
+            <h3>Modalność. Cło. Magazyn.</h3>
+            <div class="card-desc">Porównuje morze FCL / morze LCL / lotnictwo / kolej (z korytarzem kolejowym Chiny-Europa, którego większość spedytorów nie proponuje). Liczy landed cost UE — cło + VAT + brokerage — z alternatywą składu celnego. Benchmarkuje 6 hubów 3PL UE.</div>
+            <div class="card-tools">8 narzędzi · routing · cło · magazyn</div>
+            <div class="card-prompts">
+              <a class="prompt-link" href="/agent/logistics/?prompt=Mam%20800kg%20odzie%C5%BCy%20z%20Wietnamu%20do%20Niemiec%2C%20warto%C5%9B%C4%87%20celna%20%E2%82%AC15k%2C%204%20linie%20na%20fakturze.%20Morze%2C%20kolej%2C%20czy%20lotnictwo%3F">Modalność — 800kg VN→DE odzież</a>
+              <a class="prompt-link" href="/agent/logistics/?prompt=Skompon%C5%82uj%20pe%C5%82en%20plan%20wysy%C5%82ki%3A%205000kg%20mebli%20drewnianych%20z%20Wietnamu%20do%20Francji%2C%20warto%C5%9B%C4%87%20celna%20%E2%82%AC42k%2C%206%20linii.%20Realizujemy%201500%20zam%C3%B3wie%C5%84%2Fmiesi%C4%85c%2C%20%C5%9Brednio%201%2C8%20szt.%2C%201%2C3%20linii%2C%2090%20palet%2C%20%C5%9Brednia%20paczka%201%2C5kg.%20G%C5%82%C3%B3wna%20baza%20klient%C3%B3w%20we%20Francji.">Pełen plan — VN meble + hub 3PL</a>
+            </div>
+            <a class="card-cta" href="/agent/logistics/">Otwórz Logistykę →</a>
+          </div>
+
+          <div class="hub-card">
+            <div class="card-tag">Agent Finansów</div>
+            <h3>Płać. Hedguj. Optymalizuj cash.</h3>
+            <div class="card-desc">Porównuje 6 instrumentów płatności (TT zaliczka / TT 30-70 / D/P / LC niepotwierdzony / LC potwierdzony / Open Account 60). Wycenia LC all-in, dobiera hedge FX na 7 parach walutowych, diagnozuje cykl konwersji gotówki i wycenia ubezpieczenie kredytu kupieckiego.</div>
+            <div class="card-tools">8 narzędzi · płatność · LC · FX · kapitał obrotowy</div>
+            <div class="card-prompts">
+              <a class="prompt-link" href="/agent/finance/?prompt=Sk%C5%82adam%20zam%C3%B3wienie%20%E2%82%AC40k%20u%20dostawcy%20CN%2C%20z%20kt%C3%B3rym%20wsp%C3%B3%C5%82pracuj%C4%99%203%20miesi%C4%85ce.%20Jakich%20warunk%C3%B3w%20p%C5%82atno%C5%9Bci%20powinienem%20u%C5%BCy%C4%87%3F">Płatność — €40k CN, 3 miesiące relacji</a>
+              <a class="prompt-link" href="/agent/finance/?prompt=Potwierdzony%20LC%20na%20%E2%82%AC120k%20towar%C3%B3w%20CN%20przez%204%20miesi%C4%85ce.%20Jaki%20koszt%20all-in%20plus%20ryzyko%20FX%20na%20EUR%2FCNY%20na%20tym%20samym%20terminie%3F">LC + FX — €120k potwierdzony, 4 miesiące</a>
+            </div>
+            <a class="card-cta" href="/agent/finance/">Otwórz Finanse →</a>
+          </div>
+        </div>
+
+        <div class="hub-composition">
+          <h2>Jak współpracują</h2>
+          <p class="lead">Realna decyzja importowa rzadko mieści się w pojedynczej specjalności. Wprowadzenie nowej linii produktowej przekracza sourcing → compliance → logistykę → finanse. Orchestrator obsługuje wszystkie cztery domeny w jednej rozmowie — specjaliści są pogłębieniami, gdy już wiesz, gdzie pytać.</p>
+          <div class="composition-flow">
+            <div class="flow-step"><div class="num">01</div><div class="step-label">Sourcing</div><div class="step-text">Który kraj balansuje koszt, czas realizacji i ryzyko jakości dla mojej kategorii?</div></div>
+            <div class="flow-step"><div class="num">02</div><div class="step-label">Compliance</div><div class="step-text">Czy CBAM / EUDR / REACH / CE ma zastosowanie? Jakie dowody i terminy mnie wiążą?</div></div>
+            <div class="flow-step"><div class="num">03</div><div class="step-label">Logistyka</div><div class="step-text">Morze, kolej, lotnictwo? Jaki landed cost? Gdzie towar ma stać w UE?</div></div>
+            <div class="flow-step"><div class="num">04</div><div class="step-label">Finanse</div><div class="step-text">Warunki płatności, LC, hedge FX, cykl kapitału obrotowego, ubezpieczenie kredytu kupieckiego.</div></div>
+          </div>
+        </div>
+
+        <div class="hub-cta-row">
+          <p>Orchestrator jest zalecanym punktem wejścia. Komponuje dowolną kombinację 25 narzędzi, by odpowiadać na pytania wielodomenowe w jednym wątku.</p>
+          <a class="btn-primary" href="/agent/orchestrator/">Otwórz Orchestrator →</a>
+        </div>
+      </section>
+    </main>
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. Wszelkie prawa zastrzeżone.</span>
+        <span><a href="/pl/">Powrót do OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+</body>
+</html>
