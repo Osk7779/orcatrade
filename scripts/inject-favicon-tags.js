@@ -17,14 +17,21 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const MARKER = '<!-- favicon set injected by scripts/inject-favicon-tags.js -->';
+const MARKER = '<!-- favicon set v2 injected by scripts/inject-favicon-tags.js -->';
+const LEGACY_MARKERS = [
+  '<!-- favicon set injected by scripts/inject-favicon-tags.js -->',
+];
 
 // The block we inject. Path-rooted so it works from any nested page.
+// The /favicon.ico link is explicit (not just relying on root fallback) so
+// crawlers like Google's favicon bot pick it up reliably.
 const FAVICON_BLOCK = `
   ${MARKER}
+  <link rel="icon" href="/favicon.ico" sizes="any" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
   <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+  <link rel="shortcut icon" href="/favicon.ico" />
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
   <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#0a1628" />
@@ -68,12 +75,17 @@ function inject(filePath) {
   // Strip prior favicon/manifest/theme-color/apple-touch-icon links we
   // might have injected by hand in earlier work. Match the precise patterns
   // we know about. Safer than a generic regex.
-  const stripped = headSlice
+  let stripped = headSlice
     .replace(/\n\s*<link\s+rel="icon"[^>]*\/?>/gi, '')
+    .replace(/\n\s*<link\s+rel="shortcut icon"[^>]*\/?>/gi, '')
     .replace(/\n\s*<link\s+rel="apple-touch-icon"[^>]*\/?>/gi, '')
     .replace(/\n\s*<link\s+rel="manifest"[^>]*\/?>/gi, '')
     .replace(/\n\s*<meta\s+name="theme-color"[^>]*\/?>/gi, '')
     .replace(/\n\s*<!-- Favicon placeholder[^>]*-->/gi, '');
+  for (const legacy of LEGACY_MARKERS) {
+    stripped = stripped.split(legacy).join('');
+  }
+  stripped = stripped.replace(/\n\s*\n\s*\n/g, '\n\n');
 
   const updated = stripped + FAVICON_BLOCK + tailSlice;
   if (!DRY_RUN) fs.writeFileSync(filePath, updated, 'utf8');
