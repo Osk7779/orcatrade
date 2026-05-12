@@ -17,11 +17,17 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const MARKER = '<!-- favicon set v3 injected by scripts/inject-favicon-tags.js -->';
+const MARKER = '<!-- favicon set v4 injected by scripts/inject-favicon-tags.js -->';
 const LEGACY_MARKERS = [
   '<!-- favicon set injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v2 injected by scripts/inject-favicon-tags.js -->',
+  '<!-- favicon set v3 injected by scripts/inject-favicon-tags.js -->',
 ];
+
+// Cache-busting query — bump on every favicon refresh. Without it browsers
+// (and Google) hold onto the "this page has no favicon" decision per-URL
+// long after the icons are actually live on the server.
+const V = '4';
 
 // The block we inject. Path-rooted so it works from any nested page.
 // Order matters: Google's favicon crawler prefers the first <link rel="icon">
@@ -30,15 +36,15 @@ const LEGACY_MARKERS = [
 // explicit (not just root fallback) so older crawlers find it reliably.
 const FAVICON_BLOCK = `
   ${MARKER}
-  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png" />
-  <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
-  <link rel="icon" href="/favicon.ico" sizes="any" />
-  <link rel="shortcut icon" href="/favicon.ico" />
-  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
-  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/favicon-192x192.png?v=${V}" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/favicon-512x512.png?v=${V}" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png?v=${V}" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png?v=${V}" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png?v=${V}" />
+  <link rel="icon" href="/favicon.ico?v=${V}" sizes="any" />
+  <link rel="shortcut icon" href="/favicon.ico?v=${V}" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png?v=${V}" />
+  <link rel="manifest" href="/site.webmanifest?v=${V}" />
   <meta name="theme-color" content="#0a1628" />
 `;
 
