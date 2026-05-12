@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaTrade Preise — fünf Tarife für jede Phase Ihres Imports</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Abonnement für Zugang und Wissen. Pro Transaktion zahlen Sie für die Ausführung. Fünf Tarife von Free bis Enterprise plus stapelbare Zusatzmodule für Compliance und Reporting.">
+  <meta property="og:title" content="OrcaTrade Preise — fünf Tarife für jede Phase Ihres Imports" />
+  <meta property="og:description" content="Free / Starter €99 / Growth €399 / Scale €999 / Enterprise. Abonnement für Zugang, transaktional für Ausführung. Jährlich sind zwei Monate gratis." />
+  <link rel="canonical" href="https://orcatrade.pl/de/preise/" />
+  <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/pricing/" />
+  <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/cennik/" />
+  <link rel="alternate" hreflang="de" href="https://www.orcatrade.pl/de/preise/" />
+  <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/pricing/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .billing-toggle { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.35rem; border: 1px solid rgba(255, 255, 255, 0.12); background: rgba(8, 12, 22, 0.6); backdrop-filter: blur(12px); margin: 1.6rem 0 0; }
+    .billing-toggle button { font-family: inherit; font-size: 0.78rem; letter-spacing: 0.06em; padding: 0.55rem 1.1rem; background: transparent; color: rgba(255, 255, 255, 0.6); border: none; cursor: pointer; transition: color 0.18s, background 0.18s; }
+    .billing-toggle button.active { background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; }
+    .billing-toggle .save { font-size: 0.7rem; letter-spacing: 0.12em; color: #6fa66f; margin-left: 0.4rem; }
+    .tier-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px; margin-top: 2.5rem; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.07); }
+    @media (max-width: 1100px) { .tier-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .tier-grid { grid-template-columns: 1fr; } }
+    .tier { background: #0d0f14; padding: 1.8rem 1.5rem; display: flex; flex-direction: column; gap: 0.8rem; position: relative; }
+    .tier--popular { background: linear-gradient(180deg, rgba(184, 190, 200, 0.08) 0%, #0d0f14 30%); box-shadow: inset 0 0 0 1px rgba(184, 190, 200, 0.18); z-index: 1; }
+    .tier-popular-flag { position: absolute; top: -1px; left: -1px; right: -1px; padding: 0.4rem 0.9rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.66rem; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase; text-align: center; }
+    .tier--popular { padding-top: 2.6rem; }
+    .tier-name { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.35rem; font-weight: 600; letter-spacing: -0.01em; }
+    .tier-who { font-size: 0.74rem; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.55); text-transform: uppercase; letter-spacing: 0.08em; }
+    .tier-price { font-family: 'Cormorant Garant', Georgia, serif; font-size: 2.4rem; font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: rgba(255, 255, 255, 0.96); margin-top: 0.3rem; }
+    .tier-price-unit { font-size: 0.78rem; font-weight: 400; letter-spacing: 0.04em; color: rgba(255, 255, 255, 0.55); margin-left: 0.3rem; }
+    .tier-price-note { font-size: 0.74rem; color: rgba(255, 255, 255, 0.5); min-height: 1.2em; }
+    .tier-cta { display: inline-flex; align-items: center; justify-content: center; padding: 0.7rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-family: inherit; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; border: none; cursor: pointer; text-align: center; transition: filter 0.18s, transform 0.18s; margin-top: 0.4rem; }
+    .tier-cta:hover { filter: brightness(1.08); transform: translateY(-1px); }
+    .tier-cta--ghost { background: transparent; color: rgba(255, 255, 255, 0.85); border: 1px solid rgba(255, 255, 255, 0.18); }
+    .tier-cta--ghost:hover { border-color: rgba(255, 255, 255, 0.4); color: #fff; }
+    .tier-features { list-style: none; padding: 0; margin: 0.6rem 0 0; display: grid; gap: 0.5rem; }
+    .tier-features li { font-size: 0.84rem; line-height: 1.55; color: rgba(255, 255, 255, 0.78); display: flex; gap: 0.5rem; }
+    .tier-features li::before { content: "✓"; flex-shrink: 0; color: var(--accent-color, #b8bec8); font-size: 0.78rem; }
+    .addons { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 2.5rem; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.07); }
+    @media (max-width: 900px) { .addons { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .addons { grid-template-columns: 1fr; } }
+    .addon { background: #0d0f14; padding: 1.6rem 1.4rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .addon-name { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.05rem; font-weight: 600; letter-spacing: -0.01em; }
+    .addon-price { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.35rem; font-weight: 600; color: var(--accent-color, #b8bec8); }
+    .addon-price-unit { font-size: 0.74rem; color: rgba(255, 255, 255, 0.55); margin-left: 0.2rem; }
+    .addon-desc { font-size: 0.86rem; line-height: 1.6; color: rgba(255, 255, 255, 0.72); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; margin-top: 2.2rem; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.07); }
+    @media (max-width: 720px) { .split { grid-template-columns: 1fr; } }
+    .split-col { background: #0d0f14; padding: 1.8rem 1.6rem; }
+    .split-h { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.15rem; font-weight: 600; letter-spacing: -0.01em; margin-bottom: 0.4rem; }
+    .split-tag { font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.7rem; }
+    .split-list { list-style: none; padding: 0; margin: 0.8rem 0 0; display: grid; gap: 0.5rem; }
+    .split-list li { font-size: 0.88rem; line-height: 1.6; color: rgba(255, 255, 255, 0.8); padding-left: 1rem; position: relative; }
+    .split-list li::before { content: "•"; position: absolute; left: 0; color: var(--accent-color, #b8bec8); }
+    .faq { display: grid; gap: 0; margin-top: 2rem; border: 1px solid rgba(255, 255, 255, 0.07); }
+    .faq details { background: #0d0f14; padding: 1.2rem 1.5rem; border-bottom: 1px solid rgba(255, 255, 255, 0.07); }
+    .faq details:last-child { border-bottom: none; }
+    .faq summary { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.05rem; font-weight: 600; cursor: pointer; list-style: none; display: flex; justify-content: space-between; align-items: center; gap: 1rem; color: rgba(255, 255, 255, 0.95); }
+    .faq summary::-webkit-details-marker { display: none; }
+    .faq summary::after { content: "+"; font-size: 1.4rem; font-weight: 300; color: var(--accent-color, #b8bec8); transition: transform 0.2s; }
+    .faq details[open] summary::after { transform: rotate(45deg); }
+    .faq details p { font-size: 0.9rem; line-height: 1.7; color: rgba(255, 255, 255, 0.72); margin-top: 0.7rem; max-width: 70ch; }
+    .pricing-page[data-billing="monthly"] .price-annual { display: none; }
+    .pricing-page[data-billing="annual"] .price-monthly { display: none; }
+    .tier.tier--current { box-shadow: inset 0 0 0 1px rgba(95, 181, 107, 0.55); }
+    .tier-current-flag { position: absolute; top: -1px; right: -1px; padding: 0.32rem 0.7rem; background: rgba(95, 181, 107, 0.95); color: #0a0912; font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#0a1628" />
+</head>
+
+<body class="pricing-page" data-billing="monthly">
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <nav class="page-toc" aria-label="Seitennavigation">
+    <a href="#top" data-toc="top"><span>Oben</span></a>
+    <a href="#tiers" data-toc="tiers"><span>Tarife</span></a>
+    <a href="#addons" data-toc="addons"><span>Add-ons</span></a>
+    <a href="#split" data-toc="split"><span>Was enthalten ist</span></a>
+    <a href="#faq" data-toc="faq"><span>FAQ</span></a>
+  </nav>
+
+  <div class="page">
+    <header data-site-header></header>
+    <main>
+      <section class="section unit-hero" id="top" style="text-align:center; align-items:center;">
+        <a href="/de/" class="back-link">← Zurück zur OrcaTrade Group</a>
+        <div class="hero-kicker" data-reveal="hero">Preise</div>
+        <h1 class="unit-hero-title" data-reveal="hero" style="max-width: 22ch;">Abonnement für Zugang. Pro Transaktion für die Ausführung.</h1>
+        <p class="unit-hero-body" data-reveal="hero" style="max-width: 56ch;">
+          Fünf Tarife von Free bis Enterprise. Abonnements decken den laufenden Zugang zu KI-Agenten, Intelligenz, Monitoring und Tools — bezahlt, unabhängig davon, ob Sie diesen Monat versenden. Sendungsgebühren, Fracht-Aufschlag, Zollanmeldungen und Inspektionen bleiben transaktional.
+        </p>
+        <div class="billing-toggle" data-reveal="hero">
+          <button data-billing-mode="monthly" class="active">Monatlich</button>
+          <button data-billing-mode="annual">Jährlich <span class="save">2 Monate gratis</span></button>
+        </div>
+      </section>
+
+      <section class="section" id="tiers" style="padding-top: 1.5rem;">
+        <div class="tier-grid">
+          <article class="tier spotlight">
+            <div class="tier-name">Free</div>
+            <div class="tier-who">Lead-Gen · Evaluierung</div>
+            <div class="tier-price">€0<span class="tier-price-unit">für immer</span></div>
+            <div class="tier-price-note">Dauerhafter kostenloser Tarif</div>
+            <a href="/analysis/" class="tier-cta tier-cta--ghost" data-tier="free" data-action="start">Erkunden beginnen</a>
+            <ul class="tier-features">
+              <li>20 Agentenanfragen / Monat</li>
+              <li>10 Lieferantenansichten / Monat</li>
+              <li>5 Dokumente</li>
+              <li>5 HS-Code-Lookups</li>
+              <li>Kostenloses EU-Compliance-Briefing (CBAM + EUDR, mit Quellen)</li>
+            </ul>
+          </article>
+
+          <article class="tier spotlight">
+            <div class="tier-name">Starter</div>
+            <div class="tier-who">Solo-Importeure · FBA-Händler</div>
+            <div class="tier-price">
+              <span class="price-monthly">€99<span class="tier-price-unit">/ Monat</span></span>
+              <span class="price-annual">€83<span class="tier-price-unit">/ Monat, jährliche Abrechnung</span></span>
+            </div>
+            <div class="tier-price-note">
+              <span class="price-monthly">Oder €990 / Jahr (€198 gespart)</span>
+              <span class="price-annual">€990 / Jahr</span>
+            </div>
+            <a href="/#contact" class="tier-cta" data-tier="starter" data-action="subscribe">Loslegen</a>
+            <ul class="tier-features">
+              <li>200 Agentenanfragen / Monat</li>
+              <li>Voller Zugriff auf Factory Search</li>
+              <li>Compliance- + Sourcing-Agenten</li>
+              <li>5 Lieferantenmonitore</li>
+              <li>5 % Rabatt auf Sendungsgebühren</li>
+            </ul>
+          </article>
+
+          <article class="tier tier--popular spotlight">
+            <div class="tier-popular-flag">Am beliebtesten</div>
+            <div class="tier-name">Growth</div>
+            <div class="tier-who">Etablierte KMU · 5–50 Sendungen / Jahr</div>
+            <div class="tier-price">
+              <span class="price-monthly">€399<span class="tier-price-unit">/ Monat</span></span>
+              <span class="price-annual">€333<span class="tier-price-unit">/ Monat, jährliche Abrechnung</span></span>
+            </div>
+            <div class="tier-price-note">
+              <span class="price-monthly">Oder €3.990 / Jahr (€798 gespart)</span>
+              <span class="price-annual">€3.990 / Jahr</span>
+            </div>
+            <a href="/#contact" class="tier-cta" data-tier="growth" data-action="subscribe">Loslegen</a>
+            <ul class="tier-features">
+              <li>1.000 Agentenanfragen / Monat</li>
+              <li>Alle fünf Agenten (Sourcing, Compliance, Logistik, Finanzen, Operations)</li>
+              <li>20 Lieferantenmonitore</li>
+              <li>5 Sitze inklusive</li>
+              <li>Erweiterte Analytik &amp; Ausnahmen-Queue</li>
+              <li>10 % Rabatt auf Sendungsgebühren</li>
+            </ul>
+          </article>
+
+          <article class="tier spotlight">
+            <div class="tier-name">Scale</div>
+            <div class="tier-who">Mid-Market · 50+ Sendungen / Jahr</div>
+            <div class="tier-price">
+              <span class="price-monthly">€999<span class="tier-price-unit">/ Monat</span></span>
+              <span class="price-annual">€833<span class="tier-price-unit">/ Monat, jährliche Abrechnung</span></span>
+            </div>
+            <div class="tier-price-note">
+              <span class="price-monthly">Oder €9.990 / Jahr (€1.998 gespart)</span>
+              <span class="price-annual">€9.990 / Jahr</span>
+            </div>
+            <a href="/#contact" class="tier-cta tier-cta--ghost" data-tier="scale" data-action="contact">Vertrieb kontaktieren</a>
+            <ul class="tier-features">
+              <li>Unbegrenzte Agentenanfragen</li>
+              <li>Custom-Training der Agenten auf Ihrem Lieferantenstamm</li>
+              <li>20 Sitze inklusive</li>
+              <li>API-Zugang (10 Tsd. Aufrufe / Monat)</li>
+              <li>Dedizierter Account Manager</li>
+              <li>15 % Rabatt auf Sendungsgebühren</li>
+            </ul>
+          </article>
+
+          <article class="tier spotlight">
+            <div class="tier-name">Enterprise</div>
+            <div class="tier-who">Hersteller · Distributoren · Filialisten</div>
+            <div class="tier-price">Custom<span class="tier-price-unit">ab €2.500</span></div>
+            <div class="tier-price-note">SLA · ERP-Integration · White-Label</div>
+            <a href="/#contact" class="tier-cta tier-cta--ghost" data-tier="enterprise" data-action="contact">Vertrieb kontaktieren</a>
+            <ul class="tier-features">
+              <li>ERP-Integration (SAP · Dynamics · Comarch)</li>
+              <li>White-Label / Private Deployment</li>
+              <li>Dedizierte Agenten, auf Ihre Daten getunt</li>
+              <li>Multi-AM-Betreuung · SLAs</li>
+              <li>Volumen-Rabatte auf Sendungsgebühren</li>
+              <li>Compliance-Audit-Pakete inklusive</li>
+            </ul>
+          </article>
+        </div>
+
+        <p style="text-align:center; margin-top:2rem; font-size:0.84rem; color: rgba(255,255,255,0.55);">
+          Alle bezahlten Tarife enthalten eine 14-tägige Testphase. Jederzeit kündbar. EU-Mehrwertsteuer wird über Stripe Tax abgewickelt.
+        </p>
+      </section>
+
+      <section class="section" id="addons">
+        <div class="section-kicker">Zusatzmodule</div>
+        <h2 class="section-title">Auf jeden Tarif stapelbar.</h2>
+        <p class="section-intro">Funktionen mit hohem Mehrwert, die nicht in die Kerntarife gehören — Sie buchen sie hinzu, wenn der Workflow es verlangt.</p>
+        <div class="addons">
+          <article class="addon spotlight">
+            <div class="addon-name">Sustainability Reporting Pro</div>
+            <div class="addon-price">€199<span class="addon-price-unit">/ Monat</span></div>
+            <p class="addon-desc">Automatisiertes Reporting zu CBAM, EUDR und Scope-3-Emissionen pro Sendung, pro Lieferant, jährlich aggregiert.</p>
+          </article>
+          <article class="addon spotlight">
+            <div class="addon-name">Industry Compliance Pack</div>
+            <div class="addon-price">€149<span class="addon-price-unit">/ Monat, je Branche</span></div>
+            <p class="addon-desc">Vertiefte Vertikalpakete: Elektronik · Textil · Lebensmittel · Spielzeug · Kosmetik. Je Paket branchenspezifische Regularien und Dokumentvorlagen.</p>
+          </article>
+          <article class="addon spotlight">
+            <div class="addon-name">Käufer-Verifikation</div>
+            <div class="addon-price">€99<span class="addon-price-unit">/ Monat</span></div>
+            <p class="addon-desc">Für Exporteure: bewerten Sie Ihre europäischen Käufer anhand öffentlicher Register (KRS, Handelsregister, Companies House) plus Kreditdaten.</p>
+          </article>
+          <article class="addon spotlight">
+            <div class="addon-name">Multi-Currency-Wallet</div>
+            <div class="addon-price">€49<span class="addon-price-unit">/ Monat oder FX-Marge</span></div>
+            <p class="addon-desc">EUR, USD, CNY, HKD, PLN. Salden halten, Risiko absichern, Lieferanten begleichen — ohne Umweg über Retail-FX.</p>
+          </article>
+          <article class="addon spotlight">
+            <div class="addon-name">Premium-Agent-Pack</div>
+            <div class="addon-price">€299<span class="addon-price-unit">/ Monat</span></div>
+            <p class="addon-desc">Früher Zugang zu neuen Agenten, Custom-System-Prompt-Training auf Ihren historischen Sendungen und Lieferanteninteraktionen.</p>
+          </article>
+          <article class="addon spotlight">
+            <div class="addon-name">Dedizierter AM</div>
+            <div class="addon-price">Inklusive<span class="addon-price-unit">bei Scale &amp; Enterprise</span></div>
+            <p class="addon-desc">Namentlicher Account Manager, der Ihren Lieferantenstamm, Ihre Compliance-Haltung und Ihre Sendungsfrequenz kennt.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="split">
+        <div class="section-kicker">Was drin ist, was nicht</div>
+        <h2 class="section-title">Zwei Umsatzströme, eine Rechnung.</h2>
+        <p class="section-intro">Abonnements kaufen Zugang zur Plattform. Sendungskosten laufen separat und bleiben transaktional. Abonnenten erhalten Rabatte auf transaktionale Sätze.</p>
+        <div class="split">
+          <div class="split-col">
+            <div class="split-tag">Im Abonnement enthalten</div>
+            <div class="split-h">Zugang · Intelligenz · Tools</div>
+            <ul class="split-list">
+              <li>KI-Agenten (Sourcing, Compliance, Logistik, Finanzen, Operations)</li>
+              <li>Factory Search und Lieferantenmonitore</li>
+              <li>Sendungs-Dashboard und Ausnahmen-Queue</li>
+              <li>EU-Compliance-Engine (CBAM, EUDR, REACH, CE)</li>
+              <li>Dokumentvorlagen und HS-Code-Lookups</li>
+              <li>Workspace-Sitze und API-Kontingente</li>
+            </ul>
+          </div>
+          <div class="split-col">
+            <div class="split-tag">Transaktional · pay-as-you-ship</div>
+            <div class="split-h">Ausführung · pro Nutzung</div>
+            <ul class="split-list">
+              <li>Sendungs-Servicegebühren (€150–€2.500 je nach Tarif)</li>
+              <li>Spediteurs-Aufschlag (8–15 % auf Frachtkosten)</li>
+              <li>Zollabwicklungsgebühren (pro Anmeldung)</li>
+              <li>Inspektionsleistungen (pro Inspektion, durchgereicht an QIMA / AsiaInspection)</li>
+              <li>Origination der Handelsfinanzierung (% pro Deal)</li>
+              <li>Transportversicherungsprämien (pro Sendung, Provision)</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="faq">
+        <div class="section-kicker">FAQ</div>
+        <h2 class="section-title">Häufige Fragen, bevor Sie sich entscheiden.</h2>
+        <div class="faq">
+          <details>
+            <summary>Kann ich später den Tarif wechseln?</summary>
+            <p>Ja — Upgrade oder Downgrade jederzeit. Jahresabonnenten erhalten beim Upgrade eine anteilige Gutschrift. Downgrades werden zum Ende des laufenden Abrechnungszeitraums wirksam.</p>
+          </details>
+          <details>
+            <summary>Ist Free wirklich für immer kostenlos?</summary>
+            <p>Ja. Free ist dauerhaft und erfordert keine Zahlungsmethode. Er reicht, um die Plattform zu evaluieren — nicht, um damit eine reale Importoperation zu betreiben. Free umfasst 20 Agentenanfragen, 10 Lieferantenansichten, 5 Dokumente und 5 HS-Lookups pro Monat plus unbegrenzte kostenlose CBAM-Analysen.</p>
+          </details>
+          <details>
+            <summary>Warum sind im Jahresabo zwei Monate gratis statt eines pauschalen Rabatts?</summary>
+            <p>Jahresabonnenten kündigen etwa ein Drittel so oft wie monatliche. „Zwei Monate gratis" ist ehrlicher als ein Prozentwert und einfacher zu vergleichen. Sie zahlen 10 Monate und erhalten 12.</p>
+          </details>
+          <details>
+            <summary>Wie funktioniert die Mehrwertsteuer für polnische, deutsche und andere EU-Kunden?</summary>
+            <p>Stripe Tax wickelt die EU-Mehrwertsteuer automatisch ab. Polnische Kunden sehen Preise inklusive 23 % MwSt., deutsche 19 % usw. Für gültige B2B-USt-IDs in der EU greift das Reverse-Charge-Verfahren.</p>
+          </details>
+          <details>
+            <summary>Was ist der Unterschied zwischen Growth und Scale?</summary>
+            <p>Growth ist für KMU mit 5–50 Sendungen pro Jahr ausgelegt — dort sitzt die Mehrheit der Kunden. Scale schaltet unbegrenzte Agentenanfragen, Custom-Training der Agenten auf Ihren Lieferantendaten, 20 Sitze, vollen API-Zugang und einen dedizierten Account Manager frei. Wechseln Sie auf Scale, sobald Ihr Team groß genug für API-Integration oder Custom-Training ist.</p>
+          </details>
+          <details>
+            <summary>Verlangen Sie pro-User-Preise?</summary>
+            <p>Nein — die Kerntarife enthalten angemessene Sitzkontingente (Starter 1, Growth 5, Scale 20). Zusätzliche Sitze über dem inkludierten Kontingent werden pro Sitz abgerechnet, aber die Sitzzahl allein erzwingt nie ein Tarif-Upgrade.</p>
+          </details>
+          <details>
+            <summary>Wie integriert sich der Compliance-Agent in meinen bestehenden Workflow?</summary>
+            <p>Der Compliance-Agent läuft im Dashboard und über die API. Sie geben Produktdetails und Ursprung an; er liefert HS-Code (mit Konfidenz-Score), erwartete Zoll- und Mehrwertsteuersätze, anwendbare Vorschriften, erforderliche Dokumente sowie eine Checkliste mit Kosten- und Zeitschätzungen. Jede Quote wird anfangs an einen Menschen zur finalen Freigabe geroutet; weitere Automatisierung erst nach ausreichendem Volumen überwachter Quotes.</p>
+          </details>
+          <details>
+            <summary>Kann ich die Plattform vor dem Bezahlen sehen?</summary>
+            <p>Ja — starten Sie jetzt eine kostenlose <a href="/analysis/" style="color: var(--accent-color, #b8bec8);">CBAM-Analyse</a> ohne Anmeldung. Der Free-Tarif und die 14-tägige Testphase decken den Rest ab.</p>
+          </details>
+          <details>
+            <summary>Was, wenn ich Enterprise bin, aber nicht in das Standard-SLA passe?</summary>
+            <p>Enterprise-Preise sind individuell. Wir passen SLAs, ERP-Integrationen, White-Label-Deployment und namentliche AM-Betreuung an die Anforderungen Ihrer Operation an. Sprechen Sie mit dem Vertrieb — wir dimensionieren gemeinsam.</p>
+          </details>
+        </div>
+      </section>
+
+      <section class="section" style="text-align: center; padding-top: 2rem;">
+        <div class="section-kicker">Bereit</div>
+        <h2 class="section-title" style="max-width: 24ch; margin: 0 auto 1rem;">Kostenlos starten, upgraden, wenn der Workflow es rechtfertigt.</h2>
+        <p class="section-intro" style="margin: 0 auto 2rem;">Free ist dauerhaft. 14-tägige Testphase für jeden bezahlten Tarif. EU-MwSt. abgewickelt. Jederzeit kündbar.</p>
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+          <a class="btn btn-primary" href="/analysis/">Kostenloses EU-Compliance-Briefing starten</a>
+          <a class="btn btn-ghost" href="/#contact">Vertrieb kontaktieren</a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. Alle Rechte vorbehalten.</span>
+        <span>Warschau, London &amp; Hongkong • Europa ↔ Asien</span>
+        <span><a href="#top">Nach oben</a></span>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/orcatradegroup?igsh=MWpra3YwMGthaWcyMw==" target="_blank" rel="noopener" aria-label="OrcaTrade Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://www.linkedin.com/company/orcatrade-holding/" target="_blank" rel="noopener" aria-label="OrcaTrade LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/transitions.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    (function () {
+      var body = document.body;
+      var buttons = document.querySelectorAll('.billing-toggle button');
+      buttons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var mode = btn.dataset.billingMode;
+          body.dataset.billing = mode;
+          buttons.forEach(function (b) { b.classList.toggle('active', b === btn); });
+        });
+      });
+    })();
+    (function () {
+      fetch('/api/tiers/me', { credentials: 'same-origin' }).then(function (r) {
+        return r.ok ? r.json() : null;
+      }).then(function (data) {
+        if (!data || !data.tierId) return;
+        var ctas = document.querySelectorAll('[data-tier="' + data.tierId + '"]');
+        ctas.forEach(function (cta) {
+          var tier = cta.closest('.tier');
+          if (!tier) return;
+          tier.classList.add('tier--current');
+          if (!tier.querySelector('.tier-current-flag')) {
+            var flag = document.createElement('div');
+            flag.className = 'tier-current-flag';
+            flag.textContent = 'Ihr Tarif';
+            tier.appendChild(flag);
+          }
+        });
+      }).catch(function () { });
+    })();
+    (function () {
+      function billingCycle() { return document.body.getAttribute('data-billing') || 'monthly'; }
+      var ctas = document.querySelectorAll('[data-action="subscribe"]');
+      ctas.forEach(function (cta) {
+        cta.addEventListener('click', function (e) {
+          var tierId = cta.getAttribute('data-tier');
+          if (!tierId || tierId === 'free' || tierId === 'enterprise') return;
+          e.preventDefault();
+          fetch('/api/billing/checkout', {
+            method: 'POST',
+            credentials: 'same-origin',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ tierId: tierId, billingCycle: billingCycle() }),
+          }).then(function (r) {
+            return r.json().then(function (j) { return { status: r.status, json: j }; });
+          }).then(function (out) {
+            if (out.status === 401) {
+              window.location.href = '/account/?return=' + encodeURIComponent('/de/preise/');
+              return;
+            }
+            if (out.status === 200 && out.json.url) {
+              window.location.href = out.json.url;
+              return;
+            }
+            window.location.href = cta.getAttribute('href') || '/de/';
+          }).catch(function () {
+            window.location.href = cta.getAttribute('href') || '/de/';
+          });
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
