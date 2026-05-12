@@ -21,6 +21,9 @@ on:
     # Tuesday + Friday 08:00 UTC — plan-revision email scan
     # (twice a week is enough; per-week dedupe in the handler prevents spam)
     - cron: '0 8 * * 2,5'
+    # Wednesday 05:00 UTC — EUR-Lex regime drift check
+    # (weekly is enough — these regulations change quarterly at most)
+    - cron: '0 5 * * 3'
   workflow_dispatch:
     inputs:
       job:
@@ -30,6 +33,7 @@ on:
         options:
           - founder-digest
           - plan-revision-emails
+          - regime-change-check
 
 jobs:
   dispatch:
@@ -44,6 +48,8 @@ jobs:
             echo "job=founder-digest" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 8 * * 2,5" ]; then
             echo "job=plan-revision-emails" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 5 * * 3" ]; then
+            echo "job=regime-change-check" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi

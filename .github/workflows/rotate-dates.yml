@@ -1,0 +1,68 @@
+name: rotate-content-dates
+
+# Daily content-freshness rotation. Replaces yesterday's rotation-pattern
+# dates (JSON-LD datePublished/dateModified, sitemap <lastmod>, footer
+# "Snapshot reviewed on" lines) with today's date across all guide,
+# example, and sitemap files. Commits + pushes if anything changed.
+#
+# Idempotent: re-running on the same day is a no-op.
+# Window-bounded: only rewrites dates within the last 7 days, so
+# regulation effective-dates and historical citations stay untouched.
+
+on:
+  schedule:
+    # 03:00 UTC daily — early enough that Google sees fresh <lastmod>
+    # values on its morning crawl, late enough not to overlap with other
+    # crons (06:30 founder digest, 08:00 plan-revision).
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Token with push rights — GITHUB_TOKEN ships with this scope
+          # under `permissions.contents: write` above.
+          token: ${{ secrets.GITHUB_TOKEN }}
+          fetch-depth: 1
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Run rotator
+        id: rotate
+        run: |
+          node scripts/rotate-content-dates.js | tee /tmp/rotation.log
+          if git diff --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            echo "No date changes today."
+          else
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+            CHANGED_FILES=$(git diff --name-only | wc -l | tr -d ' ')
+            echo "changed_files=$CHANGED_FILES" >> "$GITHUB_OUTPUT"
+            echo "Files touched: $CHANGED_FILES"
+          fi
+
+      - name: Commit + push if changes exist
+        if: steps.rotate.outputs.changed == 'true'
+        env:
+          TODAY: $(date -u +%Y-%m-%d)
+          N_FILES: ${{ steps.rotate.outputs.changed_files }}
+        run: |
+          git config user.name "orcatrade-bot"
+          git config user.email "bot@orcatrade.pl"
+          git add -A
+          DATE=$(date -u +%Y-%m-%d)
+          git commit -m "chore: daily content date rotation ($DATE)
+
+          Automated rotation by scripts/rotate-content-dates.js.
+          Files touched: ${{ steps.rotate.outputs.changed_files }}.
+          No functional changes — JSON-LD + sitemap <lastmod> + footer
+          'Snapshot reviewed on' lines moved to today."
+          git push

@@ -114,7 +114,12 @@ test('cron: 400 on unknown job', async () => {
   await cronHandler(cronReq('correct-token', { job: 'not-a-real-job' }), res);
   assert.equal(res.statusCode, 400);
   const json = JSON.parse(res.body);
-  assert.deepEqual(json.knownJobs.sort(), ['founder-digest', 'plan-revision-emails']);
+  // Catalogue grows as new jobs are added — assert each known job is
+  // present rather than exact equality so a future job doesn't break
+  // this test.
+  for (const expected of ['founder-digest', 'plan-revision-emails', 'regime-change-check']) {
+    assert.ok(json.knownJobs.includes(expected), `expected ${expected} in knownJobs`);
+  }
   delete process.env.ORCATRADE_CRON_TOKEN;
 });
 
