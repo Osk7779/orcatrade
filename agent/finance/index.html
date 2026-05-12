@@ -47,7 +47,8 @@
     .cite { display: inline-block; cursor: help; font-size: 0.74rem; font-family: 'Geist Mono', monospace; padding: 0.05rem 0.4rem; margin: 0 0.1rem; background: rgba(184,190,200,0.1); color: var(--accent-color, #b8bec8); border-radius: 2px; border: 1px solid transparent; transition: background 0.15s; }
     .cite:hover { background: rgba(184,190,200,0.18); border-color: rgba(184,190,200,0.3); }
 
-    .composer { position: sticky; bottom: 1.5rem; margin-top: 2rem; background: linear-gradient(180deg, transparent, rgba(5,5,7,0.85) 25%, rgba(5,5,7,0.95)); padding-top: 2rem; z-index: 5; }
+    .composer { position: sticky; bottom: max(1.5rem, env(safe-area-inset-bottom) + 0.75rem); margin-top: 2rem; background: linear-gradient(180deg, transparent, rgba(5,5,7,0.85) 25%, rgba(5,5,7,0.95)); padding-top: 2rem; z-index: 5; }
+    @media (max-width: 640px) { .composer { bottom: max(3rem, env(safe-area-inset-bottom) + 2rem); } }
     .composer-inner { display: flex; gap: 0.6rem; align-items: flex-end; padding: 0.7rem; border: 1px solid rgba(255,255,255,0.12); background: rgba(13,15,20,0.95); backdrop-filter: blur(12px); border-radius: 2px; }
     .composer textarea { flex: 1; resize: none; min-height: 2.4rem; max-height: 10rem; background: transparent; border: none; color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.55; padding: 0.55rem 0.7rem; outline: none; }
     .composer textarea::placeholder { color: rgba(255,255,255,0.4); }

@@ -89,9 +89,14 @@
     .cite:hover { background: rgba(184, 190, 200, 0.18); border-color: rgba(184, 190, 200, 0.3); }
 
     .composer {
-      position: sticky; bottom: 1.5rem; margin-top: 2rem;
+      position: sticky;
+      bottom: max(1.5rem, env(safe-area-inset-bottom) + 0.75rem);
+      margin-top: 2rem;
       background: linear-gradient(180deg, transparent, rgba(5, 5, 7, 0.85) 25%, rgba(5, 5, 7, 0.95));
       padding-top: 2rem; z-index: 5;
+    }
+    @media (max-width: 640px) {
+      .composer { bottom: max(3rem, env(safe-area-inset-bottom) + 2rem); }
     }
     .composer-inner {
       display: flex; gap: 0.6rem; align-items: flex-end;

@@ -105,7 +105,10 @@ img {
 header {
   position: sticky;
   top: 0;
-  z-index: 50;
+  /* Header sits above every site widget (cache prompt z-index 40,
+     agent composer 5, hero globe 0, etc.). Only the cache MODAL on
+     first visit intentionally outranks it. */
+  z-index: 1000;
   backdrop-filter: blur(16px);
   background: linear-gradient(to bottom,
     rgba(4, 9, 20, 0.92),
@@ -2491,13 +2494,19 @@ body::after {
   display: none;
   flex-direction: column;
   justify-content: center;
+  align-items: center;
   gap: 5px;
   background: none;
   border: none;
   cursor: pointer;
+  /* Min 44×44 touch target per Apple HIG / WCAG 2.5.5 */
+  min-width: 44px;
+  min-height: 44px;
   padding: 0.5rem;
-  z-index: 200;
+  z-index: 1100;
   flex-shrink: 0;
+  -webkit-tap-highlight-color: rgba(255, 255, 255, 0.08);
+  touch-action: manipulation;
 }
 
 .nav-toggle span {
