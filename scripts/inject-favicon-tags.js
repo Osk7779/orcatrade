@@ -17,24 +17,33 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const MARKER = '<!-- favicon set v6 injected by scripts/inject-favicon-tags.js -->';
+const MARKER = '<!-- favicon set v7 injected by scripts/inject-favicon-tags.js -->';
 const LEGACY_MARKERS = [
   '<!-- favicon set injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v2 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v3 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v4 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v5 injected by scripts/inject-favicon-tags.js -->',
+  '<!-- favicon set v6 injected by scripts/inject-favicon-tags.js -->',
 ];
 
-// v6: Same /icons/orca-* paths and defensive script as v5, but the
-// underlying PNGs are regenerated from a mark-only crop of the source
-// logo — wordmark removed, so the icon is legible at 16/32 px.
+// v7: Embed the favicon as a base64 data URI in the FIRST <link rel="icon">.
+// This bypasses every per-URL "no favicon" browser cache — the icon is in
+// the HTML bytes the browser already received, no separate fetch, no cache
+// lookup. File-based icons stay as supplements for crawlers/larger sizes.
+const ICON_B64_32 = fs.readFileSync(
+  path.join(ROOT, 'favicon-32x32.png')
+).toString('base64');
+const ICON_B64_48 = fs.readFileSync(
+  path.join(ROOT, 'favicon-48x48.png')
+).toString('base64');
+
 const FAVICON_BLOCK = `
   ${MARKER}
+  <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,${ICON_B64_32}" />
+  <link rel="icon" type="image/png" sizes="48x48" href="data:image/png;base64,${ICON_B64_48}" />
   <link rel="icon" type="image/png" sizes="192x192" href="/icons/orca-192.png" />
   <link rel="icon" type="image/png" sizes="512x512" href="/icons/orca-512.png" />
-  <link rel="icon" type="image/png" sizes="48x48" href="/icons/orca-48.png" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/icons/orca-32.png" />
   <link rel="icon" type="image/png" sizes="16x16" href="/icons/orca-16.png" />
   <link rel="icon" href="/icons/orca.ico" sizes="any" />
   <link rel="shortcut icon" href="/icons/orca.ico" />
@@ -42,28 +51,23 @@ const FAVICON_BLOCK = `
   <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#0a1628" />
   <script>
-    /* v5 defensive favicon: re-inject the icon link at runtime so the
-       browser can't reuse a stale "no favicon for this URL" decision
-       from before the icons were added. */
+    /* v7 defensive favicon: re-inject as data URI at runtime so the browser
+       can't reuse a stale per-URL "no favicon" decision. The data URI
+       guarantees the icon exists even if every network fetch is suppressed. */
     (function () {
       try {
         var existing = document.querySelectorAll('link[rel~="icon"]');
         existing.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
-        var sizes = [
-          ['192x192', '/icons/orca-192.png'],
-          ['512x512', '/icons/orca-512.png'],
-          ['48x48',   '/icons/orca-48.png'],
-          ['32x32',   '/icons/orca-32.png'],
-          ['16x16',   '/icons/orca-16.png'],
-        ];
-        sizes.forEach(function (s) {
-          var l = document.createElement('link');
-          l.rel = 'icon'; l.type = 'image/png'; l.sizes = s[0]; l.href = s[1];
-          document.head.appendChild(l);
-        });
-        var ico = document.createElement('link');
-        ico.rel = 'icon'; ico.href = '/icons/orca.ico';
-        document.head.appendChild(ico);
+        var primary = document.createElement('link');
+        primary.rel = 'icon'; primary.type = 'image/png';
+        primary.setAttribute('sizes', '32x32');
+        primary.href = 'data:image/png;base64,${ICON_B64_32}';
+        document.head.appendChild(primary);
+        var large = document.createElement('link');
+        large.rel = 'icon'; large.type = 'image/png';
+        large.setAttribute('sizes', '192x192');
+        large.href = '/icons/orca-192.png';
+        document.head.appendChild(large);
         var apple = document.createElement('link');
         apple.rel = 'apple-touch-icon'; apple.setAttribute('sizes', '180x180');
         apple.href = '/icons/orca-apple.png';
