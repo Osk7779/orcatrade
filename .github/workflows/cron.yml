@@ -1,0 +1,79 @@
+name: cron
+
+# Scheduled jobs that fire against the production /api/cron endpoint.
+# Vercel Hobby doesn't ship Vercel Cron, so we drive everything from GHA.
+#
+# Each job is a small curl-and-assert step. The cron handler is
+# idempotent (the digest is a snapshot, plan-revision emails dedupe per
+# ISO week per plan), so duplicate runs are safe.
+#
+# Required repo secrets:
+#   CRON_TOKEN  — must match ORCATRADE_CRON_TOKEN on Vercel
+#   SITE_ORIGIN — e.g. https://orcatrade.pl
+#
+# Manual triggers also work via the "Run workflow" button in the Actions
+# tab — useful for testing without waiting for the schedule.
+
+on:
+  schedule:
+    # Monday 06:30 UTC — founder digest
+    - cron: '30 6 * * 1'
+    # Tuesday + Friday 08:00 UTC — plan-revision email scan
+    # (twice a week is enough; per-week dedupe in the handler prevents spam)
+    - cron: '0 8 * * 2,5'
+  workflow_dispatch:
+    inputs:
+      job:
+        description: 'Job to run'
+        required: true
+        type: choice
+        options:
+          - founder-digest
+          - plan-revision-emails
+
+jobs:
+  dispatch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Resolve which job to run
+        id: which
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "job=${{ github.event.inputs.job }}" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 6 * * 1" ]; then
+            echo "job=founder-digest" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 8 * * 2,5" ]; then
+            echo "job=plan-revision-emails" >> "$GITHUB_OUTPUT"
+          else
+            echo "Unknown trigger" && exit 1
+          fi
+
+      - name: Fire ${{ steps.which.outputs.job }}
+        env:
+          CRON_TOKEN: ${{ secrets.CRON_TOKEN }}
+          SITE_ORIGIN: ${{ secrets.SITE_ORIGIN }}
+          JOB: ${{ steps.which.outputs.job }}
+        run: |
+          if [ -z "$CRON_TOKEN" ] || [ -z "$SITE_ORIGIN" ]; then
+            echo "Missing CRON_TOKEN or SITE_ORIGIN secret"
+            exit 1
+          fi
+          STATUS_FILE=$(mktemp)
+          BODY_FILE=$(mktemp)
+          HTTP_CODE=$(curl -sS \
+            -o "$BODY_FILE" \
+            -w "%{http_code}" \
+            -X POST \
+            -H "Content-Type: application/json" \
+            -H "X-Cron-Token: $CRON_TOKEN" \
+            -d "{\"job\":\"$JOB\"}" \
+            "$SITE_ORIGIN/api/cron")
+          echo "HTTP $HTTP_CODE"
+          echo "--- response body ---"
+          cat "$BODY_FILE"
+          echo ""
+          echo "--- end body ---"
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Cron call failed"
+            exit 1
+          fi

@@ -43,6 +43,9 @@ const handlers = {
   billing: require('../lib/handlers/billing'),
   // RSS / Atom feed (Sprint AE). /feed.xml + /atom.xml rewrite to here.
   feed: require('../lib/handlers/feed'),
+  // Token-gated cron dispatcher. Scheduled jobs (founder digest,
+  // plan-revision emails) fire from GitHub Actions → POST here.
+  cron: require('../lib/handlers/cron'),
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),
