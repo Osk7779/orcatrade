@@ -36,19 +36,31 @@
       overflow: hidden;
     }
 
-    .hero-video-bg {
+    .hero-globe-bg {
       position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center;
-      opacity: 0.13;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: min(120vh, 110vw);
+      height: min(120vh, 110vw);
+      max-width: 1100px;
+      max-height: 1100px;
       z-index: 0;
-      pointer-events: none;
+      pointer-events: auto;
+      cursor: grab;
+      touch-action: none;
+      opacity: 0;
+      transition: opacity 1.2s ease-out;
+    }
+    .hero-globe-bg.is-ready { opacity: 0.45; }
+    .hero-globe-bg.is-grabbing { cursor: grabbing; }
+    @media (hover: none), (max-width: 720px) {
+      .hero-globe-bg { pointer-events: none; cursor: default; touch-action: auto; }
+      .hero-globe-bg { width: 130vw; height: 130vw; }
+      .hero-globe-bg.is-ready { opacity: 0.32; }
     }
 
-    .section--hero-center > *:not(.hero-video-bg) {
+    .section--hero-center > *:not(.hero-globe-bg) {
       position: relative;
       z-index: 1;
     }
@@ -123,6 +135,23 @@
 
 <body>
 
+  <!-- AURORA · slow-drifting background blobs -->
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <!-- PAGE TOC · right-edge dot navigation -->
+  <nav class="page-toc" aria-label="Seitennavigation">
+    <a href="#top" data-toc="top"><span>Oben</span></a>
+    <a href="#mission" data-toc="mission"><span>Mission</span></a>
+    <a href="#group" data-toc="group"><span>Einheiten</span></a>
+    <a href="#representatives" data-toc="representatives"><span>Führung</span></a>
+    <a href="#news" data-toc="news"><span>News</span></a>
+    <a href="#contact" data-toc="contact"><span>Kontakt</span></a>
+  </nav>
+
   <!-- INTRO OVERLAY -->
   <div id="intro-overlay" aria-hidden="true">
     <div class="intro-inner">
@@ -177,26 +206,22 @@
     <main>
       <!-- HERO -->
       <section class="section section--hero-center" id="top">
-        <video class="hero-video-bg" autoplay muted loop playsinline>
-          <source src="../assets/hero-bg.mp4" type="video/mp4">
-        </video>
-        <div class="hero-kicker">Warschau, London &amp; Hongkong • Europa ↔ Asien</div>
-        <h1 class="hero-title-center">
-          Vier Geschäftsbereiche.<br><span>Eine Gruppe.</span>
+        <canvas class="hero-globe-bg" data-globe aria-hidden="true"></canvas>
+        <div class="hero-kicker" data-reveal="hero">Eine Plattform · Asien → Europa</div>
+        <h1 class="hero-title-center" data-reveal="hero">
+          Finden. Verifizieren.<br>Versenden. <span>Finanzieren.</span>
         </h1>
-        <p class="hero-body-center">
-          OrcaTrade Group verbindet europäische Einkäufer mit asiatischen Herstellern — durch Beschaffung,
-          Intelligence, Fabriksuche und Handelsfinanzierung. Vier spezialisierte Einheiten, die China,
-          Vietnam und Indien von Anfang bis Ende abdecken.
+        <p class="hero-body-center" data-reveal="hero">
+          Ihr Import-Operations-Team, 24/7 verfügbar — das jeden Lieferanten, jede Sendung, jede Verordnung kennt. Eine Plattform, fünf Säulen, Asien nach Europa.
         </p>
 
-        <div class="hero-meta hero-meta--center">
-          <div class="hero-tag">Group</div>
+        <div class="hero-meta hero-meta--center" data-reveal="hero">
+          <div class="hero-tag">Reise in fünf Etappen</div>
           <div class="hero-divider"></div>
-          <div class="hero-detail">Warschau, London &amp; Hongkong • MEZ, GMT &amp; China Standardzeit</div>
+          <div class="hero-detail">Search · Sourcing · Intelligence · Logistik · Finance</div>
         </div>
 
-        <div class="hero-actions hero-actions--center">
+        <div class="hero-actions hero-actions--center" data-reveal="hero">
           <a class="btn btn-primary" href="start/">Importplan erstellen</a>
           <a class="btn btn-ghost" href="examples/">Beispiele ansehen</a>
         </div>
@@ -257,34 +282,29 @@
         <div class="section-kicker">Unser Zweck</div>
         <h2 class="section-title">Europa und Asien durch intelligenten, ethischen Handel verbinden.</h2>
         <div class="mission-block">
-          <p>
-            OrcaTrade Group wurde auf einer einfachen Überzeugung gegründet: Globaler Handel muss besser funktionieren.
-            Europäische Unternehmen verdienen verlässlichen Zugang zu Asiens Fertigungskapazitäten —
-            ohne Reibungsverluste, Intransparenz oder Risiko.
-          </p>
-          <p style="font-size:0.82rem;letter-spacing:0.02em;color:rgba(255,255,255,0.5);line-height:1.65;margin-top:-0.25rem;margin-bottom:1.2rem;">
-            60+ geprüfte Hersteller &nbsp;·&nbsp; China, Vietnam &amp; Indien &nbsp;·&nbsp; Kategorien: Bekleidung, Elektronik, Verpackung &amp; Industriegüter &nbsp;·&nbsp; Typische Bestellgröße €50k–€500k
+          <p style="font-size:0.82rem;letter-spacing:0.02em;color:rgba(255,255,255,0.5);line-height:1.65;margin-bottom:1.2rem;">
+            60+ geprüfte Hersteller &nbsp;·&nbsp; China, Vietnam &amp; Indien &nbsp;·&nbsp; Bekleidung, Elektronik, Verpackung &amp; Industriegüter &nbsp;·&nbsp; Bestellungen €50k–€500k
           </p>
           <div id="missionMore" style="display:none;">
             <p>
-              Von der Beschaffung geprüfter Fabriken in China bis zur KI-gestützten Compliance-Automatisierung,
-              der direkten Fabriksuche und der Abwicklung grenzüberschreitender Handelsfinanzierung —
-              OrcaTrade Group agiert an der Schnittstelle von Handel, Technologie und Verantwortung.
+              OrcaTrade Group wurde auf einer einfachen Überzeugung gegründet: Globaler Handel muss besser funktionieren.
+              Europäische Unternehmen verdienen verlässlichen Zugang zu Asiens Fertigungskapazitäten —
+              ohne Reibungsverluste, Intransparenz oder Risiko.
             </p>
             <p>
-              Vier Einheiten. Eine Gruppe. Eine langfristige Mission: globalen Handel transparent,
-              effizient und vertrauenswürdig gestalten.
+              Von der Beschaffung geprüfter Fabriken über die Automatisierung der Compliance, das Ermöglichen der Fabriksuche
+              und das Abwickeln grenzüberschreitender Handelsfinanzierung — vier Einheiten, eine langfristige Mission.
             </p>
           </div>
           <button id="missionToggle" class="read-more-btn" aria-expanded="false">Mehr lesen ↓</button>
         </div>
       </section>
 
-      <!-- FIVE UNITS -->
+      <!-- FIVE PILLARS -->
       <section class="section section--group" id="group">
-        <div class="section-kicker">Geschäftsbereiche</div>
-        <h2 class="section-title">Vier spezialisierte Einheiten. Eine vollständige Operation.</h2>
-        <p class="section-intro">Jede Einheit adressiert eine eigenständige Ebene des globalen Handelsstacks.</p>
+        <div class="section-kicker">Die Reise</div>
+        <h2 class="section-title">Fünf Etappen. Eine Plattform.</h2>
+        <p class="section-intro">Jede Etappe beantwortet eine Frage — von „wo finde ich es?" bis „wie bezahle ich es?"</p>
 
         <div class="group-tree">
           <div class="group-tree-node">OrcaTrade Group</div>
@@ -294,46 +314,58 @@
 
         <div class="group-grid">
 
-          <article class="group-card">
+          <article class="group-card spotlight">
             <div class="group-card-top">
-              <div class="group-unit-kicker">Beschaffung &amp; Einkauf</div>
-              <span class="group-badge group-badge--live">Aktiv</span>
-            </div>
-            <h3 class="group-unit-name">OrcaTrade Sourcing</h3>
-            <p class="group-unit-desc">Beschaffung aus Asien &amp; Qualitätskontrolle — das Kerngeschäft. Von der Lieferantensuche bis zum Versand.</p>
-            <div class="group-card-footer">
-              <a href="sourcing.html" class="group-visit-link">Sourcing besuchen →</a>
-            </div>
-          </article>
-
-          <article class="group-card group-card--flagship">
-            <div class="group-card-top">
-              <div class="group-unit-kicker group-unit-kicker--flagship">Flaggschiff · KI-Plattform</div>
-              <span class="group-badge group-badge--dev">In Entwicklung</span>
-            </div>
-            <h3 class="group-unit-name">OrcaTrade Intelligence</h3>
-            <p class="group-unit-desc">KI-gestütztes Handels-Betriebssystem für Lieferkettentransparenz, Fabrikrisikobewertung und regulatorische Compliance.</p>
-            <div class="group-card-footer">
-              <a href="intelligence.html" class="group-visit-link">Intelligence besuchen →</a>
-            </div>
-          </article>
-
-          <article class="group-card">
-            <div class="group-card-top">
-              <div class="group-unit-kicker">Fabriksuche</div>
+              <div class="group-unit-kicker">Etappe 01 · Finden</div>
               <span class="group-badge group-badge--dev">Beta</span>
             </div>
             <h3 class="group-unit-name">OrcaTrade Search</h3>
-            <p class="group-unit-desc">Kostenpflichtige Fabriksuchmaschine — finden Sie verifizierte Hersteller in ganz Asien nach Kategorie, Land und MOQ.</p>
+            <p class="group-unit-desc">Verifizierte Hersteller in ganz Asien nach Kategorie, Land und MOQ finden.</p>
             <div class="group-card-footer">
-              <a href="../search/" class="group-visit-link">Search besuchen →</a>
+              <a href="/de/search/" class="group-visit-link">Search öffnen →</a>
             </div>
           </article>
 
-          <article class="group-card">
+          <article class="group-card spotlight">
             <div class="group-card-top">
-              <div class="group-unit-kicker">Handelsfinanzierung</div>
-              <span class="group-badge group-badge--soon">Demnächst</span>
+              <div class="group-unit-kicker">Etappe 02 · Beziehen</div>
+              <span class="group-badge group-badge--live">Live</span>
+            </div>
+            <h3 class="group-unit-name">OrcaTrade Sourcing</h3>
+            <p class="group-unit-desc">Asien-Beschaffung &amp; Qualitätskontrolle, Ende-zu-Ende — vom Lieferanten-Scouting bis zur Sendung.</p>
+            <div class="group-card-footer">
+              <a href="sourcing.html" class="group-visit-link">Sourcing öffnen →</a>
+            </div>
+          </article>
+
+          <article class="group-card group-card--flagship spotlight">
+            <div class="group-card-top">
+              <div class="group-unit-kicker group-unit-kicker--flagship">Etappe 03 · Verifizieren · Flaggschiff</div>
+              <span class="group-badge group-badge--live">Live Now</span>
+            </div>
+            <h3 class="group-unit-name">OrcaTrade Intelligence</h3>
+            <p class="group-unit-desc">Sendungs-Sichtbarkeit, Werks-Scoring und EU-Compliance — eine Betriebsschicht für Import-Teams.</p>
+            <div class="group-card-footer">
+              <a href="/de/compliance/" class="group-visit-link">Intelligence öffnen →</a>
+            </div>
+          </article>
+
+          <article class="group-card spotlight">
+            <div class="group-card-top">
+              <div class="group-unit-kicker">Etappe 04 · Versenden</div>
+              <span class="group-badge group-badge--live">Neu</span>
+            </div>
+            <h3 class="group-unit-name">OrcaTrade Logistik</h3>
+            <p class="group-unit-desc">Asset-light Import-Management — Buchung, Zoll, Last-Mile, alles von einem Schreibtisch.</p>
+            <div class="group-card-footer">
+              <a href="/de/logistik/" class="group-visit-link">Logistik öffnen →</a>
+            </div>
+          </article>
+
+          <article class="group-card spotlight">
+            <div class="group-card-top">
+              <div class="group-unit-kicker">Etappe 05 · Finanzieren</div>
+              <span class="group-badge group-badge--soon">Bald</span>
             </div>
             <h3 class="group-unit-name">OrcaTrade Finance</h3>
             <p class="group-unit-desc">Handelsfinanzierung und grenzüberschreitende Zahlungsabwicklung für europäische Importeure, die in Asien beschaffen.</p>
@@ -343,6 +375,98 @@
           </article>
 
 
+        </div>
+      </section>
+
+      <!-- PINNED STORY -->
+      <section class="section section--story" aria-label="Warum OrcaTrade Intelligence zählt" data-story-section data-story-step="1">
+        <div class="story-shell">
+          <div class="story-panel" data-story-panel>
+            <div class="story-copy-column">
+              <div class="section-kicker" data-reveal="heading">Angepinnte Erzählung · OrcaTrade Intelligence</div>
+              <p class="story-overline" data-reveal="copy">
+                Gebaut für Import-Teams, die durch fragmentierte Beschaffung und steigenden EU-Compliance-Druck navigieren.
+              </p>
+
+              <div class="story-copy-stack">
+                <article class="story-copy is-active" data-story-copy>
+                  <div class="story-index">01</div>
+                  <h2 class="story-title">Globaler Handel ist genau in den Momenten fragmentiert, in denen es darauf ankommt.</h2>
+                  <p class="story-text">
+                    Lieferantensuche, Sendungsupdates und Dokumentprüfungen leben in getrennten Systemen. Entscheidungen bewegen sich, der Kontext nicht.
+                  </p>
+                </article>
+
+                <article class="story-copy" data-story-copy>
+                  <div class="story-index">02</div>
+                  <h2 class="story-title">Compliance-Druck kommt immer später, schwerer und mit weniger Spielraum für Fehler.</h2>
+                  <p class="story-text">
+                    CBAM und sich entwickelnde EU-Anforderungen legen regulatorisches Risiko auf ein bereits komplexes Logistikproblem.
+                  </p>
+                </article>
+
+                <article class="story-copy" data-story-copy>
+                  <div class="story-index">03</div>
+                  <h2 class="story-title">OrcaTrade Intelligence verbindet Sourcing, Logistik und Regulierung zu einer Betriebsschicht.</h2>
+                  <p class="story-text">
+                    Eine Sicht über Sourcing, Sendungstransparenz und Compliance — damit Import-Teams schneller mit weniger blinden Flecken handeln.
+                  </p>
+                </article>
+              </div>
+            </div>
+
+            <div class="story-visual-column">
+              <div class="story-board" aria-hidden="true">
+                <div class="story-board-grid"></div>
+
+                <div class="story-board-sources">
+                  <div class="story-board-node story-board-node--source">
+                    <span class="story-node-label">Sourcing</span>
+                    <strong>Fabrik-Fit</strong>
+                    <p>Fähigkeit, MOQ, Qualität, kommerzielle Freigaben.</p>
+                  </div>
+
+                  <div class="story-board-node story-board-node--logistics">
+                    <span class="story-node-label">Logistik</span>
+                    <strong>Sendungsfluss</strong>
+                    <p>Meilensteine, Dokumente, Routenänderungen, Übergaben.</p>
+                  </div>
+
+                  <div class="story-board-node story-board-node--regulation">
+                    <span class="story-node-label">Regulierung</span>
+                    <strong>CBAM &amp; EU-Nachweise</strong>
+                    <p>Erklärungen, Lieferanten-Belege, Audit-Bereitschaft.</p>
+                  </div>
+                </div>
+
+                <div class="story-board-node story-board-node--orca">
+                  <span class="story-node-label">OrcaTrade Intelligence</span>
+                  <strong>Verbundene Betriebsschicht</strong>
+                  <p>Eine Sicht über Sourcing, Logistik und Compliance — für schnellere, reibungsärmere Entscheidungen.</p>
+                </div>
+
+                <div class="story-board-line story-board-line--source"></div>
+                <div class="story-board-line story-board-line--logistics"></div>
+                <div class="story-board-line story-board-line--regulation"></div>
+                <div class="story-board-pulse"></div>
+              </div>
+
+              <div class="story-signal-strip" data-stagger-group="stat" data-stagger-step="90">
+                <div class="story-signal is-active" data-stagger-item="stat">
+                  <span>Vorher</span>
+                  <strong>Fragmentierte Übergaben</strong>
+                </div>
+                <div class="story-signal" data-stagger-item="stat">
+                  <span>Druck</span>
+                  <strong>Steigende Compliance-Last</strong>
+                </div>
+                <div class="story-signal" data-stagger-item="stat">
+                  <span>Nachher</span>
+                  <strong>Verbundene Handels-Intelligenz</strong>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -535,12 +659,52 @@
       setTimeout(dismiss, 3500);
       window.addEventListener('scroll', dismiss, { once: true, passive: true });
     })();
+
+    /* ── PAGE TOC SCROLL-SPY + NAV LIFT ── */
+    (function () {
+      var links = document.querySelectorAll('.page-toc a');
+      var headerEl = document.querySelector('header');
+      var sections = Array.prototype.map.call(links, function (link) {
+        var id = link.getAttribute('href').slice(1);
+        return document.getElementById(id);
+      }).filter(Boolean);
+      function onScroll() {
+        if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 24);
+        if (!sections.length) return;
+        var fromTop = window.scrollY + 140;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= fromTop) current = sections[i];
+        }
+        if (!current) return;
+        var activeId = current.id;
+        Array.prototype.forEach.call(links, function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
+        });
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    /* ── CURSOR-FOLLOWING SPOTLIGHT ── */
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelectorAll('.spotlight').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+          var rect = card.getBoundingClientRect();
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        });
+      });
+    })();
   </script>
   <script src="../js/main.js"></script>
   <script src="../js/form.js"></script>
   <script src="../js/chat.js"></script>
   <script src="../js/forms.js"></script>
   <script src="../js/transitions.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/d3@7/dist/d3.min.js"></script>
+  <script defer src="../js/globe.js"></script>
   <script>
     (function () {
       const TAG_CLASS = { Policy: 'policy', Logistics: 'logistics', Sourcing: 'sourcing', Trade: 'trade' };
