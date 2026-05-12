@@ -24,7 +24,46 @@
     { id: 'ex_015', category: 'E-bike + e-scooter',                   country: 'VN', region: 'Haiphong',                    yearsOperating: 8,  moqRange: '50 – 2,000 units',      leadTimeWeeks: '10 – 14', certifications: ['ISO 9001', 'EN 15194 ready', 'UN 38.3 (battery)'], capabilities: ['Frame welding', 'Battery pack assembly', 'Final QC line'], preferentialOriginEligible: true, notes: 'EVFTA preferential; battery pack origin matters for AD/CVD on completed e-bikes.' },
   ];
 
-  var COUNTRY_NAMES = { CN: 'China', VN: 'Vietnam', IN: 'India', BD: 'Bangladesh', KR: 'South Korea', TR: 'Türkiye', TW: 'Taiwan', IT: 'Italy' };
+  var LOCALE = (document.documentElement.lang || 'en').slice(0, 2).toLowerCase();
+  if (LOCALE !== 'pl' && LOCALE !== 'de') LOCALE = 'en';
+
+  var STRINGS = {
+    en: {
+      allCountries: 'All countries',
+      moq: 'MOQ',
+      leadTime: 'Lead time',
+      weeks: 'weeks',
+      yrs: 'yrs',
+      eligible: '✓ Preferential-origin eligible',
+      notEligible: '— No preferential origin (MFN duty applies)',
+      requestIntro: 'Request introduction',
+      countries: { CN: 'China', VN: 'Vietnam', IN: 'India', BD: 'Bangladesh', KR: 'South Korea', TR: 'Türkiye', TW: 'Taiwan', IT: 'Italy' },
+    },
+    pl: {
+      allCountries: 'Wszystkie kraje',
+      moq: 'MOQ',
+      leadTime: 'Czas dostawy',
+      weeks: 'tygodni',
+      yrs: 'lat',
+      eligible: '✓ Kwalifikuje się do preferencyjnego pochodzenia',
+      notEligible: '— Brak preferencyjnego pochodzenia (stawka MFN)',
+      requestIntro: 'Poproś o wprowadzenie',
+      countries: { CN: 'Chiny', VN: 'Wietnam', IN: 'Indie', BD: 'Bangladesz', KR: 'Korea Płd.', TR: 'Turcja', TW: 'Tajwan', IT: 'Włochy' },
+    },
+    de: {
+      allCountries: 'Alle Länder',
+      moq: 'MOQ',
+      leadTime: 'Lieferzeit',
+      weeks: 'Wochen',
+      yrs: 'J.',
+      eligible: '✓ Präferenzursprung möglich',
+      notEligible: '— Kein Präferenzursprung (MFN-Zoll)',
+      requestIntro: 'Vorstellung anfragen',
+      countries: { CN: 'China', VN: 'Vietnam', IN: 'Indien', BD: 'Bangladesch', KR: 'Südkorea', TR: 'Türkei', TW: 'Taiwan', IT: 'Italien' },
+    },
+  };
+  var T = STRINGS[LOCALE];
+  var COUNTRY_NAMES = T.countries;
 
   function escapeHtml(s) {
     var d = document.createElement('div');
@@ -37,7 +76,7 @@
   function renderCountryFilter(activeCountry) {
     var bar = document.getElementById('country-filter');
     var countries = uniq(EXEMPLARS.map(function (e) { return e.country; })).sort();
-    bar.innerHTML = '<button class="filter-btn ' + (activeCountry === 'all' ? 'active' : '') + '" data-country="all" type="button">All countries</button>'
+    bar.innerHTML = '<button class="filter-btn ' + (activeCountry === 'all' ? 'active' : '') + '" data-country="all" type="button">' + T.allCountries + '</button>'
       + countries.map(function (c) {
           return '<button class="filter-btn ' + (activeCountry === c ? 'active' : '') + '" data-country="' + c + '" type="button">' + escapeHtml(COUNTRY_NAMES[c] || c) + '</button>';
         }).join('');
@@ -49,18 +88,18 @@
   function renderCard(e) {
     return '<div class="supplier-card" data-id="' + escapeHtml(e.id) + '">'
       +   '<div class="cat">' + escapeHtml(e.category) + '</div>'
-      +   '<div class="country">' + escapeHtml(COUNTRY_NAMES[e.country] || e.country) + '<span class="yrs">' + e.yearsOperating + ' yrs</span></div>'
+      +   '<div class="country">' + escapeHtml(COUNTRY_NAMES[e.country] || e.country) + '<span class="yrs">' + e.yearsOperating + ' ' + T.yrs + '</span></div>'
       +   '<div class="region">' + escapeHtml(e.region) + '</div>'
       +   '<div class="meta-row">'
-      +     '<span class="k">MOQ</span><span>' + escapeHtml(e.moqRange) + '</span>'
-      +     '<span class="k">Lead time</span><span>' + escapeHtml(e.leadTimeWeeks) + ' weeks</span>'
+      +     '<span class="k">' + T.moq + '</span><span>' + escapeHtml(e.moqRange) + '</span>'
+      +     '<span class="k">' + T.leadTime + '</span><span>' + escapeHtml(e.leadTimeWeeks) + ' ' + T.weeks + '</span>'
       +   '</div>'
       +   '<div class="certs">' + e.certifications.map(function (c) { return '<span class="cert">' + escapeHtml(c) + '</span>'; }).join('') + '</div>'
       +   (e.preferentialOriginEligible
-            ? '<div class="pref">✓ Preferential-origin eligible</div>'
-            : '<div class="pref-not">— No preferential origin (MFN duty applies)</div>')
+            ? '<div class="pref">' + T.eligible + '</div>'
+            : '<div class="pref-not">' + T.notEligible + '</div>')
       +   '<div class="notes">' + escapeHtml(e.notes) + '</div>'
-      +   '<a class="request-btn" href="/#contact?intent=supplier-introduction&exemplar=' + escapeHtml(e.id) + '">Request introduction</a>'
+      +   '<a class="request-btn" href="/#contact?intent=supplier-introduction&exemplar=' + escapeHtml(e.id) + '">' + T.requestIntro + '</a>'
       + '</div>';
   }
 

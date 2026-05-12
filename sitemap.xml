@@ -55,6 +55,72 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://orcatrade.pl/press/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/press/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/press/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/press/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/press/" />
+  </url>
+  <url>
+    <loc>https://orcatrade.pl/pl/press/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://orcatrade.pl/de/press/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://orcatrade.pl/partners/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/partners/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/partners/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/partners/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/partners/" />
+  </url>
+  <url>
+    <loc>https://orcatrade.pl/pl/partners/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://orcatrade.pl/de/partners/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://orcatrade.pl/marketplace/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.7</priority>
+    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/marketplace/" />
+    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/marketplace/" />
+    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/marketplace/" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/marketplace/" />
+  </url>
+  <url>
+    <loc>https://orcatrade.pl/pl/marketplace/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
+    <loc>https://orcatrade.pl/de/marketplace/</loc>
+    <lastmod>2026-05-12</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.65</priority>
+  </url>
+  <url>
     <loc>https://orcatrade.pl/routing/</loc>
     <lastmod>2026-05-12</lastmod>
     <changefreq>monthly</changefreq>
