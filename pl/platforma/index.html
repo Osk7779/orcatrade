@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaTrade Platforma — System operacyjny importu Azja → Europa</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Od „nie wiem, jak to zrobić" do towaru na rampie magazynu. Pięć etapów drogi importu — Znajdź · Zweryfikuj · Wyślij · Sfinansuj — koordynowane na jednej platformie.">
+  <meta property="og:title" content="OrcaTrade Platforma — System operacyjny importu Azja → Europa" />
+  <meta property="og:description" content="Pięć etapów drogi importu na jednej platformie. Agenci AI, zweryfikowani dostawcy, compliance EU-first, hongkoński zespół na miejscu." />
+  <link rel="canonical" href="https://www.orcatrade.pl/pl/platforma/" />
+  <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/platform/" />
+  <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/platforma/" />
+  <link rel="alternate" hreflang="de" href="https://www.orcatrade.pl/de/plattform/" />
+  <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/platform/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    .stage { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: clamp(2rem, 4vw, 4rem); align-items: start; padding: clamp(3rem, 6vw, 6rem) 0; border-top: 1px solid rgba(255, 255, 255, 0.06); }
+    .stage:first-of-type { border-top: none; }
+    @media (max-width: 880px) { .stage { grid-template-columns: 1fr; } }
+    .stage-marker { display: flex; flex-direction: column; gap: 0.6rem; position: sticky; top: 7rem; }
+    .stage-num { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(3rem, 6vw, 4.4rem); font-weight: 700; line-height: 1; letter-spacing: -0.02em; color: rgba(255, 255, 255, 0.95); }
+    .stage-num em { font-style: italic; font-weight: 500; color: var(--accent-color, #b8bec8); }
+    .stage-tag { font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--accent-color, #b8bec8); opacity: 0.85; }
+    .stage-product { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; letter-spacing: -0.01em; }
+    .stage-status { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; padding: 0.25rem 0.55rem; border: 1px solid rgba(255, 255, 255, 0.18); color: rgba(255, 255, 255, 0.7); width: fit-content; }
+    .stage-status--live { color: #6fa66f; border-color: rgba(111, 166, 111, 0.4); background: rgba(111, 166, 111, 0.06); }
+    .stage-status--new { color: var(--accent-color, #b8bec8); border-color: rgba(184, 190, 200, 0.4); background: rgba(184, 190, 200, 0.06); }
+    .stage-status--soon { color: #c9a256; border-color: rgba(201, 162, 86, 0.4); background: rgba(201, 162, 86, 0.06); }
+    .stage-status--beta { color: rgba(255, 255, 255, 0.85); border-color: rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.04); }
+    .stage-question { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.6rem, 2.4vw + 0.6rem, 2.4rem); font-weight: 600; letter-spacing: -0.015em; line-height: 1.15; margin-bottom: 1.2rem; color: rgba(255, 255, 255, 0.96); }
+    .stage-question em { font-style: italic; color: var(--accent-color, #b8bec8); }
+    .stage-answer { font-size: 1rem; line-height: 1.72; color: rgba(255, 255, 255, 0.78); margin-bottom: 1.6rem; max-width: 56ch; }
+    .stage-bullets { list-style: none; padding: 0; margin: 0 0 1.8rem; display: grid; gap: 0.7rem; }
+    .stage-bullets li { font-size: 0.9rem; line-height: 1.6; color: rgba(255, 255, 255, 0.85); display: flex; gap: 0.7rem; }
+    .stage-bullets li::before { content: "▸"; flex-shrink: 0; color: var(--accent-color, #b8bec8); }
+    .stage-link { display: inline-flex; align-items: center; gap: 0.4rem; font-size: 0.84rem; font-weight: 500; letter-spacing: 0.04em; color: var(--accent-color, #b8bec8); padding-bottom: 0.2rem; border-bottom: 1px solid rgba(184, 190, 200, 0.4); transition: border-color 0.18s, color 0.18s; }
+    .stage-link:hover { color: #fff; border-color: #fff; }
+    .stage-rail { position: fixed; left: 1.6rem; top: 50%; transform: translateY(-50%); z-index: 35; display: flex; flex-direction: column; gap: 1rem; padding: 1rem 0.7rem; background: rgba(8, 12, 22, 0.6); backdrop-filter: blur(12px); border: 1px solid rgba(255, 255, 255, 0.07); }
+    .stage-rail a { display: flex; align-items: center; gap: 0.6rem; color: rgba(255, 255, 255, 0.5); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; transition: color 0.18s; text-decoration: none; }
+    .stage-rail a::before { content: ""; width: 0.55rem; height: 0.55rem; border: 1px solid rgba(255, 255, 255, 0.25); transition: background 0.18s, border-color 0.18s; }
+    .stage-rail a.active { color: #fff; }
+    .stage-rail a.active::before { background: var(--accent-color, #b8bec8); border-color: var(--accent-color, #b8bec8); }
+    .stage-rail a:hover { color: rgba(255, 255, 255, 0.9); }
+    @media (max-width: 1280px) { .stage-rail { display: none; } }
+    .manifesto { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; margin-top: 2.5rem; border: 1px solid rgba(255, 255, 255, 0.07); background: rgba(255, 255, 255, 0.07); }
+    .manifesto-card { background: #0d0f14; padding: 1.8rem 1.6rem; display: flex; flex-direction: column; gap: 0.6rem; }
+    .manifesto-card .h { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; letter-spacing: -0.01em; color: rgba(255, 255, 255, 0.95); }
+    .manifesto-card .p { font-size: 0.86rem; line-height: 1.65; color: rgba(255, 255, 255, 0.72); }
+    @media (max-width: 720px) { .manifesto { grid-template-columns: 1fr; } }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+  <link rel="icon" type="image/png" sizes="48x48" href="/favicon-48x48.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#0a1628" />
+</head>
+<body>
+  <div class="aurora" aria-hidden="true"><div class="aurora-blob b1"></div><div class="aurora-blob b2"></div><div class="aurora-blob b3"></div></div>
+
+  <nav class="stage-rail" aria-label="Etapy drogi">
+    <a href="#stage-1" data-rail="stage-1">01 · Znajdź</a>
+    <a href="#stage-2" data-rail="stage-2">02 · Sourcuj</a>
+    <a href="#stage-3" data-rail="stage-3">03 · Zweryfikuj</a>
+    <a href="#stage-4" data-rail="stage-4">04 · Wyślij</a>
+    <a href="#stage-5" data-rail="stage-5">05 · Sfinansuj</a>
+  </nav>
+
+  <nav class="page-toc" aria-label="Nawigacja strony">
+    <a href="#top" data-toc="top"><span>Góra</span></a>
+    <a href="#journey" data-toc="journey"><span>Droga</span></a>
+    <a href="#why" data-toc="why"><span>Dlaczego my</span></a>
+    <a href="#cta" data-toc="cta"><span>Zaangażuj</span></a>
+  </nav>
+
+  <div class="page">
+    <header data-site-header></header>
+    <main>
+      <section class="section unit-hero" id="top">
+        <a href="/pl/" class="back-link">← Powrót do OrcaTrade Group</a>
+        <div class="hero-kicker" data-reveal="hero">Platforma · Jedna warstwa operacyjna</div>
+        <h1 class="unit-hero-title" data-reveal="hero">Od <em>„nie wiem, jak to zrobić"</em><br>do towaru na rampie magazynu.</h1>
+        <p class="unit-hero-body" data-reveal="hero">
+          Import z Azji to droga w pięciu etapach. Większość importerów składa to sobie sama z spedytorów, agentów sourcingowych, brokerów celnych, doradców compliance i banków. Zbudowaliśmy jedną platformę, która prowadzi cały flow — wsparta agentami AI, zweryfikowanymi dostawcami, compliance EU-first i obecnością w Hongkongu.
+        </p>
+
+        <div class="hero-meta" data-reveal="hero">
+          <div class="hero-tag">Znajdź · Zweryfikuj · Wyślij · Sfinansuj</div>
+          <div class="hero-divider"></div>
+          <div class="hero-detail">5 etapów · 1 platforma · Azja → Europa</div>
+        </div>
+
+        <div class="hero-actions" data-reveal="hero" style="margin-top:1.4rem;">
+          <a class="btn btn-primary" href="#journey">Zobacz pięć etapów</a>
+          <a class="btn btn-ghost" href="/pl/cennik/">Zobacz cennik</a>
+        </div>
+      </section>
+
+      <section class="section" id="journey">
+        <div class="section-kicker">Droga w pięciu etapach</div>
+        <h2 class="section-title">Każdy etap odpowiada na jedno pytanie.</h2>
+        <p class="section-intro">Pięć produktów, ale klient doświadcza jednej drogi — od „gdzie to znaleźć?" do „jak to zapłacić?"</p>
+
+        <article class="stage" id="stage-1">
+          <div class="stage-marker">
+            <div class="stage-tag">Etap 01</div>
+            <div class="stage-num"><em>Znajdź</em></div>
+            <div class="stage-product">OrcaTrade Search</div>
+            <div class="stage-status stage-status--beta">Beta</div>
+          </div>
+          <div>
+            <h3 class="stage-question">„Gdzie <em>znaleźć</em> właściwego dostawcę?"</h3>
+            <p class="stage-answer">Wyszukiwarka fabryk AI wśród zweryfikowanych producentów azjatyckich. Filtruj wg kategorii, kraju, MOQ i certyfikatów. Koniec z tygodniami grzebania w Alibaba czy 1688 i próbami odróżnienia fabryk od pośredników.</p>
+            <ul class="stage-bullets">
+              <li>Kuratorowana baza wstępnie zweryfikowanych producentów w Chinach, Wietnamie, Indiach</li>
+              <li>Filtruj po możliwościach, mocach, MOQ, certyfikatach, historii eksportu</li>
+              <li>Dwa tryby wyszukiwania: realna wiedza i tryb uczciwości</li>
+              <li>Zwraca 3–5 kandydatów z porównywalnym scoringiem, a nie 500 nieuporządkowanych wyników</li>
+            </ul>
+            <a href="/pl/search/" class="stage-link">Otwórz Search →</a>
+          </div>
+        </article>
+
+        <article class="stage" id="stage-2">
+          <div class="stage-marker">
+            <div class="stage-tag">Etap 02</div>
+            <div class="stage-num"><em>Sourcuj</em></div>
+            <div class="stage-product">OrcaTrade Sourcing</div>
+            <div class="stage-status stage-status--live">Live</div>
+          </div>
+          <div>
+            <h3 class="stage-question">„Jak <em>negocjować</em>, próbkować i zawrzeć kontrakt?"</h3>
+            <p class="stage-answer">Zakupy w Azji i kontrola jakości end-to-end. Koordynacja próbek, negocjacja ceny, audyty fabryczne i ustrukturyzowane bramki QC, byś nie wyłapywał wad na rampie magazynu.</p>
+            <ul class="stage-bullets">
+              <li>Scouting i weryfikacja dostawców pod Twoją specyfikację, wolumen i wymogi compliance</li>
+              <li>Koordynacja próbek i zamknięcie golden sample</li>
+              <li>Inspekcje QC pre-prod, mid-prod i pre-shipment</li>
+              <li>Negocjacja ceny i warunków płatności w Twoim imieniu</li>
+            </ul>
+            <a href="/pl/sourcing/" class="stage-link">Otwórz Sourcing →</a>
+          </div>
+        </article>
+
+        <article class="stage" id="stage-3">
+          <div class="stage-marker">
+            <div class="stage-tag">Etap 03 · Flagowy</div>
+            <div class="stage-num"><em>Zweryfikuj</em></div>
+            <div class="stage-product">OrcaTrade Intelligence</div>
+            <div class="stage-status stage-status--live">Live</div>
+          </div>
+          <div>
+            <h3 class="stage-question">„Czy ten dostawca jest <em>bezpieczny</em>? Czy jestem <em>zgodny</em>?"</h3>
+            <p class="stage-answer">Trzy aktywne filary: widoczność wysyłki, scoring ryzyka fabryki, compliance UE. Flagowa analiza CBAM zwraca brief regulacyjny w sekundach — każde twierdzenie cytowane do regulacji, każda liczba z pokazaną kalkulacją.</p>
+            <ul class="stage-bullets">
+              <li>Śledzenie wysyłek z presją trasy i prognozami zakłóceń</li>
+              <li>Scoring fabryki w obszarach ryzyko, audyt, moce, stabilność, compliance</li>
+              <li>Stosowalność CBAM, EUDR, CSDDD z cytatami na poziomie artykułu</li>
+              <li>Odznaki pewności w całym produkcie — brak dowodu nigdy nie jest oznaczony jako gotowe</li>
+            </ul>
+            <a href="/pl/compliance/" class="stage-link">Otwórz Intelligence →</a>
+          </div>
+        </article>
+
+        <article class="stage" id="stage-4">
+          <div class="stage-marker">
+            <div class="stage-tag">Etap 04 · Nowość</div>
+            <div class="stage-num"><em>Wyślij</em></div>
+            <div class="stage-product">OrcaTrade Logistyka</div>
+            <div class="stage-status stage-status--new">Nowość</div>
+          </div>
+          <div>
+            <h3 class="stage-question">„Jak <em>faktycznie ruszyć</em> i odprawić towar?"</h3>
+            <p class="stage-answer">Asset-light zarządzanie importem. Koordynujemy spedytorów, brokerów i inspektorów z jednego biurka, żebyś nie tonął w łańcuchach mailowych. Hongkoński zespół na miejscu, polski licencjonowany broker celny, last-mile na całą UE.</p>
+            <ul class="stage-bullets">
+              <li>Tier 1 — Spedycja Lite: booking u sprawdzonych spedytorów, transakcyjnie</li>
+              <li>Tier 2 — Pełne zarządzanie importem: end-to-end, od dostawcy po magazyn</li>
+              <li>Tier 3 — Compliance i doradztwo: pakiety audytów CBAM, CE, REACH, EUDR</li>
+              <li>Morze, lotnictwo i kolej Chiny-Europa przez Małaszewicze</li>
+            </ul>
+            <a href="/pl/logistyka/" class="stage-link">Otwórz Logistykę →</a>
+          </div>
+        </article>
+
+        <article class="stage" id="stage-5">
+          <div class="stage-marker">
+            <div class="stage-tag">Etap 05</div>
+            <div class="stage-num"><em>Sfinansuj</em></div>
+            <div class="stage-product">OrcaTrade Finanse</div>
+            <div class="stage-status stage-status--soon">Wkrótce</div>
+          </div>
+          <div>
+            <h3 class="stage-question">„Jak <em>zapłacić</em>, hedgować i sfinansować transakcję?"</h3>
+            <p class="stage-answer">Finansowanie handlu i płatności transgraniczne zaprojektowane pod realia europejskich MŚP sourcujących z Azji. Rekomendacje warunków płatności, sugestie hedgingu FX, opcje kapitału obrotowego korzystające z danych wysyłek i dostawców samej platformy.</p>
+            <ul class="stage-bullets">
+              <li>Rekomendacje warunków płatności (LC vs TT vs DA/DP) powiązane ze scorem dostawcy</li>
+              <li>Modelowanie ekspozycji FX i wskazówki hedgingu</li>
+              <li>Opcje trade finance dla importerów z ograniczonym cashflow</li>
+              <li>Portfel multiwalutowy w EUR, USD, CNY, HKD, PLN</li>
+            </ul>
+            <a href="#" class="stage-link">Otwórz Finanse →</a>
+          </div>
+        </article>
+      </section>
+
+      <section class="section" id="why">
+        <div class="section-kicker">Dlaczego to działa</div>
+        <h2 class="section-title">Fosa jest operacyjna, nie techniczna.</h2>
+        <p class="section-intro">Horyzontalną platformę AI łatwo zbudować i łatwo skopiować. Czego nie da się skopiować: lat danych o dostawcach, biura w HK i postawy compliance UE wbudowanej od dnia pierwszego.</p>
+
+        <div class="manifesto">
+          <article class="manifesto-card"><div class="h">Hongkoński zespół na miejscu.</div><p class="p">Nasz zespół w Hongkongu prowadzi logistykę po stronie eksportowej. Czysto-cyfrowi spedytorzy nie dorównają w osobistej weryfikacji dostawcy, konsolidacji próbek czy rozwiązywaniu sporów w cenie dla MŚP. My — tak.</p></article>
+          <article class="manifesto-card"><div class="h">Regulacja UE-first, nie dodatek.</div><p class="p">CBAM, EUDR, REACH, CE, RoHS, EU AI Act. Większość platform jest amerykocentryczna i traktuje regulacje UE jako nakładkę. Nasz silnik compliance to drzwi wejściowe, a nie sidebar.</p></article>
+          <article class="manifesto-card"><div class="h">Agenci AI, którzy obsługują platformę.</div><p class="p">Sourcing, Compliance, Logistyka, Finanse i orchestrator operacyjny. Agenci routują, wykonują i eskalują do ludzi, gdy to ma znaczenie. Każde nieodwracalne działanie pozostaje zatwierdzone przez człowieka.</p></article>
+          <article class="manifesto-card"><div class="h">Asset-light z założenia.</div><p class="p">Brak własnych statków, samolotów, ciężarówek czy magazynów. Koordynujemy partnerów, którzy już mają tę zdolność. Marże pozostają zdrowe, a wymogi kapitałowe ograniczone.</p></article>
+          <article class="manifesto-card"><div class="h">Zbudowane pod realia MŚP.</div><p class="p">€50 tys.–€2 mln rocznego wolumenu importu, 2–50 wysyłek rocznie. Dość duzi, by potrzebować pomocy, dość mali, by DSV i K+N nie oddzwoniło. Siedzimy w tej luce.</p></article>
+          <article class="manifesto-card"><div class="h">Polski, niemiecki i angielski — najpierw.</div><p class="p">Każda istotna strona żyje w EN, PL i DE. Polscy founderzy e-commerce, niemiecki Mittelstand, szerszy CEE — mówimy językami i znamy systemy celne.</p></article>
+        </div>
+      </section>
+
+      <section class="section" id="cta">
+        <div style="text-align:center; margin-bottom:2rem;">
+          <div class="section-kicker">Zaangażuj</div>
+          <h2 class="section-title">Dwa sposoby, by zacząć.</h2>
+          <p class="section-intro" style="margin: 0 auto;">Uruchom realną analizę CBAM, by zobaczyć głębokość platformy, albo poproś o wycenę logistyczną, by przerobić realną wysyłkę.</p>
+        </div>
+
+        <div class="manifesto" style="grid-template-columns: 1fr 1fr;">
+          <article class="manifesto-card spotlight">
+            <div class="h">Wygeneruj brief compliance UE.</div>
+            <p class="p">Powiedz nam, co importujesz. Sprawdzamy CBAM i EUDR — stosowalność, kalkulację ekspozycji, luki dowodowe, uszeregowane akcje, każde twierdzenie z cytatem. Bezpłatnie.</p>
+            <a href="/pl/analiza/" class="stage-link" style="margin-top:1rem;">Uruchom brief →</a>
+          </article>
+          <article class="manifesto-card spotlight">
+            <div class="h">Poproś o wycenę logistyczną.</div>
+            <p class="p">Formularz wieloetapowy, ~2 minuty. Rodzaj ładunku, wolumen, trasa, Incoterm. Odpowiadamy w ciągu jednego dnia roboczego wyceną na nasze trzy poziomy serwisu.</p>
+            <a href="/pl/logistyka/#inquiry" class="stage-link" style="margin-top:1rem;">Poproś o wycenę →</a>
+          </article>
+        </div>
+
+        <p style="text-align:center; margin-top:2.5rem; font-size:0.84rem; color: rgba(255,255,255,0.55); letter-spacing: 0.04em;">Albo po prostu <a href="/pl/#contact" style="color: var(--accent-color, #b8bec8); border-bottom: 1px dotted rgba(184,190,200,0.4);">napisz</a>, a my Cię pokierujemy.</p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. Wszelkie prawa zastrzeżone.</span>
+        <span>Warszawa, Londyn &amp; Hongkong • Europa ↔ Azja</span>
+        <span><a href="#top">Powrót do góry</a></span>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/orcatradegroup?igsh=MWpra3YwMGthaWcyMw==" target="_blank" rel="noopener" aria-label="OrcaTrade Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://www.linkedin.com/company/orcatrade-holding/" target="_blank" rel="noopener" aria-label="OrcaTrade LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script src="/js/chat.js"></script>
+  <script src="/js/transitions.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+    (function () {
+      var tocLinks = document.querySelectorAll('.page-toc a');
+      var railLinks = document.querySelectorAll('.stage-rail a');
+      var headerEl = document.querySelector('header');
+      var tocSections = Array.prototype.map.call(tocLinks, function (link) { return document.getElementById(link.getAttribute('href').slice(1)); }).filter(Boolean);
+      var stages = Array.prototype.map.call(railLinks, function (link) { return document.getElementById(link.getAttribute('href').slice(1)); }).filter(Boolean);
+      function setActive(links, sections) {
+        if (!sections.length) return;
+        var fromTop = window.scrollY + 160;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) { if (sections[i].offsetTop <= fromTop) current = sections[i]; }
+        var activeId = current.id;
+        Array.prototype.forEach.call(links, function (link) { link.classList.toggle('active', link.getAttribute('href') === '#' + activeId); });
+      }
+      function onScroll() {
+        if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 24);
+        setActive(tocLinks, tocSections);
+        setActive(railLinks, stages);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelectorAll('.spotlight').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+          var rect = card.getBoundingClientRect();
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        });
+      });
+    })();
+  </script>
+</body>
+</html>
