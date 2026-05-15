@@ -113,6 +113,12 @@
               <label for="productDescription">Krótki opis (opcjonalnie)</label>
               <input type="text" id="productDescription" name="productDescription" placeholder="np. bawełniane t-shirty, głośniki bluetooth, dębowe stoły" />
             </div>
+            <div class="field" data-i18n-field="hsCode">
+              <label for="hsCode">Kod HS (opcjonalnie, 8–10 cyfr)</label>
+              <input type="text" id="hsCode" name="hsCode" placeholder="6203 42 35" inputmode="numeric" autocomplete="off"
+                     pattern="[0-9 .]{6,14}" maxlength="14" />
+              <p class="helper">Znasz dokładny kod nomenklatury? Wpisz go, byśmy pobrali stawkę celną na poziomie podpozycji z aktualnych danych tarycznych, zamiast szacunku z poziomu rozdziału. W przeciwnym razie zostaw puste — użyjemy średniej dla rozdziału.</p>
+            </div>
           </div>
 
           <!-- KROK 2: Pochodzenie -->

@@ -113,6 +113,12 @@
               <label for="productDescription">Kurzbeschreibung (optional)</label>
               <input type="text" id="productDescription" name="productDescription" placeholder="z.B. Baumwoll-T-Shirts, Bluetooth-Lautsprecher, Eichen-Esstische" />
             </div>
+            <div class="field" data-i18n-field="hsCode">
+              <label for="hsCode">HS-Code (optional, 8–10 Stellen)</label>
+              <input type="text" id="hsCode" name="hsCode" placeholder="6203 42 35" inputmode="numeric" autocomplete="off"
+                     pattern="[0-9 .]{6,14}" maxlength="14" />
+              <p class="helper">Kennen Sie den genauen Warencode? Geben Sie ihn ein, dann ziehen wir den Unterpositions-Zollsatz aus aktuellen Tarifdaten statt einer Kapitel-Schätzung. Sonst leer lassen — wir verwenden den Kapiteldurchschnitt.</p>
+            </div>
           </div>
 
           <!-- SCHRITT 2: Herkunft -->

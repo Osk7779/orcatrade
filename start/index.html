@@ -113,6 +113,13 @@
               <label for="productDescription">Brief description (optional)</label>
               <input type="text" id="productDescription" name="productDescription" placeholder="e.g. cotton t-shirts, bluetooth speakers, oak dining tables" />
             </div>
+            <div class="field" data-i18n-field="hsCode">
+              <label for="hsCode" data-i18n-label="hsCode">HS code (optional, 8–10 digits)</label>
+              <input type="text" id="hsCode" name="hsCode" placeholder="6203 42 35" inputmode="numeric" autocomplete="off"
+                     pattern="[0-9 .]{6,14}" maxlength="14"
+                     data-i18n-placeholder="hsCode" />
+              <p class="helper" data-i18n-helper="hsCode">Already know the precise commodity code? Drop it in to pull a sub-chapter duty rate from live tariff data instead of the category-level estimate. Otherwise leave blank — we'll use the chapter average.</p>
+            </div>
           </div>
 
           <!-- STEP 2: Origin -->

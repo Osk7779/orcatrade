@@ -197,6 +197,41 @@ test('composePlan respects explicit hsCode override', async () => {
   assert.equal(plan.inputs.hsCode, '61');
 });
 
+test('composePlan: 8-digit hsCode with cached TARIC entry uses live rate', async () => {
+  const kv = require('../lib/intelligence/kv-store');
+  const taric = require('../lib/intelligence/taric-client');
+  kv._resetMemoryStore();
+  // Seed the cache with a synthetic live rate that's distinctly different
+  // from the apparel chapter baseline (12%) so the override is visible.
+  await kv.setJson(taric._cacheKey('62034235', 'CN'), {
+    rate: 0.155,
+    source: 'uk-trade-tariff',
+    sourceLabel: 'UK Trade Tariff (sanity-check; EU may differ)',
+    asOf: '2026-05-01',
+    savedAt: Math.floor(Date.now() / 1000),
+  }, 60 * 60);
+
+  const plan = await composePlan({
+    productCategory: 'apparel',
+    originCountry: 'CN',
+    destinationCountry: 'PL',
+    customsValueEur: 10000,
+    weightKg: 200,
+    hsCode: '6203 42 35',          // user-typed with spaces — should still resolve
+  });
+  assert.equal(plan.ok, true);
+  // mfnSource should reflect the live lookup, not the chapter estimator.
+  assert.match(
+    plan.customs.duty.mfnSource,
+    /UK Trade Tariff|uk-trade-tariff/,
+    `expected live source, got "${plan.customs.duty.mfnSource}"`
+  );
+  // The live rate (15.5%) was applied, not the chapter (12%).
+  assert.ok(plan.customs.duty.mfnRatePercent > 14, `expected mfn > 14%, got ${plan.customs.duty.mfnRatePercent}`);
+  // The chapter rate is preserved for transparency in the response.
+  assert.equal(plan.customs.duty.chapterRatePercent, 12);
+});
+
 test('composePlan totals: landed = transport + value + duty + vat + brokerage', async () => {
   const plan = await composePlan({
     productCategory: 'furniture',
