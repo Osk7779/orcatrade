@@ -24,6 +24,10 @@ on:
     # Wednesday 05:00 UTC — EUR-Lex regime drift check
     # (weekly is enough — these regulations change quarterly at most)
     - cron: '0 5 * * 3'
+    # Daily 04:15 UTC — TARIC cache warmer (Sprint F).
+    # Keeps the curated 30-entry HS×origin cache fresh so the first
+    # real user with one of these codes sees an instant response.
+    - cron: '15 4 * * *'
   workflow_dispatch:
     inputs:
       job:
@@ -34,6 +38,7 @@ on:
           - founder-digest
           - plan-revision-emails
           - regime-change-check
+          - taric-warm
 
 jobs:
   dispatch:
@@ -50,6 +55,8 @@ jobs:
             echo "job=plan-revision-emails" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 5 * * 3" ]; then
             echo "job=regime-change-check" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "15 4 * * *" ]; then
+            echo "job=taric-warm" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi

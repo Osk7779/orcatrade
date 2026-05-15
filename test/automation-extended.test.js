@@ -325,7 +325,21 @@ test('cron.yml: regime-change-check is scheduled + dispatchable', () => {
   assert.match(yml, /regime-change-check/);
 });
 
-test('cron handler: JOBS map contains all three scheduled jobs', () => {
+test('cron.yml: taric-warm is scheduled daily + dispatchable', () => {
+  const yml = fs.readFileSync(path.join(ROOT, '.github/workflows/cron.yml'), 'utf8');
+  assert.match(yml, /'15 4 \* \* \*'/);
+  assert.match(yml, /taric-warm/);
+});
+
+test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
+  // founder-digest + plan-revision-emails fire weekly from GHA cron.
+  // regime-change-check fires nightly. taric-warm fires nightly too —
+  // see lib/handlers/cron.js#runTaricWarm (Sprint F).
   const ids = Object.keys(cronHandler.JOBS).sort();
-  assert.deepEqual(ids, ['founder-digest', 'plan-revision-emails', 'regime-change-check']);
+  assert.deepEqual(ids, [
+    'founder-digest',
+    'plan-revision-emails',
+    'regime-change-check',
+    'taric-warm',
+  ]);
 });
