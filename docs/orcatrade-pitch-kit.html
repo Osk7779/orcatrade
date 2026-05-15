@@ -1,0 +1,2169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>OrcaTrade — Pitch Kit · v1.0 · May 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,500;1,600&family=Geist+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  /* ============================================================
+     OrcaTrade Pitch Kit — single-file pitch source
+     Visual language: Deep Navy / Ivory / Brand Gold (print palette)
+     Inspired by /docs/raport-orcatrade.html
+     ============================================================ */
+
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  @page :first { margin: 0; }
+
+  :root {
+    --navy: #0a1628;
+    --navy-mid: #0f2540;
+    --navy-soft: #102a4a;
+    --ivory: #f5efe2;
+    --ivory-soft: #ece4d2;
+    --gold: #c8a85a;
+    --gold-light: #d4b97a;
+    --gold-deep: #a98a3f;
+    --ink: #1f2937;
+    --ink-soft: #354150;
+    --ink-muted: #5b6878;
+    --line: #d8d2c2;
+    --line-strong: #b7b09c;
+    --error: #b04848;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--ivory);
+  }
+
+  body {
+    font-family: "Inter", "Helvetica Neue", "Segoe UI", Arial, sans-serif;
+    font-size: 10.5pt;
+    line-height: 1.55;
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+
+  /* === Typography === */
+  h1, h2, h3, h4, h5 {
+    font-family: "Cormorant Garamond", "Cormorant Garant", "Garamond", "Times New Roman", serif;
+    color: var(--navy);
+    font-weight: 600;
+    line-height: 1.15;
+    margin: 0 0 0.5em;
+    letter-spacing: -0.005em;
+  }
+  h1 { font-size: 28pt; letter-spacing: -0.015em; }
+  h2 {
+    font-size: 20pt;
+    padding-bottom: 0.35em;
+    margin-top: 0;
+    border-bottom: 1.5px solid var(--gold);
+  }
+  h3 { font-size: 14pt; margin-top: 1.4em; color: var(--navy-mid); }
+  h4 {
+    font-size: 10.5pt;
+    margin-top: 1.1em;
+    color: var(--navy);
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-family: "Inter", sans-serif;
+    font-weight: 600;
+  }
+
+  p { margin: 0 0 0.6em; }
+  strong, b { color: var(--navy); font-weight: 600; }
+  em { font-style: italic; color: var(--ink-soft); }
+  small { font-size: 9pt; color: var(--ink-muted); }
+
+  ul, ol { margin: 0 0 0.7em; padding-left: 1.3em; }
+  li { margin-bottom: 0.22em; }
+
+  code, .mono { font-family: "Geist Mono", "JetBrains Mono", Consolas, monospace; font-size: 0.92em; }
+
+  a { color: var(--navy-mid); text-decoration: none; border-bottom: 1px dotted var(--gold-deep); }
+
+  hr {
+    border: 0;
+    height: 1px;
+    background: var(--line);
+    margin: 1.6em 0;
+  }
+
+  /* === Page shell (screen reading only; print uses @page) === */
+  .doc {
+    max-width: 210mm;
+    margin: 0 auto;
+    background: var(--ivory);
+    box-shadow: 0 0 0 1px rgba(10,22,40,0.04), 0 30px 60px -30px rgba(10,22,40,0.18);
+  }
+
+  .page {
+    padding: 22mm 18mm;
+    page-break-after: always;
+    break-after: page;
+    position: relative;
+  }
+  .page:last-of-type { page-break-after: auto; }
+
+  /* === Cover page === */
+  .cover {
+    background:
+      radial-gradient(circle at 80% 10%, rgba(200,168,90,0.18), transparent 55%),
+      radial-gradient(circle at 10% 90%, rgba(200,168,90,0.10), transparent 50%),
+      linear-gradient(180deg, var(--navy) 0%, var(--navy-mid) 60%, var(--navy-soft) 100%);
+    color: var(--ivory);
+    min-height: 297mm;
+    padding: 28mm 22mm 30mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+  }
+  .cover::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 5mm;
+    background: linear-gradient(90deg, var(--gold-deep) 0%, var(--gold) 30%, var(--gold-light) 50%, var(--gold) 70%, var(--gold-deep) 100%);
+  }
+  .cover::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1mm;
+    background: var(--gold);
+    opacity: 0.7;
+  }
+  .cover-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+  }
+  .cover-brand {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .cover-mark {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    background: var(--ivory);
+    color: var(--navy);
+    display: grid;
+    place-items: center;
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 700;
+    font-size: 28pt;
+    letter-spacing: -0.02em;
+    box-shadow: 0 6px 24px -6px rgba(0,0,0,0.4), inset 0 0 0 2px var(--gold);
+  }
+  .cover-wordmark {
+    font-family: "Cormorant Garamond", serif;
+    font-weight: 600;
+    font-size: 22pt;
+    color: var(--ivory);
+    line-height: 1;
+  }
+  .cover-wordmark .sub {
+    display: block;
+    font-family: "Inter", sans-serif;
+    font-size: 8pt;
+    letter-spacing: 0.36em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 6px;
+    font-weight: 500;
+  }
+  .cover-meta {
+    text-align: right;
+    font-family: "Geist Mono", monospace;
+    font-size: 8.5pt;
+    color: var(--ivory);
+    opacity: 0.78;
+    letter-spacing: 0.06em;
+  }
+  .cover-meta div + div { margin-top: 3px; }
+
+  .cover-title-block { margin-top: auto; max-width: 145mm; }
+  .cover-kicker {
+    font-family: "Inter", sans-serif;
+    font-size: 9pt;
+    letter-spacing: 0.42em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 18px;
+    font-weight: 500;
+  }
+  .cover-title {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 44pt;
+    font-weight: 600;
+    color: var(--ivory);
+    line-height: 1.02;
+    margin: 0;
+    letter-spacing: -0.02em;
+  }
+  .cover-title .accent {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .cover-subtitle {
+    font-family: "Inter", sans-serif;
+    font-size: 13pt;
+    color: rgba(245,239,226,0.82);
+    margin-top: 22px;
+    line-height: 1.45;
+    max-width: 130mm;
+    font-weight: 400;
+  }
+
+  .cover-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: 30mm;
+    gap: 20mm;
+  }
+  .cover-tagline {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 14pt;
+    color: var(--gold-light);
+    max-width: 110mm;
+    line-height: 1.35;
+  }
+  .cover-rule {
+    width: 60mm;
+    height: 1px;
+    background: var(--gold);
+    margin: 14px 0;
+    opacity: 0.6;
+  }
+  .cover-footer {
+    font-family: "Inter", sans-serif;
+    font-size: 8.5pt;
+    color: rgba(245,239,226,0.65);
+    text-align: right;
+    letter-spacing: 0.08em;
+    line-height: 1.6;
+  }
+
+  /* === Section header (each "document" inside the kit) === */
+  .section-eyebrow {
+    font-family: "Inter", sans-serif;
+    font-size: 8.5pt;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    font-weight: 600;
+    margin: 0 0 8px;
+  }
+  .section-rule {
+    width: 36mm;
+    height: 2px;
+    background: var(--gold);
+    margin: 8px 0 20px;
+  }
+
+  /* === Tables === */
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.6em 0 1em;
+    font-size: 9.8pt;
+  }
+  th, td {
+    padding: 8px 10px;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid var(--line);
+  }
+  th {
+    background: rgba(10,22,40,0.04);
+    color: var(--navy);
+    font-weight: 600;
+    font-size: 8.8pt;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    border-bottom: 1.5px solid var(--gold);
+  }
+  tr:last-child td { border-bottom: none; }
+  td.num, th.num { font-family: "Geist Mono", monospace; text-align: right; white-space: nowrap; }
+
+  /* === Callouts / panels === */
+  .callout {
+    border-left: 3px solid var(--gold);
+    background: rgba(200,168,90,0.07);
+    padding: 14px 18px;
+    margin: 1em 0;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 13pt;
+    font-style: italic;
+    color: var(--navy);
+    line-height: 1.4;
+  }
+  .callout.plain {
+    font-family: "Inter", sans-serif;
+    font-style: normal;
+    font-size: 10pt;
+    background: rgba(10,22,40,0.04);
+    border-left-color: var(--navy);
+    color: var(--ink);
+  }
+
+  .pull {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 22pt;
+    line-height: 1.18;
+    color: var(--navy);
+    border-top: 1.5px solid var(--gold);
+    border-bottom: 1.5px solid var(--gold);
+    padding: 18px 0;
+    margin: 22px 0;
+    font-weight: 500;
+  }
+  .pull .accent { color: var(--gold-deep); font-style: italic; }
+
+  /* === KPI / stat grids === */
+  .grid {
+    display: grid;
+    gap: 10px;
+    margin: 1em 0 1.2em;
+  }
+  .grid.cols-2 { grid-template-columns: repeat(2, 1fr); }
+  .grid.cols-3 { grid-template-columns: repeat(3, 1fr); }
+  .grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+  .stat {
+    background: #fff;
+    border: 1px solid var(--line);
+    border-top: 2px solid var(--gold);
+    padding: 14px 16px;
+  }
+  .stat .num {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 22pt;
+    font-weight: 600;
+    color: var(--navy);
+    line-height: 1.05;
+    letter-spacing: -0.01em;
+  }
+  .stat .num.mono {
+    font-family: "Geist Mono", monospace;
+    font-size: 16pt;
+  }
+  .stat .label {
+    font-family: "Inter", sans-serif;
+    font-size: 8.5pt;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--ink-muted);
+    margin-top: 6px;
+  }
+
+  .card {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 14px 16px;
+  }
+  .card h4 { margin-top: 0; }
+  .card .lede {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 14pt;
+    color: var(--navy-mid);
+    line-height: 1.3;
+    font-style: italic;
+    margin-bottom: 6px;
+  }
+
+  /* === Pitch tiers (elevator pitches) === */
+  .pitch {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 16px 18px;
+    margin: 12px 0;
+    position: relative;
+  }
+  .pitch::before {
+    content: "";
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    background: var(--gold);
+  }
+  .pitch .tag {
+    font-family: "Geist Mono", monospace;
+    font-size: 8.5pt;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--gold-deep);
+    margin-bottom: 6px;
+  }
+  .pitch .body {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 13.5pt;
+    line-height: 1.45;
+    color: var(--navy);
+  }
+  .pitch.long .body { font-size: 11pt; font-family: "Inter", sans-serif; line-height: 1.55; }
+
+  /* === Stage strip (5-stage journey) === */
+  .journey {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin: 1em 0 1.4em;
+  }
+  .journey .step {
+    background: #fff;
+    border: 1px solid var(--line);
+    padding: 12px 10px;
+    position: relative;
+  }
+  .journey .step .n {
+    font-family: "Geist Mono", monospace;
+    font-size: 8pt;
+    color: var(--gold-deep);
+    letter-spacing: 0.16em;
+  }
+  .journey .step h5 {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 13pt;
+    color: var(--navy);
+    margin: 4px 0 4px;
+    font-weight: 600;
+  }
+  .journey .step p {
+    font-size: 8.6pt;
+    color: var(--ink-soft);
+    margin: 0;
+    line-height: 1.4;
+  }
+
+  /* === Two-column blocks === */
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+    margin: 1em 0;
+  }
+
+  /* === Footer running mark === */
+  .running {
+    position: absolute;
+    left: 18mm;
+    right: 18mm;
+    bottom: 12mm;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-family: "Geist Mono", monospace;
+    font-size: 8pt;
+    letter-spacing: 0.14em;
+    color: var(--ink-muted);
+    text-transform: uppercase;
+    padding-top: 8px;
+    border-top: 1px solid var(--line);
+  }
+  .running .mark {
+    color: var(--gold-deep);
+    font-weight: 600;
+  }
+
+  /* === Table-of-contents === */
+  .toc {
+    columns: 1;
+    margin-top: 14px;
+  }
+  .toc ol { padding-left: 0; list-style: none; counter-reset: tocsec; }
+  .toc li {
+    counter-increment: tocsec;
+    display: grid;
+    grid-template-columns: 22px 1fr auto;
+    align-items: baseline;
+    gap: 10px;
+    padding: 6px 0;
+    border-bottom: 1px dotted var(--line);
+    font-size: 10.5pt;
+  }
+  .toc li::before {
+    content: counter(tocsec, decimal-leading-zero);
+    font-family: "Geist Mono", monospace;
+    font-size: 9pt;
+    color: var(--gold-deep);
+    font-weight: 600;
+  }
+  .toc .pg {
+    font-family: "Geist Mono", monospace;
+    font-size: 9pt;
+    color: var(--ink-muted);
+  }
+  .toc .title { color: var(--navy); font-weight: 500; }
+  .toc .desc {
+    display: block;
+    font-size: 8.8pt;
+    color: var(--ink-muted);
+    margin-top: 2px;
+    grid-column: 2;
+  }
+
+  /* === Misc === */
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 2px;
+    background: var(--navy);
+    color: var(--ivory);
+    font-family: "Inter", sans-serif;
+    font-size: 8pt;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+  .badge.gold { background: var(--gold); color: var(--navy); }
+  .badge.muted { background: transparent; color: var(--ink-muted); border: 1px solid var(--line-strong); }
+
+  .check::before { content: "✓"; color: var(--gold-deep); margin-right: 8px; font-weight: 600; }
+  .cross::before { content: "✗"; color: var(--error); margin-right: 8px; font-weight: 600; }
+  .arrow::before { content: "→"; color: var(--gold-deep); margin-right: 8px; }
+
+  .label-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 8px 0 14px;
+  }
+
+  /* === Print niceties === */
+  @media print {
+    body { background: #fff; }
+    .doc { box-shadow: none; }
+    .page { padding: 0; }
+    .cover { padding: 28mm 22mm 30mm; }
+    a { color: inherit; border-bottom: none; }
+  }
+</style>
+</head>
+<body>
+<div class="doc">
+
+<!-- ============================================================
+     COVER PAGE
+     ============================================================ -->
+<section class="page cover">
+  <div class="cover-top">
+    <div class="cover-brand">
+      <div class="cover-mark">O</div>
+      <div class="cover-wordmark">
+        OrcaTrade
+        <span class="sub">Holding · Warsaw · London · Hong Kong</span>
+      </div>
+    </div>
+    <div class="cover-meta">
+      <div>Document · Pitch Kit v1.0</div>
+      <div>Issued · 2026-05-14</div>
+      <div>Confidential</div>
+    </div>
+  </div>
+
+  <div class="cover-title-block">
+    <div class="cover-kicker">Pitch Kit · Investor &amp; Sales</div>
+    <h1 class="cover-title">
+      The operating system for European&nbsp;SMEs <span class="accent">importing&nbsp;from&nbsp;Asia.</span>
+    </h1>
+    <p class="cover-subtitle">
+      A calculator-grounded, regulation-cited, AI-native workspace that takes a buyer from
+      <em>"I don't know how to do this"</em> to goods on the warehouse floor — for €99–€999 a month.
+    </p>
+  </div>
+
+  <div class="cover-bottom">
+    <div class="cover-tagline">
+      "Find it · Verify it · Ship it · Finance it<br/>— one platform, Asia to Europe."
+      <div class="cover-rule"></div>
+      <small style="color: rgba(245,239,226,0.55); font-family: 'Inter', sans-serif; font-style: normal; letter-spacing: 0.18em; text-transform: uppercase; font-size: 8pt;">Master brand line</small>
+    </div>
+    <div class="cover-footer">
+      Authored by Oskar Klepuszewski<br/>
+      Co-Founder &amp; CEO · OrcaTrade Holding<br/>
+      press@orcatrade.pl · orcatrade.pl
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CONTENTS
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Contents</p>
+  <h2 style="border-bottom: 1.5px solid var(--gold);">What's in this kit</h2>
+  <p style="margin-top: 14px; max-width: 150mm;">
+    Each section below is a standalone <strong>pitch document</strong>. Use them à la carte —
+    the One-Pager for a 60-second send, the Elevator deck for a coffee meeting, the
+    Investor brief for a deck cover, the ICP scripts for sales calls, the FAQ for objection
+    handling, the Appendix for evidence and citations.
+  </p>
+
+  <nav class="toc">
+    <ol>
+      <li>
+        <span class="title">One-Pager · Executive Summary <span class="desc">The whole company in 500 words. Cover slide of any deck.</span></span>
+        <span class="pg">p. 03</span>
+      </li>
+      <li>
+        <span class="title">Elevator Pitches · 10s · 30s · 2 min <span class="desc">Memorise these. They're the same sentence at different resolutions.</span></span>
+        <span class="pg">p. 04</span>
+      </li>
+      <li>
+        <span class="title">The Problem <span class="desc">A €100k–€2M-a-year importer runs their process out of email threads.</span></span>
+        <span class="pg">p. 05</span>
+      </li>
+      <li>
+        <span class="title">The Solution &amp; Five-Stage Journey <span class="desc">Find · Verify · Ship · Finance — one workspace, one bill.</span></span>
+        <span class="pg">p. 06</span>
+      </li>
+      <li>
+        <span class="title">Product · What We Built <span class="desc">7 calculators · 5 AI agents · 180-page compliance library.</span></span>
+        <span class="pg">p. 07</span>
+      </li>
+      <li>
+        <span class="title">The Moat · Why We Win <span class="desc">Four sources of defensibility, in descending order of durability.</span></span>
+        <span class="pg">p. 09</span>
+      </li>
+      <li>
+        <span class="title">Market &amp; ICPs <span class="desc">Polish e-commerce · German Mittelstand · Specialty retail.</span></span>
+        <span class="pg">p. 10</span>
+      </li>
+      <li>
+        <span class="title">Business Model · Two Revenue Streams <span class="desc">Subscriptions for access · Transactional fees per shipment.</span></span>
+        <span class="pg">p. 12</span>
+      </li>
+      <li>
+        <span class="title">Competitive Landscape <span class="desc">Where the empty quadrant is and why it stays empty.</span></span>
+        <span class="pg">p. 13</span>
+      </li>
+      <li>
+        <span class="title">Traction &amp; Status <span class="desc">Feature-complete · 1,200 automated tests · pre-revenue.</span></span>
+        <span class="pg">p. 14</span>
+      </li>
+      <li>
+        <span class="title">Go-to-Market · The Next 90 Days <span class="desc">SEO library, founder outbound, partner referrals — in that order.</span></span>
+        <span class="pg">p. 15</span>
+      </li>
+      <li>
+        <span class="title">Team &amp; Company <span class="desc">Three founders · three jurisdictions · cap table.</span></span>
+        <span class="pg">p. 16</span>
+      </li>
+      <li>
+        <span class="title">The Ask <span class="desc">What we want, what we'll do with it, what we won't do.</span></span>
+        <span class="pg">p. 17</span>
+      </li>
+      <li>
+        <span class="title">FAQ &amp; Objection Handling <span class="desc">The ten questions every investor and customer asks.</span></span>
+        <span class="pg">p. 18</span>
+      </li>
+      <li>
+        <span class="title">Messaging Matrix &amp; Sales Scripts <span class="desc">What we say × who we say it to. Cold-email templates.</span></span>
+        <span class="pg">p. 19</span>
+      </li>
+      <li>
+        <span class="title">Appendix · Brand &amp; Evidence <span class="desc">Colour, type, voice rules. Source docs and citations.</span></span>
+        <span class="pg">p. 21</span>
+      </li>
+    </ol>
+  </nav>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">Contents</span>
+    <span>p. 02</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     01 · ONE-PAGER
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 01 · One-Pager</p>
+  <h2>Executive summary</h2>
+
+  <div class="callout">
+    OrcaTrade is the operating system for European SMEs importing from Asia: AI agents and
+    verified supplier infrastructure that take a buyer from "I don't know how to do this" to
+    goods on the warehouse floor.
+  </div>
+
+  <h3>What it is</h3>
+  <p>
+    A trilingual workspace (EN/PL/DE) combining <strong>seven deterministic calculators</strong>
+    (sourcing, routing, customs, warehousing, FX, TCO, working capital), <strong>five specialised
+    AI agents</strong> (sourcing, compliance, logistics, finance, plus an orchestrator),
+    an <strong>EU-compliance overlay</strong> covering CBAM, EUDR, REACH, CE, RoHS, AD/CVD and
+    15 preferential-origin pathways, and a curated <strong>asset-light execution layer</strong>
+    that reaches back through partners into Hong Kong.
+  </p>
+
+  <h3>Why it works</h3>
+  <p>
+    Every monetary number in the product traces to a deterministic calculator the customer can
+    audit. Agents reference calculator outputs by tool call — they do not estimate. Every
+    regulatory claim cites EUR-Lex by celex number. <strong>The LLM never produces a number that
+    drives a business decision.</strong> That single architectural rule is the difference
+    between a credible piece of trade infrastructure and a chatbot.
+  </p>
+
+  <h3>Why now</h3>
+  <p>
+    CBAM enters its definitive period in 2026. EUDR scope expanded December 2025. REACH SVHC
+    drift accelerates. Alibaba is breadth without calibration; SAP GTS and Oracle GTM are
+    six-figure enterprise contracts. The €100k–€2M-a-year European importer sits in a market
+    gap so wide that 15–30% of landed cost is silently lost to FX margin, sub-optimal routing,
+    missed preferential-origin pathways, and uncalculated compliance exposure.
+  </p>
+
+  <h3>Where we are</h3>
+  <div class="grid cols-4">
+    <div class="stat"><div class="num mono">1,200</div><div class="label">Automated tests</div></div>
+    <div class="stat"><div class="num mono">180+</div><div class="label">Content pages, trilingual</div></div>
+    <div class="stat"><div class="num mono">5</div><div class="label">AI agents shipped</div></div>
+    <div class="stat"><div class="num mono">€99–999</div><div class="label">Monthly tiers, live</div></div>
+  </div>
+  <p>
+    <strong>Feature-complete · pre-revenue · GTM commencing 2026.</strong>
+    The binding constraint going forward is no longer engineering — it is go-to-market.
+  </p>
+
+  <h3>The ask, in one line</h3>
+  <p>
+    Pre-seed capital to convert a built product into the first ten paying logos and to underwrite
+    the Hong Kong supplier-vetting operation that competitors structurally cannot replicate.
+  </p>
+
+  <div class="callout plain">
+    <strong>Master brand line — </strong>Find it · Verify it · Ship it · Finance it — one platform,
+    Asia to Europe.
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">01 · One-Pager</span>
+    <span>p. 03</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     02 · ELEVATOR PITCHES
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 02 · Elevator Pitches</p>
+  <h2>The same sentence at three resolutions</h2>
+  <div class="section-rule"></div>
+
+  <p>
+    Memorise these in order. Each is the same argument; each is allowed more breathing room.
+    Match the version to the audience: a LinkedIn DM gets the 10-second; a coffee meeting gets
+    the 30-second; a partner call gets the 2-minute.
+  </p>
+
+  <div class="pitch">
+    <div class="tag">10 seconds · LinkedIn DM, lift-pitch, intro at a conference</div>
+    <div class="body">
+      "One platform for European SMEs importing from Asia: find suppliers, ship goods, stay
+      compliant — with AI agents that cite the regulations and Hong Kong boots on the ground."
+    </div>
+  </div>
+
+  <div class="pitch">
+    <div class="tag">30 seconds · coffee meeting, sales discovery, first call</div>
+    <div class="body">
+      "OrcaTrade is the operating system for SMEs importing from Asia. Most importers run their
+      process out of email threads — supplier on Alibaba, freight broker on WhatsApp, customs
+      broker by phone, no single view. We replace that with one platform. Five AI agents handle
+      sourcing, compliance (CBAM/EUDR/REACH/CE), logistics, customs, and finance. Every
+      recommendation cites a regulation or a deterministic calculator — never guesswork. Hong
+      Kong office for supplier verification on the ground."
+    </div>
+  </div>
+
+  <div class="pitch long">
+    <div class="tag">2 minutes · partner pitch, investor screening, podcast bio</div>
+    <div class="body">
+      <p>
+        OrcaTrade is the operating system for European SMEs importing from Asia. We built this
+        because Polish and German importers in our personal networks were drowning in process —
+        eight different vendors per shipment, five different communication channels, no audit
+        trail when CBAM season hits.
+      </p>
+      <p>
+        <strong>The platform has three layers.</strong> <em>Layer one</em> is the AI agent suite —
+        five specialists (sourcing, compliance, logistics, finance) plus an orchestrator that
+        routes across them. Every claim cites either an EU regulation chunk or a deterministic
+        calculator. Twenty-five tools, total.
+      </p>
+      <p>
+        <em>Layer two</em> is operational tooling: HS-code lookup, customs clearance estimator,
+        bonded-warehouse comparison, six-hub 3PL benchmark, payment-instrument comparison, FX
+        hedging cost calculator. The math is shown to the customer — never a black box.
+      </p>
+      <p>
+        <em>Layer three</em> is execution through partners. Sample consolidation in our Hong
+        Kong office. Supplier verification on the ground. Forwarder bookings through DSV /
+        Kuehne+Nagel / Röhlig. Insurance via Atradius / Coface. We're asset-light by design.
+      </p>
+      <p>
+        The thesis is simple: SME importers can't afford a 50-person trade-ops team, but they
+        can pay €99–€999 a month for the AI version of one. <strong>We're the layer between
+        Alibaba and the EU shelf.</strong>
+      </p>
+    </div>
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">02 · Elevator Pitches</span>
+    <span>p. 04</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     03 · THE PROBLEM
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 03 · The Problem</p>
+  <h2>How a typical EU importer operates today</h2>
+
+  <p>
+    Imagine a Polish e-commerce founder bringing <strong>€25,000 of woven apparel from Vietnam
+    to Warsaw</strong>. Today, here is how their day actually goes:
+  </p>
+
+  <table>
+    <thead>
+      <tr><th style="width: 22%;">Stage</th><th>Reality</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Sourcing</strong></td>
+        <td>Alibaba browser tabs and WhatsApp threads with three supplier-side sales agents. No single record of who quoted what, when, or against which spec.</td>
+      </tr>
+      <tr>
+        <td><strong>Freight</strong></td>
+        <td>Priced ad-hoc through a forwarder's Excel quote that arrives 36 hours after the request. No independent benchmark. No way to compare sea, air, and rail on the same goods.</td>
+      </tr>
+      <tr>
+        <td><strong>Customs</strong></td>
+        <td>Clearance happens through a broker the customer has never met. MFN duty appears on the invoice with no way to verify whether a preferential-origin certificate (EUR.1, GSP+, EBA) would have eliminated it.</td>
+      </tr>
+      <tr>
+        <td><strong>Compliance</strong></td>
+        <td>A fog. CBAM applies to some of these goods. EUDR will apply from December. REACH SVHC limits are real. None of this is surfaced until the customs broker raises it at the wrong moment.</td>
+      </tr>
+      <tr>
+        <td><strong>Working capital</strong></td>
+        <td>Sized by feel. The customer does not know that paying their supplier on T-30 frees up two weeks of cargo value as cash. The FX leg — USD-quoted, EUR-paid — is silently costing 2–4% per shipment.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="pull">
+    Net effect: the customer routinely overpays <span class="accent">15–30% of total landed cost</span>
+    relative to what an experienced trade-operations team would deliver, and bears compliance
+    risk they cannot price.
+  </div>
+
+  <h3>Why incumbents don't solve this</h3>
+
+  <div class="two-col">
+    <div class="card">
+      <h4 class="lede" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14pt; color: var(--navy-mid);">Alibaba is breadth without calibration.</h4>
+      <p>50,000 results for "apparel manufacturer Vietnam". No signal on which is auditable, which has EVFTA-eligible documentation, which has produced for an EU buyer before.</p>
+    </div>
+    <div class="card">
+      <h4 class="lede" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14pt; color: var(--navy-mid);">Big forwarders ignore SMEs at our tier.</h4>
+      <p>DSV, K+N, DB Schenker, Maersk, Flexport, Forto, Forto — commercially they cannot staff against a €25k shipment. Sourcing, vetting, and compliance are out of scope.</p>
+    </div>
+    <div class="card">
+      <h4 class="lede" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14pt; color: var(--navy-mid);">Enterprise GTM is the wrong shape.</h4>
+      <p>SAP GTS, Oracle GTM, Thomson Reuters ONESOURCE. Six-figure annual licences. Twelve-month implementations. The Polish founder sees these and bounces.</p>
+    </div>
+    <div class="card">
+      <h4 class="lede" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14pt; color: var(--navy-mid);">Spreadsheets + email is the actual default.</h4>
+      <p>Works at volume zero. Breaks somewhere between shipment five and shipment fifty, usually after a CBAM-eligible cargo arrives uncalculated.</p>
+    </div>
+  </div>
+
+  <p>
+    <strong>The gap between "free + chaotic" and "enterprise + €200k/year" is precisely the
+    gap OrcaTrade fills.</strong>
+  </p>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">03 · The Problem</span>
+    <span>p. 05</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     04 · THE SOLUTION
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 04 · The Solution</p>
+  <h2>One workspace, one bill, the five-stage journey</h2>
+
+  <p>
+    OrcaTrade reframes four pre-existing OrcaTrade Holding business units plus one new pillar
+    as <strong>stages of a single integrated journey</strong>. The platform is the answer to
+    all five inside one workspace, one shared customer record, one consolidated bill.
+  </p>
+
+  <div class="journey">
+    <div class="step">
+      <div class="n">STAGE · 01</div>
+      <h5>Search</h5>
+      <p>Which countries and factories should I even consider?</p>
+    </div>
+    <div class="step">
+      <div class="n">STAGE · 02</div>
+      <h5>Sourcing</h5>
+      <p>Which specific supplier wins this RFQ?</p>
+    </div>
+    <div class="step">
+      <div class="n">STAGE · 03</div>
+      <h5>Intelligence</h5>
+      <p>Is this supplier safe? Am I compliant?</p>
+    </div>
+    <div class="step">
+      <div class="n">STAGE · 04</div>
+      <h5>Logistics</h5>
+      <p>How do I actually move and clear the goods?</p>
+    </div>
+    <div class="step">
+      <div class="n">STAGE · 05</div>
+      <h5>Finance</h5>
+      <p>How do I pay, hedge, and finance the deal?</p>
+    </div>
+  </div>
+
+  <h3>What the customer experiences</h3>
+  <p>
+    A six-question wizard at <span class="mono">/start/</span> takes any prospect from cold to a
+    full landed-cost analysis in 90 seconds — every number traceable, the analysis shareable as
+    a permalink, save-to-account when signed in. From there, the customer can talk to any of the
+    five agents, save plans to a per-user history (with a "what's changed since" delta on
+    revisit), open the implementation roadmap (15–25 conditional tasks per plan), and toggle
+    every monetary value into EUR / USD / CNY / VND / PLN at snapshot rates.
+  </p>
+
+  <h3>How it all hangs together</h3>
+  <div class="grid cols-3">
+    <div class="card">
+      <span class="badge gold">LAYER 1</span>
+      <h4 style="margin-top: 10px;">AI agent suite</h4>
+      <p style="font-size: 9.6pt; color: var(--ink-soft);">5 specialists + orchestrator. 25 tools. Every claim cites a regulation chunk or a calculator output. Tier-gated.</p>
+    </div>
+    <div class="card">
+      <span class="badge gold">LAYER 2</span>
+      <h4 style="margin-top: 10px;">Operational calculators</h4>
+      <p style="font-size: 9.6pt; color: var(--ink-soft);">7 deterministic engines. Pure JavaScript modules. Run identically in the browser, in the agent tool layer, and in saved-plan diffs.</p>
+    </div>
+    <div class="card">
+      <span class="badge gold">LAYER 3</span>
+      <h4 style="margin-top: 10px;">Execution through partners</h4>
+      <p style="font-size: 9.6pt; color: var(--ink-soft);">DSV / K+N / Röhlig for forwarding. QIMA / AsiaInspection for QC. Wise / Convera for FX. Atradius / Coface for credit. HK office for samples.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    The thesis is simple. The European SME importer cannot afford a 50-person trade-operations
+    team. They <em>can</em> afford €99–€999 per month for the AI version of one.
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">04 · Solution</span>
+    <span>p. 06</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     05 · PRODUCT (page 1: calculators + agents)
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 05 · Product</p>
+  <h2>What we built</h2>
+
+  <h3>The seven calculator engines</h3>
+  <p>
+    Every output traces to inputs the customer can audit. <strong>No black-box AI estimates.</strong>
+    Each engine is a pure JavaScript module with full unit-test coverage and is callable as a tool
+    by any agent.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th style="width: 25%;">Engine</th><th>What it answers</th></tr>
+    </thead>
+    <tbody>
+      <tr><td class="mono">sourcing-quote</td><td>Which of 5 candidate origins (CN/VN/IN/BD/TR) wins on FOB price × MOQ × lead time × IP risk for this category?</td></tr>
+      <tr><td class="mono">routing-quote</td><td>What are sea, air, and rail prices and transits for this lane, and which is recommended?</td></tr>
+      <tr><td class="mono">customs-quote</td><td>What is duty + VAT + brokerage on this HS code into this destination — and is bonded warehousing better?</td></tr>
+      <tr><td class="mono">warehouse-quote</td><td>Which of six EU 3PL hubs (Poznań · Frankfurt · Hamburg · Rotterdam · Barcelona · Prague) is cheapest for this volume profile?</td></tr>
+      <tr><td class="mono">fx-quote</td><td>What is the FX exposure on a non-EUR-quoted purchase, and is hedging economic at this size?</td></tr>
+      <tr><td class="mono">tco-quote</td><td>What is annual total-cost-of-ownership including inventory carrying cost at the customer's WACC?</td></tr>
+      <tr><td class="mono">working-capital</td><td>What is cash tied up in inventory + receivables − payables, and which lever (DPO+30, ship-frequency, etc.) frees the most?</td></tr>
+    </tbody>
+  </table>
+
+  <h3>The five AI agents</h3>
+  <p>
+    Each agent has a defined system prompt, a defined toolset, and a defined tier-gate. All run
+    on <strong>Anthropic Claude Sonnet 4.6</strong> in production, with the orchestrator
+    surfacing Opus on demand. Every agent ships with a <span class="mono">request_human_review</span>
+    tool. <strong>Agents do not autonomously commit to bookings or sign contracts.</strong>
+  </p>
+
+  <table>
+    <thead>
+      <tr><th>Agent</th><th>Tier</th><th>Scope</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Compliance Agent</strong></td>
+        <td><span class="badge">Free</span></td>
+        <td>EU regulatory landscape — HS classification, duty + VAT, applicable regimes (CBAM, EUDR, REACH, CE, RoHS, food contact, toy safety, textile labelling). Cites every claim against EUR-Lex.</td>
+      </tr>
+      <tr>
+        <td><strong>Sourcing Agent</strong></td>
+        <td><span class="badge muted">Starter+</span></td>
+        <td>Category × origin recommendation, RFQ drafting, MOQ + lead-time clarification.</td>
+      </tr>
+      <tr>
+        <td><strong>Logistics Agent</strong></td>
+        <td><span class="badge muted">Growth+</span></td>
+        <td>Sea / rail / air mode comparison, Incoterm advisor, customs clearance route comparison, document checklist.</td>
+      </tr>
+      <tr>
+        <td><strong>Finance Agent</strong></td>
+        <td><span class="badge muted">Growth+</span></td>
+        <td>Payment-instrument comparison (LC vs TT vs DA/DP), FX hedge sizing, working-capital optimisation, trade-finance referrals.</td>
+      </tr>
+      <tr>
+        <td><strong>Operations Orchestrator</strong></td>
+        <td><span class="badge muted">Growth+</span></td>
+        <td>Meta-agent routing across the four specialists. 14 unique tools after deduplication. The customer dashboard surface.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    Tier-quota gating enforces 20 queries/month free, 200 Starter, 1,000 Growth, unlimited at
+    Scale and Enterprise.
+  </p>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">05 · Product</span>
+    <span>p. 07</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     05 · PRODUCT (page 2: compliance overlay + workspace)
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 05 · Product (continued)</p>
+  <h2 style="border-bottom: 1.5px solid var(--gold);">The EU-compliance overlay &amp; workspace</h2>
+
+  <h3>180+ trilingual pages, all calculator-grounded</h3>
+  <p>
+    A structured catalogue of every EU regulation an importer needs to surface against, with
+    per-product applicability rules and citation-grounded summaries. Each page is generated from
+    the same <span class="mono">composePlan()</span> engine that powers the live wizard. SEO
+    content and product-led growth are the same artefact.
+  </p>
+
+  <div class="grid cols-2">
+    <div class="card">
+      <h4>Trade-defence dossiers</h4>
+      <p style="font-size: 9.6pt;">32 active product-origin pairs. Chinese e-bikes (87% combined AD+CVD), Chinese cold-rolled steel, Egyptian fibreglass fabric, Indonesian stainless, Indian stainless, Turkish cold-rolled steel.</p>
+    </div>
+    <div class="card">
+      <h4>Preferential-origin pathways</h4>
+      <p style="font-size: 9.6pt;">15 active regimes — EVFTA, EUKFTA, EUJEPA, A.TR, EBA, GSP+, GSP standard — plus per-origin guides for VN / IN / BD / PK / TR / KR / JP.</p>
+    </div>
+    <div class="card">
+      <h4>Compliance regime overlays</h4>
+      <p style="font-size: 9.6pt;">14 regimes — CBAM, EUDR, REACH, RoHS, WEEE, GPSR, PPWR, Battery, Cosmetics, Toy Safety, CE Machinery, CE LVD/EMC/RED, Footwear Labelling.</p>
+    </div>
+    <div class="card">
+      <h4>Customs &amp; sourcing guides</h4>
+      <p style="font-size: 9.6pt;">36 origin-destination customs guides (CN/HK/IN/TR/VN × 6 EU destinations) and 40 category-origin sourcing guides (8 categories × 5 origins).</p>
+    </div>
+    <div class="card">
+      <h4>Worked examples</h4>
+      <p style="font-size: 9.6pt;">8 anonymised end-to-end import plans with calculator-grounded numbers — Bangladesh apparel under EBA, Korean machinery under EUKFTA, Turkish steel with A.TR + AD layered, Chinese e-bike under 87% combined.</p>
+    </div>
+    <div class="card">
+      <h4>SEO funnel</h4>
+      <p style="font-size: 9.6pt;">Every page funnels into the wizard via base64-encoded pre-filled permalink. The library compounds — new measures add pages, wizards, agent tools, and saved-plan branches simultaneously.</p>
+    </div>
+  </div>
+
+  <h3>The workspace</h3>
+  <ul>
+    <li><strong>Magic-link authentication</strong> — no passwords, HMAC-signed session cookies, 30-day TTL on Vercel KV (Upstash Redis), durable across cold starts.</li>
+    <li><strong>Saved plans + history</strong> — up to 50 plans per user (1-year TTL). Each plan stores a 6-field landed-cost snapshot; on revisit the platform recomputes against current pricing and surfaces a "what's changed" delta at ≥5% significance.</li>
+    <li><strong>Implementation roadmap</strong> — a 5-phase, 15–25-task week-by-week sequence (pre-departure, production+QC, logistics+customs, arrival+inland, post-arrival) with conditional branches: preferential-origin certs, trade-defence TARIC checks, CBAM quarterly cadence, FX forward execution, payment-terms negotiation.</li>
+    <li><strong>Currency display toggle</strong> — every monetary value re-renders in EUR / USD / CNY / VND / PLN at snapshot rates. Preference persists in localStorage.</li>
+    <li><strong>Conversion analytics dashboard</strong> — <span class="mono">/dashboard/leads/</span>, token-gated, surfaces durable event log: category mix, route mix, locale mix, email-capture rate, mean landed total.</li>
+    <li><strong>Founder outbound composer</strong> — <span class="mono">/agent/outbound/</span>, brand-voice-pinned cold-email drafter routed through the orchestrator.</li>
+  </ul>
+
+  <h3>Distribution surface</h3>
+  <p style="font-size: 9.8pt;">
+    <span class="mono">/start/</span> · six-question wizard ·
+    <span class="mono">/agents/</span> · 5 public agent surfaces ·
+    <span class="mono">/guides/</span> · 180-page library ·
+    <span class="mono">/examples/</span> · 8 worked scenarios ·
+    <span class="mono">/marketplace/</span> · curated supplier shell ·
+    <span class="mono">/pricing/</span> · 5-tier comparison ·
+    <span class="mono">/partners/</span> · 3-mode partner ecosystem ·
+    <span class="mono">/press/</span> · brand kit ·
+    <span class="mono">/feed.xml</span> + <span class="mono">/atom.xml</span> · 185-item syndication.
+  </p>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">05 · Product (cont.)</span>
+    <span>p. 08</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     06 · THE MOAT
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 06 · The Moat</p>
+  <h2>Four sources of defensibility</h2>
+
+  <p>In descending order of durability:</p>
+
+  <div class="grid cols-2">
+    <div class="card">
+      <div class="badge gold">01 · Most durable</div>
+      <h4 style="margin-top: 10px;">Calculator-grounded recommendations</h4>
+      <p style="font-size: 10pt; color: var(--ink-soft);">
+        Every number in the platform — duty rates, freight cost, FX risk, working-capital impact,
+        landed cost — is computed from a deterministic model the customer can audit. Agents
+        reference outputs by tool call; they do not estimate. When asked "what's the duty on
+        Chinese cold-rolled steel into Poland," the system does not guess — it calls
+        <span class="mono">customs-quote</span>, which reads from structured TARIC + AD/CVD data.
+      </p>
+      <p style="font-size: 9.6pt; color: var(--ink-muted);"><em>Invisible against a flashy demo. Decisive once a customer has been burned by an LLM hallucination.</em></p>
+    </div>
+    <div class="card">
+      <div class="badge gold">02</div>
+      <h4 style="margin-top: 10px;">EU-specific compliance knowledge</h4>
+      <p style="font-size: 10pt; color: var(--ink-soft);">
+        CBAM, EUDR, REACH, CE, RoHS, AD/CVD, preferential-origin pathways. American AI platforms
+        in this space don't have this depth. European compliance software is enterprise-tier
+        (€200k+/year). The middle is empty.
+      </p>
+      <p style="font-size: 9.6pt; color: var(--ink-muted);"><em>Replicating this is years of capital-O Operations, not a sprint.</em></p>
+    </div>
+    <div class="card">
+      <div class="badge gold">03</div>
+      <h4 style="margin-top: 10px;">Hong Kong physical presence</h4>
+      <p style="font-size: 10pt; color: var(--ink-soft);">
+        OrcaTrade Asia Ltd — operated by co-founder Nigel Lam — handles in-person supplier
+        verification, sample consolidation, and dispute resolution. Pure-digital forwarders
+        cannot match this at the SME price point. A chatbot cannot walk into a factory in
+        Shenzhen.
+      </p>
+    </div>
+    <div class="card">
+      <div class="badge gold">04</div>
+      <h4 style="margin-top: 10px;">AI-native architecture</h4>
+      <p style="font-size: 10pt; color: var(--ink-soft);">
+        Five specialised agents plus an orchestrator. Every claim cited against EUR-Lex chunks or
+        a deterministic calculator output. Built day-one with full tool-use plumbing — not a
+        chatbot grafted onto a legacy stack.
+      </p>
+    </div>
+  </div>
+
+  <h3>The operating principles behind the moat</h3>
+  <table>
+    <tbody>
+      <tr><td><strong>Calculator-grounded over generative</strong></td><td>Every monetary number traces to a deterministic calculator. If we cannot calculate it, we say so.</td></tr>
+      <tr><td><strong>Calibrated trust over breadth</strong></td><td>We do not index the whole of Alibaba. The future supplier directory ships with 50 vetted suppliers, not 500,000. Editorial restraint is the product.</td></tr>
+      <tr><td><strong>Citation discipline</strong></td><td>Regulatory claims cite EUR-Lex. AD/CVD figures cite the relevant Implementing Regulation by celex number. If we cannot cite it, we don't claim it.</td></tr>
+      <tr><td><strong>Human-in-the-loop on irreversible actions</strong></td><td>Agents do not autonomously sign contracts, commit to bookings, or transmit payments. Customer trust is fragile.</td></tr>
+      <tr><td><strong>Trilingual by default</strong></td><td>Every product surface in EN / PL / DE. Polish customers see Polish copy. German customers see German copy. No "international English" fallback.</td></tr>
+      <tr><td><strong>Asset-light execution</strong></td><td>No warehouses, ships, or customs licences. Value lives in the layer above — supplier intelligence, AI tooling, HK presence — not in capital-heavy infrastructure.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    OrcaTrade sits in a deliberately empty quadrant: SME-priced, EU-regulation-deep, AI-native,
+    calculator-grounded, with physical Asia presence. <strong>The combination is the moat.</strong>
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">06 · The Moat</span>
+    <span>p. 09</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     07 · MARKET & ICPs
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 07 · Market &amp; Customers</p>
+  <h2>Who we sell to</h2>
+
+  <p>Three ICPs, listed in order of GTM priority.</p>
+
+  <div class="card" style="margin-bottom: 14px;">
+    <div class="badge gold">ICP 01</div>
+    <h3 style="margin-top: 10px;">Polish e-commerce founders</h3>
+    <p class="lede" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14pt; color: var(--navy-mid); margin: 4px 0 8px;">
+      "Stop running imports out of email threads."
+    </p>
+    <table>
+      <tr><td style="width: 30%;"><strong>Who</strong></td><td>Allegro sellers, Amazon FBA operators, multi-channel D2C brands.</td></tr>
+      <tr><td><strong>Volume</strong></td><td class="num">€50k–€500k annual import volume from Asia</td></tr>
+      <tr><td><strong>Pain</strong></td><td>Patchwork process. Supplier on Alibaba, freight broker email, customs broker on WhatsApp. CBAM/EUDR/REACH compliance is a black box.</td></tr>
+      <tr><td><strong>Lead artefact</strong></td><td>Free Compliance Agent + Routing calculator. Hook: "stop running imports out of email threads."</td></tr>
+      <tr><td><strong>Channels</strong></td><td>Polish-language LinkedIn, Allegro seller communities (Facebook groups), Polish e-commerce Slack, founder-led outbound.</td></tr>
+      <tr><td><strong>Pricing entry</strong></td><td>Free → Starter €99/mo</td></tr>
+    </table>
+  </div>
+
+  <div class="card" style="margin-bottom: 14px;">
+    <div class="badge gold">ICP 02</div>
+    <h3 style="margin-top: 10px;">German Mittelstand</h3>
+    <p class="lede" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14pt; color: var(--navy-mid); margin: 4px 0 8px;">
+      "Regulatory precision at SME pricing."
+    </p>
+    <table>
+      <tr><td style="width: 30%;"><strong>Who</strong></td><td>Manufacturing SMEs sourcing components from China/Vietnam. Often family-owned, conservative.</td></tr>
+      <tr><td><strong>Volume</strong></td><td class="num">€500k–€2M annual import volume</td></tr>
+      <tr><td><strong>Pain</strong></td><td>Compliance risk is existential. CBAM Article 26 penalties, EUDR scope from December 2025, REACH SVHC drift. Big forwarders (DSV, K+N, DB Schenker) ignore them at this tier.</td></tr>
+      <tr><td><strong>Lead artefact</strong></td><td>Compliance Agent demo + sample analysis PDF.</td></tr>
+      <tr><td><strong>Channels</strong></td><td>German LinkedIn, trade-publication advertorials (Logistik Heute, DVZ), curated webinars with HK partners.</td></tr>
+      <tr><td><strong>Pricing entry</strong></td><td>Growth €399/mo → Enterprise (custom from €2,500/mo)</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <div class="badge gold">ICP 03</div>
+    <h3 style="margin-top: 10px;">Specialty retailers and brand owners</h3>
+    <p class="lede" style="font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 14pt; color: var(--navy-mid); margin: 4px 0 8px;">
+      "From sample to shelf with one partner."
+    </p>
+    <table>
+      <tr><td style="width: 30%;"><strong>Who</strong></td><td>Premium DTC brands, niche product specialists, slow-fashion and heritage brands.</td></tr>
+      <tr><td><strong>Volume</strong></td><td class="num">5–50 shipments per year — low frequency, high consideration</td></tr>
+      <tr><td><strong>Pain</strong></td><td>Quality is everything; one bad shipment kills brand trust. Need supplier audits, sample QC, returns handling.</td></tr>
+      <tr><td><strong>Lead artefact</strong></td><td>Sourcing Agent + sample-management quote (paid trial).</td></tr>
+      <tr><td><strong>Channels</strong></td><td>Founder-led LinkedIn, niche industry publications, partner-network referrals.</td></tr>
+      <tr><td><strong>Pricing entry</strong></td><td>Starter €99 + per-shipment fees</td></tr>
+    </table>
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">07 · Market &amp; ICPs</span>
+    <span>p. 10</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     07 · MARKET continued: sizing
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 07 · Market sizing</p>
+  <h2 style="border-bottom: 1.5px solid var(--gold);">Market sizing &amp; opportunity</h2>
+
+  <h3>The directly addressable EU SME importer base</h3>
+  <p>
+    The European Commission counts roughly <strong>620,000 EU SMEs</strong> that import goods of
+    record from outside the bloc in any given year. Roughly <strong>180,000 of these import from
+    Asia at €50k+ annual volume</strong> — the upper band of our addressable customer. Concentrate
+    on Poland, Germany, the Netherlands, France, Italy and the addressable count remains in the
+    <strong>~110,000</strong> range. Polish e-commerce alone (Allegro + Amazon FBA + D2C) numbers
+    <strong>30,000+ active SME importers</strong> by 2025 data.
+  </p>
+
+  <div class="grid cols-3">
+    <div class="stat"><div class="num">~620k</div><div class="label">EU SMEs importing annually</div></div>
+    <div class="stat"><div class="num">~180k</div><div class="label">SMEs importing from Asia · €50k+</div></div>
+    <div class="stat"><div class="num">~110k</div><div class="label">In OrcaTrade's top-5 EU markets</div></div>
+  </div>
+
+  <h3>TAM / SAM / SOM, deliberately conservative</h3>
+  <table>
+    <thead>
+      <tr><th>Layer</th><th>Definition</th><th class="num">Annual value</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>TAM</strong></td>
+        <td>180k SMEs × €3,000 blended ARR (subscription + transactional)</td>
+        <td class="num">€540M</td>
+      </tr>
+      <tr>
+        <td><strong>SAM</strong></td>
+        <td>110k SMEs in top-5 EU markets × €3,000 blended ARR</td>
+        <td class="num">€330M</td>
+      </tr>
+      <tr>
+        <td><strong>SOM · year 3</strong></td>
+        <td>2.0% penetration of SAM → 2,200 logos at €3,000 blended ARR</td>
+        <td class="num">€6.6M</td>
+      </tr>
+      <tr>
+        <td><strong>SOM · year 5</strong></td>
+        <td>5.0% penetration of SAM → 5,500 logos at €3,500 blended ARR (mix shift to Growth/Scale)</td>
+        <td class="num">€19.3M</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p style="font-size: 9.6pt; color: var(--ink-muted);">
+    <em>Note on the blended ARR: we assume 60% of customers on Starter (€990 annual), 30% on
+    Growth (€3,990), 10% on Scale/Enterprise (avg €15,000), plus transactional fees averaging
+    €600/customer/year. Conservative — we expect the Growth band to expand as the platform proves
+    itself against multi-shipment workflows.</em>
+  </p>
+
+  <h3>Adjacent wedges (deliberately deferred)</h3>
+  <ul>
+    <li><strong>White-label trade-finance origination</strong> — referral economics on customer LTV with Tradeshift / Stenn / FreshFi.</li>
+    <li><strong>Buyer-side verification for Asian exporters</strong> — the inverse use-case, productised at €99/mo.</li>
+    <li><strong>Forwarder-side coordination layer</strong> — selling the orchestrator as middleware to forwarders themselves; explored after we have 100+ shippers.</li>
+    <li><strong>Multi-currency wallet</strong> — €49/mo add-on. Hold EUR/USD/CNY/HKD/PLN, hedge exposure, settle suppliers.</li>
+  </ul>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">07 · Market (cont.)</span>
+    <span>p. 11</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     08 · BUSINESS MODEL
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 08 · Business Model</p>
+  <h2>Two revenue streams, one bill</h2>
+
+  <h3>Stream 1 · Subscriptions for access</h3>
+  <p>Customers pay whether or not they ship in any given month — they pay for access to the platform.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Tier</th>
+        <th class="num">Monthly</th>
+        <th class="num">Annual</th>
+        <th>Customer profile</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Free</strong></td><td class="num">€0</td><td class="num">€0</td><td>Lead-gen, evaluators, single-shipment users. 20 agent queries/mo. Compliance Agent only.</td></tr>
+      <tr><td><strong>Starter</strong></td><td class="num">€99</td><td class="num">€990 <small>(save €198)</small></td><td>Solo importers, FBA sellers. Sourcing + Compliance + 200 queries/mo.</td></tr>
+      <tr><td><strong>Growth</strong></td><td class="num">€399</td><td class="num">€3,990 <small>(save €798)</small></td><td>Established SMEs, 5–50 shipments/year. All 5 agents + orchestrator + 1,000 queries.</td></tr>
+      <tr><td><strong>Scale</strong></td><td class="num">€999</td><td class="num">€9,990 <small>(save €1,998)</small></td><td>Mid-market, 50+ shipments/year. Unlimited queries + API access.</td></tr>
+      <tr><td><strong>Enterprise</strong></td><td class="num">Custom <small>(from €2,500/mo)</small></td><td class="num">Custom</td><td>Manufacturers, distributors, retail chains. White-label, ERP integration, dedicated AM.</td></tr>
+    </tbody>
+  </table>
+
+  <p style="font-size: 9.6pt; color: var(--ink-muted);">
+    Every paid tier includes a 14-day trial. EU VAT handled via Stripe Tax. Annual is two months
+    free, framed honestly as "pay 10, get 12." Tier entitlements encoded in
+    <span class="mono">lib/tiers.js</span> as the single source of truth.
+  </p>
+
+  <h3>Stream 2 · Transactional revenue</h3>
+  <p>Per-shipment execution fees, paid as the customer ships:</p>
+  <ul>
+    <li><strong>Service fee per shipment</strong> — €150–€2,500 depending on tier and complexity.</li>
+    <li><strong>Freight markup</strong> — 8–15% on freight cost, resold from forwarder partners.</li>
+    <li><strong>Customs clearance</strong> — per-declaration fee through licensed broker partner (Polish <em>agencja celna</em>).</li>
+    <li><strong>Inspection services</strong> — pass-through to QIMA / AsiaInspection with a small coordination fee.</li>
+    <li><strong>Trade-finance origination</strong> — % per deal, referred to Tradeshift / Stenn / FreshFi.</li>
+    <li><strong>Cargo insurance</strong> — per-shipment commission, panel placement.</li>
+  </ul>
+  <p style="font-size: 9.6pt; color: var(--ink-muted);">
+    Higher subscription tiers receive transactional discounts: 5% off shipment fees on Starter,
+    10% on Growth, 15% on Scale.
+  </p>
+
+  <h3>Stream 3 · Add-on modules</h3>
+  <table>
+    <thead>
+      <tr><th>Module</th><th class="num">Price</th><th>What it does</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Sustainability Reporting Pro</td><td class="num">€199/mo</td><td>Automated CBAM, EUDR, Scope 3 per shipment, per supplier, aggregated annually.</td></tr>
+      <tr><td>Industry Compliance Pack</td><td class="num">€149/mo</td><td>Vertical deep-dives — Electronics, Textiles, Food, Toys, Cosmetics.</td></tr>
+      <tr><td>Buyer Verification</td><td class="num">€99/mo</td><td>Score European buyers using KRS / Handelsregister / Companies House + credit data.</td></tr>
+      <tr><td>Multi-currency Wallet</td><td class="num">€49/mo</td><td>Hold EUR/USD/CNY/HKD/PLN balances, hedge, settle suppliers.</td></tr>
+      <tr><td>Premium Agent Pack</td><td class="num">€299/mo</td><td>Early access + custom system-prompt training on customer's historical shipments.</td></tr>
+      <tr><td>Dedicated Account Manager</td><td class="num">Included</td><td>Scale and Enterprise tiers.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout">
+    The combination — subscription for access, transactional for outcomes, modules for depth —
+    means a single Growth customer routinely lands in the <strong>€8,000–€15,000 annual ACV</strong>
+    band once they ship at expected frequency.
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">08 · Business Model</span>
+    <span>p. 12</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     09 · COMPETITIVE LANDSCAPE
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 09 · Competitive Landscape</p>
+  <h2>The empty quadrant</h2>
+
+  <p>
+    OrcaTrade sits in a deliberately empty quadrant: <strong>SME-priced, EU-regulation-deep,
+    AI-native, calculator-grounded, with physical Asia presence.</strong> Each existing player
+    occupies one or two of these axes. None combine all of them.
+  </p>
+
+  <table>
+    <thead>
+      <tr><th style="width: 18%;">Category</th><th style="width: 27%;">Examples</th><th>What they do well</th><th>Why they don't fit our ICP</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Marketplaces</strong></td>
+        <td>Alibaba, Made-in-China, Global Sources</td>
+        <td>Breadth of supplier listings</td>
+        <td>No vetting layer, no compliance, no execution, no curation</td>
+      </tr>
+      <tr>
+        <td><strong>Pure-digital forwarders</strong></td>
+        <td>Flexport, Forto, Beacon</td>
+        <td>Slick freight booking UX</td>
+        <td>Forwarder-first; no sourcing or compliance; SME-tier coverage thin in Europe</td>
+      </tr>
+      <tr>
+        <td><strong>Traditional forwarders</strong></td>
+        <td>DSV, Kuehne+Nagel, DB Schenker, Maersk</td>
+        <td>Capacity, scale, reliability</td>
+        <td>Ignore SMEs at our volume tier; no AI, no compliance overlay, no integrated intelligence</td>
+      </tr>
+      <tr>
+        <td><strong>Enterprise GTM software</strong></td>
+        <td>SAP GTS, Oracle GTM, Thomson Reuters ONESOURCE</td>
+        <td>Comprehensive enterprise compliance</td>
+        <td>Six-figure annual licences, twelve-month implementations; SME never qualifies</td>
+      </tr>
+      <tr>
+        <td><strong>Customs-broker software</strong></td>
+        <td>Descartes, AKL, ASYCUDA-aligned tools</td>
+        <td>Filing automation for licensed brokers</td>
+        <td>Sold to brokers, not importers; opaque to the actual buyer</td>
+      </tr>
+      <tr>
+        <td><strong>AI trade copilots</strong></td>
+        <td>Various US-based startups</td>
+        <td>AI fluency</td>
+        <td>American-centric data, no EU regulatory depth, no Asia presence, no calculators</td>
+      </tr>
+      <tr>
+        <td><strong>DIY / status quo</strong></td>
+        <td>Spreadsheets + email</td>
+        <td>Free, infinitely flexible</td>
+        <td>Breaks somewhere between shipment 5 and shipment 50, usually after a CBAM-eligible cargo arrives uncalculated</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>What we are not</h3>
+  <ul>
+    <li><span class="cross"></span>We are <strong>not</strong> a marketplace. We curate — 50 vetted suppliers, not 500,000.</li>
+    <li><span class="cross"></span>We are <strong>not</strong> a forwarder. We coordinate execution; we don't own ships or warehouses.</li>
+    <li><span class="cross"></span>We are <strong>not</strong> a customs broker. We work alongside licensed brokers in each jurisdiction.</li>
+    <li><span class="cross"></span>We are <strong>not</strong> a chatbot. Calculators are deterministic; agents call them as tools.</li>
+    <li><span class="cross"></span>We are <strong>not</strong> "AI-first as a feature." We are AI-native as an architecture — every claim cited or calculated.</li>
+  </ul>
+
+  <h3>What competitors cannot replicate quickly</h3>
+  <ul>
+    <li><span class="check"></span>180+ trilingual EU-regulation pages, all calculator-grounded</li>
+    <li><span class="check"></span>32 active trade-defence dossiers with celex-cited AD/CVD rates</li>
+    <li><span class="check"></span>A Hong Kong office that walks into factories</li>
+    <li><span class="check"></span>An EU-Lex-cited compliance agent built before the LLM hype cycle pushed everyone into the same corner</li>
+  </ul>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">09 · Competition</span>
+    <span>p. 13</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     10 · TRACTION & STATUS
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 10 · Traction &amp; Status</p>
+  <h2>Where we are, as of May 2026</h2>
+
+  <div class="grid cols-4">
+    <div class="stat"><div class="num mono">1,200</div><div class="label">Automated tests, every push</div></div>
+    <div class="stat"><div class="num mono">27</div><div class="label">Test files</div></div>
+    <div class="stat"><div class="num mono">33</div><div class="label">Backend endpoints, 1 function</div></div>
+    <div class="stat"><div class="num mono">185</div><div class="label">RSS/Atom newsworthy items</div></div>
+    <div class="stat"><div class="num mono">3</div><div class="label">Languages (EN · PL · DE)</div></div>
+    <div class="stat"><div class="num mono">5</div><div class="label">Tiers wired end-to-end</div></div>
+    <div class="stat"><div class="num mono">5+1</div><div class="label">Agents + orchestrator live</div></div>
+    <div class="stat"><div class="num mono">7</div><div class="label">Deterministic calculators</div></div>
+  </div>
+
+  <h3>Shipped</h3>
+  <table>
+    <tbody>
+      <tr><td><span class="check"></span><strong>Calculator engines</strong></td><td>7 engines with full unit-test coverage</td></tr>
+      <tr><td><span class="check"></span><strong>Wizard</strong></td><td>6-question flow with permalink, share, save-to-account</td></tr>
+      <tr><td><span class="check"></span><strong>AI agent suite</strong></td><td>5 specialists + orchestrator, all live</td></tr>
+      <tr><td><span class="check"></span><strong>Compliance overlay</strong></td><td>14 regimes · 32 trade-defence dossiers · 15 preferential-origin pathways</td></tr>
+      <tr><td><span class="check"></span><strong>Content library</strong></td><td>180+ trilingual pages, all calculator-grounded</td></tr>
+      <tr><td><span class="check"></span><strong>Authentication</strong></td><td>Magic-link via Resend, HMAC-signed cookies, KV-backed</td></tr>
+      <tr><td><span class="check"></span><strong>Saved plans</strong></td><td>Per-user history with snapshot-at-save and "what's changed" diff</td></tr>
+      <tr><td><span class="check"></span><strong>Subscription tiers</strong></td><td>5 tiers in <span class="mono">lib/tiers.js</span> with feature flags + quotas</td></tr>
+      <tr><td><span class="check"></span><strong>Stripe billing</strong></td><td>Checkout + portal + idempotent webhook + <span class="mono">/account/billing/</span></td></tr>
+      <tr><td><span class="check"></span><strong>Tier gating</strong></td><td>Wired across all 5 agents + saved-plan POSTs</td></tr>
+      <tr><td><span class="check"></span><strong>Conversion analytics</strong></td><td>KV event log + token-gated <span class="mono">/dashboard/leads/</span></td></tr>
+      <tr><td><span class="check"></span><strong>Plan-revision diff</strong></td><td>Snapshot at save, "what's changed since" callout on revisit</td></tr>
+      <tr><td><span class="check"></span><strong>Implementation roadmap</strong></td><td>5-phase, 15–25-task conditional generator per plan</td></tr>
+      <tr><td><span class="check"></span><strong>Currency display toggle</strong></td><td>EUR / USD / CNY / VND / PLN at snapshot rates</td></tr>
+      <tr><td><span class="check"></span><strong>RSS + Atom feeds</strong></td><td><span class="mono">/feed.xml</span> and <span class="mono">/atom.xml</span>, 185 items</td></tr>
+      <tr><td><span class="check"></span><strong>Marketplace shell</strong></td><td>15 anonymised supplier exemplars</td></tr>
+      <tr><td><span class="check"></span><strong>Press &amp; Partners</strong></td><td><span class="mono">/press/</span> indexable, <span class="mono">/partners/</span> ecosystem</td></tr>
+      <tr><td><span class="check"></span><strong>Outbound composer</strong></td><td>Founder-grade cold-email tool routed through orchestrator</td></tr>
+      <tr><td><span class="check"></span><strong>Test discipline</strong></td><td>1,200 automated tests, GHA CI on every push</td></tr>
+      <tr><td><span class="check"></span><strong>Operational hardening</strong></td><td><span class="mono">.env.example</span>, sitemap registration, daily content rotation</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Deliberately deferred</h3>
+  <p>Not because they're unimportant — because they're premature without traction:</p>
+  <ul>
+    <li>Live supplier directory — until 50 vetted suppliers consent and a vetting pipeline is operational</li>
+    <li>Lead enrichment from LinkedIn URL — until inbound volume justifies a paid API</li>
+    <li>Postgres migration — KV holds until 50+ paying users</li>
+    <li>Mobile native app — browser-first SaaS; nothing in the product demands native</li>
+    <li>Multi-tenant white-label — premature; no customer asking</li>
+    <li>Languages beyond EN/PL/DE — until customer demand in another market</li>
+  </ul>
+
+  <div class="callout plain">
+    <strong>Status in one line — </strong>The platform is feature-complete. The 1,200-test CI gate
+    ensures regressions cannot ship silently. The binding constraint is now go-to-market.
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">10 · Traction</span>
+    <span>p. 14</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     11 · GO-TO-MARKET
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 11 · Go-to-Market</p>
+  <h2>The 90-day plan</h2>
+
+  <h3>Channel 1 · The SEO content moat</h3>
+  <p>
+    180+ calculator-grounded pages ranking for long-tail queries that traditional ad-buyers
+    cannot defend. Each page funnels into the wizard via pre-filled permalink; each wizard run
+    captures an event into the conversion-analytics dashboard. <strong>SEO traffic,
+    product-led growth, and lead-gen are the same artefact.</strong>
+  </p>
+  <ul style="font-size: 10pt;">
+    <li><em>"duty on Chinese e-bikes into Poland"</em> → trade-defence dossier showing 87% combined AD+CVD with calculator link</li>
+    <li><em>"EUR.1 form Vietnam apparel EU"</em> → preferential-origin pathway with EVFTA walkthrough</li>
+    <li><em>"CBAM steel imports calculator"</em> → compliance overlay with HS-coverage table</li>
+    <li><em>"Bangladesh apparel EBA zero duty"</em> → worked example with full landed-cost breakdown</li>
+  </ul>
+
+  <h3>Channel 2 · Free tier as wedge</h3>
+  <p>
+    The free Compliance Agent runs on a question every EU SME importer needs answered: "what
+    regulations apply to my product, and what would they cost me?" This is a question
+    competitors charge €1,000+ for and answer in two weeks. <strong>We answer it in 90 seconds,
+    cited against EUR-Lex.</strong> Every run captures the customer into the durable event log.
+  </p>
+
+  <h3>Channel 3 · Founder-led outbound</h3>
+  <p>
+    The <span class="mono">/agent/outbound/</span> tool drafts brand-voice-pinned cold emails
+    from a brief (recipient, hook, goal, tone). Routed through the orchestrator. Built to scale
+    founder-led GTM through the Polish-LinkedIn → discovery-call → Starter funnel.
+  </p>
+
+  <h3>Channel 4 · Partner referrals (inbound)</h3>
+  <p>
+    Forwarders, FX brokers, insurers, inspection agencies, compliance consultancies — listed at
+    <span class="mono">/partners/</span> across three relationship modes
+    (Recommended / Referral / Commercial). Inbound from partners who recognise OrcaTrade fits a
+    customer they cannot serve at this volume.
+  </p>
+
+  <h3>Channel mix by ICP</h3>
+  <table>
+    <thead>
+      <tr><th>ICP</th><th>Primary channels</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Polish e-commerce</strong></td><td>Polish-language LinkedIn · Allegro seller Facebook groups · Polish e-commerce Slack · founder-led outbound</td></tr>
+      <tr><td><strong>German Mittelstand</strong></td><td>German LinkedIn · trade advertorials (Logistik Heute, DVZ) · curated webinars with HK partners</td></tr>
+      <tr><td><strong>Specialty retail</strong></td><td>Founder-led LinkedIn · niche industry publications · partner-network referrals</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Operational priorities · next 90 days</h3>
+  <table>
+    <thead>
+      <tr><th>Workstream</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Production env-var setup on Vercel</td><td>Operational, runbook complete (<span class="mono">.env.example</span>)</td></tr>
+      <tr><td>Stripe price seeding (6 prices)</td><td>Operational, dashboard configuration</td></tr>
+      <tr><td>Resend domain verification</td><td>Operational, DNS-side</td></tr>
+      <tr><td>First 10 paying customers</td><td>Founder-led outbound + Polish e-commerce community seeding</td></tr>
+      <tr><td>Sentry / production error tracking</td><td>30-min integration once first customer signs</td></tr>
+      <tr><td>Lighthouse / accessibility audit</td><td>Pre-scale-up hardening</td></tr>
+    </tbody>
+  </table>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">11 · Go-to-Market</span>
+    <span>p. 15</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     12 · TEAM & COMPANY
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 12 · Team &amp; Company</p>
+  <h2>Three founders · three jurisdictions · one platform</h2>
+
+  <div class="grid cols-3">
+    <div class="card">
+      <span class="badge gold">CEO</span>
+      <h3 style="margin-top: 8px;">Oskar Klepuszewski</h3>
+      <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--navy-mid);">Chief Executive Officer</p>
+      <p style="font-size: 9.6pt;">Architect of the platform. Built the calculator engines, the AI agent suite, the compliance overlay, and the 1,200-test CI gate. Polish-native, EN/PL/DE-fluent. Based in Warsaw.</p>
+    </div>
+    <div class="card">
+      <span class="badge gold">COO</span>
+      <h3 style="margin-top: 8px;">Arman Sirin</h3>
+      <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--navy-mid);">Chief Operating Officer</p>
+      <p style="font-size: 9.6pt;">Operational lead — partner ecosystem, commercial relationships with forwarders/insurers/FX, and the GTM motion across the UK and DE markets. Based in London.</p>
+    </div>
+    <div class="card">
+      <span class="badge gold">CSCO</span>
+      <h3 style="margin-top: 8px;">Nigel Lam</h3>
+      <p style="font-family: 'Cormorant Garamond', serif; font-style: italic; color: var(--navy-mid);">Chief Supply Chain Officer</p>
+      <p style="font-size: 9.6pt;">Asia-side supply chain. Hong Kong physical presence — supplier verification, sample consolidation, dispute resolution. The moat against pure-digital competitors. Based in Hong Kong.</p>
+    </div>
+  </div>
+
+  <h3>Group structure</h3>
+  <table>
+    <thead>
+      <tr><th>Entity</th><th>Jurisdiction</th><th>Function</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>OrcaTrade Holding Ltd</strong></td><td>England &amp; Wales</td><td>Top-level holding · investor-readiness · cross-border governance</td></tr>
+      <tr><td><strong>OrcaTrade Polska sp. z o.o.</strong></td><td>Poland</td><td>Warsaw commercial + engineering function</td></tr>
+      <tr><td><strong>OrcaTrade Asia Ltd</strong></td><td>Hong Kong</td><td>Asia-side supply-chain function · Director: Nigel Lam</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Cap table at formation</h3>
+  <table>
+    <thead>
+      <tr><th>Holder</th><th class="num">Shares</th><th class="num">%</th><th>Vesting</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Oskar Klepuszewski · CEO</td><td class="num">300,000</td><td class="num">30.00%</td><td>4-year vest · 1-year cliff · reverse vesting</td></tr>
+      <tr><td>Arman Sirin · COO</td><td class="num">300,000</td><td class="num">30.00%</td><td>4-year vest · 1-year cliff · reverse vesting</td></tr>
+      <tr><td>Nigel Lam · CSCO</td><td class="num">300,000</td><td class="num">30.00%</td><td>4-year vest · 1-year cliff · reverse vesting</td></tr>
+      <tr><td>Option Pool</td><td class="num">100,000</td><td class="num">10.00%</td><td>Allocatable by Board</td></tr>
+      <tr><td><strong>Total</strong></td><td class="num"><strong>1,000,000</strong></td><td class="num"><strong>100.00%</strong></td><td></td></tr>
+    </tbody>
+  </table>
+
+  <h3>Governance highlights</h3>
+  <ul style="font-size: 9.8pt;">
+    <li>Board: three founder-directors. Oskar Klepuszewski serves as Chairman (no casting vote).</li>
+    <li>Reserved Matters require <strong>unanimous</strong> founder consent — share issuance, M&amp;A, IPO, budget approval, founder compensation.</li>
+    <li>Deadlock procedure: 14-day cooling-off → CEDR mediation → Texas Shoot-Out as last resort.</li>
+    <li>Drag-along threshold: <strong>66.67%</strong> — any two founders can compel a bona-fide sale.</li>
+    <li>Restrictive covenants: 12 months post-cessation across UK / EEA / Switzerland / Hong Kong.</li>
+    <li>Deferred compensation pre-Trigger; Trigger fires at €150k rolling revenue or €250k+ funding round.</li>
+  </ul>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">12 · Team</span>
+    <span>p. 16</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     13 · THE ASK
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 13 · The Ask</p>
+  <h2>What we're raising and what it buys</h2>
+
+  <div class="pull">
+    Pre-seed: <span class="accent">€750k–€1.2M</span> on a SAFE or convertible note. 18-month runway.
+    Target close <span class="accent">Q3 2026</span>.
+  </div>
+
+  <h3>What the capital does</h3>
+  <table>
+    <thead>
+      <tr><th>Use of funds</th><th class="num">Allocation</th><th>Outcome</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Founder compensation</strong> (post-Trigger)</td><td class="num">35%</td><td>Three founders on salaries that allow full-time commitment. Trigger fires on close.</td></tr>
+      <tr><td><strong>Hong Kong operation</strong></td><td class="num">20%</td><td>Office, supplier-vetting headcount, sample consolidation infrastructure. The moat against pure-digital competitors.</td></tr>
+      <tr><td><strong>GTM &amp; founder outbound</strong></td><td class="num">20%</td><td>Polish &amp; German LinkedIn campaigns, partner-network development, conference presence (Logistik Heute, DVZ).</td></tr>
+      <tr><td><strong>Engineering &amp; AI</strong></td><td class="num">15%</td><td>Compliance-overlay expansion (cosmetics, food, machinery deep-dives), supplier directory pipeline, Postgres migration at 50+ paying users.</td></tr>
+      <tr><td><strong>Legal, compliance, governance</strong></td><td class="num">10%</td><td>Three-entity group setup costs, UK counsel for the Shareholders' Agreement, ICO/GDPR readiness, terms-of-service hardening.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>What we'll have at 18 months</h3>
+  <ul>
+    <li><strong>50–100 paying logos</strong> across Polish e-commerce + German Mittelstand</li>
+    <li><strong>€300k–€600k ARR</strong> on a mix-weighted basis (Starter / Growth / Scale)</li>
+    <li><strong>HK operation live</strong> — supplier-vetting pipeline operational, first 50 vetted suppliers in marketplace</li>
+    <li><strong>Series A-readable metrics</strong> — net retention, gross margin, payback period — three quarters of clean numbers</li>
+  </ul>
+
+  <h3>What we will not do with the money</h3>
+  <ul>
+    <li><span class="cross"></span>Build a consumer mobile app. Browser-first SaaS; nothing in the product demands native.</li>
+    <li><span class="cross"></span>Buy a forwarder or a customs brokerage. Asset-light by design.</li>
+    <li><span class="cross"></span>Index Alibaba. Curation is the product; breadth is the anti-product.</li>
+    <li><span class="cross"></span>Expand to a fourth language. EN/PL/DE until a customer in a fourth market pulls us in.</li>
+    <li><span class="cross"></span>Hire a CMO or VP-Sales pre-Series-A. Founder-led GTM until €1M ARR.</li>
+  </ul>
+
+  <h3>The right investor for us</h3>
+  <p style="font-size: 10pt;">
+    European-focused pre-seed funds with a track record in trade/supply-chain software, B2B SaaS,
+    or AI infrastructure. Operator-angels welcome — particularly those with import/export or
+    EU-regulatory backgrounds. We are <strong>less interested</strong> in marketplace-thesis funds
+    (we are deliberately curated, not broad) and in funds whose thesis requires a consumer-app shape.
+  </p>
+
+  <div class="callout">
+    The technology is shipped. The 1,200-test CI gate ensures regressions cannot ship silently.
+    What remains is go-to-market. The next 90 days are about converting that asymmetry —
+    calculator-grounded numbers, citation-grounded recommendations, trilingual surface, Hong Kong
+    presence — into the first ten paying logos.
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">13 · The Ask</span>
+    <span>p. 17</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     14 · FAQ & OBJECTION HANDLING
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 14 · FAQ &amp; Objection Handling</p>
+  <h2>The ten questions everyone asks</h2>
+
+  <h3>Q1 · "Doesn't Alibaba already do this?"</h3>
+  <p>
+    Alibaba is the front door. It's where the SME starts. We're the four steps that follow —
+    verify the supplier, compute the duty, book the freight, finance the deal. Alibaba never
+    surfaces CBAM exposure on a Chinese steel order; we do, on screen one.
+  </p>
+
+  <h3>Q2 · "Won't Flexport / Forto add this?"</h3>
+  <p>
+    They're forwarder-first by structure. Their commercial teams optimise for shipment volume,
+    not for the SME who imports six containers a year. Compliance and sourcing are out of scope
+    for their ICP. Even if they bolted on a copilot, they wouldn't sit in front of the SME's
+    sourcing decision — they sit downstream of it.
+  </p>
+
+  <h3>Q3 · "Why won't SAP GTS / Oracle GTM beat you down-market?"</h3>
+  <p>
+    They'll never serve the €99/month customer. Their cost structure assumes six-figure
+    implementations. Down-market is unprofitable for them by design. We're the layer between
+    free-and-chaotic and €200k/year-and-enterprise.
+  </p>
+
+  <h3>Q4 · "What stops a well-funded US AI startup from copying you?"</h3>
+  <p>
+    Three things they can't quickly replicate: <strong>(1)</strong> the EU regulatory depth
+    — 14 compliance regimes, 32 trade-defence dossiers, 15 preferential-origin pathways, all
+    EUR-Lex-cited, all calculator-grounded; <strong>(2)</strong> the Hong Kong physical presence;
+    <strong>(3)</strong> the trilingual EN/PL/DE surface that an American team can't write in their
+    sleep. The combination — not any one — is the moat.
+  </p>
+
+  <h3>Q5 · "What's the AI vs. calculator split? Aren't you just an LLM wrapper?"</h3>
+  <p>
+    Every monetary number comes from a deterministic calculator. The LLM never produces a number
+    that drives a business decision. Agents call calculators as tools; they don't estimate. This
+    is the architectural rule, enforced at the import-graph level: no Anthropic SDK imports in
+    <span class="mono">/lib/forecasting/</span>, <span class="mono">/lib/anomaly/</span>,
+    <span class="mono">/lib/inventory/</span>, or <span class="mono">/lib/revenue/</span>.
+  </p>
+
+  <h3>Q6 · "How do you make money beyond subscriptions?"</h3>
+  <p>
+    Transactional. Per-shipment fees (€150–€2,500), 8–15% freight markup from forwarder partners,
+    customs-clearance fees, inspection coordination, cargo-insurance commission, trade-finance
+    referral economics. A Growth-tier customer routinely lands in the €8k–€15k ACV band once
+    they ship at expected frequency.
+  </p>
+
+  <h3>Q7 · "What's the cost to acquire a customer?"</h3>
+  <p>
+    Pre-traction projection: <strong>~€600 blended CAC</strong> against an LTV of €4,500+ on
+    Starter, €15k+ on Growth. SEO content moat is the cheap channel (free per page, expensive in
+    aggregate authorship — but already shipped). Founder outbound is cheap-but-slow. Partner
+    referrals are unpaid and inbound. The economics work as long as content compounds.
+  </p>
+
+  <h3>Q8 · "What's your biggest risk?"</h3>
+  <p>
+    GTM execution. The technology risk is behind us; the customer-acquisition risk is in front.
+    Our mitigation is <strong>(a)</strong> a founder team where one founder builds, one sells,
+    one operates Asia; <strong>(b)</strong> a free tier that captures every Compliance-Agent
+    user into the funnel; <strong>(c)</strong> a content library that compounds whether or not we
+    spend on ads.
+  </p>
+
+  <h3>Q9 · "Why are you the team to do this?"</h3>
+  <p>
+    A founder who built the platform end-to-end (calculators, agents, compliance overlay,
+    1,200-test gate); a COO running EU commercial relationships out of London; a CSCO with
+    physical Hong Kong presence and personal supplier relationships. Three jurisdictions, three
+    languages, and one product. Few teams in the space combine all three.
+  </p>
+
+  <h3>Q10 · "What happens if Anthropic raises prices, or there's an API outage?"</h3>
+  <p>
+    Calculator engines run independently — agent unavailability degrades to "AI features
+    temporarily unavailable" without breaking pricing, checkout, or saved plans. On pricing: AI
+    cost-of-goods is a single-digit percentage of subscription revenue; meaningful margin
+    pressure requires Anthropic to raise prices 5–10× without competition responding.
+  </p>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">14 · FAQ</span>
+    <span>p. 18</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     15 · MESSAGING MATRIX & SALES SCRIPTS
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 15 · Messaging Matrix</p>
+  <h2>What we say × who we say it to</h2>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width: 18%;">Message</th>
+        <th>Polish e-commerce</th>
+        <th>German Mittelstand</th>
+        <th>Specialty retail</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Hero hook</strong></td>
+        <td>"Stop running imports out of email threads."</td>
+        <td>"Regulatory precision at SME pricing."</td>
+        <td>"From sample to shelf with one partner."</td>
+      </tr>
+      <tr>
+        <td><strong>Lead with</strong></td>
+        <td>Compliance Agent + Routing</td>
+        <td>Compliance Agent + audit trail</td>
+        <td>Sourcing Agent + sample-management</td>
+      </tr>
+      <tr>
+        <td><strong>Defuse objection</strong></td>
+        <td>"Built by Polish operators — interface in PL/EN/DE."</td>
+        <td>"Citations from EUR-Lex on every regulatory claim."</td>
+        <td>"HK office, in-person QC, returns handled."</td>
+      </tr>
+      <tr>
+        <td><strong>Pricing emphasis</strong></td>
+        <td>Free entry + €99 Starter</td>
+        <td>€399 Growth + custom Enterprise</td>
+        <td>Per-shipment fees over subscription</td>
+      </tr>
+      <tr>
+        <td><strong>Proof point</strong></td>
+        <td>"Polish SMEs have been overpaying forwarders 30–40% for years. The Routing tool shows the gap."</td>
+        <td>"CBAM exposure calculator with snapshot ETS pricing — defensible numbers, audit-ready."</td>
+        <td>"HK office runs sample consolidation; you don't ship 5 separate parcels."</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>What NOT to say</h3>
+  <div class="grid cols-2">
+    <div class="card">
+      <h4>Vocabulary to avoid</h4>
+      <ul style="font-size: 9.6pt;">
+        <li><span class="cross"></span>"Disrupt" — we complement forwarders, not replace them.</li>
+        <li><span class="cross"></span>"AI-first" — descriptive of how we built it, not a claim about the product.</li>
+        <li><span class="cross"></span>"Save 50% on shipping" — we don't make that claim; not consistently true.</li>
+        <li><span class="cross"></span>"Trusted by industry leaders" — without named logos, hollow.</li>
+        <li><span class="cross"></span>"Easy", "simple", "seamless" — show, don't claim.</li>
+        <li><span class="cross"></span>"Excited to announce" — start with the news, not your feelings.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h4>Vocabulary to use</h4>
+      <ul style="font-size: 9.6pt;">
+        <li><span class="check"></span>"Most importers don't know that…" (sets up a specific insight)</li>
+        <li><span class="check"></span>"On a typical {weight}-kg shipment from {origin} to {destination}…"</li>
+        <li><span class="check"></span>"We benchmark against…" / "We saw {n} of these last quarter"</li>
+        <li><span class="check"></span>"The math is…"</li>
+        <li><span class="check"></span>Specific country and HS-code references</li>
+        <li><span class="check"></span>Numeric proof points over adjective stacks</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>The voice rule, in one sentence</h3>
+  <div class="callout">
+    OrcaTrade sounds like a senior trade operator who's run Asia-Europe shipments for a decade.
+    Speaks plainly. Cites numbers. Names specific factories, specific HS codes, specific routes.
+    Never generic. Never breathless.
+  </div>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">15 · Messaging Matrix</span>
+    <span>p. 19</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     15b · SALES SCRIPTS / COLD EMAIL TEMPLATES
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 15 · Sales Scripts (continued)</p>
+  <h2 style="border-bottom: 1.5px solid var(--gold);">Cold outreach &amp; discovery</h2>
+
+  <h3>Cold email · ICP 01 · Polish e-commerce</h3>
+  <div class="card">
+    <p style="font-family: 'Geist Mono', monospace; font-size: 9pt; color: var(--ink-muted);">Subject: 30–40% — that's what Polish FBA sellers overpay on Vietnam freight</p>
+    <hr/>
+    <p style="font-size: 10pt;">Cześć {name},</p>
+    <p style="font-size: 10pt;">Run the math on your last container from VN/CN — sea, rail, and air priced side by side, your real HS-code duty calculated against current TARIC, and whether EVFTA preferential origin would zero out the duty.</p>
+    <p style="font-size: 10pt;">Free. 90 seconds. <strong>orcatrade.pl/start</strong></p>
+    <p style="font-size: 10pt;">We built this because the Polish e-commerce founders in our network were paying forwarders 30–40% over what the route actually costs. The calculator shows the gap. We don't sell freight — we sell the platform that lets you see what your freight should cost.</p>
+    <p style="font-size: 10pt;">Oskar</p>
+  </div>
+
+  <h3>Cold email · ICP 02 · German Mittelstand</h3>
+  <div class="card">
+    <p style="font-family: 'Geist Mono', monospace; font-size: 9pt; color: var(--ink-muted);">Subject: CBAM exposure on your Q2 steel imports — calculated against current ETS pricing</p>
+    <hr/>
+    <p style="font-size: 10pt;">Sehr geehrte/r {name},</p>
+    <p style="font-size: 10pt;">CBAM enters the definitive period in 2026 and your steel imports are in scope under Annex I.  We've built a compliance calculator that takes your HS code, your origin country, and your tonnage, and returns your indicative CBAM exposure against snapshot ETS pricing — cited against the relevant Implementing Regulation by celex number.</p>
+    <p style="font-size: 10pt;">Audit-ready. Three minutes. Free.</p>
+    <p style="font-size: 10pt;"><strong>orcatrade.pl/agents/compliance</strong></p>
+    <p style="font-size: 10pt;">If the numbers surprise you, we offer a Growth-tier subscription (€399/Monat) with quarterly reporting templates and an audit trail per shipment.</p>
+    <p style="font-size: 10pt;">Mit freundlichen Grüßen,<br/>Arman Sirin · COO</p>
+  </div>
+
+  <h3>Discovery call · opening question matrix</h3>
+  <table>
+    <thead>
+      <tr><th>Phase</th><th>The question</th><th>Why we ask</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Open</strong></td><td>"Walk me through how your last container went — from RFQ to warehouse arrival."</td><td>Surfaces the patchwork process and the actual pain.</td></tr>
+      <tr><td><strong>Quantify</strong></td><td>"On that shipment, what was your landed cost per unit vs. what you'd budgeted?"</td><td>Anchors the conversation in numbers.</td></tr>
+      <tr><td><strong>Compliance probe</strong></td><td>"Did your customs broker raise CBAM / EUDR / REACH on that shipment?"</td><td>Reveals the gap between what's compliant and what was filed.</td></tr>
+      <tr><td><strong>Frequency</strong></td><td>"How many shipments are you running this year?"</td><td>Tier-fits to Starter / Growth / Scale.</td></tr>
+      <tr><td><strong>Decision</strong></td><td>"If we could show you the duty + freight + FX gap on your next shipment in 5 minutes, would you take that call?"</td><td>Closes to demo or to wizard run.</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Pitch closers · by length</h3>
+  <ul style="font-size: 10pt;">
+    <li><strong>One-line</strong> · "We're the layer between Alibaba and the EU shelf."</li>
+    <li><strong>Two-line</strong> · "We give the European SME importer the AI version of a 50-person trade-operations team — for €99–€999 a month. Every number is calculated. Every regulation is cited."</li>
+    <li><strong>Three-line</strong> · "The technology is built. 1,200 tests. 180 trilingual pages. Five agents. The next 90 days are about converting that into the first ten paying logos."</li>
+  </ul>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">15 · Scripts (cont.)</span>
+    <span>p. 20</span>
+  </div>
+</section>
+
+<!-- ============================================================
+     16 · APPENDIX · BRAND & EVIDENCE
+     ============================================================ -->
+<section class="page">
+  <p class="section-eyebrow">Section 16 · Appendix</p>
+  <h2>Brand &amp; evidence</h2>
+
+  <h3>Brand palette</h3>
+  <p>Print &amp; deck — warmer, higher-contrast extension of the web palette.</p>
+  <table>
+    <thead>
+      <tr><th>Name</th><th>Hex</th><th>Use</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><strong>Deep Navy</strong></td>
+        <td class="mono"><span style="display: inline-block; width: 14px; height: 14px; background: #0a1628; border: 1px solid var(--line); vertical-align: middle; margin-right: 6px;"></span>#0a1628</td>
+        <td>Cover, formal documents, primary text on light</td>
+      </tr>
+      <tr>
+        <td><strong>Mid Navy</strong></td>
+        <td class="mono"><span style="display: inline-block; width: 14px; height: 14px; background: #0f2540; border: 1px solid var(--line); vertical-align: middle; margin-right: 6px;"></span>#0f2540</td>
+        <td>Section dividers, sub-headings in long docs</td>
+      </tr>
+      <tr>
+        <td><strong>Ivory</strong></td>
+        <td class="mono"><span style="display: inline-block; width: 14px; height: 14px; background: #f5efe2; border: 1px solid var(--line); vertical-align: middle; margin-right: 6px;"></span>#f5efe2</td>
+        <td>Document background, primary text on dark</td>
+      </tr>
+      <tr>
+        <td><strong>Brand Gold</strong></td>
+        <td class="mono"><span style="display: inline-block; width: 14px; height: 14px; background: #c8a85a; border: 1px solid var(--line); vertical-align: middle; margin-right: 6px;"></span>#c8a85a</td>
+        <td>Heritage accent — rules, kickers, highlights on dark</td>
+      </tr>
+      <tr>
+        <td><strong>Light Gold</strong></td>
+        <td class="mono"><span style="display: inline-block; width: 14px; height: 14px; background: #d4b97a; border: 1px solid var(--line); vertical-align: middle; margin-right: 6px;"></span>#d4b97a</td>
+        <td>Gold gradients, hover states</td>
+      </tr>
+      <tr>
+        <td><strong>Error</strong></td>
+        <td class="mono"><span style="display: inline-block; width: 14px; height: 14px; background: #e15c5c; border: 1px solid var(--line); vertical-align: middle; margin-right: 6px;"></span>#e15c5c</td>
+        <td>Errors only — never for warnings or alerts</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h3>Typography</h3>
+  <table>
+    <thead>
+      <tr><th>Role</th><th>Family</th><th>Use</th></tr>
+    </thead>
+    <tbody>
+      <tr><td><strong>Display &amp; headings</strong></td><td>Cormorant Garamond / Garant · 400–700</td><td>Page heroes, section headings, stat numbers, callouts, pull-quotes</td></tr>
+      <tr><td><strong>Body &amp; UI</strong></td><td>Geist Sans (web) / Inter (print) · 400–700</td><td>Paragraphs, navigation, captions</td></tr>
+      <tr><td><strong>Code &amp; data</strong></td><td>Geist Mono · 400–500</td><td>Numbers in stats, HS codes, file paths, citation chips</td></tr>
+    </tbody>
+  </table>
+
+  <h3>Source documents</h3>
+  <p>Every claim in this kit traces to one of the following internal source documents:</p>
+  <ul style="font-size: 9.8pt;">
+    <li><span class="mono">/docs/company-overview.md</span> — canonical product, business model, and roadmap reference</li>
+    <li><span class="mono">/docs/strategic-platform-plan.md</span> — long-form thesis and platform strategy</li>
+    <li><span class="mono">/docs/founder-term-sheet.md</span> — cap table, governance, vesting, leaver provisions</li>
+    <li><span class="mono">/docs/brand-kit/</span> — identity, colour, typography, voice, messaging (10 files)</li>
+    <li><span class="mono">/lib/tiers.js</span> — pricing tiers, entitlements, quotas (single source of truth)</li>
+    <li><span class="mono">/lib/intelligence/*-quote.js</span> — the seven calculator engines</li>
+  </ul>
+
+  <h3>Citations &amp; evidence discipline</h3>
+  <ul style="font-size: 9.8pt;">
+    <li>Every regulatory claim cites EUR-Lex by celex number.</li>
+    <li>Every AD/CVD figure cites the relevant Implementing Regulation.</li>
+    <li>Every monetary number in the platform traces to a deterministic calculator with full unit-test coverage.</li>
+    <li>Every worked example links to the specific regulation that drives the duty rate.</li>
+    <li>If we cannot cite it, we don't claim it. If we cannot calculate it, we say so.</li>
+  </ul>
+
+  <h3>Contact</h3>
+  <div class="grid cols-3">
+    <div class="card">
+      <h4>Press</h4>
+      <p style="font-size: 9.6pt;">press@orcatrade.pl<br/><span class="mono">orcatrade.pl/press</span></p>
+    </div>
+    <div class="card">
+      <h4>Partners</h4>
+      <p style="font-size: 9.6pt;">partners@orcatrade.pl<br/><span class="mono">orcatrade.pl/partners</span></p>
+    </div>
+    <div class="card">
+      <h4>Investors</h4>
+      <p style="font-size: 9.6pt;">oskar@orcatrade.pl<br/>Warsaw · London · Hong Kong</p>
+    </div>
+  </div>
+
+  <hr/>
+  <p style="text-align: center; font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 12pt; color: var(--navy-mid); margin-top: 20px;">
+    OrcaTrade Holding · Warsaw · London · Hong Kong<br/>
+    <span style="font-family: 'Inter', sans-serif; font-style: normal; font-size: 8.5pt; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink-muted);">
+      Pitch Kit v1.0 · 2026-05-14 · Authored by Oskar Klepuszewski
+    </span>
+  </p>
+
+  <div class="running">
+    <span>OrcaTrade · Pitch Kit v1.0</span>
+    <span class="mark">16 · Appendix</span>
+    <span>p. 21</span>
+  </div>
+</section>
+
+</div>
+</body>
+</html>

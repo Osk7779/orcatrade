@@ -115,6 +115,108 @@ test('lookupHsRate with skipUpstream=true never hits the network', async () => {
   assert.equal(r2.rate, 0.08);
 });
 
+// ── parseUpstreamResponse: real JSON:API shape from UK Trade Tariff ───
+//
+// These fixtures mirror the actual /commodities/<hs> response shape. If
+// the upstream changes their API contract these tests will fail loudly
+// instead of the production parser silently always returning null.
+
+function makeUpstreamResponse(measures, expressions) {
+  return {
+    data: { type: 'commodity', attributes: {} },
+    included: [
+      ...measures.map(m => ({ type: 'measure', id: m.id, attributes: m.attrs || {}, relationships: m.rels })),
+      ...expressions.map(e => ({ type: 'duty_expression', id: e.id, attributes: e.attrs })),
+    ],
+  };
+}
+
+test('parseUpstreamResponse extracts the type-103 MFN rate from JSON:API', () => {
+  const body = makeUpstreamResponse(
+    [{
+      id: 'measure-1',
+      attrs: { effective_start_date: '2021-01-01T00:00:00.000Z', effective_end_date: null },
+      rels: {
+        measure_type: { data: { id: '103' } },
+        duty_expression: { data: { id: 'expr-1' } },
+      },
+    }],
+    [{ id: 'expr-1', attrs: { base: '12.00 %', formatted_base: '<span>12.00</span> %' } }]
+  );
+  const r = taric._parseUpstreamResponse(body, { hs: '6203423500', origin: 'CN' });
+  assert.ok(r);
+  assert.equal(r.rate, 0.12);
+  assert.equal(r.source, 'uk-trade-tariff');
+  assert.match(r.sourceLabel, /UK Trade Tariff/);
+});
+
+test('parseUpstreamResponse skips non-103 measures (preferential, AD, etc.)', () => {
+  const body = makeUpstreamResponse(
+    [
+      { id: 'pref', attrs: {}, rels: { measure_type: { data: { id: '142' } }, duty_expression: { data: { id: 'e1' } } } },
+      { id: 'mfn',  attrs: {}, rels: { measure_type: { data: { id: '103' } }, duty_expression: { data: { id: 'e2' } } } },
+    ],
+    [
+      { id: 'e1', attrs: { base: '0.00 %' } },
+      { id: 'e2', attrs: { base: '8.00 %' } },
+    ]
+  );
+  const r = taric._parseUpstreamResponse(body, { hs: '7610109090', origin: 'CN' });
+  assert.equal(r.rate, 0.08);
+});
+
+test('parseUpstreamResponse falls back to formatted_base when base is empty', () => {
+  const body = makeUpstreamResponse(
+    [{ id: 'm', attrs: {}, rels: { measure_type: { data: { id: '103' } }, duty_expression: { data: { id: 'e' } } } }],
+    [{ id: 'e', attrs: { base: '', formatted_base: '<span>5.5</span> %' } }]
+  );
+  const r = taric._parseUpstreamResponse(body, { hs: '999999', origin: 'CN' });
+  assert.equal(r.rate, 0.055);
+});
+
+test('parseUpstreamResponse returns null for specific-duty-only expressions', () => {
+  const body = makeUpstreamResponse(
+    [{ id: 'm', attrs: {}, rels: { measure_type: { data: { id: '103' } }, duty_expression: { data: { id: 'e' } } } }],
+    [{ id: 'e', attrs: { base: 'EUR 5.00 / kg' } }]
+  );
+  const r = taric._parseUpstreamResponse(body, { hs: '999999', origin: 'CN' });
+  assert.equal(r, null);
+});
+
+test('parseUpstreamResponse skips expired measures', () => {
+  const past = '2020-12-31T00:00:00.000Z';
+  const body = makeUpstreamResponse(
+    [{ id: 'm', attrs: { effective_end_date: past }, rels: { measure_type: { data: { id: '103' } }, duty_expression: { data: { id: 'e' } } } }],
+    [{ id: 'e', attrs: { base: '99.00 %' } }]
+  );
+  const r = taric._parseUpstreamResponse(body, { hs: '999999', origin: 'CN' });
+  assert.equal(r, null);
+});
+
+test('parseUpstreamResponse skips future-dated measures', () => {
+  const future = '2099-01-01T00:00:00.000Z';
+  const body = makeUpstreamResponse(
+    [{ id: 'm', attrs: { effective_start_date: future }, rels: { measure_type: { data: { id: '103' } }, duty_expression: { data: { id: 'e' } } } }],
+    [{ id: 'e', attrs: { base: '8.00 %' } }]
+  );
+  const r = taric._parseUpstreamResponse(body, { hs: '999999', origin: 'CN' });
+  assert.equal(r, null);
+});
+
+test('parseUpstreamResponse rejects implausible rates', () => {
+  const body = makeUpstreamResponse(
+    [{ id: 'm', attrs: {}, rels: { measure_type: { data: { id: '103' } }, duty_expression: { data: { id: 'e' } } } }],
+    [{ id: 'e', attrs: { base: '300.00 %' } }]  // > 200% guard rail
+  );
+  const r = taric._parseUpstreamResponse(body, { hs: '999999', origin: 'CN' });
+  assert.equal(r, null);
+});
+
+test('parseUpstreamResponse returns null when no included entries exist', () => {
+  const r = taric._parseUpstreamResponse({ data: { type: 'commodity' } }, { hs: '999999', origin: 'CN' });
+  assert.equal(r, null);
+});
+
 // ── taricVerifyUrl ────────────────────────────────────────────────────
 
 test('taricVerifyUrl builds a usable EU TARIC URL with HS code', () => {
