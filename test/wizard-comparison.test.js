@@ -21,7 +21,7 @@ test('start/app.js declares renderComparison function', () => {
   assert.match(js, /function renderComparison\(plan, altOriginCode, panelEl\)/);
 });
 
-test('start/app.js wires .compare-btn click handlers', () => {
+test('start/app.js wires .compare-btn click handlers', async () => {
   const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
   assert.match(js, /document\.querySelectorAll\('\.compare-btn\[data-compare-origin\]'\)/);
   assert.match(js, /addEventListener\('click', \(\) => \{[\s\S]*?renderComparison\(plan, targetOrigin, comparisonPanel\)/);
@@ -78,7 +78,7 @@ test('DE i18n: btnCompare is "Vergleichen"', () => {
 
 // ── CSS ───────────────────────────────────────────────
 
-test('wizard.css defines .comparison-panel + .compare-btn styles', () => {
+test('wizard.css defines .comparison-panel + .compare-btn styles', async () => {
   const css = fs.readFileSync(path.join(ROOT, 'start/wizard.css'), 'utf8');
   assert.match(css, /\.comparison-panel \{/);
   assert.match(css, /\.compare-btn \{/);
@@ -92,8 +92,8 @@ test('wizard.css defines delta-saving (green) and delta-penalty (red) styles', (
 
 // ── Underlying matrix data (composePlan) ──────────────
 
-test('composePlan: matrix has both user pick and at least one alternative for comparison', () => {
-  const plan = composePlan({
+test('composePlan: matrix has both user pick and at least one alternative for comparison', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -107,8 +107,8 @@ test('composePlan: matrix has both user pick and at least one alternative for co
   assert.ok(alts.length >= 4, `expected ≥4 alternatives, got ${alts.length}`);
 });
 
-test('composePlan: VN alternative is cheaper than CN for apparel (EVFTA 0%)', () => {
-  const plan = composePlan({
+test('composePlan: VN alternative is cheaper than CN for apparel (EVFTA 0%)', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -123,8 +123,8 @@ test('composePlan: VN alternative is cheaper than CN for apparel (EVFTA 0%)', ()
   assert.equal(user.preferentialApplied, null);
 });
 
-test('composePlan: comparison delta is meaningful for typical scenarios', () => {
-  const plan = composePlan({
+test('composePlan: comparison delta is meaningful for typical scenarios', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',

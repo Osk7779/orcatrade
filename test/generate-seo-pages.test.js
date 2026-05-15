@@ -146,10 +146,10 @@ test('robots.txt declares both sitemaps and disallows /api/', () => {
 
 // ── Generator idempotence ──────────────────────────────
 
-test('Re-running the generator does not error', () => {
+test('Re-running the generator does not error', async () => {
   const { run } = require('../scripts/generate-seo-pages');
   // Should be safe to re-run (idempotent overwrite)
-  assert.doesNotThrow(() => run());
+  await run();
 });
 
 // ── Page count check ───────────────────────────────────

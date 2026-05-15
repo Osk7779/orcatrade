@@ -1,7 +1,7 @@
 # OrcaTrade — Continued Development Plan
 
 **Author:** Claude (working with Oskar Klepuszewski)
-**Last updated:** 2026-05-08 (Sprint 33 complete)
+**Last updated:** 2026-05-13 (Sprint D — TARIC live integration complete)
 **Status:** Living document — update each sprint completion.
 
 ---
@@ -126,11 +126,17 @@ your importer-of-record." They don't.
 
 ---
 
-#### Sprint D — Live TARIC integration (deferred until Sprint 37 KV exists)
+#### Sprint D — Live TARIC integration (shipped 2026-05-13)
 
-**Why deferred:** EU TARIC has a free API but our customs snapshots
-become stale and need caching. Without KV, every API request hits
-TARIC, gets rate-limited, and breaks under load. Build after Sprint 37.
+**Status:** Done. See the update log entry for the full ship summary.
+The key design decision worth remembering: EU TARIC does NOT have a
+clean public REST API. We use the UK Trade Tariff API as a free
+sub-chapter sanity-check source (disclosed in every result), with KV
+caching at 7-day fresh / 30-day stale, and a hard env-var kill-switch
+for tests + CI. The architecture is pluggable — `fetchUpstreamRate` is
+the one place to swap in a paid EU-direct provider or a bulk-XML
+ingestion pipeline if the UK divergence becomes a real customer
+complaint.
 
 ---
 
@@ -453,5 +459,9 @@ prefers a different ordering than I would naively pick.
 | 2026-05-08 | Sprint AI — Implementation roadmap per plan | New lib/intelligence/implementation-roadmap.js: 5-phase backbone (pre-departure, production+QC, logistics+customs, arrival+inland, post-arrival) with conditional tasks driven by plan content (bonded warehouse adds bonded-entry sub-tasks; preferential origin adds EUR.1/origin-cert prep; trade-defence adds TARIC + surveillance; CBAM/EUDR/REACH add reporting cadences; FX hedge rec adds forward-execution; matrix-cheaper origin flags re-source memo; high working-capital triggers payment-terms negotiation). composePlanWithRoadmap wraps composePlan so saved-plan snapshots stay cheap. Wizard renders phase cards + 3-col task tables (when/action/owner) with deliverable + evidence chips. EN/PL/DE i18n parity. 1,160/1,160 tests. |
 | 2026-05-09 | Sprint H4 — Supplier directory shell | New lib/intelligence/data/supplier-exemplars.js: 15 anonymised composite cards (8 verticals × 8 countries) — ASEAN, South Asia, East Asia, Türkiye, EU. Each entry carries category, region, years operating, MOQ range, lead time, certifications, capabilities, preferential-origin eligibility flag, notes. New /marketplace/ page renders cards with country-filter pills + two CTAs (Request introduction + Apply to be vetted). Anonymisation banner explains the shell — no live marketplace until curated network + consent + vetting pipeline are real. 1,173/1,173 tests. |
 | 2026-05-09 | Sprint H5 — GTM tooling (press + partners + outbound composer) | New /press/ page: positioning sentence, founder bio (Oskar Klepuszewski), key facts grid (HQ, AI agents, 180+ guides), brand assets (logo, brand-kit, RSS), quotable lines, press contact. New /partners/ page: three relationship modes (Recommended/Referral/Commercial) + 6 categories (freight, finance, FX, insurance, inspection, compliance). New /agent/outbound/ tool: founder-grade cold-email composer that POSTs to /api/orchestrator with a brand-voice-pinned prompt; handles 402 tier_gate gracefully (Growth+); recipient + company + hook + goal + tone inputs; copy/regenerate actions. 1,188/1,188 tests. |
+| 2026-05-10 → 2026-05-12 | i18n marketing-layer parity (retro-logged) | Tri-lingual coverage of every marketing/marketing-adjacent page: PL+DE pages for /press/, /partners/, /marketplace/, /pricing→cennik/preise/, /search/, /returns/, /customs/, /routing/, /documents/, /warehouse/, /buyer-verification/, /samples/, /insurance/, /agents/, /logistics→logistyka/logistik/, /platform→platforma/plattform/, /analysis→analiza/analyse/, /supply-chain→lancuch-dostaw/lieferkette/. Localised slug overrides applied where appropriate. hreflang tags added to all EN originals; sitemap registers every PL+DE entry with xhtml:link alternates. PL+DE homepage overhaul to mirror EN exactly: Aurora background + right-edge Page TOC + globe-canvas hero (replacing video-bg) + "Find · Verify · Ship · Finance" framing + Five Stages section with new Logistics card + Pinned Story scrolling section + d3 + globe.js loaders. Tools mega-dropdown made locale-aware in js/site-nav.js with I18N table + SLUG_OVERRIDES; six pages (PL+DE index/finance/sourcing) swapped from hand-rolled inline headers to `<header data-site-header>`. CBAM compliance brief feature card added to pl/intelligence.html + de/intelligence.html linking to /pl/analiza/ and /de/analyse/. Pure content + nav work; no test changes — baseline still 1,188/1,188. |
+| 2026-05-12 | Mobile-nav z-index + tap-target fix (retro-logged) | Open mobile menu was at z-100, sitting BELOW the sticky header (1000), the first-visit cache modal (990), and the page-toc dots (40). Bumped open `.nav-links` to z-1500 with `.nav-toggle` and `.lang-switcher` pinned at z-1600 so the close button stays reachable. Every nav link + Tools mega-dropdown item now has a 44×44 px tap area (WCAG 2.5.5). Pure CSS change. |
+| 2026-05-12 → 2026-05-13 | Favicon v3 → v7 + Google Search Console verification | v3 added 192/512 PNGs that Google's crawler prefers and reordered link tags so 192 is first. v4 added `?v=` cache-busters. v5 moved icons to a fresh `/icons/orca-*` namespace plus a defensive inline JS script that re-injects link elements at runtime so browsers can't honour pre-decided "no favicon for this URL" cache state. v6 cropped the wordmark out of orcatrade_logo.png with PIL — `orcatrade-mark.png` (800×800) became the master, regenerated every size from it. v7 inlined the 32×32 + 48×48 PNGs as base64 `data:` URIs in the FIRST `<link rel="icon">` tags so the favicon is materially present in HTML bytes regardless of cache state. Google Search Console verified via DNS, indexing requested for /, /pl/, /de/. |
+| 2026-05-13 | Sprint D — Live TARIC integration | New lib/intelligence/taric-client.js — async `lookupHsRate(hsCode, originIso)` with 7-day fresh + 30-day stale KV cache, 4 s upstream timeout, hard kill-switch via `ORCATRADE_DISABLE_LIVE_TARIC` env (set in `npm test`). Upstream: UK Trade Tariff API v2 as the initial free public source (sanity-check; EU may differ — disclosed in every result). Customs calculator gained `calculateQuoteAsync` wrapper that engages live lookup when hsCode is 8+ digits AND origin is set; trade-defence and preferential-origin still stack on top of the live MFN exactly as before. `resolveDutyRate` gained `mfnRateOverride` + `mfnRateOverrideSource` params; result exposes `duty.mfnSource`, `duty.chapterRate*`, and `duty.liveRateMeta`. composePlan and composePlanWithRoadmap migrated to async — call sites in start/cron/plans handlers + the example-plans script + every test updated (codemod over 15 files, +59 async openers, +65 awaits). New wizard duty-source badge ("live · cached" green vs muted "chapter estimator" tag, with chapter-vs-live divergence note when ≥0.5pp apart). Public EU TARIC verify deep-link surfaced in next-steps when live rate applied. Test count: 1,188 → 1,268 (+17 new TARIC tests; +63 from the post-2026-05-09 work that hadn't been logged). |
 
 When you complete a sprint, append here.

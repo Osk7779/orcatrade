@@ -271,7 +271,7 @@ const STRINGS = {
     bulletFx: 'Customs value is in EUR. Add a quoteCurrency in the wizard to surface FX risk on supplier payments.',
     bulletTco: (annual, ccc) => `Annual landed cost ≈ ${annual}. Cash conversion cycle ≈ ${ccc} days at default 60d inventory + supplier terms.`,
     secCta: 'Open the full plan in the wizard',
-    secCtaBody: 'Every number above came from the same composePlan() output that powers the live wizard. Click below to open this exact scenario in the Import Plan Builder — fully interactive, with sensitivity analysis, share permalinks, and PDF export.',
+    secCtaBody: 'Every number above came from the same await composePlan() output that powers the live wizard. Click below to open this exact scenario in the Import Plan Builder — fully interactive, with sensitivity analysis, share permalinks, and PDF export.',
     ctaButton: 'Open this plan in the wizard →',
     secAlternatives: 'Try a related example',
     indexTitle: 'Worked import-plan examples — calculator-grounded scenarios',
@@ -300,7 +300,7 @@ const STRINGS = {
     bulletFx: 'Wartość celna w EUR. Dodaj quoteCurrency w kreatorze, aby zobaczyć ryzyko FX dla płatności do dostawcy.',
     bulletTco: (annual, ccc) => `Roczny landed cost ≈ ${annual}. Cykl konwersji gotówki ≈ ${ccc} dni przy domyślnych 60 dniach magazynu i terminach dostawcy.`,
     secCta: 'Otwórz pełny plan w kreatorze',
-    secCtaBody: 'Każda liczba powyżej pochodzi z tego samego wyjścia composePlan(), które zasila kreator. Kliknij poniżej, aby otworzyć ten dokładny scenariusz w Import Plan Builder — w pełni interaktywny, z analizą wrażliwości, linkami współdzielenia i eksportem PDF.',
+    secCtaBody: 'Każda liczba powyżej pochodzi z tego samego wyjścia await composePlan(), które zasila kreator. Kliknij poniżej, aby otworzyć ten dokładny scenariusz w Import Plan Builder — w pełni interaktywny, z analizą wrażliwości, linkami współdzielenia i eksportem PDF.',
     ctaButton: 'Otwórz ten plan w kreatorze →',
     secAlternatives: 'Wypróbuj powiązany przykład',
     indexTitle: 'Przykłady planów importu — scenariusze oparte na kalkulatorach',
@@ -329,7 +329,7 @@ const STRINGS = {
     bulletFx: 'Zollwert in EUR. Geben Sie quoteCurrency im Wizard an, um FX-Risiko auf Lieferantenzahlungen zu sehen.',
     bulletTco: (annual, ccc) => `Jährliche Landed Cost ≈ ${annual}. Cash-Conversion-Cycle ≈ ${ccc} Tage bei Standard 60d Lager + Lieferantenkonditionen.`,
     secCta: 'Vollständigen Plan im Wizard öffnen',
-    secCtaBody: 'Jede Zahl oben stammt aus derselben composePlan()-Ausgabe, die den Live-Wizard antreibt. Klicken Sie unten, um genau dieses Szenario im Import Plan Builder zu öffnen — vollständig interaktiv, mit Sensitivitätsanalyse, Share-Permalinks und PDF-Export.',
+    secCtaBody: 'Jede Zahl oben stammt aus derselben await composePlan()-Ausgabe, die den Live-Wizard antreibt. Klicken Sie unten, um genau dieses Szenario im Import Plan Builder zu öffnen — vollständig interaktiv, mit Sensitivitätsanalyse, Share-Permalinks und PDF-Export.',
     ctaButton: 'Diesen Plan im Wizard öffnen →',
     secAlternatives: 'Verwandtes Beispiel ausprobieren',
     indexTitle: 'Importplan-Berechnungsbeispiele — Kalkulator-basierte Szenarien',
@@ -427,14 +427,14 @@ function pageShell({ locale, title, description, canonical, jsonLd, body, hrefla
 
 // ── Detail page generator ──────────────────────────────
 
-function generateExamplePage(example, locale) {
+async function generateExamplePage(example, locale) {
   const t = STRINGS[locale];
   const localePrefix = locale === 'en' ? '' : `/${locale}`;
   const canonical = `${SITE_URL}${localePrefix}/examples/${example.slug}/`;
   const title = `${example.headlines[locale]} | OrcaTrade`;
   const description = example.intros[locale].slice(0, 200);
 
-  const plan = composePlan(example.inputs);
+  const plan = await composePlan(example.inputs);
   if (!plan.ok) return null;
 
   const dutyPct = plan.customs.duty.ratePercent;
@@ -580,7 +580,7 @@ function generateIndexPage(locale) {
 
 // ── Build ────────────────────────────────────────────
 
-function build() {
+async function build() {
   const generated = [];
   for (const locale of ['en', 'pl', 'de']) {
     const idx = generateIndexPage(locale);
@@ -588,7 +588,7 @@ function build() {
     fs.writeFileSync(path.join(ROOT, idx.relPath), idx.html, 'utf8');
     generated.push(idx);
     for (const example of EXAMPLES) {
-      const page = generateExamplePage(example, locale);
+      const page = await generateExamplePage(example, locale);
       if (!page) continue;
       fs.mkdirSync(path.dirname(path.join(ROOT, page.relPath)), { recursive: true });
       fs.writeFileSync(path.join(ROOT, page.relPath), page.html, 'utf8');
@@ -599,8 +599,9 @@ function build() {
 }
 
 if (require.main === module) {
-  const generated = build();
-  console.log(`Generated ${generated.length} example-plan pages.`);
+  build().then(generated => {
+    console.log(`Generated ${generated.length} example-plan pages.`);
+  });
 }
 
 module.exports = { build, generateExamplePage, generateIndexPage, EXAMPLES, STRINGS };

@@ -130,8 +130,8 @@ test('calculateTco: rejects malformed perShipment', () => {
 
 // ── End-to-end through composePlan ─────────────────────
 
-test('composePlan: plan.tco populated with default 12 shipments/year', () => {
-  const p = composePlan({
+test('composePlan: plan.tco populated with default 12 shipments/year', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -146,8 +146,8 @@ test('composePlan: plan.tco populated with default 12 shipments/year', () => {
   assert.equal(p.tco.inputs.daysInInventory, 60);
 });
 
-test('composePlan: custom shipmentsPerYear flows through', () => {
-  const p = composePlan({
+test('composePlan: custom shipmentsPerYear flows through', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -162,8 +162,8 @@ test('composePlan: custom shipmentsPerYear flows through', () => {
   assert.equal(p.tco.inputs.daysInInventory, 90);
 });
 
-test('composePlan: 3PL hub costs roll into TCO when monthlyOrders >= 100', () => {
-  const p = composePlan({
+test('composePlan: 3PL hub costs roll into TCO when monthlyOrders >= 100', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -176,8 +176,8 @@ test('composePlan: 3PL hub costs roll into TCO when monthlyOrders >= 100', () =>
   assert.ok(p.tco.main.annualWarehouseEur > 0);
 });
 
-test('composePlan: no 3PL when monthlyOrders absent — annualWarehouseEur is 0', () => {
-  const p = composePlan({
+test('composePlan: no 3PL when monthlyOrders absent — annualWarehouseEur is 0', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',

@@ -87,14 +87,14 @@ test('CATEGORY_TO_HS apparel → 62 (woven)', () => {
 
 // ── Plan composition ───────────────────────────────────
 
-test('composePlan returns errors when validation fails', () => {
-  const plan = composePlan({});
+test('composePlan returns errors when validation fails', async () => {
+  const plan = await composePlan({});
   assert.equal(plan.ok, false);
   assert.ok(plan.errors);
 });
 
-test('composePlan returns full plan structure for CN→PL apparel', () => {
-  const plan = composePlan({
+test('composePlan returns full plan structure for CN→PL apparel', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -132,8 +132,8 @@ test('composePlan returns full plan structure for CN→PL apparel', () => {
   assert.ok(plan.totals.perShipmentLandedTotal > plan.totals.customsValueEur);
 });
 
-test('composePlan skips warehouse when monthlyOrders absent', () => {
-  const plan = composePlan({
+test('composePlan skips warehouse when monthlyOrders absent', async () => {
+  const plan = await composePlan({
     productCategory: 'electronics',
     originCountry: 'VN',
     destinationCountry: 'DE',
@@ -145,8 +145,8 @@ test('composePlan skips warehouse when monthlyOrders absent', () => {
   assert.equal(plan.totals.warehouseMonthlyEur, null);
 });
 
-test('composePlan skips warehouse when monthlyOrders < 100', () => {
-  const plan = composePlan({
+test('composePlan skips warehouse when monthlyOrders < 100', async () => {
+  const plan = await composePlan({
     productCategory: 'cosmetics',
     originCountry: 'IN',
     destinationCountry: 'DE',
@@ -158,8 +158,8 @@ test('composePlan skips warehouse when monthlyOrders < 100', () => {
   assert.equal(plan.warehouse.skipped, true);
 });
 
-test('composePlan uppercases country codes', () => {
-  const plan = composePlan({
+test('composePlan uppercases country codes', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'cn',
     destinationCountry: 'pl',
@@ -171,8 +171,8 @@ test('composePlan uppercases country codes', () => {
   assert.equal(plan.inputs.destinationCountry, 'PL');
 });
 
-test('composePlan handles claimPreferential as string "true"', () => {
-  const plan = composePlan({
+test('composePlan handles claimPreferential as string "true"', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'VN',
     destinationCountry: 'PL',
@@ -184,8 +184,8 @@ test('composePlan handles claimPreferential as string "true"', () => {
   assert.equal(plan.inputs.claimPreferential, true);
 });
 
-test('composePlan respects explicit hsCode override', () => {
-  const plan = composePlan({
+test('composePlan respects explicit hsCode override', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -197,8 +197,8 @@ test('composePlan respects explicit hsCode override', () => {
   assert.equal(plan.inputs.hsCode, '61');
 });
 
-test('composePlan totals: landed = transport + value + duty + vat + brokerage', () => {
-  const plan = composePlan({
+test('composePlan totals: landed = transport + value + duty + vat + brokerage', async () => {
+  const plan = await composePlan({
     productCategory: 'furniture',
     originCountry: 'CN',
     destinationCountry: 'DE',

@@ -123,8 +123,8 @@ test('dpo+30 lever saves the most (largest CCC compression)', () => {
 
 // ── End-to-end through composePlan ───────────────────
 
-test('composePlan: plan.workingCapital populated with defaults', () => {
-  const p = composePlan({
+test('composePlan: plan.workingCapital populated with defaults', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -139,8 +139,8 @@ test('composePlan: plan.workingCapital populated with defaults', () => {
   assert.equal(p.workingCapital.ccc, 0);
 });
 
-test('composePlan: B2B context with 30-day DSO produces positive CCC', () => {
-  const p = composePlan({
+test('composePlan: B2B context with 30-day DSO produces positive CCC', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -153,8 +153,8 @@ test('composePlan: B2B context with 30-day DSO produces positive CCC', () => {
   assert.ok(p.workingCapital.workingCapitalEur > 0);
 });
 
-test('composePlan: paymentTermsDays flows into DPO', () => {
-  const p1 = composePlan({
+test('composePlan: paymentTermsDays flows into DPO', async () => {
+  const p1 = await composePlan({
     productCategory: 'apparel', originCountry: 'CN', destinationCountry: 'PL',
     customsValueEur: 25000, weightKg: 800,
     paymentTermsDays: 90,
@@ -163,7 +163,7 @@ test('composePlan: paymentTermsDays flows into DPO', () => {
   assert.equal(p1.workingCapital.ccc, -30);
   assert.equal(p1.workingCapital.verdict, 'supplier_funded');
 
-  const p2 = composePlan({
+  const p2 = await composePlan({
     productCategory: 'apparel', originCountry: 'CN', destinationCountry: 'PL',
     customsValueEur: 25000, weightKg: 800,
     paymentTermsDays: 30,

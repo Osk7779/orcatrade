@@ -117,8 +117,8 @@ test('assessFxRisk: rejects unsupported currency', () => {
 
 // ── End-to-end through composePlan ─────────────────────
 
-test('composePlan: quoteCurrency=EUR → fx is null', () => {
-  const p = composePlan({
+test('composePlan: quoteCurrency=EUR → fx is null', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -129,8 +129,8 @@ test('composePlan: quoteCurrency=EUR → fx is null', () => {
   assert.equal(p.fx, null);
 });
 
-test('composePlan: quoteCurrency=USD → fx populated', () => {
-  const p = composePlan({
+test('composePlan: quoteCurrency=USD → fx populated', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -144,8 +144,8 @@ test('composePlan: quoteCurrency=USD → fx populated', () => {
   assert.ok(p.fx.equivalentForeignFormatted.startsWith('$'));
 });
 
-test('composePlan: quoteCurrency defaults to EUR when not provided (backwards compat)', () => {
-  const p = composePlan({
+test('composePlan: quoteCurrency defaults to EUR when not provided (backwards compat)', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',

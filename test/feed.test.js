@@ -67,7 +67,7 @@ test('listFeedItems: throws when rootDir missing', () => {
 
 // ── XML builders ─────────────────────────────────────
 
-test('buildRss: well-formed channel + items', () => {
+test('buildRss: well-formed channel + items', async () => {
   const xml = feedBuilder.buildRss({
     items: [
       { title: 'Test guide', description: 'Hi', url: 'https://orcatrade.pl/guides/x/', lastModified: '2026-05-08T10:00:00Z', section: 'guide' },
@@ -81,7 +81,7 @@ test('buildRss: well-formed channel + items', () => {
   assert.match(xml, /atom:link/); // RSS-self link present
 });
 
-test('buildAtom: well-formed feed + entries', () => {
+test('buildAtom: well-formed feed + entries', async () => {
   const xml = feedBuilder.buildAtom({
     items: [
       { title: 'Test ex', description: 'Hi', url: 'https://orcatrade.pl/examples/y/', lastModified: '2026-05-08T10:00:00Z', section: 'example' },

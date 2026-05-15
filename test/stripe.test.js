@@ -15,7 +15,7 @@ const billingHandler = require('../lib/handlers/billing');
 
 // ── Stripe client primitives ──────────────────────────
 
-test('encodeFormBody: shallow keys', () => {
+test('encodeFormBody: shallow keys', async () => {
   const body = stripe.encodeFormBody({ mode: 'subscription', success_url: 'https://x.test' });
   assert.match(body, /mode=subscription/);
   assert.match(body, /success_url=https%3A%2F%2Fx\.test/);

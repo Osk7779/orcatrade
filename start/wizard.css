@@ -74,6 +74,12 @@ select { cursor: pointer; }
 .breakdown-table td:first-child { font-family: inherit; color: rgba(255,255,255,0.7); }
 .breakdown-table tr.total td { font-weight: 600; color: rgba(255,255,255,0.97); padding-top: 10px; border-top: 1px solid rgba(184,190,200,0.3); border-bottom: none; }
 
+/* Sprint D · duty-source badge */
+.duty-source { font-size: 0.78rem; color: rgba(255,255,255,0.65); margin: 0.6rem 0 0.2rem; display: flex; align-items: center; flex-wrap: wrap; gap: 0.5rem; }
+.duty-source-tag { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.2rem 0.5rem; border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.78); }
+.duty-source-tag--live { color: #6fa66f; border-color: rgba(111,166,111,0.4); background: rgba(111,166,111,0.08); }
+.duty-source-delta { color: rgba(255,255,255,0.45); font-style: italic; }
+
 .trade-defence-callout { margin: 1.4rem 0 0.8rem; padding: 1.1rem 1.3rem; background: rgba(201, 80, 80, 0.06); border-left: 3px solid #c95050; }
 .trade-defence-callout .td-header { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.16em; text-transform: uppercase; color: #e88080; font-weight: 700; margin-bottom: 0.5rem; }
 .trade-defence-callout p { font-size: 0.92rem; line-height: 1.6; color: rgba(255,255,255,0.85); margin-bottom: 0.7em; max-width: none; }

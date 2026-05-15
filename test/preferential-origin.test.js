@@ -196,8 +196,8 @@ test('IN apparel: GSP standard surfaced (not zero, but better than MFN)', () => 
 
 // ── End-to-end through composePlan ────────────────────
 
-test('composePlan: BD apparel surfaces preferentialSavingEur > 0', () => {
-  const plan = composePlan({
+test('composePlan: BD apparel surfaces preferentialSavingEur > 0', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'BD',
     destinationCountry: 'PL',
@@ -212,8 +212,8 @@ test('composePlan: BD apparel surfaces preferentialSavingEur > 0', () => {
   assert.ok(plan.customs.preferentialSavingEur > 5500 && plan.customs.preferentialSavingEur < 6500);
 });
 
-test('composePlan: VN electronics with claim → preferentialApplied EVFTA', () => {
-  const plan = composePlan({
+test('composePlan: VN electronics with claim → preferentialApplied EVFTA', async () => {
+  const plan = await composePlan({
     productCategory: 'electronics',
     originCountry: 'VN',
     destinationCountry: 'DE',

@@ -7,8 +7,8 @@ const { composePlan } = require('../lib/handlers/start');
 
 // ── Structure ──────────────────────────────────────────
 
-test('composePlan returns originSensitivity with matrix + cheapest + user origin', () => {
-  const p = composePlan({
+test('composePlan returns originSensitivity with matrix + cheapest + user origin', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -23,8 +23,8 @@ test('composePlan returns originSensitivity with matrix + cheapest + user origin
   assert.ok(p.originSensitivity.cheapestOrigin);
 });
 
-test('matrix is sorted cheapest first', () => {
-  const p = composePlan({
+test('matrix is sorted cheapest first', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -37,8 +37,8 @@ test('matrix is sorted cheapest first', () => {
   }
 });
 
-test('user-chosen origin is flagged with isUserChoice', () => {
-  const p = composePlan({
+test('user-chosen origin is flagged with isUserChoice', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -52,8 +52,8 @@ test('user-chosen origin is flagged with isUserChoice', () => {
 
 // ── Preferential ranking ──────────────────────────────
 
-test('CN apparel ranks worse than VN/BD/TR (no preferential pathway)', () => {
-  const p = composePlan({
+test('CN apparel ranks worse than VN/BD/TR (no preferential pathway)', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -71,8 +71,8 @@ test('CN apparel ranks worse than VN/BD/TR (no preferential pathway)', () => {
   assert.equal(tr.dutyRatePct, 0, 'TR apparel under ATR = 0%');
 });
 
-test('preferentialApplied populated per origin', () => {
-  const p = composePlan({
+test('preferentialApplied populated per origin', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -89,8 +89,8 @@ test('preferentialApplied populated per origin', () => {
 
 // ── Trade defence still applies per origin ────────────
 
-test('CN bicycles → matrix shows CN with AD measure', () => {
-  const p = composePlan({
+test('CN bicycles → matrix shows CN with AD measure', async () => {
+  const p = await composePlan({
     productCategory: 'machinery',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -103,8 +103,8 @@ test('CN bicycles → matrix shows CN with AD measure', () => {
   assert.ok(cn.dutyRatePct > 50, `CN bicycles ~58% duty, got ${cn.dutyRatePct}%`);
 });
 
-test('VN bicycles → matrix shows no AD (different origin)', () => {
-  const p = composePlan({
+test('VN bicycles → matrix shows no AD (different origin)', async () => {
+  const p = await composePlan({
     productCategory: 'machinery',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -118,8 +118,8 @@ test('VN bicycles → matrix shows no AD (different origin)', () => {
 
 // ── Annual estimate ───────────────────────────────────
 
-test('annualLandedTotal populated when monthlyOrders provided', () => {
-  const p = composePlan({
+test('annualLandedTotal populated when monthlyOrders provided', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -135,8 +135,8 @@ test('annualLandedTotal populated when monthlyOrders provided', () => {
   assert.equal(p.originSensitivity.shipmentsPerYear, 12);
 });
 
-test('annualLandedTotal is null when no monthlyOrders', () => {
-  const p = composePlan({
+test('annualLandedTotal is null when no monthlyOrders', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -151,8 +151,8 @@ test('annualLandedTotal is null when no monthlyOrders', () => {
 
 // ── Saving headline ───────────────────────────────────
 
-test('CN apparel surfaces a >5% saving via TR/VN/BD alternative', () => {
-  const p = composePlan({
+test('CN apparel surfaces a >5% saving via TR/VN/BD alternative', async () => {
+  const p = await composePlan({
     productCategory: 'apparel',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -164,8 +164,8 @@ test('CN apparel surfaces a >5% saving via TR/VN/BD alternative', () => {
   assert.notEqual(p.originSensitivity.cheapestOrigin, 'CN');
 });
 
-test('TR cold-rolled steel: TR is user pick AND has AD on top — still useful comparison', () => {
-  const p = composePlan({
+test('TR cold-rolled steel: TR is user pick AND has AD on top — still useful comparison', async () => {
+  const p = await composePlan({
     productCategory: 'machinery',
     originCountry: 'TR',
     destinationCountry: 'DE',
@@ -180,8 +180,8 @@ test('TR cold-rolled steel: TR is user pick AND has AD on top — still useful c
 
 // ── User origin not in default 5 ──────────────────────
 
-test('user origin outside default 5 is included in matrix (e.g. KR)', () => {
-  const p = composePlan({
+test('user origin outside default 5 is included in matrix (e.g. KR)', async () => {
+  const p = await composePlan({
     productCategory: 'electronics',
     originCountry: 'KR',
     destinationCountry: 'DE',

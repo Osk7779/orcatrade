@@ -166,8 +166,8 @@ test('originNotes prepends a trade-defence summary line when measures match', ()
 
 // ── End-to-end through composePlan ────────────────────
 
-test('composePlan surfaces tradeDefenceMeasures on bicycles ex-CN', () => {
-  const plan = composePlan({
+test('composePlan surfaces tradeDefenceMeasures on bicycles ex-CN', async () => {
+  const plan = await composePlan({
     productCategory: 'machinery',
     originCountry: 'CN',
     destinationCountry: 'PL',

@@ -54,9 +54,9 @@ test('subject/leadSubject return non-empty strings for sample inputs', () => {
   }
 });
 
-test('userBody contains share URL placeholder', () => {
+test('userBody contains share URL placeholder', async () => {
   const inputs = { productCategory: 'apparel', originCountry: 'CN', destinationCountry: 'PL', customsValueEur: 25000, weightKg: 800 };
-  const plan = composePlan(inputs);
+  const plan = await composePlan(inputs);
   assert.equal(plan.ok, true);
   const shareUrl = 'https://orcatrade.pl/start/?p=ABC';
   for (const lang of ['en', 'pl', 'de']) {
@@ -74,9 +74,9 @@ test('userBody contains share URL placeholder', () => {
   }
 });
 
-test('founderBody includes contact + permalink', () => {
+test('founderBody includes contact + permalink', async () => {
   const inputs = { productCategory: 'electronics', originCountry: 'VN', destinationCountry: 'DE', customsValueEur: 50000, weightKg: 300 };
-  const plan = composePlan(inputs);
+  const plan = await composePlan(inputs);
   const shareUrl = 'https://orcatrade.pl/de/start/?p=XYZ';
   for (const lang of ['en', 'pl', 'de']) {
     const body = STRINGS[lang].founderBody({
@@ -143,9 +143,9 @@ test('every key in en block has matching pl and de keys', () => {
 
 // ── Handler accepts locale parameter ───────────────────
 
-test('composePlan still works regardless of locale (locale is email-only)', () => {
+test('composePlan still works regardless of locale (locale is email-only)', async () => {
   const inputs = { productCategory: 'apparel', originCountry: 'CN', destinationCountry: 'PL', customsValueEur: 25000, weightKg: 800 };
-  const plan = composePlan(inputs);
+  const plan = await composePlan(inputs);
   assert.equal(plan.ok, true);
   // composePlan does not touch locale — locale only matters for email rendering
   assert.equal(plan.inputs.originCountry, 'CN');

@@ -206,7 +206,7 @@ test('plan-revision-emails: skips plans without significant delta', async () => 
   // Save a plan whose snapshot exactly matches current pricing → delta zero
   const BASE = { productCategory: 'apparel', originCountry: 'CN', destinationCountry: 'PL', customsValueEur: 25000, weightKg: 800 };
   const startHandler = require('../lib/handlers/start');
-  const plan = startHandler.composePlan(BASE);
+  const plan = await startHandler.composePlan(BASE);
   const snapshot = planDiff.extractSnapshot(plan);
   await savedPlans.savePlan({ email: 'a@b.com', inputs: BASE, snapshot });
 
@@ -226,7 +226,7 @@ test('plan-revision-emails: counts plans with significant delta (dry-run)', asyn
   // recomputed value — guaranteed to exceed the 5% significance bar.
   const BASE = { productCategory: 'apparel', originCountry: 'CN', destinationCountry: 'PL', customsValueEur: 25000, weightKg: 800 };
   const startHandler = require('../lib/handlers/start');
-  const current = planDiff.extractSnapshot(startHandler.composePlan(BASE));
+  const current = planDiff.extractSnapshot(await startHandler.composePlan(BASE));
   const stale = Object.assign({}, current, { perShipmentLandedTotal: current.perShipmentLandedTotal * 0.5 });
   await savedPlans.savePlan({ email: 'user@example.com', inputs: BASE, snapshot: stale });
 
@@ -244,7 +244,7 @@ test('plan-revision-emails: dedupes within an ISO week', async () => {
 
   const BASE = { productCategory: 'apparel', originCountry: 'CN', destinationCountry: 'PL', customsValueEur: 25000, weightKg: 800 };
   const startHandler = require('../lib/handlers/start');
-  const current = planDiff.extractSnapshot(startHandler.composePlan(BASE));
+  const current = planDiff.extractSnapshot(await startHandler.composePlan(BASE));
   const stale = Object.assign({}, current, { perShipmentLandedTotal: current.perShipmentLandedTotal * 0.5 });
   const saved = await savedPlans.savePlan({ email: 'dedupe@example.com', inputs: BASE, snapshot: stale });
 

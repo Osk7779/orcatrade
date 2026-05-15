@@ -268,6 +268,25 @@ function renderPlan(plan) {
   const originNotes = (customs?.duty?.originNotes && customs.duty.originNotes.length)
     ? `<p class="secondary-note"><strong>${T.customsOriginOverlay}:</strong> ${customs.duty.originNotes.map(n => escapeHtml(n)).join(' · ')}</p>` : '';
 
+  // Sprint D: badge surfacing the duty-rate provenance. The chapter
+  // estimator (default) gets a quiet "estimator" tag; a live TARIC lookup
+  // returning a different rate gets a bright "live" tag plus a note when
+  // the live value differs from the chapter baseline.
+  const mfnSource = customs?.duty?.mfnSource || 'chapter-estimator';
+  const liveMeta = customs?.duty?.liveRateMeta;
+  const chapterPct = customs?.duty?.chapterRatePercent;
+  const mfnPct = customs?.duty?.mfnRatePercent;
+  let dutySourceBadge = '';
+  if (liveMeta && mfnSource !== 'chapter-estimator') {
+    const tag = liveMeta.fromCache ? (liveMeta.stale ? 'live · cached (stale)' : 'live · cached') : 'live · fresh';
+    const divergence = (chapterPct != null && mfnPct != null && Math.abs(chapterPct - mfnPct) >= 0.5)
+      ? ` <span class="duty-source-delta">chapter estimator was ${chapterPct.toFixed(1)}%</span>`
+      : '';
+    dutySourceBadge = `<p class="duty-source"><span class="duty-source-tag duty-source-tag--live">${tag}</span> ${escapeHtml(liveMeta.sourceLabel || 'TARIC')}${divergence}</p>`;
+  } else if (mfnSource === 'chapter-estimator') {
+    dutySourceBadge = `<p class="duty-source"><span class="duty-source-tag">chapter estimator</span> sub-chapter rates verify on TARIC at the 8-digit code</p>`;
+  }
+
   const tdMeasures = customs?.tradeDefenceMeasures || [];
   const tradeDefenceBlock = tdMeasures.length ? `
     <div class="trade-defence-callout">
@@ -597,6 +616,7 @@ function renderPlan(plan) {
         <tr><td>${T.customsBreakdown.transport}</td><td>${fmtEur(totals.transportEur)}</td></tr>
         <tr class="total"><td>${T.customsBreakdown.total}</td><td>${fmtEur(totals.perShipmentLandedTotal)}</td></tr>
       </table>
+      ${dutySourceBadge}
       ${tradeDefenceBlock}
       ${preferentialBlock}
       ${originNotes}

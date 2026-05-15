@@ -17,7 +17,7 @@ const ROOT = path.join(__dirname, '..');
 
 // ── Catalogue ─────────────────────────────────────────
 
-test('EXAMPLES catalogue has 8 curated scenarios', () => {
+test('EXAMPLES catalogue has 8 curated scenarios', async () => {
   assert.equal(EXAMPLES.length, 8);
 });
 
@@ -36,18 +36,18 @@ test('every example has slug, inputs, headlines (en/pl/de), intros (en/pl/de), t
   }
 });
 
-test('every example produces a valid plan (composePlan ok)', () => {
+test('every example produces a valid plan (composePlan ok)', async () => {
   for (const e of EXAMPLES) {
-    const plan = composePlan(e.inputs);
+    const plan = await composePlan(e.inputs);
     assert.equal(plan.ok, true, `${e.slug}: composePlan should succeed`);
   }
 });
 
 // ── Detail page generation ────────────────────────────
 
-test('generateExamplePage produces valid HTML with key numbers', () => {
+test('generateExamplePage produces valid HTML with key numbers', async () => {
   const example = EXAMPLES.find(e => e.slug === 'chinese-ebike-importer-87pct-combined-ad-cvd');
-  const page = generateExamplePage(example, 'en');
+  const page = await generateExamplePage(example, 'en');
   assert.match(page.html, /<!DOCTYPE html>/);
   assert.match(page.html, /<html lang="en">/);
   // E-bike: 97.3% duty
@@ -57,61 +57,61 @@ test('generateExamplePage produces valid HTML with key numbers', () => {
   assert.match(page.canonical, /\/examples\/chinese-ebike/);
 });
 
-test('Bangladesh apparel example shows EBA preferential saving', () => {
+test('Bangladesh apparel example shows EBA preferential saving', async () => {
   const example = EXAMPLES.find(e => e.slug === 'bangladesh-apparel-eba-zero-duty');
-  const page = generateExamplePage(example, 'en');
+  const page = await generateExamplePage(example, 'en');
   // EBA preferential applied → 0% duty
   assert.match(page.html, /0\.0%/);
   // Plan was claimPreferential=true so preferentialApplied is shown, not Available
   assert.match(page.html, /EBA|Everything But Arms/);
 });
 
-test('Vietnam electronics example shows EVFTA + RoHS/WEEE/CE compliance', () => {
+test('Vietnam electronics example shows EVFTA + RoHS/WEEE/CE compliance', async () => {
   const example = EXAMPLES.find(e => e.slug === 'vietnam-electronics-evfta-zero-duty');
-  const page = generateExamplePage(example, 'en');
+  const page = await generateExamplePage(example, 'en');
   assert.match(page.html, /EVFTA|EU-Vietnam/);
 });
 
-test('TR cold-rolled example shows A.TR + AD nuance (not waived)', () => {
+test('TR cold-rolled example shows A.TR + AD nuance (not waived)', async () => {
   const example = EXAMPLES.find(e => e.slug === 'turkey-cold-rolled-steel-atr-with-ad');
-  const page = generateExamplePage(example, 'en');
+  const page = await generateExamplePage(example, 'en');
   // TR cold-rolled has A.TR (preferential) AND AD measure
   assert.match(page.html, /A\.TR|EU-Türkiye Customs Union/);
   // Should mention the AD via tradeDefenceMeasures
   assert.match(page.html, /AD|antidumping/i);
 });
 
-test('detail page in PL has Polish chrome', () => {
+test('detail page in PL has Polish chrome', async () => {
   const example = EXAMPLES.find(e => e.slug === 'polish-apparel-importer-from-china');
-  const page = generateExamplePage(example, 'pl');
+  const page = await generateExamplePage(example, 'pl');
   assert.match(page.html, /<html lang="pl">/);
   assert.match(page.html, /Strona główna/);
   assert.match(page.html, /Liczby/);
 });
 
-test('detail page in DE has German chrome', () => {
+test('detail page in DE has German chrome', async () => {
   const example = EXAMPLES.find(e => e.slug === 'polish-apparel-importer-from-china');
-  const page = generateExamplePage(example, 'de');
+  const page = await generateExamplePage(example, 'de');
   assert.match(page.html, /<html lang="de">/);
   assert.match(page.html, /Startseite/);
   assert.match(page.html, /Die Zahlen/);
 });
 
-test('CTA links to wizard with permalink', () => {
+test('CTA links to wizard with permalink', async () => {
   const example = EXAMPLES.find(e => e.slug === 'polish-apparel-importer-from-china');
-  const page = generateExamplePage(example, 'en');
+  const page = await generateExamplePage(example, 'en');
   assert.match(page.html, /href="\/start\/\?p=/);
 });
 
-test('PL detail page CTA links into PL wizard', () => {
+test('PL detail page CTA links into PL wizard', async () => {
   const example = EXAMPLES.find(e => e.slug === 'polish-apparel-importer-from-china');
-  const page = generateExamplePage(example, 'pl');
+  const page = await generateExamplePage(example, 'pl');
   assert.match(page.html, /href="\/pl\/start\/\?p=/);
 });
 
-test('detail page has 4-way hreflang', () => {
+test('detail page has 4-way hreflang', async () => {
   const example = EXAMPLES.find(e => e.slug === 'polish-apparel-importer-from-china');
-  const page = generateExamplePage(example, 'en');
+  const page = await generateExamplePage(example, 'en');
   assert.match(page.html, /hreflang="en"/);
   assert.match(page.html, /hreflang="pl"/);
   assert.match(page.html, /hreflang="de"/);
@@ -120,7 +120,7 @@ test('detail page has 4-way hreflang', () => {
 
 // ── Index page ────────────────────────────────────────
 
-test('index page lists all 8 examples', () => {
+test('index page lists all 8 examples', async () => {
   const idx = generateIndexPage('en');
   for (const e of EXAMPLES) {
     assert.ok(idx.html.includes(e.headlines.en), `index lists ${e.slug}`);
@@ -129,7 +129,7 @@ test('index page lists all 8 examples', () => {
 
 // ── Disk presence ─────────────────────────────────────
 
-test('every generated example exists on disk', () => {
+test('every generated example exists on disk', async () => {
   for (const locale of ['en', 'pl', 'de']) {
     const localePrefix = locale === 'en' ? '' : `${locale}/`;
     for (const e of EXAMPLES) {
@@ -141,7 +141,7 @@ test('every generated example exists on disk', () => {
   }
 });
 
-test('master sitemap includes example URLs', () => {
+test('master sitemap includes example URLs', async () => {
   const sitemap = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
   assert.match(sitemap, /\/examples\/polish-apparel-importer-from-china\//);
   assert.match(sitemap, /\/pl\/examples\/bangladesh-apparel-eba-zero-duty\//);
@@ -150,13 +150,13 @@ test('master sitemap includes example URLs', () => {
 
 // ── i18n parity ───────────────────────────────────────
 
-test('STRINGS provides en, pl, de blocks', () => {
+test('STRINGS provides en, pl, de blocks', async () => {
   for (const lang of ['en', 'pl', 'de']) {
     assert.ok(STRINGS[lang], `${lang} present`);
   }
 });
 
-test('i18n key parity: every key in en exists in pl and de', () => {
+test('i18n key parity: every key in en exists in pl and de', async () => {
   const enKeys = Object.keys(STRINGS.en);
   for (const lang of ['pl', 'de']) {
     for (const k of enKeys) {

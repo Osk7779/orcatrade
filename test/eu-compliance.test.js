@@ -172,8 +172,8 @@ test('Results are sorted by severity (high first)', () => {
   }
 });
 
-test('composePlan exposes plan.compliance.regimes array', () => {
-  const plan = composePlan({
+test('composePlan exposes plan.compliance.regimes array', async () => {
+  const plan = await composePlan({
     productCategory: 'electronics',
     originCountry: 'CN',
     destinationCountry: 'PL',
@@ -190,8 +190,8 @@ test('composePlan exposes plan.compliance.regimes array', () => {
   }
 });
 
-test('composePlan: aluminium machinery from CN surfaces CBAM', () => {
-  const plan = composePlan({
+test('composePlan: aluminium machinery from CN surfaces CBAM', async () => {
+  const plan = await composePlan({
     productCategory: 'machinery',
     originCountry: 'CN',
     destinationCountry: 'DE',
@@ -204,8 +204,8 @@ test('composePlan: aluminium machinery from CN surfaces CBAM', () => {
   assert.ok(ids.includes('CBAM'), 'CBAM applies to aluminium imports');
 });
 
-test('composePlan: e-bikes from CN trigger CBAM-no, RoHS, WEEE, Battery, GPSR', () => {
-  const plan = composePlan({
+test('composePlan: e-bikes from CN trigger CBAM-no, RoHS, WEEE, Battery, GPSR', async () => {
+  const plan = await composePlan({
     productCategory: 'machinery',
     originCountry: 'CN',
     destinationCountry: 'DE',

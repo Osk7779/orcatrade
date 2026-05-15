@@ -80,7 +80,7 @@ test('DE i18n: btnRerunWithPref is "Plan mit diesem beanspruchen →"', () => {
 
 // ── CSS ───────────────────────────────────────────────
 
-test('wizard.css defines .scenario-banner + .pref-rerun-btn', () => {
+test('wizard.css defines .scenario-banner + .pref-rerun-btn', async () => {
   const css = fs.readFileSync(path.join(ROOT, 'start/wizard.css'), 'utf8');
   assert.match(css, /\.scenario-banner \{/);
   assert.match(css, /\.btn-secondary\.pref-rerun-btn \{/);
@@ -96,8 +96,8 @@ test('app.js state object includes scenarioClaimed + baselineInputs', () => {
 
 // ── Underlying composePlan behaviour ──────────────────
 
-test('composePlan: BD apparel claim=false → preferentialAvailable surfaces', () => {
-  const plan = composePlan({
+test('composePlan: BD apparel claim=false → preferentialAvailable surfaces', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'BD',
     destinationCountry: 'PL',
@@ -113,8 +113,8 @@ test('composePlan: BD apparel claim=false → preferentialAvailable surfaces', (
   assert.ok(plan.customs.preferentialSavingEur > 0);
 });
 
-test('composePlan: BD apparel claim=true → preferentialApplied is set, duty is 0%', () => {
-  const plan = composePlan({
+test('composePlan: BD apparel claim=true → preferentialApplied is set, duty is 0%', async () => {
+  const plan = await composePlan({
     productCategory: 'apparel',
     originCountry: 'BD',
     destinationCountry: 'PL',
@@ -128,8 +128,8 @@ test('composePlan: BD apparel claim=true → preferentialApplied is set, duty is
   assert.equal(plan.customs.duty.ratePercent, 0);
 });
 
-test('composePlan: scenario-toggle delta produces meaningful saving', () => {
-  const baseline = composePlan({
+test('composePlan: scenario-toggle delta produces meaningful saving', async () => {
+  const baseline = await composePlan({
     productCategory: 'apparel',
     originCountry: 'BD',
     destinationCountry: 'PL',
@@ -137,7 +137,7 @@ test('composePlan: scenario-toggle delta produces meaningful saving', () => {
     weightKg: 1500,
     claimPreferential: false,
   });
-  const claimed = composePlan({
+  const claimed = await composePlan({
     productCategory: 'apparel',
     originCountry: 'BD',
     destinationCountry: 'PL',

@@ -2795,7 +2795,7 @@ ${all.map(u => `  <url>
 
 // ── Run ────────────────────────────────────────────────────
 
-function run() {
+async function run() {
   const generated = [];
 
   // 40 sourcing pages (5 countries × 8 categories)
@@ -2986,8 +2986,9 @@ function run() {
   console.log(`Compliance pages: ${compliancePages.length} (already written by sub-generator).`);
 
   // Worked-example plans (8 curated scenarios × 3 locales + indexes).
+  // build() is async because composePlan is async (Sprint D, TARIC live lookup).
   const examplesGenerator = require('./generate-example-plans');
-  const examplePages = examplesGenerator.build();
+  const examplePages = await examplesGenerator.build();
   for (const p of examplePages) {
     generated.push({ canonical: p.canonical, hreflangAlternates: p.hreflangAlternates });
   }
