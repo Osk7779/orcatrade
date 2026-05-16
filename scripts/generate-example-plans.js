@@ -343,7 +343,7 @@ const STRINGS = {
 // ── Page shell ─────────────────────────────────────────
 
 function pageShell({ locale, title, description, canonical, jsonLd, body, hreflangAlternates }) {
-  const ogImage = `${SITE_URL}/orcatrade_logo.png`;
+  const ogImage = `${SITE_URL}/og-1200x630.png`;
   const hreflangTags = (hreflangAlternates || []).map(a =>
     `<link rel="alternate" hreflang="${a.lang}" href="${a.href}" />`
   ).join('\n  ');

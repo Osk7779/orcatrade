@@ -85,7 +85,7 @@ function pageShell({ title, description, canonical, jsonLd, body, locale = 'en',
   if (linkContext && !relatedH0LinksHtml) {
     relatedH0LinksHtml = renderRelatedH0Aside(findRelatedH0({ ...linkContext, locale }), locale);
   }
-  const ogImage = `${SITE_URL}/orcatrade_logo.png`;
+  const ogImage = `${SITE_URL}/og-1200x630.png`;
   const hreflangTags = hreflangAlternates.map(a =>
     `<link rel="alternate" hreflang="${a.lang}" href="${a.href}" />`
   ).join('\n  ');
@@ -251,7 +251,7 @@ function generateSourcingPagePL(country, categoryKey) {
         dateModified: TODAY,
         inLanguage: 'pl',
         author: { '@type': 'Organization', name: 'OrcaTrade Group' },
-        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       },
       {
@@ -527,7 +527,7 @@ function generateSourcingPageDE(country, categoryKey) {
         dateModified: TODAY,
         inLanguage: 'de',
         author: { '@type': 'Organization', name: 'OrcaTrade Group' },
-        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       },
       {
@@ -802,7 +802,7 @@ function generateSourcingPage(country, categoryKey) {
         publisher: {
           '@type': 'Organization',
           name: 'OrcaTrade Group',
-          logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` },
+          logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` },
         },
         mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       },
@@ -1009,7 +1009,7 @@ function generateRoutingPage(origin, destination) {
         datePublished: TODAY,
         dateModified: TODAY,
         author: { '@type': 'Organization', name: 'OrcaTrade Group' },
-        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       },
       {
@@ -1171,7 +1171,7 @@ function generateRoutingPagePL(origin, destination) {
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/pl/guides/` },
         { '@type': 'ListItem', position: 2, name: RL.routingBreadcrumb, item: `${SITE_URL}/pl/guides/routing/` },
@@ -1338,7 +1338,7 @@ function generateRoutingPageDE(origin, destination) {
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/de/guides/` },
         { '@type': 'ListItem', position: 2, name: RL.routingBreadcrumb, item: `${SITE_URL}/de/guides/routing/` },
@@ -1582,7 +1582,7 @@ function generateCustomsPage(chapter, destination) {
         datePublished: TODAY,
         dateModified: TODAY,
         author: { '@type': 'Organization', name: 'OrcaTrade Group' },
-        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       },
       {
@@ -1743,7 +1743,7 @@ function generateCustomsPagePL(chapter, destination) {
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/pl/guides/` },
         { '@type': 'ListItem', position: 2, name: CL.customsBreadcrumb, item: `${SITE_URL}/pl/guides/customs/` },
@@ -1894,7 +1894,7 @@ function generateCustomsPageDE(chapter, destination) {
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/de/guides/` },
         { '@type': 'ListItem', position: 2, name: CL.customsBreadcrumb, item: `${SITE_URL}/de/guides/customs/` },
@@ -2104,7 +2104,7 @@ function generateWarehousePage(hubKey) {
         datePublished: TODAY,
         dateModified: TODAY,
         author: { '@type': 'Organization', name: 'OrcaTrade Group' },
-        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } },
+        publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } },
         mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
       },
       {
@@ -2243,7 +2243,7 @@ function generateWarehousePagePL(hubKey) {
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'pl', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/pl/guides/` },
         { '@type': 'ListItem', position: 2, name: WL.warehouseBreadcrumb, item: `${SITE_URL}/pl/guides/warehouse/` },
@@ -2399,7 +2399,7 @@ function generateWarehousePageDE(hubKey) {
   const jsonLd = JSON.stringify({
     '@context': 'https://schema.org',
     '@graph': [
-      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/orcatrade_logo.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
+      { '@type': 'Article', headline: title, description, datePublished: TODAY, dateModified: TODAY, inLanguage: 'de', author: { '@type': 'Organization', name: 'OrcaTrade Group' }, publisher: { '@type': 'Organization', name: 'OrcaTrade Group', logo: { '@type': 'ImageObject', url: `${SITE_URL}/og-1200x630.png` } }, mainEntityOfPage: { '@type': 'WebPage', '@id': canonical } },
       { '@type': 'BreadcrumbList', itemListElement: [
         { '@type': 'ListItem', position: 1, name: L.guidesBreadcrumb, item: `${SITE_URL}/de/guides/` },
         { '@type': 'ListItem', position: 2, name: WL.warehouseBreadcrumb, item: `${SITE_URL}/de/guides/warehouse/` },
@@ -3002,6 +3002,40 @@ async function run() {
   console.log(`Generated ${generated.length} guide pages.`);
   console.log(`Sitemap: sitemap-guides.xml (${generated.length} URLs)`);
   console.log(`Master sitemap: sitemap.xml (${masterCount} URLs)`);
+
+  // Sprint H: every generator emits a minimal og:image — the favicon
+  // injector adds the rest of the canonical OG/Twitter meta + the
+  // favicon block. Each sub-generator (trade-defence / preferential /
+  // compliance / example-plans) writes its own pages via writeFileSync
+  // before we ever see them in generated[], so we can't iterate that
+  // list — instead, do a full-repo idempotent walk. The injector skips
+  // any file already carrying the current marker, so this is O(unchanged)
+  // for re-runs.
+  try {
+    const fsLocal = require('node:fs');
+    const pathLocal = require('node:path');
+    const ROOT = path.resolve(__dirname, '..');
+    const { inject } = require('./inject-favicon-tags');
+    const SKIP_DIRS = new Set(['node_modules', '.git', '.github', 'lib', 'test', 'scripts', 'docs', 'css', 'js', 'assets', 'api']);
+    function* walk(d) {
+      for (const e of fsLocal.readdirSync(d, { withFileTypes: true })) {
+        if (e.name.startsWith('.') && e.name !== '.') continue;
+        if (SKIP_DIRS.has(e.name)) continue;
+        const full = pathLocal.join(d, e.name);
+        if (e.isDirectory()) yield* walk(full);
+        else if (e.isFile() && e.name.toLowerCase().endsWith('.html')) yield full;
+      }
+    }
+    let added = 0, scanned = 0;
+    for (const f of walk(ROOT)) {
+      scanned++;
+      const r = inject(f);
+      if (r.changed) added++;
+    }
+    console.log(`Re-injected favicon + OG meta into ${added}/${scanned} pages.`);
+  } catch (err) {
+    console.warn('Favicon re-inject after SEO regen failed:', err.message);
+  }
 }
 
 if (require.main === module) {

@@ -17,7 +17,7 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..');
 const DRY_RUN = process.argv.includes('--dry-run');
 
-const MARKER = '<!-- favicon set v7 injected by scripts/inject-favicon-tags.js -->';
+const MARKER = '<!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->';
 const LEGACY_MARKERS = [
   '<!-- favicon set injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v2 injected by scripts/inject-favicon-tags.js -->',
@@ -25,6 +25,8 @@ const LEGACY_MARKERS = [
   '<!-- favicon set v4 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v5 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v6 injected by scripts/inject-favicon-tags.js -->',
+  '<!-- favicon set v7 injected by scripts/inject-favicon-tags.js -->',
+  '<!-- favicon set v8 injected by scripts/inject-favicon-tags.js -->',
 ];
 
 // v7: Embed the favicon as a base64 data URI in the FIRST <link rel="icon">.
@@ -38,7 +40,8 @@ const ICON_B64_48 = fs.readFileSync(
   path.join(ROOT, 'favicon-48x48.png')
 ).toString('base64');
 
-const FAVICON_BLOCK = `
+function buildFaviconBlock(ogType = 'website') {
+  return `
   ${MARKER}
   <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,${ICON_B64_32}" />
   <link rel="icon" type="image/png" sizes="48x48" href="data:image/png;base64,${ICON_B64_48}" />
@@ -50,6 +53,21 @@ const FAVICON_BLOCK = `
   <link rel="apple-touch-icon" sizes="180x180" href="/icons/orca-apple.png" />
   <link rel="manifest" href="/site.webmanifest" />
   <meta name="theme-color" content="#0a1628" />
+  <!-- Sprint H: Open Graph + Twitter Card. Per-page og:title / og:description
+       stay where they're defined; we just inject the brand-shared image,
+       site_name, type, and Twitter card meta so every share renders as a
+       branded preview card instead of a bare URL. og:type preserves the
+       page's own value (e.g. "article" on SEO guides) when present. -->
+  <meta property="og:image" content="https://orcatrade.pl/og-1200x630.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="OrcaTrade — Asia to Europe import operating system" />
+  <meta property="og:type" content="${ogType}" />
+  <meta property="og:site_name" content="OrcaTrade" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://orcatrade.pl/og-1200x630.png" />
+  <meta name="twitter:site" content="@orcatradegroup" />
   <script>
     /* v7 defensive favicon: re-inject as data URI at runtime so the browser
        can't reuse a stale per-URL "no favicon" decision. The data URI
@@ -76,6 +94,7 @@ const FAVICON_BLOCK = `
     })();
   </script>
 `;
+}
 
 // Skip directories that don't contain user-facing pages.
 const SKIP_DIRS = new Set([
@@ -105,6 +124,14 @@ function inject(filePath) {
   const closingHeadIdx = text.indexOf('</head>');
   if (closingHeadIdx === -1) return { changed: false, reason: 'no-head' };
 
+  // Sprint H: detect an existing og:type before we strip it. SEO-generated
+  // guide pages emit og:type="article" (correct for Google's Article
+  // rich-result eligibility); hand-rolled landing pages have nothing. We
+  // preserve the page-specific value and only default to "website" when
+  // the page didn't declare one.
+  const ogTypeMatch = text.slice(0, closingHeadIdx).match(/<meta\s+property="og:type"[^>]*content="([^"]+)"[^>]*>/i);
+  const existingOgType = ogTypeMatch ? ogTypeMatch[1] : 'website';
+
   // Remove any stale legacy favicon links we might have inserted before —
   // typically `<link rel="icon" ...>` lines elsewhere in <head>. Keep
   // intentional non-favicon `rel="alternate icon"` etc. untouched by
@@ -123,13 +150,22 @@ function inject(filePath) {
     .replace(/\n\s*<meta\s+name="theme-color"[^>]*\/?>/gi, '')
     .replace(/\n\s*<!-- Favicon placeholder[^>]*-->/gi, '')
     // Strip prior defensive favicon scripts so re-injection doesn't duplicate.
-    .replace(/\n\s*<script>\s*\/\* v\d+ defensive favicon[\s\S]*?<\/script>/g, '');
+    .replace(/\n\s*<script>\s*\/\* v\d+ defensive favicon[\s\S]*?<\/script>/g, '')
+    // Sprint H: strip prior og:image / og:type / og:site_name / og:locale /
+    // twitter:* meta. The injector replaces these with the canonical set.
+    // Page-specific og:title and og:description are KEPT (different regex).
+    .replace(/\n\s*<meta\s+property="og:image[^"]*"[^>]*\/?>/gi, '')
+    .replace(/\n\s*<meta\s+property="og:type"[^>]*\/?>/gi, '')
+    .replace(/\n\s*<meta\s+property="og:site_name"[^>]*\/?>/gi, '')
+    .replace(/\n\s*<meta\s+property="og:locale"[^>]*\/?>/gi, '')
+    .replace(/\n\s*<meta\s+name="twitter:(card|image|site)"[^>]*\/?>/gi, '')
+    .replace(/\n\s*<!-- Sprint H: Open Graph[^>]*-->/gi, '');
   for (const legacy of LEGACY_MARKERS) {
     stripped = stripped.split(legacy).join('');
   }
   stripped = stripped.replace(/\n\s*\n\s*\n/g, '\n\n');
 
-  const updated = stripped + FAVICON_BLOCK + tailSlice;
+  const updated = stripped + buildFaviconBlock(existingOgType) + tailSlice;
   if (!DRY_RUN) fs.writeFileSync(filePath, updated, 'utf8');
   return { changed: true };
 }
