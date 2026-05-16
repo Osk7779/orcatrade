@@ -103,6 +103,33 @@ test('start/i18n.js declares en, pl, de blocks', () => {
   }
 });
 
+// Sprint J.6: Founding 10 cross-sell card on the wizard result.
+// The keys are i18n-required and the locale-correct href must point
+// into the right founding page slug (mirroring js/site-nav.js
+// SLUG_OVERRIDES from Sprint J.2).
+test('start/i18n.js declares the Founding 10 cross-sell keys in all three locales', () => {
+  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
+  const required = [
+    'foundingCrossSellKicker',
+    'foundingCrossSellTitle',
+    'foundingCrossSellBody',
+    'foundingCrossSellRemaining',
+    'foundingCrossSellRemainingFull',
+    'foundingCrossSellCta',
+    'foundingCrossSellDismiss',
+    'foundingCrossSellHref',
+  ];
+  for (const k of required) {
+    // Each key should appear at least three times (once per locale).
+    const matches = (text.match(new RegExp(k, 'g')) || []).length;
+    assert.ok(matches >= 3, `expected '${k}' in at least 3 locales, found ${matches}`);
+  }
+  // Locale-correct hrefs
+  assert.match(text, /foundingCrossSellHref:\s*'\/founding\/'/);
+  assert.match(text, /foundingCrossSellHref:\s*'\/pl\/zalozyciele-10\/'/);
+  assert.match(text, /foundingCrossSellHref:\s*'\/de\/gruender-10\/'/);
+});
+
 test('every key in en block has matching pl and de keys', () => {
   // We can't require() the browser-side i18n.js (it sets window.START_I18N),
   // so we extract top-level keys from each locale block via regex.

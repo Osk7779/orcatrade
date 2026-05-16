@@ -658,6 +658,25 @@ function renderPlan(plan) {
       </div>
     </div>
 
+    <!-- Sprint J.6: Founding 10 cross-sell. Hidden by default; the live
+         counter fetch reveals it once remaining > 0 OR shows the
+         waitlist variant when spots are full. Dismissed state persists
+         in localStorage so repeat visitors don't re-see the pitch. -->
+    <div class="result-section founding-crosssell" id="foundingCrossSell" hidden>
+      <div class="founding-crosssell-card">
+        <div class="founding-crosssell-text">
+          <div class="founding-crosssell-kicker">${T.foundingCrossSellKicker}</div>
+          <h3>${T.foundingCrossSellTitle}</h3>
+          <p>${T.foundingCrossSellBody}</p>
+          <div class="founding-crosssell-meta" id="foundingCrossSellMeta"></div>
+        </div>
+        <div class="founding-crosssell-actions">
+          <a class="btn btn-primary" href="${T.foundingCrossSellHref}">${T.foundingCrossSellCta}</a>
+          <button type="button" class="founding-crosssell-dismiss" id="foundingCrossSellDismiss">${T.foundingCrossSellDismiss}</button>
+        </div>
+      </div>
+    </div>
+
     <div class="result-section">
       <h3>${T.secShare}</h3>
       <p>${T.shareBody}</p>
@@ -700,6 +719,36 @@ function renderPlan(plan) {
         setTimeout(() => { copyBtn.textContent = T.btnCopyLink; }, 2000);
       }
     });
+  }
+
+  // Sprint J.6: Founding 10 cross-sell. Reveal once the counter loads;
+  // hide outright if the visitor dismissed it before, or if they've
+  // already applied (sessionStorage flag set by the founding page on
+  // successful submit — not implemented yet, future-friendly check).
+  const foundingCard = document.getElementById('foundingCrossSell');
+  const foundingMeta = document.getElementById('foundingCrossSellMeta');
+  const foundingDismiss = document.getElementById('foundingCrossSellDismiss');
+  if (foundingCard && foundingMeta) {
+    let dismissed = false;
+    try { dismissed = localStorage.getItem('orcatrade-founding-dismissed') === '1'; } catch (_) {}
+    if (!dismissed) {
+      fetch('/api/founding', { credentials: 'same-origin' })
+        .then(r => r.ok ? r.json() : null)
+        .then(data => {
+          if (!data || typeof data.remaining !== 'number') return;
+          foundingMeta.textContent = data.remaining > 0
+            ? T.foundingCrossSellRemaining(data.remaining)
+            : T.foundingCrossSellRemainingFull;
+          foundingCard.hidden = false;
+        })
+        .catch(() => { /* silent */ });
+    }
+    if (foundingDismiss) {
+      foundingDismiss.addEventListener('click', () => {
+        foundingCard.hidden = true;
+        try { localStorage.setItem('orcatrade-founding-dismissed', '1'); } catch (_) {}
+      });
+    }
   }
 
   // Save as PDF / Print — both call window.print(), the browser's
