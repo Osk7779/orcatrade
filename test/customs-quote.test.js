@@ -309,6 +309,89 @@ test('calculateQuote: standard clearance landed cost = customs value + duty + va
   assert.equal(standard.landedCostEur, 10000 + standard.dutyEur + standard.vatEur);
 });
 
+// ── effectiveLandedCostEur: P&L cost net of recoverable VAT ──────────────
+
+test('standard clearance: effectiveLandedCostEur = customs + duty + brokerage + ENS (excludes recoverable VAT)', () => {
+  const r = calculateQuote({ customsValueEur: 50000, hsCode: '6203', destinationCountry: 'DE', originCountry: 'TW', linesCount: 2 });
+  const s = r.quotes[0];
+  const expected = 50000 + s.dutyEur + s.brokerageEur + s.entrySummaryDeclarationEur;
+  // Both sides go through the same display rounding so equality is exact.
+  assert.equal(s.effectiveLandedCostEur, Math.round(expected * 100) / 100);
+  assert.equal(s.vatRecoverableEur, s.vatEur);
+  // Sanity: effectiveLandedCost is strictly less than totalEur (VAT was removed).
+  assert.ok(s.effectiveLandedCostEur < s.totalEur);
+  // Sanity: gap equals the VAT.
+  assert.equal(Math.round((s.totalEur - s.effectiveLandedCostEur) * 100), Math.round(s.vatEur * 100));
+});
+
+test('bonded re-export: effectiveLandedCostEur excludes avoided duty AND VAT', () => {
+  const r = calculateQuote({
+    customsValueEur: 15000, hsCode: '95', destinationCountry: 'NL', originCountry: 'CN',
+    linesCount: 3, bondedDays: 30, bondedVolumeCbm: 4, releaseStrategy: 're_export',
+  });
+  const b = r.quotes[1];
+  // Re-export: duty + VAT never paid, so effectiveLandedCost = customs + bonded ops only.
+  assert.equal(b.dutyDueEur, 0);
+  assert.equal(b.vatDueEur, 0);
+  assert.equal(b.vatRecoverableEur, 0);
+  assert.equal(b.effectiveLandedCostEur, b.customsValueEur + b.bondedOpsCostEur);
+});
+
+test('bonded free-circulation: effectiveLandedCostEur excludes recoverable VAT but includes duty', () => {
+  const r = calculateQuote({
+    customsValueEur: 25000, hsCode: '6203', destinationCountry: 'DE', originCountry: 'CN',
+    linesCount: 4, bondedDays: 60, bondedVolumeCbm: 3, releaseStrategy: 'free_circulation',
+  });
+  const b = r.quotes[1];
+  // Free-circulation: duty paid at exit, VAT recovered later.
+  assert.ok(b.dutyDueEur > 0);
+  assert.ok(b.vatDueEur > 0);
+  assert.equal(b.vatRecoverableEur, b.vatDueEur);
+  assert.equal(b.effectiveLandedCostEur, b.customsValueEur + b.dutyDueEur + b.bondedOpsCostEur);
+  // Note: bonded.totalCashOutEur excludes customs value (assumes paid to supplier
+  // upstream), whereas effectiveLandedCostEur includes it — so the two are not
+  // directly comparable in magnitude.
+});
+
+// ── Sync / async shape parity ────────────────────────────
+// Locks in the composeQuoteResult refactor: when no live TARIC rate is found
+// (the common case in tests, which run with ORCATRADE_DISABLE_LIVE_TARIC=1),
+// calculateQuoteAsync must return a result with the same key set as calculateQuote
+// at every level. Catches drift introduced by future patches that touch one path
+// only.
+
+const { calculateQuoteAsync } = require('../lib/intelligence/customs-quote');
+
+function keysAtPath(obj, path = []) {
+  if (!obj || typeof obj !== 'object' || Array.isArray(obj)) return [];
+  const here = Object.keys(obj).sort();
+  const nested = [];
+  for (const k of here) {
+    const v = obj[k];
+    if (v && typeof v === 'object' && !Array.isArray(v)) {
+      nested.push(...keysAtPath(v, [...path, k]));
+    }
+  }
+  return [[path.join('.') || '(root)', here.join('|')], ...nested];
+}
+
+test('calculateQuote sync and calculateQuoteAsync return identical key shapes (no live rate)', async () => {
+  const input = {
+    customsValueEur: 25000, hsCode: '620342', destinationCountry: 'DE', originCountry: 'CN',
+    linesCount: 4, bondedDays: 0,
+  };
+  const sync = calculateQuote(input);
+  // Live TARIC is disabled in tests, so async should fall through to sync path
+  // and return an identically-shaped object (modulo any extras async would add
+  // when a live rate IS present — but there's no live rate here).
+  const asyncResult = await calculateQuoteAsync(input);
+  assert.equal(sync.ok, true);
+  assert.equal(asyncResult.ok, true);
+  const syncShape = JSON.stringify(keysAtPath(sync));
+  const asyncShape = JSON.stringify(keysAtPath(asyncResult));
+  assert.equal(syncShape, asyncShape, 'sync and async result shapes diverged');
+});
+
 // ── Listing helpers ──────────────────────────────────────
 
 test('listCountries returns all 27 EU members', () => {
