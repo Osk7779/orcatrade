@@ -63,6 +63,8 @@ select { cursor: pointer; }
 .result-stat { background: #0d0f14; padding: 1.2rem 1.3rem; }
 .result-stat .num { font-family: 'Cormorant Garant', serif; font-size: 1.55rem; font-weight: 700; color: rgba(255,255,255,0.97); line-height: 1; letter-spacing: -0.02em; }
 .result-stat .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 0.4rem; }
+.result-stat .stat-sub { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.55); margin-top: 0.45rem; line-height: 1.4; }
+.result-stat .stat-sub strong { color: rgba(255,255,255,0.85); font-weight: 600; }
 
 .result-section { margin-top: 2rem; padding-top: 1.6rem; border-top: 1px solid rgba(255,255,255,0.07); }
 .result-section h3 { font-family: 'Cormorant Garant', serif; font-size: 1.3rem; font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.5rem; }

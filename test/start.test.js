@@ -130,6 +130,24 @@ test('composePlan returns full plan structure for CN→PL apparel', async () => 
   assert.ok(plan.totals.dutyEur >= 0);
   assert.ok(plan.totals.vatEur > 0);
   assert.ok(plan.totals.perShipmentLandedTotal > plan.totals.customsValueEur);
+
+  // effectiveLandedTotal: P&L cost net of recoverable VAT.
+  assert.ok(Number.isFinite(plan.totals.effectiveLandedTotal));
+  assert.equal(plan.totals.vatRecoverableEur, plan.totals.vatEur);
+  // Math: perShipment - vat = effective.
+  const expectedEffective = plan.totals.perShipmentLandedTotal - plan.totals.vatEur;
+  assert.ok(Math.abs(plan.totals.effectiveLandedTotal - expectedEffective) < 0.01,
+    `effectiveLandedTotal (${plan.totals.effectiveLandedTotal}) should equal perShipment (${plan.totals.perShipmentLandedTotal}) minus VAT (${plan.totals.vatEur})`);
+  // Sanity: effective < gross.
+  assert.ok(plan.totals.effectiveLandedTotal < plan.totals.perShipmentLandedTotal);
+
+  // Origin matrix carries the same lens for each alternative.
+  assert.ok(Array.isArray(plan.originSensitivity.matrix));
+  for (const row of plan.originSensitivity.matrix) {
+    assert.ok(Number.isFinite(row.effectiveLandedTotal), `${row.origin} matrix row exposes effectiveLandedTotal`);
+    const rowExpected = row.transportEur + plan.totals.customsValueEur + row.dutyEur + row.brokerageEur;
+    assert.ok(Math.abs(row.effectiveLandedTotal - rowExpected) < 0.01);
+  }
 });
 
 test('composePlan skips warehouse when monthlyOrders absent', async () => {

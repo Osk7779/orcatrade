@@ -589,7 +589,11 @@ function renderPlan(plan) {
     <div class="result-stats">
       <div class="result-stat"><div class="num">${fmtEur(totals.transportEur)}</div><div class="label">${T.statTransport}</div></div>
       <div class="result-stat"><div class="num">${fmtEur(totals.dutyEur + totals.vatEur + totals.brokerageEur)}</div><div class="label">${T.statDutyVatBrokerage}</div></div>
-      <div class="result-stat"><div class="num">${fmtEur(totals.perShipmentLandedTotal)}</div><div class="label">${T.statLanded}</div></div>
+      <div class="result-stat">
+        <div class="num">${fmtEur(totals.perShipmentLandedTotal)}</div>
+        <div class="label">${T.statLanded}</div>
+        ${Number.isFinite(totals.effectiveLandedTotal) ? `<div class="stat-sub">${T.statLandedEffective}: <strong>${fmtEur(totals.effectiveLandedTotal)}</strong></div>` : ''}
+      </div>
       <div class="result-stat"><div class="num">${totals.warehouseMonthlyEur ? fmtEur(totals.warehouseMonthlyEur) : '—'}</div><div class="label">${T.statWarehouse}</div></div>
     </div>
 

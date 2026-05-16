@@ -103,6 +103,12 @@ test('start/i18n.js declares en, pl, de blocks', () => {
   }
 });
 
+test('start/i18n.js declares statLandedEffective in all three locales (P&L cost sub-stat)', () => {
+  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
+  const matches = (text.match(/statLandedEffective:/g) || []).length;
+  assert.ok(matches >= 3, `expected statLandedEffective in 3 locales, found ${matches}`);
+});
+
 // Sprint J.6: Founding 10 cross-sell card on the wizard result.
 // The keys are i18n-required and the locale-correct href must point
 // into the right founding page slug (mirroring js/site-nav.js

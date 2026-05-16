@@ -78,6 +78,7 @@ window.START_I18N = {
     statTransport: 'Transport · per shipment',
     statDutyVatBrokerage: 'Duty + VAT + brokerage',
     statLanded: 'Total landed cost',
+    statLandedEffective: 'P&L cost (VAT recoverable)',
     statWarehouse: '3PL · per month',
     // Sections
     secSourcing: 'Sourcing',
@@ -285,6 +286,7 @@ window.START_I18N = {
     statTransport: 'Transport · za przesyłkę',
     statDutyVatBrokerage: 'Cło + VAT + odprawa',
     statLanded: 'Łączny koszt landed',
+    statLandedEffective: 'Koszt w P&L (VAT odzyskiwalny)',
     statWarehouse: '3PL · miesięcznie',
     secSourcing: 'Sourcing',
     secTransport: 'Transport',
@@ -483,6 +485,7 @@ window.START_I18N = {
     statTransport: 'Transport · pro Sendung',
     statDutyVatBrokerage: 'Zoll + EUSt + Verzollung',
     statLanded: 'Landed Cost gesamt',
+    statLandedEffective: 'GuV-Kosten (EUSt rückforderbar)',
     statWarehouse: '3PL · pro Monat',
     secSourcing: 'Sourcing',
     secTransport: 'Transport',
