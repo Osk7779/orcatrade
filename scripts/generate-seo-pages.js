@@ -2768,6 +2768,39 @@ function generateMasterSitemap(generatedGuides) {
     // PL + DE locale roots
     { loc: `${SITE_URL}/pl/`,                       priority: '0.8', changefreq: 'weekly' },
     { loc: `${SITE_URL}/de/`,                       priority: '0.8', changefreq: 'weekly' },
+    // Founding 10 pilot pages (Sprint J/J.2 + J.7). High-priority entry points
+    // that exist in three locales — emit hreflang alternates so Google can
+    // group them as one logical page across markets.
+    {
+      loc: `${SITE_URL}/founding/`,
+      priority: '0.9', changefreq: 'weekly',
+      hreflangAlternates: [
+        { lang: 'en', href: `${SITE_URL}/founding/` },
+        { lang: 'pl', href: `${SITE_URL}/pl/zalozyciele-10/` },
+        { lang: 'de', href: `${SITE_URL}/de/gruender-10/` },
+        { lang: 'x-default', href: `${SITE_URL}/founding/` },
+      ],
+    },
+    {
+      loc: `${SITE_URL}/pl/zalozyciele-10/`,
+      priority: '0.9', changefreq: 'weekly',
+      hreflangAlternates: [
+        { lang: 'en', href: `${SITE_URL}/founding/` },
+        { lang: 'pl', href: `${SITE_URL}/pl/zalozyciele-10/` },
+        { lang: 'de', href: `${SITE_URL}/de/gruender-10/` },
+        { lang: 'x-default', href: `${SITE_URL}/founding/` },
+      ],
+    },
+    {
+      loc: `${SITE_URL}/de/gruender-10/`,
+      priority: '0.9', changefreq: 'weekly',
+      hreflangAlternates: [
+        { lang: 'en', href: `${SITE_URL}/founding/` },
+        { lang: 'pl', href: `${SITE_URL}/pl/zalozyciele-10/` },
+        { lang: 'de', href: `${SITE_URL}/de/gruender-10/` },
+        { lang: 'x-default', href: `${SITE_URL}/founding/` },
+      ],
+    },
   ];
 
   const guideUrls = generatedGuides.map(g => ({

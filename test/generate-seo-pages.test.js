@@ -131,6 +131,24 @@ test('sitemap.xml exists at root with 100+ URLs', () => {
   assert.match(xml, /<loc>https:\/\/orcatrade\.pl\/agents\/<\/loc>/);
 });
 
+// Sprint J.7: The three Founding 10 landing pages must be in the master
+// sitemap with hreflang alternates so Google groups them as one logical
+// surface across markets and crawls them on the weekly cadence.
+test('sitemap.xml lists Founding 10 pages with tri-lateral hreflang', () => {
+  const xml = fs.readFileSync(path.join(ROOT, 'sitemap.xml'), 'utf8');
+  // All three <loc> entries present
+  assert.match(xml, /<loc>https:\/\/orcatrade\.pl\/founding\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/orcatrade\.pl\/pl\/zalozyciele-10\/<\/loc>/);
+  assert.match(xml, /<loc>https:\/\/orcatrade\.pl\/de\/gruender-10\/<\/loc>/);
+  // Hreflang alternates appear 3× each (one per founding URL entry).
+  const enAlt = (xml.match(/hreflang="en"\s+href="https:\/\/orcatrade\.pl\/founding\/"/g) || []).length;
+  const plAlt = (xml.match(/hreflang="pl"\s+href="https:\/\/orcatrade\.pl\/pl\/zalozyciele-10\/"/g) || []).length;
+  const deAlt = (xml.match(/hreflang="de"\s+href="https:\/\/orcatrade\.pl\/de\/gruender-10\/"/g) || []).length;
+  assert.ok(enAlt >= 3, `expected EN founding hreflang on ≥3 entries, got ${enAlt}`);
+  assert.ok(plAlt >= 3, `expected PL founding hreflang on ≥3 entries, got ${plAlt}`);
+  assert.ok(deAlt >= 3, `expected DE founding hreflang on ≥3 entries, got ${deAlt}`);
+});
+
 test('sitemap-guides.xml exists with 100+ guide URLs', () => {
   const xml = fs.readFileSync(path.join(ROOT, 'sitemap-guides.xml'), 'utf8');
   const matches = xml.match(/<loc>/g);
