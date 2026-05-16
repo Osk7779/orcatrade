@@ -1,10 +1,16 @@
 #!/usr/bin/env node
-// Inject the standard favicon block into every HTML page that doesn't
-// already have it.
+// Inject the standard favicon block (+ OG/Twitter meta) into every HTML
+// page's <head>, AND the Vercel Analytics block before every </body>.
 //
-// Walks the repo, finds every *.html file, and inserts the favicon
-// <link> tags + manifest + theme-color meta just before </head>.
-// Idempotent — re-running is a no-op once the marker comment exists.
+// Two injection phases, each idempotent via its own marker comment:
+//   - Favicon + OG + theme-color → inserted just before </head>
+//   - Vercel Analytics scripts   → inserted just before </body>
+//
+// Why one script, not two: the SEO generators
+// (generate-seo-pages.js#run etc.) call this once at the end of every
+// regen. Splitting the analytics into a separate script would mean
+// patching five generators to invoke it too. One canonical injector
+// keeps re-runs deterministic.
 //
 // Usage:
 //   node scripts/inject-favicon-tags.js [--dry-run]
@@ -28,6 +34,19 @@ const LEGACY_MARKERS = [
   '<!-- favicon set v7 injected by scripts/inject-favicon-tags.js -->',
   '<!-- favicon set v8 injected by scripts/inject-favicon-tags.js -->',
 ];
+
+// Sprint J.1: Vercel Analytics block. Hand-rolled pages got these tags
+// in commit b004cd97 (`Add Vercel Analytics to static pages`); SEO-
+// generated pages did not. Every test run regenerates SEO pages and
+// stripped the analytics. Folding analytics into this injector means
+// the SEO generator picks them up via the post-regen hook, so the two
+// surfaces stay in lock-step.
+const ANALYTICS_MARKER = '<!-- analytics v1 injected by scripts/inject-favicon-tags.js -->';
+const ANALYTICS_BLOCK = `
+${ANALYTICS_MARKER}
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/_vercel/insights/script.js"></script>
+`;
 
 // v7: Embed the favicon as a base64 data URI in the FIRST <link rel="icon">.
 // This bypasses every per-URL "no favicon" browser cache — the icon is in
@@ -115,14 +134,12 @@ function* walk(dir) {
   }
 }
 
-function inject(filePath) {
-  const text = fs.readFileSync(filePath, 'utf8');
-  // Idempotent: skip if the marker is already present.
-  if (text.includes(MARKER)) return { changed: false, reason: 'already-injected' };
+// Insert the favicon + OG block just before </head>. Idempotent via MARKER.
+function injectHead(text) {
+  if (text.includes(MARKER)) return { changed: false, text };
 
-  // Must have a </head> to know where to inject.
   const closingHeadIdx = text.indexOf('</head>');
-  if (closingHeadIdx === -1) return { changed: false, reason: 'no-head' };
+  if (closingHeadIdx === -1) return { changed: false, text, reason: 'no-head' };
 
   // Sprint H: detect an existing og:type before we strip it. SEO-generated
   // guide pages emit og:type="article" (correct for Google's Article
@@ -132,10 +149,6 @@ function inject(filePath) {
   const ogTypeMatch = text.slice(0, closingHeadIdx).match(/<meta\s+property="og:type"[^>]*content="([^"]+)"[^>]*>/i);
   const existingOgType = ogTypeMatch ? ogTypeMatch[1] : 'website';
 
-  // Remove any stale legacy favicon links we might have inserted before —
-  // typically `<link rel="icon" ...>` lines elsewhere in <head>. Keep
-  // intentional non-favicon `rel="alternate icon"` etc. untouched by
-  // only matching `rel="icon"` exactly.
   const headSlice = text.slice(0, closingHeadIdx);
   const tailSlice = text.slice(closingHeadIdx);
 
@@ -165,9 +178,48 @@ function inject(filePath) {
   }
   stripped = stripped.replace(/\n\s*\n\s*\n/g, '\n\n');
 
-  const updated = stripped + buildFaviconBlock(existingOgType) + tailSlice;
-  if (!DRY_RUN) fs.writeFileSync(filePath, updated, 'utf8');
-  return { changed: true };
+  return { changed: true, text: stripped + buildFaviconBlock(existingOgType) + tailSlice };
+}
+
+// Insert the analytics block just before </body>. Idempotent via
+// ANALYTICS_MARKER. Strips any prior un-markered analytics scripts so
+// pages that received the b004cd97 commit don't double-inject.
+function injectAnalytics(text) {
+  if (text.includes(ANALYTICS_MARKER)) return { changed: false, text };
+
+  const closingBodyIdx = text.lastIndexOf('</body>');
+  if (closingBodyIdx === -1) return { changed: false, text, reason: 'no-body' };
+
+  // Strip any prior unmarked analytics tags so we don't duplicate.
+  // Handles the variant from commit b004cd97 that lacked our marker.
+  let cleaned = text
+    .replace(/\n?<script>window\.va=window\.va\|\|function\(\)\{\(window\.vaq=window\.vaq\|\|\[\]\)\.push\(arguments\);\};<\/script>/g, '')
+    .replace(/\n?<script\s+defer\s+src="\/_vercel\/insights\/script\.js"><\/script>/g, '');
+
+  const newClosingBodyIdx = cleaned.lastIndexOf('</body>');
+  if (newClosingBodyIdx === -1) return { changed: false, text, reason: 'no-body' };
+
+  const updated =
+    cleaned.slice(0, newClosingBodyIdx) +
+    ANALYTICS_BLOCK +
+    cleaned.slice(newClosingBodyIdx);
+  return { changed: true, text: updated };
+}
+
+function inject(filePath) {
+  const original = fs.readFileSync(filePath, 'utf8');
+
+  const head = injectHead(original);
+  const after = injectAnalytics(head.text);
+
+  const anyChange = head.changed || after.changed;
+  if (!anyChange) {
+    // Preserve historic return shape: callers may check reason.
+    const reason = head.reason || after.reason || 'already-injected';
+    return { changed: false, reason };
+  }
+  if (!DRY_RUN) fs.writeFileSync(filePath, after.text, 'utf8');
+  return { changed: true, headChanged: head.changed, analyticsChanged: after.changed };
 }
 
 function main() {
@@ -184,8 +236,8 @@ function main() {
   }
 
   const verb = DRY_RUN ? 'would inject' : 'injected';
-  console.log(`${verb} favicon block into ${changed} files`);
-  console.log(`(${alreadyInjected} already had it, ${noHead} had no <head>, ${files.length} scanned total)`);
+  console.log(`${verb} head/analytics into ${changed} files`);
+  console.log(`(${alreadyInjected} already had everything, ${noHead} had no <head>, ${files.length} scanned total)`);
 }
 
 if (require.main === module) {
@@ -196,4 +248,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { inject, MARKER };
+module.exports = { inject, MARKER, ANALYTICS_MARKER, injectHead, injectAnalytics };

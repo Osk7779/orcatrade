@@ -71,6 +71,21 @@ for (const rel of SAMPLE_PAGES) {
     assert.match(html, /twitter:card"\s+content="summary_large_image"/);
     assert.match(html, /twitter:image"\s+content="https:\/\/orcatrade\.pl\/og-1200x630\.png"/);
   });
+
+  // Sprint J.1: Vercel analytics must also be present on every page so
+  // the SEO funnel is measurable end-to-end. Lives before </body>, not
+  // <head>, but enforced by the same injector for the same reason.
+  test(`${rel} carries the Vercel analytics block`, () => {
+    const full = path.join(ROOT, rel);
+    const html = fs.readFileSync(full, 'utf8');
+    assert.match(html, /analytics v1 injected by scripts\/inject-favicon-tags\.js/,
+      `${rel} missing analytics marker — run scripts/inject-favicon-tags.js`);
+    assert.match(html, /window\.va=window\.va\|\|function/);
+    assert.match(html, /<script\s+defer\s+src="\/_vercel\/insights\/script\.js"><\/script>/);
+    // Single instance only — no duplication after re-inject.
+    const matches = html.match(/<script\s+defer\s+src="\/_vercel\/insights\/script\.js"><\/script>/g) || [];
+    assert.equal(matches.length, 1, `${rel} has ${matches.length} analytics script tags, expected exactly 1`);
+  });
 }
 
 test('injector marker is current (catches stale legacy markers)', () => {
