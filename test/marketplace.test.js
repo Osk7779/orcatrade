@@ -104,3 +104,32 @@ test('/marketplace/index.html links to vetting application CTA', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'marketplace/index.html'), 'utf8');
   assert.match(html, /\?intent=supplier-vetting/);
 });
+
+// ── Sprint K: Founding 10 positioning alignment ──────
+
+const FOUNDING_LINKS = [
+  { file: 'marketplace/index.html',    href: '/founding/',          phrase: 'Founding 10' },
+  { file: 'pl/marketplace/index.html', href: '/pl/zalozyciele-10/', phrase: 'Założycieli 10' },
+  { file: 'de/marketplace/index.html', href: '/de/gruender-10/',    phrase: 'Gründer 10' },
+];
+
+for (const { file, href, phrase } of FOUNDING_LINKS) {
+  test(`${file} cross-links to the locale-correct Founding 10 page`, () => {
+    const full = path.join(__dirname, '..', file);
+    assert.ok(fs.existsSync(full), `${file} must exist`);
+    const html = fs.readFileSync(full, 'utf8');
+    const hrefRe = new RegExp(`href="${href.replace(/\//g, '\\/')}"`);
+    assert.match(html, hrefRe, `${file} missing href="${href}" — cross-link not wired`);
+    assert.ok(html.includes(phrase), `${file} missing visible "${phrase}" — cross-link is unlabelled`);
+  });
+}
+
+test('EN marketplace banner explains both WHY anonymised AND WHEN it goes live', () => {
+  // Sprint K tied the live-directory timeline to the Founding 10 onboarding
+  // milestone. Before J/K the page said "why" but not "when" — the new copy
+  // must surface both halves.
+  const en = fs.readFileSync(path.join(__dirname, '..', 'marketplace/index.html'), 'utf8');
+  assert.match(en, /Why anonymised/, 'EN marketplace lost the "Why anonymised" framing');
+  assert.match(en, /when it goes live|when we'?ve onboarded|onboarded our first/i,
+    'EN marketplace must surface the live-directory timeline');
+});
