@@ -26,6 +26,8 @@
     barsLocale: document.getElementById('bars-locale'),
     barsType: document.getElementById('bars-type'),
     recentTable: document.getElementById('recent-table'),
+    foundingPanel: document.getElementById('founding-panel'),
+    foundingTable: document.getElementById('founding-table'),
   };
 
   function escapeHtml(s) {
@@ -73,6 +75,12 @@
       // Sprint G: HS-code engagement on the new optional wizard field
       { label: 'HS code provided', value: summary.hsCodeProvided != null ? summary.hsCodeProvided : 0,
         sub: fmtPct(summary.hsCodeProvidedRate || 0) + ' of plans · drives live TARIC lookup' },
+      // Sprint J.3: Founding 10 pipeline
+      { label: 'Founding 10 applied',
+        value: (summary.foundingApplied || 0) + (summary.foundingApplied >= 10 ? '' : ' / 10'),
+        sub: (summary.foundingWaitlist || 0) > 0
+          ? (summary.foundingWaitlist + ' on waitlist · ' + Math.max(0, 10 - (summary.foundingApplied || 0)) + ' spots left')
+          : (Math.max(0, 10 - (summary.foundingApplied || 0)) + ' spots remaining') },
     ];
     els.tiles.innerHTML = tiles.map(function (t) {
       return '<div class="tile">' +
@@ -103,6 +111,34 @@
     els.recentTable.innerHTML = head + rows;
   }
 
+  // Sprint J.3: Recent Founding 10 applications panel. Hidden until at least
+  // one application has come in — empty state on the dashboard would just be
+  // noise next to a "0 applied" tile.
+  function renderFounding(recent) {
+    if (!els.foundingPanel || !els.foundingTable) return;
+    if (!recent || !recent.length) {
+      els.foundingPanel.hidden = true;
+      return;
+    }
+    els.foundingPanel.hidden = false;
+    var head = '<tr><th>Time (UTC)</th><th>Name</th><th>Company</th><th>Email</th><th>Role</th><th>Monthly €</th><th>Status</th></tr>';
+    var rows = recent.map(function (a) {
+      var status = a.waitlist
+        ? '<span style="color:#f59e0b;">Waitlist</span>'
+        : '<span style="color:#5fb56b;">Founding</span>';
+      return '<tr>' +
+        '<td>' + escapeHtml(fmtTimestamp(a.at)) + '</td>' +
+        '<td>' + escapeHtml(a.name || '—') + '</td>' +
+        '<td>' + escapeHtml(a.company || '—') + '</td>' +
+        '<td>' + escapeHtml(a.email || '—') + '</td>' +
+        '<td>' + escapeHtml(a.role || '—') + '</td>' +
+        '<td>' + escapeHtml(a.monthlyValueEur || '—') + '</td>' +
+        '<td>' + status + '</td>' +
+      '</tr>';
+    }).join('');
+    els.foundingTable.innerHTML = head + rows;
+  }
+
   function showDashboard(payload) {
     var s = payload.summary;
     els.tokenForm.hidden = true;
@@ -119,6 +155,7 @@
     renderBars(els.barsLocale, s.byLocale);
     renderBars(els.barsType, s.byType);
     renderRecent(s.recent);
+    renderFounding(s.foundingRecent);
     els.metaLine.textContent = 'Mode: ' + (payload.mode || '?') + ' · As of ' + fmtTimestamp(payload.asOf);
   }
 

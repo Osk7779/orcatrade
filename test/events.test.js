@@ -157,6 +157,49 @@ test('aggregate: empty input returns hs-code zeros (no NaN)', () => {
   assert.deepEqual(s.byDutyMfnSource, []);
 });
 
+// ── Sprint J.3: Founding 10 pipeline ─────────────────
+
+test('aggregate: counts founding_applied + splits waitlist + builds recent list', () => {
+  const log = [
+    { type: 'founding_applied', at: '2026-05-16T15:00:00Z', name: 'Alice', email: 'a@x.co', company: 'AlphaCo', waitlist: false },
+    { type: 'founding_applied', at: '2026-05-16T14:00:00Z', name: 'Bob',   email: 'b@x.co', company: 'BetaCo',  waitlist: true,  role: 'Founder / owner', monthlyValueEur: '40000' },
+    { type: 'founding_applied', at: '2026-05-16T13:00:00Z', name: 'Cara',  email: 'c@x.co', waitlist: false },
+    // Non-founding event mixed in — must NOT inflate counts
+    { type: 'import_plan_generated', at: '2026-05-16T12:00:00Z', inputs: {} },
+  ];
+  const s = events.aggregate(log);
+  assert.equal(s.foundingApplied, 3);
+  assert.equal(s.foundingWaitlist, 1);
+  assert.equal(s.foundingRecent.length, 3);
+  // Order preserved (newest-first as stored)
+  assert.equal(s.foundingRecent[0].name, 'Alice');
+  assert.equal(s.foundingRecent[1].waitlist, true);
+  assert.equal(s.foundingRecent[1].role, 'Founder / owner');
+  // Total still counts every event (founding + plan)
+  assert.equal(s.total, 4);
+});
+
+test('aggregate: empty input returns founding zeros + empty recent', () => {
+  const s = events.aggregate([]);
+  assert.equal(s.foundingApplied, 0);
+  assert.equal(s.foundingWaitlist, 0);
+  assert.deepEqual(s.foundingRecent, []);
+});
+
+test('aggregate: founding recent capped at 10', () => {
+  const log = Array.from({ length: 15 }, (_, i) => ({
+    type: 'founding_applied',
+    at: `2026-05-16T${String(15 - i).padStart(2, '0')}:00:00Z`,
+    name: `Founder ${i}`,
+    email: `f${i}@example.com`,
+    waitlist: i >= 10,
+  }));
+  const s = events.aggregate(log);
+  assert.equal(s.foundingApplied, 15);
+  assert.equal(s.foundingWaitlist, 5);
+  assert.equal(s.foundingRecent.length, 10);
+});
+
 // ── /api/leads handler ───────────────────────────────
 
 function mockRes() {
