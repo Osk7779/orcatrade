@@ -54,6 +54,9 @@ const handlers = {
   'supply-chain': require('../lib/handlers/supply-chain'),
   news: require('../lib/handlers/news'),
   contact: require('../lib/handlers/contact'),
+  // Founding 10 pilot application capture (Sprint J).
+  // GET → counter payload, POST → application + email + event.
+  founding: require('../lib/handlers/founding'),
   evidence: require('../lib/handlers/evidence'),
   report: require('../lib/handlers/report'),
   reports: require('../lib/handlers/reports'),

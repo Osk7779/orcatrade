@@ -33,6 +33,7 @@ const SAMPLE_PAGES = [
   'platform/index.html',
   'press/index.html',
   'partners/index.html',
+  'founding/index.html',
   'compliance/index.html',
   'pl/index.html',
   'de/index.html',
