@@ -3,6 +3,9 @@
 **Author:** Claude (working with Oskar Klepuszewski)
 **Last updated:** 2026-05-13 (Sprint D — TARIC live integration complete)
 **Status:** Living document — update each sprint completion.
+**Companion doc:** Backend / infra / scale / enterprise work tracked in
+[backend-grade-plan.md](backend-grade-plan.md). This doc stays focused
+on product + marketing + SEO sprints.
 
 ---
 
