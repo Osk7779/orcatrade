@@ -299,6 +299,7 @@
         btn.disabled = true;
 
         var data = Object.fromEntries(new FormData(form).entries());
+        data.locale = 'en';
 
         fetch('/api/founding', {
           method: 'POST',
