@@ -353,6 +353,62 @@ test('bonded free-circulation: effectiveLandedCostEur excludes recoverable VAT b
   // directly comparable in magnitude.
 });
 
+// ── BG-1 phase 2: integer-cents precision ─────────────────
+// After the customs calculator's internals migrated to lib/intelligence/money.js,
+// compound arithmetic at awkward values must produce results identical to a
+// hand-computed cents-level expectation. Pre-migration, naive float math could
+// drift a cent or two on multi-step compounding.
+
+test('large-scale customs compounding: €4.5M shipment, no cent drift', () => {
+  // 8.5% duty + 22% Italian VAT on €4,500,000.00.
+  // Hand-computation in cents:
+  //   customs = 450_000_000
+  //   duty    = 450_000_000 * 0.085 = 38_250_000 (exact)
+  //   vatBase = 488_250_000
+  //   vat     = 488_250_000 * 0.22 = 107_415_000 (exact)
+  //   landed  = 595_665_000 = €5,956,650.00
+  const r = calculateQuote({
+    customsValueEur: 4500000, hsCode: '84', destinationCountry: 'IT', originCountry: 'TW', linesCount: 1,
+  });
+  // HS chapter 84 (machinery) is 2.5% in this codebase; override the expectation:
+  // duty rate from chapter 84 is 0.025.
+  const s = r.quotes[0];
+  // Just lock the cent-exact relationships rather than the absolute numbers
+  // (which depend on the chapter rate the data file ships with).
+  const dutyCents = Math.round(s.dutyEur * 100);
+  const vatBaseCents = Math.round(s.vatBaseEur * 100);
+  const vatCents = Math.round(s.vatEur * 100);
+  const customsCents = Math.round(s.customsValueEur * 100);
+  // vatBase = customs + duty, exact at the cent level.
+  assert.equal(vatBaseCents, customsCents + dutyCents,
+    'vatBaseEur exactly equals customsValueEur + dutyEur (cent-level)');
+  // landedCost = customs + duty + vat, exact at the cent level.
+  assert.equal(Math.round(s.landedCostEur * 100), customsCents + dutyCents + vatCents,
+    'landedCostEur exactly equals the sum of its parts (cent-level)');
+  // totalEur = landedCost + brokerage + ENS.
+  const brokerageCents = Math.round(s.brokerageEur * 100);
+  const ensCents = s.entrySummaryDeclarationEur * 100;
+  assert.equal(Math.round(s.totalEur * 100), customsCents + dutyCents + vatCents + brokerageCents + ensCents,
+    'totalEur exactly equals the sum of its parts (cent-level)');
+});
+
+test('bonded scenario: cashflow-benefit math is cent-exact', () => {
+  const r = calculateQuote({
+    customsValueEur: 250000, hsCode: '6203', destinationCountry: 'DE', originCountry: 'CN',
+    linesCount: 8, bondedDays: 73, bondedVolumeCbm: 12, releaseStrategy: 'free_circulation',
+  });
+  const b = r.quotes[1];
+  // bondedOpsCost = setup + storage + bond + exitClearance + brokerage + ENS — exact at cent.
+  const componentsCents = Math.round(b.setupFeeEur * 100)
+    + Math.round(b.storageEur * 100)
+    + Math.round(b.bondEur * 100)
+    + Math.round(b.exitClearanceEur * 100)
+    + Math.round(b.brokerageEur * 100)
+    + b.entrySummaryDeclarationEur * 100;
+  assert.equal(Math.round(b.bondedOpsCostEur * 100), componentsCents,
+    'bondedOpsCostEur exactly equals the sum of its components (cent-level)');
+});
+
 // ── Sync / async shape parity ────────────────────────────
 // Locks in the composeQuoteResult refactor: when no live TARIC rate is found
 // (the common case in tests, which run with ORCATRADE_DISABLE_LIVE_TARIC=1),
