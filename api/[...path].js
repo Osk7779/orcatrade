@@ -76,6 +76,16 @@ module.exports = async (req, res) => {
     key = segments[0] || '';
   }
 
+  // Sprint BG-4.1: every request gets a correlation id. Honour a caller-supplied
+  // x-request-id if it looks reasonable (so curl scripts can pin one); otherwise
+  // mint a fresh 12-hex-char id. The id is attached to req for handlers, echoed
+  // back on the response, and stamped on the router-level error log.
+  const log = require('../lib/log');
+  const incoming = (req.headers && req.headers['x-request-id']) || '';
+  const requestId = /^[a-z0-9_-]{6,64}$/i.test(incoming) ? incoming : log.generateRequestId();
+  req.requestId = requestId;
+  try { res.setHeader('x-request-id', requestId); } catch (_) { /* response may already be terminal */ }
+
   const handler = handlers[key];
   if (!handler) {
     res.setHeader('Content-Type', 'application/json');
@@ -83,17 +93,18 @@ module.exports = async (req, res) => {
     return res.end(JSON.stringify({
       error: `No API handler for /api/${key}`,
       availableEndpoints: Object.keys(handlers).sort(),
+      requestId,
     }));
   }
 
   try {
     return await handler(req, res);
   } catch (err) {
-    console.error(`[/api/${key}] handler threw:`, err);
+    log.error('handler threw', { handler: key, requestId, err });
     if (!res.headersSent) {
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 500;
-      return res.end(JSON.stringify({ error: err.message || 'Internal handler error' }));
+      return res.end(JSON.stringify({ error: err.message || 'Internal handler error', requestId }));
     }
     if (!res.writableEnded) res.end();
   }
