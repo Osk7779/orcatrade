@@ -61,6 +61,10 @@ const handlers = {
   report: require('../lib/handlers/report'),
   reports: require('../lib/handlers/reports'),
   workspace: require('../lib/handlers/workspace'),
+  // Operational health probe (Sprint BG-4.3). GET /api/health returns
+  // structured status for KV, TARIC warm cache, Resend/Stripe/Anthropic
+  // env vars. 200 = ok | degraded; 503 = KV down (paging condition).
+  health: require('../lib/handlers/health'),
 };
 
 module.exports = async (req, res) => {
