@@ -34,6 +34,8 @@ const SAMPLE_PAGES = [
   'press/index.html',
   'partners/index.html',
   'founding/index.html',
+  'pl/zalozyciele-10/index.html',
+  'de/gruender-10/index.html',
   'compliance/index.html',
   'pl/index.html',
   'de/index.html',

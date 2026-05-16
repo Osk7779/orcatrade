@@ -169,6 +169,7 @@
       '/platform/':    '/pl/platforma/',
       '/analysis/':    '/pl/analiza/',
       '/supply-chain/':'/pl/lancuch-dostaw/',
+      '/founding/':    '/pl/zalozyciele-10/',
     },
     DE: {
       '/pricing/':     '/de/preise/',
@@ -176,6 +177,7 @@
       '/platform/':    '/de/plattform/',
       '/analysis/':    '/de/analyse/',
       '/supply-chain/':'/de/lieferkette/',
+      '/founding/':    '/de/gruender-10/',
     },
   };
 
