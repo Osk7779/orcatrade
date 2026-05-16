@@ -163,3 +163,68 @@ test('daysBetween: counts whole days', () => {
   const days = planDiff.daysBetween(tenDaysAgo);
   assert.equal(days >= 9 && days <= 10, true);
 });
+
+// ── Sprint BG-0c: effectiveLandedTotal tracking ───────────
+
+test('extractSnapshot: captures effectiveLandedTotal when present', () => {
+  const plan = {
+    asOf: '2026-05-17',
+    totals: {
+      perShipmentLandedTotal: 119000,
+      effectiveLandedTotal: 100000,
+      dutyEur: 12000, vatEur: 19000, transportEur: 3500, brokerageEur: 75,
+    },
+    customs: { duty: { ratePercent: 12 } },
+  };
+  const s = planDiff.extractSnapshot(plan);
+  assert.equal(s.effectiveLandedTotal, 100000);
+});
+
+test('extractSnapshot: effectiveLandedTotal is null on legacy snapshots', () => {
+  const plan = {
+    totals: { perShipmentLandedTotal: 1000 }, // no effectiveLandedTotal
+  };
+  const s = planDiff.extractSnapshot(plan);
+  assert.equal(s.effectiveLandedTotal, null);
+});
+
+test('diffSnapshots: surfaces effectiveLandedDeltaEur + Pct when both sides present', () => {
+  const saved = {
+    asOf: '2026-04-01', perShipmentLandedTotal: 119000, effectiveLandedTotal: 100000,
+    dutyEur: 12000, vatEur: 19000, transportEur: 3500, brokerageEur: 75, dutyRatePct: 12,
+  };
+  const current = {
+    asOf: '2026-05-17', perShipmentLandedTotal: 125000, effectiveLandedTotal: 105000,
+    dutyEur: 13000, vatEur: 20000, transportEur: 3700, brokerageEur: 75, dutyRatePct: 13,
+  };
+  const d = planDiff.diffSnapshots(saved, current, '2026-04-01T00:00:00Z');
+  assert.equal(d.effectiveLandedDeltaEur, 5000);
+  assert.equal(d.effectiveLandedDeltaPct, 5);
+});
+
+test('diffSnapshots: effectiveLandedDelta is null when legacy snapshot lacks the field', () => {
+  const saved = {
+    asOf: '2026-04-01', perShipmentLandedTotal: 119000, effectiveLandedTotal: null,
+    dutyEur: 12000, vatEur: 19000, transportEur: 3500, brokerageEur: 75, dutyRatePct: 12,
+  };
+  const current = {
+    asOf: '2026-05-17', perShipmentLandedTotal: 125000, effectiveLandedTotal: 105000,
+    dutyEur: 13000, vatEur: 20000, transportEur: 3700, brokerageEur: 75, dutyRatePct: 13,
+  };
+  const d = planDiff.diffSnapshots(saved, current);
+  assert.equal(d.effectiveLandedDeltaEur, null);
+  assert.equal(d.effectiveLandedDeltaPct, null);
+  // Gross delta still computed normally.
+  assert.equal(d.landedDeltaEur, 6000);
+});
+
+test('SNAPSHOT_FIELDS includes effectiveLandedTotal for sanitiseSnapshot to preserve it', () => {
+  assert.ok(planDiff.SNAPSHOT_FIELDS.includes('effectiveLandedTotal'),
+    'BG-0c relies on sanitiseSnapshot keeping the new field on round-trip');
+  // Verify it actually round-trips.
+  const round = planDiff.sanitiseSnapshot({
+    asOf: '2026-05-17', perShipmentLandedTotal: 119000, effectiveLandedTotal: 100000,
+    dutyEur: 12000, vatEur: 19000, transportEur: 3500, brokerageEur: 75, dutyRatePct: 12,
+  });
+  assert.equal(round.effectiveLandedTotal, 100000);
+});
