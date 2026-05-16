@@ -458,5 +458,8 @@ shipped — never pretend a sprint was as scoped.
 | Date | Sprint | Notes |
 |---|---|---|
 | 2026-05-16 | doc created | Strategic backend plan stood up alongside dev-plan.md. Six tracks defined. Phasing α/β/γ established. No code shipped yet — first execution sprint is BG-1 (decimal money math). |
+| 2026-05-16 | BG-0a — customs dedupe + effectiveLandedCostEur | calculateQuote / calculateQuoteAsync collapsed onto a shared composeQuoteResult helper (~70 lines of duplication gone). New finance-grade field effectiveLandedCostEur (customs + duty + brokerage + ENS, net of recoverable VAT) on standard + bonded scenarios. +4 tests including a sync/async shape-parity check that pins the dedupe. 1,344 → 1,348 tests. |
+| 2026-05-16 | BG-0b — surface P&L cost end-to-end | totals.effectiveLandedTotal and vatRecoverableEur on every plan response; same on every originSensitivity matrix row including annualEffectiveLanded. New statLandedEffective i18n key (EN/PL/DE). Sub-stat under the "Total landed cost" tile in the wizard result. 1,348 → 1,349 tests. |
+| 2026-05-16 | BG-1 phase 1 — money.js primitives | New lib/intelligence/money.js with integer-cents arithmetic, half-even rounding, fromEuro/toEuro that avoids the 0.1*100 float trap. 25 new tests covering: 0.1+0.2 = 0.3 exact, banker's vs naive rounding asymmetry, customs compounding at €100k and €5M scale (zero drift), Finland 25.5% VAT on irregular base. Type/range guard rails throw on bad inputs. No calculator migrated yet — that's phase 2. 1,349 → 1,374 tests. |
 
 When a backend sprint completes, append a row here.
