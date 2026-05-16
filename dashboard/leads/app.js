@@ -70,6 +70,9 @@
       { label: 'Email captured', value: summary.emailCaptured, sub: fmtPct(summary.emailCaptureRate) + ' of submissions' },
       { label: 'Mean landed cost', value: fmtEur(summary.meanLandedEur), sub: 'Per shipment' },
       { label: 'Distinct routes', value: summary.topRoutes.length, sub: 'Top 10 surfaced' },
+      // Sprint G: HS-code engagement on the new optional wizard field
+      { label: 'HS code provided', value: summary.hsCodeProvided != null ? summary.hsCodeProvided : 0,
+        sub: fmtPct(summary.hsCodeProvidedRate || 0) + ' of plans · drives live TARIC lookup' },
     ];
     els.tiles.innerHTML = tiles.map(function (t) {
       return '<div class="tile">' +

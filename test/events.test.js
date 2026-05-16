@@ -121,6 +121,42 @@ test('aggregate: ignores invalid landed totals', () => {
   assert.equal(s.meanLandedEur, 10000); // Only the valid total counted
 });
 
+// ── Sprint G: HS code engagement ─────────────────────
+
+test('aggregate: counts hsCodeProvided + provided-rate against plan events only', () => {
+  const log = [
+    { type: 'import_plan_generated', at: '2026-05-16T09:00:00Z', hsCodeProvided: true,  dutyMfnSource: 'UK Trade Tariff' },
+    { type: 'import_plan_generated', at: '2026-05-16T09:01:00Z', hsCodeProvided: false, dutyMfnSource: 'chapter-estimator' },
+    { type: 'import_plan_generated', at: '2026-05-16T09:02:00Z', hsCodeProvided: true,  dutyMfnSource: 'UK Trade Tariff' },
+    { type: 'import_plan_generated', at: '2026-05-16T09:03:00Z', hsCodeProvided: false, dutyMfnSource: 'chapter-estimator' },
+    // plan_saved should NOT affect the rate denominator
+    { type: 'plan_saved', at: '2026-05-16T09:04:00Z', hsCodeProvided: false },
+  ];
+  const s = events.aggregate(log);
+  assert.equal(s.hsCodeProvided, 2);
+  assert.equal(s.hsCodeProvidedRate, 50);              // 2 of 4 plan events
+  assert.equal(s.byDutyMfnSource.length, 2);
+  const labels = s.byDutyMfnSource.map(r => r.key).sort();
+  assert.deepEqual(labels, ['UK Trade Tariff', 'chapter-estimator']);
+});
+
+test('aggregate: missing hsCodeProvided is treated as false', () => {
+  const log = [
+    { type: 'import_plan_generated', at: '2026-05-16T09:00:00Z' },             // legacy event, no hs fields
+    { type: 'import_plan_generated', at: '2026-05-16T09:01:00Z', hsCodeProvided: true, dutyMfnSource: 'UK Trade Tariff' },
+  ];
+  const s = events.aggregate(log);
+  assert.equal(s.hsCodeProvided, 1);
+  assert.equal(s.hsCodeProvidedRate, 50);
+});
+
+test('aggregate: empty input returns hs-code zeros (no NaN)', () => {
+  const s = events.aggregate([]);
+  assert.equal(s.hsCodeProvided, 0);
+  assert.equal(s.hsCodeProvidedRate, 0);
+  assert.deepEqual(s.byDutyMfnSource, []);
+});
+
 // ── /api/leads handler ───────────────────────────────
 
 function mockRes() {
