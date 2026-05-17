@@ -65,6 +65,11 @@ const handlers = {
   // structured status for KV, TARIC warm cache, Resend/Stripe/Anthropic
   // env vars. 200 = ok | degraded; 503 = KV down (paging condition).
   health: require('../lib/handlers/health'),
+  // GDPR data subject endpoints (Sprint BG-5.1). GET /api/account/export
+  // returns a JSON dump of everything we hold for the signed-in user;
+  // POST /api/account/delete pseudonymises events + hard-deletes plans
+  // + clears the session.
+  account: require('../lib/handlers/account'),
 };
 
 module.exports = async (req, res) => {
