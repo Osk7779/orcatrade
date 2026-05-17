@@ -2,55 +2,53 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Conversion analytics — OrcaTrade</title>
+  <title>Audit log — OrcaTrade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Conversion analytics dashboard — counts by category, route, and locale, sourced from durable event log." />
-  <link rel="canonical" href="https://orcatrade.pl/dashboard/leads/" />
+  <meta name="description" content="Admin event-by-event audit feed for the OrcaTrade platform. Token-gated; emails are pseudonymised to deterministic hashes." />
+  <link rel="canonical" href="https://orcatrade.pl/dashboard/audit/" />
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
   <style>
-    .leads-shell { max-width: 1080px; margin: 0 auto; padding: 3rem 1.5rem 5rem; position: relative; z-index: 1; }
-    .leads-shell h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3.5vw + 0.6rem, 2.6rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.4rem; line-height: 1.15; letter-spacing: -0.02em; }
-    .leads-shell .subtitle { font-size: 0.92rem; line-height: 1.55; color: rgba(255,255,255,0.6); margin-bottom: 1.6rem; }
-    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
-    .breadcrumbs a { color: rgba(255,255,255,0.7); text-decoration: none; }
-    .breadcrumbs a:hover { color: rgba(255,255,255,0.95); }
+    body { background: #050507; color: rgba(255,255,255,0.92); font-family: 'Geist', system-ui, sans-serif; }
+    .audit-shell { max-width: 1180px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+    .audit-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .audit-head h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 2rem; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+    .audit-head .meta { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.45); letter-spacing: 0.08em; text-transform: uppercase; }
 
-    .token-form { padding: 1.6rem 1.8rem; background: rgba(184,168,114,0.06); border: 1px solid rgba(200, 168, 90, 0.3); margin-bottom: 1.5rem; }
-    .token-form label { display: block; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; font-weight: 500; }
-    .token-form input { width: 100%; max-width: 480px; padding: 0.6rem 0.8rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.85rem; }
-    .token-form button { padding: 0.6rem 1.1rem; margin-left: 0.6rem; font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: var(--accent-color, #b8bec8); color: #0a0912; border: 1px solid var(--accent-color, #b8bec8); cursor: pointer; }
-    .token-form .err { font-size: 0.82rem; color: #c95050; margin-top: 0.5rem; }
+    .controls { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.5rem; padding: 1rem 1.2rem; background: rgba(13,15,20,0.6); border: 1px solid rgba(255,255,255,0.06); }
+    .controls label { font-family: 'Geist Mono', monospace; font-size: 0.66rem; color: rgba(255,255,255,0.55); letter-spacing: 0.1em; text-transform: uppercase; }
+    .controls input, .controls select { padding: 0.5rem 0.7rem; background: rgba(8, 11, 19, 0.7); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.8rem; outline: none; }
+    .controls input:focus, .controls select:focus { border-color: rgba(184,190,200,0.4); }
+    .btn { padding: 0.55rem 1rem; font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.92); border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; }
+    .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .tile-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.6rem; }
-    .tile { padding: 1.1rem 1.2rem; background: rgba(13, 15, 20, 0.55); border: 1px solid rgba(255,255,255,0.07); }
-    .tile .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 0.35rem; }
-    .tile .value { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.95rem; font-weight: 600; color: rgba(255,255,255,0.97); line-height: 1.05; letter-spacing: -0.01em; }
-    .tile .sub { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 1.5rem; }
+    .stat { background: #0a0c12; padding: 1.1rem 1.3rem; }
+    .stat .num { font-family: 'Cormorant Garant', serif; font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,0.97); letter-spacing: -0.02em; line-height: 1; }
+    .stat .label { font-family: 'Geist Mono', monospace; font-size: 0.66rem; color: rgba(255,255,255,0.5); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.4rem; }
 
-    .panel { padding: 1.4rem 1.6rem; background: rgba(13, 15, 20, 0.45); border: 1px solid rgba(255,255,255,0.07); margin-bottom: 1rem; }
-    .panel h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.9rem; }
-    .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9rem; margin-bottom: 1rem; }
+    table.events { width: 100%; border-collapse: collapse; background: #0a0c12; border: 1px solid rgba(255,255,255,0.06); }
+    table.events th, table.events td { padding: 0.55rem 0.8rem; text-align: left; font-family: 'Geist Mono', monospace; font-size: 0.74rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.78); vertical-align: top; }
+    table.events th { color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.62rem; background: rgba(255,255,255,0.02); }
+    table.events td.t-import_plan_generated { color: #7ed28a; }
+    table.events td.t-plan_saved { color: rgba(220, 188, 110, 1); }
+    table.events td.t-founding_applied { color: rgba(220, 160, 80, 1); }
+    table.events td.t-auth_signin, table.events td.t-auth_signup { color: rgba(150, 200, 230, 1); }
+    table.events td.t-plan_share_opened { color: rgba(150, 150, 200, 0.85); }
+    table.events td.hash { color: rgba(255,255,255,0.4); }
+    table.events td.payload { color: rgba(255,255,255,0.6); max-width: 480px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help; }
 
-    .bar-row { display: grid; grid-template-columns: 100px 1fr 50px; gap: 0.65rem; align-items: center; padding: 0.32rem 0; }
-    .bar-row .key { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bar-row .bar { height: 0.5rem; background: linear-gradient(to right, rgba(184,190,200,0.55), rgba(184,190,200,0.2)); border-radius: 1px; }
-    .bar-row .count { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.75); text-align: right; }
+    .err { padding: 1rem 1.2rem; background: rgba(232, 128, 128, 0.08); border: 1px solid rgba(232, 128, 128, 0.3); color: #e88080; font-family: 'Geist Mono', monospace; font-size: 0.82rem; margin-bottom: 1.5rem; }
+    .empty { padding: 1.4rem 1.6rem; text-align: center; font-size: 0.92rem; color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); }
 
-    table.recent { width: 100%; border-collapse: collapse; }
-    table.recent th, table.recent td { padding: 0.45rem 0.7rem; text-align: left; font-family: 'Geist Mono', monospace; font-size: 0.74rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.78); }
-    table.recent th { color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.66rem; }
-    table.recent td.email-yes { color: #5fb56b; }
-    table.recent td.email-no { color: rgba(255,255,255,0.45); }
-
-    .empty { padding: 1.4rem 1.6rem; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); text-align: center; font-size: 0.92rem; color: rgba(255,255,255,0.6); }
-    .meta-line { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 1rem; letter-spacing: 0.06em; }
+    .note { margin-top: 1.5rem; font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); line-height: 1.7; max-width: 80ch; }
+    .note strong { color: rgba(255,255,255,0.6); }
   </style>
-
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
   <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
@@ -105,73 +103,39 @@
   </script>
 </head>
 <body>
-  <div class="aurora" aria-hidden="true">
-    <div class="aurora-blob b1"></div>
-    <div class="aurora-blob b2"></div>
-    <div class="aurora-blob b3"></div>
-  </div>
-  <div class="page">
-    <header data-site-header></header>
-    <main>
-      <section class="leads-shell">
-        <div class="breadcrumbs">
-          <a href="/">Home</a> /
-          <a href="/dashboard/">Dashboard</a> /
-          Conversion analytics
-        </div>
-        <h1>Conversion analytics</h1>
-        <p class="subtitle">Aggregated event log: which categories convert, which routes win, where users drop off. Sourced from the durable event store. For the row-by-row audit feed see <a href="/dashboard/audit/" style="color:rgba(220,188,110,0.85);text-decoration:none">audit log →</a></p>
+  <main class="audit-shell">
+    <div class="audit-head">
+      <h1>Audit log</h1>
+      <div class="meta" id="lastChecked">—</div>
+    </div>
 
-        <!-- Token entry -->
-        <div class="token-form" id="token-form">
-          <label for="token">Access token</label>
-          <input type="password" id="token" placeholder="Paste ORCATRADE_LEADS_TOKEN value" autocomplete="off"/>
-          <button type="button" id="token-submit">Open</button>
-          <div class="err" id="token-err"></div>
-          <p style="font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-top: 0.7rem; line-height: 1.5;">
-            This page is gated by an env-var token. Set <code>ORCATRADE_LEADS_TOKEN</code> in Vercel → pass it via <code>?token=…</code>.
-          </p>
-        </div>
+    <div id="errBanner" class="err" hidden></div>
 
-        <!-- Loaded dashboard -->
-        <div id="dashboard" hidden>
-          <div class="tile-row" id="tiles"></div>
-          <div class="panel-grid">
-            <div class="panel"><h2>Top categories</h2><div id="bars-category"></div></div>
-            <div class="panel"><h2>Top routes</h2><div id="bars-route"></div></div>
-            <div class="panel"><h2>Origins</h2><div id="bars-origin"></div></div>
-            <div class="panel"><h2>Destinations</h2><div id="bars-dest"></div></div>
-            <div class="panel"><h2>Locales</h2><div id="bars-locale"></div></div>
-            <div class="panel"><h2>Event types</h2><div id="bars-type"></div></div>
-          </div>
-          <div class="panel">
-            <h2>Recent events</h2>
-            <table class="recent" id="recent-table"></table>
-          </div>
-          <div class="panel" id="founding-panel" hidden>
-            <h2>Recent Founding 10 applications</h2>
-            <table class="recent" id="founding-table"></table>
-          </div>
-          <div class="meta-line" id="meta-line"></div>
-        </div>
+    <div class="controls">
+      <label for="tokenInput">Token</label>
+      <input id="tokenInput" type="password" placeholder="ORCATRADE_LEADS_TOKEN" autocomplete="off" />
+      <label for="typeFilter">Type</label>
+      <select id="typeFilter">
+        <option value="">(all)</option>
+      </select>
+      <label for="limitInput">Limit</label>
+      <input id="limitInput" type="number" value="200" min="1" max="1000" style="width: 90px" />
+      <button id="reloadBtn" class="btn">Reload</button>
+    </div>
 
-        <div id="empty" class="empty" hidden>
-          <p>No events yet. Submit a plan via the wizard, then refresh.</p>
-        </div>
-      </section>
-    </main>
-    <footer style="position: relative; z-index: 1;">
-      <div class="footer-inner">
-        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
-        <span><a href="/">Back to OrcaTrade Group</a></span>
-      </div>
-    </footer>
-  </div>
-  <script src="/js/cache-preferences.js"></script>
-  <script src="/js/site-nav.js"></script>
-  <script src="/js/main.js"></script>
-  <script src="/dashboard/leads/app.js"></script>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+    <div id="stats" class="stats"></div>
+
+    <div id="tableHost"></div>
+
+    <div class="note">
+      <strong>PII discipline:</strong> emails are pseudonymised to a deterministic 12-hex hash before this dashboard sees them — the
+      same user always hashes to the same identity, so an admin can correlate events without the platform leaking the raw address.
+      Free-text fields (messages) are truncated to 80 characters. This dashboard is itself <code>noindex</code> and token-gated.
+      See <a href="/docs/security/" style="color:rgba(220,188,110,0.85)">/docs/security/</a> for the full data-flow policy.
+    </div>
+  </main>
+
+  <script src="./app.js"></script>
 
 <!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>

@@ -70,6 +70,10 @@ const handlers = {
   // POST /api/account/delete pseudonymises events + hard-deletes plans
   // + clears the session.
   account: require('../lib/handlers/account'),
+  // Admin event-by-event feed (Sprint BG-5.3). GET /api/audit returns
+  // recent events with PII redacted (email → emailHash) for the
+  // /dashboard/audit/ admin view. Same token-gate as /api/leads.
+  audit: require('../lib/handlers/audit'),
 };
 
 module.exports = async (req, res) => {

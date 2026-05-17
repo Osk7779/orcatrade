@@ -1,0 +1,185 @@
+// /dashboard/audit/ — admin event-by-event browser (Sprint BG-5.3).
+//
+// Token persists in sessionStorage so a reload doesn't kick the admin
+// back to typing it. Same pattern as /dashboard/leads/.
+
+(function () {
+  'use strict';
+
+  var STORAGE_KEY = 'orcatrade.audit.token';
+
+  function el(id) { return document.getElementById(id); }
+
+  function showErr(msg) {
+    var e = el('errBanner');
+    e.textContent = msg;
+    e.hidden = false;
+  }
+  function clearErr() { el('errBanner').hidden = true; }
+
+  function loadToken() {
+    try {
+      var saved = window.sessionStorage.getItem(STORAGE_KEY);
+      if (saved) el('tokenInput').value = saved;
+    } catch (_) {}
+  }
+  function saveToken(v) {
+    try { window.sessionStorage.setItem(STORAGE_KEY, v); } catch (_) {}
+  }
+
+  function fmtTs(iso) {
+    if (!iso) return '—';
+    try {
+      var d = new Date(iso);
+      return d.toLocaleString('en-GB', { hour12: false });
+    } catch (_) { return iso; }
+  }
+
+  function summarisePayload(evt) {
+    // Strip identity fields + 'at' + 'type' — what remains is the payload.
+    var rest = {};
+    for (var k in evt) {
+      if (k === 'at' || k === 'type' || k === 'emailHash' || k === 'pseudonymised' || k === 'pseudonymisedAt') continue;
+      rest[k] = evt[k];
+    }
+    var parts = [];
+    for (var k2 in rest) {
+      var v = rest[k2];
+      if (v == null) continue;
+      if (typeof v === 'object') {
+        // Inline a short summary (don't dump full JSON in the cell)
+        var s = JSON.stringify(v);
+        if (s.length > 60) s = s.slice(0, 57) + '…';
+        parts.push(k2 + '=' + s);
+      } else {
+        parts.push(k2 + '=' + String(v));
+      }
+    }
+    return parts.join(' · ');
+  }
+
+  function computeStats(events) {
+    var byType = {};
+    var withEmail = 0;
+    var withinDay = 0;
+    var oneDayAgo = Date.now() - 24 * 60 * 60 * 1000;
+    for (var i = 0; i < events.length; i++) {
+      var e = events[i];
+      byType[e.type] = (byType[e.type] || 0) + 1;
+      if (e.emailHash) withEmail++;
+      if (e.at && Date.parse(e.at) >= oneDayAgo) withinDay++;
+    }
+    return { byType: byType, withEmail: withEmail, withinDay: withinDay };
+  }
+
+  function renderStats(events) {
+    var stats = computeStats(events);
+    var distinct = Object.keys(stats.byType).length;
+    el('stats').innerHTML = (
+      '<div class="stat"><div class="num">' + events.length + '</div><div class="label">Events shown</div></div>'
+      + '<div class="stat"><div class="num">' + stats.withinDay + '</div><div class="label">Last 24h</div></div>'
+      + '<div class="stat"><div class="num">' + distinct + '</div><div class="label">Distinct event types</div></div>'
+      + '<div class="stat"><div class="num">' + stats.withEmail + '</div><div class="label">With email hash</div></div>'
+    );
+  }
+
+  function renderTable(events) {
+    if (!events.length) {
+      el('tableHost').innerHTML = '<div class="empty">No events to show for this filter.</div>';
+      return;
+    }
+    var rows = [
+      '<table class="events">'
+      + '<thead><tr>'
+      + '<th>When</th><th>Type</th><th>Email hash</th><th>Payload</th>'
+      + '</tr></thead><tbody>'
+    ];
+    for (var i = 0; i < events.length; i++) {
+      var e = events[i];
+      var typeCell = 't-' + (e.type || '').replace(/[^a-z0-9_-]/gi, '');
+      var hashCell = e.emailHash ? '<code>' + e.emailHash + '</code>' : '—';
+      var payload = summarisePayload(e);
+      rows.push(
+        '<tr>'
+        + '<td>' + escapeHtml(fmtTs(e.at)) + '</td>'
+        + '<td class="' + typeCell + '">' + escapeHtml(e.type || '') + '</td>'
+        + '<td class="hash">' + hashCell + '</td>'
+        + '<td class="payload" title="' + escapeHtml(payload) + '">' + escapeHtml(payload) + '</td>'
+        + '</tr>'
+      );
+    }
+    rows.push('</tbody></table>');
+    el('tableHost').innerHTML = rows.join('');
+  }
+
+  function escapeHtml(s) {
+    if (s == null) return '';
+    return String(s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function refreshTypeFilterOptions(allowedTypes, currentValue) {
+    var sel = el('typeFilter');
+    if (!allowedTypes || !allowedTypes.length) return;
+    var existing = Array.from(sel.options).map(function (o) { return o.value; });
+    // Already populated — leave the existing selection in place.
+    if (existing.length > 1) return;
+    for (var i = 0; i < allowedTypes.length; i++) {
+      var opt = document.createElement('option');
+      opt.value = allowedTypes[i];
+      opt.textContent = allowedTypes[i];
+      sel.appendChild(opt);
+    }
+    if (currentValue) sel.value = currentValue;
+  }
+
+  async function refresh() {
+    clearErr();
+    var token = el('tokenInput').value.trim();
+    if (!token) {
+      showErr('Token required — paste your ORCATRADE_LEADS_TOKEN above.');
+      el('stats').innerHTML = '';
+      el('tableHost').innerHTML = '';
+      return;
+    }
+    saveToken(token);
+    var type = el('typeFilter').value || '';
+    var limit = Number(el('limitInput').value) || 200;
+    var qs = new URLSearchParams({ token: token, limit: String(limit) });
+    if (type) qs.set('type', type);
+    el('reloadBtn').disabled = true;
+    try {
+      var res = await fetch('/api/audit?' + qs.toString(), { credentials: 'same-origin' });
+      if (res.status === 401) {
+        showErr('Unauthorized — check the token.');
+        el('stats').innerHTML = '';
+        el('tableHost').innerHTML = '';
+        return;
+      }
+      if (!res.ok) {
+        showErr('Audit fetch failed: HTTP ' + res.status);
+        return;
+      }
+      var body = await res.json();
+      refreshTypeFilterOptions(body.allowedTypes, type);
+      renderStats(body.events || []);
+      renderTable(body.events || []);
+      el('lastChecked').textContent = 'Last checked: ' + new Date(body.asOf).toLocaleTimeString() + ' · ' + body.returned + ' of ' + (body.events || []).length;
+    } catch (err) {
+      showErr('Network error: ' + err.message);
+    } finally {
+      el('reloadBtn').disabled = false;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    loadToken();
+    el('reloadBtn').addEventListener('click', refresh);
+    el('typeFilter').addEventListener('change', refresh);
+    el('tokenInput').addEventListener('keypress', function (ev) {
+      if (ev.key === 'Enter') refresh();
+    });
+    if (el('tokenInput').value) refresh();
+  });
+})();
