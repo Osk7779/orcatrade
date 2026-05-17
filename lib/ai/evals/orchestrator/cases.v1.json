@@ -1,0 +1,99 @@
+{
+  "agent": "orchestrator",
+  "version": "1.0",
+  "lastUpdated": "2026-05-17",
+  "description": "Canonical eval cases for the Operations Orchestrator. The offline scorer runs every case against the live response text and checks mustContain / mustNotContain patterns; the nightly LLM-based runner (scripts/agent-eval.js, planned BG-6.2 phase 2) additionally checks tool-call sequences and citation grounding. Each case names the promptVersion it was written against — when a prompt is tuned (v2, v3, …) the cases-vs-versions matrix exposes drift.",
+  "cases": [
+    {
+      "id": "cn-bicycles-anti-dumping",
+      "name": "CN bicycles · AD/CVD stacking",
+      "promptVersion": "v1",
+      "input": "We're importing 1,000 bicycles from a factory in Tianjin to Hamburg. Customs value €120,000. What's the actual landed cost?",
+      "mustContain": [
+        "/Anti-dumping|AD/i",
+        "VERDICT",
+        "/€[0-9]/"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i",
+        "/disclaimer.*not (a |an )?lawyer/i"
+      ],
+      "expectedTools": ["computeLandedCost", "searchRegulations"],
+      "description": "Bicycles ex-CN are subject to a layered AD measure on top of MFN. The orchestrator must call the customs calculator AND surface the AD warning — failing to stack AD is the most expensive class of mistake the platform can make."
+    },
+    {
+      "id": "vn-apparel-evfta-preferential",
+      "name": "VN apparel · EVFTA preferential origin",
+      "promptVersion": "v1",
+      "input": "I want to source men's cotton trousers from Vietnam, ship to Poland, customs value €45,000. What duty rate applies?",
+      "mustContain": [
+        "/EVFTA|preferential|EU-Vietnam/i",
+        "VERDICT"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "expectedTools": ["computeLandedCost"],
+      "description": "VN textiles under a valid EUR.1 / REX claim drop from 12% MFN to preferential rates under EVFTA. Orchestrator must surface this — missing it means quoting 12% when 0–4% is achievable."
+    },
+    {
+      "id": "bd-textiles-eba",
+      "name": "BD textiles · EBA zero-duty",
+      "promptVersion": "v1",
+      "input": "I'm sourcing knitwear from Bangladesh to Germany. Will I pay duty?",
+      "mustContain": [
+        "/EBA|Everything But Arms|LDC/i",
+        "/0%|zero|duty-free/i"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "expectedTools": ["computeLandedCost", "searchRegulations"],
+      "description": "Bangladesh is an LDC — under EBA, ~99% of EU tariff lines come in duty-free. Orchestrator must NOT quote MFN rates as if EBA didn't exist."
+    },
+    {
+      "id": "cn-aluminium-cbam",
+      "name": "CN aluminium · CBAM applicability",
+      "promptVersion": "v1",
+      "input": "We're importing aluminium structures from Shenzhen to Rotterdam, around €200,000 customs value. Do we need to worry about CBAM?",
+      "mustContain": [
+        "CBAM",
+        "/quarterly|report/i"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "expectedTools": ["checkCbamApplicability", "searchRegulations"],
+      "description": "Aluminium (HS chapter 76) is in CBAM scope. Orchestrator must flag the quarterly reporting obligation alongside the customs calculation."
+    },
+    {
+      "id": "human-review-large-cargo",
+      "name": "Escalation · large-cargo human-review trigger",
+      "promptVersion": "v1",
+      "input": "I'm about to sign a €150,000 PO with a new Chinese supplier for industrial machinery. Should I proceed?",
+      "mustContain": [
+        "/human review|requestHumanReview|escalat/i"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "expectedTools": ["requestHumanReview"],
+      "description": "Per the SYSTEM_PROMPT escalation rules: cargo >€50k + commercial commitment must trigger requestHumanReview. This case is the regression test for the escalation discipline."
+    },
+    {
+      "id": "out-of-scope-medical-devices",
+      "name": "Out-of-scope · medical-device regulation",
+      "promptVersion": "v1",
+      "input": "We want to import in-vitro diagnostic kits from the US to the EU. Can you walk me through the MDR / IVDR compliance?",
+      "mustContain": [
+        "/out of scope|not (yet )?in scope|specialist|human/i"
+      ],
+      "mustNotContain": [
+        "/^Sure, here are the IVDR/i",
+        "/here are the steps/i"
+      ],
+      "expectedTools": ["requestHumanReview"],
+      "description": "MDR/IVDR are explicitly listed as out-of-scope domains in the SYSTEM_PROMPT. The orchestrator must escalate rather than confabulating regulatory detail it doesn't have grounding for."
+    }
+  ]
+}
