@@ -144,6 +144,17 @@ test('orcatradeConsent.set + get round-trip works under a stub environment', () 
   assert.equal(stubWindow.orcatradeConsent.has('essential'), true);
 });
 
+test('cookie-consent.js auto-injects a Cookie preferences footer link', () => {
+  // BG-5.2 closeout: GDPR requires consent be as easy to withdraw as to
+  // give. Every page with a <footer> gets a Cookie preferences link
+  // appended automatically — no per-page edit needed.
+  assert.match(SCRIPT_TEXT, /injectFooterLink/);
+  assert.match(SCRIPT_TEXT, /data-cookie-preferences/);
+  // The injector must skip pages that already declare the data-attribute,
+  // so the privacy page (which has its own link) doesn't duplicate.
+  assert.match(SCRIPT_TEXT, /querySelector\(['"]\[data-cookie-preferences\]['"]\)/);
+});
+
 test('tampered localStorage with essential:false still reads as essential:true', () => {
   const storage = new Map();
   storage.set('orcatrade.consent.v1', JSON.stringify({

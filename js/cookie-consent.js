@@ -205,18 +205,54 @@
     document.addEventListener('click', function (ev) {
       var t = ev.target;
       if (!t) return;
-      if (t.matches && t.matches('[data-cookie-preferences]')) {
-        ev.preventDefault();
-        renderBanner(true);
+      // Walk up to the matching element so clicks on a child icon count.
+      var el = t;
+      while (el && el !== document.body) {
+        if (el.matches && el.matches('[data-cookie-preferences]')) {
+          ev.preventDefault();
+          renderBanner(true);
+          return;
+        }
+        el = el.parentNode;
       }
     });
   }
 
+  // GDPR requires consent be as easy to withdraw as to give. We auto-inject
+  // a "Cookie preferences" link into every page's <footer> (if one exists)
+  // so users can always re-open the banner without us needing to hand-edit
+  // 685+ HTML pages. Idempotent — skips if the page already declares a
+  // [data-cookie-preferences] link.
+  function injectFooterLink() {
+    var existing = document.querySelector('[data-cookie-preferences]');
+    if (existing) return;
+    var footer = document.querySelector('footer');
+    if (!footer) return;
+    var link = document.createElement('a');
+    link.href = '#';
+    link.setAttribute('data-cookie-preferences', '');
+    link.setAttribute('aria-label', T.manage);
+    link.textContent = T.manage;
+    link.style.cssText = 'color:rgba(255,255,255,0.5);text-decoration:none;font-size:0.78rem;margin-left:0.75rem;cursor:pointer';
+    // Append into the first inner container if present, else into footer directly.
+    var host = footer.querySelector('.footer-inner') || footer;
+    var sep = document.createElement('span');
+    sep.setAttribute('data-cookie-preferences-sep', '');
+    sep.style.cssText = 'color:rgba(255,255,255,0.3);margin:0 0.4rem';
+    sep.textContent = '·';
+    host.appendChild(sep);
+    host.appendChild(link);
+  }
+
   // ── Bootstrap ───────────────────────────────────────────────
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () { renderBanner(false); wireFooterLink(); });
-  } else {
+  function start() {
     renderBanner(false);
     wireFooterLink();
+    injectFooterLink();
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', start);
+  } else {
+    start();
   }
 })();
