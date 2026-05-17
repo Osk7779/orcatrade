@@ -1,0 +1,63 @@
+name: uptime
+
+# Sprint BG-4.3 closeout: external uptime probe that hits /api/health
+# every 5 minutes. If the response is 503 (status: "down") or the call
+# fails entirely, the workflow fails — GitHub emails the repo owner.
+#
+# This is the cheapest possible uptime layer. When we move off Vercel
+# Hobby or sign up for an SLA-grade monitor (Better Uptime, Pingdom,
+# etc.) we can deprecate this — until then GHA's free 2,000 min/month
+# of compute is plenty for 5-min probes (288 runs/day × ~5 sec each
+# = ~24 min/day = 720 min/month, well under quota).
+#
+# Required repo secrets:
+#   SITE_ORIGIN — e.g. https://orcatrade.pl
+
+on:
+  schedule:
+    - cron: '*/5 * * * *'
+  workflow_dispatch: {}
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Probe /api/health
+        env:
+          SITE_ORIGIN: ${{ secrets.SITE_ORIGIN }}
+        run: |
+          if [ -z "$SITE_ORIGIN" ]; then
+            echo "SITE_ORIGIN secret not set; cannot probe"
+            exit 1
+          fi
+          BODY_FILE=$(mktemp)
+          HTTP_CODE=$(curl -sS \
+            --max-time 10 \
+            -o "$BODY_FILE" \
+            -w "%{http_code}" \
+            "$SITE_ORIGIN/api/health")
+          echo "HTTP $HTTP_CODE"
+          echo "--- body ---"
+          cat "$BODY_FILE"
+          echo ""
+          echo "--- end body ---"
+
+          # 503 = kv down (paging condition). 200 covers ok + degraded.
+          if [ "$HTTP_CODE" = "503" ]; then
+            echo "Health probe returned 503 (down) — paging."
+            exit 1
+          fi
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Health probe returned $HTTP_CODE — treating as failure."
+            exit 1
+          fi
+
+          # On 200, surface degraded subsystems in the run summary
+          # without failing the job — degraded is informational, not a page.
+          DEGRADED=$(grep -o '"status":"degraded"' "$BODY_FILE" | wc -l || true)
+          if [ "$DEGRADED" -gt 0 ]; then
+            echo "::warning::Health probe reports degraded subsystems ($DEGRADED)"
+          else
+            echo "All subsystems ok."
+          fi
