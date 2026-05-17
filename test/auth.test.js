@@ -322,3 +322,176 @@ test('api/[...path].js dispatcher registers auth handler', () => {
   const dispatcher = fs.readFileSync(path.join(__dirname, '..', 'api/[...path].js'), 'utf8');
   assert.match(dispatcher, /auth: require\('\.\.\/lib\/handlers\/auth'\)/);
 });
+
+// ── Sprint BG-3.2 phase 1: Session revocation ─────────
+
+test('revKvKey is namespaced + email-normalised', () => {
+  assert.equal(auth.revKvKey('Foo@Example.com'), 'auth:rev-min-iat:foo@example.com');
+  assert.equal(auth.revKvKey('  trim@me.com  '), 'auth:rev-min-iat:trim@me.com');
+});
+
+test('getMinIat returns 0 when no revocation set', async () => {
+  kv._resetMemoryStore();
+  const v = await auth.getMinIat('never-revoked@example.com');
+  assert.equal(v, 0);
+});
+
+test('getMinIat returns the stored timestamp after revoke', async () => {
+  kv._resetMemoryStore();
+  const before = Date.now();
+  const ok = await auth.revokeAllSessionsForEmail('user@example.com');
+  assert.equal(ok, true);
+  const v = await auth.getMinIat('user@example.com');
+  assert.ok(v >= before && v <= Date.now() + 100);
+});
+
+test('revokeAllSessionsForEmail is email-case-insensitive', async () => {
+  kv._resetMemoryStore();
+  await auth.revokeAllSessionsForEmail('USER@EXAMPLE.COM');
+  const v = await auth.getMinIat('user@example.com');
+  assert.ok(v > 0);
+});
+
+test('revokeAllSessionsForEmail returns false on empty email', async () => {
+  kv._resetMemoryStore();
+  assert.equal(await auth.revokeAllSessionsForEmail(''), false);
+  assert.equal(await auth.revokeAllSessionsForEmail(null), false);
+});
+
+test('getCurrentUserStrict: returns user when no revocation', async () => {
+  kv._resetMemoryStore();
+  const cookie = auth.buildSessionCookie('strict@example.com');
+  const req = { headers: { cookie: `orcatrade_session=${encodeURIComponent(cookie)}` } };
+  const user = await auth.getCurrentUserStrict(req);
+  assert.ok(user);
+  assert.equal(user.email, 'strict@example.com');
+});
+
+test('getCurrentUserStrict: returns null when cookie iat < revocation timestamp', async () => {
+  kv._resetMemoryStore();
+  // Build a cookie with iat in the past
+  const past = Date.now() - 60_000;
+  const cookieVal = auth.signPayload({
+    email: 'kicked@example.com',
+    iat: past,
+    exp: Date.now() + 60_000,
+  });
+  const req = { headers: { cookie: `orcatrade_session=${encodeURIComponent(cookieVal)}` } };
+  // Revoke now — the cookie should no longer pass strict check
+  await auth.revokeAllSessionsForEmail('kicked@example.com');
+  const user = await auth.getCurrentUserStrict(req);
+  assert.equal(user, null);
+});
+
+test('getCurrentUserStrict: a NEW cookie minted AFTER revocation still works', async () => {
+  kv._resetMemoryStore();
+  await auth.revokeAllSessionsForEmail('roundtrip@example.com');
+  // Small sleep is overkill — Date.now() advances naturally between calls.
+  // But to be safe, mint with explicit iat > the stored timestamp.
+  const stored = await auth.getMinIat('roundtrip@example.com');
+  const fresh = auth.signPayload({
+    email: 'roundtrip@example.com',
+    iat: stored + 1000,
+    exp: Date.now() + 60_000,
+  });
+  const req = { headers: { cookie: `orcatrade_session=${encodeURIComponent(fresh)}` } };
+  const user = await auth.getCurrentUserStrict(req);
+  assert.ok(user);
+  assert.equal(user.email, 'roundtrip@example.com');
+});
+
+test('getCurrentUserStrict: null when there is no cookie', async () => {
+  kv._resetMemoryStore();
+  const user = await auth.getCurrentUserStrict({ headers: {} });
+  assert.equal(user, null);
+});
+
+test('handleRevokeAll: 405 on non-POST', async () => {
+  const req = { method: 'GET', headers: {} };
+  const res = mockRes();
+  await authHandler.handleRevokeAll(req, res);
+  assert.equal(res.statusCode, 405);
+});
+
+test('handleRevokeAll: 401 when not signed in', async () => {
+  const req = { method: 'POST', headers: {} };
+  const res = mockRes();
+  await authHandler.handleRevokeAll(req, res);
+  assert.equal(res.statusCode, 401);
+});
+
+test('handleRevokeAll: writes min-iat + clears cookie + 200 when signed in', async () => {
+  kv._resetMemoryStore();
+  const cookie = auth.buildSessionCookie('killmysessions@example.com');
+  const req = {
+    method: 'POST',
+    headers: { cookie: `orcatrade_session=${encodeURIComponent(cookie)}` },
+  };
+  const res = mockRes();
+  const before = Date.now();
+  await authHandler.handleRevokeAll(req, res);
+  assert.equal(res.statusCode, 200);
+  // Cookie cleared
+  assert.match(res.headers['set-cookie'], /Max-Age=0/);
+  // Min-iat written
+  const stored = await auth.getMinIat('killmysessions@example.com');
+  assert.ok(stored >= before);
+});
+
+test('dispatcher: routes /api/auth/revoke-all to handleRevokeAll', async () => {
+  const req = {
+    method: 'POST', headers: {}, query: { path: ['auth', 'revoke-all'] },
+    url: '/api/auth/revoke-all',
+  };
+  const res = mockRes();
+  res.status = function (code) { this.statusCode = code; return this; };
+  await authHandler(req, res);
+  // No cookie → 401
+  assert.equal(res.statusCode, 401);
+});
+
+test('dispatcher: 404 list includes revoke-all', async () => {
+  const req = {
+    method: 'GET', headers: {}, query: { path: ['auth', 'bogus'] },
+    url: '/api/auth/bogus',
+  };
+  const res = mockRes();
+  res.status = function (code) { this.statusCode = code; return this; };
+  res.end = function (b) { this.body = b || ''; };
+  await authHandler(req, res);
+  assert.equal(res.statusCode, 404);
+  const j = JSON.parse(res.body);
+  assert.ok(j.available.includes('revoke-all'));
+});
+
+// ── UI surface for BG-3.2 phase 1 ─────────────────────
+
+test('/account/ page renders the "Sign out everywhere" button', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'account/index.html'), 'utf8');
+  assert.match(html, /id=["']revoke-all-btn["']/);
+  assert.match(html, /Sign out everywhere/i);
+  assert.match(html, /id=["']revoke-all-msg["']/);
+});
+
+test('/account/app.js wires the Sign-out-everywhere button to /api/auth/revoke-all', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'account/app.js'), 'utf8');
+  assert.match(js, /revoke-all-btn/);
+  assert.match(js, /fetch\(['"`]\/api\/auth\/revoke-all['"`]/);
+  // Must prompt the user via confirm() — destructive action.
+  assert.match(js, /confirm\(/);
+});
+
+// ── Strict gate is wired on sensitive handlers ────────
+
+test('account + orgs handlers use getCurrentUserStrict (BG-3.2 strict gate)', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const account = fs.readFileSync(path.join(__dirname, '..', 'lib/handlers/account.js'), 'utf8');
+  const orgs = fs.readFileSync(path.join(__dirname, '..', 'lib/handlers/orgs.js'), 'utf8');
+  assert.match(account, /getCurrentUserStrict/);
+  assert.match(orgs, /getCurrentUserStrict/);
+});

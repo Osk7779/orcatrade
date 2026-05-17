@@ -137,8 +137,12 @@
             <p>You're signed in. From here you can revisit any plans you've saved (saved plans coming soon — for now, every plan you build has its own permalink under <code>/start/?p=…</code>).</p>
             <div class="signed-in-row">
               <span class="email" id="signedin-email"></span>
-              <button class="btn" type="button" id="logout-btn">Sign out</button>
+              <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
+                <button class="btn" type="button" id="logout-btn">Sign out</button>
+                <button class="btn" type="button" id="revoke-all-btn" title="Invalidate every active session for this email — across every device — and sign you out here.">Sign out everywhere</button>
+              </div>
             </div>
+            <p id="revoke-all-msg" style="min-height:1.2em; font-size:0.85rem; color: rgba(255,255,255,0.7); margin-top:0.6rem;"></p>
             <div class="quick-links">
               <h2>Quick links</h2>
               <a href="/account/plans/">

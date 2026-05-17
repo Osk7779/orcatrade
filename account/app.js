@@ -98,4 +98,43 @@
         .then(function () { showState('signin'); });
     });
   }
+
+  // ── Sign out everywhere (Sprint BG-3.2 phase 1) ─────
+  //
+  // Writes a per-email "minimum iat" timestamp on the server so every
+  // active cookie for this email — across every device — stops working
+  // on the next request. Sensitive endpoints (/api/account/*, /api/orgs/*)
+  // already use getCurrentUserStrict, which honours that timestamp.
+
+  var revokeBtn = document.getElementById('revoke-all-btn');
+  if (revokeBtn) {
+    revokeBtn.addEventListener('click', function () {
+      var ok = confirm(
+        'Sign out of every device where this email is signed in?\n\n' +
+        'Use this if you think someone else might have access to your sessions. ' +
+        'You will need a fresh magic-link to sign in again.'
+      );
+      if (!ok) return;
+      var msg = document.getElementById('revoke-all-msg');
+      revokeBtn.disabled = true;
+      revokeBtn.textContent = 'Working…';
+      if (msg) msg.textContent = '';
+      fetch('/api/auth/revoke-all', { method: 'POST', credentials: 'same-origin' })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (resp) {
+          revokeBtn.disabled = false;
+          revokeBtn.textContent = 'Sign out everywhere';
+          if (resp.ok) {
+            showState('signin');
+          } else if (msg) {
+            msg.textContent = (resp.j && resp.j.error) || 'Could not revoke sessions.';
+          }
+        })
+        .catch(function (err) {
+          revokeBtn.disabled = false;
+          revokeBtn.textContent = 'Sign out everywhere';
+          if (msg) msg.textContent = 'Network error: ' + (err.message || 'unknown');
+        });
+    });
+  }
 })();
