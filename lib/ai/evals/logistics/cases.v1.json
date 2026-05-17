@@ -1,0 +1,36 @@
+{
+  "agent": "logistics",
+  "version": "1.0",
+  "lastUpdated": "2026-05-17",
+  "description": "Canonical eval cases for the Logistics Agent. Pins mode-selection discipline + bonded-warehouse explanation + customs-clearance grounding.",
+  "cases": [
+    {
+      "id": "mode-selection-urgent-light",
+      "name": "Mode selection · urgent + light",
+      "promptVersion": "v1",
+      "input": "Need 200 kg of consumer electronics from Shenzhen to Frankfurt in 7 days. Sea or air?",
+      "mustContain": [
+        "/air/i",
+        "/€[0-9]|cost/i"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "description": "Urgent + light + high-value → air freight is the obvious answer. Agent must surface a concrete recommendation with cost, not hedge."
+    },
+    {
+      "id": "bonded-re-export",
+      "name": "Bonded warehouse · re-export use case",
+      "promptVersion": "v1",
+      "input": "We import samples that we sometimes re-export back to Asia for QC iteration. Should we be using a bonded warehouse?",
+      "mustContain": [
+        "/bonded/i",
+        "/re-export|T1|T2/i"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "description": "Re-export samples are the canonical bonded-warehouse use case — duty + VAT are never paid. Agent must make this point clearly."
+    }
+  ]
+}

@@ -117,6 +117,34 @@ test('orchestrator v1 prompt content carries the agent-specific contract', () =>
 
 // ── Prompt-file directory layout (catches forgotten-file commits) ─
 
+// ── All-agent migration integration ─────────────────────────
+
+test('every shipped agent handler reads its prompt via the registry', () => {
+  // BG-6.1 closeout: every agent must be on the registry, no inline drift.
+  // Each handler exports SYSTEM_PROMPT (from registry) + a versioned const
+  // + SYSTEM_PROMPT_HASH for eval-log correlation.
+  const handlers = [
+    { mod: '../lib/handlers/orchestrator', agent: 'orchestrator', versionConst: 'ORCHESTRATOR_PROMPT_VERSION' },
+    { mod: '../lib/handlers/agent',        agent: 'compliance',   versionConst: 'COMPLIANCE_PROMPT_VERSION' },
+    { mod: '../lib/handlers/sourcing-agent',  agent: 'sourcing',  versionConst: 'SOURCING_PROMPT_VERSION' },
+    { mod: '../lib/handlers/logistics-agent', agent: 'logistics', versionConst: 'LOGISTICS_PROMPT_VERSION' },
+    { mod: '../lib/handlers/finance-agent',   agent: 'finance',   versionConst: 'FINANCE_PROMPT_VERSION' },
+  ];
+  for (const { mod, agent, versionConst } of handlers) {
+    const h = require(mod);
+    assert.ok(typeof h.SYSTEM_PROMPT === 'string', `${agent}: handler exports SYSTEM_PROMPT`);
+    assert.ok(h.SYSTEM_PROMPT.length > 500, `${agent}: SYSTEM_PROMPT is substantial`);
+    assert.equal(h[versionConst], 'v1', `${agent}: ${versionConst} pinned to v1`);
+    assert.match(h.SYSTEM_PROMPT_HASH, /^[a-f0-9]{12}$/, `${agent}: SYSTEM_PROMPT_HASH is 12 hex chars`);
+    // Hard-pin: the handler's prompt must match exactly what the registry serves.
+    const fromRegistry = registry.getPrompt(agent, h[versionConst]);
+    assert.equal(h.SYSTEM_PROMPT, fromRegistry,
+      `${agent}: handler has drifted inline copy of the prompt`);
+    assert.equal(h.SYSTEM_PROMPT_HASH, registry.hashPrompt(fromRegistry),
+      `${agent}: SYSTEM_PROMPT_HASH does not match registry content`);
+  }
+});
+
 test('every prompts/<agent>/ folder contains at least one v<n>.txt file', () => {
   const root = registry.PROMPTS_DIR;
   const entries = fs.readdirSync(root, { withFileTypes: true });

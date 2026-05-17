@@ -1,0 +1,37 @@
+{
+  "agent": "finance",
+  "version": "1.0",
+  "lastUpdated": "2026-05-17",
+  "description": "Canonical eval cases for the Finance Agent. Pins payment-instrument selection + LC discipline + working-capital framing.",
+  "cases": [
+    {
+      "id": "first-time-supplier-large",
+      "name": "Payment · first-time CN supplier · €120k",
+      "promptVersion": "v1",
+      "input": "First-time order with a Chinese supplier for €120,000 of consumer electronics. What payment terms should I use?",
+      "mustContain": [
+        "/LC|Letter of Credit|letter of credit/i",
+        "/confirm/i"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i",
+        "/^TT 100% advance/i"
+      ],
+      "description": "First-time + €120k + CN-origin → confirmed LC is the textbook answer. TT advance for that amount with no history is the failure mode."
+    },
+    {
+      "id": "working-capital-cycle",
+      "name": "Working capital · DIO + DSO + DPO framing",
+      "promptVersion": "v1",
+      "input": "We hold inventory ~60 days, customers pay us in 45 days, we pay suppliers via TT advance. How much working capital is this tying up on €1M annual?",
+      "mustContain": [
+        "/working capital|cash conversion|CCC/i",
+        "/€[0-9]/"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "description": "Working-capital cycle math must surface the cash conversion concept and a concrete € number, not a generic essay."
+    }
+  ]
+}

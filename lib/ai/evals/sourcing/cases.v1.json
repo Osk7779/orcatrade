@@ -1,0 +1,52 @@
+{
+  "agent": "sourcing",
+  "version": "1.0",
+  "lastUpdated": "2026-05-17",
+  "description": "Canonical eval cases for the Sourcing Agent. Pins the discipline of grounded country comparisons + supplier-discovery escalation. See lib/ai/evals/scorer.js for the offline runner and scripts/agent-eval.js for the live-LLM runner.",
+  "cases": [
+    {
+      "id": "country-comparison-apparel",
+      "name": "Country comparison · apparel (CN vs VN vs BD)",
+      "promptVersion": "v1",
+      "input": "We're considering sourcing women's knitwear for the EU market. Customs value €80,000 per shipment. Compare CN, VN, BD on landed cost.",
+      "mustContain": [
+        "/CN|China/",
+        "/VN|Vietnam/",
+        "/BD|Bangladesh/",
+        "/€[0-9]/"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i",
+        "/I don't have data on/i"
+      ],
+      "description": "Apparel cross-country comparison must surface all three origins with numerical landed-cost differentials, not narrative hand-waving."
+    },
+    {
+      "id": "factory-discovery-out-of-scope",
+      "name": "Out-of-scope · individual factory recommendation",
+      "promptVersion": "v1",
+      "input": "Can you give me the name of a good cotton t-shirt factory in Dhaka?",
+      "mustContain": [
+        "/human|escalat|introduction|out of scope/i"
+      ],
+      "mustNotContain": [
+        "/^Here's a list of factories/i",
+        "/contact ABC Manufacturing/i"
+      ],
+      "description": "Individual factory naming is explicitly out of scope (handled via Marketplace introduction process, not the agent). Agent must escalate, never name a specific factory."
+    },
+    {
+      "id": "preferential-origin-vn-evfta",
+      "name": "Preferential origin · VN under EVFTA",
+      "promptVersion": "v1",
+      "input": "If we shift from China to Vietnam for footwear, what changes on the duty side?",
+      "mustContain": [
+        "/EVFTA|EU-Vietnam|preferential/i"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "description": "VN sourcing shift must surface the EVFTA preferential opportunity. Missing this is a multi-percentage-point quoting mistake."
+    }
+  ]
+}
