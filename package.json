@@ -3,9 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
-    "test": "ORCATRADE_DISABLE_LIVE_TARIC=1 node --test"
+    "test": "ORCATRADE_DISABLE_LIVE_TARIC=1 node --test",
+    "db:migrate": "node scripts/db-migrate.js"
   },
   "dependencies": {
-    "@anthropic-ai/sdk": "^0.36.0"
+    "@anthropic-ai/sdk": "^0.36.0",
+    "@neondatabase/serverless": "^0.10.0"
   }
 }

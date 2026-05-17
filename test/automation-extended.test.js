@@ -335,8 +335,11 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // founder-digest + plan-revision-emails fire weekly from GHA cron.
   // regime-change-check fires nightly. taric-warm fires nightly too —
   // see lib/handlers/cron.js#runTaricWarm (Sprint F).
+  // Sprint BG-2.1 adds db-migrate as an on-demand job that GHA can fire
+  // to apply Postgres schema changes.
   const ids = Object.keys(cronHandler.JOBS).sort();
   assert.deepEqual(ids, [
+    'db-migrate',
     'founder-digest',
     'plan-revision-emails',
     'regime-change-check',

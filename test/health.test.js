@@ -151,22 +151,28 @@ test('handler rejects non-GET with 405', async () => {
   assert.equal(res.statusCode, 405);
 });
 
-test('handler returns 200 + ok status when everything is configured + recent', async () => {
+test('handler returns 200 + degraded when only DATABASE_URL is missing (postgres-not-configured)', async () => {
+  // Sprint BG-2.1 added postgres as a subsystem. When DATABASE_URL is unset
+  // the postgres probe returns "degraded" (the platform still runs KV-only)
+  // — which means the overall status flips to degraded even with every
+  // other env var set. This is the realistic "live in dev with no Neon" path.
   kv._resetMemoryStore();
   await kv.set('taric:warm:lastRun', new Date().toISOString(), { ttlSeconds: 60 });
   await withEnv({
     RESEND_API_KEY: 'x', STRIPE_SECRET_KEY: 'x', ANTHROPIC_API_KEY: 'x', ORCATRADE_OS_API: null,
+    DATABASE_URL: null, DATABASE_URL_UNPOOLED: null,
   }, async () => {
     const { req, res } = mockReqRes();
     await health(req, res);
     assert.equal(res.statusCode, 200);
     const body = JSON.parse(res.body);
-    assert.equal(body.status, 'ok');
-    assert.equal(body.requestId, 'test-rid');
+    assert.equal(body.status, 'degraded', 'postgres unconfigured → overall degraded');
     assert.equal(body.subsystems.kv.status, 'ok');
     assert.equal(body.subsystems.taric.status, 'ok');
     assert.equal(body.subsystems.resend.status, 'ok');
     assert.equal(body.subsystems.anthropic.status, 'ok');
+    assert.equal(body.subsystems.postgres.status, 'degraded');
+    assert.equal(body.subsystems.postgres.configured, false);
   });
 });
 
