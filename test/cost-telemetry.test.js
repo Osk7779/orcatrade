@@ -197,6 +197,29 @@ test('withCostTelemetry: an error in the wrapped call is re-thrown but still log
 
 // ── recordAnthropicCall handles malformed response gracefully ─
 
+// ── All-agent integration ───────────────────────────────────
+
+test('every agent handler wraps its callAnthropic in withCostTelemetry', () => {
+  // Regression guard: a future commit that re-introduces a raw callAnthropic
+  // would silently bypass the cost log. This test fails until withCostTelemetry
+  // appears in the file.
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const ROOT = path.resolve(__dirname, '..');
+  const handlerPaths = [
+    'lib/handlers/orchestrator.js',
+    'lib/handlers/agent.js',
+    'lib/handlers/sourcing-agent.js',
+    'lib/handlers/logistics-agent.js',
+    'lib/handlers/finance-agent.js',
+  ];
+  for (const rel of handlerPaths) {
+    const text = fs.readFileSync(path.join(ROOT, rel), 'utf8');
+    assert.match(text, /withCostTelemetry\s*\(/, `${rel}: must wrap its Anthropic call in withCostTelemetry`);
+    assert.match(text, /require\(['"]\.\.\/ai\/cost-telemetry['"]\)/, `${rel}: must require cost-telemetry`);
+  }
+});
+
 test('recordAnthropicCall never throws on a malformed response', () => {
   // No usage object at all → 0 cost, still logs.
   assert.doesNotThrow(() => telemetry.recordAnthropicCall({
