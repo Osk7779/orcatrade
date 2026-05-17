@@ -74,19 +74,25 @@ for (const rel of SAMPLE_PAGES) {
     assert.match(html, /twitter:image"\s+content="https:\/\/orcatrade\.pl\/og-1200x630\.png"/);
   });
 
-  // Sprint J.1: Vercel analytics must also be present on every page so
-  // the SEO funnel is measurable end-to-end. Lives before </body>, not
-  // <head>, but enforced by the same injector for the same reason.
-  test(`${rel} carries the Vercel analytics block`, () => {
+  // Sprint J.1 → BG-5.2: Vercel analytics must be present on every page,
+  // but is now consent-gated: the va() stub plus the cookie-consent module
+  // loader are injected by scripts/inject-favicon-tags.js; the actual
+  // /_vercel/insights/script.js tag is appended dynamically by
+  // js/cookie-consent.js only when the user grants analytics consent.
+  test(`${rel} carries the Vercel analytics block (consent-gated v2)`, () => {
     const full = path.join(ROOT, rel);
     const html = fs.readFileSync(full, 'utf8');
-    assert.match(html, /analytics v1 injected by scripts\/inject-favicon-tags\.js/,
+    assert.match(html, /analytics v2 \(consent-gated\) injected by scripts\/inject-favicon-tags\.js/,
       `${rel} missing analytics marker — run scripts/inject-favicon-tags.js`);
     assert.match(html, /window\.va=window\.va\|\|function/);
-    assert.match(html, /<script\s+defer\s+src="\/_vercel\/insights\/script\.js"><\/script>/);
+    assert.match(html, /<script\s+defer\s+src="\/js\/cookie-consent\.js"><\/script>/);
     // Single instance only — no duplication after re-inject.
-    const matches = html.match(/<script\s+defer\s+src="\/_vercel\/insights\/script\.js"><\/script>/g) || [];
-    assert.equal(matches.length, 1, `${rel} has ${matches.length} analytics script tags, expected exactly 1`);
+    const matches = html.match(/<script\s+defer\s+src="\/js\/cookie-consent\.js"><\/script>/g) || [];
+    assert.equal(matches.length, 1, `${rel} has ${matches.length} consent-loader tags, expected exactly 1`);
+    // The pre-consent stub must NOT include the actual Vercel script tag —
+    // that gets injected by cookie-consent.js after user opts in.
+    assert.doesNotMatch(html, /<script\s+defer\s+src="\/_vercel\/insights\/script\.js"><\/script>/,
+      `${rel} still has the unconditional Vercel Analytics script — consent gating bypassed`);
   });
 }
 

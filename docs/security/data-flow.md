@@ -124,7 +124,7 @@ All EU-region storage. No data leaves the EU under normal operation. The two exc
 | **Art 17 — Erasure** | `POST /api/account/delete` (pseudonymises events, hard-deletes plans, clears session) |
 | **Art 18 — Restriction** | Manual hold via `orca@orcatrade.pl` — flag the email, we won't include in any cron job or aggregation |
 | **Art 20 — Portability** | `GET /api/account/export` — JSON file with `format:"orcatrade-gdpr-export-v1"` |
-| **Art 21 — Objection** | Cookie banner v2 (Track 5.2, planned) for analytics consent; opt-out of marketing via reply to any email |
+| **Art 21 — Objection** | Cookie banner v2 ([`/js/cookie-consent.js`](../../js/cookie-consent.js)) gives granular analytics opt-out; opt-out of marketing via reply to any email |
 | **Art 22 — Automated decisions** | The wizard produces non-binding cost estimates; no automated profiling that produces legal or significant effects |
 
 ---
@@ -132,6 +132,6 @@ All EU-region storage. No data leaves the EU under normal operation. The two exc
 ## Open items (tracked in [`backend-grade-plan.md`](../backend-grade-plan.md))
 
 - **Track 4.2** — Sentry / Axiom drain. Once log retention extends past Vercel's 30 days, this doc gets a row in the storage backends table.
-- **Track 5.2** — Cookie banner v2 with granular consent. Updates the Art 21 row above.
+- ~~**Track 5.2** — Cookie banner v2 with granular consent.~~ ✅ Shipped 2026-05-17.
 - **Track 5.3** — Audit log surfacing at `/dashboard/audit/`. Updates the Art 15 row.
 - **Track 2.1** — Neon Postgres provisioning. Updates the storage backends table.

@@ -131,8 +131,8 @@ For the pre-funding posture we lean heavily on "controls demonstrated by automat
 
 | # | Criterion | Status | Evidence / Gap |
 |---|---|---|---|
-| P1 — Notice + communication | ✅ | `/regulations/privacy.html` + this folder + cookie banner v1 |
-| P2 — Choice + consent | 🟡 | Cookie banner v1 is single-toggle (accept all / reject non-essential). Granular v2 queued in Track 5.2. |
+| P1 — Notice + communication | ✅ | `/regulations/privacy.html` + this folder + cookie banner v2 ([`js/cookie-consent.js`](../../js/cookie-consent.js)) |
+| P2 — Choice + consent | ✅ | Cookie banner v2 ships granular consent: essential (forced on) + analytics (opt-in, default off). Vercel Analytics script is loaded dynamically only after analytics consent is granted. Re-openable via any `[data-cookie-preferences]` link. Tri-locale (EN/PL/DE). |
 | P3 — Collection | ✅ | Wizard collects only what each calculator requires; email is opt-in (`emailProvided:bool`, not the address, in events) |
 | P4 — Use, retention, disposal | ✅ | [`data-flow.md`](data-flow.md) §"Retention summary" + Article 17 endpoint |
 | P5 — Access | ✅ | `GET /api/account/export` covers Article 15 + 20 |
@@ -149,9 +149,9 @@ For the pre-funding posture we lean heavily on "controls demonstrated by automat
 3. **CC6.5** — implement session revocation list (Track 3.2)
 4. **A1.1** — publish a default availability SLA
 5. **A1.3** — quarterly disaster-recovery tabletop drill
-6. **P2** — ship cookie banner v2 with granular consent (Track 5.2)
+6. ~~**P2** — ship cookie banner v2 with granular consent~~ ✅ **Done 2026-05-17** (Track 5.2)
 
-We don't need every 🟡 to close before Type I, but the six above are the audit's likely findings if we went today. Type II will require 6 months of evidence accumulation after each of these is in place — that's the 2027-Q2 path.
+We don't need every 🟡 to close before Type I, but the five above are the audit's likely findings if we went today. Type II will require 6 months of evidence accumulation after each of these is in place — that's the 2027-Q2 path.
 
 ---
 

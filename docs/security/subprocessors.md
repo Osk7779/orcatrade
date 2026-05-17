@@ -51,7 +51,7 @@ These appear in [`backend-grade-plan.md`](../backend-grade-plan.md). They'll mov
 
 We do **not** use Google Analytics, Facebook Pixel, LinkedIn Insight Tag, HubSpot tracking pixels, or any other ad-tech / behavioural-tracking pixel.
 
-Cookie banner v2 (Track 5.2) will add a granular opt-out for any cookie not strictly necessary for the requested service.
+Cookie banner v2 (Track 5.2 — shipped 2026-05-17 via [`../../js/cookie-consent.js`](../../js/cookie-consent.js)) gives users a granular opt-out: essential is forced on; analytics defaults to off and the Vercel Analytics script is only injected into the page after consent is granted. The banner is re-openable from any element with `data-cookie-preferences`.
 
 ---
 

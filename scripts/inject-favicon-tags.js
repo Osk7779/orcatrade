@@ -41,11 +41,16 @@ const LEGACY_MARKERS = [
 // stripped the analytics. Folding analytics into this injector means
 // the SEO generator picks them up via the post-regen hook, so the two
 // surfaces stay in lock-step.
-const ANALYTICS_MARKER = '<!-- analytics v1 injected by scripts/inject-favicon-tags.js -->';
+// Sprint BG-5.2: analytics is no longer unconditional. The consent module
+// owns when (and whether) the Vercel Analytics script loads. The va() stub
+// stays so calls made before consent (there shouldn't be any) don't crash;
+// the actual /_vercel/insights/script.js tag is now injected by
+// js/cookie-consent.js only when analytics consent is granted.
+const ANALYTICS_MARKER = '<!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->';
 const ANALYTICS_BLOCK = `
 ${ANALYTICS_MARKER}
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
-<script defer src="/_vercel/insights/script.js"></script>
+<script defer src="/js/cookie-consent.js"></script>
 `;
 
 // v7: Embed the favicon as a base64 data URI in the FIRST <link rel="icon">.
@@ -191,10 +196,13 @@ function injectAnalytics(text) {
   if (closingBodyIdx === -1) return { changed: false, text, reason: 'no-body' };
 
   // Strip any prior unmarked analytics tags so we don't duplicate.
-  // Handles the variant from commit b004cd97 that lacked our marker.
+  // Handles the variant from commit b004cd97 that lacked our marker AND
+  // the v1 marker introduced in Sprint J.1 (now superseded by consent-gated v2).
   let cleaned = text
+    .replace(/\n?<!-- analytics v1 injected by scripts\/inject-favicon-tags\.js -->\n?/g, '')
     .replace(/\n?<script>window\.va=window\.va\|\|function\(\)\{\(window\.vaq=window\.vaq\|\|\[\]\)\.push\(arguments\);\};<\/script>/g, '')
-    .replace(/\n?<script\s+defer\s+src="\/_vercel\/insights\/script\.js"><\/script>/g, '');
+    .replace(/\n?<script\s+defer\s+src="\/_vercel\/insights\/script\.js"><\/script>/g, '')
+    .replace(/\n?<script\s+defer\s+src="\/js\/cookie-consent\.js"><\/script>/g, '');
 
   const newClosingBodyIdx = cleaned.lastIndexOf('</body>');
   if (newClosingBodyIdx === -1) return { changed: false, text, reason: 'no-body' };
