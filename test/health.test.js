@@ -222,3 +222,43 @@ test('handler sets Cache-Control: no-store (live state)', async () => {
   await health(req, res);
   assert.equal(headers['Cache-Control'], 'no-store');
 });
+
+// ── Sprint BG-4.4: circuit overlay ───────────────────────────────
+
+test('resend subsystem flips to degraded when its circuit is open (env var present)', async () => {
+  const circuit = require('../lib/circuit');
+  kv._resetMemoryStore();
+  await kv.set('taric:warm:lastRun', new Date().toISOString(), { ttlSeconds: 60 });
+  // Force the resend circuit open.
+  await circuit._writeState('resend', { state: 'open', failures: 5, openedAt: Date.now() });
+  await withEnv({
+    RESEND_API_KEY: 'present', STRIPE_SECRET_KEY: 'x', ANTHROPIC_API_KEY: 'x', ORCATRADE_OS_API: null,
+  }, async () => {
+    const { req, res } = mockReqRes();
+    await health(req, res);
+    const body = JSON.parse(res.body);
+    assert.equal(body.subsystems.resend.status, 'degraded');
+    assert.equal(body.subsystems.resend.configured, true);
+    assert.equal(body.subsystems.resend.circuit, 'open');
+    assert.match(body.subsystems.resend.reason || '', /circuit open/);
+    assert.equal(body.status, 'degraded'); // overall flips too
+  });
+  // Reset for downstream tests.
+  await circuit.reset('resend');
+});
+
+test('resend circuit field is "closed" when breaker is healthy', async () => {
+  const circuit = require('../lib/circuit');
+  kv._resetMemoryStore();
+  await kv.set('taric:warm:lastRun', new Date().toISOString(), { ttlSeconds: 60 });
+  await circuit.reset('resend');
+  await withEnv({
+    RESEND_API_KEY: 'present', STRIPE_SECRET_KEY: 'x', ANTHROPIC_API_KEY: 'x', ORCATRADE_OS_API: null,
+  }, async () => {
+    const { req, res } = mockReqRes();
+    await health(req, res);
+    const body = JSON.parse(res.body);
+    assert.equal(body.subsystems.resend.status, 'ok');
+    assert.equal(body.subsystems.resend.circuit, 'closed');
+  });
+});
