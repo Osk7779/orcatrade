@@ -286,3 +286,26 @@ test('cron handler JOBS map includes db-migrate', () => {
   const cronModule = fs.readFileSync(path.join(__dirname, '..', 'lib', 'handlers', 'cron.js'), 'utf8');
   assert.match(cronModule, /['"]db-migrate['"]:\s*runDbMigrate/);
 });
+
+// ── Regression: @neondatabase/serverless API shape ─────────────────
+// The serverless driver exposes `sql(text, params)` as the function call
+// — there is NO `.query()` method on the returned client. A previous
+// version of db-migrate.js + db/client.js called `sql.query(...)` which
+// failed at runtime with "sql.query is not a function". These tests pin
+// the correct call shape so a future refactor can't silently regress.
+
+test('lib/db/client.js calls the neon client as sql(text, params), not sql.query()', () => {
+  const text = fs.readFileSync(path.join(__dirname, '..', 'lib', 'db', 'client.js'), 'utf8');
+  // The single call site inside query() must be `client(sql, params)`.
+  assert.match(text, /const result = await client\(sql,\s*params\)/);
+  // And it must NOT have a stray `.query(` left over.
+  assert.doesNotMatch(text, /client\.query\(/, 'lib/db/client.js should not use client.query()');
+});
+
+test('scripts/db-migrate.js calls sql(text, params), not sql.query()', () => {
+  const text = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'db-migrate.js'), 'utf8');
+  assert.doesNotMatch(text, /sql\.query\(/, 'scripts/db-migrate.js should not use sql.query()');
+  // It MUST call sql(text, params) for the parametrised reads/writes.
+  assert.match(text, /await sql\(['"]SELECT filename/);
+  assert.match(text, /await sql\(\s*\n?\s*['"]INSERT INTO schema_versions/);
+});
