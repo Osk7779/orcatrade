@@ -2,45 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Account | OrcaTrade</title>
+  <title>Privacy & data | OrcaTrade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Sign in to your OrcaTrade account to save and revisit your import plans." />
-  <link rel="canonical" href="https://orcatrade.pl/account/" />
+  <meta name="description" content="Export or delete the data OrcaTrade holds about you. GDPR Articles 17 and 20." />
+  <link rel="canonical" href="https://orcatrade.pl/account/privacy/" />
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
   <style>
-    .account-shell { max-width: 560px; margin: 0 auto; padding: 4rem 1.5rem 6rem; position: relative; z-index: 1; }
-    .account-card { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); padding: 2.5rem 2.6rem; }
-    @media (max-width: 600px) { .account-card { padding: 1.6rem 1.2rem; } }
-    .account-card h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.7rem, 3vw + 0.5rem, 2.2rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 1rem; line-height: 1.15; letter-spacing: -0.01em; }
-    .account-card p { font-size: 0.95rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 1.2rem; }
-    .account-state { display: none; }
-    .account-state.active { display: block; animation: fadeIn 0.25s ease-out; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    label { display: block; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; font-weight: 500; }
-    input[type="email"] { width: 100%; padding: 0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s; }
-    input[type="email"]:focus { border-color: rgba(184,190,200,0.4); background: rgba(8, 11, 19, 0.85); }
-    .btn { padding: 0.85rem 1.4rem; font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; background: transparent; color: rgba(255,255,255,0.92); margin-top: 1rem; }
-    .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
-    .btn-primary { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); }
-    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .err { font-size: 0.82rem; color: #c95050; margin-top: 0.5rem; min-height: 1.2em; }
-    .ok-msg { padding: 0.9rem 1.1rem; background: rgba(80, 180, 100, 0.06); border-left: 2px solid #5fb56b; color: rgba(255,255,255,0.92); font-size: 0.92rem; line-height: 1.6; margin-top: 1rem; }
-    .signed-in-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); flex-wrap: wrap; gap: 1rem; }
-    .signed-in-row .email { font-family: 'Geist Mono', monospace; font-size: 0.88rem; color: rgba(255,255,255,0.85); }
-    .quick-links { margin-top: 1.5rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); }
-    .quick-links h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.8rem; }
-    .quick-links a { display: block; padding: 0.7rem 0.9rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 0.5rem; text-decoration: none; transition: background 0.15s, border 0.15s; }
-    .quick-links a:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); }
-    .quick-links .ql-title { display: block; font-family: 'Cormorant Garant', Georgia, serif; font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.95); }
-    .quick-links .ql-sub { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 0.15rem; }
-  </style>
+    body { background: #050507; color: rgba(255,255,255,0.92); font-family: 'Geist', system-ui, sans-serif; }
+    .privacy-shell { max-width: 680px; margin: 0 auto; padding: 4rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .privacy-shell h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; margin-bottom: 0.6rem; letter-spacing: -0.01em; }
+    .lead { font-size: 0.96rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 2.4rem; max-width: 60ch; }
+    .lead a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
 
+    .card { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.07); padding: 1.8rem 2rem; margin-bottom: 1.5rem; }
+    @media (max-width: 600px) { .card { padding: 1.4rem 1.2rem; } }
+    .card h2 { font-family: 'Cormorant Garant', serif; font-size: 1.35rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .card .article { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(220, 188, 110, 0.7); margin-bottom: 0.6rem; }
+    .card p { font-size: 0.92rem; line-height: 1.6; color: rgba(255,255,255,0.7); margin-bottom: 1rem; }
+    .card ul { margin: 0 0 1rem 1.2rem; font-size: 0.88rem; line-height: 1.55; color: rgba(255,255,255,0.65); }
+    .card ul li { margin-bottom: 0.3rem; }
+
+    .btn { padding: 0.75rem 1.3rem; font-family: inherit; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; background: transparent; color: rgba(255,255,255,0.92); margin-top: 0.4rem; }
+    .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .btn-danger { border-color: rgba(232, 128, 128, 0.5); color: #e88080; }
+    .btn-danger:hover:not(:disabled) { background: rgba(232, 128, 128, 0.06); }
+
+    .msg { font-family: 'Geist Mono', monospace; font-size: 0.78rem; line-height: 1.5; margin-top: 0.9rem; padding: 0.7rem 0.9rem; border: 1px solid rgba(255,255,255,0.08); }
+    .msg.ok { border-color: rgba(126, 210, 138, 0.4); color: #7ed28a; background: rgba(126, 210, 138, 0.04); }
+    .msg.err { border-color: rgba(232, 128, 128, 0.4); color: #e88080; background: rgba(232, 128, 128, 0.04); }
+    .msg.info { color: rgba(255,255,255,0.6); }
+
+    .confirm-row { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; }
+    .confirm-row label { font-size: 0.74rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65); font-weight: 500; }
+    .confirm-row input { padding: 0.6rem 0.8rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.85rem; outline: none; }
+    .confirm-row input:focus { border-color: rgba(232, 128, 128, 0.5); }
+
+    .auth-needed { text-align: center; padding: 3rem 1.5rem; }
+    .auth-needed h2 { font-family: 'Cormorant Garant', serif; font-size: 1.5rem; margin-bottom: 0.8rem; }
+    .auth-needed a { color: rgba(220, 188, 110, 0.9); text-decoration: none; font-weight: 600; }
+
+    .footer-note { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+    .footer-note a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
+  </style>
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
   <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
@@ -95,94 +104,142 @@
   </script>
 </head>
 <body>
-  <div class="aurora" aria-hidden="true">
-    <div class="aurora-blob b1"></div>
-    <div class="aurora-blob b2"></div>
-    <div class="aurora-blob b3"></div>
-  </div>
-  <div class="page">
-    <header data-site-header></header>
-    <main>
-      <section class="account-shell">
-        <div class="account-card">
+  <main class="privacy-shell">
+    <div id="authNeeded" class="auth-needed" hidden>
+      <h2>Sign in to manage your data</h2>
+      <p>You need to be signed in to export or delete the data tied to your email. <a href="/account/">Sign in →</a></p>
+    </div>
 
-          <!-- Loading state (default while we check /api/auth/me) -->
-          <div class="account-state active" id="state-loading">
-            <h1>Loading…</h1>
-            <p>Checking your sign-in status.</p>
-          </div>
+    <div id="content" hidden>
+      <h1>Privacy &amp; data</h1>
+      <p class="lead">
+        Signed in as <strong id="userEmail"></strong>.
+        Under GDPR you have the right to a copy of your data (Article 20) and to have it deleted (Article 17).
+        Both are wired and run instantly — no support ticket needed.
+      </p>
 
-          <!-- Sign-in form (shown when not signed in) -->
-          <div class="account-state" id="state-signin">
-            <h1>Sign in to OrcaTrade</h1>
-            <p>Enter your email and we'll send you a sign-in link. No password — the link is good for 15 minutes.</p>
-            <form id="signin-form">
-              <label for="email">Email address</label>
-              <input type="email" id="email" name="email" placeholder="you@company.com" required autocomplete="email" />
-              <button type="submit" class="btn btn-primary" id="signin-btn">Send me a sign-in link</button>
-              <div class="err" id="signin-err"></div>
-            </form>
-          </div>
-
-          <!-- Sent state (after request) -->
-          <div class="account-state" id="state-sent">
-            <h1>Check your inbox</h1>
-            <p>If <span id="sent-email"></span> is a valid address, we've sent you a sign-in link. Click the link in your email — it expires in 15 minutes.</p>
-            <p class="ok-msg">No email after a minute? Check spam, or <a href="#" id="resend-link" style="color: var(--accent-color, #b8bec8);">try again</a>.</p>
-          </div>
-
-          <!-- Signed-in state -->
-          <div class="account-state" id="state-signedin">
-            <h1>Welcome back</h1>
-            <p>You're signed in. From here you can revisit any plans you've saved (saved plans coming soon — for now, every plan you build has its own permalink under <code>/start/?p=…</code>).</p>
-            <div class="signed-in-row">
-              <span class="email" id="signedin-email"></span>
-              <button class="btn" type="button" id="logout-btn">Sign out</button>
-            </div>
-            <div class="quick-links">
-              <h2>Quick links</h2>
-              <a href="/account/plans/">
-                <span class="ql-title">My saved plans</span>
-                <span class="ql-sub">Plans you've saved from the wizard, sorted newest first</span>
-              </a>
-              <a href="/account/billing/">
-                <span class="ql-title">Billing &amp; subscription</span>
-                <span class="ql-sub">View your tier, change billing cycle, manage payment</span>
-              </a>
-              <a href="/account/privacy/">
-                <span class="ql-title">Privacy &amp; data</span>
-                <span class="ql-sub">Export or delete the data we hold about you (GDPR Articles 17 + 20)</span>
-              </a>
-              <a href="/start/">
-                <span class="ql-title">Build a new import plan</span>
-                <span class="ql-sub">6 questions · full landed-cost analysis</span>
-              </a>
-              <a href="/examples/">
-                <span class="ql-title">Browse worked examples</span>
-                <span class="ql-sub">8 curated scenarios with calculator-grounded numbers</span>
-              </a>
-              <a href="/agent/orchestrator/">
-                <span class="ql-title">Talk to the Orchestrator agent</span>
-                <span class="ql-sub">One agent, 16 tools, every domain</span>
-              </a>
-            </div>
-          </div>
-
-        </div>
-      </section>
-    </main>
-    <footer style="position: relative; z-index: 1;">
-      <div class="footer-inner">
-        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
-        <span><a href="/">Back to OrcaTrade Group</a></span>
+      <div class="card">
+        <div class="article">GDPR Article 20 · data portability</div>
+        <h2>Export your data</h2>
+        <p>Download everything OrcaTrade stores about you as a single JSON file:</p>
+        <ul>
+          <li>Saved plans (with snapshots + wizard inputs)</li>
+          <li>Event-log entries where your email is the identifier (e.g. Founding 10 applications)</li>
+          <li>Session metadata (issued / expires)</li>
+        </ul>
+        <p style="font-size:0.82rem;color:rgba(255,255,255,0.5)">
+          Aggregate analytics (wizard plan generations, etc.) are anonymised at write time and don't appear here because they're not tied to your identity.
+        </p>
+        <button id="exportBtn" class="btn btn-primary">Download my data</button>
+        <div id="exportMsg" class="msg" hidden></div>
       </div>
-    </footer>
-  </div>
-  <script src="/js/cache-preferences.js"></script>
-  <script src="/js/site-nav.js"></script>
-  <script src="/js/main.js"></script>
-  <script src="/account/app.js"></script>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+
+      <div class="card">
+        <div class="article">GDPR Article 17 · right to erasure</div>
+        <h2 style="color: #e88080">Delete your account</h2>
+        <p>This will permanently delete your saved plans, pseudonymise event-log entries that reference your email, and sign you out. It cannot be undone.</p>
+        <ul>
+          <li>Saved plans → hard-deleted</li>
+          <li>Event log → email replaced with <code>deleted-&lt;hash&gt;@anonymised.local</code>, free-text fields scrubbed</li>
+          <li>Stripe still retains its own customer record (contact Stripe directly to delete that)</li>
+        </ul>
+        <div class="confirm-row">
+          <label for="confirmInput">Type your email to confirm</label>
+          <input id="confirmInput" type="text" autocomplete="off" />
+        </div>
+        <button id="deleteBtn" class="btn btn-danger" disabled>Delete my account permanently</button>
+        <div id="deleteMsg" class="msg" hidden></div>
+      </div>
+
+      <div class="footer-note">
+        Questions about your data: <a href="mailto:orca@orcatrade.pl">orca@orcatrade.pl</a> ·
+        Back to <a href="/account/">your account</a>.
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let me = null;
+
+    async function bootstrap() {
+      try {
+        const res = await fetch('/api/auth/me', { credentials: 'include' });
+        if (!res.ok) throw new Error('not signed in');
+        const body = await res.json();
+        if (!body.email) throw new Error('no email');
+        me = body.email;
+        document.getElementById('userEmail').textContent = body.email;
+        document.getElementById('content').hidden = false;
+      } catch (_) {
+        document.getElementById('authNeeded').hidden = false;
+      }
+    }
+
+    function showMsg(id, text, kind) {
+      const el = document.getElementById(id);
+      el.textContent = text;
+      el.className = 'msg ' + kind;
+      el.hidden = false;
+    }
+
+    document.getElementById('exportBtn').addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      const btn = ev.currentTarget;
+      btn.disabled = true;
+      showMsg('exportMsg', 'Preparing your export…', 'info');
+      try {
+        const res = await fetch('/api/account/export', { credentials: 'include' });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        const blob = await res.blob();
+        // Trigger browser download.
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `orcatrade-export-${me.replace(/[^a-z0-9]/gi, '_')}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showMsg('exportMsg', 'Downloaded. Open the file in any JSON viewer to read your data.', 'ok');
+      } catch (err) {
+        showMsg('exportMsg', `Export failed: ${err.message}. Please try again or email orca@orcatrade.pl.`, 'err');
+      } finally {
+        btn.disabled = false;
+      }
+    });
+
+    const deleteBtn = document.getElementById('deleteBtn');
+    const confirmInput = document.getElementById('confirmInput');
+    confirmInput.addEventListener('input', () => {
+      const match = confirmInput.value.trim().toLowerCase() === (me || '').toLowerCase();
+      deleteBtn.disabled = !match;
+    });
+
+    deleteBtn.addEventListener('click', async (ev) => {
+      ev.preventDefault();
+      if (!confirm('Permanently delete your OrcaTrade account? This cannot be undone.')) return;
+      const btn = ev.currentTarget;
+      btn.disabled = true;
+      showMsg('deleteMsg', 'Deleting…', 'info');
+      try {
+        const res = await fetch('/api/account/delete', {
+          method: 'POST',
+          credentials: 'include',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirm: true }),
+        });
+        const body = await res.json();
+        if (!res.ok) throw new Error(body.error || `HTTP ${res.status}`);
+        showMsg('deleteMsg', `Deleted. ${body.deleted.plans} plan(s) removed, ${body.deleted.eventsScrubbed} event entr(ies) pseudonymised. You will be redirected in 3 seconds.`, 'ok');
+        setTimeout(() => { window.location.href = '/'; }, 3000);
+      } catch (err) {
+        showMsg('deleteMsg', `Delete failed: ${err.message}. Please try again or email orca@orcatrade.pl.`, 'err');
+        btn.disabled = false;
+      }
+    });
+
+    bootstrap();
+  </script>
 
 <!-- analytics v1 injected by scripts/inject-favicon-tags.js -->
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
