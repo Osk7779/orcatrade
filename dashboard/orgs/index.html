@@ -50,6 +50,25 @@
     .pill.tier-scale { color: rgba(186, 154, 230, 0.95); }
     .pill.tier-enterprise { color: rgba(220, 120, 90, 0.95); }
     .pill.tier-none { color: rgba(255,255,255,0.35); border-style: dashed; }
+    .pill.role-owner { color: rgba(220, 188, 110, 0.95); }
+    .pill.role-admin { color: rgba(150, 200, 230, 0.95); }
+    .pill.role-member { color: rgba(255,255,255,0.55); }
+
+    /* Sprint BG-3.7 — expandable detail row */
+    tr.org-row { cursor: pointer; }
+    tr.org-row:hover { background: rgba(255,255,255,0.02); }
+    tr.org-row.expanded { background: rgba(220, 188, 110, 0.04); }
+    tr.org-row.expanded td.name { color: rgba(220, 188, 110, 0.95); }
+    tr.org-detail { background: rgba(8, 11, 19, 0.5); }
+    tr.org-detail td { padding: 0.9rem 1.1rem 1.1rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
+    .detail-pane h3 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.05rem; color: rgba(255,255,255,0.95); margin: 0 0 0.5rem; font-weight: 600; }
+    .detail-pane .detail-sub { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.08em; color: rgba(255,255,255,0.45); margin-bottom: 0.5rem; }
+    .detail-pane table.members { width: 100%; border-collapse: collapse; }
+    .detail-pane table.members th, .detail-pane table.members td { padding: 0.4rem 0.6rem; font-family: 'Geist Mono', monospace; font-size: 0.74rem; border-bottom: 1px solid rgba(255,255,255,0.04); }
+    .detail-pane table.members th { color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.6rem; }
+    .detail-pane .detail-empty { padding: 0.6rem 0; color: rgba(255,255,255,0.45); font-style: italic; font-size: 0.82rem; }
+    .detail-pane .detail-loading { padding: 0.6rem 0; color: rgba(255,255,255,0.45); font-family: 'Geist Mono', monospace; font-size: 0.74rem; }
+    .detail-pane .detail-err { padding: 0.4rem 0; color: #e88080; font-size: 0.78rem; }
 
     .err { padding: 1rem 1.2rem; background: rgba(232, 128, 128, 0.08); border: 1px solid rgba(232, 128, 128, 0.3); color: #e88080; font-family: 'Geist Mono', monospace; font-size: 0.82rem; margin-bottom: 1.5rem; }
     .empty { padding: 1.4rem 1.6rem; text-align: center; font-size: 0.92rem; color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); }

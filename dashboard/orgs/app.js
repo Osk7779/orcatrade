@@ -73,8 +73,7 @@
       return;
     }
     els.tbody.innerHTML = orgs.map(function (o) {
-      var tierActionLink = '/api/orgs/' + encodeURIComponent(o.id) + '/tier';
-      return '<tr>'
+      return '<tr class="org-row" data-org-id="' + escapeHtml(o.id) + '">'
         + '<td class="name">' + escapeHtml(o.name || '—')
         +   '<div class="id">' + escapeHtml(o.id) + '</div>'
         + '</td>'
@@ -88,9 +87,11 @@
 
     // Wire the per-row "Copy ID" buttons. Falls back to a visible
     // confirmation when clipboard API is unavailable (e.g. non-HTTPS
-    // local testing).
+    // local testing). Stops propagation so the click doesn't ALSO
+    // trigger the row-expand handler below.
     els.tbody.querySelectorAll('[data-copy-id]').forEach(function (btn) {
-      btn.addEventListener('click', function () {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
         var id = btn.getAttribute('data-copy-id');
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(id).then(function () {
@@ -104,6 +105,81 @@
         }
       });
     });
+
+    // Sprint BG-3.7 — clicking a row toggles an inline detail pane.
+    // Lazy-fetches GET /api/orgs/admin/<orgId> on first expand; the
+    // result is cached on the row so re-expanding doesn't re-fetch.
+    els.tbody.querySelectorAll('tr.org-row').forEach(function (row) {
+      row.addEventListener('click', function () { toggleDetail(row); });
+    });
+  }
+
+  // ── Sprint BG-3.7 — per-org detail expand ─────────────
+
+  function renderMembersTable(members) {
+    if (!Array.isArray(members) || members.length === 0) {
+      return '<div class="detail-empty">No members.</div>';
+    }
+    var rows = members.map(function (m) {
+      return '<tr>'
+        + '<td>' + escapeHtml(m.email || '—') + '</td>'
+        + '<td><span class="pill role-' + escapeHtml(m.role || 'member') + '">'
+        +   escapeHtml(m.role || 'member') + '</span></td>'
+        + '<td>' + escapeHtml(fmtDate(m.joinedAt || m.invitedAt)) + '</td>'
+      + '</tr>';
+    }).join('');
+    return '<table class="members"><thead><tr>'
+      + '<th>Email</th><th>Role</th><th>Joined</th>'
+      + '</tr></thead><tbody>' + rows + '</tbody></table>';
+  }
+
+  function renderDetailPane(data) {
+    if (!data || !data.org) return '<div class="detail-err">Could not load detail.</div>';
+    var tierLine = data.tier
+      ? 'Tier: <strong>' + escapeHtml(data.tier.tierId) + '</strong>'
+        + (data.tier.billingCycle ? ' · ' + escapeHtml(data.tier.billingCycle) : '')
+        + ' · since ' + escapeHtml(fmtDate(data.tier.since))
+      : 'No tier override (members fall through to per-email tier).';
+    return '<div class="detail-pane">'
+      + '<h3>' + escapeHtml(data.org.name || '—') + '</h3>'
+      + '<div class="detail-sub">' + escapeHtml(data.org.id) + '</div>'
+      + '<div class="detail-sub">' + tierLine + '</div>'
+      + renderMembersTable(data.members)
+      + '</div>';
+  }
+
+  async function toggleDetail(row) {
+    var orgId = row.getAttribute('data-org-id');
+    var next = row.nextElementSibling;
+    // Collapse if the next sibling is the expanded detail row.
+    if (next && next.classList.contains('org-detail')) {
+      next.remove();
+      row.classList.remove('expanded');
+      return;
+    }
+    row.classList.add('expanded');
+    var detailTr = document.createElement('tr');
+    detailTr.className = 'org-detail';
+    var td = document.createElement('td');
+    td.colSpan = 6;
+    td.innerHTML = '<div class="detail-loading">Loading…</div>';
+    detailTr.appendChild(td);
+    row.parentNode.insertBefore(detailTr, row.nextSibling);
+
+    var token = sessionStorage.getItem(STORAGE_KEY) || els.token.value.trim();
+    try {
+      var resp = await fetch('/api/orgs/admin/' + encodeURIComponent(orgId)
+        + '?token=' + encodeURIComponent(token), { credentials: 'same-origin' });
+      if (!resp.ok) {
+        td.innerHTML = '<div class="detail-err">HTTP ' + resp.status + ' — could not load org detail.</div>';
+        return;
+      }
+      var data = await resp.json();
+      td.innerHTML = renderDetailPane(data);
+    } catch (err) {
+      td.innerHTML = '<div class="detail-err">Network error: '
+        + escapeHtml((err && err.message) || 'unknown') + '</div>';
+    }
   }
 
   function render(data) {

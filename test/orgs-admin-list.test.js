@@ -251,8 +251,127 @@ test('/dashboard/orgs/ page documents the /tier curl example', () => {
   assert.match(html, /X-Admin-Token/i);
 });
 
+// ── GET /api/orgs/admin/<orgId> detail (Sprint BG-3.7) ─
+
+test('GET /api/orgs/admin/<orgId>: 401 without token', async () => {
+  kv._resetMemoryStore();
+  const a = await orgs.createOrg({ name: 'Acme', ownerEmail: 'a@example.com' });
+  const req = {
+    method: 'GET', headers: {}, query: { path: ['orgs', 'admin', a.id] },
+    url: '/api/orgs/admin/' + a.id,
+  };
+  const res = mockRes();
+  await orgsHandler(req, res);
+  assert.equal(res.statusCode, 401);
+});
+
+test('GET /api/orgs/admin/<orgId>: 404 on unknown org', async () => {
+  kv._resetMemoryStore();
+  const req = {
+    method: 'GET', headers: { 'x-admin-token': 'test-admin-token' },
+    query: { path: ['orgs', 'admin', 'org_does_not_exist'] },
+    url: '/api/orgs/admin/org_does_not_exist',
+  };
+  const res = mockRes();
+  await orgsHandler(req, res);
+  assert.equal(res.statusCode, 404);
+});
+
+test('GET /api/orgs/admin/<orgId>: returns org + members + tier with full role + joinedAt', async () => {
+  kv._resetMemoryStore();
+  const a = await orgs.createOrg({ name: 'Acme', ownerEmail: 'owner@a.com' });
+  await orgs.addMember(a.id, { email: 'admin@a.com', role: 'admin' });
+  await orgs.addMember(a.id, { email: 'm1@a.com', role: 'member' });
+  await userTier.setOrgTier(a.id, { tierId: 'growth', billingCycle: 'monthly' });
+
+  const req = {
+    method: 'GET', headers: { 'x-admin-token': 'test-admin-token' },
+    query: { path: ['orgs', 'admin', a.id] },
+    url: '/api/orgs/admin/' + a.id,
+  };
+  const res = mockRes();
+  await orgsHandler(req, res);
+  assert.equal(res.statusCode, 200);
+  const body = JSON.parse(res.body);
+  assert.equal(body.ok, true);
+  assert.equal(body.org.id, a.id);
+  assert.equal(body.org.name, 'Acme');
+  assert.equal(body.org.ownerEmail, 'owner@a.com');
+  assert.equal(body.members.length, 3);
+  // Member objects carry the role + joinedAt the UI renders inline.
+  const owner = body.members.find((m) => m.email === 'owner@a.com');
+  const admin = body.members.find((m) => m.email === 'admin@a.com');
+  assert.equal(owner.role, 'owner');
+  assert.equal(admin.role, 'admin');
+  assert.ok(body.members.every((m) => m.joinedAt || m.invitedAt),
+    'every member has a joinedAt or invitedAt timestamp');
+  assert.equal(body.tier.tierId, 'growth');
+  assert.equal(body.tier.billingCycle, 'monthly');
+});
+
+test('GET /api/orgs/admin/<orgId>: tier null when no override set', async () => {
+  kv._resetMemoryStore();
+  const a = await orgs.createOrg({ name: 'NoTier', ownerEmail: 'owner@nt.com' });
+  const req = {
+    method: 'GET', headers: { 'x-admin-token': 'test-admin-token' },
+    query: { path: ['orgs', 'admin', a.id] },
+    url: '/api/orgs/admin/' + a.id,
+  };
+  const res = mockRes();
+  await orgsHandler(req, res);
+  assert.equal(res.statusCode, 200);
+  const body = JSON.parse(res.body);
+  assert.equal(body.tier, null);
+});
+
+test('detail endpoint does NOT require a user session (admin token only)', async () => {
+  kv._resetMemoryStore();
+  const a = await orgs.createOrg({ name: 'Acme', ownerEmail: 'a@example.com' });
+  const req = {
+    method: 'GET', headers: { 'x-admin-token': 'test-admin-token' },
+    query: { path: ['orgs', 'admin', a.id] },
+    url: '/api/orgs/admin/' + a.id,
+  };
+  const res = mockRes();
+  await orgsHandler(req, res);
+  assert.equal(res.statusCode, 200);
+});
+
+// ── /dashboard/orgs/ expand-row UI (Sprint BG-3.7) ────
+
+test('/dashboard/orgs/ CSS declares the expandable row hooks', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'orgs', 'index.html'), 'utf8');
+  assert.match(html, /tr\.org-row\b/);
+  assert.match(html, /tr\.org-detail\b/);
+  // Role pills coloured by role (owner gold, admin blue, member grey).
+  assert.match(html, /\.pill\.role-owner\b/);
+  assert.match(html, /\.pill\.role-admin\b/);
+});
+
+test('/dashboard/orgs/ app.js wires the expand handler + detail fetch', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'orgs', 'app.js'), 'utf8');
+  assert.match(js, /function toggleDetail\(/);
+  // Detail endpoint URL shape: /api/orgs/admin/<orgId>?token=…
+  assert.match(js, /\/api\/orgs\/admin\/['"]?\s*\+\s*encodeURIComponent\(orgId\)/);
+  // Click handler on .org-row triggers toggleDetail.
+  assert.match(js, /querySelectorAll\(['"]tr\.org-row['"]\)/);
+  assert.match(js, /toggleDetail\(row\)/);
+});
+
+test('/dashboard/orgs/ Copy-ID button stops propagation (does not trigger row expand)', () => {
+  // Subtle but important: a Copy-ID click should NOT also collapse/
+  // expand the row. e.stopPropagation() prevents the click bubbling
+  // up to the row handler.
+  const js = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'orgs', 'app.js'), 'utf8');
+  assert.match(js, /e\.stopPropagation\(\)/);
+});
+
 // ── Module surface ─────────────────────────────────────
 
 test('lib/orgs.js exports listAllOrgs', () => {
   assert.equal(typeof orgs.listAllOrgs, 'function');
+});
+
+test('lib/handlers/orgs.js exports handleAdminGet', () => {
+  assert.equal(typeof orgsHandler.handleAdminGet, 'function');
 });
