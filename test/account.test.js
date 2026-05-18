@@ -200,8 +200,11 @@ test('delete: pseudonymises events + hard-deletes plans + clears session cookie'
   assert.equal((await savedPlans.listPlans(email)).length, 0);
 
   // The other user's event survives intact; ours is pseudonymised.
+  // Sprint BG-5.5 adds an `account_deleted` audit row carrying the same
+  // pseudonym prefix — narrow the lookup to the seeded type so we test
+  // pseudonymisation, not the audit-row addition.
   const allEvents = await events.list({ limit: 100 });
-  const mine = allEvents.find(e => e.email && e.email.startsWith('deleted-'));
+  const mine = allEvents.find(e => e.type === 'founding_applied' && e.email && e.email.startsWith('deleted-'));
   const theirs = allEvents.find(e => e.email === 'other@example.com');
   assert.ok(mine, 'our event still in log but pseudonymised');
   assert.equal(mine.name, 'deleted');
