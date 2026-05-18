@@ -2677,6 +2677,20 @@ body::after {
   /* Hamburger button must always sit above the open menu overlay. */
   .nav-toggle { z-index: 1600; position: relative; }
 
+  /* When the menu is OPEN, lift the close (X) button out of the
+     sticky header and pin it directly to the top-right of the
+     viewport. The visual position is identical, but this guards
+     against an iOS Safari quirk where touches inside a sticky header
+     can be dropped once body has `overflow: hidden` (which we set on
+     menu open to lock the page scroll). z-1700 keeps it above the
+     overlay (1500) and the lang-switcher pill (1600). */
+  .nav-links.is-open ~ .nav-toggle {
+    position: fixed;
+    top: 1.1rem;
+    right: 1.5rem;
+    z-index: 1700;
+  }
+
   /* On first visit, the cache modal (z-990) intentionally outranks
      normal UI. But once a preference is saved, the widget is hidden on
      mobile (per its own @media rule), so the menu has free reign. */

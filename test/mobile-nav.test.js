@@ -134,3 +134,14 @@ test('CSS: <header> must NOT carry transform/filter/perspective either (containi
       'perspective on <header> would create a containing block');
   }
 });
+
+test('CSS: open menu lifts the close (X) button to position: fixed top-right', () => {
+  // iOS Safari quirk: with body { overflow: hidden } applied during the
+  // open state, touches landing on a child of a sticky header can be
+  // dropped. Pinning the toggle directly to the viewport (position:
+  // fixed) sidesteps that. This rule must exist alongside the
+  // .nav-links.is-open { display: flex } rule.
+  const css = fs.readFileSync(path.join(ROOT, 'css', 'styles.css'), 'utf8');
+  assert.match(css, /\.nav-links\.is-open\s*~\s*\.nav-toggle\s*\{[^}]*position:\s*fixed/);
+  assert.match(css, /\.nav-links\.is-open\s*~\s*\.nav-toggle\s*\{[^}]*z-index:\s*1700/);
+});
