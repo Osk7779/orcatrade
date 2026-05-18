@@ -65,6 +65,84 @@
     return ({ duty: 'duty', vat: 'VAT', transport: 'freight', brokerage: 'brokerage' }[d]) || 'pricing';
   }
 
+  // ── Sprint BG-1.4: actuals capture + variance badge ────────
+  //
+  // Two states per plan:
+  //   - No actual logged → "Log actual outcome" toggle + inline form
+  //   - Actual logged    → variance badge + edit/clear controls
+  //
+  // The form, the badge, and the toggle all share the same per-card
+  // <div class="plan-actual"> wrapper so toggling between states only
+  // needs to swap that wrapper's innerHTML.
+
+  function renderActualForm(record) {
+    // Pre-fill the EUR input with the existing actual (if any) so an
+    // "edit" flow doesn't lose data.
+    var preEur = '';
+    if (record.actual && Number.isFinite(record.actual.landedCents)) {
+      preEur = (record.actual.landedCents / 100).toFixed(2);
+    }
+    var preNotes = (record.actual && record.actual.notes) || '';
+    return '<div class="actual-form" data-actual-form>' +
+        '<label>Total landed cost actually paid (EUR)</label>' +
+        '<input type="number" min="0.01" step="0.01" data-actual-input placeholder="e.g. 28450.00" value="' + escapeHtml(preEur) + '" />' +
+        '<label>Notes (optional)</label>' +
+        '<textarea data-actual-notes placeholder="What drove the variance? Surprise duty? Freight surge?">' + escapeHtml(preNotes) + '</textarea>' +
+        '<div class="form-actions">' +
+          '<button type="button" class="primary" data-actual-save>Save outcome</button>' +
+          '<button type="button" data-actual-cancel>Cancel</button>' +
+          '<span class="err" data-actual-err></span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderVarianceBadge(record) {
+    var v = record.actualVariance;
+    if (!v) return '';
+    var cls = 'plan-variance ' + (v.direction === 'over' ? 'over' : (v.direction === 'under' ? 'under' : 'flat'));
+    var arrow = v.direction === 'over' ? '▲' : (v.direction === 'under' ? '▼' : '·');
+    var headline;
+    if (v.direction === 'on-target' || Math.abs(v.deltaPct) < 0.5) {
+      headline = 'Actual landed cost matched the estimate.';
+    } else {
+      var word = v.direction === 'over' ? 'over' : 'under';
+      var pctSign = v.deltaPct > 0 ? '+' : '';
+      headline = 'Actual landed cost came in ' + word + ' the estimate by ' +
+        pctSign + v.deltaPct + '% (' + fmtEur(Math.abs(v.deltaEur)) + ').' +
+        (v.significant ? '' : '');
+    }
+    var notesHtml = record.actual && record.actual.notes
+      ? '<div class="notes">"' + escapeHtml(record.actual.notes) + '"</div>'
+      : '';
+    return '<div class="' + cls + '">' +
+        '<span class="variance-arrow">' + arrow + '</span>' +
+        '<span class="variance-headline">' + escapeHtml(headline) + '</span>' +
+        '<span class="variance-numbers">' +
+          'estimated ' + fmtEur(v.estimateEur) + ' · actual ' + fmtEur(v.actualEur) +
+        '</span>' +
+        notesHtml +
+        '<div class="variance-controls">' +
+          '<button type="button" data-action="actual-edit">Edit</button>' +
+          '<button type="button" data-action="actual-clear">Clear</button>' +
+        '</div>' +
+      '</div>';
+  }
+
+  // Initial render of the actual area — either the badge, or the
+  // "Log actual outcome" toggle, plus a (closed) form ready to open.
+  function renderActualBlock(record) {
+    if (record.actualVariance) {
+      return '<div class="plan-actual" data-plan-actual>' +
+        renderVarianceBadge(record) +
+        renderActualForm(record) +
+      '</div>';
+    }
+    return '<div class="plan-actual" data-plan-actual>' +
+        '<button type="button" class="actual-toggle" data-action="actual-open">+ Log actual outcome</button>' +
+        renderActualForm(record) +
+      '</div>';
+  }
+
   // Diff badge: only render when we have both a saved snapshot and a recomputed
   // total. Significance threshold (≥5%) comes from the server.
   function renderDelta(r) {
@@ -107,6 +185,7 @@
           '<div class="plan-label">' + escapeHtml(r.label || '(unnamed plan)') + '</div>' +
           '<div class="plan-meta">' + escapeHtml(r.id) + ' · saved ' + escapeHtml(fmtDate(r.savedAt)) + '</div>' +
           renderDelta(r) +
+          renderActualBlock(r) +
         '</div>' +
         '<div class="plan-actions">' +
           '<a href="' + url + '">Open</a>' +
@@ -141,6 +220,96 @@
         });
       });
     });
+
+    // ── Sprint BG-1.4: wire the actuals controls ──────────
+    // One delegated listener on the list, dispatching by data-action.
+    // Saves a per-card listener fan-out + survives DOM swaps inside
+    // the .plan-actual wrapper after a save / clear.
+    listEl.addEventListener('click', function (e) {
+      var actionEl = e.target.closest('[data-action]');
+      if (!actionEl) return;
+      var card = actionEl.closest('.plan-card');
+      if (!card) return;
+      var planId = card.getAttribute('data-plan-id');
+      var action = actionEl.getAttribute('data-action');
+
+      if (action === 'actual-open' || action === 'actual-edit') {
+        // Open the form, hide the toggle button.
+        var form = card.querySelector('[data-actual-form]');
+        if (form) form.classList.add('is-open');
+        var toggle = card.querySelector('.actual-toggle');
+        if (toggle) toggle.style.display = 'none';
+        var input = card.querySelector('[data-actual-input]');
+        if (input) input.focus();
+        return;
+      }
+      if (action === 'actual-clear') {
+        if (!confirm('Remove the logged actual outcome for this plan?')) return;
+        fetch('/api/plans/' + encodeURIComponent(planId) + '/actual', {
+          method: 'DELETE', credentials: 'same-origin',
+        }).then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (data && data.ok && data.plan) replaceActualBlock(card, data.plan);
+          });
+        return;
+      }
+    });
+
+    listEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-actual-cancel]');
+      if (!btn) return;
+      var card = btn.closest('.plan-card');
+      var form = card.querySelector('[data-actual-form]');
+      if (form) form.classList.remove('is-open');
+      var toggle = card.querySelector('.actual-toggle');
+      if (toggle) toggle.style.display = '';
+    });
+
+    listEl.addEventListener('click', function (e) {
+      var btn = e.target.closest('[data-actual-save]');
+      if (!btn) return;
+      var card = btn.closest('.plan-card');
+      var planId = card.getAttribute('data-plan-id');
+      var input = card.querySelector('[data-actual-input]');
+      var notes = card.querySelector('[data-actual-notes]');
+      var err = card.querySelector('[data-actual-err]');
+      var eur = parseFloat(input && input.value);
+      if (!(eur > 0)) {
+        if (err) err.textContent = 'Enter a positive EUR amount.';
+        return;
+      }
+      if (err) err.textContent = '';
+      btn.disabled = true; btn.textContent = 'Saving…';
+      fetch('/api/plans/' + encodeURIComponent(planId) + '/actual', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ landedEur: eur, notes: notes ? notes.value : '' }),
+      }).then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (resp) {
+          btn.disabled = false; btn.textContent = 'Save outcome';
+          if (resp.ok && resp.j && resp.j.plan) {
+            replaceActualBlock(card, resp.j.plan);
+          } else if (err) {
+            err.textContent = (resp.j && resp.j.error) || 'Could not save outcome.';
+          }
+        })
+        .catch(function (e2) {
+          btn.disabled = false; btn.textContent = 'Save outcome';
+          if (err) err.textContent = 'Network error: ' + (e2.message || 'unknown');
+        });
+    });
+  }
+
+  // Swap the .plan-actual wrapper of a card with a freshly-rendered
+  // version reflecting the new plan record (with/without variance).
+  function replaceActualBlock(card, record) {
+    var existing = card.querySelector('[data-plan-actual]');
+    if (!existing) return;
+    var temp = document.createElement('div');
+    temp.innerHTML = renderActualBlock(record);
+    var fresh = temp.firstChild;
+    existing.parentNode.replaceChild(fresh, existing);
   }
 
   // ── Init ────────────────────────────────────────────
