@@ -65,6 +65,139 @@
     return ({ duty: 'duty', vat: 'VAT', transport: 'freight', brokerage: 'brokerage' }[d]) || 'pricing';
   }
 
+  // ── Sprint BG-1.5: per-user calibration card ────────────
+  //
+  // Mirror of lib/actuals.js#summariseActuals — kept thin enough to
+  // inline. (We don't ship the full lib to the browser, and the math
+  // is small.) Tests for the canonical version live in test/actuals
+  // alongside the lib; an integration-level test pins this version
+  // against the same shape.
+
+  function summariseActuals(plans) {
+    var safe = Array.isArray(plans) ? plans : [];
+    var totalEstCents = 0, totalActCents = 0;
+    var weightedSumPct = 0, weightTotal = 0;
+    var withActuals = 0, over = 0, under = 0, onTarget = 0;
+    safe.forEach(function (p) {
+      if (!p || !p.actual || !p.actualVariance) return;
+      var v = p.actualVariance;
+      var estCents = Math.round(Number(v.estimateEur || 0) * 100);
+      var actCents = Math.round(Number(v.actualEur || 0) * 100);
+      // Only count plans that contribute to the math — mirrors
+      // lib/actuals.js#summariseActuals.
+      if (estCents <= 0) return;
+      withActuals++;
+      totalEstCents += estCents;
+      totalActCents += actCents;
+      weightedSumPct += Number(v.deltaPct || 0) * estCents;
+      weightTotal += estCents;
+      if (v.direction === 'over') over++;
+      else if (v.direction === 'under') under++;
+      else onTarget++;
+    });
+    return {
+      planCount: safe.length,
+      withActuals: withActuals,
+      totalEstimateEur: totalEstCents / 100,
+      totalActualEur: totalActCents / 100,
+      totalDeltaEur: (totalActCents - totalEstCents) / 100,
+      avgVariancePct: weightTotal > 0 ? Math.round((weightedSumPct / weightTotal) * 10) / 10 : null,
+      byDirection: { over: over, under: under, onTarget: onTarget },
+    };
+  }
+
+  function renderCalibrationCard(summary) {
+    // Empty state — N=0 plans. Don't show anything; the empty-state
+    // panel below handles that copy.
+    if (summary.planCount === 0) return '';
+
+    // Pre-actuals state — plans saved but none logged yet. The
+    // motivational call to action; the card is shown so the user
+    // sees the loop EXISTS before they engage with it.
+    if (summary.withActuals === 0) {
+      return '<div class="calibration-card dir-neutral">' +
+          '<div class="cal-kicker">Reality check</div>' +
+          '<h2>Help us sharpen your future estimates</h2>' +
+          '<p class="cal-headline">' +
+            escapeHtml('You have ' + summary.planCount + ' saved plan' +
+              (summary.planCount === 1 ? '' : 's') +
+              ' — but no logged outcomes yet. After your next shipment lands, click') +
+            ' <strong>+ Log actual outcome</strong> ' +
+            escapeHtml('on the matching plan. The bigger your sample, the more accurate OrcaTrade gets for you.') +
+          '</p>' +
+        '</div>';
+    }
+
+    // Live state. Direction-coloured border picks up the cumulative
+    // bias: if you're consistently coming in under estimate, that's
+    // green; over, amber.
+    var dir = 'neutral';
+    if (summary.avgVariancePct != null) {
+      if (summary.avgVariancePct >= 0.5) dir = 'over';
+      else if (summary.avgVariancePct <= -0.5) dir = 'under';
+    }
+    var headline;
+    if (summary.avgVariancePct == null || Math.abs(summary.avgVariancePct) < 0.5) {
+      headline = 'Across the plans you\'ve logged outcomes for, your estimates have been spot-on on average.';
+    } else if (summary.avgVariancePct > 0) {
+      headline = 'Across your logged outcomes, real landed costs have come in ' +
+        summary.avgVariancePct + '% over OrcaTrade\'s estimate on a value-weighted basis. ' +
+        'That\'s where the calculator is currently optimistic for your category mix.';
+    } else {
+      headline = 'Across your logged outcomes, real landed costs have come in ' +
+        Math.abs(summary.avgVariancePct) + '% under OrcaTrade\'s estimate on a value-weighted basis. ' +
+        'OrcaTrade has been running conservative for your category mix — your real costs are coming in lower.';
+    }
+
+    var deltaSign = summary.totalDeltaEur > 0 ? '+' : '';
+    var byDir = summary.byDirection;
+    var directionSummary;
+    var pieces = [];
+    if (byDir.under > 0) pieces.push(byDir.under + ' under-budget');
+    if (byDir.onTarget > 0) pieces.push(byDir.onTarget + ' on target');
+    if (byDir.over > 0) pieces.push(byDir.over + ' over-budget');
+    directionSummary = pieces.join(' · ');
+
+    return '<div class="calibration-card dir-' + dir + '">' +
+        '<div class="cal-kicker">Your calibration story</div>' +
+        '<h2>How your estimates match reality</h2>' +
+        '<p class="cal-headline">' + escapeHtml(headline) + '</p>' +
+        '<div class="cal-stats">' +
+          '<div class="cal-stat">' +
+            '<span class="cal-stat-label">Plans saved</span>' +
+            '<span class="cal-stat-value">' + summary.planCount + '</span>' +
+          '</div>' +
+          '<div class="cal-stat">' +
+            '<span class="cal-stat-label">Outcomes logged</span>' +
+            '<span class="cal-stat-value">' + summary.withActuals + ' of ' + summary.planCount + '</span>' +
+          '</div>' +
+          '<div class="cal-stat">' +
+            '<span class="cal-stat-label">Total estimated</span>' +
+            '<span class="cal-stat-value">' + fmtEur(summary.totalEstimateEur) + '</span>' +
+          '</div>' +
+          '<div class="cal-stat">' +
+            '<span class="cal-stat-label">Total actual</span>' +
+            '<span class="cal-stat-value">' + fmtEur(summary.totalActualEur) +
+              ' <span style="font-size: 0.78rem; color: rgba(255,255,255,0.5);">(' + deltaSign + fmtEur(summary.totalDeltaEur) + ')</span>' +
+            '</span>' +
+          '</div>' +
+        '</div>' +
+        (directionSummary
+          ? '<div class="cal-foot">Outcome split: ' + escapeHtml(directionSummary) + '.</div>'
+          : '') +
+      '</div>';
+  }
+
+  function showCalibration(records) {
+    var el = document.getElementById('plans-calibration');
+    if (!el) return;
+    var summary = summariseActuals(records);
+    var html = renderCalibrationCard(summary);
+    if (!html) { el.hidden = true; return; }
+    el.innerHTML = html;
+    el.hidden = false;
+  }
+
   // ── Sprint BG-1.4: actuals capture + variance badge ────────
   //
   // Two states per plan:
@@ -178,6 +311,9 @@
       show(emptyEl);
       return;
     }
+    // Sprint BG-1.5 — calibration card above the list. Same payload,
+    // so no extra fetch. Hidden on no-records by showCalibration itself.
+    showCalibration(records);
     listEl.innerHTML = records.map(function (r) {
       var url = buildPlanUrl(r);
       return '<div class="plan-card" data-plan-id="' + escapeHtml(r.id) + '">' +

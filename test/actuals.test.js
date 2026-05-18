@@ -367,6 +367,93 @@ test('GET /api/plans includes actualVariance for plans with an actual', async ()
   assert.equal(noActual.actualVariance, undefined);
 });
 
+// ── summariseActuals (Sprint BG-1.5) ──────────────────
+
+test('summariseActuals: empty list', () => {
+  const s = actuals.summariseActuals([]);
+  assert.equal(s.planCount, 0);
+  assert.equal(s.withActuals, 0);
+  assert.equal(s.totalEstimateEur, 0);
+  assert.equal(s.totalActualEur, 0);
+  assert.equal(s.totalDeltaEur, 0);
+  assert.equal(s.avgVariancePct, null);
+  assert.deepEqual(s.byDirection, { over: 0, under: 0, onTarget: 0 });
+});
+
+test('summariseActuals: plans-without-actuals counted but excluded from variance', () => {
+  const s = actuals.summariseActuals([
+    { id: 'pl_1', label: 'a' },
+    { id: 'pl_2', label: 'b' },
+    { id: 'pl_3', label: 'c' },
+  ]);
+  assert.equal(s.planCount, 3);
+  assert.equal(s.withActuals, 0);
+  assert.equal(s.avgVariancePct, null);
+});
+
+test('summariseActuals: weighted average — big plans pull more than small ones', () => {
+  const s = actuals.summariseActuals([
+    {
+      actual: { landedCents: 1100000 },
+      actualVariance: { estimateEur: 10000, actualEur: 11000, deltaPct: 10, direction: 'over' },
+    },
+    {
+      actual: { landedCents: 99000 },
+      actualVariance: { estimateEur: 1000, actualEur: 990, deltaPct: -1, direction: 'under' },
+    },
+  ]);
+  // Weighted avg = (10*10000 + (-1)*1000) / 11000 = 99000/11000 = 9.0
+  assert.equal(s.avgVariancePct, 9);
+  assert.equal(s.totalEstimateEur, 11000);
+  assert.equal(s.totalActualEur, 11990);
+  assert.equal(s.totalDeltaEur, 990);
+  assert.deepEqual(s.byDirection, { over: 1, under: 1, onTarget: 0 });
+});
+
+test('summariseActuals: on-target counts as on-target (not over/under)', () => {
+  const s = actuals.summariseActuals([
+    {
+      actual: { landedCents: 3000000 },
+      actualVariance: { estimateEur: 30000, actualEur: 30000, deltaPct: 0, direction: 'on-target' },
+    },
+  ]);
+  assert.equal(s.avgVariancePct, 0);
+  assert.deepEqual(s.byDirection, { over: 0, under: 0, onTarget: 1 });
+});
+
+test('summariseActuals: skips malformed entries (no variance, missing fields, zero estimate)', () => {
+  const s = actuals.summariseActuals([
+    null,
+    {},
+    { actual: { landedCents: 100 } },                              // no variance
+    { actualVariance: { estimateEur: 1000, actualEur: 1000 } },     // no actual
+    {
+      actual: { landedCents: 100 },
+      actualVariance: { estimateEur: 0, actualEur: 100, deltaPct: 0, direction: 'on-target' },  // div-by-zero guard
+    },
+    {
+      actual: { landedCents: 1100000 },
+      actualVariance: { estimateEur: 10000, actualEur: 11000, deltaPct: 10, direction: 'over' },
+    },
+  ]);
+  assert.equal(s.planCount, 6);
+  assert.equal(s.withActuals, 1);    // only the last entry survives
+  assert.equal(s.avgVariancePct, 10);
+});
+
+test('summariseActuals: handles mixed directions in byDirection split', () => {
+  const s = actuals.summariseActuals([
+    { actual: { landedCents: 1 }, actualVariance: { estimateEur: 1000, actualEur: 1100, deltaPct: 10, direction: 'over' } },
+    { actual: { landedCents: 1 }, actualVariance: { estimateEur: 1000, actualEur: 900,  deltaPct: -10, direction: 'under' } },
+    { actual: { landedCents: 1 }, actualVariance: { estimateEur: 1000, actualEur: 950,  deltaPct: -5, direction: 'under' } },
+    { actual: { landedCents: 1 }, actualVariance: { estimateEur: 1000, actualEur: 1000, deltaPct: 0, direction: 'on-target' } },
+    { label: 'no actual yet' },
+  ]);
+  assert.equal(s.planCount, 5);
+  assert.equal(s.withActuals, 4);
+  assert.deepEqual(s.byDirection, { over: 1, under: 2, onTarget: 1 });
+});
+
 // ── UI markup contract ────────────────────────────────
 
 test('/account/plans/index.html includes actual + variance CSS hooks', () => {
@@ -392,4 +479,33 @@ test('/account/plans/app.js wires the actuals endpoints', () => {
   // Renders the variance badge + the form.
   assert.match(js, /renderVarianceBadge/);
   assert.match(js, /renderActualForm/);
+});
+
+// ── Sprint BG-1.5: calibration card UI contract ───────
+
+test('/account/plans/index.html declares the calibration card slot + styles', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'account', 'plans', 'index.html'), 'utf8');
+  // Stable target the JS writes into.
+  assert.match(html, /id=["']plans-calibration["']/);
+  // CSS hooks for the card + its directional variants (under = green
+  // bias, over = amber bias) so the visual story is colour-coded.
+  assert.match(html, /\.calibration-card\b/);
+  assert.match(html, /\.calibration-card\.dir-under\b/);
+  assert.match(html, /\.calibration-card\.dir-over\b/);
+});
+
+test('/account/plans/app.js mirrors summariseActuals + renders the card', () => {
+  const fs = require('node:fs');
+  const path = require('node:path');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'account', 'plans', 'app.js'), 'utf8');
+  assert.match(js, /function summariseActuals\(/);
+  assert.match(js, /function renderCalibrationCard\(/);
+  // Three render states distinguishable in the source: empty (planCount===0),
+  // pre-actuals (withActuals===0), live (everything else).
+  assert.match(js, /planCount\s*===\s*0/);
+  assert.match(js, /withActuals\s*===\s*0/);
+  // Showing the card hooks the dedicated slot.
+  assert.match(js, /getElementById\(['"]plans-calibration['"]\)/);
 });
