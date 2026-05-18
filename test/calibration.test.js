@@ -184,6 +184,113 @@ test('summarise: under-budget cumulative bias → direction:under', () => {
   assert.equal(s.total.direction, 'under');
 });
 
+// ── findAlerts (Sprint BG-1.7) ────────────────────────
+
+test('findAlerts: empty summary → empty alerts', () => {
+  assert.deepEqual(calibration.findAlerts(null), []);
+  assert.deepEqual(calibration.findAlerts({}), []);
+  assert.deepEqual(calibration.findAlerts({ byRoute: [], byCategory: [] }), []);
+});
+
+test('findAlerts: ignores groups with too few samples', () => {
+  // 10% drift but only 2 samples — below ALERT_MIN_SAMPLES.
+  const summary = {
+    byRoute: [{ key: 'CN → PL', sampleSize: 2, avgVariancePct: 10, totalEstimateEur: 1000, totalActualEur: 1100 }],
+    byCategory: [], byOrigin: [], byDestination: [],
+  };
+  assert.deepEqual(calibration.findAlerts(summary), []);
+});
+
+test('findAlerts: ignores groups with insufficient drift', () => {
+  // 5 samples but only 2% drift — below ALERT_MIN_DRIFT_PCT.
+  const summary = {
+    byRoute: [{ key: 'CN → PL', sampleSize: 5, avgVariancePct: 2, totalEstimateEur: 1000, totalActualEur: 1020 }],
+    byCategory: [], byOrigin: [], byDestination: [],
+  };
+  assert.deepEqual(calibration.findAlerts(summary), []);
+});
+
+test('findAlerts: returns groups crossing both thresholds, with direction', () => {
+  const summary = {
+    byRoute: [
+      { key: 'CN → PL', sampleSize: 8, avgVariancePct: 12, totalEstimateEur: 100000, totalActualEur: 112000 },
+      { key: 'VN → DE', sampleSize: 7, avgVariancePct: -8, totalEstimateEur: 50000, totalActualEur: 46000 },
+    ],
+    byCategory: [
+      { key: 'apparel', sampleSize: 10, avgVariancePct: 6, totalEstimateEur: 80000, totalActualEur: 84800 },
+    ],
+    byOrigin: [],
+    byDestination: [],
+  };
+  const alerts = calibration.findAlerts(summary);
+  assert.equal(alerts.length, 3);
+  // Sorted by |drift| desc: CN→PL (12) > VN→DE (8) > apparel (6).
+  assert.equal(alerts[0].key, 'CN → PL');
+  assert.equal(alerts[0].direction, 'over');
+  assert.equal(alerts[0].dimension, 'byRoute');
+  assert.equal(alerts[1].key, 'VN → DE');
+  assert.equal(alerts[1].direction, 'under');
+  assert.equal(alerts[2].key, 'apparel');
+  assert.equal(alerts[2].dimension, 'byCategory');
+});
+
+test('findAlerts: respects custom thresholds via opts', () => {
+  const summary = {
+    byRoute: [{ key: 'CN → PL', sampleSize: 4, avgVariancePct: 4, totalEstimateEur: 1000, totalActualEur: 1040 }],
+    byCategory: [], byOrigin: [], byDestination: [],
+  };
+  // With looser defaults (3 samples, 3% drift) the row crosses both.
+  assert.equal(calibration.findAlerts(summary, { minSamples: 3, minDriftPct: 3 }).length, 1);
+  // With tighter defaults (5/5) it doesn't.
+  assert.equal(calibration.findAlerts(summary, { minSamples: 5, minDriftPct: 5 }).length, 0);
+});
+
+test('findAlerts: defends against malformed row entries', () => {
+  const summary = {
+    byRoute: [
+      null,
+      { key: 'CN → PL', sampleSize: 8 /* no avgVariancePct */, totalEstimateEur: 1000, totalActualEur: 1100 },
+      { key: 'VN → DE', sampleSize: 8, avgVariancePct: 12, totalEstimateEur: 50000, totalActualEur: 56000 },
+    ],
+    byCategory: [], byOrigin: [], byDestination: [],
+  };
+  const alerts = calibration.findAlerts(summary);
+  assert.equal(alerts.length, 1);
+  assert.equal(alerts[0].key, 'VN → DE');
+});
+
+// ── runCalibrationDriftCheck (cron job, Sprint BG-1.7) ─
+
+test('runCalibrationDriftCheck: PG unconfigured → no-op result with alertCount=0', async () => {
+  // Reuse the lazy-loaded cron module for the runner.
+  const cron = require('../lib/handlers/cron');
+  const kv = require('../lib/intelligence/kv-store');
+  const prevDb = process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL_UNPOOLED;
+  kv._resetMemoryStore();
+  try {
+    const result = await cron.runCalibrationDriftCheck({});
+    assert.equal(result.rowsScanned, 0);
+    assert.equal(result.totalSampleSize, 0);
+    assert.equal(result.alertCount, 0);
+    assert.deepEqual(result.alerts, []);
+    assert.match(result.runAt, /^\d{4}-\d{2}-\d{2}T/);
+    // Even on a no-op the job writes the snapshot so the dashboard
+    // can show "last run, no alerts" rather than a stale state.
+    const snap = await kv.get(cron.CALIBRATION_ALERT_KEY);
+    assert.ok(snap);
+    assert.equal(snap.alerts.length, 0);
+  } finally {
+    if (prevDb) process.env.DATABASE_URL = prevDb;
+  }
+});
+
+test('JOBS map registers the calibration-drift-check job', () => {
+  const cron = require('../lib/handlers/cron');
+  assert.equal(typeof cron.JOBS['calibration-drift-check'], 'function');
+});
+
 // ── /api/calibration handler ──────────────────────────
 
 test('handler: 405 on non-GET', async () => {
@@ -242,6 +349,24 @@ test('handler: 200 + empty summary when Postgres unconfigured (no actuals)', asy
   }
 });
 
+test('handler: response includes the alerts array (Sprint BG-1.7)', async () => {
+  const prevDb = process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL;
+  delete process.env.DATABASE_URL_UNPOOLED;
+  try {
+    const req = { method: 'GET', headers: {}, query: { token: 'test-leads-token' }, url: '/api/calibration' };
+    const res = mockRes();
+    await handler(req, res);
+    const body = JSON.parse(res.body);
+    // Even with zero rows the alerts field is present (empty array)
+    // so the client never has to branch on undefined.
+    assert.ok(Array.isArray(body.alerts), 'alerts must be an array');
+    assert.equal(body.alerts.length, 0);
+  } finally {
+    if (prevDb) process.env.DATABASE_URL = prevDb;
+  }
+});
+
 test('handler: limit defaults to 1000 + is clamped to [1, 10000]', async () => {
   const prevDb = process.env.DATABASE_URL;
   delete process.env.DATABASE_URL;
@@ -283,9 +408,18 @@ test('/dashboard/calibration/ page exists + noindex', () => {
 });
 
 test('/dashboard/calibration/ page has every required DOM hook', () => {
-  for (const id of ['controls', 'token', 'limit', 'load-btn', 'error', 'empty', 'results', 'stats', 'byRoute', 'byCategory', 'byOrigin', 'byDestination']) {
+  // BG-1.6 hooks + BG-1.7 alerts-pane slot.
+  for (const id of ['controls', 'token', 'limit', 'load-btn', 'error', 'empty', 'results', 'stats', 'alerts-pane', 'byRoute', 'byCategory', 'byOrigin', 'byDestination']) {
     assert.match(HTML, new RegExp(`id=["']${id}["']`), `id="${id}" present`);
   }
+});
+
+test('/dashboard/calibration/ app.js renders alerts when payload has any (Sprint BG-1.7)', () => {
+  assert.match(JS, /function renderAlerts\s*\(/);
+  // The alerts pane CSS hooks must be referenced when rendering.
+  assert.match(JS, /alerts-pane/);
+  // Direction colour classes used.
+  assert.match(JS, /pct\s+['"]?\s*\+\s*a\.direction|a\.direction/);
 });
 
 test('/dashboard/calibration/ app.js fetches /api/calibration with the token', () => {

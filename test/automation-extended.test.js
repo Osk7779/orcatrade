@@ -337,8 +337,11 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // see lib/handlers/cron.js#runTaricWarm (Sprint F).
   // Sprint BG-2.1 adds db-migrate as an on-demand job that GHA can fire
   // to apply Postgres schema changes.
+  // Sprint BG-1.7 adds calibration-drift-check — nightly aggregator
+  // that emits Sentry warns when groups cross drift thresholds.
   const ids = Object.keys(cronHandler.JOBS).sort();
   assert.deepEqual(ids, [
+    'calibration-drift-check',
     'db-migrate',
     'founder-digest',
     'plan-revision-emails',

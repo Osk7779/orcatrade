@@ -52,6 +52,17 @@
     table.groups tr.significant.under { background: rgba(95, 181, 107, 0.04); }
     table.groups .pill { display: inline-block; font-size: 0.6rem; padding: 0.13rem 0.45rem; border: 1px solid currentColor; letter-spacing: 0.08em; text-transform: uppercase; margin-left: 0.5rem; opacity: 0.7; }
 
+    /* Sprint BG-1.7 — alerts pane */
+    .alerts-pane { padding: 1rem 1.2rem; margin-bottom: 1.5rem; border: 1px solid rgba(220, 110, 90, 0.35); background: rgba(220, 110, 90, 0.05); }
+    .alerts-pane .alerts-headline { font-family: 'Geist Mono', monospace; font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: #e88080; margin-bottom: 0.7rem; }
+    .alerts-pane ul { margin: 0; padding-left: 1.1rem; list-style: '▸  '; }
+    .alerts-pane li { font-size: 0.85rem; line-height: 1.5; color: rgba(255,255,255,0.88); margin-bottom: 0.35rem; }
+    .alerts-pane li .key { font-family: 'Geist Mono', monospace; color: rgba(255,255,255,0.95); }
+    .alerts-pane li .pct { font-family: 'Geist Mono', monospace; font-weight: 700; }
+    .alerts-pane li .pct.over { color: #e88080; }
+    .alerts-pane li .pct.under { color: #7ed28a; }
+    .alerts-pane li .meta { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); letter-spacing: 0.04em; margin-left: 0.4rem; }
+
     .err { padding: 1rem 1.2rem; background: rgba(232, 128, 128, 0.08); border: 1px solid rgba(232, 128, 128, 0.3); color: #e88080; font-family: 'Geist Mono', monospace; font-size: 0.82rem; margin-bottom: 1.5rem; }
     .empty { padding: 1.4rem 1.6rem; text-align: center; font-size: 0.92rem; color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); }
 
@@ -137,6 +148,11 @@
 
     <div id="error" class="err" hidden></div>
     <div id="empty" class="empty" hidden>No actuals logged yet. Once a few users hit "Log actual outcome" on a saved plan, this dashboard will populate.</div>
+
+    <!-- Sprint BG-1.7 — current alerts pill. Populated when /api/calibration
+         returns ≥1 alert (≥5% drift on ≥5 samples). Same `findAlerts` the
+         cron uses, so this view + the Sentry warns never drift apart. -->
+    <div id="alerts-pane" hidden></div>
 
     <div id="results" hidden>
       <div class="stats" id="stats"></div>

@@ -18,6 +18,7 @@
     empty: document.getElementById('empty'),
     results: document.getElementById('results'),
     stats: document.getElementById('stats'),
+    alertsPane: document.getElementById('alerts-pane'),    // Sprint BG-1.7
     byRoute: document.getElementById('byRoute'),
     byCategory: document.getElementById('byCategory'),
     byOrigin: document.getElementById('byOrigin'),
@@ -117,15 +118,46 @@
     targetEl.innerHTML = html;
   }
 
+  // Sprint BG-1.7 — current-alerts pane.
+  // Each alert: { dimension, key, sampleSize, avgVariancePct, direction, … }
+  function renderAlerts(alerts) {
+    if (!Array.isArray(alerts) || alerts.length === 0) {
+      els.alertsPane.hidden = true;
+      els.alertsPane.innerHTML = '';
+      return;
+    }
+    var DIM_LABELS = {
+      byRoute: 'route', byCategory: 'category', byOrigin: 'origin', byDestination: 'destination',
+    };
+    var items = alerts.map(function (a) {
+      var pctSign = a.avgVariancePct > 0 ? '+' : '';
+      var label = (DIM_LABELS[a.dimension] || a.dimension);
+      return '<li>'
+        + '<span class="key">' + escapeHtml(label) + ' · ' + escapeHtml(a.key) + '</span> '
+        + '<span class="pct ' + a.direction + '">' + pctSign + a.avgVariancePct + '%</span>'
+        + '<span class="meta">' + a.sampleSize + ' samples · '
+        +   fmtEur(a.totalEstimateEur) + ' est. → ' + fmtEur(a.totalActualEur) + ' actual'
+        + '</span>'
+      + '</li>';
+    }).join('');
+    els.alertsPane.innerHTML = '<div class="alerts-pane">'
+      + '<div class="alerts-headline">' + alerts.length + ' calibration alert' + (alerts.length === 1 ? '' : 's') + ' active</div>'
+      + '<ul>' + items + '</ul>'
+      + '</div>';
+    els.alertsPane.hidden = false;
+  }
+
   function render(data) {
     clearError();
     if (!data || !data.total || data.total.sampleSize === 0) {
       els.empty.hidden = false;
       els.results.hidden = true;
+      els.alertsPane.hidden = true;
       return;
     }
     els.empty.hidden = true;
     els.results.hidden = false;
+    renderAlerts(data.alerts);
     renderStats(data.total);
     renderGroup('Route', data.byRoute, els.byRoute);
     renderGroup('Category', data.byCategory, els.byCategory);
