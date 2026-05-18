@@ -74,6 +74,11 @@ const handlers = {
   // recent events with PII redacted (email → emailHash) for the
   // /dashboard/audit/ admin view. Same token-gate as /api/leads.
   audit: require('../lib/handlers/audit'),
+  // Cross-user calibration analytics (Sprint BG-1.6). GET /api/calibration
+  // returns aggregate variance stats grouped by category / origin /
+  // destination / route — reads via actuals.listFromPg() which JOINs
+  // saved_plans + actuals in Postgres. Same token-gate as /api/audit.
+  calibration: require('../lib/handlers/calibration'),
   // Organisation + seat management (Sprint BG-3.1 foundation).
   // GET /api/orgs lists mine; POST creates; /<id>/{invite,remove,transfer}
   // for membership ops. Tier-by-org migration is a follow-up sprint.
