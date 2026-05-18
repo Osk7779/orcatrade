@@ -88,6 +88,12 @@ const handlers = {
   // looks up a saved plan by its share code, increments the view
   // count, audits the open, and 302-redirects to /start/?p=<base64>.
   share: require('../lib/handlers/share'),
+  // One-click unsubscribe (prefs-v1). GET /api/unsubscribe?token=…
+  // verifies the HMAC-signed token from a plan-revision email and
+  // flips planRevisionEmails:false for the encoded address. Renders
+  // a small HTML confirmation page — most users hit this from a
+  // mail client. No auth — the signed token IS the auth.
+  unsubscribe: require('../lib/handlers/unsubscribe'),
 };
 
 module.exports = async (req, res) => {
