@@ -8,6 +8,7 @@
       "destination": "https://orcatrade-intelligence.vercel.app/app/:path*"
     },
     { "source": "/feed.xml", "destination": "/api/feed?format=rss" },
-    { "source": "/atom.xml", "destination": "/api/feed?format=atom" }
+    { "source": "/atom.xml", "destination": "/api/feed?format=atom" },
+    { "source": "/share/:code", "destination": "/api/share/:code" }
   ]
 }

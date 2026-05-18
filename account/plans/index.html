@@ -95,6 +95,21 @@
     .calibration-card.dir-over  { border-left: 3px solid rgba(220, 110, 90, 0.6); }
     .calibration-card.dir-neutral { border-left: 3px solid rgba(220, 188, 110, 0.4); }
     .calibration-card .cal-foot { margin-top: 0.85rem; font-size: 0.78rem; color: rgba(255,255,255,0.55); line-height: 1.55; }
+
+    /* ── Shares-v1: share pane per plan card ──────────────────── */
+    .plan-share { margin-top: 0.55rem; }
+    .share-toggle { background: transparent; border: 1px dashed rgba(255,255,255,0.18); color: rgba(255,255,255,0.75); font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.45rem 0.8rem; cursor: pointer; transition: all 0.15s; }
+    .share-toggle:hover { border-color: rgba(150, 200, 230, 0.6); color: rgba(150, 200, 230, 0.95); }
+    .share-pane { padding: 0.8rem 0.9rem; margin-top: 0.5rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(150, 200, 230, 0.18); display: none; }
+    .share-pane.is-open { display: block; }
+    .share-pane .share-headline { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(150, 200, 230, 0.85); margin-bottom: 0.5rem; }
+    .share-pane .share-url-row { display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
+    .share-pane input.share-url { flex: 1; min-width: 220px; padding: 0.5rem 0.75rem; background: rgba(13, 15, 20, 0.7); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.78rem; outline: none; }
+    .share-pane button { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.45rem 0.75rem; cursor: pointer; font-weight: 600; background: transparent; color: rgba(255,255,255,0.85); border: 1px solid rgba(184,190,200,0.4); }
+    .share-pane button.danger { color: #e88080; border-color: rgba(232, 128, 128, 0.4); }
+    .share-pane .share-meta { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 0.55rem; letter-spacing: 0.04em; }
+    .share-pane .share-meta strong { color: rgba(220, 188, 110, 0.95); font-weight: 600; }
+    .share-pane .err { color: #c95050; font-size: 0.78rem; margin-top: 0.4rem; }
   </style>
 
 

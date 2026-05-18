@@ -261,6 +261,42 @@
       '</div>';
   }
 
+  // ── Shares-v1: share pane per plan card ──────────────
+  //
+  // Two states:
+  //   - No share active   → "Share this plan" toggle button
+  //   - Share active      → URL + Copy + Revoke + view count
+  // The toggle expands the pane inline; revoking collapses it back
+  // to the toggle. Same delegated-listener pattern as the actuals UI.
+
+  function buildShareUrl(code) {
+    return window.location.origin + '/share/' + code;
+  }
+
+  function renderSharePane(record) {
+    if (record.share && record.share.code) {
+      var url = buildShareUrl(record.share.code);
+      var views = Number(record.share.viewCount) || 0;
+      var lastView = record.share.lastViewedAt ? ' · last view ' + fmtDate(record.share.lastViewedAt) : '';
+      return '<div class="plan-share" data-plan-share>'
+        + '<div class="share-pane is-open">'
+          + '<div class="share-headline">Share link active · anyone with this URL can view</div>'
+          + '<div class="share-url-row">'
+            + '<input class="share-url" type="text" value="' + escapeHtml(url) + '" readonly />'
+            + '<button type="button" data-action="share-copy">Copy</button>'
+            + '<button type="button" class="danger" data-action="share-revoke">Revoke</button>'
+          + '</div>'
+          + '<div class="share-meta"><strong>' + views + '</strong> view'
+          + (views === 1 ? '' : 's') + escapeHtml(lastView) + '</div>'
+          + '<div class="err" data-share-err></div>'
+        + '</div>'
+      + '</div>';
+    }
+    return '<div class="plan-share" data-plan-share>'
+      + '<button type="button" class="share-toggle" data-action="share-create">→ Share this plan</button>'
+    + '</div>';
+  }
+
   // Initial render of the actual area — either the badge, or the
   // "Log actual outcome" toggle, plus a (closed) form ready to open.
   function renderActualBlock(record) {
@@ -322,6 +358,7 @@
           '<div class="plan-meta">' + escapeHtml(r.id) + ' · saved ' + escapeHtml(fmtDate(r.savedAt)) + '</div>' +
           renderDelta(r) +
           renderActualBlock(r) +
+          renderSharePane(r) +
         '</div>' +
         '<div class="plan-actions">' +
           '<a href="' + url + '">Open</a>' +
@@ -389,6 +426,56 @@
           });
         return;
       }
+      // Shares-v1 — create / copy / revoke ───────────────
+      if (action === 'share-create') {
+        actionEl.disabled = true;
+        actionEl.textContent = 'Generating…';
+        fetch('/api/plans/' + encodeURIComponent(planId) + '/share', {
+          method: 'POST', credentials: 'same-origin',
+        }).then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (data) {
+            if (data && data.ok && data.share && data.share.code) {
+              replaceShareBlock(card, {
+                share: data.share,
+              });
+            } else {
+              actionEl.disabled = false;
+              actionEl.textContent = '→ Share this plan';
+            }
+          });
+        return;
+      }
+      if (action === 'share-copy') {
+        var input = card.querySelector('input.share-url');
+        if (!input) return;
+        var url = input.value;
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function () {
+            actionEl.textContent = 'Copied ✓';
+            setTimeout(function () { actionEl.textContent = 'Copy'; }, 1400);
+          }).catch(function () { input.select(); });
+        } else {
+          input.select();
+        }
+        return;
+      }
+      if (action === 'share-revoke') {
+        if (!confirm('Revoke this share link?\n\nThe URL will stop working for new openings. People who already followed it may still see the plan from their browser history.')) return;
+        actionEl.disabled = true;
+        actionEl.textContent = 'Revoking…';
+        fetch('/api/plans/' + encodeURIComponent(planId) + '/share', {
+          method: 'DELETE', credentials: 'same-origin',
+        }).then(function (r) {
+          if (r.ok) {
+            // Re-render the share area as the "Share this plan" toggle.
+            replaceShareBlock(card, { share: null });
+          } else {
+            actionEl.disabled = false;
+            actionEl.textContent = 'Revoke';
+          }
+        });
+        return;
+      }
     });
 
     listEl.addEventListener('click', function (e) {
@@ -444,6 +531,17 @@
     if (!existing) return;
     var temp = document.createElement('div');
     temp.innerHTML = renderActualBlock(record);
+    var fresh = temp.firstChild;
+    existing.parentNode.replaceChild(fresh, existing);
+  }
+
+  // Same pattern for the share wrapper — replaceable in place after
+  // create/revoke so the rest of the card stays untouched.
+  function replaceShareBlock(card, record) {
+    var existing = card.querySelector('[data-plan-share]');
+    if (!existing) return;
+    var temp = document.createElement('div');
+    temp.innerHTML = renderSharePane(record);
     var fresh = temp.firstChild;
     existing.parentNode.replaceChild(fresh, existing);
   }

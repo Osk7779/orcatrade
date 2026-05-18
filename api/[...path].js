@@ -83,6 +83,11 @@ const handlers = {
   // GET /api/orgs lists mine; POST creates; /<id>/{invite,remove,transfer}
   // for membership ops. Tier-by-org migration is a follow-up sprint.
   orgs: require('../lib/handlers/orgs'),
+  // Public read-only share resolver (shares-v1). GET /api/share/<code>
+  // (also reachable as /share/<code> via the vercel.json rewrite)
+  // looks up a saved plan by its share code, increments the view
+  // count, audits the open, and 302-redirects to /start/?p=<base64>.
+  share: require('../lib/handlers/share'),
 };
 
 module.exports = async (req, res) => {
