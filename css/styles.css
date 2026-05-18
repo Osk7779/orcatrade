@@ -2621,10 +2621,40 @@ body::after {
     padding: 0.4rem 0.8rem;
   }
 
-  /* Lang switcher pinned above the menu so it remains tappable. */
-  .lang-switcher {
+  /* Lang switcher is HIDDEN from the header bar on mobile by default —
+     it competes for space with the hamburger and crowds the brand at
+     narrow widths. It re-appears pinned to the bottom of the open menu
+     overlay (rule below), so language switching is still one tap away
+     when the menu is expanded. */
+  .lang-switcher { display: none; }
+
+  /* When the mobile menu is open, surface the lang switcher inside the
+     overlay at the bottom-centre. z-1600 sits above the overlay (1500)
+     so it stays tappable; the menu items above are vertically centred
+     by .nav-links, leaving the bottom safely for this pill. */
+  .nav-links.is-open ~ .lang-switcher {
+    display: flex;
+    position: fixed;
+    bottom: 1.6rem;
+    left: 50%;
+    transform: translateX(-50%);
     z-index: 1600;
-    position: relative;
+    gap: 0.4rem;
+    padding: 0.5rem 0.7rem;
+    background: rgba(8, 11, 19, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .nav-links.is-open ~ .lang-switcher .lang-btn {
+    min-width: 44px;       /* WCAG 2.5.5 touch target */
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.78rem;
+    padding: 0.4rem 0.7rem;
   }
 
   /* Hamburger button must always sit above the open menu overlay. */

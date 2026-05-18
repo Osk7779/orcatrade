@@ -69,3 +69,26 @@ test('CSS shows .nav-links.is-open as display: flex inside the 840px breakpoint'
   assert.match(css, /@media\s*\(max-width:\s*840px\)/);
   assert.match(css, /\.nav-links\.is-open\s*\{\s*display:\s*flex;?\s*\}/);
 });
+
+// ── Mobile lang switcher layout (BG-5.6 follow-up fix) ─
+
+test('CSS hides the lang switcher in the mobile header by default', () => {
+  // Inside the 840px breakpoint there must be a rule that hides the
+  // top-bar lang switcher — otherwise it crowds the hamburger + clips
+  // the brand at narrow widths.
+  const css = fs.readFileSync(path.join(ROOT, 'css', 'styles.css'), 'utf8');
+  const mobileBlock = css.match(/@media\s*\(max-width:\s*840px\)\s*\{[\s\S]*?\n\}/g);
+  assert.ok(mobileBlock && mobileBlock.length, 'expected a max-width:840px block');
+  // At least one of the 840px blocks must declare .lang-switcher { display: none }.
+  const hasHide = mobileBlock.some(b => /\.lang-switcher\s*\{\s*display:\s*none;?\s*\}/.test(b));
+  assert.ok(hasHide, '.lang-switcher must be display:none inside the mobile breakpoint');
+});
+
+test('CSS surfaces the lang switcher inside the OPEN mobile menu overlay', () => {
+  // When .nav-links.is-open is present, the sibling .lang-switcher must
+  // be repositioned (display:flex + position:fixed) so it lands at the
+  // bottom of the open menu, not in the cramped header bar.
+  const css = fs.readFileSync(path.join(ROOT, 'css', 'styles.css'), 'utf8');
+  assert.match(css, /\.nav-links\.is-open\s*~\s*\.lang-switcher\s*\{[^}]*display:\s*flex/);
+  assert.match(css, /\.nav-links\.is-open\s*~\s*\.lang-switcher\s*\{[^}]*position:\s*fixed/);
+});
