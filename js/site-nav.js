@@ -63,6 +63,11 @@
       { label: 'Guides',    href: '/guides/',    match: ['/guides/'] },
       { label: 'Dashboard', href: '/dashboard/', match: ['/dashboard/'] },
       { label: 'Pricing',   href: '/pricing/',   match: ['/pricing/'] },
+      // Sprint nav-account-link: visible everywhere on the site.
+      // /account/ handles both signed-in (shows account home + quick
+      // links) and signed-out (shows the magic-link sign-in form) —
+      // a single link works for both states, no JS gating needed.
+      { label: 'Sign in',   href: '/account/',   match: ['/account/'] },
     ],
     langSwitcher: [
       { code: 'EN', href: '/' },
@@ -112,6 +117,7 @@
       'Guides': 'Przewodniki',
       'Dashboard': 'Dashboard',
       'Pricing': 'Cennik',
+      'Sign in': 'Zaloguj',
       'Open navigation': 'Otwórz nawigację',
       'Close navigation': 'Zamknij nawigację',
     },
@@ -154,6 +160,7 @@
       'Guides': 'Leitfäden',
       'Dashboard': 'Dashboard',
       'Pricing': 'Preise',
+      'Sign in': 'Anmelden',
       'Open navigation': 'Navigation öffnen',
       'Close navigation': 'Navigation schließen',
     },
@@ -202,6 +209,9 @@
     // App routes that aren't translated stay as-is
     if (enHref.indexOf('/agent/') === 0) return enHref;
     if (enHref.indexOf('/dashboard/') === 0) return enHref;
+    // /account/ is the single user-facing app surface — same flow
+    // for every locale, no PL/DE marketing copy required.
+    if (enHref.indexOf('/account/') === 0) return enHref;
     // Root → /pl/ or /de/
     if (enHref === '/') return '/' + locale.toLowerCase() + '/';
     // Slug override?
