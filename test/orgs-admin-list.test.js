@@ -235,8 +235,18 @@ test('/dashboard/orgs/ has every required DOM hook', () => {
 
 test('/dashboard/orgs/ app.js fetches /api/orgs/admin with the token', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'orgs', 'app.js'), 'utf8');
-  assert.match(js, /\/api\/orgs\/admin\?token=/);
-  assert.match(js, /encodeURIComponent\(token\)/);
+  assert.match(js, /\/api\/orgs\/admin/);
+  // Token is still passed as a query param when present (Sprint
+  // admin-session-auth made the param optional — cookie-first path —
+  // but the URL still must carry token=encodeURIComponent(token) when
+  // a token is in hand).
+  assert.match(js, /token=['"]?\s*\+\s*encodeURIComponent\(token\)/);
+});
+
+test('/dashboard/orgs/ app.js: cookie-first probe on cold load (Sprint admin-session-auth)', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'dashboard', 'orgs', 'app.js'), 'utf8');
+  assert.match(js, /async function load\(silent\)/);
+  assert.match(js, /DOMContentLoaded[\s\S]{0,200}load\(true\)/);
 });
 
 test('/dashboard/orgs/ app.js persists token in sessionStorage', () => {

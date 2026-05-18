@@ -423,12 +423,20 @@ test('/dashboard/calibration/ app.js renders alerts when payload has any (Sprint
 });
 
 test('/dashboard/calibration/ app.js fetches /api/calibration with the token', () => {
-  // URL built into a variable, then passed to fetch — assert that the
-  // URL string with the token query param exists in the source, plus
-  // that we actually call fetch().
-  assert.match(JS, /\/api\/calibration\?token=/);
-  assert.match(JS, /encodeURIComponent\(token\)/);
+  // URL built into a variable, then passed to fetch — assert that we
+  // hit the endpoint, build a URL that can carry a token, and actually
+  // call fetch(). The exact param ordering is liberal (Sprint
+  // admin-session-auth: token may be omitted on the cookie-first probe).
+  assert.match(JS, /\/api\/calibration/);
+  assert.match(JS, /token=['"]?\s*\+\s*encodeURIComponent\(token\)/);
   assert.match(JS, /fetch\(/);
+});
+
+test('/dashboard/calibration/ app.js: cookie-first probe on cold load (Sprint admin-session-auth)', () => {
+  // load() takes a silent flag and the DOMContentLoaded hook fires
+  // load(true) — the cookie-first probe.
+  assert.match(JS, /async function load\(silent\)/);
+  assert.match(JS, /DOMContentLoaded[\s\S]{0,200}load\(true\)/);
 });
 
 test('/dashboard/calibration/ app.js handles 401 + 503 + ok branches', () => {

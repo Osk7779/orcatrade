@@ -33,6 +33,13 @@
       if (data && data.user && data.user.email) {
         document.getElementById('signedin-email').textContent = data.user.email;
         showState('signedin');
+        // Sprint admin-session-auth — surface the admin dashboards card
+        // when the signed-in user's email is on ORCATRADE_ADMIN_EMAILS.
+        // The server makes the decision; the client just renders.
+        if (data.isAdmin) {
+          var adminCard = document.getElementById('admin-card');
+          if (adminCard) adminCard.hidden = false;
+        }
         // Sprint onboarding-v1 — fetch + render the checklist after
         // auth resolves. Failure here is non-blocking; the account
         // page still works without the card.

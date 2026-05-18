@@ -152,29 +152,32 @@
       .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
   }
 
-  async function refresh() {
+  // silent=true is the Sprint admin-session-auth cold-load probe — skips
+  // visible "Token required" / 401 errors so an admin signed in via the
+  // cookie path doesn't see a spurious error before the cookie attempt
+  // resolves.
+  async function refresh(silent) {
     clearErr();
     var token = el('tokenInput').value.trim();
-    if (!token) {
-      showErr('Token required — paste your ORCATRADE_LEADS_TOKEN above.');
-      el('stats').innerHTML = '';
-      el('byAgent').innerHTML = '';
-      el('byPromptVersion').innerHTML = '';
-      el('topCalls').innerHTML = '';
-      return;
-    }
-    saveToken(token);
+    if (token) saveToken(token);
     el('reloadBtn').disabled = true;
     try {
-      var qs = new URLSearchParams({ token: token, type: 'ai_call', limit: '1000' });
+      var qs = new URLSearchParams({ type: 'ai_call', limit: '1000' });
+      if (token) qs.set('token', token);
       var res = await fetch('/api/audit?' + qs.toString(), { credentials: 'same-origin' });
       if (res.status === 401) {
-        showErr('Unauthorized — check the token.');
-        return;
+        if (!silent) {
+          showErr(token ? 'Unauthorized — check the token.' : 'Token required — paste your ORCATRADE_LEADS_TOKEN above.');
+          el('stats').innerHTML = '';
+          el('byAgent').innerHTML = '';
+          el('byPromptVersion').innerHTML = '';
+          el('topCalls').innerHTML = '';
+        }
+        return false;
       }
       if (!res.ok) {
-        showErr('Fetch failed: HTTP ' + res.status);
-        return;
+        if (!silent) showErr('Fetch failed: HTTP ' + res.status);
+        return false;
       }
       var body = await res.json();
       var events = body.events || [];
@@ -184,8 +187,10 @@
       renderBars('byPromptVersion', agg.byPromptVersion);
       renderTopCalls(events);
       el('lastChecked').textContent = 'Last checked: ' + new Date(body.asOf).toLocaleTimeString() + ' · ' + agg.callCount + ' calls';
+      return true;
     } catch (err) {
-      showErr('Network error: ' + err.message);
+      if (!silent) showErr('Network error: ' + err.message);
+      return false;
     } finally {
       el('reloadBtn').disabled = false;
     }
@@ -197,11 +202,12 @@
   if (typeof document !== 'undefined') {
     document.addEventListener('DOMContentLoaded', function () {
       loadToken();
-      el('reloadBtn').addEventListener('click', refresh);
+      el('reloadBtn').addEventListener('click', function () { refresh(false); });
       el('tokenInput').addEventListener('keypress', function (ev) {
-        if (ev.key === 'Enter') refresh();
+        if (ev.key === 'Enter') refresh(false);
       });
-      if (el('tokenInput').value) refresh();
+      // Cookie-first probe (Sprint admin-session-auth).
+      refresh(true);
     });
   }
 

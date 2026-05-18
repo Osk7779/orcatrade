@@ -166,10 +166,14 @@
     detailTr.appendChild(td);
     row.parentNode.insertBefore(detailTr, row.nextSibling);
 
+    // Sprint admin-session-auth: omit ?token when none is in hand so the
+    // server falls back to the cookie path. credentials:same-origin sends
+    // the session cookie either way.
     var token = sessionStorage.getItem(STORAGE_KEY) || els.token.value.trim();
+    var url = '/api/orgs/admin/' + encodeURIComponent(orgId)
+      + (token ? '?token=' + encodeURIComponent(token) : '');
     try {
-      var resp = await fetch('/api/orgs/admin/' + encodeURIComponent(orgId)
-        + '?token=' + encodeURIComponent(token), { credentials: 'same-origin' });
+      var resp = await fetch(url, { credentials: 'same-origin' });
       if (!resp.ok) {
         td.innerHTML = '<div class="detail-err">HTTP ' + resp.status + ' — could not load org detail.</div>';
         return;
@@ -195,34 +199,41 @@
     renderRows(data.orgs);
   }
 
-  async function load() {
+  // silent=true is the Sprint admin-session-auth cold-load probe — skips
+  // visible "Token required" / 401 errors so an admin signed in via the
+  // cookie path doesn't see a spurious error before the cookie attempt
+  // resolves.
+  async function load(silent) {
     var token = els.token.value.trim();
     var limit = els.limit.value || 200;
-    if (!token) { showError('Token required.'); return; }
-    sessionStorage.setItem(STORAGE_KEY, token);
+    if (token) sessionStorage.setItem(STORAGE_KEY, token);
     els.loadBtn.disabled = true;
     els.loadBtn.textContent = 'Loading…';
     try {
-      var url = '/api/orgs/admin?token=' + encodeURIComponent(token) +
-        '&limit=' + encodeURIComponent(limit);
+      var url = '/api/orgs/admin?limit=' + encodeURIComponent(limit) +
+        (token ? '&token=' + encodeURIComponent(token) : '');
       var resp = await fetch(url, { credentials: 'same-origin' });
       if (resp.status === 401) {
-        showError('Unauthorized — check the token.');
-        sessionStorage.removeItem(STORAGE_KEY);
-        return;
+        if (!silent) {
+          showError(token ? 'Unauthorized — check the token.' : 'Token required.');
+          if (token) sessionStorage.removeItem(STORAGE_KEY);
+        }
+        return false;
       }
       if (resp.status === 503) {
-        showError('Admin endpoint not configured on the server (ORCATRADE_LEADS_TOKEN unset).');
-        return;
+        if (!silent) showError('Admin endpoint not configured on the server (set ORCATRADE_ADMIN_EMAILS or ORCATRADE_LEADS_TOKEN).');
+        return false;
       }
       if (!resp.ok) {
-        showError('HTTP ' + resp.status + ' — could not load orgs.');
-        return;
+        if (!silent) showError('HTTP ' + resp.status + ' — could not load orgs.');
+        return false;
       }
       var data = await resp.json();
       render(data);
+      return true;
     } catch (err) {
-      showError('Network error: ' + (err && err.message ? err.message : 'unknown'));
+      if (!silent) showError('Network error: ' + (err && err.message ? err.message : 'unknown'));
+      return false;
     } finally {
       els.loadBtn.disabled = false;
       els.loadBtn.textContent = 'Load';
@@ -232,15 +243,14 @@
   if (typeof document !== 'undefined') {
     els.form.addEventListener('submit', function (e) {
       e.preventDefault();
-      load();
+      load(false);
     });
 
     document.addEventListener('DOMContentLoaded', function () {
       var saved = sessionStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        els.token.value = saved;
-        load();
-      }
+      if (saved) els.token.value = saved;
+      // Cookie-first probe (Sprint admin-session-auth).
+      load(true);
     });
   }
 })();

@@ -163,6 +163,32 @@
                  allDone (the user has finished all four moat-building
                  actions) so the card doesn't clutter the page forever. -->
             <div id="onboarding-card" class="onboarding-card" hidden></div>
+            <!-- Sprint admin-session-auth — admin card. Hidden by default.
+                 app.js reveals it only when /api/auth/me returns isAdmin:true
+                 (the signed-in email is on ORCATRADE_ADMIN_EMAILS). -->
+            <div id="admin-card" class="quick-links" hidden style="border-top-color: rgba(220, 188, 110, 0.25);">
+              <h2 style="color: rgba(220, 188, 110, 0.95);">Admin dashboards</h2>
+              <a href="/dashboard/leads/">
+                <span class="ql-title">Leads &amp; conversion</span>
+                <span class="ql-sub">Plan submissions, founding 10 funnel, top routes</span>
+              </a>
+              <a href="/dashboard/calibration/">
+                <span class="ql-title">Calibration</span>
+                <span class="ql-sub">Estimate-vs-actual variance per route + category + origin</span>
+              </a>
+              <a href="/dashboard/orgs/">
+                <span class="ql-title">Organisations</span>
+                <span class="ql-sub">Every org on the platform with member counts + tier override</span>
+              </a>
+              <a href="/dashboard/audit/">
+                <span class="ql-title">Audit log</span>
+                <span class="ql-sub">Raw event-by-event feed across the whole platform</span>
+              </a>
+              <a href="/dashboard/ai/">
+                <span class="ql-title">AI cost telemetry</span>
+                <span class="ql-sub">Anthropic spend by agent, prompt version, top calls</span>
+              </a>
+            </div>
             <div class="quick-links">
               <h2>Quick links</h2>
               <a href="/account/plans/">

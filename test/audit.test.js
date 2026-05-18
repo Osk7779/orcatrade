@@ -72,13 +72,48 @@ async function withEnvAsync(overrides, fn) {
 
 // ── Endpoint: auth gate ──────────────────────────────────────
 
-test('returns 503 when ORCATRADE_LEADS_TOKEN env is unset', async () => {
-  await withEnvAsync({ ORCATRADE_LEADS_TOKEN: null }, async () => {
+test('returns 503 when no admin auth is configured', async () => {
+  await withEnvAsync({ ORCATRADE_LEADS_TOKEN: null, ORCATRADE_ADMIN_EMAILS: null }, async () => {
     const req = makeReq();
     const res = makeRes();
     await audit(req, res);
     assert.equal(res.statusCode, 503);
     assert.match(JSON.parse(res.body).error, /not configured/);
+  });
+});
+
+// Sprint admin-session-auth — session cookie when email on allowlist.
+test('returns 200 with session cookie when signed-in email is on ORCATRADE_ADMIN_EMAILS', async () => {
+  const auth = require('../lib/auth');
+  kv._resetMemoryStore();
+  await events.record('founding_applied', { name: 'alice', email: 'alice@example.com', company: 'ACo' });
+  await withEnvAsync({
+    ORCATRADE_LEADS_TOKEN: null,
+    ORCATRADE_ADMIN_EMAILS: 'oskar@orcatrade.pl',
+  }, async () => {
+    const cookie = auth.buildSessionCookie('oskar@orcatrade.pl');
+    const req = makeReq();
+    req.headers.cookie = 'orcatrade_session=' + encodeURIComponent(cookie);
+    const res = makeRes();
+    await audit(req, res);
+    assert.equal(res.statusCode, 200);
+    const body = JSON.parse(res.body);
+    assert.equal(body.ok, true);
+  });
+});
+
+test('returns 401 with session cookie when signed-in email is NOT on ORCATRADE_ADMIN_EMAILS', async () => {
+  const auth = require('../lib/auth');
+  await withEnvAsync({
+    ORCATRADE_LEADS_TOKEN: null,
+    ORCATRADE_ADMIN_EMAILS: 'oskar@orcatrade.pl',
+  }, async () => {
+    const cookie = auth.buildSessionCookie('intruder@example.com');
+    const req = makeReq();
+    req.headers.cookie = 'orcatrade_session=' + encodeURIComponent(cookie);
+    const res = makeRes();
+    await audit(req, res);
+    assert.equal(res.statusCode, 401);
   });
 });
 

@@ -165,37 +165,40 @@
     renderGroup('Destination', data.byDestination, els.byDestination);
   }
 
-  async function load() {
+  // silent=true skips visible "Token required" / 401 errors on cold load
+  // so an admin signed in via the cookie path doesn't see a spurious error
+  // before the cookie attempt resolves (Sprint admin-session-auth).
+  async function load(silent) {
     var token = els.token.value.trim();
     var limit = els.limit.value || 1000;
-    if (!token) {
-      showError('Token required.');
-      return;
-    }
-    sessionStorage.setItem(STORAGE_KEY, token);
+    if (token) sessionStorage.setItem(STORAGE_KEY, token);
     els.loadBtn.disabled = true;
     els.loadBtn.textContent = 'Loading…';
     try {
-      var url = '/api/calibration?token=' + encodeURIComponent(token) +
-        '&limit=' + encodeURIComponent(limit);
+      var url = '/api/calibration?limit=' + encodeURIComponent(limit) +
+        (token ? '&token=' + encodeURIComponent(token) : '');
       var resp = await fetch(url, { credentials: 'same-origin' });
       if (resp.status === 401) {
-        showError('Unauthorized — check the token.');
-        sessionStorage.removeItem(STORAGE_KEY);
-        return;
+        if (!silent) {
+          showError(token ? 'Unauthorized — check the token.' : 'Token required.');
+          if (token) sessionStorage.removeItem(STORAGE_KEY);
+        }
+        return false;
       }
       if (resp.status === 503) {
-        showError('Calibration dashboard not configured on the server (ORCATRADE_LEADS_TOKEN unset).');
-        return;
+        if (!silent) showError('Calibration dashboard not configured on the server (set ORCATRADE_ADMIN_EMAILS or ORCATRADE_LEADS_TOKEN).');
+        return false;
       }
       if (!resp.ok) {
-        showError('HTTP ' + resp.status + ' — could not load calibration data.');
-        return;
+        if (!silent) showError('HTTP ' + resp.status + ' — could not load calibration data.');
+        return false;
       }
       var data = await resp.json();
       render(data);
+      return true;
     } catch (err) {
-      showError('Network error: ' + (err && err.message ? err.message : 'unknown'));
+      if (!silent) showError('Network error: ' + (err && err.message ? err.message : 'unknown'));
+      return false;
     } finally {
       els.loadBtn.disabled = false;
       els.loadBtn.textContent = 'Load';
@@ -205,16 +208,17 @@
   if (typeof document !== 'undefined') {
     els.form.addEventListener('submit', function (e) {
       e.preventDefault();
-      load();
+      load(false);
     });
 
-    // Restore token from sessionStorage; auto-load if present.
+    // Restore token from sessionStorage; auto-load if present. Even
+    // without a token, fire a silent cookie-auth attempt — if the
+    // signed-in user is on ORCATRADE_ADMIN_EMAILS the dashboard renders
+    // straight away.
     document.addEventListener('DOMContentLoaded', function () {
       var saved = sessionStorage.getItem(STORAGE_KEY);
-      if (saved) {
-        els.token.value = saved;
-        load();
-      }
+      if (saved) els.token.value = saved;
+      load(true);
     });
   }
 })();

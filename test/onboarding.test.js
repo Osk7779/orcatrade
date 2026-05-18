@@ -266,7 +266,30 @@ test('/account/app.js loads onboarding only AFTER successful auth-me', () => {
   const js = fs.readFileSync(path.join(__dirname, '..', 'account', 'app.js'), 'utf8');
   // Find the position of "loadOnboarding()" call AND the auth-me block.
   // We assert loadOnboarding is referenced inside the auth-me promise chain.
-  assert.match(js, /showState\(['"]signedin['"]\);\s*\n[\s\S]{0,200}?loadOnboarding\(\)/);
+  assert.match(js, /showState\(['"]signedin['"]\);\s*\n[\s\S]{0,800}?loadOnboarding\(\)/);
+});
+
+// ── Sprint admin-session-auth: /account/ admin card ──
+
+test('/account/index.html declares the admin-card slot (hidden by default)', () => {
+  const html = fs.readFileSync(path.join(__dirname, '..', 'account', 'index.html'), 'utf8');
+  assert.match(html, /id=["']admin-card["']/);
+  assert.match(html, /id=["']admin-card["'][^>]*hidden/);
+  // The card links to all five admin dashboards.
+  for (const dashboard of ['/dashboard/leads/', '/dashboard/calibration/', '/dashboard/orgs/', '/dashboard/audit/', '/dashboard/ai/']) {
+    assert.match(html, new RegExp(`href=["']${dashboard.replace(/\//g, '\\/')}["']`), 'admin card links to ' + dashboard);
+  }
+});
+
+test('/account/app.js reveals admin-card only when /api/auth/me returns isAdmin', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'account', 'app.js'), 'utf8');
+  // The check happens inside the auth-me .then() — same gating pattern
+  // as loadOnboarding(). Drift here would expose admin links to every
+  // signed-in user.
+  assert.match(js, /data\.isAdmin/);
+  assert.match(js, /getElementById\(['"]admin-card['"]\)/);
+  // Set .hidden = false, not removed — keeps the DOM structure consistent.
+  assert.match(js, /adminCard\.hidden\s*=\s*false/);
 });
 
 // ── Module surface ────────────────────────────────────

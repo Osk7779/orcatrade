@@ -192,13 +192,30 @@
     if (e.key === 'Enter') els.tokenSubmit.click();
   });
 
-  // Auto-load if token in URL or sessionStorage
-  var urlToken = new URLSearchParams(window.location.search).get('token');
-  var cached = null;
-  try { cached = sessionStorage.getItem('orcatrade-leads-token'); } catch (_e) {}
-  var initial = urlToken || cached;
-  if (initial) {
-    els.tokenInput.value = initial;
-    load(initial);
+  // Sprint admin-session-auth — try the session cookie first. If the
+  // signed-in user is on ORCATRADE_ADMIN_EMAILS the request succeeds
+  // and we render straight away. On 401 we fall back to the token form
+  // (URL ?token=, sessionStorage cache, or manual paste).
+  function tryCookieAuth() {
+    return fetch('/api/leads', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data) return false;
+        showDashboard(data);
+        return true;
+      })
+      .catch(function () { return false; });
   }
+
+  tryCookieAuth().then(function (ok) {
+    if (ok) return;
+    var urlToken = new URLSearchParams(window.location.search).get('token');
+    var cached = null;
+    try { cached = sessionStorage.getItem('orcatrade-leads-token'); } catch (_e) {}
+    var initial = urlToken || cached;
+    if (initial) {
+      els.tokenInput.value = initial;
+      load(initial);
+    }
+  });
 })();

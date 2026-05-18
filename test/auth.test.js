@@ -249,6 +249,44 @@ test('handleMe: 200 + user when valid cookie present', async () => {
   assert.equal(json.user.email, 'signed-in@example.com');
 });
 
+test('handleMe: isAdmin=false when email not on ORCATRADE_ADMIN_EMAILS', async () => {
+  const prev = process.env.ORCATRADE_ADMIN_EMAILS;
+  process.env.ORCATRADE_ADMIN_EMAILS = 'admin@orcatrade.pl';
+  try {
+    const cookie = auth.buildSessionCookie('not-admin@example.com');
+    const req = { method: 'GET', headers: { cookie: `orcatrade_session=${encodeURIComponent(cookie)}` } };
+    const res = mockRes();
+    await authHandler.handleMe(req, res);
+    const json = JSON.parse(res.body);
+    assert.equal(json.isAdmin, false);
+  } finally {
+    if (prev === undefined) delete process.env.ORCATRADE_ADMIN_EMAILS;
+    else process.env.ORCATRADE_ADMIN_EMAILS = prev;
+  }
+});
+
+test('handleMe: isAdmin=true when email is on ORCATRADE_ADMIN_EMAILS', async () => {
+  const prev = process.env.ORCATRADE_ADMIN_EMAILS;
+  process.env.ORCATRADE_ADMIN_EMAILS = 'admin@orcatrade.pl, OTHER@orcatrade.pl';
+  try {
+    const cookie = auth.buildSessionCookie('admin@orcatrade.pl');
+    const req = { method: 'GET', headers: { cookie: `orcatrade_session=${encodeURIComponent(cookie)}` } };
+    const res = mockRes();
+    await authHandler.handleMe(req, res);
+    const json = JSON.parse(res.body);
+    assert.equal(json.isAdmin, true);
+    // Case-insensitive check via the second entry.
+    const cookie2 = auth.buildSessionCookie('other@orcatrade.pl');
+    const req2 = { method: 'GET', headers: { cookie: `orcatrade_session=${encodeURIComponent(cookie2)}` } };
+    const res2 = mockRes();
+    await authHandler.handleMe(req2, res2);
+    assert.equal(JSON.parse(res2.body).isAdmin, true);
+  } finally {
+    if (prev === undefined) delete process.env.ORCATRADE_ADMIN_EMAILS;
+    else process.env.ORCATRADE_ADMIN_EMAILS = prev;
+  }
+});
+
 test('handleLogout: clears cookie + 200 on POST', async () => {
   const req = { method: 'POST', headers: {} };
   const res = mockRes();

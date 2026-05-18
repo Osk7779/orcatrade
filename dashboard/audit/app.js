@@ -134,40 +134,41 @@
     if (currentValue) sel.value = currentValue;
   }
 
-  async function refresh() {
+  // silent=true skips the "Token required" error on cold load when the
+  // admin is signed in but hasn't pasted a token (Sprint admin-session-auth).
+  async function refresh(silent) {
     clearErr();
     var token = el('tokenInput').value.trim();
-    if (!token) {
-      showErr('Token required — paste your ORCATRADE_LEADS_TOKEN above.');
-      el('stats').innerHTML = '';
-      el('tableHost').innerHTML = '';
-      return;
-    }
-    saveToken(token);
+    if (token) saveToken(token);
     var type = el('typeFilter').value || '';
     var limit = Number(el('limitInput').value) || 200;
-    var qs = new URLSearchParams({ token: token, limit: String(limit) });
+    var qs = new URLSearchParams({ limit: String(limit) });
+    if (token) qs.set('token', token);
     if (type) qs.set('type', type);
     el('reloadBtn').disabled = true;
     try {
       var res = await fetch('/api/audit?' + qs.toString(), { credentials: 'same-origin' });
       if (res.status === 401) {
-        showErr('Unauthorized — check the token.');
-        el('stats').innerHTML = '';
-        el('tableHost').innerHTML = '';
-        return;
+        if (!silent) {
+          showErr(token ? 'Unauthorized — check the token.' : 'Token required — paste your ORCATRADE_LEADS_TOKEN above.');
+          el('stats').innerHTML = '';
+          el('tableHost').innerHTML = '';
+        }
+        return false;
       }
       if (!res.ok) {
-        showErr('Audit fetch failed: HTTP ' + res.status);
-        return;
+        if (!silent) showErr('Audit fetch failed: HTTP ' + res.status);
+        return false;
       }
       var body = await res.json();
       refreshTypeFilterOptions(body.allowedTypes, type);
       renderStats(body.events || []);
       renderTable(body.events || []);
       el('lastChecked').textContent = 'Last checked: ' + new Date(body.asOf).toLocaleTimeString() + ' · ' + body.returned + ' of ' + (body.events || []).length;
+      return true;
     } catch (err) {
-      showErr('Network error: ' + err.message);
+      if (!silent) showErr('Network error: ' + err.message);
+      return false;
     } finally {
       el('reloadBtn').disabled = false;
     }
@@ -175,11 +176,13 @@
 
   document.addEventListener('DOMContentLoaded', function () {
     loadToken();
-    el('reloadBtn').addEventListener('click', refresh);
-    el('typeFilter').addEventListener('change', refresh);
+    el('reloadBtn').addEventListener('click', function () { refresh(false); });
+    el('typeFilter').addEventListener('change', function () { refresh(false); });
     el('tokenInput').addEventListener('keypress', function (ev) {
-      if (ev.key === 'Enter') refresh();
+      if (ev.key === 'Enter') refresh(false);
     });
-    if (el('tokenInput').value) refresh();
+    // Sprint admin-session-auth — try cookie auth silently; if it works,
+    // the dashboard renders without the operator pasting a token.
+    refresh(true);
   });
 })();
