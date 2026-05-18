@@ -9,6 +9,7 @@
     },
     { "source": "/feed.xml", "destination": "/api/feed?format=rss" },
     { "source": "/atom.xml", "destination": "/api/feed?format=atom" },
-    { "source": "/share/:code", "destination": "/api/share/:code" }
+    { "source": "/share/:code", "destination": "/api/share/:code" },
+    { "source": "/api/:path+", "destination": "/api/[...path]" }
   ]
 }
