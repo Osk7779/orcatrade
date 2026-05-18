@@ -22,6 +22,11 @@
     .breadcrumbs a:hover { color: rgba(255,255,255,0.95); }
 
     .tier-pill { display: inline-block; padding: 0.5rem 1.1rem; background: rgba(184,190,200,0.08); border: 1px solid rgba(184,190,200,0.25); font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.4rem; font-weight: 600; color: rgba(255,255,255,0.97); margin: 0.4rem 0 0.8rem; }
+    /* Sprint BG-3.4 — org-tier provenance badge */
+    .org-tier-badge { display: inline-flex; align-items: baseline; gap: 0.55rem; padding: 0.4rem 0.8rem; background: rgba(220, 188, 110, 0.08); border: 1px solid rgba(220, 188, 110, 0.35); margin: 0 0 1rem; font-size: 0.85rem; color: rgba(255,255,255,0.85); }
+    .org-tier-badge .badge-label { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(220, 188, 110, 0.85); }
+    .org-tier-badge .badge-link { font-family: 'Cormorant Garant', Georgia, serif; font-weight: 600; color: rgba(255,255,255,0.95); text-decoration: none; border-bottom: 1px dashed rgba(255,255,255,0.25); }
+    .org-tier-badge .badge-link:hover { border-bottom-color: rgba(255,255,255,0.6); }
     .tier-pill.tier-free { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.15); }
     .tier-pill.tier-active { background: rgba(95, 181, 107, 0.08); border-color: rgba(95, 181, 107, 0.4); }
 
@@ -122,11 +127,21 @@
             <h1>Your subscription</h1>
             <div id="success-msg" class="ok-msg" hidden>Subscription activated. Welcome aboard.</div>
             <div id="tier-pill" class="tier-pill"></div>
+            <!-- Sprint BG-3.4 — tier provenance badge. Renders when the
+                 user's effective tier comes from an org-tier override
+                 (BG-3.3 phase 1). Hidden when origin is 'email' or
+                 'default'. The link lands at /account/orgs/?id=<orgId>
+                 so the user can see who else is on the same plan. -->
+            <div id="org-tier-badge" class="org-tier-badge" hidden>
+              <span class="badge-label">via your organisation</span>
+              <a id="org-tier-link" href="#" class="badge-link">—</a>
+            </div>
             <div class="meta-grid" id="meta">
               <span class="k">Email</span><span class="v" id="email">—</span>
               <span class="k">Billing</span><span class="v" id="billing">—</span>
               <span class="k">Since</span><span class="v" id="since">—</span>
               <span class="k">Source</span><span class="v" id="source">—</span>
+              <span class="k">Origin</span><span class="v" id="origin">—</span>
             </div>
             <div class="actions">
               <button type="button" class="btn btn-primary" id="portal-btn" hidden>Manage subscription</button>

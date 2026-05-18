@@ -11,6 +11,10 @@
     loaded: document.getElementById('state-loaded'),
     successMsg: document.getElementById('success-msg'),
     tierPill: document.getElementById('tier-pill'),
+    // Sprint BG-3.4 — org-tier provenance
+    orgTierBadge: document.getElementById('org-tier-badge'),
+    orgTierLink: document.getElementById('org-tier-link'),
+    origin: document.getElementById('origin'),
     email: document.getElementById('email'),
     billing: document.getElementById('billing'),
     since: document.getElementById('since'),
@@ -44,6 +48,17 @@
     els.billing.textContent = data.billingCycle ? data.billingCycle : '—';
     els.since.textContent = fmtDate(data.since);
     els.source.textContent = data.source || 'default';
+    if (els.origin) els.origin.textContent = data.origin || 'default';
+
+    // Sprint BG-3.4 — org-tier provenance badge. Surfaces only when
+    // the tier comes from an org override (BG-3.3 phase 1). Wiring
+    // the link to /account/orgs/?id=<orgId> lets the user see the
+    // team they're billing through.
+    if (data.origin === 'org' && data.orgId && els.orgTierBadge && els.orgTierLink) {
+      els.orgTierLink.textContent = data.orgName || data.orgId;
+      els.orgTierLink.href = '/account/orgs/?id=' + encodeURIComponent(data.orgId);
+      show(els.orgTierBadge);
+    }
 
     if (data.hasStripeCustomer) {
       show(els.portalBtn);
