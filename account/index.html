@@ -39,6 +39,21 @@
     .quick-links a:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); }
     .quick-links .ql-title { display: block; font-family: 'Cormorant Garant', Georgia, serif; font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.95); }
     .quick-links .ql-sub { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 0.15rem; }
+
+    /* Sprint onboarding-v1 — getting-started checklist card */
+    .onboarding-card { padding: 1.2rem 1.4rem; margin: 1.4rem 0 0.4rem; background: rgba(220, 188, 110, 0.05); border: 1px solid rgba(220, 188, 110, 0.25); }
+    .onboarding-card .ob-kicker { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(220, 188, 110, 0.85); margin-bottom: 0.45rem; }
+    .onboarding-card h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; margin: 0 0 0.5rem; color: rgba(255,255,255,0.95); }
+    .onboarding-card .ob-progress { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.55); margin-bottom: 0.9rem; }
+    .onboarding-card ul.ob-steps { list-style: none; margin: 0 0 0.4rem; padding: 0; }
+    .onboarding-card ul.ob-steps li { display: flex; align-items: center; gap: 0.65rem; padding: 0.4rem 0; font-size: 0.92rem; color: rgba(255,255,255,0.82); }
+    .onboarding-card ul.ob-steps li.done { color: rgba(255,255,255,0.5); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
+    .onboarding-card ul.ob-steps li.next { color: rgba(255,255,255,0.97); font-weight: 600; }
+    .onboarding-card .ob-check { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 1px solid rgba(255,255,255,0.25); font-family: 'Geist Mono', monospace; font-size: 0.7rem; flex-shrink: 0; }
+    .onboarding-card li.done .ob-check { background: rgba(126, 210, 138, 0.18); border-color: rgba(126, 210, 138, 0.6); color: #7ed28a; }
+    .onboarding-card li.next .ob-check { border-color: rgba(220, 188, 110, 0.6); color: rgba(220, 188, 110, 0.95); }
+    .onboarding-card .ob-cta { display: inline-block; margin-left: auto; padding: 0.25rem 0.7rem; font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(220, 188, 110, 0.95); text-decoration: none; border: 1px solid rgba(220, 188, 110, 0.5); font-weight: 600; }
+    .onboarding-card .ob-cta:hover { background: rgba(220, 188, 110, 0.08); }
   </style>
 
 
@@ -143,6 +158,11 @@
               </div>
             </div>
             <p id="revoke-all-msg" style="min-height:1.2em; font-size:0.85rem; color: rgba(255,255,255,0.7); margin-top:0.6rem;"></p>
+            <!-- Sprint onboarding-v1 — getting-started checklist. Populated by
+                 app.js after /api/account/onboarding succeeds. Hidden when
+                 allDone (the user has finished all four moat-building
+                 actions) so the card doesn't clutter the page forever. -->
+            <div id="onboarding-card" class="onboarding-card" hidden></div>
             <div class="quick-links">
               <h2>Quick links</h2>
               <a href="/account/plans/">

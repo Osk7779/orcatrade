@@ -33,11 +33,65 @@
       if (data && data.user && data.user.email) {
         document.getElementById('signedin-email').textContent = data.user.email;
         showState('signedin');
+        // Sprint onboarding-v1 — fetch + render the checklist after
+        // auth resolves. Failure here is non-blocking; the account
+        // page still works without the card.
+        loadOnboarding();
       } else {
         showState('signin');
       }
     })
     .catch(function () { showState('signin'); });
+
+  // ── Sprint onboarding-v1 ─────────────────────────────
+  function escapeHtml(s) {
+    var d = document.createElement('div');
+    d.textContent = String(s == null ? '' : s);
+    return d.innerHTML;
+  }
+
+  function renderOnboarding(payload) {
+    if (!payload || !payload.progress || !payload.steps) return '';
+    var p = payload.progress;
+    if (p.allDone) return '';                  // hide once everything is done
+    var nextKey = payload.nextStep ? payload.nextStep.key : null;
+    var rows = payload.steps.map(function (step) {
+      var done = !!p[step.key];
+      var isNext = !done && step.key === nextKey;
+      var cls = done ? 'done' : (isNext ? 'next' : '');
+      var check = done ? '✓' : (isNext ? '→' : '');
+      var cta = isNext
+        ? '<a class="ob-cta" href="' + escapeHtml(step.href) + '">' + escapeHtml(step.cta) + '</a>'
+        : '';
+      return '<li class="' + cls + '">'
+        + '<span class="ob-check">' + check + '</span>'
+        + '<span>' + escapeHtml(step.label) + '</span>'
+        + cta
+      + '</li>';
+    }).join('');
+    return ''
+      + '<div class="ob-kicker">Getting started</div>'
+      + '<h2>Make OrcaTrade work for you</h2>'
+      + '<div class="ob-progress">'
+      +   p.completed + ' of ' + p.total + ' steps complete'
+      + '</div>'
+      + '<ul class="ob-steps">' + rows + '</ul>';
+  }
+
+  function loadOnboarding() {
+    var el = document.getElementById('onboarding-card');
+    if (!el) return;
+    fetch('/api/account/onboarding', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.ok) return;
+        var html = renderOnboarding(data);
+        if (!html) { el.hidden = true; return; }
+        el.innerHTML = html;
+        el.hidden = false;
+      })
+      .catch(function () { /* non-blocking */ });
+  }
 
   // ── Sign-in form submission ──────────────────────────
 
