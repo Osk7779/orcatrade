@@ -339,6 +339,8 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // to apply Postgres schema changes.
   // Sprint BG-1.7 adds calibration-drift-check — nightly aggregator
   // that emits Sentry warns when groups cross drift thresholds.
+  // Sprint weekly-digest-v1 adds weekly-user-digest — once-weekly
+  // portfolio summary email for every user with saved plans.
   const ids = Object.keys(cronHandler.JOBS).sort();
   assert.deepEqual(ids, [
     'calibration-drift-check',
@@ -347,5 +349,6 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'plan-revision-emails',
     'regime-change-check',
     'taric-warm',
+    'weekly-user-digest',
   ]);
 });
