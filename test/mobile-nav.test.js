@@ -92,3 +92,45 @@ test('CSS surfaces the lang switcher inside the OPEN mobile menu overlay', () =>
   assert.match(css, /\.nav-links\.is-open\s*~\s*\.lang-switcher\s*\{[^}]*display:\s*flex/);
   assert.match(css, /\.nav-links\.is-open\s*~\s*\.lang-switcher\s*\{[^}]*position:\s*fixed/);
 });
+
+// ── Header must not trap the position:fixed menu overlay ────────
+//
+// CSS properties that create a containing block on an ancestor will
+// re-anchor `position: fixed` descendants to that ancestor instead of
+// the viewport. For the mobile menu (.nav-links { position: fixed;
+// inset: 0 }) this means the "fullscreen" overlay collapses to the
+// header's bounds and page content shows below it — exactly the bug
+// the user saw on their phone. Pin every offending property OFF the
+// <header> element. The same visual effects (blur, gradient) live on
+// header::before, which has no descendants and so traps nothing.
+
+test('CSS: <header> must NOT have backdrop-filter (it traps the mobile menu overlay)', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'css', 'styles.css'), 'utf8');
+  // Find the bare `header { ... }` blocks (NOT header::before or header.scrolled).
+  const headerBlocks = [...css.matchAll(/(?:^|\n)header\s*\{([\s\S]*?)\n\}/g)].map(m => m[1]);
+  assert.ok(headerBlocks.length, 'expected at least one bare `header { ... }` block');
+  for (const block of headerBlocks) {
+    assert.doesNotMatch(block, /backdrop-filter\s*:/,
+      'backdrop-filter on <header> creates a containing block that breaks the mobile menu');
+  }
+});
+
+test('CSS: header::before owns the backdrop-filter (preserves blur without containing-block trap)', () => {
+  const css = fs.readFileSync(path.join(ROOT, 'css', 'styles.css'), 'utf8');
+  assert.match(css, /header::before\s*\{[^}]*backdrop-filter\s*:\s*blur/);
+});
+
+test('CSS: <header> must NOT carry transform/filter/perspective either (containing-block traps)', () => {
+  // The same trap applies to transform, filter, perspective. We never
+  // want them on the bare <header> element for the same reason.
+  const css = fs.readFileSync(path.join(ROOT, 'css', 'styles.css'), 'utf8');
+  const headerBlocks = [...css.matchAll(/(?:^|\n)header\s*\{([\s\S]*?)\n\}/g)].map(m => m[1]);
+  for (const block of headerBlocks) {
+    assert.doesNotMatch(block, /(?:^|\s|;)transform\s*:/,
+      'transform on <header> would create a containing block');
+    assert.doesNotMatch(block, /(?:^|\s|;)filter\s*:/,
+      'filter on <header> would create a containing block');
+    assert.doesNotMatch(block, /(?:^|\s|;)perspective\s*:/,
+      'perspective on <header> would create a containing block');
+  }
+});

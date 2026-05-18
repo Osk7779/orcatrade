@@ -109,13 +109,30 @@ header {
      agent composer 5, hero globe 0, etc.). Only the cache MODAL on
      first visit intentionally outranks it. */
   z-index: 1000;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  /* IMPORTANT: backdrop-filter + background live on ::before, not on
+     <header> itself. Putting backdrop-filter on <header> creates a CSS
+     containing block for descendants — which traps the mobile menu's
+     `position: fixed` overlay inside the header's tiny height (menu
+     appears as a strip at the top, page content shows below). The
+     pseudo-element approach preserves the visual blur without that
+     side effect. */
+}
+
+header::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   background: linear-gradient(to bottom,
     rgba(4, 9, 20, 0.92),
     rgba(4, 9, 20, 0.80),
     transparent
   );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  pointer-events: none;
+  transition: backdrop-filter 0.32s ease, background 0.32s ease;
 }
 
 .nav {
@@ -2790,13 +2807,21 @@ body::after {
 /* ===== WOW · Nav lift on scroll ===== */
 
 header.scrolled {
-  background: rgba(4, 9, 20, 0.92);
   border-bottom-color: rgba(255, 255, 255, 0.12);
   box-shadow: 0 12px 40px rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(20px);
+  /* backdrop-filter + background moved to ::before — see header rule.
+     Putting backdrop-filter directly on <header> creates a containing
+     block that breaks the mobile menu's fullscreen overlay. */
 }
+
+header.scrolled::before {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(4, 9, 20, 0.92);
+}
+
 header {
-  transition: background 0.32s ease, border-color 0.32s ease, box-shadow 0.32s ease, backdrop-filter 0.32s ease;
+  transition: border-color 0.32s ease, box-shadow 0.32s ease;
 }
 
 /* ===== Reduced motion safeguards ===== */
