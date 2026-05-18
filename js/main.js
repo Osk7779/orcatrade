@@ -465,38 +465,12 @@ document.addEventListener('DOMContentLoaded', function () {
     }
   }
 
-  function initMobileNav() {
-    const toggle = document.querySelector('.nav-toggle');
-    const links = document.querySelector('.nav-links');
-    if (!toggle || !links) return;
-
-    function closeMenu() {
-      toggle.setAttribute('aria-expanded', 'false');
-      toggle.setAttribute('aria-label', 'Open navigation');
-      links.classList.remove('is-open');
-      document.body.style.overflow = '';
-    }
-
-    toggle.addEventListener('click', function () {
-      const open = toggle.getAttribute('aria-expanded') === 'true';
-      if (open) {
-        closeMenu();
-      } else {
-        toggle.setAttribute('aria-expanded', 'true');
-        toggle.setAttribute('aria-label', 'Close navigation');
-        links.classList.add('is-open');
-        document.body.style.overflow = 'hidden';
-      }
-    });
-
-    links.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', closeMenu);
-    });
-
-    document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape') closeMenu();
-    });
-  }
+  // Mobile nav is owned by js/site-nav.js — it renders + binds the
+  // hamburger as part of its locale-aware header. main.js used to ship
+  // its own initMobileNav() too, which attached a SECOND click listener
+  // to the same button; the two handlers cancelled each other (open
+  // then immediately close), so the menu never visibly expanded on
+  // mobile. Removed in the BG-5.6 follow-up fix.
 
   const yearEl = document.getElementById('year');
   if (yearEl) yearEl.textContent = new Date().getFullYear();
@@ -505,7 +479,6 @@ document.addEventListener('DOMContentLoaded', function () {
   initAnchorLinks();
   initReadMoreToggle('missionToggle', 'missionMore');
   initReadMoreToggle('leaderToggle', 'leaderMore');
-  initMobileNav();
   highlightActive();
   scheduleScrollWork();
 
