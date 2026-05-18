@@ -1,0 +1,86 @@
+{
+  "compliance": {
+    "count": 2,
+    "ids": [
+      "BATTERY",
+      "PPWR"
+    ]
+  },
+  "customs": {
+    "bonded": {
+      "brokerageEur": null,
+      "dutyEur": null,
+      "landedCostEur": null,
+      "totalEur": null,
+      "vatEur": null
+    },
+    "preferentialApplied": null,
+    "standard": {
+      "brokerageEur": 53,
+      "dutyEur": 97300,
+      "dutyRate": 97.3,
+      "effectiveLandedCostEur": 197378,
+      "entrySummaryDeclarationEur": 25,
+      "landedCostEur": 242679,
+      "totalEur": 242757,
+      "vatEur": 45379,
+      "vatRate": 23,
+      "vatRecoverableEur": 45379
+    },
+    "tradeDefence": [
+      {
+        "citation": "Reg. (EU) 2019/73",
+        "ratePct": 70.1,
+        "type": "AD"
+      },
+      {
+        "citation": "Reg. (EU) 2019/72",
+        "ratePct": 17.2,
+        "type": "CVD"
+      }
+    ]
+  },
+  "fx": null,
+  "ok": true,
+  "originSensitivity": {
+    "matrixLength": 5,
+    "savingEurVsUserOrigin": 124067,
+    "savingPctVsUserOrigin": 49
+  },
+  "routing": {
+    "primaryMode": "air"
+  },
+  "snapshotVersion": 1,
+  "tco": {
+    "annualBrokerageEur": 318,
+    "annualCashFlowCost": 923682,
+    "annualCustomsValueEur": 600000,
+    "annualDutyEur": 583800,
+    "annualNetCost": 651408,
+    "annualTransportEur": 59400,
+    "annualVatEur": 272274,
+    "annualWarehouseEur": 0,
+    "avgInventoryValueEur": 98630,
+    "inventoryCarryingCostEur": 7890
+  },
+  "totals": {
+    "brokerageEur": 53,
+    "customsValueEur": 100000,
+    "dutyEur": 97300,
+    "effectiveLandedTotal": 207253,
+    "perShipmentLandedTotal": 252632,
+    "transportEur": 9900,
+    "vatEur": 45379,
+    "vatRecoverableEur": 45379,
+    "warehouseMonthlyEur": null
+  },
+  "workingCapital": {
+    "annualCapitalCostEur": 0,
+    "ccc": 0,
+    "dio": 60,
+    "dpo": 60,
+    "dso": 0,
+    "verdict": "tight",
+    "workingCapitalEur": 0
+  }
+}

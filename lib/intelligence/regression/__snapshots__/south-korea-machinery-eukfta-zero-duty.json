@@ -1,0 +1,79 @@
+{
+  "compliance": {
+    "count": 2,
+    "ids": [
+      "CE_MACHINERY",
+      "PPWR"
+    ]
+  },
+  "customs": {
+    "bonded": {
+      "brokerageEur": null,
+      "dutyEur": null,
+      "landedCostEur": null,
+      "totalEur": null,
+      "vatEur": null
+    },
+    "preferentialApplied": {
+      "code": "EUKFTA",
+      "mfnReplaced": true,
+      "ratePct": 0
+    },
+    "standard": {
+      "brokerageEur": 53,
+      "dutyEur": 0,
+      "dutyRate": 0,
+      "effectiveLandedCostEur": 80078,
+      "entrySummaryDeclarationEur": 25,
+      "landedCostEur": 98400,
+      "totalEur": 98478,
+      "vatEur": 18400,
+      "vatRate": 23,
+      "vatRecoverableEur": 18400
+    },
+    "tradeDefence": []
+  },
+  "fx": null,
+  "ok": true,
+  "originSensitivity": {
+    "matrixLength": 6,
+    "savingEurVsUserOrigin": 13000,
+    "savingPctVsUserOrigin": 10
+  },
+  "routing": {
+    "primaryMode": "air"
+  },
+  "snapshotVersion": 1,
+  "tco": {
+    "annualBrokerageEur": 212,
+    "annualCashFlowCost": 187820,
+    "annualCustomsValueEur": 320000,
+    "annualDutyEur": 0,
+    "annualNetCost": 114220,
+    "annualTransportEur": 109800,
+    "annualVatEur": 73600,
+    "annualWarehouseEur": 0,
+    "avgInventoryValueEur": 52603,
+    "inventoryCarryingCostEur": 4208
+  },
+  "totals": {
+    "brokerageEur": 53,
+    "customsValueEur": 80000,
+    "dutyEur": 0,
+    "effectiveLandedTotal": 107503,
+    "perShipmentLandedTotal": 125903,
+    "transportEur": 27450,
+    "vatEur": 18400,
+    "vatRecoverableEur": 18400,
+    "warehouseMonthlyEur": null
+  },
+  "workingCapital": {
+    "annualCapitalCostEur": 0,
+    "ccc": 0,
+    "dio": 60,
+    "dpo": 60,
+    "dso": 0,
+    "verdict": "tight",
+    "workingCapitalEur": 0
+  }
+}

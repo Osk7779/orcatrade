@@ -1,0 +1,82 @@
+{
+  "compliance": {
+    "count": 5,
+    "ids": [
+      "CE_LVD_EMC_RED",
+      "GPSR",
+      "PPWR",
+      "ROHS",
+      "WEEE"
+    ]
+  },
+  "customs": {
+    "bonded": {
+      "brokerageEur": null,
+      "dutyEur": null,
+      "landedCostEur": null,
+      "totalEur": null,
+      "vatEur": null
+    },
+    "preferentialApplied": {
+      "code": "EVFTA",
+      "mfnReplaced": true,
+      "ratePct": 0
+    },
+    "standard": {
+      "brokerageEur": 61,
+      "dutyEur": 0,
+      "dutyRate": 0,
+      "effectiveLandedCostEur": 50086,
+      "entrySummaryDeclarationEur": 25,
+      "landedCostEur": 59500,
+      "totalEur": 59586,
+      "vatEur": 9500,
+      "vatRate": 19,
+      "vatRecoverableEur": 9500
+    },
+    "tradeDefence": []
+  },
+  "fx": null,
+  "ok": true,
+  "originSensitivity": {
+    "matrixLength": 5,
+    "savingEurVsUserOrigin": 715,
+    "savingPctVsUserOrigin": 1
+  },
+  "routing": {
+    "primaryMode": "air"
+  },
+  "snapshotVersion": 1,
+  "tco": {
+    "annualBrokerageEur": 366,
+    "annualCashFlowCost": 70791,
+    "annualCustomsValueEur": 300000,
+    "annualDutyEur": 0,
+    "annualNetCost": 13791,
+    "annualTransportEur": 9480,
+    "annualVatEur": 57000,
+    "annualWarehouseEur": 26976,
+    "avgInventoryValueEur": 49315,
+    "inventoryCarryingCostEur": 3945
+  },
+  "totals": {
+    "brokerageEur": 61,
+    "customsValueEur": 50000,
+    "dutyEur": 0,
+    "effectiveLandedTotal": 51641,
+    "perShipmentLandedTotal": 61141,
+    "transportEur": 1580,
+    "vatEur": 9500,
+    "vatRecoverableEur": 9500,
+    "warehouseMonthlyEur": 2248
+  },
+  "workingCapital": {
+    "annualCapitalCostEur": 0,
+    "ccc": 0,
+    "dio": 60,
+    "dpo": 60,
+    "dso": 0,
+    "verdict": "tight",
+    "workingCapitalEur": 0
+  }
+}

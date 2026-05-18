@@ -1,0 +1,81 @@
+{
+  "compliance": {
+    "count": 4,
+    "ids": [
+      "COSMETICS",
+      "GPSR",
+      "PPWR",
+      "REACH"
+    ]
+  },
+  "customs": {
+    "bonded": {
+      "brokerageEur": null,
+      "dutyEur": null,
+      "landedCostEur": null,
+      "totalEur": null,
+      "vatEur": null
+    },
+    "preferentialApplied": {
+      "code": "GSP_STANDARD",
+      "mfnReplaced": true,
+      "ratePct": 0
+    },
+    "standard": {
+      "brokerageEur": 93,
+      "dutyEur": 0,
+      "dutyRate": 0,
+      "effectiveLandedCostEur": 30118,
+      "entrySummaryDeclarationEur": 25,
+      "landedCostEur": 35700,
+      "totalEur": 35818,
+      "vatEur": 5700,
+      "vatRate": 19,
+      "vatRecoverableEur": 5700
+    },
+    "tradeDefence": []
+  },
+  "fx": null,
+  "ok": true,
+  "originSensitivity": {
+    "matrixLength": 5,
+    "savingEurVsUserOrigin": 2535,
+    "savingPctVsUserOrigin": 6
+  },
+  "routing": {
+    "primaryMode": "air"
+  },
+  "snapshotVersion": 1,
+  "tco": {
+    "annualBrokerageEur": 558,
+    "annualCashFlowCost": 66105,
+    "annualCustomsValueEur": 180000,
+    "annualDutyEur": 0,
+    "annualNetCost": 31905,
+    "annualTransportEur": 28980,
+    "annualVatEur": 34200,
+    "annualWarehouseEur": 0,
+    "avgInventoryValueEur": 29589,
+    "inventoryCarryingCostEur": 2367
+  },
+  "totals": {
+    "brokerageEur": 93,
+    "customsValueEur": 30000,
+    "dutyEur": 0,
+    "effectiveLandedTotal": 34923,
+    "perShipmentLandedTotal": 40623,
+    "transportEur": 4830,
+    "vatEur": 5700,
+    "vatRecoverableEur": 5700,
+    "warehouseMonthlyEur": null
+  },
+  "workingCapital": {
+    "annualCapitalCostEur": 0,
+    "ccc": 0,
+    "dio": 60,
+    "dpo": 60,
+    "dso": 0,
+    "verdict": "tight",
+    "workingCapitalEur": 0
+  }
+}
