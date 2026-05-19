@@ -54,6 +54,15 @@
 
   // ── Intercept internal link clicks ───────────────────────
   document.addEventListener('click', function (e) {
+    // Sprint pricing-checkout-fix — respect any prior handler that
+    // called preventDefault on this click. Otherwise this global
+    // interceptor races against feature-specific click handlers
+    // (e.g. /pricing/'s Subscribe button, /account/plans/'s share
+    // controls) and its 500ms setTimeout navigation cancels their
+    // in-flight redirects. Without this check, a Subscribe click
+    // that successfully returns a Stripe Checkout URL still gets
+    // overwritten 500ms later by the link's fallback href.
+    if (e.defaultPrevented) return;
     var link = e.target.closest('a[href]');
     if (!link) return;
     var href = link.getAttribute('href');
