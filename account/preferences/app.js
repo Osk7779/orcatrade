@@ -57,6 +57,16 @@
         input.disabled = false;
         input.addEventListener('change', function () { savePref(input, key); });
       });
+      // Sprint email-locale-v1 — locale selector. The server returns
+      // the current value + the allowedLocales array; we set the
+      // <select> and listen for change. Skipped silently if the page
+      // doesn't carry the selector (forwards-compat with future trims).
+      var localeSelect = document.querySelector('select[data-pref-key="locale"]');
+      if (localeSelect && data.prefs && data.prefs.locale) {
+        localeSelect.value = data.prefs.locale;
+        localeSelect.disabled = false;
+        localeSelect.addEventListener('change', function () { saveLocale(localeSelect); });
+      }
     } catch (err) {
       els.content.hidden = false;
       showError('Network error: ' + (err && err.message ? err.message : 'unknown'));
@@ -88,6 +98,34 @@
       showError('Network error: ' + (err && err.message ? err.message : 'unknown') + '. Reverted.');
     } finally {
       input.disabled = false;
+    }
+  }
+
+  // Sprint email-locale-v1 — string-valued counterpart to savePref.
+  async function saveLocale(select) {
+    clearError();
+    var nextValue = select.value;
+    var prevValue = select.getAttribute('data-prev') || nextValue;
+    select.disabled = true;
+    try {
+      var resp = await fetch('/api/account/preferences', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ locale: nextValue }),
+      });
+      if (!resp.ok) {
+        select.value = prevValue;
+        showError('Could not save (HTTP ' + resp.status + '). Reverted.');
+        return;
+      }
+      select.setAttribute('data-prev', nextValue);
+      showFlash();
+    } catch (err) {
+      select.value = prevValue;
+      showError('Network error: ' + (err && err.message ? err.message : 'unknown') + '. Reverted.');
+    } finally {
+      select.disabled = false;
     }
   }
 

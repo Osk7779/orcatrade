@@ -35,6 +35,12 @@
     .switch input:checked + .slider:before { transform: translateX(22px); }
     .switch input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
 
+    /* Sprint email-locale-v1 — language selector. */
+    .locale-select { flex-shrink: 0; }
+    .locale-select select { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.92); padding: 0.5rem 0.8rem; font-family: 'Geist Mono', monospace; font-size: 0.85rem; border-radius: 4px; cursor: pointer; min-width: 110px; }
+    .locale-select select:disabled { opacity: 0.5; cursor: not-allowed; }
+    .locale-select select:focus { outline: none; border-color: rgba(220, 188, 110, 0.65); }
+
     .auth-needed { text-align: center; padding: 3rem 1.5rem; }
     .auth-needed h2 { font-family: 'Cormorant Garant', serif; font-size: 1.5rem; margin-bottom: 0.8rem; }
     .auth-needed a { color: rgba(220, 188, 110, 0.9); text-decoration: none; font-weight: 600; }
@@ -138,6 +144,22 @@
         <label class="switch">
           <input type="checkbox" data-pref-key="weeklyDigestEmails" disabled />
           <span class="slider"></span>
+        </label>
+      </div>
+
+      <!-- Sprint email-locale-v1 — language selector for transactional emails. -->
+      <div class="pref-card" data-pref="locale">
+        <div class="body">
+          <h2>Email language</h2>
+          <p>The language OrcaTrade uses for plan-revision emails, the weekly digest, and the welcome email when you save your first plan. Defaults to the language of the wizard you used to save your first plan; change it any time.</p>
+          <p class="meta">Affects automated emails only · the website + wizard keep using your browser's locale.</p>
+        </div>
+        <label class="locale-select">
+          <select data-pref-key="locale" disabled>
+            <option value="en">English</option>
+            <option value="pl">Polski</option>
+            <option value="de">Deutsch</option>
+          </select>
         </label>
       </div>
 
