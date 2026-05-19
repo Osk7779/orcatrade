@@ -46,6 +46,10 @@ const handlers = {
   // Token-gated cron dispatcher. Scheduled jobs (founder digest,
   // plan-revision emails) fire from GitHub Actions → POST here.
   cron: require('../lib/handlers/cron'),
+  // Sprint cron-observability-v1 — admin-only status reader. Sibling
+  // route to /api/cron so a GET to /api/cron-status returns the last-run
+  // map without colliding with the POST dispatcher's token gate.
+  'cron-status': require('../lib/handlers/cron').handleStatus,
   // Legacy endpoints
   chat: require('../lib/handlers/chat'),
   check: require('../lib/handlers/check'),

@@ -2,55 +2,54 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Conversion analytics — OrcaTrade</title>
+  <title>Cron jobs — OrcaTrade ops</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Conversion analytics dashboard — counts by category, route, and locale, sourced from durable event log." />
-  <link rel="canonical" href="https://orcatrade.pl/dashboard/leads/" />
+  <meta name="description" content="Admin dashboard: when did each cron job last fire, and did it succeed?" />
   <meta name="robots" content="noindex, nofollow" />
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
-  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
-  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
   <style>
-    .leads-shell { max-width: 1080px; margin: 0 auto; padding: 3rem 1.5rem 5rem; position: relative; z-index: 1; }
-    .leads-shell h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3.5vw + 0.6rem, 2.6rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.4rem; line-height: 1.15; letter-spacing: -0.02em; }
-    .leads-shell .subtitle { font-size: 0.92rem; line-height: 1.55; color: rgba(255,255,255,0.6); margin-bottom: 1.6rem; }
-    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
-    .breadcrumbs a { color: rgba(255,255,255,0.7); text-decoration: none; }
-    .breadcrumbs a:hover { color: rgba(255,255,255,0.95); }
+    body { background: #050507; color: rgba(255,255,255,0.92); font-family: 'Geist', system-ui, sans-serif; }
+    .shell { max-width: 1080px; margin: 0 auto; padding: 3rem 1.5rem 6rem; }
+    h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; margin-bottom: 0.4rem; letter-spacing: -0.01em; }
+    .lead { font-size: 0.94rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 2rem; max-width: 70ch; }
+    .lead a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
+    .xrefs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.55); margin-bottom: 1.6rem; letter-spacing: 0.04em; }
+    .xrefs a { color: rgba(220, 188, 110, 0.85); text-decoration: none; margin-right: 0.8rem; }
 
-    .token-form { padding: 1.6rem 1.8rem; background: rgba(184,168,114,0.06); border: 1px solid rgba(200, 168, 90, 0.3); margin-bottom: 1.5rem; }
-    .token-form label { display: block; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; font-weight: 500; }
-    .token-form input { width: 100%; max-width: 480px; padding: 0.6rem 0.8rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.85rem; }
-    .token-form button { padding: 0.6rem 1.1rem; margin-left: 0.6rem; font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: var(--accent-color, #b8bec8); color: #0a0912; border: 1px solid var(--accent-color, #b8bec8); cursor: pointer; }
-    .token-form .err { font-size: 0.82rem; color: #c95050; margin-top: 0.5rem; }
+    .token-form { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.07); padding: 1.2rem 1.4rem; margin-bottom: 1.8rem; }
+    .token-form label { display: block; font-family: 'Geist Mono', monospace; font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 0.4rem; }
+    .token-form input { width: 100%; padding: 0.6rem 0.8rem; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.86rem; box-sizing: border-box; }
+    .token-form input:focus { outline: none; border-color: rgba(220, 188, 110, 0.65); }
+    .token-form .row { display: flex; gap: 0.6rem; margin-top: 0.5rem; }
+    .token-form button { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.55rem 1rem; background: transparent; border: 1px solid rgba(220, 188, 110, 0.55); color: rgba(220, 188, 110, 0.95); cursor: pointer; }
+    .token-form button:hover { background: rgba(220, 188, 110, 0.08); }
 
-    .tile-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.6rem; }
-    .tile { padding: 1.1rem 1.2rem; background: rgba(13, 15, 20, 0.55); border: 1px solid rgba(255,255,255,0.07); }
-    .tile .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 0.35rem; }
-    .tile .value { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.95rem; font-weight: 600; color: rgba(255,255,255,0.97); line-height: 1.05; letter-spacing: -0.01em; }
-    .tile .sub { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; }
+    .job-row { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.07); padding: 1rem 1.3rem; margin-bottom: 0.7rem; display: grid; grid-template-columns: 220px 100px 1fr auto; gap: 0.4rem 1rem; align-items: center; }
+    .job-row .name { font-family: 'Geist Mono', monospace; font-size: 0.88rem; color: rgba(255,255,255,0.95); font-weight: 600; }
+    .job-row .when { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.6); }
+    .job-row .summary { font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.5); overflow-wrap: anywhere; }
+    .job-row .pill { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.18rem 0.55rem; border: 1px solid currentColor; white-space: nowrap; text-align: center; }
+    .pill.ok      { color: #7ed28a; }
+    .pill.noop    { color: rgba(220, 188, 110, 0.9); }
+    .pill.error   { color: #e88080; }
+    .pill.never   { color: rgba(255,255,255,0.4); }
 
-    .panel { padding: 1.4rem 1.6rem; background: rgba(13, 15, 20, 0.45); border: 1px solid rgba(255,255,255,0.07); margin-bottom: 1rem; }
-    .panel h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.9rem; }
-    .panel-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 0.9rem; margin-bottom: 1rem; }
+    .error-detail { grid-column: 1 / -1; font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: #e88080; padding-top: 0.4rem; border-top: 1px solid rgba(232, 128, 128, 0.18); margin-top: 0.4rem; }
 
-    .bar-row { display: grid; grid-template-columns: 100px 1fr 50px; gap: 0.65rem; align-items: center; padding: 0.32rem 0; }
-    .bar-row .key { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .bar-row .bar { height: 0.5rem; background: linear-gradient(to right, rgba(184,190,200,0.55), rgba(184,190,200,0.2)); border-radius: 1px; }
-    .bar-row .count { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.75); text-align: right; }
+    .err { color: #e88080; font-family: 'Geist Mono', monospace; font-size: 0.82rem; padding: 0.7rem 0; }
+    .empty { padding: 1.2rem 0.2rem; font-style: italic; color: rgba(255,255,255,0.5); font-size: 0.9rem; }
 
-    table.recent { width: 100%; border-collapse: collapse; }
-    table.recent th, table.recent td { padding: 0.45rem 0.7rem; text-align: left; font-family: 'Geist Mono', monospace; font-size: 0.74rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.78); }
-    table.recent th { color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.66rem; }
-    table.recent td.email-yes { color: #5fb56b; }
-    table.recent td.email-no { color: rgba(255,255,255,0.45); }
+    .footer-note { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem; color: rgba(255,255,255,0.55); line-height: 1.6; }
+    .footer-note code { font-family: 'Geist Mono', monospace; padding: 0.05rem 0.35rem; background: rgba(255,255,255,0.05); }
 
-    .empty { padding: 1.4rem 1.6rem; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); text-align: center; font-size: 0.92rem; color: rgba(255,255,255,0.6); }
-    .meta-line { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 1rem; letter-spacing: 0.06em; }
+    @media (max-width: 700px) {
+      .job-row { grid-template-columns: 1fr; gap: 0.3rem; }
+    }
   </style>
-
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
   <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
@@ -105,76 +104,44 @@
   </script>
 </head>
 <body>
-  <div class="aurora" aria-hidden="true">
-    <div class="aurora-blob b1"></div>
-    <div class="aurora-blob b2"></div>
-    <div class="aurora-blob b3"></div>
-  </div>
-  <div class="page">
-    <header data-site-header></header>
-    <main>
-      <section class="leads-shell">
-        <div class="breadcrumbs">
-          <a href="/">Home</a> /
-          <a href="/dashboard/">Dashboard</a> /
-          Conversion analytics
-        </div>
-        <h1>Conversion analytics</h1>
-        <p class="subtitle">Aggregated event log: which categories convert, which routes win, where users drop off. Sourced from the durable event store. Siblings: <a href="/dashboard/audit/" style="color:rgba(220,188,110,0.85);text-decoration:none">audit log →</a> · <a href="/dashboard/ai/" style="color:rgba(220,188,110,0.85);text-decoration:none">AI cost dashboard →</a> · <a href="/dashboard/cron/" style="color:rgba(220,188,110,0.85);text-decoration:none">cron jobs →</a></p>
+  <main class="shell">
+    <h1>Cron jobs</h1>
+    <p class="lead">
+      Every scheduled job that fires against <code>/api/cron</code> records its outcome to KV under
+      <code>cron:lastRun:&lt;job&gt;</code> + <code>cron:lastError:&lt;job&gt;</code>. This page reads
+      them so you can answer "did Monday's digest actually fire?" without grepping logs.
+    </p>
+    <div class="xrefs">
+      <a href="/dashboard/leads/">Leads</a>
+      <a href="/dashboard/orgs/">Orgs</a>
+      <a href="/dashboard/audit/">Audit</a>
+      <a href="/dashboard/calibration/">Calibration</a>
+      <a href="/dashboard/ai/">AI cost</a>
+    </div>
 
-        <!-- Token entry -->
-        <div class="token-form" id="token-form">
-          <label for="token">Access token</label>
-          <input type="password" id="token" placeholder="Paste ORCATRADE_LEADS_TOKEN value" autocomplete="off"/>
-          <button type="button" id="token-submit">Open</button>
-          <div class="err" id="token-err"></div>
-          <p style="font-size: 0.82rem; color: rgba(255,255,255,0.55); margin-top: 0.7rem; line-height: 1.5;">
-            This page is gated by an env-var token. Set <code>ORCATRADE_LEADS_TOKEN</code> in Vercel → pass it via <code>?token=…</code>.
-          </p>
-        </div>
-
-        <!-- Loaded dashboard -->
-        <div id="dashboard" hidden>
-          <div class="tile-row" id="tiles"></div>
-          <div class="panel-grid">
-            <div class="panel"><h2>Top categories</h2><div id="bars-category"></div></div>
-            <div class="panel"><h2>Top routes</h2><div id="bars-route"></div></div>
-            <div class="panel"><h2>Origins</h2><div id="bars-origin"></div></div>
-            <div class="panel"><h2>Destinations</h2><div id="bars-dest"></div></div>
-            <div class="panel"><h2>Locales</h2><div id="bars-locale"></div></div>
-            <div class="panel"><h2>Event types</h2><div id="bars-type"></div></div>
-          </div>
-          <div class="panel">
-            <h2>Recent events</h2>
-            <table class="recent" id="recent-table"></table>
-          </div>
-          <div class="panel" id="founding-panel" hidden>
-            <h2>Recent Founding 10 applications</h2>
-            <table class="recent" id="founding-table"></table>
-          </div>
-          <div class="meta-line" id="meta-line"></div>
-        </div>
-
-        <div id="empty" class="empty" hidden>
-          <p>No events yet. Submit a plan via the wizard, then refresh.</p>
-        </div>
-      </section>
-    </main>
-    <footer style="position: relative; z-index: 1;">
-      <div class="footer-inner">
-        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
-        <span><a href="/">Back to OrcaTrade Group</a></span>
+    <div class="token-form" id="token-form" hidden>
+      <label for="token">Admin token (or sign in as an allowlisted email first)</label>
+      <input id="token" type="password" autocomplete="off" />
+      <div class="row">
+        <button type="button" id="load-btn">Load</button>
       </div>
-    </footer>
-  </div>
-  <script src="/js/cache-preferences.js"></script>
-  <script src="/js/site-nav.js"></script>
-  <script src="/js/main.js"></script>
-  <script src="/dashboard/leads/app.js"></script>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+    </div>
 
-<!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
-<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
-<script defer src="/js/cookie-consent.js"></script>
+    <div id="err" class="err" hidden></div>
+    <div id="empty" class="empty" hidden>No jobs have fired in the last 30 days. (The cron tracker keys age out at TTL.)</div>
+    <div id="jobs"></div>
+
+    <div class="footer-note">
+      Each row shows the last fire of one job. <strong>Last run</strong> succeeded; <strong>last error</strong> shows
+      the most recent thrown error (if any). A green pill ("ok") means the latest run succeeded; amber ("noop")
+      means the job ran but returned <code>ok:false</code> (e.g. Resend unconfigured); red ("error") means the
+      most recent fire threw. Cadence + manual trigger: <code>POST /api/cron</code> with <code>X-Cron-Token</code>.
+    </div>
+  </main>
+  <script src="/dashboard/cron/app.js"></script>
+
+  <!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
+  <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+  <script defer src="/js/cookie-consent.js"></script>
 </body>
 </html>
