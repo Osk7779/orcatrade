@@ -198,6 +198,74 @@
     el.hidden = false;
   }
 
+  // ── Sprint user-calibration-breakdown-v1 ────────────
+  //
+  // Server-aggregated dimensional breakdown of the user's actuals.
+  // Hidden when fewer than minSamples actuals have been logged (default
+  // 3, per lib/calibration.js#WEAK_SAMPLE_THRESHOLD). Each group row
+  // shows: dimension key, value-weighted variance pct (colour-coded
+  // under/over/neutral), sample count.
+
+  function fmtPctSigned(n) {
+    var v = Number(n);
+    if (!isFinite(v)) return '0%';
+    var rounded = Math.round(v * 10) / 10;
+    return (rounded > 0 ? '+' : '') + rounded + '%';
+  }
+  function dirClassFor(pct) {
+    var v = Number(pct);
+    if (!isFinite(v)) return 'dir-neutral';
+    if (v >  0.5) return 'dir-over';
+    if (v < -0.5) return 'dir-under';
+    return 'dir-neutral';
+  }
+  function renderBreakdownGroup(title, rows) {
+    if (!Array.isArray(rows) || rows.length === 0) return '';
+    var body = rows.map(function (r) {
+      var cls = ['bd-row', dirClassFor(r.avgVariancePct)];
+      if (r.weak) cls.push('weak');
+      return '<div class="' + cls.join(' ') + '">' +
+        '<div class="bd-key">' + escapeHtml(r.key) + '</div>' +
+        '<div class="bd-pct">' + escapeHtml(fmtPctSigned(r.avgVariancePct)) + '</div>' +
+        '<div class="bd-n">n=' + (Number(r.sampleSize) || 0) + '</div>' +
+      '</div>';
+    }).join('');
+    return '<div class="bd-group">' +
+      '<h3>' + escapeHtml(title) + '</h3>' +
+      body +
+    '</div>';
+  }
+  function renderBreakdownCard(payload) {
+    if (!payload || !payload.total) return '';
+    var min = Number(payload.minSamples) || 3;
+    if (payload.total.sampleSize < min) return '';
+    var sections = [
+      renderBreakdownGroup('By category', payload.byCategory),
+      renderBreakdownGroup('By route', payload.byRoute),
+      renderBreakdownGroup('By origin', payload.byOrigin),
+      renderBreakdownGroup('By destination', payload.byDestination),
+    ].filter(function (s) { return s; });
+    if (sections.length === 0) return '';
+    return '<div class="cal-kicker">Where the calculator drifts most</div>' +
+      '<h2>Your calibration · by dimension</h2>' +
+      '<p class="bd-lede">Same logic as the admin dashboard — your actuals, weighted by value, grouped four ways. Rows under 3 samples are faded; weak signals don\'t make confident claims.</p>' +
+      sections.join('');
+  }
+  function loadBreakdown() {
+    var el = document.getElementById('plans-calibration-breakdown');
+    if (!el) return;
+    fetch('/api/account/calibration', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.ok) return;
+        var html = renderBreakdownCard(data);
+        if (!html) { el.hidden = true; return; }
+        el.innerHTML = html;
+        el.hidden = false;
+      })
+      .catch(function () { /* non-blocking */ });
+  }
+
   // ── Sprint BG-1.4: actuals capture + variance badge ────────
   //
   // Two states per plan:
@@ -350,6 +418,11 @@
     // Sprint BG-1.5 — calibration card above the list. Same payload,
     // so no extra fetch. Hidden on no-records by showCalibration itself.
     showCalibration(records);
+    // Sprint user-calibration-breakdown-v1 — dimensional breakdown.
+    // Fire-and-forget; renders below the calibration card when the
+    // user has ≥3 actuals logged. Non-blocking — the list still
+    // shows if the call fails.
+    loadBreakdown();
     listEl.innerHTML = records.map(function (r) {
       var url = buildPlanUrl(r);
       return '<div class="plan-card" data-plan-id="' + escapeHtml(r.id) + '">' +
