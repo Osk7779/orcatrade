@@ -799,7 +799,7 @@ function renderPlan(plan) {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'same-origin',
-                body: JSON.stringify({ inputs: plan.inputs }),
+                body: JSON.stringify({ inputs: plan.inputs, locale: LOCALE }),
               });
               if (resp.ok) {
                 savePlanBtn.textContent = T.btnSavedOk;
