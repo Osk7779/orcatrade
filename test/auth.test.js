@@ -112,6 +112,59 @@ test('buildClearCookieHeader sets Max-Age=0', () => {
   assert.match(h, /HttpOnly/);
 });
 
+// ── Sprint cookie-domain-v1 — share cookie across apex + subdomains ──
+
+test('buildSetCookieHeader: production (secure=true) sets Domain=orcatrade.pl', () => {
+  const prev = process.env.COOKIE_DOMAIN;
+  delete process.env.COOKIE_DOMAIN;
+  try {
+    const h = auth.buildSetCookieHeader('test-value', { secure: true });
+    assert.match(h, /Domain=orcatrade\.pl/);
+  } finally {
+    if (prev !== undefined) process.env.COOKIE_DOMAIN = prev;
+  }
+});
+
+test('buildSetCookieHeader: dev (secure=false) omits Domain so cookie works on localhost', () => {
+  const prev = process.env.COOKIE_DOMAIN;
+  delete process.env.COOKIE_DOMAIN;
+  try {
+    const h = auth.buildSetCookieHeader('v', { secure: false });
+    assert.ok(!/Domain=/.test(h), 'no Domain attribute in dev');
+  } finally {
+    if (prev !== undefined) process.env.COOKIE_DOMAIN = prev;
+  }
+});
+
+test('buildSetCookieHeader: COOKIE_DOMAIN env overrides the default (staging on vercel.app)', () => {
+  const prev = process.env.COOKIE_DOMAIN;
+  process.env.COOKIE_DOMAIN = 'staging.orcatrade.pl';
+  try {
+    const h = auth.buildSetCookieHeader('v', { secure: true });
+    assert.match(h, /Domain=staging\.orcatrade\.pl/);
+    assert.ok(!/Domain=orcatrade\.pl;/.test(h), 'must NOT carry the default too');
+  } finally {
+    if (prev === undefined) delete process.env.COOKIE_DOMAIN;
+    else process.env.COOKIE_DOMAIN = prev;
+  }
+});
+
+test('buildClearCookieHeader: includes Domain so the clear matches the set', () => {
+  // Browsers ignore Set-Cookie clear directives that don't match the
+  // domain of the original cookie. If our Set has Domain=orcatrade.pl
+  // but our Clear has no Domain, the original cookie keeps working —
+  // sign-out is silently broken.
+  const prev = process.env.COOKIE_DOMAIN;
+  delete process.env.COOKIE_DOMAIN;
+  try {
+    const h = auth.buildClearCookieHeader();
+    assert.match(h, /Domain=orcatrade\.pl/);
+    assert.match(h, /Max-Age=0/);
+  } finally {
+    if (prev !== undefined) process.env.COOKIE_DOMAIN = prev;
+  }
+});
+
 // ── getCurrentUser ────────────────────────────────────
 
 test('getCurrentUser: returns user from valid cookie', () => {
