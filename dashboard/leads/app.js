@@ -30,6 +30,7 @@
     foundingTable: document.getElementById('founding-table'),
     wizardFunnelPanel: document.getElementById('wizard-funnel-panel'),
     wizardFunnel: document.getElementById('wizard-funnel'),
+    exportCsvBtn: document.getElementById('export-csv-btn'),
   };
 
   function escapeHtml(s) {
@@ -226,6 +227,48 @@
   els.tokenInput.addEventListener('keydown', function (e) {
     if (e.key === 'Enter') els.tokenSubmit.click();
   });
+
+  // Sprint leads-csv-export-v1 — Export CSV button. Reuses the same
+  // auth path as the dashboard fetch: when an admin email is signed
+  // in, the cookie alone authenticates; otherwise we attach the token
+  // from sessionStorage (or the URL) as a query param.
+  function exportCsv() {
+    var token = null;
+    try { token = sessionStorage.getItem('orcatrade-leads-token'); } catch (_e) {}
+    if (!token) token = new URLSearchParams(window.location.search).get('token');
+    var url = '/api/leads?format=csv&limit=5000';
+    if (token) url += '&token=' + encodeURIComponent(token);
+    els.exportCsvBtn.disabled = true;
+    var orig = els.exportCsvBtn.textContent;
+    els.exportCsvBtn.textContent = 'Exporting…';
+    fetch(url, { credentials: 'same-origin' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.blob().then(function (blob) {
+          var match = (r.headers.get('content-disposition') || '').match(/filename="([^"]+)"/);
+          var filename = match ? match[1] : 'orcatrade-leads.csv';
+          var objectUrl = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = objectUrl; a.download = filename; a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(objectUrl);
+          }, 0);
+        });
+      })
+      .catch(function (err) {
+        alert('Could not export CSV: ' + (err && err.message ? err.message : 'unknown'));
+      })
+      .then(function () {
+        els.exportCsvBtn.disabled = false;
+        els.exportCsvBtn.textContent = orig;
+      });
+  }
+  if (els.exportCsvBtn) {
+    els.exportCsvBtn.addEventListener('click', exportCsv);
+  }
 
   // Sprint admin-session-auth — try the session cookie first. If the
   // signed-in user is on ORCATRADE_ADMIN_EMAILS the request succeeds

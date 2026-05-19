@@ -135,6 +135,12 @@
 
         <!-- Loaded dashboard -->
         <div id="dashboard" hidden>
+          <!-- Sprint leads-csv-export-v1 — Export CSV. Single button at
+               the top of the dashboard. Disabled while the download is in
+               flight; restored on success/failure. -->
+          <div style="margin-bottom: 1.2rem; display: flex; justify-content: flex-end;">
+            <button type="button" id="export-csv-btn" style="font-family: 'Geist Mono', monospace; font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.55rem 1rem; background: transparent; border: 1px solid rgba(220, 188, 110, 0.5); color: rgba(220, 188, 110, 0.95); cursor: pointer;">Export CSV</button>
+          </div>
           <div class="tile-row" id="tiles"></div>
           <div class="panel-grid">
             <div class="panel"><h2>Top categories</h2><div id="bars-category"></div></div>
