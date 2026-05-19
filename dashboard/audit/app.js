@@ -174,6 +174,48 @@
     }
   }
 
+  // Sprint audit-csv-export-v1 — same auth path as the Reload button.
+  // Cookie-first via credentials: same-origin; falls back to the token
+  // input + sessionStorage cache if the operator pasted one. Fetches
+  // the full CSV via Blob and triggers a hidden-<a> click using the
+  // server-suggested filename. Disabled while in flight.
+  function exportCsv() {
+    var btn = el('exportCsvBtn');
+    if (!btn) return;
+    var token = (el('tokenInput').value || '').trim();
+    var type = el('typeFilter').value || '';
+    var qs = new URLSearchParams({ format: 'csv', limit: '5000' });
+    if (token) qs.set('token', token);
+    if (type) qs.set('type', type);
+    btn.disabled = true;
+    var orig = btn.textContent;
+    btn.textContent = 'Exporting…';
+    fetch('/api/audit?' + qs.toString(), { credentials: 'same-origin' })
+      .then(function (r) {
+        if (!r.ok) throw new Error('HTTP ' + r.status);
+        return r.blob().then(function (blob) {
+          var match = (r.headers.get('content-disposition') || '').match(/filename="([^"]+)"/);
+          var filename = match ? match[1] : 'orcatrade-audit.csv';
+          var objectUrl = URL.createObjectURL(blob);
+          var a = document.createElement('a');
+          a.href = objectUrl; a.download = filename; a.style.display = 'none';
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(function () {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(objectUrl);
+          }, 0);
+        });
+      })
+      .catch(function (err) {
+        showErr('CSV export failed: ' + (err && err.message ? err.message : 'unknown'));
+      })
+      .then(function () {
+        btn.disabled = false;
+        btn.textContent = orig;
+      });
+  }
+
   document.addEventListener('DOMContentLoaded', function () {
     loadToken();
     el('reloadBtn').addEventListener('click', function () { refresh(false); });
@@ -181,6 +223,8 @@
     el('tokenInput').addEventListener('keypress', function (ev) {
       if (ev.key === 'Enter') refresh(false);
     });
+    var exportBtn = el('exportCsvBtn');
+    if (exportBtn) exportBtn.addEventListener('click', exportCsv);
     // Sprint admin-session-auth — try cookie auth silently; if it works,
     // the dashboard renders without the operator pasting a token.
     refresh(true);

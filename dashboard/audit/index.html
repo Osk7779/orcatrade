@@ -121,6 +121,10 @@
       <label for="limitInput">Limit</label>
       <input id="limitInput" type="number" value="200" min="1" max="1000" style="width: 90px" />
       <button id="reloadBtn" class="btn">Reload</button>
+      <!-- Sprint audit-csv-export-v1 — same auth as Reload; exports up
+           to 5,000 rows (vs 1,000 dashboard cap) so a procurement
+           question gets the full corpus, not the visible page. -->
+      <button id="exportCsvBtn" class="btn" type="button" title="Download the audit log as CSV (RFC 4180, no raw email)">Export CSV</button>
     </div>
 
     <div id="stats" class="stats"></div>
