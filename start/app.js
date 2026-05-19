@@ -1153,8 +1153,55 @@ if (els.submitBtn) els.submitBtn.textContent = T.btnSubmit;
 const urlParams = new URLSearchParams(window.location.search);
 const sharedPlanParam = urlParams.get('p');
 const compareWithParam = urlParams.get('c');
-if (sharedPlanParam) {
-  loadFromShareUrl(sharedPlanParam, compareWithParam);
-} else {
-  showStep(1);
+const shareCodeParam = urlParams.get('share');
+
+// Sprint share-render-v1 — when the wizard loads with ?share=<code>,
+// validate the code server-side before rendering. If the owner has
+// revoked the share, replace the wizard with an overlay so the
+// bookmarked URL stops being a quiet back-door into the plan.
+// Failure (network error, 5xx, etc.) is non-blocking — we still
+// render the plan from the inputs in the URL.
+function maybeValidateShareCode() {
+  if (!shareCodeParam) return Promise.resolve();
+  if (!/^[a-f0-9]{4,32}$/i.test(shareCodeParam)) return Promise.resolve();
+  return fetch('/api/share-check/' + encodeURIComponent(shareCodeParam), {
+    credentials: 'omit',
+  })
+    .then(function (r) {
+      if (r.status === 404) {
+        showShareRevokedOverlay();
+        return { revoked: true };
+      }
+      return r.ok ? r.json().catch(function () { return null; }) : null;
+    })
+    .catch(function () { /* non-blocking */ return null; });
 }
+
+function showShareRevokedOverlay() {
+  // Hide the entire wizard form and put a full-page card in its place.
+  var shell = document.querySelector('.wizard-shell') || document.body;
+  var overlay = document.createElement('div');
+  overlay.className = 'share-revoked-overlay';
+  overlay.setAttribute('role', 'alert');
+  overlay.innerHTML =
+    '<div class="share-revoked-card">'
+    + '<div class="share-revoked-kicker">Share link · revoked</div>'
+    + '<h1>This share link is no longer active</h1>'
+    + '<p>The plan owner has revoked this share. The numbers you may have seen before were a snapshot at the time the link was minted — for the latest, ask the owner for a fresh link or build your own plan from scratch.</p>'
+    + '<div class="share-revoked-actions">'
+    +   '<a class="share-revoked-cta" href="' + wizardHome() + '">Build your own import plan →</a>'
+    + '</div>'
+    + '</div>';
+  // Drop everything else in the shell and replace with the overlay.
+  while (shell.firstChild) shell.removeChild(shell.firstChild);
+  shell.appendChild(overlay);
+}
+
+maybeValidateShareCode().then(function (result) {
+  if (result && result.revoked) return; // overlay already swapped in
+  if (sharedPlanParam) {
+    loadFromShareUrl(sharedPlanParam, compareWithParam);
+  } else {
+    showStep(1);
+  }
+});

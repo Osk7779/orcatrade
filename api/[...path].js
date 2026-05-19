@@ -92,6 +92,11 @@ const handlers = {
   // looks up a saved plan by its share code, increments the view
   // count, audits the open, and 302-redirects to /start/?p=<base64>.
   share: require('../lib/handlers/share'),
+  // Sprint share-render-v1 — the wizard calls /api/share-check/<code>
+  // on every cold load when ?share=<code> is in the URL. Increments
+  // view count + audits + returns ok/revoked so a bookmarked /start/
+  // URL stops working once the owner hits Revoke.
+  'share-check': require('../lib/handlers/share-check'),
   // One-click unsubscribe (prefs-v1). GET /api/unsubscribe?token=…
   // verifies the HMAC-signed token from a plan-revision email and
   // flips planRevisionEmails:false for the encoded address. Renders

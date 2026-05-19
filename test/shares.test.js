@@ -278,7 +278,7 @@ test('share handler: 404 on unknown code', async () => {
   assert.equal(res.statusCode, 404);
 });
 
-test('share handler: 302 redirect to /start/?p=<base64>&from=share + audit + increment', async () => {
+test('share handler: 302 redirect to /start/?p=<base64>&from=share&share=<code> (Sprint share-render-v1)', async () => {
   kv._resetMemoryStore();
   const plan = await seedPlan('owner@example.com');
   const share = await savedPlans.createShare(plan.id, 'owner@example.com');
@@ -290,19 +290,20 @@ test('share handler: 302 redirect to /start/?p=<base64>&from=share + audit + inc
   const res = mockRes();
   await shareHandler(req, res);
   assert.equal(res.statusCode, 302);
-  assert.match(res.headers['location'], /^\/start\/\?p=[A-Za-z0-9_-]+&from=share$/);
-  // The audit row was emitted with the code + planId but NO email.
-  // Wait a microtask so the fire-and-forget increment can complete.
+  // Sprint share-render-v1: redirect now carries the share code so the
+  // wizard can validate it via /api/share-check/<code> on every load.
+  assert.match(
+    res.headers['location'],
+    new RegExp('^/start/\\?p=[A-Za-z0-9_-]+&from=share&share=' + share.code + '$')
+  );
+  // View increment + audit emission MOVED from this handler to
+  // /api/share-check/<code> (so bookmarked revisits also count). The
+  // share handler itself no longer increments or audits.
   await new Promise((r) => setImmediate(r));
   const hits = (await events.list({})).filter((e) => e.type === 'plan_share_opened');
-  assert.equal(hits.length, 1);
-  assert.equal(hits[0].code, share.code);
-  assert.equal(hits[0].planId, plan.id);
-  assert.equal(hits[0].email, undefined,
-    'plan_share_opened must NOT carry the owner email');
-  // View count incremented (fire-and-forget).
+  assert.equal(hits.length, 0, 'share handler no longer emits — share-check does');
   const refetched = await savedPlans.getByShareCode(share.code);
-  assert.equal(refetched.share.viewCount, 1);
+  assert.equal(refetched.share.viewCount, 0, 'share handler no longer increments — share-check does');
 });
 
 test('share handler: encodeShareInputs round-trip matches the wizard codec', () => {

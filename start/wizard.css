@@ -350,3 +350,59 @@ select { cursor: pointer; }
   /* Annotations and footnotes */
   .as-of-footer { color: #888 !important; font-size: 8pt !important; }
 }
+
+/* ── Sprint share-render-v1 — revoked-share overlay ───────
+   When a wizard loads with ?share=<code> and that code has been
+   revoked by the plan owner, /api/share-check/<code> returns 404
+   and start/app.js replaces the entire wizard shell with this
+   overlay. Bookmarked share URLs stop being a back-door. */
+.share-revoked-overlay {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+.share-revoked-card {
+  max-width: 580px;
+  background: rgba(13, 15, 20, 0.6);
+  border: 1px solid rgba(220, 188, 110, 0.25);
+  padding: 2.2rem 2rem;
+  text-align: center;
+}
+.share-revoked-card .share-revoked-kicker {
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(220, 188, 110, 0.85);
+  margin-bottom: 0.6rem;
+}
+.share-revoked-card h1 {
+  font-family: 'Cormorant Garant', Georgia, serif;
+  font-size: 1.6rem;
+  font-weight: 600;
+  margin: 0 0 0.6rem;
+  color: rgba(255, 255, 255, 0.95);
+}
+.share-revoked-card p {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: rgba(255, 255, 255, 0.7);
+  margin: 0 auto 1.3rem;
+  max-width: 50ch;
+}
+.share-revoked-actions { margin-top: 0.8rem; }
+.share-revoked-cta {
+  display: inline-block;
+  padding: 0.7rem 1.1rem;
+  border: 1px solid rgba(220, 188, 110, 0.6);
+  color: rgba(220, 188, 110, 0.95);
+  font-family: 'Geist Mono', monospace;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  text-decoration: none;
+  font-weight: 600;
+}
+.share-revoked-cta:hover { background: rgba(220, 188, 110, 0.08); }
