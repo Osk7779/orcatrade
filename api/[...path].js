@@ -97,6 +97,11 @@ const handlers = {
   // view count + audits + returns ok/revoked so a bookmarked /start/
   // URL stops working once the owner hits Revoke.
   'share-check': require('../lib/handlers/share-check'),
+  // Sprint wizard-step-funnel-v1 — the wizard fires fire-and-forget
+  // POSTs as the user clicks Next/Back/Submit so we can compute the
+  // 6-step funnel ("how many users reached step 4?") without external
+  // analytics tools. No PII.
+  'wizard-event': require('../lib/handlers/wizard-event'),
   // One-click unsubscribe (prefs-v1). GET /api/unsubscribe?token=…
   // verifies the HMAC-signed token from a plan-revision email and
   // flips planRevisionEmails:false for the encoded address. Renders

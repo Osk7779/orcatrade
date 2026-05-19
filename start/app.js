@@ -1076,14 +1076,39 @@ async function submitPlan() {
   }
 }
 
+// Sprint wizard-step-funnel-v1 — fire-and-forget step telemetry.
+// One POST per Next/Back/Submit click. keepalive:true so the final
+// step's event survives the page navigation that follows submit.
+// Never throws — telemetry is non-load-bearing. No PII.
+function fireWizardStep(step, action) {
+  try {
+    fetch('/api/wizard-event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ step: step, action: action, locale: LOCALE }),
+      keepalive: true,
+      credentials: 'omit',
+    }).catch(function () { /* tolerable */ });
+  } catch (_e) { /* tolerable */ }
+}
+
 els.nextBtn.addEventListener('click', () => {
-  if (validateStep(state.current)) showStep(state.current + 1);
+  const cur = state.current;
+  if (validateStep(cur)) {
+    fireWizardStep(cur, 'next');
+    showStep(cur + 1);
+  }
 });
 els.backBtn.addEventListener('click', () => {
-  if (state.current > 1) showStep(state.current - 1);
+  if (state.current > 1) {
+    const cur = state.current;
+    fireWizardStep(cur, 'back');
+    showStep(cur - 1);
+  }
 });
 els.form.addEventListener('submit', e => {
   e.preventDefault();
+  fireWizardStep(TOTAL_STEPS, 'submit');
   submitPlan();
 });
 
@@ -1091,7 +1116,11 @@ els.form.addEventListener('keydown', e => {
   if (e.key === 'Enter' && e.target.tagName !== 'TEXTAREA') {
     if (state.current < TOTAL_STEPS) {
       e.preventDefault();
-      if (validateStep(state.current)) showStep(state.current + 1);
+      const cur = state.current;
+      if (validateStep(cur)) {
+        fireWizardStep(cur, 'next');
+        showStep(cur + 1);
+      }
     }
   }
 });

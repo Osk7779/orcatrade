@@ -28,6 +28,8 @@
     recentTable: document.getElementById('recent-table'),
     foundingPanel: document.getElementById('founding-panel'),
     foundingTable: document.getElementById('founding-table'),
+    wizardFunnelPanel: document.getElementById('wizard-funnel-panel'),
+    wizardFunnel: document.getElementById('wizard-funnel'),
   };
 
   function escapeHtml(s) {
@@ -139,6 +141,38 @@
     els.foundingTable.innerHTML = head + rows;
   }
 
+  // Sprint wizard-step-funnel-v1 — six rows, each showing the next/back/
+  // submit counts at that step. Drop-off between consecutive steps is
+  // the headline signal (step N next vs step N+1 next, capping the
+  // funnel at step 6 = submit).
+  function renderWizardFunnel(funnel) {
+    if (!funnel || !Array.isArray(funnel.byStep) || funnel.byStep.length === 0) {
+      els.wizardFunnelPanel.hidden = true;
+      return;
+    }
+    var anyEvents = funnel.totalNext + funnel.totalBack + funnel.totalSubmit;
+    if (anyEvents === 0) {
+      els.wizardFunnelPanel.hidden = true;
+      return;
+    }
+    var max = 0;
+    for (var i = 0; i < funnel.byStep.length; i++) {
+      max = Math.max(max, funnel.byStep[i].total || 0);
+    }
+    if (max === 0) max = 1;
+    els.wizardFunnel.innerHTML = funnel.byStep.map(function (slot) {
+      var widthPct = Math.max(2, Math.round((slot.total / max) * 100));
+      var meta = 'next: ' + slot.next + ' · back: ' + slot.back;
+      if (slot.submit) meta += ' · submit: ' + slot.submit;
+      return '<div class="bar-row">' +
+        '<div class="key">Step ' + slot.step + '</div>' +
+        '<div class="bar" style="width: ' + widthPct + '%"></div>' +
+        '<div class="count">' + slot.total + ' <span style="opacity:0.55;font-size:0.78em">(' + meta + ')</span></div>' +
+      '</div>';
+    }).join('');
+    els.wizardFunnelPanel.hidden = false;
+  }
+
   function showDashboard(payload) {
     var s = payload.summary;
     els.tokenForm.hidden = true;
@@ -154,6 +188,7 @@
     renderBars(els.barsDest, s.byDestination);
     renderBars(els.barsLocale, s.byLocale);
     renderBars(els.barsType, s.byType);
+    renderWizardFunnel(s.wizardFunnel);
     renderRecent(s.recent);
     renderFounding(s.foundingRecent);
     els.metaLine.textContent = 'Mode: ' + (payload.mode || '?') + ' · As of ' + fmtTimestamp(payload.asOf);
