@@ -286,11 +286,31 @@ test('processWebhookEvent: ignores unknown event types', async () => {
   assert.equal(r.reason, 'event-type-not-handled');
 });
 
-test('inferTierFromEvent: prefers metadata.tier_id', () => {
+test('inferTierFromEvent: prefers metadata.tier_id + surfaces orgId when present', () => {
   const r = billingHandler.inferTierFromEvent({
-    data: { object: { metadata: { tier_id: 'starter', billing_cycle: 'annual' } } },
+    data: { object: { metadata: { tier_id: 'starter', billing_cycle: 'annual', org_id: 'org_abc123' } } },
   });
-  assert.deepEqual(r, { tierId: 'starter', billingCycle: 'annual' });
+  assert.deepEqual(r, { tierId: 'starter', billingCycle: 'annual', orgId: 'org_abc123' });
+});
+
+test('inferTierFromEvent: orgId is null when metadata has no org_id (legacy per-email subscriber)', () => {
+  const r = billingHandler.inferTierFromEvent({
+    data: { object: { metadata: { tier_id: 'starter', billing_cycle: 'monthly' } } },
+  });
+  assert.equal(r.tierId, 'starter');
+  assert.equal(r.billingCycle, 'monthly');
+  assert.equal(r.orgId, null);
+});
+
+test('inferTierFromEvent: falls back to subscription_data.metadata for orgId too', () => {
+  // The subscription.deleted event fires at period-end cancellation
+  // and carries subscription metadata, not session metadata. Phase 2
+  // depends on org_id being there.
+  const r = billingHandler.inferTierFromEvent({
+    data: { object: { subscription_data: { metadata: { tier_id: 'growth', billing_cycle: 'monthly', org_id: 'org_xyz' } } } },
+  });
+  assert.equal(r.tierId, 'growth');
+  assert.equal(r.orgId, 'org_xyz');
 });
 
 // ── Static + dispatcher wiring ───────────────────────

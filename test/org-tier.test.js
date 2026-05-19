@@ -127,22 +127,47 @@ test('resolveTier: in org WITH org-tier → org-tier wins, origin "org"', async 
   assert.equal(r.orgId, org.id);
 });
 
-test('resolveTier: primary org = first in listOrgsForEmail (oldest membership)', async () => {
+test('resolveTier: higher-tier-wins across all the user\'s orgs (Sprint BG-3.3 phase 2)', async () => {
   kv._resetMemoryStore();
   const orgA = await orgs.createOrg({ name: 'A Co', ownerEmail: 'multi@example.com' });
   const orgB = await orgs.createOrg({ name: 'B Co', ownerEmail: 'multi@example.com' });
-  // Set org-tier on the SECOND org only — the first should win
-  // because it's the user's primary (oldest membership).
+  // Set org-tier on the SECOND org only. Phase 1 would have ignored
+  // this (it only looked at the primary/oldest org). Phase 2 looks at
+  // EVERY org and picks the highest tier — Enterprise on the second
+  // org wins even though the primary has no tier set.
   await userTier.setOrgTier(orgB.id, { tierId: 'enterprise' });
   const r = await userTier.resolveTier('multi@example.com');
-  // No tier set on the primary (oldest) org → fall through to per-email (free).
-  assert.equal(r.tier.id, 'free');
-  assert.equal(r.origin, 'default');
-  // Now set the primary's tier; that should win.
+  assert.equal(r.tier.id, 'enterprise');
+  assert.equal(r.origin, 'org');
+  assert.equal(r.orgId, orgB.id, 'the winning org is the one with the highest tier');
+
+  // Now also set the primary org to Growth — Enterprise on org B
+  // still beats Growth on org A (the user gets the BEST tier across
+  // every org they belong to, regardless of which is primary).
   await userTier.setOrgTier(orgA.id, { tierId: 'growth' });
   const r2 = await userTier.resolveTier('multi@example.com');
-  assert.equal(r2.tier.id, 'growth');
-  assert.equal(r2.origin, 'org');
+  assert.equal(r2.tier.id, 'enterprise');
+  assert.equal(r2.orgId, orgB.id);
+});
+
+test('resolveTier: ties broken by oldest membership (primary org wins on equal rank)', async () => {
+  // Both orgs on Growth — primary (oldest membership) wins the tie.
+  kv._resetMemoryStore();
+  const orgA = await orgs.createOrg({ name: 'A Co', ownerEmail: 'tied@example.com' });
+  const orgB = await orgs.createOrg({ name: 'B Co', ownerEmail: 'tied@example.com' });
+  await userTier.setOrgTier(orgA.id, { tierId: 'growth' });
+  await userTier.setOrgTier(orgB.id, { tierId: 'growth' });
+  const r = await userTier.resolveTier('tied@example.com');
+  assert.equal(r.tier.id, 'growth');
+  assert.equal(r.orgId, orgA.id, 'oldest membership wins the tie');
+});
+
+test('resolveTier: no orgs have a tier set → falls through to per-email/default', async () => {
+  kv._resetMemoryStore();
+  await orgs.createOrg({ name: 'No-tier', ownerEmail: 'fallback@example.com' });
+  const r = await userTier.resolveTier('fallback@example.com');
+  assert.equal(r.tier.id, 'free');
+  assert.equal(r.origin, 'default');
 });
 
 test('resolveTier: backwards-compatible record shape — { record: { tierId, ... }, tier }', async () => {
