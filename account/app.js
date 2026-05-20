@@ -100,6 +100,15 @@
       .catch(function () { /* non-blocking */ });
   }
 
+  // Sprint returnto-resume-v1 — read ?return= from the URL once and
+  // thread it through every sign-in flow so the user lands back where
+  // they came from (typically /pricing/?subscribe=…). Server validates
+  // for open-redirect safety; the client just passes the string through.
+  var pageReturnTo = (function () {
+    try { return new URLSearchParams(window.location.search).get('return') || ''; }
+    catch (_) { return ''; }
+  })();
+
   // ── Sign-in form submission (Sprint password-auth-v1) ──
   //
   // Two modes share the form: magic-link (default) and password. The
@@ -188,14 +197,17 @@
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           credentials: 'same-origin',
-          body: JSON.stringify({ email: email, password: password }),
+          body: JSON.stringify({ email: email, password: password, returnTo: pageReturnTo || undefined }),
         })
           .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }).catch(function () { return { ok: r.ok, j: {} }; }); })
           .then(function (resp) {
             btn.disabled = false;
             btn.textContent = 'Sign in';
             if (resp.ok) {
-              window.location.reload();
+              // Server echoes the validated returnTo (open-redirect-safe).
+              // Use it if present, else just reload — same as before.
+              if (resp.j && resp.j.returnTo) window.location.href = resp.j.returnTo;
+              else window.location.reload();
             } else {
               setError(resp.j && resp.j.error ? resp.j.error : 'Could not sign in.');
             }
@@ -212,7 +224,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({ email: email }),
+        body: JSON.stringify({ email: email, returnTo: pageReturnTo || undefined }),
       })
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (resp) {

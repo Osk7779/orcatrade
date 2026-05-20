@@ -27,6 +27,9 @@
 
   var params = new URLSearchParams(window.location.search);
   var token = params.get('token') || '';
+  // Sprint returnto-resume-v1 — honour ?return= so a reset that started
+  // from /pricing/?subscribe=… lands back there post-confirm.
+  var pageReturnTo = params.get('return') || '';
   if (!token) {
     showState('noToken');
     return;
@@ -46,13 +49,19 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'same-origin',
-        body: JSON.stringify({ token: token, newPassword: newPw }),
+        body: JSON.stringify({ token: token, newPassword: newPw, returnTo: pageReturnTo || undefined }),
       })
         .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (resp) {
           btn.disabled = false;
           btn.textContent = 'Save new password';
           if (resp.ok) {
+            // If the server echoed a safe returnTo, bounce straight
+            // there. Otherwise show the success state.
+            if (resp.j && resp.j.returnTo) {
+              window.location.href = resp.j.returnTo;
+              return;
+            }
             showState('done');
           } else {
             setError((resp.j && resp.j.error) || 'Could not save new password.');

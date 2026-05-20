@@ -24,6 +24,14 @@
     if (el) el.textContent = msg || '';
   }
 
+  // Sprint returnto-resume-v1 — thread ?return= through signup so the
+  // user lands back where they came from after the email-confirmation
+  // click (or magic-link click). Server validates for safety.
+  var pageReturnTo = (function () {
+    try { return new URLSearchParams(window.location.search).get('return') || ''; }
+    catch (_) { return ''; }
+  })();
+
   var passwordMode = false;
   var toggleBtn = document.getElementById('toggle-mode-btn');
   var pwField = document.getElementById('password-field');
@@ -62,6 +70,7 @@
         if (pw.length < 12) { setError('Password must be at least 12 characters.'); return; }
         body.password = pw;
       }
+      if (pageReturnTo) body.returnTo = pageReturnTo;
       var btn = document.getElementById('signup-btn');
       btn.disabled = true;
       var oldLabel = btn.textContent;

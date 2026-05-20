@@ -729,43 +729,79 @@
       }).catch(function () { /* silent */ });
     })();
 
-    /* SPRINT 41 — Stripe Checkout for subscribe-action CTAs. Falls back to
-       /account/ (sign-in) when the user is not authenticated, and to the
-       contact page when Stripe is not configured server-side. */
+    /* SPRINT 41 — Stripe Checkout for subscribe-action CTAs.
+     * Sprint returnto-resume-v1 — when not signed in, route the user to
+     * /signup/?return=/pricing/?subscribe=<tier>-<cycle>. After they
+     * sign in (any flow), the server 302s them back here and the
+     * auto-resume block below picks up the ?subscribe param and re-fires
+     * the original checkout intent. */
     (function () {
       function billingCycle() { return document.body.getAttribute('data-billing') || 'monthly'; }
+      function startCheckout(tierId, cycle, ctaEl) {
+        if (ctaEl) ctaEl.classList.add('cta-loading');
+        return fetch('/api/billing/checkout', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tierId: tierId, billingCycle: cycle }),
+        }).then(function (r) {
+          return r.json().then(function (j) { return { status: r.status, json: j }; });
+        }).then(function (out) {
+          if (ctaEl) ctaEl.classList.remove('cta-loading');
+          if (out.status === 401) {
+            // Encode the tier+cycle in the return URL so we can resume
+            // automatically after sign-in.
+            var resumeUrl = '/pricing/?subscribe=' + encodeURIComponent(tierId + '-' + cycle);
+            window.location.href = '/signup/?return=' + encodeURIComponent(resumeUrl);
+            return;
+          }
+          if (out.status === 200 && out.json.url) {
+            window.location.href = out.json.url;
+            return;
+          }
+          // Fallback: keep the original contact href the user expected
+          if (ctaEl) window.location.href = ctaEl.getAttribute('href') || '/';
+        }).catch(function () {
+          if (ctaEl) ctaEl.classList.remove('cta-loading');
+          if (ctaEl) window.location.href = ctaEl.getAttribute('href') || '/';
+        });
+      }
       var ctas = document.querySelectorAll('[data-action="subscribe"]');
       ctas.forEach(function (cta) {
         cta.addEventListener('click', function (e) {
           var tierId = cta.getAttribute('data-tier');
           if (!tierId || tierId === 'free' || tierId === 'enterprise') return; // honour href
           e.preventDefault();
-          cta.classList.add('cta-loading');
-          fetch('/api/billing/checkout', {
-            method: 'POST',
-            credentials: 'same-origin',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ tierId: tierId, billingCycle: billingCycle() }),
-          }).then(function (r) {
-            return r.json().then(function (j) { return { status: r.status, json: j }; });
-          }).then(function (out) {
-            cta.classList.remove('cta-loading');
-            if (out.status === 401) {
-              window.location.href = '/account/?return=' + encodeURIComponent('/pricing/');
-              return;
-            }
-            if (out.status === 200 && out.json.url) {
-              window.location.href = out.json.url;
-              return;
-            }
-            // Fallback: keep the original contact href the user expected
-            window.location.href = cta.getAttribute('href') || '/';
-          }).catch(function () {
-            cta.classList.remove('cta-loading');
-            window.location.href = cta.getAttribute('href') || '/';
-          });
+          startCheckout(tierId, billingCycle(), cta);
         });
       });
+
+      /* Auto-resume: if the URL carries ?subscribe=<tier>-<cycle> the
+       * user just came back from /signup/ or /account/ after signing in.
+       * Re-fire the checkout for that exact intent. We don't gate this
+       * on /api/auth/me because /api/billing/checkout itself will 401 if
+       * the cookie didn't make it through — and that 401 path safely
+       * bounces back to /signup/?return=... again. */
+      try {
+        var params = new URLSearchParams(window.location.search);
+        var resume = params.get('subscribe') || '';
+        if (resume) {
+          // Strip the param from the visible URL so a refresh doesn't
+          // loop. replaceState is best-effort; absence doesn't break.
+          try {
+            var clean = window.location.pathname + window.location.hash;
+            window.history.replaceState({}, '', clean);
+          } catch (_) {}
+          var parts = resume.split('-');
+          var cycle = parts.pop();
+          var tier = parts.join('-');
+          if (tier && cycle && ['starter','growth','scale'].indexOf(tier) !== -1 && ['monthly','annual'].indexOf(cycle) !== -1) {
+            // Flip the page's billing toggle so the visual state matches.
+            try { document.body.setAttribute('data-billing', cycle); } catch (_) {}
+            startCheckout(tier, cycle, null);
+          }
+        }
+      } catch (_) { /* non-blocking */ }
     })();
 
     /* CURSOR-FOLLOWING SPOTLIGHT */
