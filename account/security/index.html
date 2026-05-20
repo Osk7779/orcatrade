@@ -47,6 +47,22 @@
     .footer-note a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
 
     .err { color: #e88080; font-family: 'Geist Mono', monospace; font-size: 0.82rem; padding: 0.7rem 0; }
+
+    /* Sprint password-auth-v1 — password card */
+    .password-card { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.07); padding: 1.6rem 1.7rem; margin-bottom: 2.5rem; }
+    .card-title { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.4rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.6rem; }
+    .card-sub { font-size: 0.92rem; line-height: 1.6; color: rgba(255,255,255,0.7); margin-bottom: 1.2rem; }
+    .password-card label { display: block; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; margin-top: 0.9rem; font-weight: 500; }
+    .password-card input[type="password"] { width: 100%; padding: 0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s; }
+    .password-card input[type="password"]:focus { border-color: rgba(184,190,200,0.4); background: rgba(8, 11, 19, 0.85); }
+    .pw-help { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 0.4rem; }
+    .pw-actions { display: flex; gap: 0.7rem; margin-top: 1.1rem; flex-wrap: wrap; }
+    .btn { padding: 0.85rem 1.4rem; font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; background: transparent; color: rgba(255,255,255,0.92); }
+    .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
+    .btn-primary { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); }
+    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
+    .ok-msg { padding: 0.9rem 1.1rem; background: rgba(80, 180, 100, 0.06); border-left: 2px solid #5fb56b; color: rgba(255,255,255,0.92); font-size: 0.92rem; line-height: 1.6; margin-top: 1rem; }
   </style>
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
@@ -109,9 +125,44 @@
     </div>
 
     <div id="content" hidden>
-      <div class="breadcrumbs"><a href="/account/">Account</a> / Active sessions</div>
-      <h1>Active sessions</h1>
+      <div class="breadcrumbs"><a href="/account/">Account</a> / Security</div>
+      <h1>Security</h1>
       <p class="lead">
+        Manage your sign-in methods and active devices. Set a password to skip the magic-link request every time, or
+        keep magic-link only — both flows always work side by side.
+      </p>
+
+      <!-- Sprint password-auth-v1 — password card.
+           Reveals "Set a password" when the user has none, "Change password"
+           when one exists. /api/auth/me carries `hasPassword` so the right
+           variant renders on first paint. -->
+      <section id="passwordCard" class="password-card">
+        <h2 class="card-title">Password</h2>
+        <p class="card-sub" id="pwSubNone" hidden>
+          You sign in with magic links today. Set a password to make repeat sign-ins faster — magic-link still works as a fallback.
+        </p>
+        <p class="card-sub" id="pwSubHas" hidden>
+          A password is set on this account. You can sign in with email + password OR with a magic link — both methods always work.
+        </p>
+        <form id="pwForm">
+          <div id="currentPwRow" hidden>
+            <label for="currentPassword">Current password</label>
+            <input type="password" id="currentPassword" autocomplete="current-password" />
+          </div>
+          <label for="newPassword">New password</label>
+          <input type="password" id="newPassword" autocomplete="new-password" />
+          <p class="pw-help">At least 12 characters. Length beats complexity — a passphrase is fine.</p>
+          <div class="pw-actions">
+            <button type="submit" class="btn btn-primary" id="pwSubmitBtn">Set password</button>
+            <button type="button" class="btn" id="pwClearBtn" hidden>Remove password</button>
+          </div>
+          <div class="err" id="pwErr" hidden></div>
+          <div class="ok-msg" id="pwOk" hidden></div>
+        </form>
+      </section>
+
+      <h2 class="card-title" style="margin-top:2.4rem;">Active sessions</h2>
+      <p class="lead" style="margin-bottom:1.4rem;">
         Every device that has signed in to your OrcaTrade account. Revoke individual sessions to sign them out without
         touching the others. To kill <em>every</em> session in one click, use
         <a href="/account/">Sign out everywhere</a> on your account page.

@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Account | OrcaTrade</title>
+  <title>Reset password | OrcaTrade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Sign in to your OrcaTrade account to save and revisit your import plans." />
-  <link rel="canonical" href="https://orcatrade.pl/account/" />
+  <meta name="description" content="Reset the password on your OrcaTrade account." />
+  <link rel="canonical" href="https://orcatrade.pl/account/reset/" />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -13,49 +13,25 @@
   <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
-    .account-shell { max-width: 560px; margin: 0 auto; padding: 4rem 1.5rem 6rem; position: relative; z-index: 1; }
-    .account-card { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); padding: 2.5rem 2.6rem; }
-    @media (max-width: 600px) { .account-card { padding: 1.6rem 1.2rem; } }
-    .account-card h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.7rem, 3vw + 0.5rem, 2.2rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 1rem; line-height: 1.15; letter-spacing: -0.01em; }
-    .account-card p { font-size: 0.95rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 1.2rem; }
-    .account-state { display: none; }
-    .account-state.active { display: block; animation: fadeIn 0.25s ease-out; }
+    .reset-shell { max-width: 560px; margin: 0 auto; padding: 4rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .reset-card { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255, 255, 255, 0.07); padding: 2.5rem 2.6rem; }
+    @media (max-width: 600px) { .reset-card { padding: 1.6rem 1.2rem; } }
+    .reset-card h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.7rem, 3vw + 0.5rem, 2.2rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 1rem; line-height: 1.15; letter-spacing: -0.01em; }
+    .reset-card p { font-size: 0.95rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 1.2rem; }
+    .reset-state { display: none; }
+    .reset-state.active { display: block; animation: fadeIn 0.25s ease-out; }
     @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
-    label { display: block; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; font-weight: 500; }
-    input[type="email"] { width: 100%; padding: 0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s; }
-    input[type="email"]:focus { border-color: rgba(184,190,200,0.4); background: rgba(8, 11, 19, 0.85); }
+    label { display: block; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; margin-top: 0.9rem; font-weight: 500; }
+    input[type="password"] { width: 100%; padding: 0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s; }
+    input[type="password"]:focus { border-color: rgba(184,190,200,0.4); background: rgba(8, 11, 19, 0.85); }
     .btn { padding: 0.85rem 1.4rem; font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; background: transparent; color: rgba(255,255,255,0.92); margin-top: 1rem; }
     .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
     .btn-primary { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); }
     .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
     .btn:disabled { opacity: 0.4; cursor: not-allowed; }
     .err { font-size: 0.82rem; color: #c95050; margin-top: 0.5rem; min-height: 1.2em; }
-    .ok-msg { padding: 0.9rem 1.1rem; background: rgba(80, 180, 100, 0.06); border-left: 2px solid #5fb56b; color: rgba(255,255,255,0.92); font-size: 0.92rem; line-height: 1.6; margin-top: 1rem; }
-    .signed-in-row { display: flex; justify-content: space-between; align-items: center; margin-top: 1.5rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); flex-wrap: wrap; gap: 1rem; }
-    .signed-in-row .email { font-family: 'Geist Mono', monospace; font-size: 0.88rem; color: rgba(255,255,255,0.85); }
-    .quick-links { margin-top: 1.5rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); }
-    .quick-links h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.8rem; }
-    .quick-links a { display: block; padding: 0.7rem 0.9rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); margin-bottom: 0.5rem; text-decoration: none; transition: background 0.15s, border 0.15s; }
-    .quick-links a:hover { background: rgba(255,255,255,0.04); border-color: rgba(255,255,255,0.12); }
-    .quick-links .ql-title { display: block; font-family: 'Cormorant Garant', Georgia, serif; font-size: 1rem; font-weight: 600; color: rgba(255,255,255,0.95); }
-    .quick-links .ql-sub { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.6); margin-top: 0.15rem; }
-
-    /* Sprint onboarding-v1 — getting-started checklist card */
-    .onboarding-card { padding: 1.2rem 1.4rem; margin: 1.4rem 0 0.4rem; background: rgba(220, 188, 110, 0.05); border: 1px solid rgba(220, 188, 110, 0.25); }
-    .onboarding-card .ob-kicker { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(220, 188, 110, 0.85); margin-bottom: 0.45rem; }
-    .onboarding-card h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; margin: 0 0 0.5rem; color: rgba(255,255,255,0.95); }
-    .onboarding-card .ob-progress { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.55); margin-bottom: 0.9rem; }
-    .onboarding-card ul.ob-steps { list-style: none; margin: 0 0 0.4rem; padding: 0; }
-    .onboarding-card ul.ob-steps li { display: flex; align-items: center; gap: 0.65rem; padding: 0.4rem 0; font-size: 0.92rem; color: rgba(255,255,255,0.82); }
-    .onboarding-card ul.ob-steps li.done { color: rgba(255,255,255,0.5); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.2); }
-    .onboarding-card ul.ob-steps li.next { color: rgba(255,255,255,0.97); font-weight: 600; }
-    .onboarding-card .ob-check { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border: 1px solid rgba(255,255,255,0.25); font-family: 'Geist Mono', monospace; font-size: 0.7rem; flex-shrink: 0; }
-    .onboarding-card li.done .ob-check { background: rgba(126, 210, 138, 0.18); border-color: rgba(126, 210, 138, 0.6); color: #7ed28a; }
-    .onboarding-card li.next .ob-check { border-color: rgba(220, 188, 110, 0.6); color: rgba(220, 188, 110, 0.95); }
-    .onboarding-card .ob-cta { display: inline-block; margin-left: auto; padding: 0.25rem 0.7rem; font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(220, 188, 110, 0.95); text-decoration: none; border: 1px solid rgba(220, 188, 110, 0.5); font-weight: 600; }
-    .onboarding-card .ob-cta:hover { background: rgba(220, 188, 110, 0.08); }
+    .pw-help { font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 0.4rem; }
   </style>
-
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
   <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
@@ -118,132 +94,34 @@
   <div class="page">
     <header data-site-header></header>
     <main>
-      <section class="account-shell">
-        <div class="account-card">
+      <section class="reset-shell">
+        <div class="reset-card">
 
-          <!-- Loading state (default while we check /api/auth/me) -->
-          <div class="account-state active" id="state-loading">
-            <h1>Loading…</h1>
-            <p>Checking your sign-in status.</p>
-          </div>
-
-          <!-- Sign-in form (shown when not signed in) -->
-          <div class="account-state" id="state-signin">
-            <h1>Sign in to OrcaTrade</h1>
-            <p id="signin-lead-magic">Enter your email and we'll send you a sign-in link. No password — the link is good for 15 minutes.</p>
-            <p id="signin-lead-password" hidden>Enter your email and password to sign in.</p>
-            <form id="signin-form">
-              <label for="email">Email address</label>
-              <input type="email" id="email" name="email" placeholder="you@company.com" required autocomplete="email" />
-              <div id="password-field" hidden style="margin-top:1rem;">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" style="width:100%; padding:0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s;" />
-                <p style="font-size:0.78rem; color: rgba(255,255,255,0.55); margin-top:0.5rem;"><a href="#" id="forgot-password-link" style="color: var(--accent-color, #b8bec8);">Forgot password?</a></p>
-              </div>
-              <button type="submit" class="btn btn-primary" id="signin-btn">Send me a sign-in link</button>
-              <button type="button" class="btn" id="toggle-mode-btn" style="margin-left:0.6rem;">Use password instead</button>
-              <div class="err" id="signin-err"></div>
+          <!-- Reset form (requires ?token=…) -->
+          <div class="reset-state active" id="state-form">
+            <h1>Choose a new password</h1>
+            <p>Set a new password for your OrcaTrade account. After this change every other active session on this email is signed out.</p>
+            <form id="reset-form">
+              <label for="newPassword">New password</label>
+              <input type="password" id="newPassword" name="newPassword" placeholder="At least 12 characters" autocomplete="new-password" required />
+              <p class="pw-help">Length beats complexity. A passphrase is fine.</p>
+              <button type="submit" class="btn btn-primary" id="reset-btn">Save new password</button>
+              <div class="err" id="reset-err"></div>
             </form>
-            <p style="margin-top:1.4rem; font-size:0.88rem; color: rgba(255,255,255,0.6);">No account yet? <a href="/signup/" style="color: var(--accent-color, #b8bec8);">Create one →</a></p>
           </div>
 
-          <!-- Sent state (after request) -->
-          <div class="account-state" id="state-sent">
-            <h1>Check your inbox</h1>
-            <p>If <span id="sent-email"></span> is a valid address, we've sent you a sign-in link. Click the link in your email — it expires in 15 minutes.</p>
-            <p class="ok-msg">No email after a minute? Check spam, or <a href="#" id="resend-link" style="color: var(--accent-color, #b8bec8);">try again</a>.</p>
+          <!-- Missing token state -->
+          <div class="reset-state" id="state-no-token">
+            <h1>Reset link required</h1>
+            <p>Open this page from the link in your password-reset email — the link carries the token we need to verify your request.</p>
+            <p><a href="/account/" style="color: var(--accent-color, #b8bec8);">← Back to sign in</a></p>
           </div>
 
-          <!-- Signed-in state -->
-          <div class="account-state" id="state-signedin">
-            <h1>Welcome back</h1>
-            <p>You're signed in. From here you can revisit any plans you've saved (saved plans coming soon — for now, every plan you build has its own permalink under <code>/start/?p=…</code>).</p>
-            <div class="signed-in-row">
-              <span class="email" id="signedin-email"></span>
-              <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
-                <button class="btn" type="button" id="logout-btn">Sign out</button>
-                <button class="btn" type="button" id="revoke-all-btn" title="Invalidate every active session for this email — across every device — and sign you out here.">Sign out everywhere</button>
-              </div>
-            </div>
-            <p id="revoke-all-msg" style="min-height:1.2em; font-size:0.85rem; color: rgba(255,255,255,0.7); margin-top:0.6rem;"></p>
-            <!-- Sprint onboarding-v1 — getting-started checklist. Populated by
-                 app.js after /api/account/onboarding succeeds. Hidden when
-                 allDone (the user has finished all four moat-building
-                 actions) so the card doesn't clutter the page forever. -->
-            <div id="onboarding-card" class="onboarding-card" hidden></div>
-            <!-- Sprint admin-session-auth — admin card. Hidden by default.
-                 app.js reveals it only when /api/auth/me returns isAdmin:true
-                 (the signed-in email is on ORCATRADE_ADMIN_EMAILS). -->
-            <div id="admin-card" class="quick-links" hidden style="border-top-color: rgba(220, 188, 110, 0.25);">
-              <h2 style="color: rgba(220, 188, 110, 0.95);">Admin dashboards</h2>
-              <a href="/dashboard/leads/">
-                <span class="ql-title">Leads &amp; conversion</span>
-                <span class="ql-sub">Plan submissions, founding 10 funnel, top routes</span>
-              </a>
-              <a href="/dashboard/calibration/">
-                <span class="ql-title">Calibration</span>
-                <span class="ql-sub">Estimate-vs-actual variance per route + category + origin</span>
-              </a>
-              <a href="/dashboard/orgs/">
-                <span class="ql-title">Organisations</span>
-                <span class="ql-sub">Every org on the platform with member counts + tier override</span>
-              </a>
-              <a href="/dashboard/audit/">
-                <span class="ql-title">Audit log</span>
-                <span class="ql-sub">Raw event-by-event feed across the whole platform</span>
-              </a>
-              <a href="/dashboard/ai/">
-                <span class="ql-title">AI cost telemetry</span>
-                <span class="ql-sub">Anthropic spend by agent, prompt version, top calls</span>
-              </a>
-              <a href="/dashboard/cron/">
-                <span class="ql-title">Cron jobs</span>
-                <span class="ql-sub">When did each scheduled job last fire · did it succeed</span>
-              </a>
-            </div>
-            <div class="quick-links">
-              <h2>Quick links</h2>
-              <a href="/account/plans/">
-                <span class="ql-title">My saved plans</span>
-                <span class="ql-sub">Plans you've saved from the wizard, sorted newest first</span>
-              </a>
-              <a href="/account/billing/">
-                <span class="ql-title">Billing &amp; subscription</span>
-                <span class="ql-sub">View your tier, change billing cycle, manage payment</span>
-              </a>
-              <a href="/account/orgs/">
-                <span class="ql-title">Organisations &amp; team</span>
-                <span class="ql-sub">Create or manage your team, invite members, transfer ownership</span>
-              </a>
-              <a href="/account/activity/">
-                <span class="ql-title">Recent activity</span>
-                <span class="ql-sub">Sign-ins, sign-outs, and organisation changes on your account</span>
-              </a>
-              <a href="/account/preferences/">
-                <span class="ql-title">Email preferences</span>
-                <span class="ql-sub">Choose which automated emails OrcaTrade sends you</span>
-              </a>
-              <a href="/account/security/">
-                <span class="ql-title">Active sessions</span>
-                <span class="ql-sub">See every device signed in to your account · revoke one or all</span>
-              </a>
-              <a href="/account/privacy/">
-                <span class="ql-title">Privacy &amp; data</span>
-                <span class="ql-sub">Export or delete the data we hold about you (GDPR Articles 17 + 20)</span>
-              </a>
-              <a href="/start/">
-                <span class="ql-title">Build a new import plan</span>
-                <span class="ql-sub">6 questions · full landed-cost analysis</span>
-              </a>
-              <a href="/examples/">
-                <span class="ql-title">Browse worked examples</span>
-                <span class="ql-sub">8 curated scenarios with calculator-grounded numbers</span>
-              </a>
-              <a href="/agent/orchestrator/">
-                <span class="ql-title">Talk to the Orchestrator agent</span>
-                <span class="ql-sub">One agent, 16 tools, every domain</span>
-              </a>
-            </div>
+          <!-- Success state -->
+          <div class="reset-state" id="state-done">
+            <h1>Password updated</h1>
+            <p>You're signed in with the new password. Every other active session for this email has been signed out.</p>
+            <p><a href="/account/" class="btn btn-primary">Go to your account →</a></p>
           </div>
 
         </div>
@@ -259,7 +137,7 @@
   <script src="/js/cache-preferences.js"></script>
   <script src="/js/site-nav.js"></script>
   <script src="/js/main.js"></script>
-  <script src="/account/app.js"></script>
+  <script src="/account/reset/app.js"></script>
   <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
 <!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->

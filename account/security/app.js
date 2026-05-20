@@ -105,6 +105,9 @@
       if (data && !data.currentSid) {
         els.legacyBanner.hidden = false;
       }
+      // Sprint password-auth-v1 — initialise the password card. /api/auth/me
+      // carries hasPassword so we render the right variant on first paint.
+      loadPasswordCard();
       var sessions = (data && data.sessions) || [];
       if (sessions.length === 0) {
         els.empty.hidden = false;
@@ -118,6 +121,138 @@
       els.content.hidden = false;
       showError('Network error: ' + (err && err.message ? err.message : 'unknown'));
     }
+  }
+
+  // ── Sprint password-auth-v1 — password card ──────────
+  function applyPasswordCard(hasPassword) {
+    var subNone = document.getElementById('pwSubNone');
+    var subHas = document.getElementById('pwSubHas');
+    var currentRow = document.getElementById('currentPwRow');
+    var clearBtn = document.getElementById('pwClearBtn');
+    var submitBtn = document.getElementById('pwSubmitBtn');
+    if (hasPassword) {
+      if (subNone) subNone.hidden = true;
+      if (subHas) subHas.hidden = false;
+      if (currentRow) currentRow.hidden = false;
+      if (clearBtn) clearBtn.hidden = false;
+      if (submitBtn) submitBtn.textContent = 'Change password';
+    } else {
+      if (subNone) subNone.hidden = false;
+      if (subHas) subHas.hidden = true;
+      if (currentRow) currentRow.hidden = true;
+      if (clearBtn) clearBtn.hidden = true;
+      if (submitBtn) submitBtn.textContent = 'Set password';
+    }
+  }
+
+  function showPwError(msg) {
+    var el = document.getElementById('pwErr');
+    if (!el) return;
+    if (!msg) { el.hidden = true; el.textContent = ''; return; }
+    el.hidden = false;
+    el.textContent = msg;
+  }
+  function showPwOk(msg) {
+    var el = document.getElementById('pwOk');
+    if (!el) return;
+    if (!msg) { el.hidden = true; el.textContent = ''; return; }
+    el.hidden = false;
+    el.textContent = msg;
+  }
+
+  function loadPasswordCard() {
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data) return;
+        applyPasswordCard(!!data.hasPassword);
+      })
+      .catch(function () { /* non-blocking */ });
+    var form = document.getElementById('pwForm');
+    if (form && !form._wired) {
+      form._wired = true;
+      form.addEventListener('submit', onPwSubmit);
+      var clearBtn = document.getElementById('pwClearBtn');
+      if (clearBtn) clearBtn.addEventListener('click', onPwClear);
+    }
+  }
+
+  function onPwSubmit(e) {
+    e.preventDefault();
+    showPwError(''); showPwOk('');
+    var newPw = (document.getElementById('newPassword').value || '');
+    var curPwEl = document.getElementById('currentPassword');
+    var curPw = curPwEl ? (curPwEl.value || '') : '';
+    var currentRow = document.getElementById('currentPwRow');
+    var needCurrent = currentRow && !currentRow.hidden;
+    if (newPw.length < 12) { showPwError('Password must be at least 12 characters.'); return; }
+    if (needCurrent && !curPw) { showPwError('Enter your current password.'); return; }
+    var btn = document.getElementById('pwSubmitBtn');
+    btn.disabled = true;
+    var oldLabel = btn.textContent;
+    btn.textContent = 'Saving…';
+    var body = { newPassword: newPw };
+    if (needCurrent) body.currentPassword = curPw;
+    fetch('/api/auth/password/set', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify(body),
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (resp) {
+        btn.disabled = false;
+        btn.textContent = oldLabel;
+        if (resp.ok) {
+          document.getElementById('newPassword').value = '';
+          if (curPwEl) curPwEl.value = '';
+          applyPasswordCard(true);
+          showPwOk(needCurrent ? 'Password updated.' : 'Password set. You can now sign in with email + password.');
+        } else {
+          showPwError((resp.j && resp.j.error) || 'Could not save password.');
+        }
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        btn.textContent = oldLabel;
+        showPwError('Network error: ' + (err && err.message ? err.message : 'unknown'));
+      });
+  }
+
+  function onPwClear() {
+    showPwError(''); showPwOk('');
+    var ok = confirm('Remove your password? After this, magic-link will be the only way to sign in.');
+    if (!ok) return;
+    var curPwEl = document.getElementById('currentPassword');
+    var curPw = curPwEl ? (curPwEl.value || '') : '';
+    if (!curPw) { showPwError('Enter your current password before removing it.'); return; }
+    var btn = document.getElementById('pwClearBtn');
+    btn.disabled = true;
+    btn.textContent = 'Removing…';
+    fetch('/api/auth/password/clear', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ currentPassword: curPw }),
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (resp) {
+        btn.disabled = false;
+        btn.textContent = 'Remove password';
+        if (resp.ok) {
+          if (curPwEl) curPwEl.value = '';
+          document.getElementById('newPassword').value = '';
+          applyPasswordCard(false);
+          showPwOk('Password removed. Use magic-link to sign in next time.');
+        } else {
+          showPwError((resp.j && resp.j.error) || 'Could not remove password.');
+        }
+      })
+      .catch(function (err) {
+        btn.disabled = false;
+        btn.textContent = 'Remove password';
+        showPwError('Network error: ' + (err && err.message ? err.message : 'unknown'));
+      });
   }
 
   async function onRevoke(btn) {

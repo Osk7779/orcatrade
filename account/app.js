@@ -100,7 +100,69 @@
       .catch(function () { /* non-blocking */ });
   }
 
-  // ── Sign-in form submission ──────────────────────────
+  // ── Sign-in form submission (Sprint password-auth-v1) ──
+  //
+  // Two modes share the form: magic-link (default) and password. The
+  // toggle button flips a flag + reveals/hides the password field. The
+  // submit handler routes to /api/auth/request OR /api/auth/login.
+
+  var passwordMode = false;
+  var toggleBtn = document.getElementById('toggle-mode-btn');
+  var pwField = document.getElementById('password-field');
+  var leadMagic = document.getElementById('signin-lead-magic');
+  var leadPw = document.getElementById('signin-lead-password');
+  var signinBtn = document.getElementById('signin-btn');
+
+  function applyMode() {
+    if (pwField) pwField.hidden = !passwordMode;
+    if (leadMagic) leadMagic.hidden = passwordMode;
+    if (leadPw) leadPw.hidden = !passwordMode;
+    if (signinBtn) signinBtn.textContent = passwordMode ? 'Sign in' : 'Send me a sign-in link';
+    if (toggleBtn) toggleBtn.textContent = passwordMode ? 'Use magic link instead' : 'Use password instead';
+  }
+  if (toggleBtn) {
+    toggleBtn.addEventListener('click', function () {
+      passwordMode = !passwordMode;
+      setError('');
+      applyMode();
+    });
+  }
+
+  // Forgot-password link: prompt for email if blank, then POST to
+  // /api/auth/password/reset/request. Universal 202 response — the UI
+  // shows the same confirmation regardless of whether the email has
+  // a password set, to avoid leaking that detail.
+  var forgotLink = document.getElementById('forgot-password-link');
+  if (forgotLink) {
+    forgotLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      var emailInput = document.getElementById('email');
+      var email = (emailInput && emailInput.value || '').trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        setError('Enter your email address first, then click Forgot password.');
+        if (emailInput) emailInput.focus();
+        return;
+      }
+      setError('');
+      forgotLink.textContent = 'Sending…';
+      fetch('/api/auth/password/reset/request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ email: email }),
+      })
+        .then(function (r) { return r.json().catch(function () { return {}; }); })
+        .then(function () {
+          forgotLink.textContent = 'Forgot password?';
+          document.getElementById('sent-email').textContent = email;
+          showState('sent');
+        })
+        .catch(function () {
+          forgotLink.textContent = 'Forgot password?';
+          setError('Network error sending reset link. Try again.');
+        });
+    });
+  }
 
   var form = document.getElementById('signin-form');
   if (form) {
@@ -114,6 +176,37 @@
       }
       var btn = document.getElementById('signin-btn');
       btn.disabled = true;
+      if (passwordMode) {
+        var password = (document.getElementById('password').value || '');
+        if (!password) {
+          btn.disabled = false;
+          setError('Enter your password.');
+          return;
+        }
+        btn.textContent = 'Signing in…';
+        fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ email: email, password: password }),
+        })
+          .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }).catch(function () { return { ok: r.ok, j: {} }; }); })
+          .then(function (resp) {
+            btn.disabled = false;
+            btn.textContent = 'Sign in';
+            if (resp.ok) {
+              window.location.reload();
+            } else {
+              setError(resp.j && resp.j.error ? resp.j.error : 'Could not sign in.');
+            }
+          })
+          .catch(function (err) {
+            btn.disabled = false;
+            btn.textContent = 'Sign in';
+            setError('Network error: ' + (err.message || 'unknown'));
+          });
+        return;
+      }
       btn.textContent = 'Sending…';
       fetch('/api/auth/request', {
         method: 'POST',
