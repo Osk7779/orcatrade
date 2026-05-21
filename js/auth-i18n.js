@@ -70,6 +70,9 @@
       errCouldNotSignIn: 'Could not sign in.',
       errCouldNotSendLink: 'Could not send sign-in link.',
       errResetNetwork: 'Network error sending reset link. Try again.',
+      ssoSignin: 'Sign in with your company SSO',
+      ssoEnterEmail: 'Enter your work email first, then click Sign in with SSO.',
+      ssoNoneForDomain: 'No SSO is set up for that email domain. Use your email + password or a magic link.',
 
       // ── /account/reset/ ──
       resetTitle: 'Choose a new password',
@@ -132,6 +135,9 @@
       errCouldNotSignIn: 'Nie udało się zalogować.',
       errCouldNotSendLink: 'Nie udało się wysłać linku do logowania.',
       errResetNetwork: 'Błąd sieci przy wysyłaniu linku resetującego. Spróbuj ponownie.',
+      ssoSignin: 'Zaloguj się przez firmowe SSO',
+      ssoEnterEmail: 'Najpierw podaj służbowy e-mail, a potem kliknij „Zaloguj przez SSO”.',
+      ssoNoneForDomain: 'Dla tej domeny e-mail nie skonfigurowano SSO. Użyj e-maila i hasła lub magic-linku.',
 
       resetTitle: 'Wybierz nowe hasło',
       resetLead: 'Ustaw nowe hasło do konta OrcaTrade. Po tej zmianie wszystkie inne aktywne sesje na tym e-mailu zostaną wylogowane.',
@@ -193,6 +199,9 @@
       errCouldNotSignIn: 'Anmeldung fehlgeschlagen.',
       errCouldNotSendLink: 'Anmeldelink konnte nicht gesendet werden.',
       errResetNetwork: 'Netzwerkfehler beim Senden des Reset-Links. Versuchen Sie es erneut.',
+      ssoSignin: 'Mit Unternehmens-SSO anmelden',
+      ssoEnterEmail: 'Geben Sie zuerst Ihre geschäftliche E-Mail ein, dann „Mit SSO anmelden“.',
+      ssoNoneForDomain: 'Für diese E-Mail-Domain ist kein SSO eingerichtet. Nutzen Sie E-Mail + Passwort oder einen Magic-Link.',
 
       resetTitle: 'Neues Passwort wählen',
       resetLead: 'Legen Sie ein neues Passwort für Ihr OrcaTrade-Konto fest. Nach dieser Änderung werden alle anderen aktiven Sitzungen dieser E-Mail abgemeldet.',

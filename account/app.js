@@ -346,6 +346,39 @@
     });
   }
 
+  // Sprint sso-oidc-v1 phase 3 — "Sign in with company SSO": take the
+  // email, discover the org by domain, and redirect to its IdP. Falls
+  // back to a message when no SSO is configured for that domain.
+  var ssoLink = document.getElementById('sso-link');
+  if (ssoLink) {
+    ssoLink.addEventListener('click', function (e) {
+      e.preventDefault();
+      var emailInput = document.getElementById('email');
+      var email = (emailInput && emailInput.value || '').trim().toLowerCase();
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+        setError(T('ssoEnterEmail', 'Enter your work email first, then click Sign in with SSO.'));
+        if (emailInput) emailInput.focus();
+        return;
+      }
+      setError('');
+      ssoLink.textContent = T('btnSigningIn', 'Signing in…');
+      fetch('/api/auth/sso/discover?email=' + encodeURIComponent(email), { credentials: 'omit' })
+        .then(function (r) { return r.json().catch(function () { return {}; }); })
+        .then(function (d) {
+          ssoLink.textContent = T('ssoSignin', 'Sign in with your company SSO');
+          if (d && d.ssoAvailable && d.initiateUrl) {
+            window.location.href = d.initiateUrl;
+          } else {
+            setError(T('ssoNoneForDomain', 'No SSO is set up for that email domain.'));
+          }
+        })
+        .catch(function () {
+          ssoLink.textContent = T('ssoSignin', 'Sign in with your company SSO');
+          setError(T('errNetwork', 'Network error:') + ' SSO lookup failed');
+        });
+    });
+  }
+
   var form = document.getElementById('signin-form');
   if (form) {
     form.addEventListener('submit', function (e) {
