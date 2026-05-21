@@ -31,18 +31,22 @@ const portfolioSnapshot = {
 
 // ── Tool schemas ────────────────────────────────────────
 
-test('personalTools: two read-only tools with empty input schemas', () => {
-  assert.equal(personal.personalTools.length, 2);
+test('personalTools: three read-only tools; the two list tools take no input', () => {
+  assert.equal(personal.personalTools.length, 3);
   const names = personal.personalTools.map((t) => t.name).sort();
-  assert.deepEqual(names, ['listMyPortfolios', 'listMySavedPlans']);
+  assert.deepEqual(names, ['getMyPortfolioDrift', 'listMyPortfolios', 'listMySavedPlans']);
   for (const t of personal.personalTools) {
     assert.equal(t.input_schema.type, 'object');
-    assert.deepEqual(Object.keys(t.input_schema.properties), []);
+    if (t.name === 'getMyPortfolioDrift') {
+      assert.deepEqual(t.input_schema.required, ['portfolioId']);
+    } else {
+      assert.deepEqual(Object.keys(t.input_schema.properties), []);
+    }
   }
 });
 
 test('PERSONAL_TOOL_NAMES matches the tool names', () => {
-  assert.deepEqual(personal.PERSONAL_TOOL_NAMES.sort(), ['listMyPortfolios', 'listMySavedPlans']);
+  assert.deepEqual(personal.PERSONAL_TOOL_NAMES.sort(), ['getMyPortfolioDrift', 'listMyPortfolios', 'listMySavedPlans']);
 });
 
 // ── Summaries ───────────────────────────────────────────
@@ -90,6 +94,47 @@ test('buildPersonalImpls: empty email yields empty results (no leak)', async () 
   const impls = personal.buildPersonalImpls('');
   assert.deepEqual(await impls.listMySavedPlans({}), { count: 0, plans: [] });
   assert.deepEqual(await impls.listMyPortfolios({}), { count: 0, portfolios: [] });
+});
+
+test('listMyPortfolios summary includes the id (so drift can target it)', async () => {
+  kv._resetMemoryStore();
+  const rec = await savedPortfolios.savePortfolio({ email: 'me@example.com', lines: portfolioLines, label: 'Cat', snapshot: portfolioSnapshot });
+  const impls = personal.buildPersonalImpls('me@example.com');
+  const out = await impls.listMyPortfolios({});
+  assert.equal(out.portfolios[0].id, rec.id);
+});
+
+test('getMyPortfolioDrift: recomputes + returns current + drift for the owner', async () => {
+  kv._resetMemoryStore();
+  // Stale baseline so the recompute drifts up materially.
+  const stale = { lineCount: 1, blendedDutyRatePct: 4, consolidationSavingEur: 0, totals: { perShipmentLandedTotal: 30000, dutyEur: 1000 } };
+  const rec = await savedPortfolios.savePortfolio({ email: 'me@example.com', lines: portfolioLines, label: 'Cat', snapshot: stale });
+  const impls = personal.buildPersonalImpls('me@example.com');
+  const out = await impls.getMyPortfolioDrift({ portfolioId: rec.id });
+  assert.equal(out.label, 'Cat');
+  assert.ok(out.current.landedEur > 0);
+  assert.ok(out.drift);
+  assert.equal(out.drift.direction, 'up');
+  assert.equal(out.drift.material, true);
+});
+
+test('getMyPortfolioDrift: drift null when the saved portfolio had no snapshot', async () => {
+  kv._resetMemoryStore();
+  const rec = await savedPortfolios.savePortfolio({ email: 'me@example.com', lines: portfolioLines, label: 'Cat' }); // no snapshot
+  const impls = personal.buildPersonalImpls('me@example.com');
+  const out = await impls.getMyPortfolioDrift({ portfolioId: rec.id });
+  assert.equal(out.drift, null);
+  assert.ok(out.current.landedEur > 0);
+});
+
+test('getMyPortfolioDrift: error for missing id / unknown / another user\'s portfolio', async () => {
+  kv._resetMemoryStore();
+  const rec = await savedPortfolios.savePortfolio({ email: 'owner@example.com', lines: portfolioLines, label: 'Cat', snapshot: portfolioSnapshot });
+  const mine = personal.buildPersonalImpls('me@example.com');
+  assert.match((await mine.getMyPortfolioDrift({})).error, /portfolioId required/);
+  assert.match((await mine.getMyPortfolioDrift({ portfolioId: 'pf_doesnotexist00' })).error, /not found/i);
+  // Another user's portfolio id → ownership check fails → not found.
+  assert.match((await mine.getMyPortfolioDrift({ portfolioId: rec.id })).error, /not found/i);
 });
 
 // ── classifyTool ───────────────────────────────────────
