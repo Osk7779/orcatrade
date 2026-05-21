@@ -245,9 +245,24 @@
     .then(function (d) { signedIn = !!(d && d.user && d.user.email); })
     .catch(function () { /* assume signed-out */ });
 
-  function savedIdFromUrl() {
-    try { return new URLSearchParams(window.location.search).get('id') || ''; }
+  function urlParam(name) {
+    try { return new URLSearchParams(window.location.search).get(name) || ''; }
     catch (_) { return ''; }
+  }
+
+  function loadLinesInto(lines) {
+    els.lines.innerHTML = '';
+    lines.forEach(function (ln) { addLine(ln); });
+  }
+
+  function showSharedBanner(label) {
+    var b = document.createElement('div');
+    b.className = 'pf-shared-banner';
+    b.innerHTML = 'Viewing a shared portfolio' + (label ? ' — <strong>' + escapeHtml(label) + '</strong>' : '')
+      + '. Numbers are recomputed live against today’s tariff + freight data. Edit the rows below to plan your own.';
+    var shell = document.querySelector('.pf-shell');
+    var hero = document.querySelector('.pf-hero');
+    if (shell && hero) shell.insertBefore(b, hero.nextSibling);
   }
 
   fetch('/api/start', { credentials: 'omit' })
@@ -258,16 +273,33 @@
         catalogue.origins = data.origins || [];
         catalogue.destinations = data.destinations || [];
       }
-      // Revisit a saved portfolio? Load its lines + auto-generate.
-      var savedId = savedIdFromUrl();
+      // PUBLIC shared portfolio? /portfolio/?share=<code> — anyone can view.
+      var shareCode = urlParam('share');
+      if (/^[a-f0-9]{10}$/.test(shareCode)) {
+        fetch('/api/portfolio/shared/' + encodeURIComponent(shareCode), { credentials: 'omit' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            var lines = d && Array.isArray(d.lines) ? d.lines : null;
+            if (lines && lines.length) {
+              showSharedBanner(d.label);
+              loadLinesInto(lines);
+              generate();
+            } else {
+              addLine(); addLine();
+            }
+          })
+          .catch(function () { addLine(); addLine(); });
+        return;
+      }
+      // Revisit YOUR OWN saved portfolio? /portfolio/?id=pf_… (auth required).
+      var savedId = urlParam('id');
       if (/^pf_[a-f0-9]{16}$/.test(savedId)) {
         fetch('/api/portfolio/item/' + encodeURIComponent(savedId), { credentials: 'same-origin' })
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (d) {
             var lines = d && d.portfolio && Array.isArray(d.portfolio.lines) ? d.portfolio.lines : null;
             if (lines && lines.length) {
-              els.lines.innerHTML = '';
-              lines.forEach(function (ln) { addLine(ln); });
+              loadLinesInto(lines);
               generate();
             } else {
               addLine(); addLine();
