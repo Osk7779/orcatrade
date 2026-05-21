@@ -54,6 +54,8 @@
         }
         // Sprint first-run-welcome-v1 — ?welcome=1 → show hero now.
         if (consumeWelcomeParam()) applyFirstRun(true);
+        // Sprint account-overview-v1 — operations cockpit.
+        loadOverview();
         // Sprint onboarding-v1 — checklist after auth resolves.
         loadOnboarding();
       } else {
@@ -133,6 +135,60 @@
       +   p.completed + ' of ' + p.total + ' steps complete'
       + '</div>'
       + '<ul class="ob-steps">' + rows + '</ul>';
+  }
+
+  // ── Sprint account-overview-v1 — operations cockpit ──
+  function fmtEur(n) {
+    if (n == null || !Number.isFinite(Number(n))) return '—';
+    return new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(Number(n));
+  }
+
+  function renderOverview(data) {
+    if (!data) return '';
+    var plans = data.plans || { count: 0, recent: [] };
+    var portfolios = data.portfolios || { count: 0, recent: [] };
+    // Nothing saved → let the onboarding checklist carry the page.
+    if ((plans.count || 0) === 0 && (portfolios.count || 0) === 0) return '';
+
+    var html = '<h2>Your operations</h2>';
+    html += '<div class="overview-stats">'
+      + '<div class="ov-stat"><div class="ov-num">' + (plans.count || 0) + '</div><div class="ov-label">saved plan' + (plans.count === 1 ? '' : 's') + '</div></div>'
+      + '<div class="ov-stat"><div class="ov-num">' + (portfolios.count || 0) + '</div><div class="ov-label">portfolio' + (portfolios.count === 1 ? '' : 's') + '</div></div>'
+      + '</div>';
+
+    if (plans.recent && plans.recent.length) {
+      html += '<div class="ov-group-title">Recent plans</div><ul class="ov-recent">';
+      html += plans.recent.map(function (p) {
+        return '<li><a href="/account/plans/">' + escapeHtml(p.label || p.route) + ' <span style="opacity:0.5">' + escapeHtml(p.route) + '</span></a>'
+          + '<span class="ov-fig">' + escapeHtml(fmtEur(p.landedEur)) + '</span></li>';
+      }).join('');
+      html += '</ul><a class="ov-cta" href="/account/plans/">All saved plans →</a>';
+    }
+
+    if (portfolios.recent && portfolios.recent.length) {
+      html += '<div class="ov-group-title">Recent portfolios</div><ul class="ov-recent">';
+      html += portfolios.recent.map(function (p) {
+        return '<li><a href="/portfolio/?id=' + encodeURIComponent(p.id) + '">' + escapeHtml(p.label || 'Portfolio') + ' <span style="opacity:0.5">' + (p.skuCount || 0) + ' SKU' + (p.skuCount === 1 ? '' : 's') + '</span></a>'
+          + '<span class="ov-fig">' + escapeHtml(fmtEur(p.landedEur)) + '</span></li>';
+      }).join('');
+      html += '</ul><a class="ov-cta" href="/account/portfolios/">All portfolios →</a>';
+    }
+    return html;
+  }
+
+  function loadOverview() {
+    var el = document.getElementById('overview-card');
+    if (!el) return;
+    fetch('/api/account/overview', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data || !data.ok) return;
+        var html = renderOverview(data);
+        if (!html) { el.hidden = true; return; }
+        el.innerHTML = html;
+        el.hidden = false;
+      })
+      .catch(function () { /* non-blocking */ });
   }
 
   function loadOnboarding() {
