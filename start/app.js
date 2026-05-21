@@ -722,6 +722,7 @@ function renderPlan(plan) {
         <a class="btn btn-primary" href="${wizardHome()}" style="margin-right: 0.6rem;">${T.btnRunAnother}</a>
         <a class="btn" href="${guidesHome()}">${T.btnBrowseGuides}</a>
       </div>
+      <p style="margin-top: 1rem; font-size: 0.88rem;"><a href="/portfolio/" style="color: var(--accent-color, #b8bec8); text-decoration: none;">${T.btnPlanCatalogue || 'Plan your whole catalogue →'}</a></p>
     </div>
   `;
 

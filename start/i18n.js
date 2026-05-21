@@ -22,6 +22,8 @@ window.START_I18N = {
     // Sprint hs-refine-v1 — in-result precise-rate nudge
     hsRefineIntro: 'This duty is a chapter average. Want a precise rate for your exact commodity?',
     hsRefineCta: 'Look up your code & re-run →',
+    // Sprint portfolio-v1 — cross-link to the multi-SKU planner
+    btnPlanCatalogue: 'Plan your whole catalogue →',
     // Errors
     errPickCategory: 'Pick a category to continue',
     errPickOrigin: 'Pick an origin',
@@ -245,6 +247,8 @@ window.START_I18N = {
     // Sprint hs-refine-v1
     hsRefineIntro: 'To cło to średnia dla działu. Chcesz dokładną stawkę dla swojego towaru?',
     hsRefineCta: 'Sprawdź kod i przelicz ponownie →',
+    // Sprint portfolio-v1
+    btnPlanCatalogue: 'Zaplanuj cały katalog →',
     errPickCategory: 'Wybierz kategorię, aby kontynuować',
     errPickOrigin: 'Wybierz kraj pochodzenia',
     errPickDestination: 'Wybierz kraj docelowy w UE',
@@ -455,6 +459,8 @@ window.START_I18N = {
     // Sprint hs-refine-v1
     hsRefineIntro: 'Dieser Zoll ist ein Kapiteldurchschnitt. Möchten Sie einen genauen Satz für Ihre Ware?',
     hsRefineCta: 'Code nachschlagen & neu berechnen →',
+    // Sprint portfolio-v1
+    btnPlanCatalogue: 'Ganzen Katalog planen →',
     errPickCategory: 'Bitte wählen Sie eine Kategorie',
     errPickOrigin: 'Bitte wählen Sie ein Ursprungsland',
     errPickDestination: 'Bitte wählen Sie ein EU-Zielland',
