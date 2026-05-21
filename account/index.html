@@ -161,6 +161,22 @@
             <p class="ok-msg"><span data-i18n="noEmailSpam">No email after a minute? Check spam, or</span> <a href="#" id="resend-link" data-i18n="tryAgain" style="color: var(--accent-color, #b8bec8);">try again</a>.</p>
           </div>
 
+          <!-- MFA challenge state (Sprint mfa-totp-v1). Shown when a first
+               factor (password or magic-link) succeeded but the account
+               has two-factor enabled. challengeId is set by app.js from
+               the password-login response OR the ?mfa= redirect param. -->
+          <div class="account-state" id="state-mfa">
+            <h1>Two-factor authentication</h1>
+            <p>Enter the 6-digit code from your authenticator app to finish signing in.</p>
+            <form id="mfa-form">
+              <label for="mfa-code">Authentication code</label>
+              <input type="text" id="mfa-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" style="width:100%; padding:0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 1.2rem; letter-spacing: 0.3em; outline: none;" />
+              <button type="submit" class="btn btn-primary" id="mfa-btn">Verify</button>
+              <div class="err" id="mfa-err"></div>
+            </form>
+            <p style="margin-top:1.2rem; font-size:0.85rem; color: rgba(255,255,255,0.55);">Lost your authenticator? Enter one of your backup codes above instead.</p>
+          </div>
+
           <!-- Signed-in state -->
           <div class="account-state" id="state-signedin">
             <!-- Sprint first-run-welcome-v1 — first-run hero. Revealed by

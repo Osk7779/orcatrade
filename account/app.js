@@ -15,8 +15,13 @@
     loading: document.getElementById('state-loading'),
     signin: document.getElementById('state-signin'),
     sent: document.getElementById('state-sent'),
+    mfa: document.getElementById('state-mfa'),
     signedin: document.getElementById('state-signedin'),
   };
+
+  // Sprint mfa-totp-v1 — the active MFA login challenge (set by the
+  // password-login response OR the ?mfa= magic-link redirect).
+  var mfaChallengeId = null;
 
   function showState(name) {
     Object.keys(states).forEach(function (k) {
@@ -160,6 +165,67 @@
     catch (_) { return ''; }
   })();
 
+  // Sprint mfa-totp-v1 — a magic-link sign-in on an MFA-enabled account
+  // lands here as /account/?mfa=<challengeId>(&return=…). Detect it and
+  // jump straight to the challenge state.
+  (function () {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var mfaId = params.get('mfa') || '';
+      if (/^[a-f0-9]{32}$/.test(mfaId)) {
+        mfaChallengeId = mfaId;
+        // Strip ?mfa= so a refresh doesn't replay a now-consumed id.
+        params.delete('mfa');
+        var qs = params.toString();
+        window.history.replaceState({}, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+        showState('mfa');
+      }
+    } catch (_) { /* non-blocking */ }
+  })();
+
+  // ── Sprint mfa-totp-v1 — challenge form ──────────────
+  var mfaForm = document.getElementById('mfa-form');
+  if (mfaForm) {
+    mfaForm.addEventListener('submit', function (e) {
+      e.preventDefault();
+      var errEl = document.getElementById('mfa-err');
+      if (errEl) errEl.textContent = '';
+      var code = (document.getElementById('mfa-code').value || '').replace(/\s/g, '');
+      if (!mfaChallengeId) { if (errEl) errEl.textContent = T('errCouldNotSignIn', 'Could not sign in.'); return; }
+      if (!code) { if (errEl) errEl.textContent = 'Enter your authentication code.'; return; }
+      var btn = document.getElementById('mfa-btn');
+      btn.disabled = true;
+      btn.textContent = T('btnSigningIn', 'Signing in…');
+      fetch('/api/auth/mfa/verify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({ challengeId: mfaChallengeId, code: code, returnTo: pageReturnTo || undefined }),
+      })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
+        .then(function (resp) {
+          btn.disabled = false;
+          btn.textContent = 'Verify';
+          if (resp.ok) {
+            if (resp.j && resp.j.returnTo) window.location.href = resp.j.returnTo;
+            else window.location.reload();
+          } else if (resp.status === 429) {
+            // Challenge burned — send them back to a clean sign-in.
+            mfaChallengeId = null;
+            showState('signin');
+            setError((resp.j && resp.j.error) || 'Too many attempts. Sign in again.');
+          } else {
+            if (errEl) errEl.textContent = (resp.j && resp.j.error) || 'Invalid code.';
+          }
+        })
+        .catch(function (err) {
+          btn.disabled = false;
+          btn.textContent = 'Verify';
+          if (errEl) errEl.textContent = T('errNetwork', 'Network error:') + ' ' + (err.message || 'unknown');
+        });
+    });
+  }
+
   // ── Sign-in form submission (Sprint password-auth-v1) ──
   //
   // Two modes share the form: magic-link (default) and password. The
@@ -255,6 +321,16 @@
             btn.disabled = false;
             btn.textContent = T('btnSignIn', 'Sign in');
             if (resp.ok) {
+              // Sprint mfa-totp-v1 — password was the first factor; if
+              // the account has MFA, the server withholds the session and
+              // returns a challenge. Switch to the code-entry state.
+              if (resp.j && resp.j.mfaRequired && resp.j.challengeId) {
+                mfaChallengeId = resp.j.challengeId;
+                showState('mfa');
+                var mc = document.getElementById('mfa-code');
+                if (mc) mc.focus();
+                return;
+              }
               // Server echoes the validated returnTo (open-redirect-safe).
               // Use it if present, else just reload — same as before.
               if (resp.j && resp.j.returnTo) window.location.href = resp.j.returnTo;

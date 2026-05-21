@@ -161,6 +161,49 @@
         </form>
       </section>
 
+      <!-- Sprint mfa-totp-v1 — two-factor card. /api/auth/me carries
+           mfaEnabled so the right variant renders on first paint. -->
+      <section id="mfaCard" class="password-card" style="margin-top:1.6rem;">
+        <h2 class="card-title">Two-factor authentication</h2>
+        <p class="card-sub" id="mfaSubOff" hidden>
+          Add a second factor with any authenticator app (Google Authenticator, Authy, 1Password). After setup, signing in
+          asks for a 6-digit code — so a leaked password alone can't get into your account.
+        </p>
+        <p class="card-sub" id="mfaSubOn" hidden>
+          Two-factor is <strong>on</strong>. You'll be asked for a code from your authenticator app each time you sign in.
+        </p>
+
+        <!-- Enrollment step (after Begin) -->
+        <div id="mfaSetup" hidden>
+          <p class="pw-help" style="margin-top:0;">1. Add this setup key to your authenticator app:</p>
+          <code id="mfaSecret" style="display:block; font-family:'Geist Mono',monospace; font-size:0.95rem; letter-spacing:0.08em; padding:0.7rem 0.9rem; background:rgba(8,11,19,0.6); border:1px solid rgba(255,255,255,0.08); word-break:break-all; margin-bottom:0.5rem;"></code>
+          <p class="pw-help" style="margin-bottom:1rem;"><a id="mfaOtpauthLink" href="#" style="color:var(--accent-color,#b8bec8);">Open in your authenticator app</a> (if installed on this device)</p>
+          <label for="mfaCode">2. Enter the 6-digit code from the app</label>
+          <input type="text" id="mfaCode" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000" style="width:100%; padding:0.7rem 0.9rem; background:rgba(8,11,19,0.6); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.92); font-family:'Geist Mono',monospace; font-size:1.1rem; letter-spacing:0.3em; outline:none;" />
+        </div>
+
+        <!-- Backup codes (shown once after enable) -->
+        <div id="mfaBackup" hidden>
+          <p class="card-sub" style="color:rgba(220,188,110,0.95);">Save these backup codes somewhere safe. Each works once if you lose your authenticator. They will not be shown again.</p>
+          <ul id="mfaBackupList" style="list-style:none; padding:0; margin:0 0 0.5rem; columns:2; font-family:'Geist Mono',monospace; font-size:0.95rem; color:rgba(255,255,255,0.9);"></ul>
+        </div>
+
+        <!-- Disable step (asks for a code) -->
+        <div id="mfaDisableRow" hidden>
+          <label for="mfaDisableCode">Enter a current code (or a backup code) to turn off two-factor</label>
+          <input type="text" id="mfaDisableCode" inputmode="numeric" autocomplete="one-time-code" placeholder="000000" style="width:100%; padding:0.7rem 0.9rem; background:rgba(8,11,19,0.6); border:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.92); font-family:'Geist Mono',monospace; font-size:1.1rem; letter-spacing:0.2em; outline:none;" />
+        </div>
+
+        <div class="pw-actions">
+          <button type="button" class="btn btn-primary" id="mfaBeginBtn" hidden>Set up two-factor</button>
+          <button type="button" class="btn btn-primary" id="mfaEnableBtn" hidden>Verify &amp; enable</button>
+          <button type="button" class="btn" id="mfaDisableBtn" hidden>Disable two-factor</button>
+          <button type="button" class="btn" id="mfaConfirmDisableBtn" hidden>Confirm disable</button>
+        </div>
+        <div class="err" id="mfaErr" hidden></div>
+        <div class="ok-msg" id="mfaOk" hidden></div>
+      </section>
+
       <h2 class="card-title" style="margin-top:2.4rem;">Active sessions</h2>
       <p class="lead" style="margin-bottom:1.4rem;">
         Every device that has signed in to your OrcaTrade account. Revoke individual sessions to sign them out without

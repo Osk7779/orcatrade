@@ -108,6 +108,8 @@
       // Sprint password-auth-v1 — initialise the password card. /api/auth/me
       // carries hasPassword so we render the right variant on first paint.
       loadPasswordCard();
+      // Sprint mfa-totp-v1 — initialise the two-factor card.
+      loadMfaCard();
       var sessions = (data && data.sessions) || [];
       if (sessions.length === 0) {
         els.empty.hidden = false;
@@ -293,6 +295,141 @@
       btn.disabled = false;
       btn.textContent = isCurrent ? 'Revoke (sign out here)' : 'Revoke';
     }
+  }
+
+  // ── Sprint mfa-totp-v1 — two-factor card ─────────────
+  function mfaEl(id) { return document.getElementById(id); }
+  function mfaShow(id, on) { var el = mfaEl(id); if (el) el.hidden = !on; }
+  function mfaErr(msg) { var el = mfaEl('mfaErr'); if (el) { el.hidden = !msg; el.textContent = msg || ''; } }
+  function mfaOk(msg) { var el = mfaEl('mfaOk'); if (el) { el.hidden = !msg; el.textContent = msg || ''; } }
+
+  // Render the card for the OFF (not enrolled) state.
+  function mfaRenderOff() {
+    mfaShow('mfaSubOff', true); mfaShow('mfaSubOn', false);
+    mfaShow('mfaSetup', false); mfaShow('mfaBackup', false); mfaShow('mfaDisableRow', false);
+    mfaShow('mfaBeginBtn', true); mfaShow('mfaEnableBtn', false);
+    mfaShow('mfaDisableBtn', false); mfaShow('mfaConfirmDisableBtn', false);
+  }
+  // Render the card for the ON (enabled) state.
+  function mfaRenderOn() {
+    mfaShow('mfaSubOff', false); mfaShow('mfaSubOn', true);
+    mfaShow('mfaSetup', false); mfaShow('mfaDisableRow', false);
+    mfaShow('mfaBeginBtn', false); mfaShow('mfaEnableBtn', false);
+    mfaShow('mfaDisableBtn', true); mfaShow('mfaConfirmDisableBtn', false);
+  }
+
+  function loadMfaCard() {
+    if (!mfaEl('mfaCard')) return;
+    fetch('/api/auth/me', { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (data) {
+        if (!data) return;
+        if (data.mfaEnabled) mfaRenderOn(); else mfaRenderOff();
+      })
+      .catch(function () { /* non-blocking */ });
+
+    var beginBtn = mfaEl('mfaBeginBtn');
+    if (beginBtn && !beginBtn._wired) {
+      beginBtn._wired = true;
+      beginBtn.addEventListener('click', onMfaBegin);
+    }
+    var enableBtn = mfaEl('mfaEnableBtn');
+    if (enableBtn && !enableBtn._wired) {
+      enableBtn._wired = true;
+      enableBtn.addEventListener('click', onMfaEnable);
+    }
+    var disableBtn = mfaEl('mfaDisableBtn');
+    if (disableBtn && !disableBtn._wired) {
+      disableBtn._wired = true;
+      disableBtn.addEventListener('click', function () {
+        // Reveal the code field + confirm button.
+        mfaErr(''); mfaOk('');
+        mfaShow('mfaDisableRow', true);
+        mfaShow('mfaConfirmDisableBtn', true);
+        disableBtn.hidden = true;
+      });
+    }
+    var confirmDisableBtn = mfaEl('mfaConfirmDisableBtn');
+    if (confirmDisableBtn && !confirmDisableBtn._wired) {
+      confirmDisableBtn._wired = true;
+      confirmDisableBtn.addEventListener('click', onMfaDisable);
+    }
+  }
+
+  function onMfaBegin() {
+    mfaErr(''); mfaOk('');
+    var btn = mfaEl('mfaBeginBtn');
+    btn.disabled = true;
+    fetch('/api/auth/mfa/begin', { method: 'POST', credentials: 'same-origin' })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (resp) {
+        btn.disabled = false;
+        if (!resp.ok) { mfaErr((resp.j && resp.j.error) || 'Could not start setup.'); return; }
+        var secret = mfaEl('mfaSecret');
+        if (secret) secret.textContent = resp.j.secret || '';
+        var link = mfaEl('mfaOtpauthLink');
+        if (link && resp.j.otpauthUri) link.setAttribute('href', resp.j.otpauthUri);
+        mfaShow('mfaSetup', true);
+        mfaShow('mfaBeginBtn', false);
+        mfaShow('mfaEnableBtn', true);
+      })
+      .catch(function () { btn.disabled = false; mfaErr('Network error. Try again.'); });
+  }
+
+  function onMfaEnable() {
+    mfaErr(''); mfaOk('');
+    var code = (mfaEl('mfaCode').value || '').replace(/\s/g, '');
+    if (!/^[0-9]{6}$/.test(code)) { mfaErr('Enter the 6-digit code from your app.'); return; }
+    var btn = mfaEl('mfaEnableBtn');
+    btn.disabled = true;
+    fetch('/api/auth/mfa/enable', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code }),
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (resp) {
+        btn.disabled = false;
+        if (!resp.ok) { mfaErr((resp.j && resp.j.error) || 'Could not enable two-factor.'); return; }
+        // Show backup codes once.
+        var list = mfaEl('mfaBackupList');
+        if (list && Array.isArray(resp.j.backupCodes)) {
+          list.innerHTML = resp.j.backupCodes.map(function (c) {
+            return '<li>' + escapeHtml(c) + '</li>';
+          }).join('');
+        }
+        mfaShow('mfaSetup', false);
+        mfaShow('mfaEnableBtn', false);
+        mfaShow('mfaBackup', true);
+        mfaShow('mfaSubOff', false);
+        mfaShow('mfaSubOn', true);
+        mfaShow('mfaDisableBtn', true);
+        mfaOk('Two-factor is now on.');
+      })
+      .catch(function () { btn.disabled = false; mfaErr('Network error. Try again.'); });
+  }
+
+  function onMfaDisable() {
+    mfaErr(''); mfaOk('');
+    var code = (mfaEl('mfaDisableCode').value || '').replace(/\s/g, '');
+    if (!code) { mfaErr('Enter a current code (or backup code) to disable.'); return; }
+    var btn = mfaEl('mfaConfirmDisableBtn');
+    btn.disabled = true;
+    fetch('/api/auth/mfa/disable', {
+      method: 'POST', credentials: 'same-origin',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code: code }),
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (resp) {
+        btn.disabled = false;
+        if (!resp.ok) { mfaErr((resp.j && resp.j.error) || 'Could not disable two-factor.'); return; }
+        mfaEl('mfaDisableCode').value = '';
+        mfaShow('mfaBackup', false);
+        mfaRenderOff();
+        mfaOk('Two-factor has been turned off.');
+      })
+      .catch(function () { btn.disabled = false; mfaErr('Network error. Try again.'); });
   }
 
   document.addEventListener('DOMContentLoaded', load);
