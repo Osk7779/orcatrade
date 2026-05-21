@@ -47,15 +47,53 @@
           var adminCard = document.getElementById('admin-card');
           if (adminCard) adminCard.hidden = false;
         }
-        // Sprint onboarding-v1 — fetch + render the checklist after
-        // auth resolves. Failure here is non-blocking; the account
-        // page still works without the card.
+        // Sprint first-run-welcome-v1 — ?welcome=1 → show hero now.
+        if (consumeWelcomeParam()) applyFirstRun(true);
+        // Sprint onboarding-v1 — checklist after auth resolves.
         loadOnboarding();
       } else {
         showState('signin');
       }
     })
     .catch(function () { showState('signin'); });
+
+  // ── Sprint first-run-welcome-v1 ──────────────────────
+  // Two first-run signals: an explicit ?welcome=1 from signup-confirm,
+  // and a brand-new user (zero completed onboarding steps) arriving by
+  // any path (e.g. a first-ever magic-link sign-in). Either flips the
+  // signed-in view from "Welcome back" to the orienting hero.
+  var firstRunShown = false;
+
+  function consumeWelcomeParam() {
+    var has = false;
+    try {
+      var params = new URLSearchParams(window.location.search);
+      has = params.get('welcome') === '1';
+      if (has) {
+        params.delete('welcome');
+        var qs = params.toString();
+        var clean = window.location.pathname + (qs ? '?' + qs : '') + window.location.hash;
+        window.history.replaceState({}, '', clean);
+      }
+    } catch (_) { /* non-blocking */ }
+    return has;
+  }
+
+  function applyFirstRun(on) {
+    if (on && firstRunShown) return;
+    var hero = document.getElementById('welcome-hero');
+    var returning = document.getElementById('returning-header');
+    if (on) {
+      if (hero) hero.hidden = false;
+      if (returning) returning.hidden = true;
+      firstRunShown = true;
+    } else if (!firstRunShown) {
+      // Only assert the returning header when first-run hasn't already
+      // been triggered by ?welcome=1 earlier in this load.
+      if (hero) hero.hidden = true;
+      if (returning) returning.hidden = false;
+    }
+  }
 
   // ── Sprint onboarding-v1 ─────────────────────────────
   function escapeHtml(s) {
@@ -99,6 +137,12 @@
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (data) {
         if (!data || !data.ok) return;
+        // Sprint first-run-welcome-v1 — a user with zero completed
+        // onboarding steps is brand new; show the hero even if they
+        // didn't arrive via the ?welcome=1 signup-confirm redirect
+        // (e.g. first-ever magic-link sign-in). applyFirstRun no-ops
+        // if the hero is already shown.
+        if (data.progress && data.progress.completed === 0) applyFirstRun(true);
         var html = renderOnboarding(data);
         if (!html) { el.hidden = true; return; }
         el.innerHTML = html;

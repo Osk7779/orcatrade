@@ -54,6 +54,13 @@
     .onboarding-card li.next .ob-check { border-color: rgba(220, 188, 110, 0.6); color: rgba(220, 188, 110, 0.95); }
     .onboarding-card .ob-cta { display: inline-block; margin-left: auto; padding: 0.25rem 0.7rem; font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(220, 188, 110, 0.95); text-decoration: none; border: 1px solid rgba(220, 188, 110, 0.5); font-weight: 600; }
     .onboarding-card .ob-cta:hover { background: rgba(220, 188, 110, 0.08); }
+
+    /* Sprint first-run-welcome-v1 — first-run hero */
+    .welcome-hero { padding: 1.6rem 1.7rem 1.8rem; margin-bottom: 1.6rem; background: linear-gradient(135deg, rgba(220, 188, 110, 0.08), rgba(220, 188, 110, 0.02)); border: 1px solid rgba(220, 188, 110, 0.3); }
+    .welcome-hero .wh-kicker { font-family: 'Geist Mono', monospace; font-size: 0.68rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(220, 188, 110, 0.9); margin-bottom: 0.6rem; }
+    .welcome-hero .wh-title { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.6rem, 3vw + 0.5rem, 2.1rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.7rem; line-height: 1.15; }
+    .welcome-hero .wh-body { font-size: 0.95rem; line-height: 1.65; color: rgba(255,255,255,0.78); margin-bottom: 1.3rem; }
+    .welcome-hero .wh-cta { display: inline-block; text-decoration: none; margin-top: 0; }
   </style>
 
 
@@ -156,8 +163,21 @@
 
           <!-- Signed-in state -->
           <div class="account-state" id="state-signedin">
-            <h1>Welcome back</h1>
-            <p>You're signed in. From here you can revisit any plans you've saved (saved plans coming soon — for now, every plan you build has its own permalink under <code>/start/?p=…</code>).</p>
+            <!-- Sprint first-run-welcome-v1 — first-run hero. Revealed by
+                 app.js when ?welcome=1 is present (just confirmed a new
+                 account) OR onboarding shows zero completed steps (a
+                 brand-new user arriving by any path). Hidden otherwise so
+                 returning users see the normal "Welcome back" header. -->
+            <div id="welcome-hero" class="welcome-hero" hidden>
+              <div class="wh-kicker">Welcome to OrcaTrade</div>
+              <h1 class="wh-title">Your account is ready</h1>
+              <p class="wh-body">You're all set. The fastest way to see what OrcaTrade does is to build your first import plan — landed cost, duties, trade-defence, compliance, and a routing recommendation in about a minute.</p>
+              <a href="/start/" class="btn btn-primary wh-cta">Build your first plan →</a>
+            </div>
+            <div id="returning-header">
+              <h1>Welcome back</h1>
+              <p>You're signed in. From here you can revisit any plans you've saved, manage your team and billing, or build a new import plan.</p>
+            </div>
             <div class="signed-in-row">
               <span class="email" id="signedin-email"></span>
               <div style="display:flex; gap:0.6rem; flex-wrap:wrap;">
