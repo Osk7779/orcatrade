@@ -31,22 +31,20 @@ const portfolioSnapshot = {
 
 // ── Tool schemas ────────────────────────────────────────
 
-test('personalTools: three read-only tools; the two list tools take no input', () => {
-  assert.equal(personal.personalTools.length, 3);
+test('personalTools: four read-only tools; the two list tools take no input', () => {
+  assert.equal(personal.personalTools.length, 4);
   const names = personal.personalTools.map((t) => t.name).sort();
-  assert.deepEqual(names, ['getMyPortfolioDrift', 'listMyPortfolios', 'listMySavedPlans']);
+  assert.deepEqual(names, ['getMyPortfolioDrift', 'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans']);
   for (const t of personal.personalTools) {
     assert.equal(t.input_schema.type, 'object');
-    if (t.name === 'getMyPortfolioDrift') {
-      assert.deepEqual(t.input_schema.required, ['portfolioId']);
-    } else {
-      assert.deepEqual(Object.keys(t.input_schema.properties), []);
-    }
+    if (t.name === 'getMyPortfolioDrift') assert.deepEqual(t.input_schema.required, ['portfolioId']);
+    else if (t.name === 'getMySavedPlanDrift') assert.deepEqual(t.input_schema.required, ['planId']);
+    else assert.deepEqual(Object.keys(t.input_schema.properties), []);
   }
 });
 
 test('PERSONAL_TOOL_NAMES matches the tool names', () => {
-  assert.deepEqual(personal.PERSONAL_TOOL_NAMES.sort(), ['getMyPortfolioDrift', 'listMyPortfolios', 'listMySavedPlans']);
+  assert.deepEqual(personal.PERSONAL_TOOL_NAMES.sort(), ['getMyPortfolioDrift', 'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans']);
 });
 
 // ── Summaries ───────────────────────────────────────────
@@ -94,6 +92,47 @@ test('buildPersonalImpls: empty email yields empty results (no leak)', async () 
   const impls = personal.buildPersonalImpls('');
   assert.deepEqual(await impls.listMySavedPlans({}), { count: 0, plans: [] });
   assert.deepEqual(await impls.listMyPortfolios({}), { count: 0, portfolios: [] });
+});
+
+test('listMySavedPlans summary includes the id (so drift can target it)', async () => {
+  kv._resetMemoryStore();
+  const rec = await savedPlans.savePlan({ email: 'me@example.com', inputs: planInput, label: 'Mine', snapshot: { perShipmentLandedTotal: 62000 } });
+  const impls = personal.buildPersonalImpls('me@example.com');
+  const out = await impls.listMySavedPlans({});
+  assert.equal(out.plans[0].id, rec.id);
+});
+
+test('getMySavedPlanDrift: recomputes + returns current + drift for the owner', async () => {
+  kv._resetMemoryStore();
+  // Stale low baseline so the recompute drifts up significantly.
+  const stalePlanSnapshot = { perShipmentLandedTotal: 30000, dutyEur: 1000, vatEur: 1, transportEur: 1, brokerageEur: 1 };
+  const rec = await savedPlans.savePlan({ email: 'me@example.com', inputs: planInput, label: 'CN apparel', snapshot: stalePlanSnapshot });
+  const impls = personal.buildPersonalImpls('me@example.com');
+  const out = await impls.getMySavedPlanDrift({ planId: rec.id });
+  assert.equal(out.label, 'CN apparel');
+  assert.equal(out.route, 'CN→PL');
+  assert.ok(out.current.landedEur > 0);
+  assert.ok(out.drift);
+  assert.equal(out.drift.significant, true);
+  assert.ok(out.drift.landedDeltaEur > 0);
+});
+
+test('getMySavedPlanDrift: drift null when the saved plan had no snapshot', async () => {
+  kv._resetMemoryStore();
+  const rec = await savedPlans.savePlan({ email: 'me@example.com', inputs: planInput, label: 'No snap' });
+  const impls = personal.buildPersonalImpls('me@example.com');
+  const out = await impls.getMySavedPlanDrift({ planId: rec.id });
+  assert.equal(out.drift, null);
+  assert.ok(out.current.landedEur > 0);
+});
+
+test('getMySavedPlanDrift: error for missing id / unknown / another user\'s plan', async () => {
+  kv._resetMemoryStore();
+  const rec = await savedPlans.savePlan({ email: 'owner@example.com', inputs: planInput, label: 'X', snapshot: { perShipmentLandedTotal: 1 } });
+  const mine = personal.buildPersonalImpls('me@example.com');
+  assert.match((await mine.getMySavedPlanDrift({})).error, /planId required/);
+  assert.match((await mine.getMySavedPlanDrift({ planId: 'pl_doesnotexist000' })).error, /not found/i);
+  assert.match((await mine.getMySavedPlanDrift({ planId: rec.id })).error, /not found/i); // ownership
 });
 
 test('listMyPortfolios summary includes the id (so drift can target it)', async () => {
