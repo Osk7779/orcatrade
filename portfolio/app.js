@@ -180,6 +180,9 @@
       html += '</div>';
     }
 
+    // Download CSV — available to everyone (the procurement filing format).
+    html += '<div class="pf-export"><button type="button" class="btn" id="pfCsvBtn">Download CSV</button></div>';
+
     // Save block — only for signed-in users.
     if (signedIn) {
       html += '<div class="pf-save" id="pfSaveBlock">'
@@ -198,7 +201,36 @@
       var saveBtn = document.getElementById('pfSaveBtn');
       if (saveBtn) saveBtn.addEventListener('click', savePortfolio);
     }
+    var csvBtn = document.getElementById('pfCsvBtn');
+    if (csvBtn) csvBtn.addEventListener('click', downloadCsv);
     els.result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function downloadCsv() {
+    if (!lastLines || !lastLines.length) return;
+    var btn = document.getElementById('pfCsvBtn');
+    btn.disabled = true;
+    var old = btn.textContent;
+    btn.textContent = 'Preparing…';
+    fetch('/api/portfolio/csv', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ lines: lastLines }),
+    })
+      .then(function (r) { return r.ok ? r.blob() : null; })
+      .then(function (blob) {
+        btn.disabled = false; btn.textContent = old;
+        if (!blob) return;
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'orcatrade-portfolio-' + new Date().toISOString().slice(0, 10) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = old; });
   }
 
   function savePortfolio() {
