@@ -64,6 +64,11 @@
 
     .pf-note { font-size: 0.8rem; color: rgba(255,255,255,0.5); line-height: 1.6; margin-top: 1.8rem; }
 
+    .pf-currency { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .pf-cur-btn { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.06em; padding: 0.35rem 0.7rem; background: transparent; border: 1px solid rgba(255,255,255,0.14); color: rgba(255,255,255,0.7); cursor: pointer; transition: all 0.15s; }
+    .pf-cur-btn:hover { border-color: rgba(184,190,200,0.5); color: rgba(255,255,255,0.95); }
+    .pf-cur-btn.active { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); }
+    .pf-cur-note { font-size: 0.74rem; color: rgba(255,255,255,0.45); }
     .pf-export { margin-top: 1.6rem; }
     .pf-save { display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap; margin-top: 1.2rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); }
     .pf-save #pfLabel { flex: 1 1 240px; padding: 0.7rem 0.9rem; background: rgba(8,11,19,0.6); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.9rem; outline: none; }

@@ -21,15 +21,36 @@
   var signedIn = false;        // set from /api/auth/me — gates the Save button
   var lastLines = null;        // lines behind the currently-rendered result
   var lastAggregate = null;    // aggregate snapshot, persisted on save
+  var lastResultData = null;   // last response passed to renderResult (for currency re-render)
+
+  // Sprint portfolio-fx-display-v1 — display-currency toggle. All figures
+  // clear in EUR (duty/VAT/freight for EU-bound goods); this is a view
+  // convenience for importers who think in their home currency. Indicative
+  // snapshot rates — mirror the wizard's. The CSV export stays canonical EUR.
+  var FX = {
+    EUR: { rate: 1.0, code: 'EUR' },
+    USD: { rate: 1.08, code: 'USD' },
+    GBP: { rate: 0.85, code: 'GBP' },
+    PLN: { rate: 4.30, code: 'PLN' },
+  };
+  var FX_PREF_KEY = 'orcatrade.portfolio.displayCurrency';
+  var displayCurrency = (function () {
+    try { var v = localStorage.getItem(FX_PREF_KEY); return FX[v] ? v : 'EUR'; } catch (_) { return 'EUR'; }
+  })();
 
   function escapeHtml(s) {
     var d = document.createElement('div');
     d.textContent = String(s == null ? '' : s);
     return d.innerHTML;
   }
-  function fmtEur(n) {
-    if (!Number.isFinite(n)) return '—';
-    return new Intl.NumberFormat('en-IE', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  // Currency-aware money formatter: takes a EUR amount, renders it in the
+  // active display currency at the snapshot rate. (Name kept as fmtEur so
+  // every existing call site converts automatically.)
+  function fmtEur(eur) {
+    if (eur == null || !Number.isFinite(Number(eur))) return '—';
+    var c = FX[displayCurrency] || FX.EUR;
+    var v = Number(eur) * c.rate;
+    return new Intl.NumberFormat('en-IE', { style: 'currency', currency: c.code, maximumFractionDigits: 0 }).format(v);
   }
   function setError(msg) { if (els.err) els.err.textContent = msg || ''; }
 
@@ -90,10 +111,21 @@
     return String(iso).slice(0, 10);
   }
 
-  function renderResult(data) {
+  function renderResult(data, opts) {
+    lastResultData = data;
     var agg = data.aggregate;
     var t = agg.totals;
     var html = '';
+
+    // Display-currency toggle (Sprint portfolio-fx-display-v1).
+    html += '<div class="pf-currency" id="pfCurrency">';
+    html += Object.keys(FX).map(function (code) {
+      return '<button type="button" class="pf-cur-btn' + (code === displayCurrency ? ' active' : '') + '" data-cur="' + code + '">' + code + '</button>';
+    }).join('');
+    if (displayCurrency !== 'EUR') {
+      html += '<span class="pf-cur-note">Indicative — converted from EUR at snapshot rate</span>';
+    }
+    html += '</div>';
 
     // Drift callout (Sprint portfolio-drift-v1) — present only on a
     // refresh of a saved portfolio (data.drift). Shows how the numbers
@@ -203,7 +235,21 @@
     }
     var csvBtn = document.getElementById('pfCsvBtn');
     if (csvBtn) csvBtn.addEventListener('click', downloadCsv);
-    els.result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+    // Currency toggle → persist choice + re-render the same data.
+    var curBox = document.getElementById('pfCurrency');
+    if (curBox) {
+      curBox.querySelectorAll('.pf-cur-btn').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+          var code = btn.getAttribute('data-cur');
+          if (!FX[code] || code === displayCurrency) return;
+          displayCurrency = code;
+          try { localStorage.setItem(FX_PREF_KEY, code); } catch (_) {}
+          if (lastResultData) renderResult(lastResultData, { skipScroll: true });
+        });
+      });
+    }
+    if (!(opts && opts.skipScroll)) els.result.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
   function downloadCsv() {
