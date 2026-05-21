@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Portfolio planner — plan your whole catalogue at once | OrcaTrade</title>
+  <title>Saved portfolios | OrcaTrade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Plan landed cost across all your SKUs at once. See total portfolio cost, your real blended duty rate, and how much you save by consolidating SKUs that ship the same lane." />
-  <link rel="canonical" href="https://orcatrade.pl/portfolio/" />
+  <meta name="description" content="Your saved multi-SKU import portfolios." />
+  <link rel="canonical" href="https://orcatrade.pl/account/portfolios/" />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com"/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
@@ -13,62 +13,32 @@
   <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
   <link rel="stylesheet" href="/css/styles.css">
   <style>
-    .pf-shell { max-width: 1080px; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; position: relative; z-index: 1; }
-    .pf-hero .kicker { font-family: 'Geist Mono', monospace; font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.2em; color: var(--accent-color, #b8bec8); margin-bottom: 0.9rem; }
-    .pf-hero h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2rem, 4vw + 0.5rem, 3rem); font-weight: 600; color: rgba(255,255,255,0.97); line-height: 1.1; letter-spacing: -0.01em; margin-bottom: 0.8rem; }
-    .pf-hero p { font-size: 1rem; line-height: 1.65; color: rgba(255,255,255,0.7); max-width: 64ch; margin-bottom: 2.4rem; }
+    body { background: #050507; color: rgba(255,255,255,0.92); font-family: 'Geist', system-ui, sans-serif; }
+    .pf-shell { max-width: 820px; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.5); margin-bottom: 1.2rem; letter-spacing: 0.06em; }
+    .breadcrumbs a { color: rgba(220, 188, 110, 0.85); text-decoration: none; }
+    h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; margin-bottom: 0.6rem; letter-spacing: -0.01em; }
+    .lead { font-size: 0.96rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 2.2rem; max-width: 62ch; }
+    .lead a { color: rgba(220,188,110,0.9); text-decoration: none; }
 
-    .pf-lines { display: flex; flex-direction: column; gap: 0.7rem; }
-    .pf-line { display: grid; grid-template-columns: 1.4fr 0.9fr 0.9fr 1fr 0.8fr 1.1fr auto; gap: 0.6rem; align-items: end; background: rgba(13,15,20,0.6); border: 1px solid rgba(255,255,255,0.07); padding: 0.9rem 1rem; }
-    @media (max-width: 900px) { .pf-line { grid-template-columns: 1fr 1fr; } }
-    .pf-line label { display: block; font-size: 0.64rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.3rem; }
-    .pf-line input, .pf-line select { width: 100%; padding: 0.55rem 0.65rem; background: rgba(8,11,19,0.6); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.88rem; outline: none; transition: border-color 0.15s; }
-    .pf-line input:focus, .pf-line select:focus { border-color: var(--accent-color, #b8bec8); }
-    .pf-line .pf-remove { background: none; border: 1px solid rgba(232,163,110,0.4); color: rgba(232,163,110,0.95); font-family: 'Geist Mono', monospace; font-size: 0.78rem; padding: 0.5rem 0.6rem; cursor: pointer; height: fit-content; }
-    .pf-line .pf-remove:hover { background: rgba(232,163,110,0.08); }
+    .pf-card { background: rgba(13,15,20,0.6); border: 1px solid rgba(255,255,255,0.07); padding: 1.2rem 1.4rem; margin-bottom: 0.8rem; display: grid; grid-template-columns: 1fr auto; gap: 0.4rem 1rem; align-items: center; }
+    .pf-card .pf-title { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; color: rgba(255,255,255,0.95); }
+    .pf-card .pf-meta { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.55); grid-column: 1 / 2; }
+    .pf-card .pf-figs { font-size: 0.86rem; color: rgba(255,255,255,0.8); grid-column: 1 / 2; }
+    .pf-card .pf-figs .accent { color: var(--accent-color, #b8bec8); font-family: 'Geist Mono', monospace; }
+    .pf-card .pf-figs .save { color: #7ed28a; font-family: 'Geist Mono', monospace; }
+    .pf-actions { grid-row: 1 / span 3; align-self: start; display: flex; flex-direction: column; gap: 0.4rem; }
+    .pf-actions a, .pf-actions button { font-family: 'Geist Mono', monospace; font-size: 0.72rem; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.45rem 0.75rem; text-decoration: none; text-align: center; cursor: pointer; border: 1px solid; background: transparent; }
+    .pf-open { color: var(--accent-color, #b8bec8); border-color: rgba(184,190,200,0.4); }
+    .pf-open:hover { background: rgba(184,190,200,0.06); }
+    .pf-del { color: rgba(232,163,110,0.95); border-color: rgba(232,163,110,0.5); }
+    .pf-del:hover { background: rgba(232,163,110,0.08); }
 
-    .pf-actions { display: flex; gap: 0.8rem; flex-wrap: wrap; margin-top: 1.3rem; align-items: center; }
-    .btn { padding: 0.85rem 1.4rem; font-family: inherit; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; background: transparent; color: rgba(255,255,255,0.92); text-decoration: none; display: inline-block; }
-    .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
-    .btn-primary { background: var(--accent-color, #b8bec8); color: #0a0912; border-color: var(--accent-color, #b8bec8); }
-    .btn-primary:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .pf-add { font-family: 'Geist Mono', monospace; font-size: 0.8rem; color: var(--accent-color, #b8bec8); background: none; border: none; cursor: pointer; padding: 0; }
-    .pf-add:hover { text-decoration: underline; }
-    .pf-err { color: #e88080; font-size: 0.85rem; margin-top: 0.8rem; min-height: 1.2em; }
-
-    .pf-result { margin-top: 2.6rem; }
-    .pf-result.hidden { display: none; }
-    .pf-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.6rem; }
-    .pf-stat { background: rgba(13,15,20,0.6); border: 1px solid rgba(255,255,255,0.08); padding: 1.2rem 1.3rem; }
-    .pf-stat .num { font-family: 'Geist Mono', monospace; font-size: 1.5rem; color: rgba(255,255,255,0.96); }
-    .pf-stat .num.accent { color: var(--accent-color, #b8bec8); }
-    .pf-stat .num.save { color: #7ed28a; }
-    .pf-stat .label { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 0.3rem; }
-
-    .pf-section-title { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.4rem; font-weight: 600; color: rgba(255,255,255,0.95); margin: 1.8rem 0 0.8rem; }
-    table.pf-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
-    table.pf-table th, table.pf-table td { text-align: left; padding: 0.6rem 0.7rem; border-bottom: 1px solid rgba(255,255,255,0.07); }
-    table.pf-table th { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
-    table.pf-table td { color: rgba(255,255,255,0.85); }
-    table.pf-table td.num, table.pf-table th.num { text-align: right; font-family: 'Geist Mono', monospace; }
-    table.pf-table tr.total td { font-weight: 700; color: rgba(255,255,255,0.97); border-top: 2px solid rgba(255,255,255,0.15); }
-
-    .pf-consol { background: rgba(126,210,138,0.05); border: 1px solid rgba(126,210,138,0.25); padding: 1.2rem 1.4rem; margin-top: 1.4rem; }
-    .pf-consol h3 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.95); margin-bottom: 0.5rem; }
-    .pf-consol p { font-size: 0.9rem; line-height: 1.6; color: rgba(255,255,255,0.75); margin-bottom: 0.6rem; }
-    .pf-consol .pf-lane { font-family: 'Geist Mono', monospace; font-size: 0.82rem; color: rgba(255,255,255,0.78); padding: 0.35rem 0; }
-    .pf-consol .pf-lane .save { color: #7ed28a; }
-
-    .pf-line-errors { background: rgba(232,163,110,0.05); border: 1px solid rgba(232,163,110,0.25); padding: 0.9rem 1.1rem; margin-top: 1.2rem; font-size: 0.85rem; color: rgba(255,255,255,0.78); }
-
-    .pf-note { font-size: 0.8rem; color: rgba(255,255,255,0.5); line-height: 1.6; margin-top: 1.8rem; }
-
-    .pf-save { display: flex; gap: 0.7rem; align-items: center; flex-wrap: wrap; margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); }
-    .pf-save #pfLabel { flex: 1 1 240px; padding: 0.7rem 0.9rem; background: rgba(8,11,19,0.6); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.9rem; outline: none; }
-    .pf-save #pfLabel:focus { border-color: var(--accent-color, #b8bec8); }
-    .pf-save-msg { font-size: 0.85rem; color: rgba(255,255,255,0.75); }
-    .pf-save-hint { margin-top: 1.6rem; padding-top: 1.4rem; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.88rem; color: rgba(255,255,255,0.6); }
+    .empty { padding: 1.5rem 0.2rem; font-style: italic; color: rgba(255,255,255,0.5); font-size: 0.92rem; }
+    .empty a { color: rgba(220,188,110,0.9); text-decoration: none; }
+    .auth-needed { text-align: center; padding: 3rem 1.5rem; }
+    .auth-needed a { color: rgba(220,188,110,0.9); text-decoration: none; font-weight: 600; }
+    .err { color: #e88080; font-family: 'Geist Mono', monospace; font-size: 0.82rem; padding: 0.7rem 0; }
   </style>
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
@@ -124,69 +94,22 @@
   </script>
 </head>
 <body>
-  <div class="aurora" aria-hidden="true">
-    <div class="aurora-blob b1"></div>
-    <div class="aurora-blob b2"></div>
-    <div class="aurora-blob b3"></div>
-  </div>
-  <div class="page">
-    <header data-site-header></header>
-    <main>
-      <section class="pf-shell">
-        <div class="pf-hero">
-          <div class="kicker">Portfolio planner</div>
-          <h1>Plan your whole catalogue at once</h1>
-          <p>Add every product you import. We compute each one's landed cost, then roll it up: total portfolio cost, your <em>real</em> blended duty rate across all SKUs, and exactly how much you save by consolidating products that ship the same lane into one customs entry.</p>
-        </div>
-
-        <div class="pf-lines" id="pfLines"></div>
-
-        <div class="pf-actions">
-          <button type="button" class="pf-add" id="pfAddLine">+ Add another product</button>
-        </div>
-        <div class="pf-actions">
-          <button type="button" class="btn btn-primary" id="pfGenerate">Generate portfolio plan</button>
-          <a class="btn" href="/start/">Single product instead →</a>
-        </div>
-        <div class="pf-err" id="pfErr"></div>
-
-        <div class="pf-result hidden" id="pfResult"></div>
-
-        <p class="pf-note">Duty rates use live EU tariff data when you provide a commodity code, otherwise a chapter-level estimate (verify on TARIC for binding figures). Consolidation savings reflect a single combined customs entry per lane; physical container consolidation (LCL→FCL) can save more on transport. Not legal or customs advice.</p>
-      </section>
-    </main>
-    <footer style="position: relative; z-index: 1;">
-      <div class="footer-inner">
-        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
-        <span><a href="/">Back to OrcaTrade Group</a></span>
-      </div>
-    </footer>
-  </div>
-
-  <!-- Line template -->
-  <template id="pfLineTemplate">
-    <div class="pf-line">
-      <div><label>Product category</label>
-        <select class="pf-cat" required><option value="">Choose…</option></select></div>
-      <div><label>Origin</label>
-        <select class="pf-origin" required><option value="">…</option></select></div>
-      <div><label>Destination</label>
-        <select class="pf-dest" required><option value="">…</option></select></div>
-      <div><label>Customs value €</label>
-        <input type="number" class="pf-value" min="1" step="any" placeholder="10000" /></div>
-      <div><label>Weight kg</label>
-        <input type="number" class="pf-weight" min="1" step="any" placeholder="500" /></div>
-      <div><label>HS code (optional)</label>
-        <input type="text" class="pf-hs" inputmode="numeric" placeholder="6109 10" maxlength="14" /></div>
-      <button type="button" class="pf-remove" title="Remove this product">✕</button>
+  <main class="pf-shell">
+    <div id="authNeeded" class="auth-needed" hidden>
+      <h1>Sign in</h1>
+      <p>You need to be signed in to see your saved portfolios. <a href="/account/?return=%2Faccount%2Fportfolios%2F">Sign in →</a></p>
     </div>
-  </template>
 
-  <script src="/js/cache-preferences.js"></script>
-  <script src="/js/site-nav.js"></script>
-  <script src="/js/main.js"></script>
-  <script src="/portfolio/app.js"></script>
-  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
+    <div id="content" hidden>
+      <div class="breadcrumbs"><a href="/account/">Account</a> / Saved portfolios</div>
+      <h1>Saved portfolios</h1>
+      <p class="lead">Your multi-SKU import portfolios. Open one to recompute it with today's tariff + freight data, or <a href="/portfolio/">build a new one</a>.</p>
+      <div id="list"></div>
+      <div id="empty" class="empty" hidden>No saved portfolios yet. <a href="/portfolio/">Plan your catalogue →</a></div>
+      <div id="err" class="err" hidden></div>
+    </div>
+  </main>
+  <script src="/account/portfolios/app.js"></script>
 
 <!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>

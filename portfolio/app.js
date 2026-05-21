@@ -18,6 +18,9 @@
   };
 
   var catalogue = { categories: [], origins: [], destinations: [] };
+  var signedIn = false;        // set from /api/auth/me — gates the Save button
+  var lastLines = null;        // lines behind the currently-rendered result
+  var lastAggregate = null;    // aggregate snapshot, persisted on save
 
   function escapeHtml(s) {
     var d = document.createElement('div');
@@ -150,9 +153,55 @@
       html += '</div>';
     }
 
+    // Save block — only for signed-in users.
+    if (signedIn) {
+      html += '<div class="pf-save" id="pfSaveBlock">'
+        + '<input type="text" id="pfLabel" placeholder="Name this portfolio (optional)" maxlength="100" />'
+        + '<button type="button" class="btn btn-primary" id="pfSaveBtn">Save to my account</button>'
+        + '<span id="pfSaveMsg" class="pf-save-msg"></span>'
+        + '</div>';
+    } else {
+      html += '<p class="pf-save-hint"><a href="/account/?return=' + encodeURIComponent('/portfolio/') + '" style="color:var(--accent-color,#b8bec8)">Sign in</a> to save this portfolio to your account.</p>';
+    }
+
     els.result.innerHTML = html;
     els.result.classList.remove('hidden');
+
+    if (signedIn) {
+      var saveBtn = document.getElementById('pfSaveBtn');
+      if (saveBtn) saveBtn.addEventListener('click', savePortfolio);
+    }
     els.result.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function savePortfolio() {
+    var msg = document.getElementById('pfSaveMsg');
+    var btn = document.getElementById('pfSaveBtn');
+    var label = (document.getElementById('pfLabel').value || '').trim();
+    if (!lastLines || !lastLines.length) { if (msg) msg.textContent = 'Nothing to save.'; return; }
+    btn.disabled = true; btn.textContent = 'Saving…';
+    fetch('/api/portfolio/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'same-origin',
+      body: JSON.stringify({ lines: lastLines, label: label, snapshot: lastAggregate }),
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+      .then(function (resp) {
+        btn.disabled = false; btn.textContent = 'Save to my account';
+        if (resp.ok && resp.j.ok) {
+          if (msg) { msg.textContent = 'Saved ✓ '; }
+          var link = document.createElement('a');
+          link.href = '/account/portfolios/';
+          link.textContent = 'View saved portfolios →';
+          link.style.color = 'var(--accent-color, #b8bec8)';
+          if (msg) msg.appendChild(link);
+          btn.disabled = true;
+        } else {
+          if (msg) msg.textContent = (resp.j && resp.j.error) || 'Could not save.';
+        }
+      })
+      .catch(function () { btn.disabled = false; btn.textContent = 'Save to my account'; if (msg) msg.textContent = 'Network error.'; });
   }
 
   function statTile(num, label, cls) {
@@ -175,6 +224,8 @@
         els.genBtn.disabled = false;
         els.genBtn.textContent = 'Generate portfolio plan';
         if (resp.ok && resp.j.ok) {
+          lastLines = lines;
+          lastAggregate = resp.j.aggregate;
           renderResult(resp.j);
         } else {
           setError((resp.j && resp.j.error) || 'Could not generate the portfolio plan.');
@@ -188,6 +239,17 @@
   }
 
   // ── Init ─────────────────────────────────────────────
+  // Are we signed in? (gates the Save button). Non-blocking.
+  fetch('/api/auth/me', { credentials: 'same-origin' })
+    .then(function (r) { return r.ok ? r.json() : null; })
+    .then(function (d) { signedIn = !!(d && d.user && d.user.email); })
+    .catch(function () { /* assume signed-out */ });
+
+  function savedIdFromUrl() {
+    try { return new URLSearchParams(window.location.search).get('id') || ''; }
+    catch (_) { return ''; }
+  }
+
   fetch('/api/start', { credentials: 'omit' })
     .then(function (r) { return r.ok ? r.json() : null; })
     .then(function (data) {
@@ -195,6 +257,24 @@
         catalogue.categories = data.categories || [];
         catalogue.origins = data.origins || [];
         catalogue.destinations = data.destinations || [];
+      }
+      // Revisit a saved portfolio? Load its lines + auto-generate.
+      var savedId = savedIdFromUrl();
+      if (/^pf_[a-f0-9]{16}$/.test(savedId)) {
+        fetch('/api/portfolio/item/' + encodeURIComponent(savedId), { credentials: 'same-origin' })
+          .then(function (r) { return r.ok ? r.json() : null; })
+          .then(function (d) {
+            var lines = d && d.portfolio && Array.isArray(d.portfolio.lines) ? d.portfolio.lines : null;
+            if (lines && lines.length) {
+              els.lines.innerHTML = '';
+              lines.forEach(function (ln) { addLine(ln); });
+              generate();
+            } else {
+              addLine(); addLine();
+            }
+          })
+          .catch(function () { addLine(); addLine(); });
+        return;
       }
       // Seed two empty rows so the multi-product intent is obvious.
       addLine();
