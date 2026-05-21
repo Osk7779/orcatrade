@@ -133,6 +133,10 @@
                      pattern="[0-9 .]{6,14}" maxlength="14"
                      data-i18n-placeholder="hsCode" />
               <p class="helper" data-i18n-helper="hsCode">Already know the precise commodity code? Drop it in to pull a sub-chapter duty rate from live tariff data instead of the category-level estimate. Otherwise leave blank — we'll use the chapter average.</p>
+              <!-- Sprint hs-suggest-v1 — the code-lookup helper UI is
+                   injected here by start/app.js (mountHsLookup) so the
+                   markup + localised strings live in one shared place
+                   across /start/, /pl/start/, /de/start/. -->
             </div>
           </div>
 

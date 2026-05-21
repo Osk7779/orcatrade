@@ -1125,6 +1125,102 @@ els.form.addEventListener('keydown', e => {
   }
 });
 
+// ── Sprint hs-suggest-v1 — HS-code lookup helper ─────────
+// Injected after the #hsCode field so the markup + localised strings
+// live in one shared place across /start/, /pl/start/, /de/start/.
+// Describe the product → GET /api/hs-suggest → pick a candidate → it
+// fills #hsCode, which makes the duty path use the live-TARIC heading
+// rate instead of the chapter average.
+function mountHsLookup() {
+  const hsInput = document.getElementById('hsCode');
+  if (!hsInput || document.getElementById('hsLookup')) return;
+  const field = hsInput.closest('.field') || hsInput.parentNode;
+  if (!field) return;
+
+  const toggle = document.createElement('button');
+  toggle.type = 'button';
+  toggle.className = 'hs-lookup-toggle';
+  toggle.id = 'hsLookupToggle';
+  toggle.textContent = T.hsLookupToggle || "Don't know your code? Look it up →";
+
+  const panel = document.createElement('div');
+  panel.className = 'hs-lookup';
+  panel.id = 'hsLookup';
+  panel.hidden = true;
+  const queryInput = document.createElement('input');
+  queryInput.type = 'text';
+  queryInput.id = 'hsLookupQuery';
+  queryInput.autocomplete = 'off';
+  queryInput.placeholder = T.hsLookupQueryPh || 'Describe your product';
+  const results = document.createElement('div');
+  results.className = 'hs-lookup-results';
+  results.id = 'hsLookupResults';
+  const note = document.createElement('p');
+  note.className = 'helper hs-lookup-note';
+  note.textContent = T.hsLookupNote || '';
+  panel.appendChild(queryInput);
+  panel.appendChild(results);
+  panel.appendChild(note);
+
+  field.appendChild(toggle);
+  field.appendChild(panel);
+
+  toggle.addEventListener('click', () => {
+    panel.hidden = !panel.hidden;
+    toggle.textContent = panel.hidden
+      ? (T.hsLookupToggle || "Don't know your code? Look it up →")
+      : (T.hsLookupClose || 'Close lookup');
+    if (!panel.hidden) queryInput.focus();
+  });
+
+  function renderCandidates(candidates) {
+    if (!candidates || !candidates.length) {
+      results.innerHTML = '<p class="hs-lookup-empty helper">' + escapeHtml(T.hsLookupNoResults || 'No matches.') + '</p>';
+      return;
+    }
+    const chapterWord = T.hsLookupChapter || 'chapter';
+    results.innerHTML = candidates.map(function (c) {
+      return '<button type="button" class="hs-lookup-item" data-hs="' + escapeHtml(c.hs6) + '">'
+        + '<span class="hs-lookup-code">' + escapeHtml(c.hs6) + '</span>'
+        + '<span class="hs-lookup-label">' + escapeHtml(c.label) + '</span>'
+        + '<span class="hs-lookup-chapter">' + escapeHtml(chapterWord) + ' ' + escapeHtml(c.chapter) + '</span>'
+        + '</button>';
+    }).join('');
+    results.querySelectorAll('.hs-lookup-item').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const hs = btn.getAttribute('data-hs') || '';
+        hsInput.value = hs;
+        // Collapse the panel + reset the toggle label.
+        panel.hidden = true;
+        toggle.textContent = T.hsLookupToggle || "Don't know your code? Look it up →";
+        // Nudge focus back so the user sees the filled field.
+        hsInput.focus();
+      });
+    });
+  }
+
+  let debounceTimer = null;
+  let lastQuery = '';
+  queryInput.addEventListener('input', function () {
+    const q = queryInput.value.trim();
+    if (debounceTimer) clearTimeout(debounceTimer);
+    if (q.length < 2) { results.innerHTML = ''; return; }
+    debounceTimer = setTimeout(function () {
+      if (q === lastQuery) return;
+      lastQuery = q;
+      results.innerHTML = '<p class="hs-lookup-searching helper">' + escapeHtml(T.hsLookupSearching || 'Searching…') + '</p>';
+      fetch('/api/hs-suggest?q=' + encodeURIComponent(q), { credentials: 'omit' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (data) {
+          if (!data) { results.innerHTML = ''; return; }
+          renderCandidates(data.candidates || []);
+        })
+        .catch(function () { results.innerHTML = ''; });
+    }, 250);
+  });
+}
+mountHsLookup();
+
 async function loadFromShareUrl(b64url, compareWithOrigin = null) {
   els.hero.style.display = 'none';
   document.getElementById('progress').style.display = 'none';

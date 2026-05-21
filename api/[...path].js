@@ -102,6 +102,11 @@ const handlers = {
   // 6-step funnel ("how many users reached step 4?") without external
   // analytics tools. No PII.
   'wizard-event': require('../lib/handlers/wizard-event'),
+  // Sprint hs-suggest-v1 — GET /api/hs-suggest?q=<description> returns
+  // candidate HS6 commodity codes so a wizard user who doesn't know
+  // their code can pick one, which then triggers the live-TARIC-refined
+  // duty path. Pure curated lookup, no PII.
+  'hs-suggest': require('../lib/handlers/hs-suggest'),
   // One-click unsubscribe (prefs-v1). GET /api/unsubscribe?token=…
   // verifies the HMAC-signed token from a plan-revision email and
   // flips planRevisionEmails:false for the encoded address. Renders

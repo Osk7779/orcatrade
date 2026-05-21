@@ -11,6 +11,14 @@ window.START_I18N = {
   en: {
     locale: 'en',
     currencyLocale: 'en-IE',
+    // Sprint hs-suggest-v1 — HS-code lookup helper (injected by app.js)
+    hsLookupToggle: "Don't know your code? Look it up →",
+    hsLookupClose: 'Close lookup',
+    hsLookupQueryPh: 'Describe your product — e.g. cotton t-shirts, laptop, running shoes',
+    hsLookupNote: 'Suggestions are a starting point — confirm the description matches your goods. The duty rate is then pulled from live tariff data.',
+    hsLookupNoResults: 'No matches — try simpler words (e.g. "t-shirt", "laptop", "sofa").',
+    hsLookupSearching: 'Searching…',
+    hsLookupChapter: 'chapter',
     // Errors
     errPickCategory: 'Pick a category to continue',
     errPickOrigin: 'Pick an origin',
@@ -223,6 +231,14 @@ window.START_I18N = {
   pl: {
     locale: 'pl',
     currencyLocale: 'pl-PL',
+    // Sprint hs-suggest-v1
+    hsLookupToggle: 'Nie znasz kodu? Sprawdź →',
+    hsLookupClose: 'Zamknij wyszukiwanie',
+    hsLookupQueryPh: 'Opisz produkt — np. koszulki bawełniane, laptop, buty sportowe',
+    hsLookupNote: 'Sugestie to punkt wyjścia — sprawdź, czy opis pasuje do Twojego towaru. Stawka cła jest następnie pobierana z aktualnych danych taryfowych.',
+    hsLookupNoResults: 'Brak dopasowań — użyj prostszych słów (np. „koszulka”, „laptop”, „sofa”).',
+    hsLookupSearching: 'Szukanie…',
+    hsLookupChapter: 'dział',
     errPickCategory: 'Wybierz kategorię, aby kontynuować',
     errPickOrigin: 'Wybierz kraj pochodzenia',
     errPickDestination: 'Wybierz kraj docelowy w UE',
@@ -422,6 +438,14 @@ window.START_I18N = {
   de: {
     locale: 'de',
     currencyLocale: 'de-DE',
+    // Sprint hs-suggest-v1
+    hsLookupToggle: 'Code unbekannt? Nachschlagen →',
+    hsLookupClose: 'Suche schließen',
+    hsLookupQueryPh: 'Produkt beschreiben — z. B. Baumwoll-T-Shirts, Laptop, Sportschuhe',
+    hsLookupNote: 'Vorschläge sind ein Ausgangspunkt — prüfen Sie, ob die Beschreibung zu Ihrer Ware passt. Der Zollsatz wird anschließend aus aktuellen Tarifdaten abgerufen.',
+    hsLookupNoResults: 'Keine Treffer — versuchen Sie einfachere Begriffe (z. B. „T-Shirt“, „Laptop“, „Sofa“).',
+    hsLookupSearching: 'Suche…',
+    hsLookupChapter: 'Kapitel',
     errPickCategory: 'Bitte wählen Sie eine Kategorie',
     errPickOrigin: 'Bitte wählen Sie ein Ursprungsland',
     errPickDestination: 'Bitte wählen Sie ein EU-Zielland',
