@@ -26,6 +26,10 @@ const handlers = {
   'finance-quote': require('../lib/handlers/finance-quote'),
   // Import Plan Builder
   start: require('../lib/handlers/start'),
+  // Multi-SKU portfolio planner (Sprint portfolio-v1). POST /api/portfolio
+  // with { lines: [<plan-input>, …] } → per-line plans + a portfolio
+  // aggregate (total landed, blended duty, per-lane consolidation savings).
+  portfolio: require('../lib/handlers/portfolio'),
   // Auth (magic-link). Sub-actions resolved inside the handler from the
   // second URL segment: request / verify / me / logout.
   auth: require('../lib/handlers/auth'),
