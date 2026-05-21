@@ -85,10 +85,37 @@
     return lines;
   }
 
+  function fmtDate(iso) {
+    if (!iso) return '';
+    return String(iso).slice(0, 10);
+  }
+
   function renderResult(data) {
     var agg = data.aggregate;
     var t = agg.totals;
     var html = '';
+
+    // Drift callout (Sprint portfolio-drift-v1) — present only on a
+    // refresh of a saved portfolio (data.drift). Shows how the numbers
+    // moved since the user saved it.
+    if (data.drift) {
+      var dr = data.drift;
+      var since = data.savedAt ? (' since you saved this on ' + escapeHtml(fmtDate(data.savedAt))) : '';
+      var cls = dr.material ? (dr.direction === 'up' ? 'drift-up' : 'drift-down') : 'drift-flat';
+      var sign = dr.landedDeltaEur > 0 ? '+' : (dr.landedDeltaEur < 0 ? '−' : '');
+      var pctSign = dr.landedDeltaPct > 0 ? '+' : '';
+      var msg;
+      if (dr.material) {
+        msg = (dr.direction === 'up' ? 'Up ' : 'Down ') + sign + fmtEur(Math.abs(dr.landedDeltaEur))
+          + ' (' + pctSign + dr.landedDeltaPct.toFixed(1) + '%)' + since + '.';
+        if (Math.abs(dr.blendedDutyDeltaPct) >= 0.1) {
+          msg += ' Blended duty ' + (dr.blendedDutyDeltaPct > 0 ? '+' : '') + dr.blendedDutyDeltaPct.toFixed(1) + 'pp.';
+        }
+      } else {
+        msg = 'Roughly unchanged' + since + ' (' + pctSign + dr.landedDeltaPct.toFixed(1) + '%).';
+      }
+      html += '<div class="pf-drift ' + cls + '"><strong>What changed:</strong> ' + msg + '</div>';
+    }
 
     html += '<div class="pf-stats">';
     html += statTile(fmtEur(t.perShipmentLandedTotal), 'Total landed cost (per shipment cycle)', 'accent');
@@ -292,15 +319,19 @@
         return;
       }
       // Revisit YOUR OWN saved portfolio? /portfolio/?id=pf_… (auth required).
+      // Use /refresh so we recompute against today's data AND get the
+      // drift vs the snapshot saved at save time.
       var savedId = urlParam('id');
       if (/^pf_[a-f0-9]{16}$/.test(savedId)) {
-        fetch('/api/portfolio/item/' + encodeURIComponent(savedId), { credentials: 'same-origin' })
+        fetch('/api/portfolio/item/' + encodeURIComponent(savedId) + '/refresh', { method: 'POST', credentials: 'same-origin' })
           .then(function (r) { return r.ok ? r.json() : null; })
           .then(function (d) {
-            var lines = d && d.portfolio && Array.isArray(d.portfolio.lines) ? d.portfolio.lines : null;
-            if (lines && lines.length) {
-              loadLinesInto(lines);
-              generate();
+            if (d && d.ok && Array.isArray(d.lines) && d.lines.length) {
+              var inputLines = d.lines.map(function (l) { return l.inputs; });
+              loadLinesInto(inputLines);
+              lastLines = inputLines;
+              lastAggregate = d.aggregate;
+              renderResult(d);
             } else {
               addLine(); addLine();
             }
