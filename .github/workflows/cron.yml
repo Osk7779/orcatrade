@@ -25,6 +25,11 @@ on:
     # Tuesday + Friday 08:00 UTC — plan-revision email scan
     # (twice a week is enough; per-week dedupe in the handler prevents spam)
     - cron: '0 8 * * 2,5'
+    # Thursday 08:30 UTC — portfolio cost-drift scan (Sprint
+    # portfolio-revision-v1). Weekly is enough; 6-day handler dedupe
+    # prevents spam. Own slot so the multi-portfolio recompute load
+    # doesn't pile onto the plan-revision run.
+    - cron: '30 8 * * 4'
     # Wednesday 05:00 UTC — EUR-Lex regime drift check
     # (weekly is enough — these regulations change quarterly at most)
     - cron: '0 5 * * 3'
@@ -48,6 +53,7 @@ on:
           - founder-digest
           - weekly-user-digest
           - plan-revision-emails
+          - portfolio-revision-emails
           - regime-change-check
           - calibration-drift-check
           - taric-warm
@@ -68,6 +74,8 @@ jobs:
             echo "job=weekly-user-digest" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 8 * * 2,5" ]; then
             echo "job=plan-revision-emails" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 8 * * 4" ]; then
+            echo "job=portfolio-revision-emails" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 5 * * 3" ]; then
             echo "job=regime-change-check" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 3 * * *" ]; then

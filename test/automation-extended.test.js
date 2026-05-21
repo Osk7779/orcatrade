@@ -341,12 +341,15 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // that emits Sentry warns when groups cross drift thresholds.
   // Sprint weekly-digest-v1 adds weekly-user-digest — once-weekly
   // portfolio summary email for every user with saved plans.
+  // Sprint portfolio-revision-v1 adds portfolio-revision-emails —
+  // weekly cost-drift scan over saved multi-SKU portfolios.
   const ids = Object.keys(cronHandler.JOBS).sort();
   assert.deepEqual(ids, [
     'calibration-drift-check',
     'db-migrate',
     'founder-digest',
     'plan-revision-emails',
+    'portfolio-revision-emails',
     'regime-change-check',
     'taric-warm',
     'weekly-user-digest',
