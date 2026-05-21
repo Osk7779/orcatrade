@@ -8,6 +8,11 @@
 (function () {
   'use strict';
 
+  // Sprint auth-i18n-v1 — dynamic copy via the shared auth dict.
+  function T(key, fallback) {
+    return (window.authT && window.authT(key)) || fallback;
+  }
+
   var states = {
     signup: document.getElementById('state-signup'),
     sent: document.getElementById('state-sent'),
@@ -43,8 +48,8 @@
     if (pwField) pwField.hidden = !passwordMode;
     if (leadMagic) leadMagic.hidden = passwordMode;
     if (leadPw) leadPw.hidden = !passwordMode;
-    if (signupBtn) signupBtn.textContent = passwordMode ? 'Create account' : 'Send me a sign-in link';
-    if (toggleBtn) toggleBtn.textContent = passwordMode ? 'Use magic link instead' : 'Use email + password';
+    if (signupBtn) signupBtn.textContent = passwordMode ? T('btnCreateAccount', 'Create account') : T('btnSendLink', 'Send me a sign-in link');
+    if (toggleBtn) toggleBtn.textContent = passwordMode ? T('btnUseMagic', 'Use magic link instead') : T('btnUsePassword', 'Use email + password');
   }
   if (toggleBtn) {
     toggleBtn.addEventListener('click', function () {
@@ -61,20 +66,20 @@
       setError('');
       var email = document.getElementById('email').value.trim().toLowerCase();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        setError('Enter a valid email address.');
+        setError(T('errEmail', 'Enter a valid email address.'));
         return;
       }
       var body = { email: email };
       if (passwordMode) {
         var pw = (document.getElementById('password').value || '');
-        if (pw.length < 12) { setError('Password must be at least 12 characters.'); return; }
+        if (pw.length < 12) { setError(T('errPwShort', 'Password must be at least 12 characters.')); return; }
         body.password = pw;
       }
       if (pageReturnTo) body.returnTo = pageReturnTo;
       var btn = document.getElementById('signup-btn');
       btn.disabled = true;
       var oldLabel = btn.textContent;
-      btn.textContent = 'Sending…';
+      btn.textContent = T('btnSending', 'Sending…');
       fetch('/api/auth/signup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -93,13 +98,13 @@
             document.getElementById('sent-msg-password').hidden = !withPw;
             showState('sent');
           } else {
-            setError((resp.j && resp.j.error) || 'Could not start signup.');
+            setError((resp.j && resp.j.error) || T('errSignupFailed', 'Could not start signup.'));
           }
         })
         .catch(function (err) {
           btn.disabled = false;
           btn.textContent = oldLabel;
-          setError('Network error: ' + (err.message || 'unknown'));
+          setError(T('errNetwork', 'Network error:') + ' ' + (err.message || 'unknown'));
         });
     });
   }

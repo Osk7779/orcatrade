@@ -102,30 +102,30 @@
 
           <!-- Signup form (email-only OR email+password) -->
           <div class="signup-state active" id="state-signup">
-            <h1>Create your OrcaTrade account</h1>
-            <p id="signup-lead-magic">Just your email — we'll send you a sign-in link. Magic-link only, no password.</p>
-            <p id="signup-lead-password" hidden>Choose a password and we'll send a confirmation link to your email. The account activates only after you click it.</p>
+            <h1 data-i18n="signupTitle">Create your OrcaTrade account</h1>
+            <p id="signup-lead-magic" data-i18n="signupLeadMagic">Just your email — we'll send you a sign-in link. Magic-link only, no password.</p>
+            <p id="signup-lead-password" data-i18n="signupLeadPassword" hidden>Choose a password and we'll send a confirmation link to your email. The account activates only after you click it.</p>
             <form id="signup-form">
-              <label for="email">Email address</label>
-              <input type="email" id="email" name="email" placeholder="you@company.com" required autocomplete="email" />
+              <label for="email" data-i18n="labelEmail">Email address</label>
+              <input type="email" id="email" name="email" placeholder="you@company.com" data-i18n-ph="phEmail" required autocomplete="email" />
               <div id="password-field" hidden>
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="At least 12 characters" autocomplete="new-password" />
-                <p class="pw-help">Length beats complexity. A passphrase like "ships sail east in winter" is fine.</p>
+                <label for="password" data-i18n="labelPassword">Password</label>
+                <input type="password" id="password" name="password" placeholder="At least 12 characters" data-i18n-ph="phNewPassword" autocomplete="new-password" />
+                <p class="pw-help" data-i18n="pwHelpPassphrase">Length beats complexity. A passphrase like "ships sail east in winter" is fine.</p>
               </div>
-              <button type="submit" class="btn btn-primary" id="signup-btn">Send me a sign-in link</button>
-              <button type="button" class="btn" id="toggle-mode-btn" style="margin-left:0.6rem;">Use email + password</button>
+              <button type="submit" class="btn btn-primary" id="signup-btn" data-i18n="btnSendLink">Send me a sign-in link</button>
+              <button type="button" class="btn" id="toggle-mode-btn" data-i18n="btnUsePassword" style="margin-left:0.6rem;">Use email + password</button>
               <div class="err" id="signup-err"></div>
             </form>
-            <p class="footer-link">Already have an account? <a href="/account/">Sign in →</a></p>
+            <p class="footer-link"><span data-i18n="haveAccount">Already have an account?</span> <a href="/account/" data-i18n="signInArrow">Sign in →</a></p>
           </div>
 
           <!-- Sent state -->
           <div class="signup-state" id="state-sent">
-            <h1>Check your inbox</h1>
-            <p id="sent-msg-magic" hidden>If <span id="sent-email-1"></span> is a valid address, we've sent you a sign-in link. Click the link in your email — it expires in 15 minutes.</p>
-            <p id="sent-msg-password" hidden>We sent a confirmation link to <span id="sent-email-2"></span>. Click it within 1 hour to activate your account.</p>
-            <p class="ok-msg">No email after a minute? Check spam, or <a href="#" id="back-link" style="color: var(--accent-color, #b8bec8);">try again</a>.</p>
+            <h1 data-i18n="checkInbox">Check your inbox</h1>
+            <p id="sent-msg-magic" hidden><span data-i18n="sentMagicPrefix">If</span> <span id="sent-email-1"></span> <span data-i18n="sentMagic1">is a valid address, we've sent you a sign-in link. Click the link in your email — it expires in 15 minutes.</span></p>
+            <p id="sent-msg-password" hidden><span data-i18n="sentPasswordPrefix">We sent a confirmation link to</span> <span id="sent-email-2"></span>. <span data-i18n="sentPasswordSuffix">Click it within 1 hour to activate your account.</span></p>
+            <p class="ok-msg"><span data-i18n="noEmailSpam">No email after a minute? Check spam, or</span> <a href="#" id="back-link" data-i18n="tryAgain" style="color: var(--accent-color, #b8bec8);">try again</a>.</p>
           </div>
 
         </div>
@@ -138,6 +138,7 @@
       </div>
     </footer>
   </div>
+  <script src="/js/auth-i18n.js"></script>
   <script src="/js/cache-preferences.js"></script>
   <script src="/js/site-nav.js"></script>
   <script src="/js/main.js"></script>

@@ -4,6 +4,13 @@
 (function () {
   'use strict';
 
+  // Sprint auth-i18n-v1 — resolve dynamic copy (button states, errors)
+  // via the shared auth i18n dict. authT falls back to EN then the key;
+  // the local fallback covers the case where auth-i18n.js didn't load.
+  function T(key, fallback) {
+    return (window.authT && window.authT(key)) || fallback;
+  }
+
   var states = {
     loading: document.getElementById('state-loading'),
     signin: document.getElementById('state-signin'),
@@ -126,8 +133,8 @@
     if (pwField) pwField.hidden = !passwordMode;
     if (leadMagic) leadMagic.hidden = passwordMode;
     if (leadPw) leadPw.hidden = !passwordMode;
-    if (signinBtn) signinBtn.textContent = passwordMode ? 'Sign in' : 'Send me a sign-in link';
-    if (toggleBtn) toggleBtn.textContent = passwordMode ? 'Use magic link instead' : 'Use password instead';
+    if (signinBtn) signinBtn.textContent = passwordMode ? T('btnSignIn', 'Sign in') : T('btnSendLink', 'Send me a sign-in link');
+    if (toggleBtn) toggleBtn.textContent = passwordMode ? T('btnUseMagic', 'Use magic link instead') : T('btnUsePasswordInstead', 'Use password instead');
   }
   if (toggleBtn) {
     toggleBtn.addEventListener('click', function () {
@@ -148,12 +155,12 @@
       var emailInput = document.getElementById('email');
       var email = (emailInput && emailInput.value || '').trim().toLowerCase();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        setError('Enter your email address first, then click Forgot password.');
+        setError(T('errEnterEmailFirst', 'Enter your email address first, then click Forgot password.'));
         if (emailInput) emailInput.focus();
         return;
       }
       setError('');
-      forgotLink.textContent = 'Sending…';
+      forgotLink.textContent = T('btnSending', 'Sending…');
       fetch('/api/auth/password/reset/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -162,13 +169,13 @@
       })
         .then(function (r) { return r.json().catch(function () { return {}; }); })
         .then(function () {
-          forgotLink.textContent = 'Forgot password?';
+          forgotLink.textContent = T('forgotPassword', 'Forgot password?');
           document.getElementById('sent-email').textContent = email;
           showState('sent');
         })
         .catch(function () {
-          forgotLink.textContent = 'Forgot password?';
-          setError('Network error sending reset link. Try again.');
+          forgotLink.textContent = T('forgotPassword', 'Forgot password?');
+          setError(T('errResetNetwork', 'Network error sending reset link. Try again.'));
         });
     });
   }
@@ -180,7 +187,7 @@
       setError('');
       var email = document.getElementById('email').value.trim().toLowerCase();
       if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
-        setError('Enter a valid email address.');
+        setError(T('errEmail', 'Enter a valid email address.'));
         return;
       }
       var btn = document.getElementById('signin-btn');
@@ -189,10 +196,10 @@
         var password = (document.getElementById('password').value || '');
         if (!password) {
           btn.disabled = false;
-          setError('Enter your password.');
+          setError(T('errEnterPassword', 'Enter your password.'));
           return;
         }
-        btn.textContent = 'Signing in…';
+        btn.textContent = T('btnSigningIn', 'Signing in…');
         fetch('/api/auth/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -202,24 +209,24 @@
           .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }).catch(function () { return { ok: r.ok, j: {} }; }); })
           .then(function (resp) {
             btn.disabled = false;
-            btn.textContent = 'Sign in';
+            btn.textContent = T('btnSignIn', 'Sign in');
             if (resp.ok) {
               // Server echoes the validated returnTo (open-redirect-safe).
               // Use it if present, else just reload — same as before.
               if (resp.j && resp.j.returnTo) window.location.href = resp.j.returnTo;
               else window.location.reload();
             } else {
-              setError(resp.j && resp.j.error ? resp.j.error : 'Could not sign in.');
+              setError(resp.j && resp.j.error ? resp.j.error : T('errCouldNotSignIn', 'Could not sign in.'));
             }
           })
           .catch(function (err) {
             btn.disabled = false;
-            btn.textContent = 'Sign in';
-            setError('Network error: ' + (err.message || 'unknown'));
+            btn.textContent = T('btnSignIn', 'Sign in');
+            setError(T('errNetwork', 'Network error:') + ' ' + (err.message || 'unknown'));
           });
         return;
       }
-      btn.textContent = 'Sending…';
+      btn.textContent = T('btnSending', 'Sending…');
       fetch('/api/auth/request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -229,18 +236,18 @@
         .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (resp) {
           btn.disabled = false;
-          btn.textContent = 'Send me a sign-in link';
+          btn.textContent = T('btnSendLink', 'Send me a sign-in link');
           if (resp.ok) {
             document.getElementById('sent-email').textContent = email;
             showState('sent');
           } else {
-            setError(resp.j && resp.j.error ? resp.j.error : 'Could not send sign-in link.');
+            setError(resp.j && resp.j.error ? resp.j.error : T('errCouldNotSendLink', 'Could not send sign-in link.'));
           }
         })
         .catch(function (err) {
           btn.disabled = false;
-          btn.textContent = 'Send me a sign-in link';
-          setError('Network error: ' + (err.message || 'unknown'));
+          btn.textContent = T('btnSendLink', 'Send me a sign-in link');
+          setError(T('errNetwork', 'Network error:') + ' ' + (err.message || 'unknown'));
         });
     });
   }

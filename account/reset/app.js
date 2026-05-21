@@ -9,6 +9,11 @@
 (function () {
   'use strict';
 
+  // Sprint auth-i18n-v1 — dynamic copy via the shared auth dict.
+  function T(key, fallback) {
+    return (window.authT && window.authT(key)) || fallback;
+  }
+
   var states = {
     form: document.getElementById('state-form'),
     noToken: document.getElementById('state-no-token'),
@@ -41,10 +46,10 @@
       e.preventDefault();
       setError('');
       var newPw = (document.getElementById('newPassword').value || '');
-      if (newPw.length < 12) { setError('Password must be at least 12 characters.'); return; }
+      if (newPw.length < 12) { setError(T('errPwShort', 'Password must be at least 12 characters.')); return; }
       var btn = document.getElementById('reset-btn');
       btn.disabled = true;
-      btn.textContent = 'Saving…';
+      btn.textContent = T('btnSaving', 'Saving…');
       fetch('/api/auth/password/reset/confirm', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,7 +59,7 @@
         .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
         .then(function (resp) {
           btn.disabled = false;
-          btn.textContent = 'Save new password';
+          btn.textContent = T('btnSaveNewPassword', 'Save new password');
           if (resp.ok) {
             // If the server echoed a safe returnTo, bounce straight
             // there. Otherwise show the success state.
@@ -64,13 +69,13 @@
             }
             showState('done');
           } else {
-            setError((resp.j && resp.j.error) || 'Could not save new password.');
+            setError((resp.j && resp.j.error) || T('errCouldNotSavePassword', 'Could not save new password.'));
           }
         })
         .catch(function (err) {
           btn.disabled = false;
-          btn.textContent = 'Save new password';
-          setError('Network error: ' + (err.message || 'unknown'));
+          btn.textContent = T('btnSaveNewPassword', 'Save new password');
+          setError(T('errNetwork', 'Network error:') + ' ' + (err.message || 'unknown'));
         });
     });
   }

@@ -99,29 +99,29 @@
 
           <!-- Reset form (requires ?token=…) -->
           <div class="reset-state active" id="state-form">
-            <h1>Choose a new password</h1>
-            <p>Set a new password for your OrcaTrade account. After this change every other active session on this email is signed out.</p>
+            <h1 data-i18n="resetTitle">Choose a new password</h1>
+            <p data-i18n="resetLead">Set a new password for your OrcaTrade account. After this change every other active session on this email is signed out.</p>
             <form id="reset-form">
-              <label for="newPassword">New password</label>
-              <input type="password" id="newPassword" name="newPassword" placeholder="At least 12 characters" autocomplete="new-password" required />
-              <p class="pw-help">Length beats complexity. A passphrase is fine.</p>
-              <button type="submit" class="btn btn-primary" id="reset-btn">Save new password</button>
+              <label for="newPassword" data-i18n="labelNewPassword">New password</label>
+              <input type="password" id="newPassword" name="newPassword" placeholder="At least 12 characters" data-i18n-ph="phNewPassword" autocomplete="new-password" required />
+              <p class="pw-help" data-i18n="pwHelpShort">Length beats complexity. A passphrase is fine.</p>
+              <button type="submit" class="btn btn-primary" id="reset-btn" data-i18n="btnSaveNewPassword">Save new password</button>
               <div class="err" id="reset-err"></div>
             </form>
           </div>
 
           <!-- Missing token state -->
           <div class="reset-state" id="state-no-token">
-            <h1>Reset link required</h1>
-            <p>Open this page from the link in your password-reset email — the link carries the token we need to verify your request.</p>
-            <p><a href="/account/" style="color: var(--accent-color, #b8bec8);">← Back to sign in</a></p>
+            <h1 data-i18n="resetNoTokenTitle">Reset link required</h1>
+            <p data-i18n="resetNoTokenBody">Open this page from the link in your password-reset email — the link carries the token we need to verify your request.</p>
+            <p><a href="/account/" data-i18n="backToSignIn" style="color: var(--accent-color, #b8bec8);">← Back to sign in</a></p>
           </div>
 
           <!-- Success state -->
           <div class="reset-state" id="state-done">
-            <h1>Password updated</h1>
-            <p>You're signed in with the new password. Every other active session for this email has been signed out.</p>
-            <p><a href="/account/" class="btn btn-primary">Go to your account →</a></p>
+            <h1 data-i18n="resetDoneTitle">Password updated</h1>
+            <p data-i18n="resetDoneBody">You're signed in with the new password. Every other active session for this email has been signed out.</p>
+            <p><a href="/account/" class="btn btn-primary" data-i18n="goToAccount">Go to your account →</a></p>
           </div>
 
         </div>
@@ -134,6 +134,7 @@
       </div>
     </footer>
   </div>
+  <script src="/js/auth-i18n.js"></script>
   <script src="/js/cache-preferences.js"></script>
   <script src="/js/site-nav.js"></script>
   <script src="/js/main.js"></script>

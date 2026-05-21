@@ -129,29 +129,29 @@
 
           <!-- Sign-in form (shown when not signed in) -->
           <div class="account-state" id="state-signin">
-            <h1>Sign in to OrcaTrade</h1>
-            <p id="signin-lead-magic">Enter your email and we'll send you a sign-in link. No password — the link is good for 15 minutes.</p>
-            <p id="signin-lead-password" hidden>Enter your email and password to sign in.</p>
+            <h1 data-i18n="signinTitle">Sign in to OrcaTrade</h1>
+            <p id="signin-lead-magic" data-i18n="signinLeadMagic">Enter your email and we'll send you a sign-in link. No password — the link is good for 15 minutes.</p>
+            <p id="signin-lead-password" data-i18n="signinLeadPassword" hidden>Enter your email and password to sign in.</p>
             <form id="signin-form">
-              <label for="email">Email address</label>
-              <input type="email" id="email" name="email" placeholder="you@company.com" required autocomplete="email" />
+              <label for="email" data-i18n="labelEmail">Email address</label>
+              <input type="email" id="email" name="email" placeholder="you@company.com" data-i18n-ph="phEmail" required autocomplete="email" />
               <div id="password-field" hidden style="margin-top:1rem;">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" placeholder="Your password" autocomplete="current-password" style="width:100%; padding:0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s;" />
-                <p style="font-size:0.78rem; color: rgba(255,255,255,0.55); margin-top:0.5rem;"><a href="#" id="forgot-password-link" style="color: var(--accent-color, #b8bec8);">Forgot password?</a></p>
+                <label for="password" data-i18n="labelPassword">Password</label>
+                <input type="password" id="password" name="password" placeholder="Your password" data-i18n-ph="phYourPassword" autocomplete="current-password" style="width:100%; padding:0.7rem 0.9rem; background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.4; outline: none; transition: border-color 0.15s, background 0.15s;" />
+                <p style="font-size:0.78rem; color: rgba(255,255,255,0.55); margin-top:0.5rem;"><a href="#" id="forgot-password-link" data-i18n="forgotPassword" style="color: var(--accent-color, #b8bec8);">Forgot password?</a></p>
               </div>
-              <button type="submit" class="btn btn-primary" id="signin-btn">Send me a sign-in link</button>
-              <button type="button" class="btn" id="toggle-mode-btn" style="margin-left:0.6rem;">Use password instead</button>
+              <button type="submit" class="btn btn-primary" id="signin-btn" data-i18n="btnSendLink">Send me a sign-in link</button>
+              <button type="button" class="btn" id="toggle-mode-btn" data-i18n="btnUsePasswordInstead" style="margin-left:0.6rem;">Use password instead</button>
               <div class="err" id="signin-err"></div>
             </form>
-            <p style="margin-top:1.4rem; font-size:0.88rem; color: rgba(255,255,255,0.6);">No account yet? <a href="/signup/" style="color: var(--accent-color, #b8bec8);">Create one →</a></p>
+            <p style="margin-top:1.4rem; font-size:0.88rem; color: rgba(255,255,255,0.6);"><span data-i18n="noAccountYet">No account yet?</span> <a href="/signup/" data-i18n="createOne" style="color: var(--accent-color, #b8bec8);">Create one →</a></p>
           </div>
 
           <!-- Sent state (after request) -->
           <div class="account-state" id="state-sent">
-            <h1>Check your inbox</h1>
-            <p>If <span id="sent-email"></span> is a valid address, we've sent you a sign-in link. Click the link in your email — it expires in 15 minutes.</p>
-            <p class="ok-msg">No email after a minute? Check spam, or <a href="#" id="resend-link" style="color: var(--accent-color, #b8bec8);">try again</a>.</p>
+            <h1 data-i18n="checkInbox">Check your inbox</h1>
+            <p><span data-i18n="sentCheckInboxPrefix">If</span> <span id="sent-email"></span> <span data-i18n="sentCheckInboxBody1">is a valid address, we've sent you a sign-in link. Click the link in your email — it expires in 15 minutes.</span></p>
+            <p class="ok-msg"><span data-i18n="noEmailSpam">No email after a minute? Check spam, or</span> <a href="#" id="resend-link" data-i18n="tryAgain" style="color: var(--accent-color, #b8bec8);">try again</a>.</p>
           </div>
 
           <!-- Signed-in state -->
@@ -256,6 +256,7 @@
       </div>
     </footer>
   </div>
+  <script src="/js/auth-i18n.js"></script>
   <script src="/js/cache-preferences.js"></script>
   <script src="/js/site-nav.js"></script>
   <script src="/js/main.js"></script>
