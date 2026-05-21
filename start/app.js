@@ -124,6 +124,9 @@ const state = {
   // the "claimed" alternate, not the baseline.
   scenarioClaimed: false,
   baselineInputs: null,
+  // Sprint hs-refine-v1 — inputs behind the currently-rendered plan, so
+  // the in-result HS lookup can re-run with a precise code.
+  lastInputs: null,
 };
 
 function showStep(n) {
@@ -244,6 +247,11 @@ function renderRoadmap(roadmap) {
 function renderPlan(plan) {
   const { sourcing, routing, customs, warehouse, totals, inputs } = plan;
 
+  // Sprint hs-refine-v1 — remember the inputs that produced this plan so
+  // the in-result "get a precise rate" lookup can re-run with the same
+  // inputs plus a chosen HS code.
+  state.lastInputs = { ...inputs };
+
   const sourcingPrimary = sourcing?.recommendation?.primary;
   const sourcingMatchesOrigin = sourcingPrimary === inputs.originCountry;
 
@@ -286,6 +294,14 @@ function renderPlan(plan) {
   } else if (mfnSource === 'chapter-estimator') {
     dutySourceBadge = `<p class="duty-source"><span class="duty-source-tag">chapter estimator</span> sub-chapter rates verify on TARIC at the 8-digit code</p>`;
   }
+
+  // Sprint hs-refine-v1 — when the duty is a chapter estimate AND the
+  // user didn't supply a usable (6+ digit) HS code, offer an inline
+  // lookup that re-runs the plan with a precise code → live-TARIC rate.
+  // The mount point is filled after innerHTML is set, below.
+  const providedHsDigits = String(inputs.hsCode || '').replace(/\D/g, '');
+  const canRefineDuty = mfnSource === 'chapter-estimator' && providedHsDigits.length < 6;
+  const dutyRefineMount = canRefineDuty ? '<div id="dutyRefineMount" class="duty-refine"></div>' : '';
 
   const tdMeasures = customs?.tradeDefenceMeasures || [];
   const tradeDefenceBlock = tdMeasures.length ? `
@@ -621,6 +637,7 @@ function renderPlan(plan) {
         <tr class="total"><td>${T.customsBreakdown.total}</td><td>${fmtEur(totals.perShipmentLandedTotal)}</td></tr>
       </table>
       ${dutySourceBadge}
+      ${dutyRefineMount}
       ${tradeDefenceBlock}
       ${preferentialBlock}
       ${originNotes}
@@ -707,6 +724,25 @@ function renderPlan(plan) {
       </div>
     </div>
   `;
+
+  // Sprint hs-refine-v1 — mount the in-result "get a precise rate"
+  // lookup when the duty was a chapter estimate. Picking a code re-runs
+  // the same inputs with that HS code → live-TARIC heading rate, in
+  // place, with no wizard round-trip.
+  if (canRefineDuty) {
+    const mount = document.getElementById('dutyRefineMount');
+    if (mount) {
+      const intro = document.createElement('p');
+      intro.className = 'duty-refine-intro';
+      intro.textContent = T.hsRefineIntro || 'Want a precise duty rate instead of the chapter average?';
+      const { toggle, panel } = createHsLookup(function (hs) {
+        rerunPlan({ ...state.lastInputs, hsCode: hs });
+      }, { toggleLabel: T.hsRefineCta || 'Look up your commodity code →' });
+      mount.appendChild(intro);
+      mount.appendChild(toggle);
+      mount.appendChild(panel);
+    }
+  }
 
   const copyBtn = document.getElementById('copyShareBtn');
   const shareInput = document.getElementById('shareUrl');
@@ -1126,35 +1162,30 @@ els.form.addEventListener('keydown', e => {
 });
 
 // ── Sprint hs-suggest-v1 — HS-code lookup helper ─────────
-// Injected after the #hsCode field so the markup + localised strings
-// live in one shared place across /start/, /pl/start/, /de/start/.
-// Describe the product → GET /api/hs-suggest → pick a candidate → it
-// fills #hsCode, which makes the duty path use the live-TARIC heading
-// rate instead of the chapter average.
-function mountHsLookup() {
-  const hsInput = document.getElementById('hsCode');
-  if (!hsInput || document.getElementById('hsLookup')) return;
-  const field = hsInput.closest('.field') || hsInput.parentNode;
-  if (!field) return;
+// createHsLookup builds a self-contained widget: a toggle button + a
+// collapsible search panel. Typing (debounced) hits /api/hs-suggest;
+// clicking a candidate fires onPick(hs6). Class-based (no fixed IDs) so
+// it can be mounted more than once — on the wizard form AND inline in
+// the result (Sprint hs-refine-v1). Returns { toggle, panel }.
+function createHsLookup(onPick, opts) {
+  opts = opts || {};
+  const openLabel = opts.toggleLabel || T.hsLookupToggle || "Don't know your code? Look it up →";
 
   const toggle = document.createElement('button');
   toggle.type = 'button';
   toggle.className = 'hs-lookup-toggle';
-  toggle.id = 'hsLookupToggle';
-  toggle.textContent = T.hsLookupToggle || "Don't know your code? Look it up →";
+  toggle.textContent = openLabel;
 
   const panel = document.createElement('div');
   panel.className = 'hs-lookup';
-  panel.id = 'hsLookup';
   panel.hidden = true;
   const queryInput = document.createElement('input');
   queryInput.type = 'text';
-  queryInput.id = 'hsLookupQuery';
+  queryInput.className = 'hs-lookup-query';
   queryInput.autocomplete = 'off';
   queryInput.placeholder = T.hsLookupQueryPh || 'Describe your product';
   const results = document.createElement('div');
   results.className = 'hs-lookup-results';
-  results.id = 'hsLookupResults';
   const note = document.createElement('p');
   note.className = 'helper hs-lookup-note';
   note.textContent = T.hsLookupNote || '';
@@ -1162,14 +1193,9 @@ function mountHsLookup() {
   panel.appendChild(results);
   panel.appendChild(note);
 
-  field.appendChild(toggle);
-  field.appendChild(panel);
-
   toggle.addEventListener('click', () => {
     panel.hidden = !panel.hidden;
-    toggle.textContent = panel.hidden
-      ? (T.hsLookupToggle || "Don't know your code? Look it up →")
-      : (T.hsLookupClose || 'Close lookup');
+    toggle.textContent = panel.hidden ? openLabel : (T.hsLookupClose || 'Close lookup');
     if (!panel.hidden) queryInput.focus();
   });
 
@@ -1189,12 +1215,9 @@ function mountHsLookup() {
     results.querySelectorAll('.hs-lookup-item').forEach(function (btn) {
       btn.addEventListener('click', function () {
         const hs = btn.getAttribute('data-hs') || '';
-        hsInput.value = hs;
-        // Collapse the panel + reset the toggle label.
         panel.hidden = true;
-        toggle.textContent = T.hsLookupToggle || "Don't know your code? Look it up →";
-        // Nudge focus back so the user sees the filled field.
-        hsInput.focus();
+        toggle.textContent = openLabel;
+        if (typeof onPick === 'function') onPick(hs);
       });
     });
   }
@@ -1218,6 +1241,27 @@ function mountHsLookup() {
         .catch(function () { results.innerHTML = ''; });
     }, 250);
   });
+
+  return { toggle, panel };
+}
+
+// Mount the lookup on the wizard form's #hsCode field. Picking a
+// candidate fills the input so the next plan generation runs the
+// live-TARIC duty path.
+function mountHsLookup() {
+  const hsInput = document.getElementById('hsCode');
+  if (!hsInput || hsInput._hsLookupMounted) return;
+  const field = hsInput.closest('.field') || hsInput.parentNode;
+  if (!field) return;
+  hsInput._hsLookupMounted = true;
+  const { toggle, panel } = createHsLookup(function (hs) {
+    hsInput.value = hs;
+    hsInput.focus();
+  });
+  toggle.id = 'hsLookupToggle';
+  panel.id = 'hsLookup';
+  field.appendChild(toggle);
+  field.appendChild(panel);
 }
 mountHsLookup();
 

@@ -19,6 +19,9 @@ window.START_I18N = {
     hsLookupNoResults: 'No matches — try simpler words (e.g. "t-shirt", "laptop", "sofa").',
     hsLookupSearching: 'Searching…',
     hsLookupChapter: 'chapter',
+    // Sprint hs-refine-v1 — in-result precise-rate nudge
+    hsRefineIntro: 'This duty is a chapter average. Want a precise rate for your exact commodity?',
+    hsRefineCta: 'Look up your code & re-run →',
     // Errors
     errPickCategory: 'Pick a category to continue',
     errPickOrigin: 'Pick an origin',
@@ -239,6 +242,9 @@ window.START_I18N = {
     hsLookupNoResults: 'Brak dopasowań — użyj prostszych słów (np. „koszulka”, „laptop”, „sofa”).',
     hsLookupSearching: 'Szukanie…',
     hsLookupChapter: 'dział',
+    // Sprint hs-refine-v1
+    hsRefineIntro: 'To cło to średnia dla działu. Chcesz dokładną stawkę dla swojego towaru?',
+    hsRefineCta: 'Sprawdź kod i przelicz ponownie →',
     errPickCategory: 'Wybierz kategorię, aby kontynuować',
     errPickOrigin: 'Wybierz kraj pochodzenia',
     errPickDestination: 'Wybierz kraj docelowy w UE',
@@ -446,6 +452,9 @@ window.START_I18N = {
     hsLookupNoResults: 'Keine Treffer — versuchen Sie einfachere Begriffe (z. B. „T-Shirt“, „Laptop“, „Sofa“).',
     hsLookupSearching: 'Suche…',
     hsLookupChapter: 'Kapitel',
+    // Sprint hs-refine-v1
+    hsRefineIntro: 'Dieser Zoll ist ein Kapiteldurchschnitt. Möchten Sie einen genauen Satz für Ihre Ware?',
+    hsRefineCta: 'Code nachschlagen & neu berechnen →',
     errPickCategory: 'Bitte wählen Sie eine Kategorie',
     errPickOrigin: 'Bitte wählen Sie ein Ursprungsland',
     errPickDestination: 'Bitte wählen Sie ein EU-Zielland',
