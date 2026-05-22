@@ -43,6 +43,52 @@ test('no duplicate hs6 codes in the dataset', () => {
   }
 });
 
+// ── Coverage (sprint hs-suggest-expand-v1) ──────────────
+
+test('dataset has been expanded to >=103 common SME import codes', () => {
+  assert.ok(hs.HS_ENTRIES.length >= 103, 'expected >=103 entries, got ' + hs.HS_ENTRIES.length);
+});
+
+test('every suggested chapter has a duty-table fallback rate (no orphan codes)', () => {
+  // Each HS6 we suggest must resolve to a chapter that customs-quote can
+  // price — otherwise a picked suggestion would dead-end the duty calc.
+  const { HS_CHAPTER_DUTY } = require('../lib/intelligence/customs-quote');
+  const priced = new Set(Object.keys(HS_CHAPTER_DUTY));
+  for (const e of hs.HS_ENTRIES) {
+    assert.ok(priced.has(e.chapter), `chapter ${e.chapter} (hs6 ${e.hs6}) missing from HS_CHAPTER_DUTY`);
+  }
+});
+
+test('expanded coverage: new common-import descriptions return the right top hit', () => {
+  const cases = [
+    ['coffee', '090121'],
+    ['wine', '220421'],
+    ['beer', '220300'],
+    ['handbag', '420221'],
+    ['wallet', '420231'],
+    ['sunglasses', '900410'],
+    ['watch', '910219'],
+    ['mattress', '940421'],
+    ['curtains', '630392'],
+    ['led bulb', '853950'],
+    ['usb cable', '854442'],
+    ['protein powder', '210690'],
+    ['scarf', '621430'],
+    ['candle', '340600'],
+    ['dumbbells', '950691'],
+    ['car parts', '870829'],
+    ['kitchen knife', '821192'],
+    ['diapers', '961900'],
+    ['thermos', '961700'],
+    ['notebook', '482010'],
+  ];
+  for (const [q, expectTop] of cases) {
+    const r = hs.suggest(q, { limit: 5 });
+    assert.ok(r.length > 0, 'no results for: ' + q);
+    assert.equal(r[0].hs6, expectTop, `top hit for "${q}" expected ${expectTop}, got ${r[0].hs6}`);
+  }
+});
+
 // ── Scorer ──────────────────────────────────────────────
 
 test('suggest: common product descriptions return the right top hit', () => {
