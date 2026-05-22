@@ -15,8 +15,8 @@ const { TOOLS, toolImpls, classifyTool } = orchestrator;
 
 // ── Tool merge correctness ───────────────────────────────
 
-test('Orchestrator exposes 25 unique tools (Compliance 11 + Logistics 8 + Sourcing 7 + Finance 8 - shared)', () => {
-  assert.equal(TOOLS.length, 25);
+test('Orchestrator exposes 26 unique tools (Compliance 12 + Logistics 8 + Sourcing 7 + Finance 8 - shared)', () => {
+  assert.equal(TOOLS.length, 26);
   const allNames = new Set([
     ...compliance.TOOLS.map(t => t.name),
     ...logistics.TOOLS.map(t => t.name),
@@ -88,7 +88,7 @@ test('toolImpls covers every TOOL by name', () => {
 // ── classifyTool routing ─────────────────────────────────
 
 test('classifyTool tags compliance tools as "compliance"', () => {
-  for (const name of ['checkCbamApplicability', 'estimateCbamExposure', 'checkEudrApplicability', 'assessReachCompliance', 'checkCeApplicability']) {
+  for (const name of ['checkCbamApplicability', 'estimateCbamExposure', 'checkEudrApplicability', 'assessReachCompliance', 'checkCeApplicability', 'getComplianceCalendar']) {
     assert.equal(classifyTool(name), 'compliance', `${name} -> compliance`);
   }
 });
