@@ -53,6 +53,17 @@ test('cron: ingestSanctions supports the simple CSV format', async () => {
   assert.equal(r.parsed, 2);
 });
 
+test('cron: ingestSanctions supports the UK OFSI format', async () => {
+  const ofsi = [
+    '"Date","18/05/2026"',
+    '"Name 1","Name 2","Group Type","Regime","Group ID"',
+    '"ACME","HOLDINGS","Entity","Russia","11"',
+  ].join('\n');
+  const r = await cron.ingestSanctions({ source: 'UK-OFSI', text: ofsi, format: 'ofsi', dryRun: true });
+  assert.equal(r.ok, true);
+  assert.equal(r.parsed, 1);
+});
+
 test('cron: ingestSanctions without a DB (non-dry) reports reason', async () => {
   const r = await cron.ingestSanctions({ text: SDN, dryRun: false });
   assert.equal(r.ok, false);

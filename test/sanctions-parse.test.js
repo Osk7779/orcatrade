@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { splitCsvLine, parseOfacSdnCsv, parseSimpleCsv } = require('../lib/intelligence/sanctions-parse');
+const { splitCsvLine, parseOfacSdnCsv, parseOfsiCsv, parseSimpleCsv } = require('../lib/intelligence/sanctions-parse');
 
 // ── CSV line splitting ──────────────────────────────────
 
@@ -60,6 +60,45 @@ test('parseSimpleCsv reads a headered file with pipe-separated aliases', () => {
 
 test('parseSimpleCsv with no name column → no entries', () => {
   assert.deepEqual(parseSimpleCsv('id,foo\n1,bar').entries, []);
+});
+
+// ── UK OFSI ConList.csv (metadata line, then header, header-keyed) ──
+
+const OFSI_FIXTURE = [
+  '"Date Generated","18/05/2026"',
+  '"Name 1","Name 2","Name 3","Name 4","Name 5","Name 6","Title","Group Type","Regime","Group ID"',
+  '"VOLCANO","TRADING","COMPANY","","","","","Entity","Russia","12345"',
+  '"PETROV","Ivan","","","","","Mr","Individual","Russia","67890"',
+  '', // blank — skipped
+  '"","","","","","","","Entity","X","999"', // no name — skipped
+].join('\n');
+
+test('parseOfsiCsv finds the header row, joins Name 1..6, maps type + regime', () => {
+  const { source, entries } = parseOfsiCsv(OFSI_FIXTURE);
+  assert.equal(source, 'UK-OFSI');
+  assert.equal(entries.length, 2);
+  assert.equal(entries[0].name, 'VOLCANO TRADING COMPANY');
+  assert.equal(entries[0].type, 'entity');
+  assert.equal(entries[0].programme, 'Russia');
+  assert.equal(entries[0].externalId, '12345');
+  assert.equal(entries[1].name, 'PETROV Ivan');
+  assert.equal(entries[1].type, 'individual');
+});
+
+test('parseOfsiCsv is column-order independent (header-keyed)', () => {
+  const reordered = [
+    '"Group Type","Regime","Name 1","Name 2","Group ID"',
+    '"Individual","Iran","SMITH","John","42"',
+  ].join('\n');
+  const { entries } = parseOfsiCsv(reordered);
+  assert.equal(entries.length, 1);
+  assert.equal(entries[0].name, 'SMITH John');
+  assert.equal(entries[0].type, 'individual');
+});
+
+test('parseOfsiCsv returns no entries when no header row is found', () => {
+  assert.deepEqual(parseOfsiCsv('just,some,random\ncsv,data,here').entries, []);
+  assert.deepEqual(parseOfsiCsv('').entries, []);
 });
 
 // ── parsed entries are screen-ready ─────────────────────
