@@ -20,6 +20,9 @@
     .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.5); margin-bottom: 1.2rem; letter-spacing: 0.06em; }
     .breadcrumbs a { color: rgba(220, 188, 110, 0.85); text-decoration: none; }
 
+    .list-status { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.03em; color: rgba(255,255,255,0.55); margin-bottom: 1.2rem; padding: 0.55rem 0.8rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); }
+    .list-status.authoritative { color: rgba(126, 210, 138, 0.85); border-color: rgba(126, 210, 138, 0.25); }
+    .list-status.sample { color: rgba(245, 158, 11, 0.85); border-color: rgba(245, 158, 11, 0.25); }
     .search-row { display: flex; gap: 0.7rem; margin-bottom: 1.4rem; }
     .search-row input { flex: 1; background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.92); padding: 0.8rem 1rem; font-size: 0.96rem; border-radius: 4px; }
     .search-row input:focus { outline: none; border-color: rgba(220, 188, 110, 0.65); }
@@ -108,6 +111,8 @@
       <p class="lead">
         Run an indicative pre-screen on a supplier, buyer, or vessel name. This flags potential matches for you to investigate — it is <strong>not</strong> an authoritative clearance.
       </p>
+
+      <div id="listStatus" class="list-status" hidden></div>
 
       <div class="search-row">
         <input id="nameInput" type="text" placeholder="Counterparty name (e.g. Acme Trading Ltd)" autocomplete="off" />

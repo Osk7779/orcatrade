@@ -18,12 +18,15 @@ function call(method, body) {
   return screen({ method, headers: {}, body }, res).then(() => res);
 }
 
-test('GET returns the advisory (so the UI can show the disclaimer up front)', async () => {
+test('GET returns the advisory + list status (so the UI can show what it screens against)', async () => {
   kv._resetMemoryStore();
   const res = await call('GET');
   assert.equal(res.statusCode, 200);
-  assert.equal(res.body.authoritative, false);
+  assert.equal(res.body.authoritative, false); // no DB in tests → sample
   assert.match(res.body.advisory, /authoritative consolidated lists/);
+  assert.ok(res.body.list);
+  assert.equal(res.body.list.source, 'ILLUSTRATIVE-SAMPLE');
+  assert.ok(res.body.list.totalCount >= 1);
 });
 
 test('POST a known sample name → potential_match', async () => {

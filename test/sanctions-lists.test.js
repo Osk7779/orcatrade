@@ -19,6 +19,14 @@ test('store: replaceEntries without a DB reports the reason, does not throw', as
   assert.match(res.reason, /DATABASE_URL/);
 });
 
+test('store: listMeta without a DB reports the sample (non-authoritative)', async () => {
+  const meta = await store.listMeta();
+  assert.equal(meta.authoritative, false);
+  assert.equal(meta.source, 'ILLUSTRATIVE-SAMPLE');
+  assert.ok(meta.totalCount >= 1); // the bundled sample has entries
+  assert.deepEqual(meta.sources, []);
+});
+
 // ── cron ingest (fixture text, dry-run → no DB write) ───
 
 const SDN = [

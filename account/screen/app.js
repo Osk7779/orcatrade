@@ -8,6 +8,7 @@
   var els = {
     authNeeded: document.getElementById('authNeeded'),
     content: document.getElementById('content'),
+    listStatus: document.getElementById('listStatus'),
     nameInput: document.getElementById('nameInput'),
     screenBtn: document.getElementById('screenBtn'),
     status: document.getElementById('status'),
@@ -91,6 +92,30 @@
     els.content.hidden = false;
     els.screenBtn.addEventListener('click', screen);
     els.nameInput.addEventListener('keydown', function (e) { if (e.key === 'Enter') screen(); });
+    loadListStatus();
+  }
+
+  // Show whether we're screening against real loaded lists or the sample.
+  async function loadListStatus() {
+    try {
+      var resp = await fetch('/api/screen', { credentials: 'same-origin' });
+      if (!resp.ok) return;
+      var data = await resp.json();
+      var meta = (data && data.list) || {};
+      if (!els.listStatus) return;
+      els.listStatus.hidden = false;
+      if (meta.authoritative && meta.totalCount) {
+        var srcs = (meta.sources || []).map(function (s) {
+          var when = s.refreshedAt ? (' · ' + String(s.refreshedAt).slice(0, 10)) : '';
+          return s.source + ' (' + s.count + when + ')';
+        }).join(', ');
+        els.listStatus.className = 'list-status authoritative';
+        els.listStatus.textContent = 'Screening against ' + meta.totalCount + ' entries — ' + (srcs || meta.source);
+      } else {
+        els.listStatus.className = 'list-status sample';
+        els.listStatus.textContent = 'Screening against an illustrative sample only — real consolidated lists are not yet loaded. A non-match is not a clearance.';
+      }
+    } catch (_) { /* status is non-essential */ }
   }
 
   init();
