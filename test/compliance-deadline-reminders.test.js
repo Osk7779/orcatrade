@@ -85,3 +85,59 @@ test('missing RESEND key short-circuits gracefully', async () => {
   assert.equal(r.ok, false);
   assert.match(r.reason, /RESEND/);
 });
+
+test('complianceDeadlineEmails pref round-trips (default true → false persists)', async () => {
+  kv._resetMemoryStore();
+  assert.equal((await notificationPrefs.getPrefs('p@example.com')).complianceDeadlineEmails, true);
+  await notificationPrefs.setPrefs('p@example.com', { complianceDeadlineEmails: false });
+  assert.equal((await notificationPrefs.getPrefs('p@example.com')).complianceDeadlineEmails, false);
+  // independent of the other streams
+  assert.equal((await notificationPrefs.getPrefs('p@example.com')).planRevisionEmails, true);
+});
+
+// ── localised email body (EN / PL / DE) ─────────────────
+
+const SAMPLE = {
+  obligations: [
+    { regime: 'eudr', title: 'Application date — non-SME operators', citation: 'Regulation (EU) 2023/1115, Art. 38', dueDate: '2026-12-30', daysUntil: 29, severity: 'high' },
+    { regime: 'cbam', title: 'First annual CBAM declaration due', citation: 'Regulation (EU) 2023/956, Art. 6 and Art. 22', dueDate: '2027-05-31', daysUntil: 152, severity: 'low' },
+  ],
+  planUrl: 'https://orcatrade.pl/account/plans/',
+  unsubUrl: 'https://orcatrade.pl/api/unsubscribe?token=t&stream=complianceDeadlineEmails',
+  prefsUrl: 'https://orcatrade.pl/account/preferences/',
+};
+
+test('EN email: subject + body carry the soonest deadline and citations', () => {
+  const { subject, text } = cronHandler.buildDeadlineEmail('en', SAMPLE);
+  assert.match(subject, /Compliance deadlines:/); // plural (2 obligations)
+  assert.match(subject, /in 29 days/);
+  assert.match(text, /Regulation \(EU\) 2023\/1115, Art\. 38/);
+  assert.match(text, /Regulation \(EU\) 2023\/956/);
+  assert.ok(text.includes(SAMPLE.planUrl));
+  assert.match(text, /Unsubscribe from deadline reminders/);
+});
+
+test('PL email is in Polish', () => {
+  const { subject, text } = cronHandler.buildDeadlineEmail('pl', SAMPLE);
+  assert.match(subject, /Termin zgodności/);
+  assert.match(subject, /za 29 dni/);
+  assert.match(text, /Wypisz się/);
+});
+
+test('DE email is in German', () => {
+  const { subject, text } = cronHandler.buildDeadlineEmail('de', SAMPLE);
+  assert.match(subject, /Compliance-Frist/);
+  assert.match(subject, /in 29 Tagen/);
+  assert.match(text, /abmelden/);
+});
+
+test('unknown locale falls back to EN', () => {
+  const { subject } = cronHandler.buildDeadlineEmail('xx', SAMPLE);
+  assert.match(subject, /Compliance deadlines:/);
+});
+
+test('single obligation drops the plural in the EN subject', () => {
+  const { subject } = cronHandler.buildDeadlineEmail('en', { ...SAMPLE, obligations: [SAMPLE.obligations[0]] });
+  assert.match(subject, /Compliance deadline:/);
+  assert.doesNotMatch(subject, /Compliance deadlines:/);
+});
