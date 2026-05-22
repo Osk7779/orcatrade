@@ -100,3 +100,17 @@ test('cron: rag-reindex is registered + dryRun works', async () => {
   assert.equal(r.ok, true);
   assert.ok(r.chunks >= 1);
 });
+
+// ── the whole agent layer now rides searchHybrid ────────
+
+test('every agent + the orchestrator screen via searchHybrid (async, hits via BM25 fallback)', async () => {
+  const modules = ['agent', 'orchestrator', 'logistics-agent', 'sourcing-agent', 'finance-agent'];
+  for (const m of modules) {
+    const impls = require('../lib/handlers/' + m).toolImpls;
+    const result = impls.searchRegulations({ query: 'CBAM carbon border adjustment certificate' });
+    assert.ok(result && typeof result.then === 'function', `${m}.searchRegulations is async`);
+    const out = await result;
+    assert.ok(out.hits && out.hits.length >= 1, `${m} returns hits`);
+    assert.ok(out.hits[0].chunkId, `${m} hit has a citation chunkId`);
+  }
+});

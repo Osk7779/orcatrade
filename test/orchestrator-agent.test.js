@@ -137,8 +137,9 @@ test('checkCbamApplicability via Orchestrator returns the same result as via Com
   assert.deepEqual(orchResult, compResult);
 });
 
-test('searchRegulations via Orchestrator returns results across multiple regulations', () => {
-  const r = toolImpls.searchRegulations({
+test('searchRegulations via Orchestrator returns results across multiple regulations', async () => {
+  // async now — rides hybrid retrieval (BM25 fallback when RAG isn't configured).
+  const r = await toolImpls.searchRegulations({
     query: 'steel anti-dumping CBAM',
     regulationIds: ['cbam', 'eudr', 'reach', 'ce'],
     topK: 5,

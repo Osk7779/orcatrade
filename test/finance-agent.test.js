@@ -71,8 +71,8 @@ test('lookupHsCode returns low-confidence placeholder', () => {
   assert.equal(r.confidence, 0);
 });
 
-test('searchRegulations returns hits for capital controls query', () => {
-  const r = toolImpls.searchRegulations({ query: 'CBAM certificate cost', topK: 3 });
+test('searchRegulations returns hits for capital controls query', async () => {
+  const r = await toolImpls.searchRegulations({ query: 'CBAM certificate cost', topK: 3 });
   assert.ok(r.hits.length > 0);
 });
 

@@ -194,8 +194,8 @@ test('lookupHsCode returns low-confidence placeholder', () => {
 
 // ── searchRegulations ─────────────────────────────────────
 
-test('searchRegulations returns hits with chunkId for CBAM steel query', () => {
-  const r = toolImpls.searchRegulations({ query: 'CBAM steel imports', regulationIds: ['cbam'], topK: 3 });
+test('searchRegulations returns hits with chunkId for CBAM steel query', async () => {
+  const r = await toolImpls.searchRegulations({ query: 'CBAM steel imports', regulationIds: ['cbam'], topK: 3 });
   assert.ok(Array.isArray(r.hits));
   assert.ok(r.hits.length > 0);
   for (const h of r.hits) {

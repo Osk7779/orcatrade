@@ -69,8 +69,8 @@ test('lookupHsCode returns low-confidence placeholder', () => {
   assert.equal(r.confidence, 0);
 });
 
-test('searchRegulations returns hits for EUDR wood query', () => {
-  const r = toolImpls.searchRegulations({ query: 'EUDR wood traceability', regulationIds: ['eudr'], topK: 3 });
+test('searchRegulations returns hits for EUDR wood query', async () => {
+  const r = await toolImpls.searchRegulations({ query: 'EUDR wood traceability', regulationIds: ['eudr'], topK: 3 });
   assert.ok(r.hits.length > 0);
 });
 
