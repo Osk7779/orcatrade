@@ -68,6 +68,7 @@ on:
           - calibration-drift-check
           - taric-warm
           - sanctions-refresh
+          - rag-reindex
           - db-migrate
 
 jobs:
