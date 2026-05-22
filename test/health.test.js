@@ -42,6 +42,28 @@ test('aggregate: every subsystem ok → ok', () => {
   }), 'ok');
 });
 
+test('probeSanctions: ok + not loaded without a DB (sample fallback, not a paging condition)', async () => {
+  const r = await health.probeSanctions();
+  assert.equal(r.status, 'ok');
+  assert.equal(r.loaded, false);
+  assert.equal(r.mode, 'sample');
+});
+
+test('probeRag: ok + bm25 mode without a DB', async () => {
+  const r = await health.probeRag();
+  assert.equal(r.status, 'ok');
+  assert.equal(r.loaded, false);
+  assert.equal(r.mode, 'bm25');
+});
+
+test('aggregate: un-activated sanctions/rag (ok, loaded:false) never degrades overall health', () => {
+  assert.equal(health.aggregate({
+    kv: { status: 'ok' },
+    sanctions: { status: 'ok', loaded: false },
+    rag: { status: 'ok', loaded: false },
+  }), 'ok');
+});
+
 test('aggregate: one degraded subsystem → degraded', () => {
   assert.equal(health.aggregate({
     kv: { status: 'ok' }, taric: { status: 'ok' },
