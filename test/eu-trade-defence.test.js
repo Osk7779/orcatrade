@@ -183,9 +183,49 @@ test('composePlan surfaces tradeDefenceMeasures on bicycles ex-CN', async () => 
 
 // ── Catalogue ─────────────────────────────────────────
 
-test('listMeasures returns at least 30 curated measures', () => {
+test('listMeasures returns at least 45 curated measures', () => {
   const measures = td.listMeasures();
-  assert.ok(measures.length >= 30, `expected >= 30, got ${measures.length}`);
+  assert.ok(measures.length >= 45, `expected >= 45, got ${measures.length}`);
+});
+
+// ── Expanded coverage (sprint trade-defence-expand-v1) ──
+
+test('no duplicate measure ids', () => {
+  const ids = td.MEASURES.map(m => m.id);
+  const seen = new Set();
+  for (const id of ids) {
+    assert.ok(!seen.has(id), 'duplicate id: ' + id);
+    seen.add(id);
+  }
+});
+
+test('expanded measures match the right HS+origin with correct aggregate duty', () => {
+  const cases = [
+    // [hsCode, origin, expectTotalPct, expectIds]
+    ['85447000', 'CN', 54.3, ['CN_OPTICAL_FIBRE_CABLES_AD', 'CN_OPTICAL_FIBRE_CABLES_CVD']],
+    ['85451100', 'CN', 74.9, ['CN_GRAPHITE_ELECTRODES']],
+    ['72107000', 'CN', 70.8, ['CN_ORGANIC_COATED_STEEL_AD', 'CN_ORGANIC_COATED_STEEL_CVD']],
+    ['72104100', 'CN', 27.9, ['CN_CORROSION_RESISTANT_STEEL']],
+    ['29336100', 'CN', 65.2, ['CN_MELAMINE']],
+    ['29181600', 'CN', 53.2, ['CN_SODIUM_GLUCONATE']],
+    ['73042400', 'CN', 71.9, ['CN_SEAMLESS_STAINLESS_PIPES']],
+  ];
+  for (const [hs, origin, total, ids] of cases) {
+    const m = td.findMeasures({ hsCode: hs, originCountry: origin });
+    assert.deepEqual(m.map(x => x.id).sort(), [...ids].sort(), `wrong measures for ${hs}/${origin}`);
+    const agg = td.aggregateRate(m);
+    assert.ok(Math.abs(agg.totalPct - total) < 0.01, `${hs}/${origin} total ${agg.totalPct} != ${total}`);
+  }
+});
+
+test('new chemical/steel measures do not cross-match adjacent subheadings (no false double-count)', () => {
+  // citric acid (2918.14/.15) must NOT also pull sodium gluconate (2918.16)
+  // or tartaric acid (2918.12).
+  const citric = td.findMeasures({ hsCode: '29181400', originCountry: 'CN' });
+  assert.deepEqual(citric.map(m => m.id), ['CN_CITRIC_ACID']);
+  // organic-coated steel (7210.70) must NOT also pull corrosion-resistant (7210.41).
+  const ocs = td.findMeasures({ hsCode: '72107000', originCountry: 'CN' }).map(m => m.id);
+  assert.ok(!ocs.includes('CN_CORROSION_RESISTANT_STEEL'), 'OCS should not match CRS subheadings');
 });
 
 test('every measure has the required fields', () => {
