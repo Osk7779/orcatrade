@@ -121,6 +121,30 @@ CREATE INDEX IF NOT EXISTS saved_plans_org_id_idx
 CREATE INDEX IF NOT EXISTS saved_plans_created_at_idx
   ON saved_plans (created_at DESC);
 
+-- ── Saved portfolios ────────────────────────────────────────────
+-- Multi-SKU portfolio (a labelled set of plan-input lines + an aggregate
+-- snapshot). KV is the hot-path primary; this is the durable corpus that
+-- survives KV's 1-year TTL (Sprint portfolio-pg-dual-write-v1). Same
+-- privacy discipline as saved_plans: email_hash only, never a raw email.
+CREATE TABLE IF NOT EXISTS saved_portfolios (
+  id            bigint GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+  external_id   text NOT NULL UNIQUE,                -- 'pf_<…>' from lib/saved-portfolios.js
+  org_id        bigint REFERENCES organisations(id) ON DELETE SET NULL,
+  email_hash    text NOT NULL,
+  share_code    text UNIQUE,
+  label         text,
+  lines_json    jsonb NOT NULL,                       -- the per-SKU input lines
+  snapshot_json jsonb,                                -- aggregate (blended duty, totals)
+  created_at    timestamptz NOT NULL DEFAULT now(),
+  archived_at   timestamptz
+);
+
+CREATE INDEX IF NOT EXISTS saved_portfolios_email_hash_idx
+  ON saved_portfolios (email_hash);
+
+CREATE INDEX IF NOT EXISTS saved_portfolios_created_at_idx
+  ON saved_portfolios (created_at DESC);
+
 -- ── Audit log ───────────────────────────────────────────────────
 -- Every state change goes here. Today only Article 17 deletions emit
 -- structured logs with the hash; this table will absorb the firehose
