@@ -6,10 +6,62 @@ const {
   validateInput,
   generateDocument,
   listDocumentTypes,
+  draftFromPlan,
   formatNumber,
   formatCurrency,
   escapeHtml,
 } = require('../lib/intelligence/document-generator');
+
+// ── draftFromPlan (pre-fill from an Import Plan) ─────────
+
+const SAMPLE_PLAN = {
+  productCategory: 'apparel',
+  originCountry: 'cn',
+  destinationCountry: 'de',
+  customsValueEur: 50000,
+  hsCode: '610910',
+  weightKg: 800,
+  moq: 1000,
+};
+
+test('draftFromPlan: every type produces data that passes generateDocument', () => {
+  for (const type of ['commercial_invoice', 'packing_list', 'proforma_invoice', 'certificate_of_origin']) {
+    const draft = draftFromPlan(type, SAMPLE_PLAN, { today: '2026-05-22' });
+    assert.equal(draft.ok, true, `draft ${type} ok`);
+    const out = generateDocument(type, draft.data);
+    assert.equal(out.ok, true, `${type} renders: ${JSON.stringify(out.errors)}`);
+    assert.ok(out.html);
+  }
+});
+
+test('draftFromPlan: maps the plan fields (value→unit price, origin, HS code)', () => {
+  const draft = draftFromPlan('commercial_invoice', SAMPLE_PLAN, { today: '2026-05-22' });
+  assert.equal(draft.data.currency, 'EUR');
+  assert.equal(draft.data.countryOfOrigin, 'CN'); // upper-cased
+  assert.equal(draft.data.countryOfDestination, 'DE');
+  const li = draft.data.lineItems[0];
+  assert.equal(li.hsCode, '610910');
+  assert.equal(li.quantity, 1000);
+  assert.equal(li.unitPrice, 50); // 50000 / 1000
+});
+
+test('draftFromPlan: parties are obvious placeholders (never a finished doc)', () => {
+  const draft = draftFromPlan('commercial_invoice', SAMPLE_PLAN);
+  assert.match(draft.data.exporter.companyName, /complete before use/);
+  assert.match(draft.data.consignee.companyName, /complete before use/);
+  assert.equal(draft.data._draft, true);
+});
+
+test('draftFromPlan: unknown type → ok:false', () => {
+  assert.equal(draftFromPlan('bogus', SAMPLE_PLAN).ok, false);
+});
+
+test('draftFromPlan: a sparse plan still yields a valid (placeholder-heavy) draft', () => {
+  const draft = draftFromPlan('commercial_invoice', { productCategory: 'toys' });
+  assert.equal(draft.ok, true);
+  assert.equal(generateDocument('commercial_invoice', draft.data).ok, true);
+  assert.equal(draft.data.lineItems[0].quantity, 1); // defaults
+});
 
 // ── TYPES registry ───────────────────────────────────────
 
