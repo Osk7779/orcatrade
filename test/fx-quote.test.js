@@ -74,6 +74,18 @@ test('assessFxRisk: USD on €30K, 60-day terms — produces full risk profile',
   assert.ok(['hedge', 'consider', 'accept', 'skip'].includes(r.recommendation));
 });
 
+test('assessFxRisk: money lines are penny-exact via integer cents (no float drift)', () => {
+  const M = require('../lib/intelligence/money');
+  // A value whose × rate exercises rounding: €33,333.33 × 5%.
+  const r = fx.assessFxRisk({ customsValueEur: 33333.33, quoteCurrency: 'USD', paymentTermsDays: 90 });
+  const valueCents = M.fromEuro(33333.33);
+  assert.equal(r.riskEur5pctMove, M.toEuro(M.mulRate(valueCents, 0.05)));
+  // Output is cent-precise (≤ 2 decimal places), not a float artefact.
+  for (const v of [r.riskEur5pctMove, r.riskEur1Sigma90d, r.hedgeCostEur]) {
+    assert.equal(Math.round(v * 100), v * 100, `${v} should be penny-exact`);
+  }
+});
+
 test('assessFxRisk: TRY on €30K → recommend hedge (high vol)', () => {
   const r = fx.assessFxRisk({ customsValueEur: 30000, quoteCurrency: 'TRY', paymentTermsDays: 60 });
   assert.equal(r.recommendation, 'hedge');
