@@ -343,9 +343,12 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // portfolio summary email for every user with saved plans.
   // Sprint portfolio-revision-v1 adds portfolio-revision-emails —
   // weekly cost-drift scan over saved multi-SKU portfolios.
+  // Sprint compliance-calendar-v1 phase 3 adds compliance-deadline-reminders —
+  // weekly scan that emails users about upcoming CBAM/EUDR deadlines.
   const ids = Object.keys(cronHandler.JOBS).sort();
   assert.deepEqual(ids, [
     'calibration-drift-check',
+    'compliance-deadline-reminders',
     'db-migrate',
     'founder-digest',
     'plan-revision-emails',

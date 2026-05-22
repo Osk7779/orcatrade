@@ -18,6 +18,10 @@ on:
   schedule:
     # Monday 06:30 UTC — founder digest
     - cron: '30 6 * * 1'
+    # Monday 07:30 UTC — compliance deadline reminders (Sprint
+    # compliance-calendar-v1 phase 3). Own slot between the founder digest
+    # and the weekly user digest; 6-day handler dedupe prevents spam.
+    - cron: '30 7 * * 1'
     # Monday 09:00 UTC — weekly-user-digest (Sprint weekly-digest-v1).
     # Per-user idempotency in the handler (6-day window) makes this safe
     # to re-fire; the 09:00 slot avoids stepping on the 06:30 founder run.
@@ -54,6 +58,7 @@ on:
           - weekly-user-digest
           - plan-revision-emails
           - portfolio-revision-emails
+          - compliance-deadline-reminders
           - regime-change-check
           - calibration-drift-check
           - taric-warm
@@ -76,6 +81,8 @@ jobs:
             echo "job=plan-revision-emails" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "30 8 * * 4" ]; then
             echo "job=portfolio-revision-emails" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 7 * * 1" ]; then
+            echo "job=compliance-deadline-reminders" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 5 * * 3" ]; then
             echo "job=regime-change-check" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 3 * * *" ]; then

@@ -7,6 +7,7 @@ const {
   severityFor,
   getUpcomingObligations,
   getNextObligation,
+  obligationsForShipment,
 } = require('../lib/intelligence/compliance-calendar');
 
 // ── severity bands ──────────────────────────────────────
@@ -145,4 +146,24 @@ test('getNextObligation returns the single soonest obligation', () => {
 
 test('getNextObligation returns null when nothing is upcoming', () => {
   assert.equal(getNextObligation({ regimes: ['eudr'], asOf: '2027-07-01' }), null);
+});
+
+// ── obligationsForShipment (shared derivation path) ─────
+
+test('obligationsForShipment: CBAM-covered product from a non-EEA origin puts cbam in scope', () => {
+  const result = obligationsForShipment({ productCategory: 'steel', originCountry: 'CN', asOf: '2026-06-01' });
+  assert.ok(result.regimesInScope.includes('cbam'));
+  assert.equal(result.isSME, false);
+  assert.ok(Array.isArray(result.obligations));
+});
+
+test('obligationsForShipment: a product covered by neither regime returns no regimes', () => {
+  const result = obligationsForShipment({ productCategory: 'consumer electronics', originCountry: 'CN', asOf: '2026-06-01' });
+  assert.deepEqual(result.regimesInScope, []);
+  assert.deepEqual(result.obligations, []);
+});
+
+test('obligationsForShipment: small global turnover resolves to SME', () => {
+  const result = obligationsForShipment({ productCategory: 'steel', originCountry: 'CN', globalTurnoverEur: 500000, asOf: '2026-06-01' });
+  assert.equal(result.isSME, true);
 });
