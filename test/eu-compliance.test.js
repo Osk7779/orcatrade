@@ -102,6 +102,48 @@ test('RoHS + WEEE both trigger on EEE chapter 85', () => {
   assert.ok(matches.some(m => m.id === 'WEEE'));
 });
 
+// ── Precision carve-outs (sprint compliance-precision-v1) ──
+// Broad chapter-level triggers must not over-reach onto headings the
+// regime's legal scope excludes.
+
+test('RoHS/WEEE do NOT trigger on non-electronic eyewear (9003 frames, 9004 spectacles/sunglasses)', () => {
+  for (const code of ['9003.11', '900410', '9004.10']) {
+    const ids = compliance.findApplicableRegimes({ hsCode: code }).map(m => m.id);
+    assert.ok(!ids.includes('ROHS'), `${code} should not be RoHS (no EEE in eyewear)`);
+    assert.ok(!ids.includes('WEEE'), `${code} should not be WEEE (no EEE in eyewear)`);
+  }
+});
+
+test('RoHS/WEEE STILL trigger on genuinely electronic chapter-90 instruments (no false negative)', () => {
+  // 9013 (lasers/optical devices) and 9015 (electronic surveying) are EEE.
+  for (const code of ['9013.20', '9015.80']) {
+    const ids = compliance.findApplicableRegimes({ hsCode: code }).map(m => m.id);
+    assert.ok(ids.includes('ROHS'), `${code} should still be RoHS`);
+    assert.ok(ids.includes('WEEE'), `${code} should still be WEEE`);
+  }
+});
+
+test('Toy Safety does NOT trigger on adult sports/leisure goods (9506 fitness, 9507 fishing, 9508 fairground)', () => {
+  for (const code of ['950691', '9506.62', '9507.20', '9508.10']) {
+    const ids = compliance.findApplicableRegimes({ hsCode: code }).map(m => m.id);
+    assert.ok(!ids.includes('TOY_SAFETY'), `${code} is sporting/leisure equipment, not a toy`);
+  }
+});
+
+test('Toy Safety STILL triggers on real toys/games/festive (9503/9504/9505 — no false negative)', () => {
+  for (const code of ['9503.00', '9504.40', '9505.10']) {
+    const ids = compliance.findApplicableRegimes({ hsCode: code }).map(m => m.id);
+    assert.ok(ids.includes('TOY_SAFETY'), `${code} should still be Toy Safety`);
+  }
+});
+
+test('excludePrefixes only suppress when present; regimes without it are unchanged', () => {
+  // The carve-out field is optional and backward-compatible.
+  const withExcl = compliance.REGIMES.filter(r => Array.isArray(r.excludePrefixes));
+  const ids = withExcl.map(r => r.id).sort();
+  assert.deepEqual(ids, ['ROHS', 'TOY_SAFETY', 'WEEE']);
+});
+
 // ── Battery ────────────────────────────────────────────
 
 test('Battery Regulation triggers on lithium-ion HS 8507', () => {
