@@ -8,6 +8,7 @@ const {
   getUpcomingObligations,
   getNextObligation,
   obligationsForShipment,
+  aggregateObligations,
 } = require('../lib/intelligence/compliance-calendar');
 
 // ── severity bands ──────────────────────────────────────
@@ -166,4 +167,35 @@ test('obligationsForShipment: a product covered by neither regime returns no reg
 test('obligationsForShipment: small global turnover resolves to SME', () => {
   const result = obligationsForShipment({ productCategory: 'steel', originCountry: 'CN', globalTurnoverEur: 500000, asOf: '2026-06-01' });
   assert.equal(result.isSME, true);
+});
+
+// ── aggregateObligations (across many plans) ────────────
+
+test('aggregateObligations: dedupes the same statutory date across plans', () => {
+  const steel = { productCategory: 'steel', originCountry: 'CN' };
+  const out = aggregateObligations([steel, steel], { asOf: '2027-05-01' });
+  assert.equal(out.length, 1); // CBAM 2027-05-31 once, not twice
+  assert.equal(out[0].regime, 'cbam');
+});
+
+test('aggregateObligations: ignores plans covered by no regime + tolerates empties', () => {
+  const out = aggregateObligations(
+    [{ productCategory: 'consumer electronics', originCountry: 'CN' }, null, undefined],
+    { asOf: '2027-05-01' },
+  );
+  assert.deepEqual(out, []);
+});
+
+test('aggregateObligations: sorts soonest-first across regimes', () => {
+  const steel = { productCategory: 'steel', originCountry: 'CN' }; // CBAM 2027-05-31
+  const cattle = { productCategory: 'cattle', originCountry: 'BR' }; // EUDR 2026-12-30 (sooner)
+  const out = aggregateObligations([steel, cattle], { asOf: '2026-06-01' });
+  for (let i = 1; i < out.length; i += 1) {
+    assert.ok(out[i].daysUntil >= out[i - 1].daysUntil);
+  }
+});
+
+test('aggregateObligations: empty / non-array input → []', () => {
+  assert.deepEqual(aggregateObligations([], {}), []);
+  assert.deepEqual(aggregateObligations(null, {}), []);
 });

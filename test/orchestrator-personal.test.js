@@ -31,20 +31,21 @@ const portfolioSnapshot = {
 
 // ── Tool schemas ────────────────────────────────────────
 
-test('personalTools: four read-only tools; the two list tools take no input', () => {
-  assert.equal(personal.personalTools.length, 4);
+test('personalTools: five read-only tools; the two list tools take no input', () => {
+  assert.equal(personal.personalTools.length, 5);
   const names = personal.personalTools.map((t) => t.name).sort();
-  assert.deepEqual(names, ['getMyPortfolioDrift', 'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans']);
+  assert.deepEqual(names, ['getMyComplianceDeadlines', 'getMyPortfolioDrift', 'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans']);
   for (const t of personal.personalTools) {
     assert.equal(t.input_schema.type, 'object');
     if (t.name === 'getMyPortfolioDrift') assert.deepEqual(t.input_schema.required, ['portfolioId']);
     else if (t.name === 'getMySavedPlanDrift') assert.deepEqual(t.input_schema.required, ['planId']);
-    else assert.deepEqual(Object.keys(t.input_schema.properties), []);
+    else if (t.name === 'getMyComplianceDeadlines') assert.deepEqual(Object.keys(t.input_schema.properties), ['horizonDays']);
+    else assert.deepEqual(Object.keys(t.input_schema.properties), []); // the two list tools
   }
 });
 
 test('PERSONAL_TOOL_NAMES matches the tool names', () => {
-  assert.deepEqual(personal.PERSONAL_TOOL_NAMES.sort(), ['getMyPortfolioDrift', 'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans']);
+  assert.deepEqual(personal.PERSONAL_TOOL_NAMES.sort(), ['getMyComplianceDeadlines', 'getMyPortfolioDrift', 'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans']);
 });
 
 // ── Summaries ───────────────────────────────────────────
@@ -92,6 +93,33 @@ test('buildPersonalImpls: empty email yields empty results (no leak)', async () 
   const impls = personal.buildPersonalImpls('');
   assert.deepEqual(await impls.listMySavedPlans({}), { count: 0, plans: [] });
   assert.deepEqual(await impls.listMyPortfolios({}), { count: 0, portfolios: [] });
+  assert.deepEqual(await impls.getMyComplianceDeadlines({}), { plansScanned: 0, count: 0, obligations: [] });
+});
+
+test('getMyComplianceDeadlines: aggregates the owner\'s in-window deadlines, deduped', async () => {
+  kv._resetMemoryStore();
+  // Two CBAM-applicable plans (steel ex-CN) → the 2027-05-31 annual declaration
+  // appears once, not twice. As-of 2027-05-01 it's 30 days out (in window).
+  const steel = { productCategory: 'steel', originCountry: 'CN', destinationCountry: 'DE', customsValueEur: 250000 };
+  await savedPlans.savePlan({ email: 'me@example.com', inputs: steel, label: 'Steel A' });
+  await savedPlans.savePlan({ email: 'me@example.com', inputs: steel, label: 'Steel B' });
+  await savedPlans.savePlan({ email: 'other@example.com', inputs: steel, label: 'Not mine' });
+
+  const impls = personal.buildPersonalImpls('me@example.com');
+  const out = await impls.getMyComplianceDeadlines({ asOf: '2027-05-01' });
+  assert.equal(out.plansScanned, 2); // only the owner's plans
+  assert.equal(out.count, 1); // deduped across the two steel plans
+  assert.equal(out.obligations[0].regime, 'cbam');
+  assert.ok(out.obligations[0].citation);
+});
+
+test('getMyComplianceDeadlines: a plan covered by no regime yields no deadlines', async () => {
+  kv._resetMemoryStore();
+  await savedPlans.savePlan({ email: 'me@example.com', inputs: planInput, label: 'Apparel' }); // apparel ex-CN
+  const impls = personal.buildPersonalImpls('me@example.com');
+  const out = await impls.getMyComplianceDeadlines({ asOf: '2027-05-01' });
+  assert.equal(out.plansScanned, 1);
+  assert.equal(out.count, 0);
 });
 
 test('listMySavedPlans summary includes the id (so drift can target it)', async () => {
