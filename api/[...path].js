@@ -117,6 +117,10 @@ const handlers = {
   // a small HTML confirmation page — most users hit this from a
   // mail client. No auth — the signed token IS the auth.
   unsubscribe: require('../lib/handlers/unsubscribe'),
+  // Sprint sanctions-ui-v1 — indicative denied-party / sanctions pre-screen.
+  // POST /api/screen { name } → potential matches (never an all-clear).
+  // Stateless + rate-limited; powers the /account/screen/ tool page.
+  screen: require('../lib/handlers/screen'),
 };
 
 module.exports = async (req, res) => {
