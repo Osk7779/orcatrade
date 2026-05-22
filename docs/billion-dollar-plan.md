@@ -627,3 +627,27 @@ We are there (for the platform, not the valuation) when, simultaneously:
   grounded agents + orchestrator, 2,751 green tests, integer-cents money core,
   KV→Postgres dual-write in flight, BM25 retrieval to be upgraded to hybrid
   pgvector RAG.
+- **2026-05-22** — Shipped (Pillar I, I1): **opus-first-v1**. Agent layer +
+  main customer-facing AI (compliance/logistics/sourcing/finance agents,
+  orchestrator, check/analysis/chat) migrated to `claude-opus-4-7`; prompt
+  caching on the stable tools+system prefix; central `lib/ai/models.js`
+  registry. Suite 2,751→2,751.
+- **2026-05-22** — Shipped (Pillar II, II6): **compliance obligations
+  tracker**, complete across every surface. `lib/intelligence/compliance-calendar.js`
+  engine (calculator-grounded, reuses CBAM/EUDR timelines) →
+  `getComplianceCalendar` agent tool → proactive weekly cron deadline
+  reminders (EN/PL/DE, opt-out via prefs + one-click `&stream=`) →
+  `getMyComplianceDeadlines` orchestrator-personal tool (aggregates across all
+  the user's saved plans). REACH/CE deadlines noted out-of-scope (no dated
+  statutory deadlines). Suite →2,803.
+- **2026-05-22** — Shipped (Pillar II, II1): **sanctions-screen-v1**.
+  Deterministic denied-party name-matching engine
+  (`lib/intelligence/sanctions-screening.js`), safe-by-design (never returns
+  "clear"), injectable list, `screenCounterparty` agent tool. Ships an
+  illustrative SYNTHETIC sample; real EU/UK/OFAC/UN consolidated-list
+  ingestion is the follow-up (needs a list/data-source decision). Suite →2,818.
+- **Next, blocked on a decision:** F3 hybrid **pgvector RAG** needs the
+  embeddings-vendor call (Voyage vs OpenAI) + `pgvector` enabled on Neon.
+  Other Phase-1 items now needing decisions/infra/spend: real consolidated
+  sanctions lists, real-time freight feeds, SOC 2, multi-region, the Next.js
+  app shell.
