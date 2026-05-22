@@ -165,6 +165,18 @@
     const canInvite = myRoleInCurrentOrg === 'owner' || myRoleInCurrentOrg === 'admin';
     el('inviteCard').hidden = !canInvite;
 
+    // SSO config is owner-only — surface the link for the owner.
+    const ssoRow = el('ssoLinkRow');
+    if (ssoRow) {
+      if (myRoleInCurrentOrg === 'owner') {
+        const link = el('ssoConfigLink');
+        if (link) link.setAttribute('href', '/account/orgs/sso/?org=' + encodeURIComponent(org.id));
+        ssoRow.hidden = false;
+      } else {
+        ssoRow.hidden = true;
+      }
+    }
+
     const host = el('membersList');
     host.innerHTML = members.map(m => (
       '<div class="member-row">'
