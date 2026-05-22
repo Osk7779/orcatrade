@@ -132,6 +132,29 @@ module.exports = async (req, res) => {
     key = segments[0] || '';
   }
 
+  // Versioned alias (backend-grade-plan #7): /api/v1/<name> is the stable
+  // public contract surface. Strip the version segment from BOTH req.query.path
+  // and req.url so downstream sub-action handlers (which anchor on the handler
+  // name, e.g. /api/plans/<id>) see exactly the same path as the bare alias —
+  // the version is transparent to them. Bare /api/<name> is the v1 alias.
+  let apiVersion = 'v1';
+  if (key === 'v1' || key === 'v2') {
+    apiVersion = key;
+    if (req.query && req.query.path) {
+      req.query.path = Array.isArray(req.query.path)
+        ? req.query.path.slice(1)
+        : String(req.query.path).split('/').slice(1).join('/');
+    }
+    if (req.url) req.url = req.url.replace(/^\/api\/v[12]\//, '/api/');
+    // Re-resolve the handler key from the now-stripped path.
+    if (req.query && req.query.path && (Array.isArray(req.query.path) ? req.query.path.length : req.query.path)) {
+      key = Array.isArray(req.query.path) ? (req.query.path[0] || '') : String(req.query.path).split('/')[0];
+    } else {
+      const pathname = (req.url || '').split('?')[0];
+      key = pathname.replace(/^\/api\//, '').split('/').filter(Boolean)[0] || '';
+    }
+  }
+
   // Sprint BG-4.1: every request gets a correlation id. Honour a caller-supplied
   // x-request-id if it looks reasonable (so curl scripts can pin one); otherwise
   // mint a fresh 12-hex-char id. The id is attached to req for handlers, echoed
@@ -140,7 +163,11 @@ module.exports = async (req, res) => {
   const incoming = (req.headers && req.headers['x-request-id']) || '';
   const requestId = /^[a-z0-9_-]{6,64}$/i.test(incoming) ? incoming : log.generateRequestId();
   req.requestId = requestId;
-  try { res.setHeader('x-request-id', requestId); } catch (_) { /* response may already be terminal */ }
+  req.apiVersion = apiVersion;
+  try {
+    res.setHeader('x-request-id', requestId);
+    res.setHeader('x-api-version', apiVersion);
+  } catch (_) { /* response may already be terminal */ }
 
   const handler = handlers[key];
   if (!handler) {
