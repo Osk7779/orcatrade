@@ -229,6 +229,19 @@ test('calculateQuote returns 6 hubs and a recommendation', () => {
   assert.ok(r.recommendation.rationale);
 });
 
+test('every hub breakdown reconciles to its total (integer-cents money)', () => {
+  const r = calculateQuote({
+    monthlyOrders: 1733, avgUnitsPerOrder: 2.3, avgLinesPerOrder: 1.7, avgPalletsHeld: 47,
+    avgOrderWeightKg: 3.1, primaryDestination: 'ES',
+    valueAddedServices: ['qc_inspection', 'labelling'], returnsRate: 0.08, skuCount: 120,
+  });
+  assert.equal(r.ok, true);
+  for (const q of r.quotes) {
+    const sum = q.breakdown.reduce((s, line) => s + line.monthlyCostEur, 0);
+    assert.equal(sum, q.totalMonthlyEur, `${q.hubKey}: breakdown ${sum} != total ${q.totalMonthlyEur}`);
+  }
+});
+
 test('calculateQuote: includes threePLEducation block', () => {
   const r = calculateQuote({ monthlyOrders: 1000, avgUnitsPerOrder: 1, avgLinesPerOrder: 1, avgPalletsHeld: 30, avgOrderWeightKg: 1, primaryDestination: 'FR' });
   assert.ok(r.threePLEducation);
