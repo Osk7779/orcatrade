@@ -47,6 +47,11 @@ on:
     # Keeps the curated 30-entry HS×origin cache fresh so the first
     # real user with one of these codes sees an instant response.
     - cron: '15 4 * * *'
+    # Sunday 06:00 UTC — sanctions consolidated-list refresh (Sprint
+    # sanctions-lists-v1). Re-fetches the official list into Postgres;
+    # weekly is enough (lists update on business days, screening falls
+    # back to the bundled sample if a refresh is missed).
+    - cron: '0 6 * * 0'
   workflow_dispatch:
     inputs:
       job:
@@ -62,6 +67,7 @@ on:
           - regime-change-check
           - calibration-drift-check
           - taric-warm
+          - sanctions-refresh
           - db-migrate
 
 jobs:
@@ -89,6 +95,8 @@ jobs:
             echo "job=calibration-drift-check" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "15 4 * * *" ]; then
             echo "job=taric-warm" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 6 * * 0" ]; then
+            echo "job=sanctions-refresh" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi

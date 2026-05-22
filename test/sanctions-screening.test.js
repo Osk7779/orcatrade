@@ -106,12 +106,22 @@ test('list is injectable (engine runs against any provided list)', () => {
 
 // ── wired onto the compliance agent (flows to the orchestrator) ──
 
-test('screenCounterparty is registered as an agent tool and works', () => {
+test('screenCounterparty is registered as an agent tool and works', async () => {
   const agent = require('../lib/handlers/agent');
   const tool = agent.TOOLS.find(t => t.name === 'screenCounterparty');
   assert.ok(tool);
   assert.deepEqual(tool.input_schema.required, ['name']);
-  const out = agent.toolImpls.screenCounterparty({ name: 'Volcano Trading Company' });
+  // async now — loads the active list (sample when no DB) then screens.
+  const out = await agent.toolImpls.screenCounterparty({ name: 'Volcano Trading Company' });
   assert.equal(out.status, 'potential_match');
   assert.equal(out.matches[0].id, 'SMP-001');
+});
+
+test('getActiveList falls back to the bundled sample when no DB is configured', async () => {
+  const { getActiveList, SAMPLE } = require('../lib/intelligence/sanctions-screening');
+  const list = await getActiveList();
+  assert.ok(list && Array.isArray(list.entries) && list.entries.length);
+  // No DATABASE_URL in tests → the sample, which is explicitly non-authoritative.
+  assert.equal(list.authoritative, false);
+  assert.equal(list.source, SAMPLE.source);
 });

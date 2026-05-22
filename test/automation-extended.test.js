@@ -354,6 +354,7 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'plan-revision-emails',
     'portfolio-revision-emails',
     'regime-change-check',
+    'sanctions-refresh',
     'taric-warm',
     'weekly-user-digest',
   ]);
