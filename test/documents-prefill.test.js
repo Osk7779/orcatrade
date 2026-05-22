@@ -3,6 +3,8 @@ const assert = require('node:assert/strict');
 
 const kv = require('../lib/intelligence/kv-store');
 const documents = require('../lib/handlers/documents');
+const auth = require('../lib/auth');
+const savedPlans = require('../lib/saved-plans');
 
 // Minimal Express-style res capturing status + body.
 function mockRes() {
@@ -58,4 +60,41 @@ test('explicit data overrides the drafted placeholder party', async () => {
   const html = String(res.body);
   assert.match(html, /Acme Exports Ltd/);
   assert.doesNotMatch(html, /Exporter \/ Seller — complete before use/);
+});
+
+// ── fromPlanId: draft from the signed-in user's own saved plan ──
+
+function authedPost(email, body) {
+  const res = mockRes();
+  const req = {
+    method: 'POST',
+    headers: { cookie: 'orcatrade_session=' + encodeURIComponent(auth.buildSessionCookie(email)) },
+    body,
+  };
+  return documents(req, res).then(() => res);
+}
+
+test('fromPlanId drafts from the owner\'s saved plan', async () => {
+  kv._resetMemoryStore();
+  const saved = await savedPlans.savePlan({ email: 'me@example.com', inputs: PLAN, label: 'My apparel' });
+  const planId = saved.plan ? saved.plan.id : saved.id;
+  const res = await authedPost('me@example.com', { type: 'commercial_invoice', fromPlanId: planId });
+  assert.equal(res.statusCode, 200);
+  assert.match(String(res.body), /Commercial Invoice/);
+  assert.match(String(res.body), /610910/); // HS code from the plan
+});
+
+test('fromPlanId without a session → 401', async () => {
+  kv._resetMemoryStore();
+  const res = await post({ type: 'commercial_invoice', fromPlanId: 'pl_whatever' });
+  assert.equal(res.statusCode, 401);
+});
+
+test('fromPlanId for a non-existent / other-user plan → 404', async () => {
+  kv._resetMemoryStore();
+  const saved = await savedPlans.savePlan({ email: 'owner@example.com', inputs: PLAN });
+  const planId = saved.plan ? saved.plan.id : saved.id;
+  // A different signed-in user cannot draft from owner@example.com's plan.
+  const res = await authedPost('intruder@example.com', { type: 'commercial_invoice', fromPlanId: planId });
+  assert.equal(res.statusCode, 404);
 });
