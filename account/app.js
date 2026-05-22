@@ -156,6 +156,21 @@
       + '<div class="ov-stat"><div class="ov-num">' + (portfolios.count || 0) + '</div><div class="ov-label">portfolio' + (portfolios.count === 1 ? '' : 's') + '</div></div>'
       + '</div>';
 
+    // Next compliance deadline (when one falls inside the horizon).
+    var compliance = data.compliance || { count: 0, next: null };
+    if (compliance.next) {
+      var nx = compliance.next;
+      var sev = ['critical', 'high', 'medium', 'low'].indexOf(nx.severity) >= 0 ? nx.severity : 'low';
+      var days = nx.daysUntil === 0 ? 'today' : ('in ' + nx.daysUntil + ' day' + (nx.daysUntil === 1 ? '' : 's'));
+      html += '<div class="ov-deadline sev-' + sev + '">'
+        + '<div class="ov-deadline-label">Next compliance deadline · ' + escapeHtml(String(nx.regime || '').toUpperCase()) + '</div>'
+        + '<div class="ov-deadline-title">' + escapeHtml(nx.title) + '</div>'
+        + '<div class="ov-deadline-when">' + escapeHtml(nx.dueDate) + ' · ' + escapeHtml(days)
+        + (compliance.count > 1 ? ' · +' + (compliance.count - 1) + ' more' : '') + '</div>'
+        + '<a class="ov-cta" href="/account/calendar/">Open compliance calendar →</a>'
+        + '</div>';
+    }
+
     if (plans.recent && plans.recent.length) {
       html += '<div class="ov-group-title">Recent plans</div><ul class="ov-recent">';
       html += plans.recent.map(function (p) {

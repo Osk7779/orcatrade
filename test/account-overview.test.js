@@ -110,3 +110,35 @@ test('/account/ has the overview card slot (hidden default) + JS wiring', () => 
   // Loaded inside the auth-me success branch (not for signed-out visitors).
   assert.match(js, /loadOverview\(\);/);
 });
+
+// ── compliance snapshot on the overview ─────────────────
+
+test('overview: carries a compliance snapshot (count + next) shape', async () => {
+  kv._resetMemoryStore();
+  await savedPlans.savePlan({ email: 'me@example.com', inputs: planInput });
+  const res = mockRes();
+  await accountHandler(reqFor('me@example.com'), res);
+  const body = parse(res);
+  assert.ok(body.compliance, 'compliance field present');
+  assert.equal(typeof body.compliance.count, 'number');
+  assert.ok(body.compliance.next === null || typeof body.compliance.next === 'object');
+});
+
+test('overview: a no-regime plan (apparel) yields zero deadlines', async () => {
+  kv._resetMemoryStore();
+  await savedPlans.savePlan({ email: 'me@example.com', inputs: planInput }); // apparel ex-CN
+  const res = mockRes();
+  await accountHandler(reqFor('me@example.com'), res);
+  const body = parse(res);
+  assert.equal(body.compliance.count, 0);
+  assert.equal(body.compliance.next, null);
+});
+
+test('overview UI renders the next-deadline block', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'account', 'app.js'), 'utf8');
+  assert.match(js, /data\.compliance/);
+  assert.match(js, /Next compliance deadline/);
+  assert.match(js, /\/account\/calendar\//);
+  const html = fs.readFileSync(path.join(__dirname, '..', 'account', 'index.html'), 'utf8');
+  assert.match(html, /\.ov-deadline/);
+});

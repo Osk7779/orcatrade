@@ -66,6 +66,12 @@
     .overview-card { padding: 1.3rem 1.4rem; margin: 1.4rem 0 0.4rem; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.08); }
     .overview-card h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; margin: 0 0 0.9rem; color: rgba(255,255,255,0.95); }
     .overview-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem; }
+    .ov-deadline { padding: 0.9rem 1.1rem; margin: 0 0 1rem; border-left: 3px solid rgba(255,255,255,0.18); background: rgba(255,255,255,0.02); }
+    .ov-deadline.sev-critical { border-left-color: #ef4444; } .ov-deadline.sev-high { border-left-color: #f59e0b; }
+    .ov-deadline.sev-medium { border-left-color: rgba(220, 188, 110, 0.7); } .ov-deadline.sev-low { border-left-color: rgba(255,255,255,0.2); }
+    .ov-deadline-label { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.3rem; }
+    .ov-deadline-title { font-size: 0.98rem; color: rgba(255,255,255,0.92); margin-bottom: 0.2rem; }
+    .ov-deadline-when { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-bottom: 0.5rem; }
     .ov-stat { background: rgba(8,11,19,0.5); border: 1px solid rgba(255,255,255,0.06); padding: 0.9rem 1rem; }
     .ov-stat .ov-num { font-family: 'Geist Mono', monospace; font-size: 1.5rem; color: var(--accent-color, #b8bec8); }
     .ov-stat .ov-label { font-size: 0.78rem; color: rgba(255,255,255,0.6); margin-top: 0.2rem; }
