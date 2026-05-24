@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { splitCsvLine, parseOfacSdnCsv, parseOfsiCsv, parseSimpleCsv } = require('../lib/intelligence/sanctions-parse');
+const { splitCsvLine, parseOfacSdnCsv, parseOfsiCsv, parseSimpleCsv, parseUnXml } = require('../lib/intelligence/sanctions-parse');
 
 // ── CSV line splitting ──────────────────────────────────
 
@@ -99,6 +99,70 @@ test('parseOfsiCsv is column-order independent (header-keyed)', () => {
 test('parseOfsiCsv returns no entries when no header row is found', () => {
   assert.deepEqual(parseOfsiCsv('just,some,random\ncsv,data,here').entries, []);
   assert.deepEqual(parseOfsiCsv('').entries, []);
+});
+
+// ── UN Security Council consolidated.xml (INDIVIDUAL/ENTITY blocks) ──
+
+const UN_FIXTURE = [
+  '<?xml version="1.0" encoding="UTF-8"?>',
+  '<CONSOLIDATED_LIST dateGenerated="2026-05-18">',
+  '  <INDIVIDUALS>',
+  '    <INDIVIDUAL>',
+  '      <DATAID>6908555</DATAID>',
+  '      <FIRST_NAME>Ivan</FIRST_NAME>',
+  '      <SECOND_NAME>Petrov</SECOND_NAME>',
+  '      <UN_LIST_TYPE>Al-Qaida</UN_LIST_TYPE>',
+  '      <INDIVIDUAL_ALIAS><ALIAS_NAME>Ivan the Trader</ALIAS_NAME></INDIVIDUAL_ALIAS>',
+  '      <INDIVIDUAL_ALIAS><ALIAS_NAME>I. Petrov</ALIAS_NAME></INDIVIDUAL_ALIAS>',
+  '    </INDIVIDUAL>',
+  '    <INDIVIDUAL>',
+  '      <DATAID>7000001</DATAID>',
+  '      <UN_LIST_TYPE>Taliban</UN_LIST_TYPE>',
+  '    </INDIVIDUAL>',
+  '  </INDIVIDUALS>',
+  '  <ENTITIES>',
+  '    <ENTITY>',
+  '      <DATAID>20001</DATAID>',
+  '      <FIRST_NAME>Volcano Trading Company &amp; Sons</FIRST_NAME>',
+  '      <UN_LIST_TYPE>DPRK</UN_LIST_TYPE>',
+  '      <ENTITY_ALIAS><ALIAS_NAME>Vulkan Handel</ALIAS_NAME></ENTITY_ALIAS>',
+  '    </ENTITY>',
+  '  </ENTITIES>',
+  '</CONSOLIDATED_LIST>',
+].join('\n');
+
+test('parseUnXml extracts individuals + entities, joins name parts, decodes entities', () => {
+  const { source, entries } = parseUnXml(UN_FIXTURE);
+  assert.equal(source, 'UN');
+  // the nameless individual block is skipped
+  assert.equal(entries.length, 2);
+
+  const ivan = entries[0];
+  assert.equal(ivan.name, 'Ivan Petrov');
+  assert.equal(ivan.type, 'individual');
+  assert.equal(ivan.externalId, '6908555');
+  assert.equal(ivan.programme, 'Al-Qaida');
+  assert.deepEqual(ivan.aliases, ['Ivan the Trader', 'I. Petrov']);
+
+  const ent = entries[1];
+  assert.equal(ent.name, 'Volcano Trading Company & Sons'); // &amp; decoded
+  assert.equal(ent.type, 'entity');
+  assert.equal(ent.programme, 'DPRK');
+  assert.deepEqual(ent.aliases, ['Vulkan Handel']);
+});
+
+test('parseUnXml is defensive — empty/garbage input → no entries', () => {
+  assert.deepEqual(parseUnXml('').entries, []);
+  assert.deepEqual(parseUnXml(null).entries, []);
+  assert.deepEqual(parseUnXml('<not-the-right-tags/>').entries, []);
+});
+
+test('UN-parsed entries screen correctly through the engine', () => {
+  const { screen } = require('../lib/intelligence/sanctions-screening');
+  const list = { source: 'UN', authoritative: true, entries: parseUnXml(UN_FIXTURE).entries };
+  const r = screen({ name: 'Ivan Petrov', list });
+  assert.equal(r.status, 'potential_match');
+  assert.equal(r.matches[0].programme, 'Al-Qaida');
 });
 
 // ── parsed entries are screen-ready ─────────────────────

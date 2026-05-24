@@ -64,6 +64,18 @@ test('cron: ingestSanctions supports the UK OFSI format', async () => {
   assert.equal(r.parsed, 1);
 });
 
+test('cron: ingestSanctions supports the UN XML format', async () => {
+  const un = [
+    '<CONSOLIDATED_LIST>',
+    '<INDIVIDUALS><INDIVIDUAL><DATAID>1</DATAID><FIRST_NAME>Ivan</FIRST_NAME><SECOND_NAME>Petrov</SECOND_NAME><UN_LIST_TYPE>Taliban</UN_LIST_TYPE></INDIVIDUAL></INDIVIDUALS>',
+    '<ENTITIES><ENTITY><DATAID>2</DATAID><FIRST_NAME>Acme Holdings</FIRST_NAME></ENTITY></ENTITIES>',
+    '</CONSOLIDATED_LIST>',
+  ].join('\n');
+  const r = await cron.ingestSanctions({ source: 'UN', text: un, format: 'un', dryRun: true });
+  assert.equal(r.ok, true);
+  assert.equal(r.parsed, 2);
+});
+
 test('cron: ingestSanctions without a DB (non-dry) reports reason', async () => {
   const r = await cron.ingestSanctions({ text: SDN, dryRun: false });
   assert.equal(r.ok, false);
