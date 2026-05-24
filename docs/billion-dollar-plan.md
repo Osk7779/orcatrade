@@ -646,8 +646,21 @@ We are there (for the platform, not the valuation) when, simultaneously:
   "clear"), injectable list, `screenCounterparty` agent tool. Ships an
   illustrative SYNTHETIC sample; real EU/UK/OFAC/UN consolidated-list
   ingestion is the follow-up (needs a list/data-source decision). Suite →2,818.
-- **Next, blocked on a decision:** F3 hybrid **pgvector RAG** needs the
-  embeddings-vendor call (Voyage vs OpenAI) + `pgvector` enabled on Neon.
-  Other Phase-1 items now needing decisions/infra/spend: real consolidated
-  sanctions lists, real-time freight feeds, SOC 2, multi-region, the Next.js
-  app shell.
+- **2026-05-25** — Shipped + ACTIVATED (Pillar II, II1): **UN consolidated
+  list as the 4th screening source**. Defensive no-dep `parseUnXml`
+  (`<INDIVIDUAL>`/`<ENTITY>` blocks → joined FIRST..FOURTH_NAME, `<ALIAS_NAME>`
+  aliases, DATAID id, UN_LIST_TYPE programme; XML-entity decode; nameless
+  blocks skipped). Wired `format==='un'` into `ingestSanctions`; UN added to
+  `defaultSanctionsSources()` (`SANCTIONS_UN_URL`, default
+  scsanctions.un.org/resources/xml/en/consolidated.xml). **LIVE**: refresh
+  imported **1,002** UN entries → total **39,813** across OFAC-SDN (19,050) +
+  UK-OFSI (19,761) + UN; `/api/health` sanctions authoritative, benign live
+  screen returns `no_match` against the loaded CONSOLIDATED list. Completes the
+  OFAC/OFSI/UN coverage the screen advisory already names (EU still needs a
+  token/endpoint). Suite →2,901.
+- **Next, blocked on a decision:** clean unblocked sanctions/RAG work is now
+  exhausted. Remaining Phase-1 items need decisions/infra/spend: **EU**
+  consolidated list endpoint (token/format), real-time freight feeds (paid),
+  SOC 2 (process), the Next.js app shell, tier-gating/packaging (business
+  call). Risk-bearing, needs greenlight: write-time hash-chain audit storage,
+  reproducibility/as-of vs the calculator-regression snapshots.
