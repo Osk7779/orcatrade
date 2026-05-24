@@ -75,7 +75,7 @@ test('an unrelated party returns no_sample_match — never "clear"', () => {
 test('the screen NEVER reports an all-clear status', () => {
   for (const name of ['Volcano Trading Company', 'Totally Unrelated Co', '', 'x']) {
     const r = screen({ name });
-    assert.ok(['potential_match', 'no_sample_match', 'invalid'].includes(r.status));
+    assert.ok(['potential_match', 'no_match', 'no_sample_match', 'invalid'].includes(r.status));
     assert.notEqual(r.status, 'clear');
   }
 });
@@ -102,6 +102,18 @@ test('list is injectable (engine runs against any provided list)', () => {
   assert.equal(r.matches[0].id, 'X1');
   assert.equal(r.listSource, 'TEST');
   assert.equal(r.authoritative, true);
+});
+
+test('against an AUTHORITATIVE list, a non-match is "no_match" with an accurate (not "sample") advisory', () => {
+  const real = { source: 'CONSOLIDATED', authoritative: true, entries: [{ id: 'A1', name: 'Volcano Trading Company', aliases: [] }] };
+  const r = screen({ name: 'Helsinki Organic Coffee Roasters', list: real });
+  assert.equal(r.status, 'no_match'); // not "no_sample_match"
+  assert.equal(r.authoritative, true);
+  assert.match(r.advisory, /loaded consolidated lists/);
+  assert.doesNotMatch(r.advisory, /illustrative sample/);
+  // still never an all-clear
+  assert.notEqual(r.status, 'clear');
+  assert.match(r.advisory, /not a legal clearance/i);
 });
 
 // ── wired onto the compliance agent (flows to the orchestrator) ──
