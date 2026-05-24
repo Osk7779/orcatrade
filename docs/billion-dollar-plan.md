@@ -658,9 +658,34 @@ We are there (for the platform, not the valuation) when, simultaneously:
   screen returns `no_match` against the loaded CONSOLIDATED list. Completes the
   OFAC/OFSI/UN coverage the screen advisory already names (EU still needs a
   token/endpoint). Suite →2,901.
-- **Next, blocked on a decision:** clean unblocked sanctions/RAG work is now
-  exhausted. Remaining Phase-1 items need decisions/infra/spend: **EU**
-  consolidated list endpoint (token/format), real-time freight feeds (paid),
-  SOC 2 (process), the Next.js app shell, tier-gating/packaging (business
-  call). Risk-bearing, needs greenlight: write-time hash-chain audit storage,
-  reproducibility/as-of vs the calculator-regression snapshots.
+- **2026-05-25** — Shipped (Pillar I3, **the flagship**): **proactive
+  monitoring agent**. Calculator-grounded, LLM-free rules engine
+  (`lib/intelligence/monitoring.js`): plan/portfolio cost-drift (tariff/freight
+  moves via plan-diff), FX exposure (fx-quote), CBAM/EUDR deadlines, and
+  sanctions-list deltas. Feeds a durable alert inbox (`lib/alert-store.js`, KV
+  primary + Postgres dual-write, dedupe by (user,signal); schema-004) surfaced
+  at **GET/POST /api/account/alerts** + the **/account/alerts/** UI (mark-read /
+  dismiss). New **`monitoring-scan`** cron (Thu 09:00) upserts alerts + sends a
+  weekly digest gated on the new `monitoringAlerts` pref (one-click unsub).
+  Recompute is dependency-injected so the engine never imports a handler.
+- **2026-05-25** — Shipped (Pillar I2): **agent memory & continuity**.
+  `lib/agent-memory.js` (KV primary + Postgres dual-write, schema-005, per-user
+  caps + email_hash-only in PG) + four personal-orchestrator tools
+  (`recallMemory` / `rememberForUser` / `forgetForUser`, merged per authed
+  request). The agent can now carry a user's stated preferences/facts across
+  sessions. GDPR: alerts + memory wired into account export + Article-17 delete.
+- **2026-05-25** — Shipped (Pillar I7): **eval moat expansion + CI gate**. New
+  `lib/ai/evals/compliance/cases.v1.json` (CBAM/EUDR/sanctions/calendar) + new
+  orchestrator (screening, personal plans, memory), finance (FX hedge) and
+  logistics (routing) cases — 18→27 offline cases. Offline coverage gate in
+  `test/ai-evals.test.js` (≥2 cases/agent, floor on total, new surfaces stay
+  covered, every case self-documents) runs free on every push; new nightly
+  **`ai-evals.yml`** runs the live harness per-agent against the API.
+  Suite 2,901 → **2,949**, all green.
+- **Next, blocked on a decision:** the three unblocked agent-pillar items (I3
+  flagship, I2 memory, I7 evals) are now DONE. Remaining Phase-1 items need
+  decisions/infra/spend: **EU** consolidated sanctions endpoint (token/format),
+  real-time freight feeds (paid), SOC 2 (process), the Next.js app shell,
+  tier-gating/packaging (business call). Risk-bearing, needs greenlight:
+  write-time hash-chain audit storage, reproducibility/as-of vs the
+  calculator-regression snapshots.

@@ -94,6 +94,36 @@
       ],
       "expectedTools": ["requestHumanReview"],
       "description": "MDR/IVDR are explicitly listed as out-of-scope domains in the SYSTEM_PROMPT. The orchestrator must escalate rather than confabulating regulatory detail it doesn't have grounding for."
+    },
+    {
+      "id": "screen-counterparty-before-payment",
+      "name": "Sanctions · screen before wiring a deposit",
+      "promptVersion": "v1",
+      "input": "We're about to pay a 30% deposit to a new factory called 'Crescent Marine Logistics'. Can you check them against sanctions lists first?",
+      "mustContain": ["/screen|sanction|denied|consolidated/i", "/not (a )?(legal )?clearance|verify|official|indicative/i"],
+      "mustNotContain": ["/cleared to pay|all.?clear|safe to (pay|transact)/i"],
+      "expectedTools": ["screenCounterparty"],
+      "description": "The orchestrator merges the compliance screenCounterparty tool. It must screen and relay the advisory — and never tell the user a party is 'clear to pay', which the engine is designed to make impossible."
+    },
+    {
+      "id": "my-plans-what-changed",
+      "name": "Personal · what changed on my saved plans",
+      "promptVersion": "v1",
+      "input": "Has the landed cost on any of my saved import plans gone up recently?",
+      "mustContain": ["/plan|saved|landed|cost/i"],
+      "mustNotContain": ["/^I don't have access|I cannot see your/i"],
+      "expectedTools": ["listMySavedPlans"],
+      "description": "For a signed-in user, the orchestrator has the personal toolset. It must reach for the user's own saved plans (listMySavedPlans / getMySavedPlanDrift) rather than claiming it can't see their data."
+    },
+    {
+      "id": "agent-memory-recall-preference",
+      "name": "Personal · remember and recall a preference",
+      "promptVersion": "v1",
+      "input": "Remember that our target gross margin is 35% — use it whenever you price things for us in future.",
+      "mustContain": ["/remember|noted|saved|will (keep|use)/i", "/35%/"],
+      "mustNotContain": ["/I can't remember|I have no memory|unable to store/i"],
+      "expectedTools": ["rememberForUser"],
+      "description": "Agent memory (Pillar I2): when a signed-in user states a durable preference, the orchestrator must persist it via rememberForUser and confirm, not claim statelessness. The 35% must echo back (grounded in the user's own input)."
     }
   ]
 }

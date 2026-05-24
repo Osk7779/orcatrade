@@ -31,6 +31,20 @@
         "/^I cannot help/i"
       ],
       "description": "Re-export samples are the canonical bonded-warehouse use case — duty + VAT are never paid. Agent must make this point clearly."
+    },
+    {
+      "id": "routing-origin-comparison",
+      "name": "Routing · sea freight cost to two EU ports",
+      "promptVersion": "v1",
+      "input": "I'm shipping a 20ft container of furniture from Ningbo. Is it cheaper to bring it into Rotterdam or Gdańsk for onward delivery to Poland?",
+      "mustContain": [
+        "/Rotterdam|Gda|port/i",
+        "/€[0-9]|cost|freight/i"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "description": "A routing comparison must be grounded in the freight calculator — concrete € figures per lane, not a generic 'it depends'. Tests that the agent uses the routing tool rather than hand-waving."
     }
   ]
 }

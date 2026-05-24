@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Preferences | OrcaTrade</title>
+  <title>Monitoring alerts | OrcaTrade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Manage your OrcaTrade email + notification preferences." />
-  <link rel="canonical" href="https://orcatrade.pl/account/preferences/" />
+  <meta name="description" content="Proactive monitoring alerts — landed-cost drift, FX exposure, compliance deadlines and sanctions-list updates across your saved OrcaTrade plans." />
+  <link rel="canonical" href="https://orcatrade.pl/account/alerts/" />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,42 +14,40 @@
   <link rel="stylesheet" href="/css/styles.css" />
   <style>
     body { background: #050507; color: rgba(255,255,255,0.92); font-family: 'Geist', system-ui, sans-serif; }
-    .prefs-shell { max-width: 720px; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
-    .prefs-shell h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; margin-bottom: 0.6rem; letter-spacing: -0.01em; }
-    .lead { font-size: 0.96rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 2rem; max-width: 60ch; }
-
+    .al-shell { max-width: 780px; margin: 0 auto; padding: 3.5rem 1.5rem 6rem; }
+    .al-shell h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3vw + 0.5rem, 2.4rem); font-weight: 600; margin-bottom: 0.6rem; letter-spacing: -0.01em; }
+    .lead { font-size: 0.96rem; line-height: 1.65; color: rgba(255,255,255,0.7); margin-bottom: 1.6rem; max-width: 64ch; }
     .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.5); margin-bottom: 1.2rem; letter-spacing: 0.06em; }
     .breadcrumbs a { color: rgba(220, 188, 110, 0.85); text-decoration: none; }
 
-    .pref-card { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.07); padding: 1.4rem 1.6rem; margin-bottom: 1rem; display: flex; gap: 1.2rem; align-items: flex-start; }
-    .pref-card .body { flex: 1; }
-    .pref-card h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.2rem; font-weight: 600; color: rgba(255,255,255,0.95); margin: 0 0 0.4rem; letter-spacing: -0.005em; }
-    .pref-card p { font-size: 0.88rem; color: rgba(255,255,255,0.7); line-height: 1.55; margin: 0 0 0.3rem; }
-    .pref-card .meta { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.45); letter-spacing: 0.04em; }
+    .toolbar { display: flex; gap: 1rem; align-items: center; justify-content: space-between; margin-bottom: 1.4rem; }
+    .toolbar .counts { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.6); }
+    .btn { font-family: 'Geist Mono', monospace; font-size: 0.72rem; letter-spacing: 0.04em; background: transparent; border: 1px solid rgba(255,255,255,0.16); color: rgba(255,255,255,0.8); padding: 0.4rem 0.7rem; cursor: pointer; }
+    .btn:hover { border-color: rgba(220,188,110,0.6); color: rgba(220,188,110,0.95); }
 
-    .switch { position: relative; display: inline-block; width: 48px; height: 26px; flex-shrink: 0; cursor: pointer; }
-    .switch input { opacity: 0; width: 0; height: 0; }
-    .switch .slider { position: absolute; inset: 0; background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.18); border-radius: 100px; transition: 0.18s; }
-    .switch .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; top: 3px; background: rgba(255,255,255,0.88); border-radius: 50%; transition: 0.18s; }
-    .switch input:checked + .slider { background: rgba(126, 210, 138, 0.4); border-color: rgba(126, 210, 138, 0.65); }
-    .switch input:checked + .slider:before { transform: translateX(22px); }
-    .switch input:disabled + .slider { opacity: 0.5; cursor: not-allowed; }
+    .alert { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.07); border-left-width: 3px; padding: 1.1rem 1.4rem; margin-bottom: 0.9rem; }
+    .alert.is-read { opacity: 0.55; }
+    .alert .top { display: flex; gap: 1rem; align-items: baseline; justify-content: space-between; }
+    .alert .type { display: inline-block; font-family: 'Geist Mono', monospace; font-size: 0.64rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.4rem; }
+    .alert .title { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.18rem; font-weight: 600; color: rgba(255,255,255,0.96); margin: 0 0 0.3rem; }
+    .alert .body { font-size: 0.88rem; color: rgba(255,255,255,0.7); line-height: 1.55; margin: 0 0 0.7rem; }
+    .alert .actions { display: flex; gap: 0.6rem; }
+    .alert .sev { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.08em; text-transform: uppercase; flex-shrink: 0; }
 
-    /* Sprint email-locale-v1 — language selector. */
-    .locale-select { flex-shrink: 0; }
-    .locale-select select { background: rgba(13, 15, 20, 0.6); border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.92); padding: 0.5rem 0.8rem; font-family: 'Geist Mono', monospace; font-size: 0.85rem; border-radius: 4px; cursor: pointer; min-width: 110px; }
-    .locale-select select:disabled { opacity: 0.5; cursor: not-allowed; }
-    .locale-select select:focus { outline: none; border-color: rgba(220, 188, 110, 0.65); }
+    .sev-critical { border-left-color: #ef4444; } .sev-critical .sev { color: #ef4444; }
+    .sev-high { border-left-color: #f59e0b; } .sev-high .sev { color: #f59e0b; }
+    .sev-medium { border-left-color: rgba(220, 188, 110, 0.7); } .sev-medium .sev { color: rgba(220, 188, 110, 0.9); }
+    .sev-low { border-left-color: rgba(255,255,255,0.18); } .sev-low .sev { color: rgba(255,255,255,0.7); }
+    .sev-info { border-left-color: rgba(96, 165, 250, 0.7); } .sev-info .sev { color: rgba(96, 165, 250, 0.9); }
 
+    .empty { text-align: center; padding: 2.5rem 1.5rem; border: 1px dashed rgba(255,255,255,0.12); color: rgba(255,255,255,0.6); font-size: 0.92rem; line-height: 1.6; }
+    .empty a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
     .auth-needed { text-align: center; padding: 3rem 1.5rem; }
     .auth-needed h2 { font-family: 'Cormorant Garant', serif; font-size: 1.5rem; margin-bottom: 0.8rem; }
     .auth-needed a { color: rgba(220, 188, 110, 0.9); text-decoration: none; font-weight: 600; }
-
-    .saved-flash { padding: 0.6rem 0.9rem; background: rgba(126, 210, 138, 0.06); border-left: 2px solid rgba(126, 210, 138, 0.6); color: rgba(255,255,255,0.85); font-size: 0.85rem; margin-bottom: 1rem; opacity: 0; transition: opacity 0.2s; }
-    .saved-flash.show { opacity: 1; }
     .err { color: #c95050; font-family: 'Geist Mono', monospace; font-size: 0.78rem; padding: 0.4rem 0; }
-
-    .footer-note { margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
+    .advisory { margin-top: 2rem; padding: 1rem 1.2rem; background: rgba(245, 158, 11, 0.05); border-left: 2px solid rgba(245, 158, 11, 0.5); font-size: 0.82rem; color: rgba(255,255,255,0.7); line-height: 1.6; }
+    .footer-note { margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.06); font-size: 0.82rem; color: rgba(255,255,255,0.5); line-height: 1.6; }
     .footer-note a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
   </style>
 
@@ -106,97 +104,41 @@
   </script>
 </head>
 <body>
-  <main class="prefs-shell">
+  <main class="al-shell">
     <div id="authNeeded" class="auth-needed" hidden>
-      <h2>Sign in to manage preferences</h2>
-      <p>You need to be signed in to change your OrcaTrade notification settings. <a href="/account/">Sign in →</a></p>
+      <h2>Sign in to see your monitoring alerts</h2>
+      <p>You need to be signed in to view the alerts the monitoring agent has raised on your saved plans. <a href="/account/">Sign in →</a></p>
     </div>
 
     <div id="content" hidden>
-      <div class="breadcrumbs"><a href="/account/">Account</a> / Preferences</div>
-
-      <h1>Preferences</h1>
+      <div class="breadcrumbs"><a href="/account/">Account</a> / Monitoring alerts</div>
+      <h1>Monitoring alerts</h1>
       <p class="lead">
-        Control which OrcaTrade emails land in your inbox. You'll still receive transactional emails (sign-in links, billing receipts) regardless — these only cover automated platform messages.
+        Your monitoring agent watches every saved plan and portfolio and flags what changed — landed-cost drift from tariff or freight moves, unhedged FX exposure, upcoming CBAM/EUDR deadlines, and sanctions-list updates. Every figure is recomputed by OrcaTrade's calculators, not guessed. Manage the weekly email under <a href="/account/preferences/" style="color: rgba(220,188,110,0.85); text-decoration: none;">Preferences</a>.
       </p>
 
-      <div id="saved-flash" class="saved-flash">Preferences saved.</div>
-
-      <div class="pref-card" data-pref="planRevisionEmails">
-        <div class="body">
-          <h2>Plan revision emails</h2>
-          <p>When the current landed-cost estimate for one of your saved plans drifts ≥5% from its snapshot (driver: duty / VAT / freight / brokerage), you get one email per week per plan with the delta + a link back to the latest numbers.</p>
-          <p class="meta">Weekly cadence · per-plan dedupe · automatic — no marketing.</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" data-pref-key="planRevisionEmails" disabled />
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- Sprint weekly-digest-v1 -->
-      <div class="pref-card" data-pref="weeklyDigestEmails">
-        <div class="body">
-          <h2>Weekly digest</h2>
-          <p>One email per week summarising your whole saved-plan portfolio: how many plans you have, how many moved ≥5% since save, your top mover, and value-weighted calibration once you start logging actuals.</p>
-          <p class="meta">Weekly cadence · one email per user (not per plan) · automatic — no marketing.</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" data-pref-key="weeklyDigestEmails" disabled />
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- Sprint compliance-calendar-v1 phase 3 -->
-      <div class="pref-card" data-pref="complianceDeadlineEmails">
-        <div class="body">
-          <h2>Compliance deadline reminders</h2>
-          <p>When a statutory CBAM or EUDR deadline that applies to one of your saved plans falls within the next 45 days, you get one email listing each obligation, its due date, days remaining, and the regulation citation.</p>
-          <p class="meta">Weekly cadence · one email per user (not per plan) · automatic — no marketing.</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" data-pref-key="complianceDeadlineEmails" disabled />
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- Sprint monitoring-v1 — proactive monitoring digest. -->
-      <div class="pref-card" data-pref="monitoringAlerts">
-        <div class="body">
-          <h2>Monitoring alerts</h2>
-          <p>When your saved plans or portfolios move materially — landed cost drifting on a tariff or freight change, unhedged FX exposure, or a sanctions-list update — you get one digest summarising what changed. Every figure is recomputed by OrcaTrade's calculators. View them any time on your <a href="/account/alerts/">monitoring alerts</a> page.</p>
-          <p class="meta">Weekly scan · one digest per user · only when something new is flagged.</p>
-        </div>
-        <label class="switch">
-          <input type="checkbox" data-pref-key="monitoringAlerts" disabled />
-          <span class="slider"></span>
-        </label>
-      </div>
-
-      <!-- Sprint email-locale-v1 — language selector for transactional emails. -->
-      <div class="pref-card" data-pref="locale">
-        <div class="body">
-          <h2>Email language</h2>
-          <p>The language OrcaTrade uses for plan-revision emails, the weekly digest, and the welcome email when you save your first plan. Defaults to the language of the wizard you used to save your first plan; change it any time.</p>
-          <p class="meta">Affects automated emails only · the website + wizard keep using your browser's locale.</p>
-        </div>
-        <label class="locale-select">
-          <select data-pref-key="locale" disabled>
-            <option value="en">English</option>
-            <option value="pl">Polski</option>
-            <option value="de">Deutsch</option>
-          </select>
-        </label>
+      <div class="toolbar">
+        <div class="counts" id="counts"></div>
+        <button class="btn" id="markAllBtn" hidden>Mark all read</button>
       </div>
 
       <div id="err" class="err" hidden></div>
-    </div>
+      <div id="list"></div>
 
-    <div class="footer-note">
-      <p>Want to opt out of a specific email without signing in? Every automated email includes a one-click unsubscribe link in the footer. <a href="/account/privacy/">Privacy &amp; data controls</a> are on a separate page.</p>
+      <div id="empty" class="empty" hidden>
+        No monitoring alerts right now — nothing on your saved plans has moved materially.
+        <br /><a href="/start/">Build an import plan →</a> to start monitoring it.
+      </div>
+
+      <div id="advisory" class="advisory" hidden></div>
+
+      <div class="footer-note">
+        Indicative only — derived from your saved plans recomputed against current data. Verify against the official sources (and your customs/FX adviser) before acting.
+      </div>
     </div>
   </main>
-  <script src="/account/preferences/app.js"></script>
+  <script src="/account/alerts/app.js"></script>
+
 
 <!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>

@@ -323,3 +323,49 @@ test('end-to-end synthetic: same response with the WRONG calculator outputs fail
   const ungrounded = result.failures.filter(f => f.kind === 'ungrounded');
   assert.ok(ungrounded.length >= 2, `expected ≥2 ungrounded numbers; got ${ungrounded.length}`);
 });
+
+// ── Coverage gate (Sprint eval-moat-v1) ──────────────────────
+//
+// The continuous quality gate: these run free on every push and fail CI if
+// the eval suite thins out or a shipped agent loses its cases. Live scoring
+// (cost + API key) runs nightly via .github/workflows/evals.yml.
+
+test('coverage gate: every agent in the registry has a cases file with ≥2 cases', () => {
+  const agents = scorer.listAgents();
+  // All five prompt agents must carry offline cases.
+  for (const a of ['compliance', 'finance', 'logistics', 'orchestrator', 'sourcing']) {
+    assert.ok(agents.includes(a), `agent "${a}" must ship lib/ai/evals/${a}/cases.v1.json`);
+    const cases = scorer.load(a);
+    assert.ok(cases.length >= 2, `agent "${a}" must have ≥2 eval cases, has ${cases.length}`);
+  }
+});
+
+test('coverage gate: total offline case count meets the floor', () => {
+  let total = 0;
+  for (const a of scorer.listAgents()) total += scorer.load(a).length;
+  // Floor is intentionally below the current count so adding cases never
+  // breaks the gate, but deleting a chunk of them does.
+  assert.ok(total >= 18, `expected ≥18 offline eval cases across all agents, found ${total}`);
+});
+
+test('coverage gate: the newly-shipped surfaces stay covered by a case', () => {
+  const byId = (agent) => new Set(scorer.load(agent).map(c => c.id));
+  const orch = byId('orchestrator');
+  const comp = byId('compliance');
+  // Sanctions screening (Pillar II1) — must be exercised somewhere.
+  assert.ok(orch.has('screen-counterparty-before-payment') || comp.has('sanctions-screen-counterparty'),
+    'sanctions screening must have an eval case');
+  // Agent memory (Pillar I2).
+  assert.ok(orch.has('agent-memory-recall-preference'), 'agent memory must have an eval case');
+  // Compliance calendar (Pillar II6).
+  assert.ok(comp.has('compliance-deadlines-portfolio'), 'compliance calendar must have an eval case');
+});
+
+test('coverage gate: every case carries a description (eval cases self-document)', () => {
+  for (const agent of scorer.listAgents()) {
+    for (const c of scorer.load(agent)) {
+      assert.ok(typeof c.description === 'string' && c.description.length >= 10,
+        `${agent}/${c.id} must carry a description explaining why the case exists`);
+    }
+  }
+});

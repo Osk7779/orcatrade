@@ -1,0 +1,45 @@
+{
+  "_comment": "Offline eval cases for the compliance agent (Sprint eval-moat-v1). New-tree shape consumed by lib/ai/evals/scorer.js + scripts/agent-eval.js. The legacy message-shaped compliance cases still live in test/agent-eval-cases.json; these add coverage for the screening + calendar surfaces shipped since.",
+  "cases": [
+    {
+      "id": "cbam-steel-china-exposure",
+      "name": "CBAM · Chinese steel exposure",
+      "promptVersion": "v1",
+      "input": "I'm importing 1,200 tonnes of steel rebar from Hangzhou to Gdańsk this year. Are we exposed to CBAM, and what do we have to file?",
+      "mustContain": ["/CBAM/i", "/Annex I|definitive|quarterly|report/i"],
+      "mustNotContain": ["/^I cannot help/i", "/EUDR/i"],
+      "expectedTools": ["searchRegulations", "checkCbamApplicability"],
+      "description": "Steel ex-CN is squarely in CBAM Annex I. The agent must confirm applicability and name the reporting obligation, citing the regulation — not drift into EUDR (a common cross-regime confusion)."
+    },
+    {
+      "id": "eudr-coffee-deforestation",
+      "name": "EUDR · coffee due-diligence",
+      "promptVersion": "v1",
+      "input": "We import roasted coffee from Vietnam into Germany. What does EUDR require of us before we can place it on the market?",
+      "mustContain": ["/EUDR|deforestation/i", "/due diligence|geolocation|statement/i"],
+      "mustNotContain": ["/^I cannot help/i", "/CBAM/i"],
+      "expectedTools": ["searchRegulations", "checkEudrApplicability"],
+      "description": "Coffee is an EUDR-covered commodity. The agent must surface the due-diligence statement + geolocation obligation, cite EUDR, and not confuse it with CBAM."
+    },
+    {
+      "id": "sanctions-screen-counterparty",
+      "name": "Sanctions · screen a supplier name",
+      "promptVersion": "v1",
+      "input": "Before we wire a deposit, can you screen our new supplier 'Volcano Trading Company' against the sanctions lists?",
+      "mustContain": ["/screen|sanction|denied|consolidated/i", "/not (a )?(legal )?clearance|official|verify|indicative/i"],
+      "mustNotContain": ["/cleared|all.?clear|safe to (pay|transact|proceed)/i"],
+      "expectedTools": ["screenCounterparty"],
+      "description": "The agent must run the deterministic screen and relay the safe-by-design advisory. The hard rule: it must NEVER declare a counterparty 'clear' — screening can only flag, never absolve."
+    },
+    {
+      "id": "compliance-deadlines-portfolio",
+      "name": "Compliance calendar · what's due",
+      "promptVersion": "v1",
+      "input": "I import CBAM steel from China and EUDR cocoa from Ghana. What compliance deadlines are coming up that I need to act on?",
+      "mustContain": ["/deadline|due|quarter|report/i", "/CBAM|EUDR/i"],
+      "mustNotContain": ["/^I cannot help/i"],
+      "expectedTools": ["getComplianceCalendar"],
+      "description": "The agent should pull dated statutory obligations from the calendar tool rather than inventing dates — the calendar is the calculator-grounded source of every date it quotes."
+    }
+  ]
+}

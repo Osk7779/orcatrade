@@ -1,0 +1,70 @@
+name: ai-evals
+
+# Live AI eval gate (Sprint eval-moat-v1). Runs the agent eval harness against
+# the real Anthropic API and fails if any case regresses — tool calls,
+# citations, escalation discipline, calc-grounding. Costs money + needs a key,
+# so it runs nightly (not on every push). The OFFLINE structural scorer +
+# coverage gate run free on every push via the `tests` workflow (npm test).
+#
+# Required repo secret:
+#   ANTHROPIC_API_KEY  — a key with access to the agent model
+#
+# Manual runs via "Run workflow" let you target a single agent.
+
+on:
+  schedule:
+    # 02:00 UTC daily — quiet hours, before the morning EU traffic.
+    - cron: '0 2 * * *'
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: 'Agent to eval (blank = all)'
+        required: false
+        type: choice
+        default: ''
+        options:
+          - ''
+          - orchestrator
+          - compliance
+          - finance
+          - logistics
+          - sourcing
+
+jobs:
+  eval:
+    name: live eval (${{ matrix.agent }})
+    runs-on: ubuntu-latest
+    # Don't let one agent's failure cancel the others — we want the full report.
+    strategy:
+      fail-fast: false
+      matrix:
+        agent: [orchestrator, compliance, finance, logistics, sourcing]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      # Skip agents not selected on a manual single-agent run.
+      - name: Should this agent run?
+        id: gate
+        run: |
+          SEL="${{ github.event.inputs.agent }}"
+          if [ -n "$SEL" ] && [ "$SEL" != "${{ matrix.agent }}" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Eval ${{ matrix.agent }}
+        if: steps.gate.outputs.run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::warning::ANTHROPIC_API_KEY not set — skipping live eval"
+            exit 0
+          fi
+          npm run eval -- --agent ${{ matrix.agent }}

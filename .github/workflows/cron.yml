@@ -52,6 +52,11 @@ on:
     # weekly is enough (lists update on business days, screening falls
     # back to the bundled sample if a refresh is missed).
     - cron: '0 6 * * 0'
+    # Thursday 09:00 UTC — proactive monitoring scan (Sprint monitoring-v1).
+    # Runs AFTER the Sunday sanctions refresh and the Thursday portfolio scan
+    # so cost-drift + sanctions-delta signals are fresh. Per-user alert dedupe
+    # + 6-day email dedupe in the handler make re-fires safe.
+    - cron: '0 9 * * 4'
   workflow_dispatch:
     inputs:
       job:
@@ -64,6 +69,7 @@ on:
           - plan-revision-emails
           - portfolio-revision-emails
           - compliance-deadline-reminders
+          - monitoring-scan
           - regime-change-check
           - calibration-drift-check
           - taric-warm
@@ -98,6 +104,8 @@ jobs:
             echo "job=taric-warm" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 6 * * 0" ]; then
             echo "job=sanctions-refresh" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 9 * * 4" ]; then
+            echo "job=monitoring-scan" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi

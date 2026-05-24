@@ -31,21 +31,71 @@ const portfolioSnapshot = {
 
 // ── Tool schemas ────────────────────────────────────────
 
-test('personalTools: five read-only tools; the two list tools take no input', () => {
-  assert.equal(personal.personalTools.length, 5);
+const EXPECTED_PERSONAL_TOOLS = [
+  'forgetForUser', 'getMyComplianceDeadlines', 'getMyPortfolioDrift', 'getMySavedPlanDrift',
+  'listMyPortfolios', 'listMySavedPlans', 'recallMemory', 'rememberForUser',
+];
+
+test('personalTools: eight read-only/memory tools; the list tools take no input', () => {
+  assert.equal(personal.personalTools.length, 8);
   const names = personal.personalTools.map((t) => t.name).sort();
-  assert.deepEqual(names, ['getMyComplianceDeadlines', 'getMyPortfolioDrift', 'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans']);
+  assert.deepEqual(names, EXPECTED_PERSONAL_TOOLS);
   for (const t of personal.personalTools) {
     assert.equal(t.input_schema.type, 'object');
     if (t.name === 'getMyPortfolioDrift') assert.deepEqual(t.input_schema.required, ['portfolioId']);
     else if (t.name === 'getMySavedPlanDrift') assert.deepEqual(t.input_schema.required, ['planId']);
     else if (t.name === 'getMyComplianceDeadlines') assert.deepEqual(Object.keys(t.input_schema.properties), ['horizonDays']);
+    else if (t.name === 'rememberForUser') assert.deepEqual(t.input_schema.required, ['key', 'value']);
+    else if (t.name === 'forgetForUser') assert.deepEqual(t.input_schema.required, ['key']);
+    else if (t.name === 'recallMemory') assert.deepEqual(Object.keys(t.input_schema.properties), ['key']);
     else assert.deepEqual(Object.keys(t.input_schema.properties), []); // the two list tools
   }
 });
 
 test('PERSONAL_TOOL_NAMES matches the tool names', () => {
-  assert.deepEqual(personal.PERSONAL_TOOL_NAMES.sort(), ['getMyComplianceDeadlines', 'getMyPortfolioDrift', 'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans']);
+  assert.deepEqual(personal.PERSONAL_TOOL_NAMES.slice().sort(), EXPECTED_PERSONAL_TOOLS);
+});
+
+// ── Agent memory tools (Sprint agent-memory-v1) ─────────
+
+test('rememberForUser → recallMemory round-trips, scoped to the user', async () => {
+  kv._resetMemoryStore();
+  const impls = personal.buildPersonalImpls('mem-user@example.com');
+  const saved = await impls.rememberForUser({ key: 'Target Margin', value: '35%', kind: 'preference' });
+  assert.equal(saved.key, 'target-margin'); // slugified
+  assert.equal(saved.created, true);
+
+  const recall = await impls.recallMemory({ key: 'target-margin' });
+  assert.equal(recall.count, 1);
+  assert.equal(recall.memories[0].value, '35%');
+  assert.equal(recall.memories[0].kind, 'preference');
+
+  // A different user sees nothing.
+  const other = personal.buildPersonalImpls('someone-else@example.com');
+  const empty = await other.recallMemory({});
+  assert.equal(empty.count, 0);
+});
+
+test('recallMemory with no key lists everything; forgetForUser removes it', async () => {
+  kv._resetMemoryStore();
+  const impls = personal.buildPersonalImpls('mem2@example.com');
+  await impls.rememberForUser({ key: 'main-supplier', value: 'Shenzhen Acme' });
+  await impls.rememberForUser({ key: 'preferred-port', value: 'Rotterdam' });
+  const all = await impls.recallMemory({});
+  assert.equal(all.count, 2);
+
+  const forgot = await impls.forgetForUser({ key: 'preferred-port' });
+  assert.equal(forgot.removed, true);
+  const after = await impls.recallMemory({});
+  assert.equal(after.count, 1);
+  assert.equal(after.memories[0].key, 'main-supplier');
+});
+
+test('rememberForUser rejects empty key/value', async () => {
+  kv._resetMemoryStore();
+  const impls = personal.buildPersonalImpls('mem3@example.com');
+  assert.ok((await impls.rememberForUser({ key: '', value: 'x' })).error);
+  assert.ok((await impls.rememberForUser({ key: 'k', value: '' })).error);
 });
 
 // ── Summaries ───────────────────────────────────────────

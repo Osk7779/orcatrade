@@ -32,6 +32,21 @@
         "/^I cannot help/i"
       ],
       "description": "Working-capital cycle math must surface the cash conversion concept and a concrete € number, not a generic essay."
+    },
+    {
+      "id": "fx-hedge-volatile-currency",
+      "name": "FX · hedge a volatile non-EUR settlement",
+      "promptVersion": "v1",
+      "input": "Our Turkish supplier invoices us in lira (TRY) and we pay 90 days out, about €100,000 per order. Should we be hedging this?",
+      "mustContain": [
+        "/hedge|forward|FX|currency/i",
+        "/€[0-9]|%/"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i",
+        "/exchange rate will (go|move)/i"
+      ],
+      "description": "TRY is a high-volatility currency; with 90-day terms the FX calculator recommends hedging. The agent must surface the hedge recommendation with a grounded risk/cost figure — and must NOT predict the direction of the rate (that would be an ungrounded forecast)."
     }
   ]
 }
