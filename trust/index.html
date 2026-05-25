@@ -125,6 +125,23 @@
     </section>
 
     <section>
+      <h2>Application &amp; transport security</h2>
+      <ul>
+        <li><strong>HTTPS everywhere, enforced.</strong> Strict-Transport-Security (HSTS) with a two-year max-age and <code>includeSubDomains</code> tells browsers to only ever reach us over TLS — no downgrade to plain HTTP.</li>
+        <li><strong>Content-Security-Policy.</strong> Scripts, styles, fonts and connections are restricted to an explicit allow-list of origins, with <code>object-src 'none'</code>, <code>base-uri 'self'</code> and <code>form-action 'self'</code> — closing off the common cross-site-scripting and data-exfiltration paths.</li>
+        <li><strong>Clickjacking &amp; MIME protection.</strong> <code>X-Frame-Options</code> / <code>frame-ancestors</code> stop the site being framed by third parties, and <code>X-Content-Type-Options: nosniff</code> stops content-type confusion attacks.</li>
+        <li><strong>Locked-down device access.</strong> A Permissions-Policy disables camera, microphone, geolocation and payment APIs site-wide — we don't use them, so nothing can.</li>
+        <li><strong>Hardened session cookies</strong> — HttpOnly (not readable by scripts), Secure (TLS only), and SameSite, so a cross-site request can't ride your session.</li>
+        <li><strong>No raw personal data at rest in our database</strong> — your email is stored only as a one-way hash; the address itself lives only where it's operationally required.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>Responsible disclosure</h2>
+      <p>We welcome reports from security researchers. Our policy and contact details are published at <a class="inline" href="/.well-known/security.txt">/.well-known/security.txt</a> (RFC&nbsp;9116). Report a suspected vulnerability privately, give us reasonable time to fix it, and we won't pursue good-faith research.</p>
+    </section>
+
+    <section>
       <h2>Reliability</h2>
       <ul>
         <li>A public <a class="inline" href="/status/">status page</a> and a machine-readable health check.</li>

@@ -1,0 +1,14 @@
+# OrcaTrade — responsible disclosure (RFC 9116)
+# We welcome reports from security researchers. If you believe you have found
+# a vulnerability affecting OrcaTrade or our customers' data, please contact us
+# privately using the details below. Please give us reasonable time to remediate
+# before any public disclosure, and do not access, modify, or exfiltrate data
+# that is not your own. We will not pursue legal action against good-faith
+# researchers who follow this policy.
+
+Contact: mailto:security@orcatrade.pl
+Contact: https://orcatrade.pl/trust/
+Expires: 2027-05-25T00:00:00.000Z
+Preferred-Languages: en, pl, de
+Canonical: https://orcatrade.pl/.well-known/security.txt
+Policy: https://orcatrade.pl/trust/
