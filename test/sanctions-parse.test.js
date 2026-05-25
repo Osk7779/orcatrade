@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 
-const { splitCsvLine, parseOfacSdnCsv, parseOfsiCsv, parseSimpleCsv, parseUnXml } = require('../lib/intelligence/sanctions-parse');
+const { splitCsvLine, parseOfacSdnCsv, parseOfsiCsv, parseSimpleCsv, parseUnXml, parseEuXml } = require('../lib/intelligence/sanctions-parse');
 
 // ── CSV line splitting ──────────────────────────────────
 
@@ -163,6 +163,66 @@ test('UN-parsed entries screen correctly through the engine', () => {
   const r = screen({ name: 'Ivan Petrov', list });
   assert.equal(r.status, 'potential_match');
   assert.equal(r.matches[0].programme, 'Al-Qaida');
+});
+
+// ── EU consolidated list (xmlFullSanctionsList; attribute-based) ──
+
+const EU_FIXTURE = [
+  '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>',
+  '<export xmlns="http://eu.europa.ec/fpi/fsd/export" generationDate="2026-05-08T16:02:34">',
+  '  <sanctionEntity euReferenceNumber="EU.27.28" logicalId="13">',
+  '    <regulation regulationType="regulation" programme="IRQ" logicalId="348">',
+  '      <publicationUrl>http://example/x</publicationUrl>',
+  '    </regulation>',
+  '    <subjectType code="person" classificationCode="P"/>',
+  '    <nameAlias firstName="Saddam" lastName="Hussein" wholeName="Saddam Hussein Al-Tikriti" strong="true" logicalId="17">',
+  '      <regulationSummary numberTitle="1210/2003"/>',
+  '    </nameAlias>',
+  '    <nameAlias wholeName="Abu Ali" strong="true" logicalId="19"></nameAlias>',
+  '    <nameAlias wholeName="Abu Ali" strong="true" logicalId="20"></nameAlias>',
+  '  </sanctionEntity>',
+  '  <sanctionEntity euReferenceNumber="EU.1274.86" logicalId="201">',
+  '    <regulation regulationType="amendment" programme="TERR" logicalId="207667"/>',
+  '    <subjectType code="enterprise" classificationCode="E"/>',
+  '    <nameAlias wholeName="Al-Haramain &amp; Al Masjed Al-Aqsa Charity Foundation" nameLanguage="EN" strong="true"/>',
+  '  </sanctionEntity>',
+  '  <sanctionEntity euReferenceNumber="EU.9999.99" logicalId="999">',
+  '    <subjectType code="person"/>',
+  '  </sanctionEntity>',
+  '</export>',
+].join('\n');
+
+test('parseEuXml extracts entities, primary name + aliases (deduped), maps subjectType + programme', () => {
+  const { source, entries } = parseEuXml(EU_FIXTURE);
+  assert.equal(source, 'EU');
+  // the nameless entity (EU.9999.99) is skipped
+  assert.equal(entries.length, 2);
+
+  const saddam = entries[0];
+  assert.equal(saddam.name, 'Saddam Hussein Al-Tikriti');
+  assert.equal(saddam.type, 'individual'); // person → individual
+  assert.equal(saddam.externalId, 'EU.27.28');
+  assert.equal(saddam.programme, 'IRQ');
+  assert.deepEqual(saddam.aliases, ['Abu Ali']); // duplicate "Abu Ali" deduped
+
+  const foundation = entries[1];
+  assert.equal(foundation.type, 'entity'); // enterprise → entity
+  assert.equal(foundation.name, 'Al-Haramain & Al Masjed Al-Aqsa Charity Foundation'); // &amp; decoded
+  assert.equal(foundation.programme, 'TERR');
+});
+
+test('parseEuXml is defensive — empty/garbage input → no entries', () => {
+  assert.deepEqual(parseEuXml('').entries, []);
+  assert.deepEqual(parseEuXml(null).entries, []);
+  assert.deepEqual(parseEuXml('<export></export>').entries, []);
+});
+
+test('EU-parsed entries screen correctly through the engine', () => {
+  const { screen } = require('../lib/intelligence/sanctions-screening');
+  const list = { source: 'EU', authoritative: true, entries: parseEuXml(EU_FIXTURE).entries };
+  const r = screen({ name: 'Saddam Hussein Al-Tikriti', list });
+  assert.equal(r.status, 'potential_match');
+  assert.equal(r.matches[0].programme, 'IRQ');
 });
 
 // ── parsed entries are screen-ready ─────────────────────

@@ -76,6 +76,18 @@ test('cron: ingestSanctions supports the UN XML format', async () => {
   assert.equal(r.parsed, 2);
 });
 
+test('cron: ingestSanctions supports the EU XML format', async () => {
+  const eu = [
+    '<export xmlns="http://eu.europa.ec/fpi/fsd/export">',
+    '<sanctionEntity euReferenceNumber="EU.1.1"><regulation programme="IRQ"/><subjectType code="person"/><nameAlias wholeName="Ivan Petrov" strong="true"/></sanctionEntity>',
+    '<sanctionEntity euReferenceNumber="EU.2.2"><regulation programme="TERR"/><subjectType code="enterprise"/><nameAlias wholeName="Acme Holdings"/></sanctionEntity>',
+    '</export>',
+  ].join('\n');
+  const r = await cron.ingestSanctions({ source: 'EU', text: eu, format: 'eu', dryRun: true });
+  assert.equal(r.ok, true);
+  assert.equal(r.parsed, 2);
+});
+
 test('cron: ingestSanctions without a DB (non-dry) reports reason', async () => {
   const r = await cron.ingestSanctions({ text: SDN, dryRun: false });
   assert.equal(r.ok, false);
