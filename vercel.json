@@ -5,7 +5,7 @@
   "rewrites": [
     {
       "source": "/app/:path*",
-      "destination": "https://orcatrade-intelligence.vercel.app/app/:path*"
+      "destination": "https://orcatrade-c2i5.vercel.app/app/:path*"
     },
     { "source": "/feed.xml", "destination": "/api/feed?format=rss" },
     { "source": "/atom.xml", "destination": "/api/feed?format=atom" },
