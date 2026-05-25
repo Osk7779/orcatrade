@@ -1,0 +1,26 @@
+@import "tailwindcss";
+
+/* OrcaTrade design tokens — the premium dark surface used across the
+   authenticated account pages (deep near-black, ivory text, muted gold). */
+@theme {
+  --color-ink: #050507;
+  --color-navy: #0a1628;
+  --color-navy-soft: #111a2e;
+  --color-ivory: #fafaf7;
+  --color-gold: #c9a84a;
+  --color-gold-soft: rgba(220, 188, 110, 0.85);
+  --color-line: rgba(255, 255, 255, 0.08);
+  --font-sans: var(--font-geist), system-ui, sans-serif;
+  --font-serif: var(--font-cormorant), Georgia, serif;
+}
+
+html, body {
+  background: var(--color-ink);
+  color: rgba(255, 255, 255, 0.9);
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
+}
