@@ -31,6 +31,31 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+// A saved plan as returned (enriched) by GET /api/plans.
+export interface PlanInputs {
+  productCategory?: string;
+  originCountry?: string;
+  destinationCountry?: string;
+  customsValueEur?: number;
+  hsCode?: string;
+}
+export interface PlanDelta {
+  landedDeltaEur?: number;
+  landedDeltaPct?: number;
+  significant?: boolean;
+  primaryDriver?: string | null;
+  daysSinceSaved?: number;
+}
+export interface SavedPlan {
+  id: string;
+  label?: string;
+  savedAt?: string;
+  inputs?: PlanInputs;
+  snapshot?: { perShipmentLandedTotal?: number } | null;
+  current?: { perShipmentLandedTotal?: number } | null;
+  delta?: PlanDelta | null;
+}
+
 // Shape of GET /api/account/overview (subset we render on the dashboard).
 export interface Overview {
   user?: { email?: string };

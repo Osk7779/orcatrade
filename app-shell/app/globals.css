@@ -7,8 +7,10 @@
   --color-navy: #0a1628;
   --color-navy-soft: #111a2e;
   --color-ivory: #fafaf7;
-  --color-gold: #c9a84a;
-  --color-gold-soft: rgba(220, 188, 110, 0.85);
+  /* Accent is ivory white (was gold). One token drives every accent so the
+     whole shell recolours from here. */
+  --color-accent: #fafaf7;
+  --color-accent-soft: rgba(250, 250, 247, 0.72);
   --color-line: rgba(255, 255, 255, 0.08);
   --font-sans: var(--font-geist), system-ui, sans-serif;
   --font-serif: var(--font-cormorant), Georgia, serif;

@@ -27,7 +27,7 @@ export default function DashboardPage() {
         <p className="text-white/70 text-sm leading-relaxed mb-5">
           Your plans, monitoring alerts and compliance deadlines live here. Sign in with a magic link to continue.
         </p>
-        <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-gold)] text-[var(--color-ink)] rounded-sm">
+        <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">
           Sign in →
         </a>
       </div>
@@ -41,7 +41,7 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-gold-soft)] mb-2">Dashboard</div>
+      <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Dashboard</div>
       <h1 className="text-4xl mb-1">Welcome back</h1>
       <p className="text-white/60 text-sm mb-8">{o.user?.email}</p>
 
@@ -52,7 +52,7 @@ export default function DashboardPage() {
       </div>
 
       {next && (
-        <div className="border-l-2 border-[var(--color-gold)] bg-white/[0.03] px-5 py-4 mb-10">
+        <div className="border-l-2 border-[var(--color-accent)] bg-white/[0.03] px-5 py-4 mb-10">
           <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-1">Next deadline</div>
           <div className="text-lg font-serif">
             {String(next.regime || '').toUpperCase()} — {next.title}
@@ -82,7 +82,7 @@ export default function DashboardPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="border border-[var(--color-line)] border-t-2 border-t-[var(--color-gold)] px-4 py-4">
+    <div className="border border-[var(--color-line)] border-t-2 border-t-[var(--color-accent)] px-4 py-4">
       <div className="font-serif text-3xl font-semibold text-ivory">{value}</div>
       <div className="text-[0.72rem] uppercase tracking-wider text-white/50 mt-1">{label}</div>
     </div>

@@ -4,7 +4,7 @@ import Link from 'next/link';
 // point at the existing account pages on the main site until they're ported.
 const NAV: Array<{ label: string; href: string; inApp?: boolean }> = [
   { label: 'Dashboard', href: '/dashboard', inApp: true },
-  { label: 'Plans', href: '/account/plans/' },
+  { label: 'Plans', href: '/plans', inApp: true },
   { label: 'Portfolios', href: '/account/portfolios/' },
   { label: 'Monitoring alerts', href: '/account/alerts/' },
   { label: 'Compliance calendar', href: '/account/calendar/' },
@@ -18,7 +18,7 @@ export function Sidebar() {
     <aside className="w-60 shrink-0 border-r border-[var(--color-line)] p-6 min-h-screen">
       <Link href="/dashboard" className="block mb-8">
         <span className="font-serif text-2xl font-semibold text-ivory">OrcaTrade</span>
-        <span className="block text-[0.62rem] tracking-[0.28em] uppercase text-[var(--color-gold-soft)] mt-1">
+        <span className="block text-[0.62rem] tracking-[0.28em] uppercase text-[var(--color-accent-soft)] mt-1">
           Operations
         </span>
       </Link>

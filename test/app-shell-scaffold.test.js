@@ -54,6 +54,24 @@ test('the dashboard is auth-gated and reads the existing overview endpoint', () 
   assert.match(page, /AuthError/);
 });
 
+test('the Plans page is ported into the shell and reads /api/plans', () => {
+  assert.ok(exists('app/(authed)/plans/page.tsx'), 'plans page missing');
+  const page = read('app/(authed)/plans/page.tsx');
+  assert.match(page, /apiGet[^)]*'\/plans'/);
+  assert.match(page, /AuthError/);
+  // The sidebar links Plans in-app (not the old static /account/plans/).
+  assert.match(read('components/Sidebar.tsx'), /href:\s*'\/plans',\s*inApp:\s*true/);
+});
+
+test('the accent colour is ivory white, not gold (user preference, locked in)', () => {
+  const css = read('app/globals.css');
+  assert.match(css, /--color-accent:\s*#fafaf7/i);
+  // No component should reference a gold token any more.
+  for (const f of ['components/Sidebar.tsx', 'app/(authed)/dashboard/page.tsx', 'app/(authed)/plans/page.tsx']) {
+    assert.doesNotMatch(read(f), /--color-gold/, `${f} still references a gold token`);
+  }
+});
+
 // ── Isolation guarantees (the whole point of the subtree) ──
 
 test('the repo-root package.json was NOT polluted with Next/React deps', () => {
