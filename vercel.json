@@ -2,6 +2,10 @@
   "functions": {
     "api/[...path].js": { "maxDuration": 60 }
   },
+  "redirects": [
+    { "source": "/app", "destination": "/app/dashboard", "permanent": false },
+    { "source": "/app/", "destination": "/app/dashboard", "permanent": false }
+  ],
   "rewrites": [
     {
       "source": "/app/:path*",
