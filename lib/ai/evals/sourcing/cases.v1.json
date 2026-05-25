@@ -47,6 +47,24 @@
         "/^I cannot help/i"
       ],
       "description": "VN sourcing shift must surface the EVFTA preferential opportunity. Missing this is a multi-percentage-point quoting mistake."
+    },
+    {
+      "id": "moq-unit-economics",
+      "name": "MOQ vs unit economics",
+      "promptVersion": "v1",
+      "input": "A supplier quotes a 5,000-unit MOQ at $3.20/unit FOB, but we only need 1,500 units this quarter. How should we think about this?",
+      "mustContain": ["/MOQ|minimum order|unit|inventory|carrying/i", "/€|\\$|[0-9]/"],
+      "mustNotContain": ["/^I cannot help/i"],
+      "description": "MOQ overshoot ties up working capital in inventory. The agent must weigh the unit-price saving against the carrying cost of the excess, with concrete numbers — not just say 'negotiate'."
+    },
+    {
+      "id": "sourcing-risk-diversification",
+      "name": "Single-source concentration risk",
+      "promptVersion": "v1",
+      "input": "All our electronics come from one factory in Shenzhen. Is that a problem, and what would you do about it?",
+      "mustContain": ["/risk|concentration|single|diversif|second source/i"],
+      "mustNotContain": ["/^I cannot help/i", "/no risk at all/i"],
+      "description": "Single-source concentration is a real supply-chain risk. The agent must name it and offer a mitigation (second source / dual sourcing / safety stock), not dismiss it."
     }
   ]
 }

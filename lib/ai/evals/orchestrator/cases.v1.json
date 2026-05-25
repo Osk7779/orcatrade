@@ -124,6 +124,16 @@
       "mustNotContain": ["/I can't remember|I have no memory|unable to store/i"],
       "expectedTools": ["rememberForUser"],
       "description": "Agent memory (Pillar I2): when a signed-in user states a durable preference, the orchestrator must persist it via rememberForUser and confirm, not claim statelessness. The 35% must echo back (grounded in the user's own input)."
+    },
+    {
+      "id": "multi-domain-delegation",
+      "name": "Delegation · full end-to-end import question",
+      "promptVersion": "v1",
+      "input": "We want to import 2,000 office chairs from Vietnam to Germany. Walk me through the duty and compliance, the cheapest freight, and how to handle paying the supplier — the whole picture.",
+      "mustContain": ["/duty|tariff|compliance/i", "/freight|sea|container|route/i", "/payment|LC|terms|FX/i", "/€[0-9]/"],
+      "mustNotContain": ["/^I cannot help/i"],
+      "expectedTools": ["estimateLandedCost"],
+      "description": "A genuinely multi-domain request (compliance + logistics + finance). The orchestrator should decompose it (planDelegation), call the relevant specialist tools, and merge into one grounded answer covering all three domains — not answer only one."
     }
   ]
 }

@@ -45,6 +45,15 @@
         "/^I cannot help/i"
       ],
       "description": "A routing comparison must be grounded in the freight calculator — concrete € figures per lane, not a generic 'it depends'. Tests that the agent uses the routing tool rather than hand-waving."
+    },
+    {
+      "id": "lcl-vs-fcl-consolidation",
+      "name": "LCL vs FCL · consolidation break-even",
+      "promptVersion": "v1",
+      "input": "We ship about 12 cubic metres of goods from Shenzhen every month. Should we keep using LCL (less than container load) or move to a full 20ft container?",
+      "mustContain": ["/LCL|FCL|container|consolidat|cubic|cbm/i", "/€[0-9]|cost|per/i"],
+      "mustNotContain": ["/^I cannot help/i"],
+      "description": "At ~12cbm/month the LCL-vs-FCL break-even is live (a 20ft holds ~28-33cbm). The agent must reason on the per-cbm economics with figures, not give a generic answer."
     }
   ]
 }

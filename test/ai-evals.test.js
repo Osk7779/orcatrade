@@ -330,22 +330,22 @@ test('end-to-end synthetic: same response with the WRONG calculator outputs fail
 // the eval suite thins out or a shipped agent loses its cases. Live scoring
 // (cost + API key) runs nightly via .github/workflows/evals.yml.
 
-test('coverage gate: every agent in the registry has a cases file with ≥2 cases', () => {
+test('coverage gate: every agent in the registry has a cases file with ≥4 cases', () => {
   const agents = scorer.listAgents();
-  // All five prompt agents must carry offline cases.
+  // All five prompt agents must carry meaningful offline coverage.
   for (const a of ['compliance', 'finance', 'logistics', 'orchestrator', 'sourcing']) {
     assert.ok(agents.includes(a), `agent "${a}" must ship lib/ai/evals/${a}/cases.v1.json`);
     const cases = scorer.load(a);
-    assert.ok(cases.length >= 2, `agent "${a}" must have ≥2 eval cases, has ${cases.length}`);
+    assert.ok(cases.length >= 4, `agent "${a}" must have ≥4 eval cases, has ${cases.length}`);
   }
 });
 
 test('coverage gate: total offline case count meets the floor', () => {
   let total = 0;
   for (const a of scorer.listAgents()) total += scorer.load(a).length;
-  // Floor is intentionally below the current count so adding cases never
-  // breaks the gate, but deleting a chunk of them does.
-  assert.ok(total >= 18, `expected ≥18 offline eval cases across all agents, found ${total}`);
+  // Floor sits below the current count so adding cases never breaks the gate,
+  // but deleting a chunk of them does.
+  assert.ok(total >= 28, `expected ≥28 offline eval cases across all agents, found ${total}`);
 });
 
 test('coverage gate: the newly-shipped surfaces stay covered by a case', () => {
@@ -359,6 +359,11 @@ test('coverage gate: the newly-shipped surfaces stay covered by a case', () => {
   assert.ok(orch.has('agent-memory-recall-preference'), 'agent memory must have an eval case');
   // Compliance calendar (Pillar II6).
   assert.ok(comp.has('compliance-deadlines-portfolio'), 'compliance calendar must have an eval case');
+  // Rules of origin (Pillar II2) + document audit (Pillar I4).
+  assert.ok(comp.has('rules-of-origin-evfta-apparel'), 'rules of origin must have an eval case');
+  assert.ok(comp.has('document-audit-undervaluation'), 'document audit must have an eval case');
+  // Multi-agent delegation (Pillar I6).
+  assert.ok(orch.has('multi-domain-delegation'), 'delegation must have an eval case');
 });
 
 test('coverage gate: every case carries a description (eval cases self-document)', () => {

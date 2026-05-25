@@ -47,6 +47,15 @@
         "/exchange rate will (go|move)/i"
       ],
       "description": "TRY is a high-volatility currency; with 90-day terms the FX calculator recommends hedging. The agent must surface the hedge recommendation with a grounded risk/cost figure — and must NOT predict the direction of the rate (that would be an ungrounded forecast)."
+    },
+    {
+      "id": "tco-beyond-unit-price",
+      "name": "TCO · cheaper unit price isn't cheaper landed",
+      "promptVersion": "v1",
+      "input": "Supplier A is $3.00/unit, Supplier B is $3.30/unit but closer to port with shorter lead times. On 50,000 units a year, which is actually cheaper all-in?",
+      "mustContain": ["/total cost|TCO|landed|all.?in|carrying|inventory/i", "/€|\\$|[0-9]/"],
+      "mustNotContain": ["/^I cannot help/i", "/just (go|pick) (with )?the cheaper/i"],
+      "description": "Total cost of ownership can invert a unit-price decision once freight, duty and inventory carrying cost are included. The agent must reason on the all-in figure, not the sticker price."
     }
   ]
 }

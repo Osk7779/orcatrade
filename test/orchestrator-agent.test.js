@@ -15,15 +15,21 @@ const { TOOLS, toolImpls, classifyTool } = orchestrator;
 
 // ── Tool merge correctness ───────────────────────────────
 
-test('Orchestrator exposes 30 unique tools (Compliance 16 + Logistics 8 + Sourcing 7 + Finance 8 - shared)', () => {
-  assert.equal(TOOLS.length, 30);
-  const allNames = new Set([
+test('Orchestrator exposes the specialist union + 2 native delegation tools (33)', () => {
+  assert.equal(TOOLS.length, 33);
+  const specialistUnion = new Set([
     ...compliance.TOOLS.map(t => t.name),
     ...logistics.TOOLS.map(t => t.name),
     ...sourcing.TOOLS.map(t => t.name),
     ...finance.TOOLS.map(t => t.name),
   ]);
-  assert.equal(allNames.size, TOOLS.length);
+  // Every specialist tool is exposed by the orchestrator.
+  const orchNames = new Set(TOOLS.map(t => t.name));
+  for (const name of specialistUnion) assert.ok(orchNames.has(name), `${name} exposed`);
+  // Plus exactly the two orchestrator-native delegation tools (Pillar I6).
+  assert.ok(orchNames.has('planDelegation'));
+  assert.ok(orchNames.has('mergeSpecialistFindings'));
+  assert.equal(TOOLS.length, specialistUnion.size + 2);
 });
 
 test('Finance Agent tools are present in the Orchestrator', () => {
