@@ -690,11 +690,25 @@ We are there (for the platform, not the valuation) when, simultaneously:
   `<subjectType code>`, programme in `<regulation programme>`). **LIVE**: total
   now **45,809** (OFAC 19,050 + OFSI 19,761 + UN 1,002 + EU 5,996); benign live
   screen `no_match`/authoritative, an EU-listed name flags 9 matches. Suite →2,953.
-- **Next, blocked on a decision:** the unblocked agent-pillar items (I3 flagship,
-  I2 memory, I7 evals) AND all four sanctions sources are now DONE. Remaining
-  Phase-1 items need decisions/infra/spend: real-time freight feeds (paid),
-  SOC 2 (process), the Next.js app shell, tier-gating/packaging (business call),
-  supplier-intelligence data source (paid). Buildable with no decision:
-  document intelligence (Pillar I4), HS10 + rules-of-origin depth (Pillar II2).
-  Risk-bearing, needs greenlight: write-time hash-chain audit storage,
-  reproducibility/as-of vs the calculator-regression snapshots.
+- **2026-05-25** — Shipped (Pillars I4/I5/II2 + IV polish): **document
+  intelligence** (`document-audit.js` — deterministic invoice/packing-list/CoO
+  audit vs plan: HS/origin/value/currency mismatch, arithmetic, undervaluation,
+  missing preference evidence, CBAM/EUDR flags; `POST /api/documents action=audit`
+  + agent tool), **draft documents** (`draftDocument` tool, approval-gated),
+  **HS10 + rules-of-origin** (`rules-of-origin.js` — HS6/8/10 decomposition +
+  rule determination + qualification verdict; `determineRulesOfOrigin` tool), and
+  a source-level fix to the shared form CSS (checkboxes were full-width inputs).
+- **2026-05-25** — Shipped (Pillars I4+/I6/I7+/III2): **doc-intel v2**
+  (`document-extract.js` — paste raw text → fields, LIVE-verified), **multi-agent
+  delegation** (`delegation.js` — planDelegation + mergeSpecialistFindings,
+  orchestrator-native; toolset 31→33), **eval breadth** (≥4 cases/agent, gate
+  raised), and **write-time tamper-evident audit** (III2 — `events.record` stamps
+  _seq/_prevHash/_hash over a non-PII projection so GDPR erasure isn't tampering;
+  `events.verifyStoredChain`; `GET /api/audit?format=verify-stored`). Suite
+  2,896 → **3,018**. Also: HTTP security headers/CSP/HSTS + EN/PL/DE privacy
+  policy (the cookie banner had linked to a 404).
+- **Next, blocked on a decision:** the no-decision agent backlog (I4/I4+/I5/I6/
+  I7+, II2) is now EXHAUSTED. Remaining Phase-1 items need decisions/infra/spend:
+  real-time freight feeds (paid), supplier-intelligence data source (paid),
+  SOC 2 (process), the Next.js app shell (architecture), tier-gating/packaging
+  (business). Risk-bearing: reproducibility/as-of vs the regression snapshots.
