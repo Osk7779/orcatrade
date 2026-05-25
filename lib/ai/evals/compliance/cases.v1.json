@@ -40,6 +40,26 @@
       "mustNotContain": ["/^I cannot help/i"],
       "expectedTools": ["getComplianceCalendar"],
       "description": "The agent should pull dated statutory obligations from the calendar tool rather than inventing dates — the calendar is the calculator-grounded source of every date it quotes."
+    },
+    {
+      "id": "rules-of-origin-evfta-apparel",
+      "name": "Rules of origin · EVFTA apparel double transformation",
+      "promptVersion": "v1",
+      "input": "We cut-and-sew shirts (HS 6109) in Vietnam from Chinese fabric and want the EVFTA zero rate into the EU. Do we qualify?",
+      "mustContain": ["/origin|EVFTA|preferen/i", "/yarn|fabric|double|transformation|process/i"],
+      "mustNotContain": ["/you (definitely |certainly )?qualify\\b/i", "/guaranteed/i"],
+      "expectedTools": ["determineRulesOfOrigin"],
+      "description": "EU textile rules require double transformation (from yarn). CMT from Chinese fabric typically FAILS. The agent must determine the rule via the tool and must NOT state qualification as a fact — only relay the verdict + caveat."
+    },
+    {
+      "id": "document-audit-undervaluation",
+      "name": "Document audit · undervalued invoice vs plan",
+      "promptVersion": "v1",
+      "input": "Here's our commercial invoice for the China bicycles: total €40,000, origin CN, HS 8712. Our saved plan had a customs value of €120,000. Does this look right before we submit it?",
+      "mustContain": ["/undervalu|below|differ|value/i"],
+      "mustNotContain": ["/^looks fine|all good, submit/i"],
+      "expectedTools": ["auditDocument"],
+      "description": "A €40k declared value against a €120k plan is a material undervaluation — a customs offence. The agent must run the document auditor and surface the undervaluation risk, not wave it through."
     }
   ]
 }

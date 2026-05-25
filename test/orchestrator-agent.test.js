@@ -15,8 +15,8 @@ const { TOOLS, toolImpls, classifyTool } = orchestrator;
 
 // ── Tool merge correctness ───────────────────────────────
 
-test('Orchestrator exposes 27 unique tools (Compliance 13 + Logistics 8 + Sourcing 7 + Finance 8 - shared)', () => {
-  assert.equal(TOOLS.length, 27);
+test('Orchestrator exposes 30 unique tools (Compliance 16 + Logistics 8 + Sourcing 7 + Finance 8 - shared)', () => {
+  assert.equal(TOOLS.length, 30);
   const allNames = new Set([
     ...compliance.TOOLS.map(t => t.name),
     ...logistics.TOOLS.map(t => t.name),

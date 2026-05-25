@@ -39,7 +39,10 @@
   text-transform: uppercase;
   color: rgba(255,255,255,0.55);
 }
-.doc-form-section input,
+/* Text-like inputs get the full-width field treatment. Checkboxes and radios
+   are explicitly EXCLUDED — otherwise they inherit width:100% + padding and
+   render as full-cell boxes that shove their labels out of the row. */
+.doc-form-section input:not([type="checkbox"]):not([type="radio"]),
 .doc-form-section select,
 .doc-form-section textarea {
   background: rgba(255,255,255,0.04);
@@ -50,6 +53,17 @@
   font-size: 0.86rem;
   border-radius: 2px;
   width: 100%;
+}
+.doc-form-section input[type="checkbox"],
+.doc-form-section input[type="radio"] {
+  width: 1rem;
+  height: 1rem;
+  min-height: 0;
+  margin: 0;
+  padding: 0;
+  flex: 0 0 auto;
+  accent-color: #b8bec8;
+  vertical-align: middle;
 }
 .doc-form-section input:focus,
 .doc-form-section select:focus,
