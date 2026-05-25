@@ -5,9 +5,9 @@ import Link from 'next/link';
 const NAV: Array<{ label: string; href: string; inApp?: boolean }> = [
   { label: 'Dashboard', href: '/dashboard', inApp: true },
   { label: 'Plans', href: '/plans', inApp: true },
-  { label: 'Portfolios', href: '/account/portfolios/' },
-  { label: 'Monitoring alerts', href: '/account/alerts/' },
-  { label: 'Compliance calendar', href: '/account/calendar/' },
+  { label: 'Portfolios', href: '/portfolios', inApp: true },
+  { label: 'Monitoring alerts', href: '/alerts', inApp: true },
+  { label: 'Compliance calendar', href: '/calendar', inApp: true },
   { label: 'Documents', href: '/account/documents/' },
   { label: 'Screening', href: '/account/screen/' },
   { label: 'Preferences', href: '/account/preferences/' },

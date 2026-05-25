@@ -56,6 +56,41 @@ export interface SavedPlan {
   delta?: PlanDelta | null;
 }
 
+// GET /api/portfolio/list
+export interface SavedPortfolio {
+  id: string;
+  label?: string;
+  savedAt?: string;
+  lineCount?: number;
+  snapshot?: {
+    blendedDutyRatePct?: number;
+    consolidationSavingEur?: number;
+    totals?: { perShipmentLandedTotal?: number };
+  } | null;
+}
+
+// GET /api/account/alerts
+export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
+export interface Alert {
+  id: string;
+  type: string;
+  severity: Severity;
+  title: string;
+  body?: string;
+  status: 'open' | 'read' | 'dismissed';
+}
+
+// GET /api/account/calendar
+export interface Obligation {
+  regime?: string;
+  title?: string;
+  detail?: string;
+  citation?: string;
+  dueDate?: string;
+  daysUntil?: number;
+  severity?: Severity;
+}
+
 // Shape of GET /api/account/overview (subset we render on the dashboard).
 export interface Overview {
   user?: { email?: string };

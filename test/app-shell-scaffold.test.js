@@ -63,11 +63,41 @@ test('the Plans page is ported into the shell and reads /api/plans', () => {
   assert.match(read('components/Sidebar.tsx'), /href:\s*'\/plans',\s*inApp:\s*true/);
 });
 
+test('Portfolios / Alerts / Calendar are ported into the shell and link in-app', () => {
+  const routes = {
+    'app/(authed)/portfolios/page.tsx': /\/portfolio\/list/,
+    'app/(authed)/alerts/page.tsx': /\/account\/alerts/,
+    'app/(authed)/calendar/page.tsx': /\/account\/calendar/,
+  };
+  for (const [file, apiRe] of Object.entries(routes)) {
+    assert.ok(exists(file), `missing ${file}`);
+    assert.match(read(file), apiRe, `${file} must read its API`);
+    assert.match(read(file), /AuthError/, `${file} must be auth-gated`);
+  }
+  const nav = read('components/Sidebar.tsx');
+  for (const href of ['/portfolios', '/alerts', '/calendar']) {
+    assert.match(nav, new RegExp(`href:\\s*'${href}',\\s*inApp:\\s*true`), `sidebar must link ${href} in-app`);
+  }
+});
+
+test('the alerts page can mark-read / dismiss (POSTs back to the inbox)', () => {
+  const page = read('app/(authed)/alerts/page.tsx');
+  assert.match(page, /apiPost/);
+  assert.match(page, /markRead|markAllRead|dismiss/);
+});
+
 test('the accent colour is ivory white, not gold (user preference, locked in)', () => {
   const css = read('app/globals.css');
   assert.match(css, /--color-accent:\s*#fafaf7/i);
   // No component should reference a gold token any more.
-  for (const f of ['components/Sidebar.tsx', 'app/(authed)/dashboard/page.tsx', 'app/(authed)/plans/page.tsx']) {
+  for (const f of [
+    'components/Sidebar.tsx',
+    'app/(authed)/dashboard/page.tsx',
+    'app/(authed)/plans/page.tsx',
+    'app/(authed)/portfolios/page.tsx',
+    'app/(authed)/alerts/page.tsx',
+    'app/(authed)/calendar/page.tsx',
+  ]) {
     assert.doesNotMatch(read(f), /--color-gold/, `${f} still references a gold token`);
   }
 });
