@@ -861,11 +861,11 @@ textarea {
   display: flex;
   gap: 1.6rem;
   align-items: flex-start;
-  background: radial-gradient(circle at top left, #0e1730 0, #03090f 55%, #01040a 100%);
+  background: radial-gradient(circle at top left, #162040 0, #040e18 55%, #020509 100%);
   border-radius: 0;
-  padding: 1.45rem 1.45rem 1.5rem;
-  border: 1px solid rgba(201, 172, 110, 0.14);
-  box-shadow: 0 28px 72px rgba(0, 0, 0, 0.68);
+  padding: 1.3rem 1.3rem 1.4rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.6);
 }
 
 .rep-photo-wrap {
@@ -912,30 +912,16 @@ textarea {
 
 .rep-name {
   font-family: 'Cormorant Garant', Georgia, serif;
-  font-size: 1.42rem;
-  margin-bottom: 0.55rem;
-  padding-bottom: 0.55rem;
-  position: relative;
-}
-
-/* Short gold hairline beneath each name — quiet, corporate, premium. */
-.rep-name::after {
-  content: "";
-  position: absolute;
-  left: 0;
-  bottom: 0;
-  width: 36px;
-  height: 2px;
-  background: linear-gradient(90deg, rgba(201, 172, 110, 0.95), rgba(201, 172, 110, 0));
+  font-size: 1.35rem;
+  margin-bottom: 0.2rem;
 }
 
 .rep-role {
-  font-size: 0.74rem;
+  font-size: 0.78rem;
   text-transform: uppercase;
-  letter-spacing: 0.2em;
-  color: rgba(201, 172, 110, 0.92);
-  margin-bottom: 0.95rem;
-  font-weight: 500;
+  letter-spacing: 0.18em;
+  color: rgba(188, 195, 208, 0.92);
+  margin-bottom: 0.9rem;
 }
 
 .rep-bio {
