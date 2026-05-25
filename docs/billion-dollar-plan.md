@@ -682,10 +682,19 @@ We are there (for the platform, not the valuation) when, simultaneously:
   covered, every case self-documents) runs free on every push; new nightly
   **`ai-evals.yml`** runs the live harness per-agent against the API.
   Suite 2,901 → **2,949**, all green.
-- **Next, blocked on a decision:** the three unblocked agent-pillar items (I3
-  flagship, I2 memory, I7 evals) are now DONE. Remaining Phase-1 items need
-  decisions/infra/spend: **EU** consolidated sanctions endpoint (token/format),
-  real-time freight feeds (paid), SOC 2 (process), the Next.js app shell,
-  tier-gating/packaging (business call). Risk-bearing, needs greenlight:
-  write-time hash-chain audit storage, reproducibility/as-of vs the
-  calculator-regression snapshots.
+- **2026-05-25** — Shipped + ACTIVATED (Pillar II1): **EU consolidated list as
+  the 4th sanctions source** — completing OFAC/UK-OFSI/UN/EU coverage. The EU
+  FSF list is public via a static token (no registration needed):
+  `webgate.ec.europa.eu/fsd/fsf/public/files/xmlFullSanctionsList_1_1/content?token=dG9rZW4tMjAxNw`.
+  New `parseEuXml` (attribute-based: names in `<nameAlias wholeName>`, type in
+  `<subjectType code>`, programme in `<regulation programme>`). **LIVE**: total
+  now **45,809** (OFAC 19,050 + OFSI 19,761 + UN 1,002 + EU 5,996); benign live
+  screen `no_match`/authoritative, an EU-listed name flags 9 matches. Suite →2,953.
+- **Next, blocked on a decision:** the unblocked agent-pillar items (I3 flagship,
+  I2 memory, I7 evals) AND all four sanctions sources are now DONE. Remaining
+  Phase-1 items need decisions/infra/spend: real-time freight feeds (paid),
+  SOC 2 (process), the Next.js app shell, tier-gating/packaging (business call),
+  supplier-intelligence data source (paid). Buildable with no decision:
+  document intelligence (Pillar I4), HS10 + rules-of-origin depth (Pillar II2).
+  Risk-bearing, needs greenlight: write-time hash-chain audit storage,
+  reproducibility/as-of vs the calculator-regression snapshots.
