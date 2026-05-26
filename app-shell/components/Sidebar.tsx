@@ -8,8 +8,8 @@ const NAV: Array<{ label: string; href: string; inApp?: boolean }> = [
   { label: 'Portfolios', href: '/portfolios', inApp: true },
   { label: 'Monitoring alerts', href: '/alerts', inApp: true },
   { label: 'Compliance calendar', href: '/calendar', inApp: true },
-  { label: 'Documents', href: '/account/documents/' },
-  { label: 'Screening', href: '/account/screen/' },
+  { label: 'Documents', href: '/documents', inApp: true },
+  { label: 'Screening', href: '/screening', inApp: true },
   { label: 'Preferences', href: '/account/preferences/' },
 ];
 

@@ -86,6 +86,18 @@ test('the alerts page can mark-read / dismiss (POSTs back to the inbox)', () => 
   assert.match(page, /markRead|markAllRead|dismiss/);
 });
 
+test('Documents + Screening complete the shell (final two surfaces, in-app)', () => {
+  assert.ok(exists('app/(authed)/documents/page.tsx'), 'documents page missing');
+  assert.ok(exists('app/(authed)/screening/page.tsx'), 'screening page missing');
+  assert.match(read('app/(authed)/documents/page.tsx'), /action:\s*'audit'/);
+  assert.match(read('app/(authed)/screening/page.tsx'), /apiPost[^)]*'\/screen'/);
+  const nav = read('components/Sidebar.tsx');
+  assert.match(nav, /href:\s*'\/documents',\s*inApp:\s*true/);
+  assert.match(nav, /href:\s*'\/screening',\s*inApp:\s*true/);
+  // Every product surface is now native — only Preferences still links to /account/*.
+  assert.equal((nav.match(/href:\s*'\/account\//g) || []).length, 1, 'only Preferences should still link to /account/*');
+});
+
 test('the accent colour is ivory white, not gold (user preference, locked in)', () => {
   const css = read('app/globals.css');
   assert.match(css, /--color-accent:\s*#fafaf7/i);
@@ -97,6 +109,8 @@ test('the accent colour is ivory white, not gold (user preference, locked in)', 
     'app/(authed)/portfolios/page.tsx',
     'app/(authed)/alerts/page.tsx',
     'app/(authed)/calendar/page.tsx',
+    'app/(authed)/documents/page.tsx',
+    'app/(authed)/screening/page.tsx',
   ]) {
     assert.doesNotMatch(read(f), /--color-gold/, `${f} still references a gold token`);
   }

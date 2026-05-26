@@ -91,6 +91,42 @@ export interface Obligation {
   severity?: Severity;
 }
 
+// POST /api/screen
+export interface ScreenMatch {
+  id?: string;
+  name?: string;
+  type?: string | null;
+  programme?: string | null;
+  listSource?: string | null;
+  score?: number;
+  matchedOn?: string | null;
+}
+export interface ScreenResult {
+  query: string;
+  status: 'potential_match' | 'no_match' | 'no_sample_match' | 'invalid';
+  authoritative?: boolean;
+  listSource?: string | null;
+  matchCount?: number;
+  matches?: ScreenMatch[];
+  advisory?: string;
+}
+
+// POST /api/documents { action: 'audit' }
+export interface AuditFinding {
+  severity: Severity;
+  code: string;
+  message: string;
+}
+export interface AuditResult {
+  ok: boolean;
+  documentType?: string;
+  verdict?: 'blocking_issues' | 'review_needed' | 'minor_issues' | 'consistent';
+  counts?: Record<string, number>;
+  findings?: AuditFinding[];
+  advisory?: string;
+  extraction?: { extractedFields?: string[]; missingFields?: string[]; confidence?: string };
+}
+
 // Shape of GET /api/account/overview (subset we render on the dashboard).
 export interface Overview {
   user?: { email?: string };
