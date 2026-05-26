@@ -759,3 +759,18 @@ We are there (for the platform, not the valuation) when, simultaneously:
   **Next (slice 3b):** extend the same pinning to CBAM (ETS price) + AD/CVD
   (trade-defence rates) so the FULL landed total reproduces; then live-TARIC
   per-quote pinning; then surface the verdict in the app-shell plan view.
+- **2026-05-26** — Shipped (III3, slice 3b): **as-of recompute — AD/CVD pinning
+  → the full landed total reproduces**. Snapshot schema v1→v2 (captures
+  `tradeDefence.measures[].rateUnit` so specific vs ad-valorem duties classify
+  identically); `eu-trade-defence.findMeasures` takes an optional pinned
+  `measures` array (shared filter/aggregate logic, never reimplemented);
+  `resolveDutyRate` / `calculateQuote` / `calculateQuoteAsync` /
+  `composePlan(input,{pinnedData})` thread `pinnedTradeDefence` and run the
+  pinned recompute deterministically (`useLiveTaric:false`). The
+  `/reproduce` drift response now carries a **`landedReproduction`** block — the
+  ORIGINAL per-shipment landed total + duty, recomputed from the stored
+  snapshot, next to today's. Default (unpinned) path proven byte-identical.
+  Suite 3,058 → **3,062**.
+  **Next (slice 3c):** pin CBAM ETS price (the separate CBAM-exposure line) +
+  live-TARIC fetched duty per quote; then surface the reproduce verdict in the
+  app-shell plan-detail view (Pillar IV).

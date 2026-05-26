@@ -84,6 +84,10 @@ test('reproduce: drift → itemises exactly what moved', async () => {
   assert.notEqual(json.storedSnapshotId, json.currentSnapshotId);
   const usd = json.drift.find((c) => c.field === 'fx.rates.USD');
   assert.ok(usd, 'the moved FX rate is reported in the drift');
+
+  // Slice 3a+3b: the original landed total is recomputed from the stored snapshot.
+  assert.ok(json.landedReproduction, 'landed reproduction present');
+  assert.ok(json.landedReproduction.original.perShipmentLandedTotal > 0);
 });
 
 test('reproduce: drift on a USD plan reproduces the ORIGINAL FX numbers', async () => {
