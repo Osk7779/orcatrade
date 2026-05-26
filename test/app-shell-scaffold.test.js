@@ -115,6 +115,16 @@ test('Plan detail view exists, reads /api/plans/<id>, and the list links to it',
   assert.match(read('app/(authed)/plans/page.tsx'), /href=\{`\/plans\/\$\{p\.id\}`\}/);
 });
 
+test('Plan detail surfaces the reproducibility verdict (III3 made visible)', () => {
+  const detail = read('app/(authed)/plans/[id]/page.tsx');
+  // Fetches the reproduce endpoint and renders the panel.
+  assert.match(detail, /\/plans\/\$\{id\}\/reproduce/);
+  assert.match(detail, /ReproPanel/);
+  assert.match(detail, /Reproducibility/);
+  // The api client exposes the Reproduction type the panel consumes.
+  assert.match(read('lib/api.ts'), /interface Reproduction/);
+});
+
 test('the accent colour is ivory white, not gold (user preference, locked in)', () => {
   const css = read('app/globals.css');
   assert.match(css, /--color-accent:\s*#fafaf7/i);

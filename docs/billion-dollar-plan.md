@@ -774,3 +774,13 @@ We are there (for the platform, not the valuation) when, simultaneously:
   **Next (slice 3c):** pin CBAM ETS price (the separate CBAM-exposure line) +
   live-TARIC fetched duty per quote; then surface the reproduce verdict in the
   app-shell plan-detail view (Pillar IV).
+- **2026-05-26** — Shipped (III3 × Pillar IV): **reproducibility made visible in
+  the app shell**. The app-shell plan-detail view (`app/(authed)/plans/[id]/`)
+  now fetches `GET /api/plans/<id>/reproduce` and renders a **Reproducibility
+  panel**: a green "data unchanged → reproduces identically" verdict, or, on
+  drift, the ORIGINAL landed total (recomputed from the stored snapshot) beside
+  today's figure + an itemised list of exactly which market-data values moved +
+  the `ds_…` snapshot ids. First flagship backend capability wired into the
+  authenticated product — the demoable "every euro reproducible" artifact a
+  buyer's diligence team can see. `lib/api.ts` gains the `Reproduction` type;
+  scaffold test extended. Suite 3,062 → **3,063**.

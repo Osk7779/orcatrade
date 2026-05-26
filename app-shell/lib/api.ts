@@ -64,6 +64,22 @@ export interface SavedPlan {
   delta?: PlanDelta | null;
 }
 
+// GET /api/plans/<id>/reproduce — reproducibility / data-drift verdict (III3)
+export interface DriftChange { field: string; label?: string; from: unknown; to: unknown }
+export interface Reproduction {
+  ok: boolean;
+  reproducible: boolean;
+  status: 'data-unchanged' | 'data-drifted' | 'drift-snapshot-unavailable' | 'no-snapshot-bound';
+  message?: string;
+  storedSnapshotId?: string | null;
+  currentSnapshotId?: string | null;
+  drift?: DriftChange[];
+  landedReproduction?: {
+    original: { perShipmentLandedTotal?: number; dutyEur?: number };
+    current: { perShipmentLandedTotal?: number; dutyEur?: number } | null;
+  } | null;
+}
+
 // GET/POST /api/account/preferences
 export interface Prefs {
   planRevisionEmails?: boolean;
