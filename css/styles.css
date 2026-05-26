@@ -2072,6 +2072,17 @@ body::after {
   transition: none !important;
 }
 
+/* Guides are dense content / SEO pages — opt them out of the cinematic scroll
+   reveal + parallax. The parallax offset was displacing the guide hero down
+   over the sections below it, leaving the intro text "stuck" and overlapping.
+   Content must always render in its natural place, fully visible. */
+.guide-shell [data-reveal],
+.guide-shell [data-stagger-item] {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
 /* ===== Hero video parallax ===== */
 
 .hero-video-bg[data-parallax] {
