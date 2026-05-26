@@ -16,6 +16,8 @@ test('currentProvenance carries calc version + data-snapshot dates', () => {
   assert.match(p.dataAsOf.cbamEtsPrice, /^\d{4}-\d{2}-\d{2}$/);
   // In the test env live TARIC is disabled → snapshot mode.
   assert.equal(p.taricMode, 'snapshot');
+  // reproducibility-v2: content-addressed fingerprint of the volatile data.
+  assert.match(p.dataSnapshotId, /^ds_[0-9a-f]{16}$/);
 });
 
 test('composePlan stamps provenance on every result', async () => {

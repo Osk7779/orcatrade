@@ -712,3 +712,38 @@ We are there (for the platform, not the valuation) when, simultaneously:
   real-time freight feeds (paid), supplier-intelligence data source (paid),
   SOC 2 (process), the Next.js app shell (architecture), tier-gating/packaging
   (business). Risk-bearing: reproducibility/as-of vs the regression snapshots.
+- **2026-05-26** — Direction set: primary goal for the next ~6 months is
+  **reach enterprise-ready** (close a large contract). Re-sequenced the apex
+  phases into an enterprise gauntlet: Stage 1 pass technical due diligence
+  (= make the scaffolded pillars real: RAG live, Postgres-primary,
+  reproducibility), Stage 2 security/compliance gate (RBAC+SCIM, immutable
+  audit, EU residency, SOC 2 kickoff), Stage 3 enterprise cockpit (in-app agent
+  chat, team mgmt, dashboards, quote motion), Stage 4 SLA + reference customer.
+- **2026-05-26** — Shipped (III3, slice 1): **reproducibility-v2 data-snapshot**.
+  `lib/intelligence/data-snapshot.js` captures the actual *values* of the
+  volatile market data the calculators read (FX rates/vol/hedge-cost, CBAM ETS
+  price, every AD/CVD measure rate, TARIC mode) and content-addresses them into
+  a stable `dataSnapshotId` (`ds_` + sha256/16, canonical sorted-key hash). Bound
+  into `provenance.currentProvenance()` so every plan now carries the machine
+  coordinate of the `(inputs, calculatorVersion, dataSnapshotId)` tuple. Pure,
+  LLM-free, no migration. Suite 3,018 → **3,040**. *Limitation:* when TARIC is
+  live the fetched duty rates aren't yet pinned (recorded as `taric.mode`).
+  **Next (slice 2):** persist snapshots in a content-addressed store + an as-of
+  recompute endpoint that pins the calculators to a stored snapshot and asserts
+  byte-identical reproduction; then pin live-TARIC fetches per quote.
+- **2026-05-26** — Shipped (III3, slice 2): **content-addressed snapshot store +
+  reproducibility endpoint**. `lib/snapshot-store.js` (KV-primary + Postgres
+  forever-home, immutable, idempotent put by content address) persists the
+  captured snapshots; `schema-006-data-snapshots.sql` adds the `data_snapshots`
+  table + a `saved_plans.data_snapshot_id` column. Every `savePlan` now captures
+  + stores the volatile-data snapshot and stamps its id on the plan (KV record +
+  PG dual-write). New **`GET /api/plans/<id>/reproduce`** returns one of
+  `data-unchanged` (numbers reproduce identically — proven by recompute),
+  `data-drifted` (itemises exactly which money-driving values moved, via
+  `diffDataSnapshots`), `drift-snapshot-unavailable`, or `no-snapshot-bound` for
+  pre-binding plans. The honest enterprise-DD artifact: "is this quote still
+  reproducible, and if not, why?" Suite 3,040 → **3,052**.
+  **Next (slice 3):** pin the calculators to a *stored* snapshot (dependency-
+  inject the data modules) so an old plan recomputes its ORIGINAL numbers, not
+  just reports drift; then pin live-TARIC fetches per quote; surface the
+  reproduce verdict in the app-shell plan-detail view.
