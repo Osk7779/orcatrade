@@ -747,3 +747,15 @@ We are there (for the platform, not the valuation) when, simultaneously:
   inject the data modules) so an old plan recomputes its ORIGINAL numbers, not
   just reports drift; then pin live-TARIC fetches per quote; surface the
   reproduce verdict in the app-shell plan-detail view.
+- **2026-05-26** — Shipped (III3, slice 3a): **as-of recompute — FX pinning**.
+  Chose explicit param-threading over a hidden context (default path stays
+  byte-identical → suite green by construction). `fx-quote.resolveFxSource(pinnedFx)`
+  builds a rate-table shim from a stored snapshot's `fx` block; `assessFxRisk`
+  takes an optional `pinnedFx`; `composePlan(input, { pinnedData })` threads it
+  through. `/api/plans/<id>/reproduce` now returns an `fxReproduction` block on
+  drift — the ORIGINAL spot rate / risk / hedge cost recomputed from the stored
+  snapshot, side-by-side with today's — concrete proof old euros are recoverable,
+  not just that data moved. Suite 3,052 → **3,058**.
+  **Next (slice 3b):** extend the same pinning to CBAM (ETS price) + AD/CVD
+  (trade-defence rates) so the FULL landed total reproduces; then live-TARIC
+  per-quote pinning; then surface the verdict in the app-shell plan view.

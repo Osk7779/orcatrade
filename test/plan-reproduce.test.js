@@ -86,6 +86,43 @@ test('reproduce: drift → itemises exactly what moved', async () => {
   assert.ok(usd, 'the moved FX rate is reported in the drift');
 });
 
+test('reproduce: drift on a USD plan reproduces the ORIGINAL FX numbers', async () => {
+  kv._resetMemoryStore();
+  const rec = await savedPlans.savePlan({
+    email: USER,
+    inputs: { ...BASE_INPUTS, quoteCurrency: 'USD', paymentTermsDays: 60 },
+    label: 'usd',
+  });
+
+  // Stash an OLD snapshot with a very different USD rate and repoint the plan.
+  const old = ds.currentDataSnapshot();
+  old.snapshot.fx.rates.USD = 1.40;
+  old.snapshot.fx.asOf = '2024-01-01';
+  old.id = ds.dataSnapshotId(old.snapshot);
+  await snapshotStore.putSnapshot(old);
+  const key = savedPlans.PLAN_KEY_PREFIX + rec.id;
+  const planRec = await kv.get(key);
+  planRec.dataSnapshotId = old.id;
+  await kv.set(key, planRec);
+
+  const req = authedReq('GET', null, ['plans', rec.id, 'reproduce'], `/api/plans/${rec.id}/reproduce`);
+  const res = mockRes();
+  await plansHandler(req, res);
+  const json = JSON.parse(res.body);
+
+  assert.equal(json.status, 'data-drifted');
+  assert.ok(json.fxReproduction, 'fx reproduction block present for a non-EUR plan');
+  assert.equal(json.fxReproduction.currency, 'USD');
+  // The ORIGINAL spot rate is recovered from the stored snapshot…
+  assert.equal(json.fxReproduction.original.spotRateForeignPerEur, 1.40);
+  assert.equal(json.fxReproduction.original.asOf, '2024-01-01');
+  // …and differs from today's recompute.
+  assert.notEqual(
+    json.fxReproduction.original.spotRateForeignPerEur,
+    json.fxReproduction.current.spotRateForeignPerEur,
+  );
+});
+
 test('reproduce: unknown plan → 404', async () => {
   kv._resetMemoryStore();
   const req = authedReq('GET', null, ['plans', 'pl_deadbeefdeadbeef', 'reproduce'], '/api/plans/pl_deadbeefdeadbeef/reproduce');
