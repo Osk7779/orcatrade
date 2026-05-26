@@ -796,3 +796,13 @@ We are there (for the platform, not the valuation) when, simultaneously:
   **Next (III1 slices):** wire `can()` enforcement into the handlers (gate
   reads/writes/billing/audit by permission), then a role-admin UI in the app
   shell, then SCIM provisioning + enforced-SSO per org on the OIDC seam.
+- **2026-05-27** — Shipped (III1, slice 2): **RBAC enforcement in the orgs
+  handler**. `orgs.getMemberRole()` resolves a user's raw role; a single
+  `requirePermission(req,res,user,orgId,permission)` choke-point gates actions on
+  `rbac.can()`. Member invite/remove now require `ORG_MEMBERS_MANAGE` (owner/admin
+  only — an analyst/viewer gets 403 with the `requiredPermission` named); invited
+  roles are validated against `assignableRoles(actorRole)` (never owner). Legacy
+  `member` input from older clients canonicalises to `viewer`. The permission
+  matrix is now load-bearing, not just documentation. Suite 3,074 → **3,077**.
+  **Next:** extend `can()` gating to billing/audit/tier actions, a role-admin UI
+  in the app shell (`assignableRoles` dropdown), then SCIM + enforced-SSO.

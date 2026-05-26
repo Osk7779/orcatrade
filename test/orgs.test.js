@@ -264,6 +264,41 @@ test('handler: owner invites a member end-to-end', async () => {
   assert.equal(members.length, 2);
 });
 
+test('handler: an analyst cannot invite (RBAC — lacks member-management)', async () => {
+  kv._resetMemoryStore();
+  const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });
+  await orgs.addMember(o.id, { email: 'ana@example.com', role: 'analyst' });
+  const req = makeReq({ method: 'POST', urlPath: `${o.id}/invite`, email: 'ana@example.com',
+    body: { email: 'new@example.com', role: 'viewer' } });
+  const res = makeRes();
+  await orgsHandler(req, res);
+  assert.equal(res.statusCode, 403);
+  assert.match(JSON.parse(res.body).requiredPermission, /members/);
+});
+
+test('handler: admin can invite at a new enterprise role (compliance_officer)', async () => {
+  kv._resetMemoryStore();
+  const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });
+  await orgs.addMember(o.id, { email: 'adam@example.com', role: 'admin' });
+  const req = makeReq({ method: 'POST', urlPath: `${o.id}/invite`, email: 'adam@example.com',
+    body: { email: 'cory@example.com', role: 'compliance_officer' } });
+  const res = makeRes();
+  await orgsHandler(req, res);
+  assert.equal(res.statusCode, 200);
+  const members = await orgs.listMembers(o.id);
+  assert.equal(members.find((m) => m.email === 'cory@example.com').role, 'compliance_officer');
+});
+
+test('handler: nobody can be invited as owner (transfer-only)', async () => {
+  kv._resetMemoryStore();
+  const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });
+  const req = makeReq({ method: 'POST', urlPath: `${o.id}/invite`, email: 'alice@example.com',
+    body: { email: 'usurper@example.com', role: 'owner' } });
+  const res = makeRes();
+  await orgsHandler(req, res);
+  assert.equal(res.statusCode, 400);
+});
+
 test('handler: GET /api/orgs/<id> requires membership', async () => {
   kv._resetMemoryStore();
   const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });

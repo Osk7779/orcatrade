@@ -169,7 +169,8 @@ test('handleInvite writes org_member_invited (new member only, not on re-invite)
   assert.equal(hits.length, 1, 'only the first invite should record');
   assert.equal(hits[0].email, 'inviter@example.com');
   assert.equal(hits[0].inviteeEmail, 'invitee@example.com');
-  assert.equal(hits[0].role, 'member');
+  // Legacy 'member' input is canonicalised to its RBAC role (viewer) on invite.
+  assert.equal(hits[0].role, 'viewer');
   assert.equal(hits[0].orgId, org.id);
 });
 
