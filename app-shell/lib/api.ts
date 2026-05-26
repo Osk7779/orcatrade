@@ -46,14 +46,32 @@ export interface PlanDelta {
   primaryDriver?: string | null;
   daysSinceSaved?: number;
 }
+export interface CostSnapshot {
+  perShipmentLandedTotal?: number;
+  dutyEur?: number;
+  vatEur?: number;
+  transportEur?: number;
+  brokerageEur?: number;
+  dutyRatePct?: number;
+}
 export interface SavedPlan {
   id: string;
   label?: string;
   savedAt?: string;
   inputs?: PlanInputs;
-  snapshot?: { perShipmentLandedTotal?: number } | null;
-  current?: { perShipmentLandedTotal?: number } | null;
+  snapshot?: CostSnapshot | null;
+  current?: CostSnapshot | null;
   delta?: PlanDelta | null;
+}
+
+// GET/POST /api/account/preferences
+export interface Prefs {
+  planRevisionEmails?: boolean;
+  weeklyDigestEmails?: boolean;
+  complianceDeadlineEmails?: boolean;
+  monitoringAlerts?: boolean;
+  locale?: string;
+  updatedAt?: string;
 }
 
 // GET /api/portfolio/list

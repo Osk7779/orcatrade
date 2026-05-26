@@ -94,8 +94,25 @@ test('Documents + Screening complete the shell (final two surfaces, in-app)', ()
   const nav = read('components/Sidebar.tsx');
   assert.match(nav, /href:\s*'\/documents',\s*inApp:\s*true/);
   assert.match(nav, /href:\s*'\/screening',\s*inApp:\s*true/);
-  // Every product surface is now native — only Preferences still links to /account/*.
-  assert.equal((nav.match(/href:\s*'\/account\//g) || []).length, 1, 'only Preferences should still link to /account/*');
+});
+
+test('Preferences is ported + the whole sidebar is now in-app (no /account/* links)', () => {
+  assert.ok(exists('app/(authed)/preferences/page.tsx'), 'preferences page missing');
+  const page = read('app/(authed)/preferences/page.tsx');
+  assert.match(page, /\/account\/preferences/);
+  assert.match(page, /apiPost/); // toggles persist
+  const nav = read('components/Sidebar.tsx');
+  assert.match(nav, /href:\s*'\/preferences',\s*inApp:\s*true/);
+  assert.equal((nav.match(/href:\s*'\/account\//g) || []).length, 0, 'every sidebar surface should now be native');
+});
+
+test('Plan detail view exists, reads /api/plans/<id>, and the list links to it', () => {
+  assert.ok(exists('app/(authed)/plans/[id]/page.tsx'), 'plan detail page missing');
+  const detail = read('app/(authed)/plans/[id]/page.tsx');
+  assert.match(detail, /\/plans\/\$\{id\}/);
+  assert.match(detail, /Cost breakdown/);
+  // The list row links to the detail route.
+  assert.match(read('app/(authed)/plans/page.tsx'), /href=\{`\/plans\/\$\{p\.id\}`\}/);
 });
 
 test('the accent colour is ivory white, not gold (user preference, locked in)', () => {
@@ -111,6 +128,8 @@ test('the accent colour is ivory white, not gold (user preference, locked in)', 
     'app/(authed)/calendar/page.tsx',
     'app/(authed)/documents/page.tsx',
     'app/(authed)/screening/page.tsx',
+    'app/(authed)/preferences/page.tsx',
+    'app/(authed)/plans/[id]/page.tsx',
   ]) {
     assert.doesNotMatch(read(f), /--color-gold/, `${f} still references a gold token`);
   }

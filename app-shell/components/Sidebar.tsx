@@ -10,7 +10,7 @@ const NAV: Array<{ label: string; href: string; inApp?: boolean }> = [
   { label: 'Compliance calendar', href: '/calendar', inApp: true },
   { label: 'Documents', href: '/documents', inApp: true },
   { label: 'Screening', href: '/screening', inApp: true },
-  { label: 'Preferences', href: '/account/preferences/' },
+  { label: 'Preferences', href: '/preferences', inApp: true },
 ];
 
 export function Sidebar() {

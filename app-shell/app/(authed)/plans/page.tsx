@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 import { apiGet, AuthError, type SavedPlan } from '@/lib/api';
 
 function eur(n?: number | null) {
@@ -61,7 +62,7 @@ export default function PlansPage() {
             const landed = p.current?.perShipmentLandedTotal ?? p.snapshot?.perShipmentLandedTotal;
             const inp = p.inputs || {};
             return (
-              <div key={p.id} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.03]">
+              <Link key={p.id} href={`/plans/${p.id}`} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.03]">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
                     <span className="font-serif text-lg text-ivory truncate">{p.label || inp.productCategory || p.id}</span>
@@ -77,7 +78,7 @@ export default function PlansPage() {
                   <div className="font-mono text-sm text-white/85">{eur(landed)}</div>
                   <div className="text-[0.66rem] uppercase tracking-wider text-white/40">landed / shipment</div>
                 </div>
-              </div>
+              </Link>
             );
           })}
         </div>
