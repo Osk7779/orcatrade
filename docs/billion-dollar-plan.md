@@ -784,3 +784,15 @@ We are there (for the platform, not the valuation) when, simultaneously:
   authenticated product — the demoable "every euro reproducible" artifact a
   buyer's diligence team can see. `lib/api.ts` gains the `Reproduction` type;
   scaffold test extended. Suite 3,062 → **3,063**.
+- **2026-05-26** — Shipped (III1, slice 1): **RBAC permission matrix + role
+  vocabulary**. New `lib/rbac.js` — the single source of truth for what each
+  role may do: six canonical roles (owner, admin, analyst, finance,
+  compliance_officer, viewer) × 15 resource.action permissions, an explicit
+  capability matrix, and the fail-closed `can(role, permission)` contract every
+  handler will call (owner = wildcard; legacy `member` aliases to viewer for
+  back-compat). `assignableRoles()` for the admin UI. `lib/orgs.js` ALLOWED_ROLES
+  widened to the new set; `schema-007-rbac-roles.sql` widens the memberships
+  role CHECK. Pure, LLM-free. Suite 3,063 → **3,074**.
+  **Next (III1 slices):** wire `can()` enforcement into the handlers (gate
+  reads/writes/billing/audit by permission), then a role-admin UI in the app
+  shell, then SCIM provisioning + enforced-SSO per org on the OIDC seam.
