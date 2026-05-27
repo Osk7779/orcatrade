@@ -4,6 +4,7 @@ import Link from 'next/link';
 // point at the existing account pages on the main site until they're ported.
 const NAV: Array<{ label: string; href: string; inApp?: boolean }> = [
   { label: 'Dashboard', href: '/dashboard', inApp: true },
+  { label: 'Ask the agent', href: '/chat', inApp: true },
   { label: 'Plans', href: '/plans', inApp: true },
   { label: 'Portfolios', href: '/portfolios', inApp: true },
   { label: 'Monitoring alerts', href: '/alerts', inApp: true },
