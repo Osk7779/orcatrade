@@ -168,3 +168,25 @@ export interface Overview {
   portfolios?: { count?: number };
   compliance?: { count?: number; next?: { regime?: string; title?: string; dueDate?: string; daysUntil?: number } };
 }
+
+// GET /api/orgs (list) + GET /api/orgs/<id> (detail) — team / RBAC (III1)
+export interface Org {
+  id: string;
+  name: string;
+  ownerEmail?: string;
+  planTier?: string;
+}
+export interface OrgMember {
+  email: string;
+  role: string;
+  joinedAt?: string | null;
+  invitedAt?: string;
+}
+export interface OrgDetail {
+  ok: boolean;
+  org: Org;
+  members: OrgMember[];
+  myRole: string;
+  canManageMembers: boolean;
+  assignableRoles: string[];
+}

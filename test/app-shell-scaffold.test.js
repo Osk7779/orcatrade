@@ -115,6 +115,17 @@ test('Plan detail view exists, reads /api/plans/<id>, and the list links to it',
   assert.match(read('app/(authed)/plans/page.tsx'), /href=\{`\/plans\/\$\{p\.id\}`\}/);
 });
 
+test('Team page exists, is in the sidebar, and drives the RBAC endpoints', () => {
+  assert.ok(exists('app/(authed)/team/page.tsx'), 'team page missing');
+  const team = read('app/(authed)/team/page.tsx');
+  assert.match(team, /\/orgs\/\$\{org\.id\}\/role/);   // change role
+  assert.match(team, /\/orgs\/\$\{org\.id\}\/invite/); // invite
+  assert.match(team, /\/orgs\/\$\{org\.id\}\/remove/); // remove
+  assert.match(team, /canManageMembers/);               // gates the controls
+  assert.match(read('components/Sidebar.tsx'), /href: '\/team'/);
+  assert.match(read('lib/api.ts'), /interface OrgDetail/);
+});
+
 test('Plan detail surfaces the reproducibility verdict (III3 made visible)', () => {
   const detail = read('app/(authed)/plans/[id]/page.tsx');
   // Fetches the reproduce endpoint and renders the panel.

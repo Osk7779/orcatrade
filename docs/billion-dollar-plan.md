@@ -813,3 +813,14 @@ We are there (for the platform, not the valuation) when, simultaneously:
   `member`→viewer on input, idempotent no-op returns 200. Completes the
   member-management surface (invite/remove/role) the app-shell Team UI needs.
   Suite 3,077 → **3,080**.
+- **2026-05-27** — Shipped (III1, slice 4 × Pillar IV): **Team admin UI in the
+  app shell**. New `/app/team` route lists members + roles and — when the viewer
+  holds `ORG_MEMBERS_MANAGE` — lets owners/admins change a member's role
+  (dropdown driven by server-sent `assignableRoles`), remove members, and invite
+  colleagues; an empty state creates the first org. `GET /api/orgs/<id>` enriched
+  with `myRole` / `canManageMembers` / `assignableRoles` so the UI renders the
+  right controls without leaking actions a role can't perform. RBAC is now
+  end-to-end and visible (matrix → enforcement → change-role → UI), mirroring how
+  reproducibility was surfaced. Suite 3,080 → **3,081**.
+  **Next (III1):** SCIM provisioning + enforced-SSO per org on the OIDC seam;
+  extend `can()` gating to billing/audit/tier actions.
