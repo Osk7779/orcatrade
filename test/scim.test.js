@@ -146,6 +146,47 @@ test('scim handler: ServiceProviderConfig advertises bearer auth + patch', async
   assert.equal(cfg.authenticationSchemes[0].type, 'oauthbearertoken');
 });
 
+// ── Groups → roles ──────────────────────────────────────
+
+test('scim handler: GET /Groups lists one group per assignable role', async () => {
+  const { token } = await setup();
+  const res = mockRes();
+  await scimHandler(scimReq({ method: 'GET', segs: ['v2', 'Groups'], token }), res);
+  const list = JSON.parse(res.body);
+  const ids = list.Resources.map((g) => g.id).sort();
+  assert.deepEqual(ids, ['admin', 'analyst', 'compliance_officer', 'finance', 'viewer']);
+});
+
+test('scim handler: PATCH /Groups/finance add member sets the role; remove demotes to viewer', async () => {
+  const { org, token } = await setup();
+  // Provision a member (lands as viewer)…
+  await scimHandler(scimReq({ method: 'POST', segs: ['v2', 'Users'], token, body: { userName: 'cfo@acme.test' } }), mockRes());
+  const id = hash.emailHash('cfo@acme.test');
+
+  // …push them into the finance group → role becomes finance.
+  const addRes = mockRes();
+  await scimHandler(scimReq({
+    method: 'PATCH', segs: ['v2', 'Groups', 'finance'], token,
+    body: { Operations: [{ op: 'add', path: 'members', value: [{ value: id }] }] },
+  }), addRes);
+  assert.equal(addRes.statusCode, 200);
+  assert.equal(await orgs.getMemberRole(org.id, 'cfo@acme.test'), 'finance');
+
+  // Remove from the group → demoted back to viewer.
+  await scimHandler(scimReq({
+    method: 'PATCH', segs: ['v2', 'Groups', 'finance'], token,
+    body: { Operations: [{ op: 'remove', path: 'members', value: [{ value: id }] }] },
+  }), mockRes());
+  assert.equal(await orgs.getMemberRole(org.id, 'cfo@acme.test'), 'viewer');
+});
+
+test('scim handler: GET /Groups/<unknown> → 404', async () => {
+  const { token } = await setup();
+  const res = mockRes();
+  await scimHandler(scimReq({ method: 'GET', segs: ['v2', 'Groups', 'wizard'], token }), res);
+  assert.equal(res.statusCode, 404);
+});
+
 test('activeFromPatch tolerates both value-object and path forms', () => {
   assert.equal(scimHandler.activeFromPatch({ Operations: [{ op: 'replace', path: 'active', value: false }] }), false);
   assert.equal(scimHandler.activeFromPatch({ Operations: [{ op: 'replace', value: { active: false } }] }), false);
