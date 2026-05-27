@@ -34,6 +34,35 @@ function userObj(email) {
   return { email, iat: Date.now() - 1000, exp: Date.now() + 60_000 };
 }
 
+// ── RBAC: billing requires BILLING_MANAGE in an org (apex III1) ──
+
+test('handleCheckout: an org viewer is blocked (403, needs BILLING_MANAGE)', async () => {
+  kv._resetMemoryStore();
+  const org = await orgs.createOrg({ name: 'Acme', ownerEmail: 'owner@acme.test' });
+  await orgs.addMember(org.id, { email: 'view@acme.test', role: 'viewer' });
+  const res = mockRes();
+  await billing.handleCheckout({ headers: {}, body: { tierId: 'starter', billingCycle: 'monthly' } }, res, userObj('view@acme.test'));
+  assert.equal(res.statusCode, 403);
+  assert.match(JSON.parse(res.body).requiredPermission, /billing/);
+});
+
+test('handleCheckout: a finance member passes the permission gate (not 403)', async () => {
+  kv._resetMemoryStore();
+  const org = await orgs.createOrg({ name: 'Acme', ownerEmail: 'owner@acme.test' });
+  await orgs.addMember(org.id, { email: 'fin@acme.test', role: 'finance' });
+  const res = mockRes();
+  await billing.handleCheckout({ headers: {}, body: { tierId: 'starter', billingCycle: 'monthly' } }, res, userObj('fin@acme.test'));
+  // Passes RBAC; then hits the Stripe-not-configured path in tests (503), never 403.
+  assert.notEqual(res.statusCode, 403);
+});
+
+test('handleCheckout: a user with no org bills for themselves (no 403)', async () => {
+  kv._resetMemoryStore();
+  const res = mockRes();
+  await billing.handleCheckout({ headers: {}, body: { tierId: 'starter', billingCycle: 'monthly' } }, res, userObj('solo@example.com'));
+  assert.notEqual(res.statusCode, 403);
+});
+
 // ── /api/billing/me response shape ────────────────────
 
 test('handleMe: default origin when user has no org + no tier set', async () => {
