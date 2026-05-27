@@ -806,3 +806,10 @@ We are there (for the platform, not the valuation) when, simultaneously:
   matrix is now load-bearing, not just documentation. Suite 3,074 → **3,077**.
   **Next:** extend `can()` gating to billing/audit/tier actions, a role-admin UI
   in the app shell (`assignableRoles` dropdown), then SCIM + enforced-SSO.
+- **2026-05-27** — Shipped (III1, slice 3): **change-member-role capability**.
+  `orgs.changeMemberRole()` (owner reserved for transfer; can't change the owner)
+  + `POST /api/orgs/<id>/role` gated by `ORG_MEMBERS_MANAGE`, validated against
+  `assignableRoles(actorRole)`, audit-logged (`org_member_role_changed`), legacy
+  `member`→viewer on input, idempotent no-op returns 200. Completes the
+  member-management surface (invite/remove/role) the app-shell Team UI needs.
+  Suite 3,077 → **3,080**.

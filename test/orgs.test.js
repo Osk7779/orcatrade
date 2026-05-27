@@ -299,6 +299,48 @@ test('handler: nobody can be invited as owner (transfer-only)', async () => {
   assert.equal(res.statusCode, 400);
 });
 
+test('changeMemberRole: promotes a viewer to analyst', async () => {
+  kv._resetMemoryStore();
+  const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });
+  await orgs.addMember(o.id, { email: 'bob@example.com', role: 'viewer' });
+  const res = await orgs.changeMemberRole(o.id, { email: 'bob@example.com', role: 'analyst' });
+  assert.equal(res.changed, true);
+  assert.equal(res.member.role, 'analyst');
+  assert.equal((await orgs.getMemberRole(o.id, 'bob@example.com')), 'analyst');
+});
+
+test('changeMemberRole: cannot change the owner or grant owner', async () => {
+  kv._resetMemoryStore();
+  const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });
+  await orgs.addMember(o.id, { email: 'bob@example.com', role: 'admin' });
+  const r1 = await orgs.changeMemberRole(o.id, { email: 'alice@example.com', role: 'viewer' });
+  assert.equal(r1.changed, false);
+  assert.equal(r1.reason, 'cannot-change-owner');
+  await assert.rejects(() => orgs.changeMemberRole(o.id, { email: 'bob@example.com', role: 'owner' }), /owner/);
+});
+
+test('handler: POST /api/orgs/<id>/role enforces ORG_MEMBERS_MANAGE', async () => {
+  kv._resetMemoryStore();
+  const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });
+  await orgs.addMember(o.id, { email: 'bob@example.com', role: 'viewer' });
+  await orgs.addMember(o.id, { email: 'ana@example.com', role: 'analyst' });
+
+  // analyst cannot change roles → 403
+  const denied = makeReq({ method: 'POST', urlPath: `${o.id}/role`, email: 'ana@example.com',
+    body: { email: 'bob@example.com', role: 'finance' } });
+  const dres = makeRes();
+  await orgsHandler(denied, dres);
+  assert.equal(dres.statusCode, 403);
+
+  // owner can → 200 and the role sticks
+  const ok = makeReq({ method: 'POST', urlPath: `${o.id}/role`, email: 'alice@example.com',
+    body: { email: 'bob@example.com', role: 'finance' } });
+  const okres = makeRes();
+  await orgsHandler(ok, okres);
+  assert.equal(okres.statusCode, 200);
+  assert.equal(await orgs.getMemberRole(o.id, 'bob@example.com'), 'finance');
+});
+
 test('handler: GET /api/orgs/<id> requires membership', async () => {
   kv._resetMemoryStore();
   const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });
