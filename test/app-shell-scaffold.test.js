@@ -124,6 +124,10 @@ test('Team page exists, is in the sidebar, and drives the RBAC endpoints', () =>
   assert.match(team, /canManageMembers/);               // gates the controls
   assert.match(read('components/Sidebar.tsx'), /href: '\/team'/);
   assert.match(read('lib/api.ts'), /interface OrgDetail/);
+  // Owner-only SCIM provisioning panel + the DELETE client it needs.
+  assert.match(team, /ScimPanel/);
+  assert.match(team, /\/orgs\/\$\{orgId\}\/scim/);
+  assert.match(read('lib/api.ts'), /apiDelete/);
 });
 
 test('Plan detail surfaces the reproducibility verdict (III3 made visible)', () => {

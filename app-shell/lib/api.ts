@@ -31,6 +31,17 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export async function apiDelete<T>(path: string): Promise<T> {
+  const res = await fetch(`/api${path}`, {
+    method: 'DELETE',
+    credentials: 'same-origin',
+    headers: { Accept: 'application/json' },
+  });
+  if (res.status === 401) throw new AuthError();
+  if (!res.ok) throw new Error(`API ${path} failed: HTTP ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
 // A saved plan as returned (enriched) by GET /api/plans.
 export interface PlanInputs {
   productCategory?: string;
@@ -189,4 +200,14 @@ export interface OrgDetail {
   myRole: string;
   canManageMembers: boolean;
   assignableRoles: string[];
+}
+
+// GET/POST/DELETE /api/orgs/<id>/scim — SCIM provisioning token (owner-only)
+export interface ScimStatus {
+  ok: boolean;
+  configured?: boolean;
+  createdAt?: string | null;
+  lastUsedAt?: string | null;
+  endpoint?: string;
+  token?: string; // present only in the POST (mint) response, shown once
 }

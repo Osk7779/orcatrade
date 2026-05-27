@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { apiGet, apiPost, AuthError, type Org, type OrgDetail } from '@/lib/api';
+import { apiGet, apiPost, apiDelete, AuthError, type Org, type OrgDetail, type ScimStatus } from '@/lib/api';
 
 function roleLabel(role: string) {
   return role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
@@ -156,6 +156,74 @@ export default function TeamPage() {
           </p>
         </section>
       )}
+
+      {myRole === 'owner' && <ScimPanel orgId={org.id} />}
     </div>
+  );
+}
+
+// Owner-only SCIM/SSO provisioning panel — mint/rotate/revoke the per-org token
+// the customer's IdP uses to auto-provision members (apex III1).
+function ScimPanel({ orgId }: { orgId: string }) {
+  const [status, setStatus] = useState<ScimStatus | null>(null);
+  const [minted, setMinted] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const refresh = useCallback(() => {
+    apiGet<ScimStatus>(`/orgs/${orgId}/scim`).then(setStatus).catch(() => {});
+  }, [orgId]);
+  useEffect(() => { refresh(); }, [refresh]);
+
+  async function mint() {
+    setBusy(true);
+    try {
+      const r = await apiPost<ScimStatus>(`/orgs/${orgId}/scim`, {});
+      if (r.token) setMinted(r.token);
+      refresh();
+    } finally { setBusy(false); }
+  }
+  async function revoke() {
+    setBusy(true);
+    try { await apiDelete(`/orgs/${orgId}/scim`); setMinted(null); refresh(); }
+    finally { setBusy(false); }
+  }
+
+  return (
+    <section className="border border-[var(--color-line)] px-5 py-5 mt-6">
+      <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-1">Automated provisioning (SCIM / SSO)</div>
+      <p className="text-white/55 text-xs mb-3">
+        Connect your identity provider (Okta, Entra ID) to auto-provision members and map IdP groups to roles.
+      </p>
+
+      <div className="flex items-center justify-between gap-3 text-sm mb-3">
+        <span className="text-white/70">
+          {status?.configured
+            ? <>SCIM token active{status.lastUsedAt ? ` · last used ${String(status.lastUsedAt).slice(0, 10)}` : ' · not yet used'}</>
+            : 'No SCIM token yet'}
+        </span>
+        <div className="flex gap-2">
+          <button disabled={busy} onClick={mint}
+            className="px-3 py-1.5 text-xs font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40">
+            {status?.configured ? 'Rotate token' : 'Generate token'}
+          </button>
+          {status?.configured && (
+            <button disabled={busy} onClick={revoke} className="px-3 py-1.5 text-xs text-red-300/80 hover:text-red-300">Revoke</button>
+          )}
+        </div>
+      </div>
+
+      {minted && (
+        <div className="border border-[var(--color-accent)]/40 bg-white/[0.03] px-4 py-3 mb-3">
+          <div className="text-[0.65rem] uppercase tracking-wider text-[var(--color-accent-soft)] mb-1">Copy now — shown once</div>
+          <code className="block font-mono text-xs text-white/90 break-all">{minted}</code>
+        </div>
+      )}
+
+      {status?.endpoint && (
+        <div className="font-mono text-[0.7rem] text-white/45">
+          SCIM base URL: {status.endpoint} · Bearer auth
+        </div>
+      )}
+    </section>
   );
 }
