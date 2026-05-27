@@ -130,6 +130,15 @@ test('Team page exists, is in the sidebar, and drives the RBAC endpoints', () =>
   assert.match(read('lib/api.ts'), /apiDelete/);
 });
 
+test('Operations dashboard renders exposure + drift from /api/plans', () => {
+  assert.ok(exists('app/(authed)/operations/page.tsx'), 'operations page missing');
+  const ops = read('app/(authed)/operations/page.tsx');
+  assert.match(ops, /Landed exposure/);
+  assert.match(ops, /Drift ledger/);
+  assert.match(ops, /apiGet<\{ ok: boolean; plans: SavedPlan\[\] \}>\('\/plans'\)/);
+  assert.match(read('components/Sidebar.tsx'), /href: '\/operations'/);
+});
+
 test('Agent chat page streams the orchestrator (SSE) and is in the sidebar', () => {
   assert.ok(exists('app/(authed)/chat/page.tsx'), 'chat page missing');
   const chat = read('app/(authed)/chat/page.tsx');
