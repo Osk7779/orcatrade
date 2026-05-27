@@ -121,6 +121,11 @@ const handlers = {
   // POST /api/screen { name } → potential matches (never an all-clear).
   // Stateless + rate-limited; powers the /account/screen/ tool page.
   screen: require('../lib/handlers/screen'),
+  // Quote Studio (Sprint quote-rebrand-v1). Admin-only internal tool.
+  // POST /api/quote-rebrand { action:'extract' } reads a supplier PDF via
+  // Claude; { action:'generate' } prices it with the fixed-margin calculator
+  // and returns a branded OrcaTrade quotation PDF. Powers /tools/quote-rebrand/.
+  'quote-rebrand': require('../lib/handlers/quote-rebrand'),
   // SCIM 2.0 user provisioning (apex III1). /api/scim/v2/Users — the
   // customer's IdP provisions/deprovisions org members via a per-org bearer
   // token (lib/scim-store.js). Machine-to-machine; no session cookie.
