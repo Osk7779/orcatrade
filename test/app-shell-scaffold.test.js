@@ -130,6 +130,13 @@ test('Team page exists, is in the sidebar, and drives the RBAC endpoints', () =>
   assert.match(read('lib/api.ts'), /apiDelete/);
 });
 
+test('Dashboard shows a first-run activation path for new accounts', () => {
+  const dash = read('app/(authed)/dashboard/page.tsx');
+  assert.match(dash, /planCount === 0/);
+  assert.match(dash, /Welcome to OrcaTrade/);
+  assert.match(dash, /Build your first import plan/);
+});
+
 test('Operations dashboard renders exposure + drift from /api/plans', () => {
   assert.ok(exists('app/(authed)/operations/page.tsx'), 'operations page missing');
   const ops = read('app/(authed)/operations/page.tsx');
