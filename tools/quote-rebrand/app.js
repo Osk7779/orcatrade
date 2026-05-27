@@ -20,6 +20,7 @@
   } catch (_) {}
   el('tokenInput').addEventListener('change', function () {
     try { localStorage.setItem(STORAGE_KEY, el('tokenInput').value.trim()); } catch (_) {}
+    probeAccess(); // a freshly-pasted token may unlock the tool
   });
 
   function apiUrl() {
@@ -34,6 +35,40 @@
     return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
       return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
     });
+  }
+
+  // ── Access gate ───────────────────────────────────────────────────────
+  // Probe the team-only API on load (and whenever a token is entered). The
+  // tool panels stay hidden until access is confirmed, so the page never
+  // exposes the quoting UI to anyone who isn't on the OrcaTrade team.
+  function setLocked(message) {
+    el('panelUpload').hidden = true;
+    el('panelReview').hidden = true;
+    el('gateBody').innerHTML = message;
+  }
+  function setUnlocked(email) {
+    el('gateBody').innerHTML = '<span style="color:#7ed28a">✓ Signed in' +
+      (email ? (' as ' + escapeHtml(email)) : ' (token)') + '. You have Quote Studio access.</span>';
+    el('panelUpload').hidden = false;
+  }
+
+  async function probeAccess() {
+    el('gateBody').textContent = 'Checking access…';
+    try {
+      var res = await fetch(apiUrl(), { method: 'GET', credentials: 'same-origin' });
+      var data = null; try { data = await res.json(); } catch (_) {}
+      if (res.ok && data && data.authed) {
+        setUnlocked(data.email);
+        return;
+      }
+      if (res.status === 503) {
+        setLocked('Quote Studio is not yet configured on the server. Ask an administrator to add your email to <code>ORCATRADE_QUOTE_STUDIO_EMAILS</code>.');
+        return;
+      }
+      setLocked('This is an OrcaTrade team tool. <a href="/account/" style="color:#b8bec8">Sign in</a> with your OrcaTrade account, or paste a valid admin token above. If you are signed in and still see this, your email is not on the Quote Studio team list.');
+    } catch (_) {
+      setLocked('Could not reach the server to verify access. Check your connection and reload.');
+    }
   }
 
   // ── Step 1: file selection ────────────────────────────────────────────
@@ -220,4 +255,7 @@
       btn.textContent = 'Generate OrcaTrade PDF';
     }
   });
+
+  // Resolve access as soon as the page loads.
+  probeAccess();
 })();
