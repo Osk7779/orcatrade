@@ -140,8 +140,15 @@
 
     <div id="globalErr"></div>
 
+    <!-- Access gate — resolved by an auth probe on load. Tool panels stay
+         hidden until the visitor is confirmed to be on the team. -->
+    <div class="panel" id="accessGate">
+      <h2><span class="step">·</span> Access</h2>
+      <div id="gateBody" class="hint" style="margin:0">Checking access…</div>
+    </div>
+
     <!-- Step 1 — upload + extract -->
-    <div class="panel" id="panelUpload">
+    <div class="panel" id="panelUpload" hidden>
       <h2><span class="step">1</span> Supplier quotation</h2>
       <div class="dropzone" id="dropzone">
         <div>Click to choose a PDF, or drop one here</div>
@@ -156,7 +163,7 @@
     </div>
 
     <!-- Step 2 — review + meta -->
-    <div class="panel" id="panelReview" data-disabled="1">
+    <div class="panel" id="panelReview" data-disabled="1" hidden>
       <h2><span class="step">2</span> Review &amp; price</h2>
 
       <div class="field">
