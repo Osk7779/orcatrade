@@ -835,3 +835,19 @@ We are there (for the platform, not the valuation) when, simultaneously:
   can now auto-(de)provision org members. Suite 3,081 → **3,091**.
   **Next (III1):** map SCIM Groups → RBAC roles; enforced-SSO per org; a SCIM
   setup panel in the app-shell Team page; extend `can()` to billing/audit/tier.
+- **2026-05-27** — "Complete everything" push. Shipped, all green (3,091 →
+  **3,126**): **III1 finished** — `can()` gating on billing checkout/portal
+  (BILLING_MANAGE); enforced-SSO per org (`isEnforcedForEmail` blocks magic-link
+  for SSO-mandated domains); SCIM Groups→roles (`/scim/v2/Groups`); owner SCIM
+  panel in the Team UI. **III3 finished** — live-TARIC duty pinning (3c). **Pillar
+  IV** — streaming in-app **agent chat** (`/app/chat`), **operations dashboard**
+  (exposure heatmap + drift ledger), **first-run onboarding**. **II3** — CBAM
+  report + EUDR DDS draft generators. **III2** audit-trail doc closed the gate.
+  Confirmed already-done: **A1 RAG is fully wired** (all agents call `searchHybrid`,
+  BM25∪pgvector, auto-degrading — key-and-go on `VOYAGE_API_KEY` + pgvector +
+  one `rag-reindex` run); **III4** soc2-readiness + **III6** dpa/subprocessors/
+  residency docs exist.
+  **Needs the user (not code):** `VOYAGE_API_KEY` + EU-region Neon + run the
+  schema-006/007 + rag reindex migrations; Vercel Pro/Fluid (F1); SOC 2 audit
+  engagement (III4 cert); paid data feeds (II4 freight, II5 supplier); **IV3
+  pricing/packaging** (tier matrix + prices = business decision); design partners.
