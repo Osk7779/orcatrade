@@ -20,6 +20,7 @@ For the broader engineering plan that ties into compliance, see [`../backend-gra
 | [`dpa-template.md`](dpa-template.md) | Customers signing a DPA | Article 28 DPA template + Annex A technical/organisational measures |
 | [`incident-response.md`](incident-response.md) | Engineers, DPO | Severity classes, runbooks, post-mortem cadence, breach-notification SLAs |
 | [`soc2-readiness.md`](soc2-readiness.md) | Procurement, auditors, sales engineers | Honest gap analysis against AICPA TSC; what's in place, what's queued, what we're upfront about not having yet |
+| [`audit-trail.md`](audit-trail.md) | Auditors, procurement, DPO | Tamper-evident hash-chained audit log + how to independently verify an export |
 
 ---
 
