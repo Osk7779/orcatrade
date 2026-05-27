@@ -130,6 +130,15 @@ test('Team page exists, is in the sidebar, and drives the RBAC endpoints', () =>
   assert.match(read('lib/api.ts'), /apiDelete/);
 });
 
+test('Agent chat page streams the orchestrator (SSE) and is in the sidebar', () => {
+  assert.ok(exists('app/(authed)/chat/page.tsx'), 'chat page missing');
+  const chat = read('app/(authed)/chat/page.tsx');
+  assert.match(chat, /\/api\/orchestrator/);
+  assert.match(chat, /text-delta/);        // parses streamed text
+  assert.match(chat, /getReader/);          // reads the SSE body
+  assert.match(read('components/Sidebar.tsx'), /href: '\/chat'/);
+});
+
 test('Plan detail surfaces the reproducibility verdict (III3 made visible)', () => {
   const detail = read('app/(authed)/plans/[id]/page.tsx');
   // Fetches the reproduce endpoint and renders the panel.
