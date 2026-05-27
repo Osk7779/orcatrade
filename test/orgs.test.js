@@ -341,6 +341,27 @@ test('handler: POST /api/orgs/<id>/role enforces ORG_MEMBERS_MANAGE', async () =
   assert.equal(await orgs.getMemberRole(o.id, 'bob@example.com'), 'finance');
 });
 
+test('handler: POST /api/orgs/<id>/scim mints a token for the owner only', async () => {
+  kv._resetMemoryStore();
+  const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });
+  await orgs.addMember(o.id, { email: 'adam@example.com', role: 'admin' });
+
+  // An admin (not owner) cannot mint the SCIM token.
+  const denied = makeReq({ method: 'POST', urlPath: `${o.id}/scim`, email: 'adam@example.com', body: {} });
+  const dres = makeRes();
+  await orgsHandler(denied, dres);
+  assert.equal(dres.statusCode, 403);
+
+  // The owner can — and the raw token is returned once.
+  const ok = makeReq({ method: 'POST', urlPath: `${o.id}/scim`, email: 'alice@example.com', body: {} });
+  const okres = makeRes();
+  await orgsHandler(ok, okres);
+  assert.equal(okres.statusCode, 200);
+  const body = JSON.parse(okres.body);
+  assert.match(body.token, /^scim_/);
+  assert.match(body.endpoint, /\/api\/scim\/v2$/);
+});
+
 test('handler: GET /api/orgs/<id> requires membership', async () => {
   kv._resetMemoryStore();
   const o = await orgs.createOrg({ name: 'Acme', ownerEmail: 'alice@example.com' });

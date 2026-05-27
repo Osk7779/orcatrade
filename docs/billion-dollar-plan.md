@@ -824,3 +824,14 @@ We are there (for the platform, not the valuation) when, simultaneously:
   reproducibility was surfaced. Suite 3,080 → **3,081**.
   **Next (III1):** SCIM provisioning + enforced-SSO per org on the OIDC seam;
   extend `can()` gating to billing/audit/tier actions.
+- **2026-05-27** — Shipped (III1, SCIM slice 1): **SCIM 2.0 user provisioning**.
+  `lib/scim-store.js` mints/rotates/revokes a per-org bearer token (SHA-256
+  stored, raw shown once). New `scim` handler at **`/api/scim/v2/*`**: Users
+  collection (POST provision → addMember viewer; GET list + `userName eq` filter;
+  GET/PATCH/DELETE by SCIM id = email_hash; PATCH `active:false` / DELETE →
+  deprovision/removeMember), idempotent create, plus ServiceProviderConfig
+  discovery — every event audit-logged. Owner-gated token management on the orgs
+  handler (`GET/POST/DELETE /api/orgs/<id>/scim`). An enterprise IdP (Okta/Entra)
+  can now auto-(de)provision org members. Suite 3,081 → **3,091**.
+  **Next (III1):** map SCIM Groups → RBAC roles; enforced-SSO per org; a SCIM
+  setup panel in the app-shell Team page; extend `can()` to billing/audit/tier.
