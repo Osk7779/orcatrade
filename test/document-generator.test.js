@@ -252,3 +252,25 @@ test('renderer escapes HTML in user-supplied fields', () => {
   // Escaped form must appear
   assert.match(result.html, /&lt;script&gt;/);
 });
+
+// ── CBAM report + EUDR DDS generators (II3) ─────────────
+
+test('generateDocument: cbam_report renders a CBAM quarterly report draft', () => {
+  const draft = draftFromPlan('cbam_report', { productCategory: 'Steel screws', originCountry: 'CN', hsCode: '7318', customsValueEur: 50000 });
+  assert.equal(draft.ok, true);
+  const out = generateDocument('cbam_report', draft.data);
+  assert.equal(out.ok, true, JSON.stringify(out.errors));
+  assert.match(out.html, /CBAM Quarterly Report/);
+  assert.match(out.html, /Reporting period/);
+  assert.match(out.html, /supplier data required/); // emissions placeholder flagged
+});
+
+test('generateDocument: eudr_dds renders a Due Diligence Statement draft', () => {
+  const draft = draftFromPlan('eudr_dds', { productCategory: 'Coffee', originCountry: 'VN', hsCode: '0901', customsValueEur: 30000 });
+  assert.equal(draft.ok, true);
+  const out = generateDocument('eudr_dds', draft.data);
+  assert.equal(out.ok, true, JSON.stringify(out.errors));
+  assert.match(out.html, /Due Diligence Statement/);
+  assert.match(out.html, /geolocation of plots required/); // geolocation placeholder flagged
+  assert.match(out.html, /2023\/1115/);
+});
