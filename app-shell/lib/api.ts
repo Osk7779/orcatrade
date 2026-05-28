@@ -56,6 +56,10 @@ export interface PlanDelta {
   significant?: boolean;
   primaryDriver?: string | null;
   daysSinceSaved?: number;
+  // Per-component movement since save — exposed by lib/plan-diff.js so the
+  // detail view can show "what changed" line by line.
+  components?: { dutyEur?: number; vatEur?: number; transportEur?: number; brokerageEur?: number };
+  dutyRateDelta?: number | null;
 }
 export interface CostSnapshot {
   perShipmentLandedTotal?: number;

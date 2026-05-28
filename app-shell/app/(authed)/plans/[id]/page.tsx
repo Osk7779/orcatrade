@@ -83,6 +83,8 @@ export default function PlanDetailPage({ params }: { params: Promise<{ id: strin
         </div>
       </div>
 
+      {d && d.components && d.significant && <RevisionDiff saved={plan.snapshot} current={cur} delta={d} />}
+
       {repro && <ReproPanel r={repro} />}
 
       <p className="text-white/40 text-xs">
@@ -145,6 +147,56 @@ function ReproPanel({ r }: { r: Reproduction }) {
         <div className="font-mono text-[0.65rem] text-white/35">
           snapshot {r.storedSnapshotId}{r.currentSnapshotId && r.currentSnapshotId !== r.storedSnapshotId ? ` → ${r.currentSnapshotId}` : ''}
         </div>
+      )}
+    </section>
+  );
+}
+
+// Plan-revision diff — per-line saved-vs-today comparison driven by
+// lib/plan-diff.js's `components` block on plan.delta. Only renders when the
+// move is material (delta.significant) so a stable plan stays uncluttered.
+type CostKey = 'dutyEur' | 'vatEur' | 'transportEur' | 'brokerageEur';
+const COMPONENT_LABELS: Record<CostKey, string> = {
+  dutyEur: 'Duty', vatEur: 'Import VAT', transportEur: 'Transport', brokerageEur: 'Brokerage',
+};
+function RevisionDiff({
+  saved, current, delta,
+}: {
+  saved?: { dutyEur?: number; vatEur?: number; transportEur?: number; brokerageEur?: number } | null;
+  current?: { dutyEur?: number; vatEur?: number; transportEur?: number; brokerageEur?: number } | null;
+  delta: NonNullable<SavedPlan['delta']>;
+}) {
+  const movedKeys = (Object.keys(COMPONENT_LABELS) as CostKey[])
+    .filter((k) => Math.abs(delta.components?.[k] ?? 0) >= 1);
+  if (!movedKeys.length) return null;
+  return (
+    <section className="border border-[var(--color-line)] px-5 py-5 mb-6"
+      style={{ borderTopWidth: 2, borderTopColor: '#F59E0B' }}>
+      <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-3">What changed since you saved</div>
+      <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)] mb-3">
+        {movedKeys.map((k) => {
+          const s = saved?.[k];
+          const c = current?.[k];
+          const diff = delta.components?.[k] ?? 0;
+          const up = diff >= 0;
+          return (
+            <div key={k} className="grid grid-cols-4 gap-2 px-4 py-2 text-xs items-center">
+              <span className="text-white/65">{COMPONENT_LABELS[k]}</span>
+              <span className="font-mono text-white/55 text-right">{eur(s)}</span>
+              <span className="font-mono text-white/85 text-right">{eur(c)}</span>
+              <span className={`font-mono text-right ${up ? 'text-red-300' : 'text-emerald-300'}`}>
+                {up ? '+' : ''}{eur(diff)}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+      {typeof delta.dutyRateDelta === 'number' && Math.abs(delta.dutyRateDelta) >= 0.1 && (
+        <p className="text-white/55 text-xs">
+          Duty rate moved <b className={delta.dutyRateDelta >= 0 ? 'text-red-300' : 'text-emerald-300'}>
+            {delta.dutyRateDelta >= 0 ? '+' : ''}{delta.dutyRateDelta.toFixed(1)}pp
+          </b>{delta.primaryDriver ? <> (driver: {delta.primaryDriver})</> : null}.
+        </p>
       )}
     </section>
   );

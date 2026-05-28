@@ -1,0 +1,48 @@
+name: smoke
+
+# Post-deploy behavioural smoke (scripts/smoke.js).
+#
+# Triggered on push to main: waits for Vercel's auto-deploy to settle, then
+# runs one HTTP probe per behavioural check (/api/health, /api/scim/v2/Users
+# returns a SCIM Error body, /api/audit gated, /trust/ + /changelog/ +
+# /app/operations render). Exit code is non-zero on any failure → the workflow
+# fails and GitHub emails the repo owner. Also runnable on demand.
+#
+# Optional repo secret: SITE_ORIGIN — overrides the default host.
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      host:
+        description: 'Host to probe (without scheme)'
+        required: false
+        default: 'orcatradegroup.com'
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Give Vercel's auto-deploy a head start before we probe — the function
+      # bundle, app-shell, and edge config all need to flip.
+      - name: Wait for deploy to settle
+        run: sleep 90
+
+      - name: Smoke
+        env:
+          SMOKE_HOST: ${{ inputs.host || secrets.SITE_ORIGIN || 'orcatradegroup.com' }}
+        run: |
+          # The host secret can be either bare host or full base URL; normalise.
+          if [[ "$SMOKE_HOST" == http* ]]; then
+            node scripts/smoke.js --base "$SMOKE_HOST"
+          else
+            node scripts/smoke.js --host "$SMOKE_HOST"
+          fi
