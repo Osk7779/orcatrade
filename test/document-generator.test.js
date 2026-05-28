@@ -274,3 +274,43 @@ test('generateDocument: eudr_dds renders a Due Diligence Statement draft', () =>
   assert.match(out.html, /geolocation of plots required/); // geolocation placeholder flagged
   assert.match(out.html, /2023\/1115/);
 });
+
+// ── customs entry / supplier RFQ / LC application (I5 deeper) ─────
+
+test('generateDocument: customs_entry renders an SAD data sheet draft', () => {
+  const draft = draftFromPlan('customs_entry', { productCategory: 'Cotton T-shirts', originCountry: 'VN', destinationCountry: 'PL', hsCode: '6109', customsValueEur: 24000, weightKg: 800, moq: 5000 });
+  assert.equal(draft.ok, true);
+  const out = generateDocument('customs_entry', draft.data);
+  assert.equal(out.ok, true, JSON.stringify(out.errors));
+  assert.match(out.html, /SAD data sheet/);
+  assert.match(out.html, /Procedure code 4000/);
+  assert.match(out.html, /CDS|CHIEF|AES/);
+  // total customs value row rendered.
+  assert.match(out.html, /Totals/);
+});
+
+test('generateDocument: supplier_rfq drafts an email with From/To swapped (buyer→supplier)', () => {
+  const draft = draftFromPlan('supplier_rfq', { productCategory: 'PU footwear', originCountry: 'CN', destinationCountry: 'DE', hsCode: '6403', customsValueEur: 80000, moq: 2000, paymentTermsDays: 60 });
+  assert.equal(draft.ok, true);
+  const out = generateDocument('supplier_rfq', draft.data);
+  assert.equal(out.ok, true, JSON.stringify(out.errors));
+  assert.match(out.html, /Supplier RFQ/);
+  assert.match(out.html, /From: \[Consignee \/ Buyer/);   // from = buyer (consignee in our model)
+  assert.match(out.html, /To: \[Exporter \/ Seller/);     // to = supplier (exporter)
+  assert.match(out.html, /60-day terms from B\/L/);
+});
+
+test('generateDocument: lc_application drafts a documentary credit application', () => {
+  const draft = draftFromPlan('lc_application', { productCategory: 'Aluminium extrusions', originCountry: 'CN', destinationCountry: 'NL', hsCode: '7604', customsValueEur: 150000, moq: 10000 });
+  assert.equal(draft.ok, true);
+  const out = generateDocument('lc_application', draft.data);
+  assert.equal(out.ok, true, JSON.stringify(out.errors));
+  assert.match(out.html, /Letter of credit/);
+  assert.match(out.html, /Irrevocable/);
+  assert.match(out.html, /UCP 600/);
+  // amount got pre-filled from the plan
+  assert.match(out.html, /EUR.*?150[,. ]?000/);
+  // a default required-docs list rendered
+  assert.match(out.html, /bills of lading/);
+  assert.match(out.html, /Institute Cargo Clauses/);
+});
