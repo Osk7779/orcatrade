@@ -81,7 +81,7 @@ export function PillarsBento() {
             status="beta"
             title="OrcaTrade Finance."
             description="Working capital, FX hedging windows, total cost of ownership — for orders of €50k–€500k."
-            cta={{ label: 'Read the brief', href: '/docs/orcatrade-shareholder-brief.html' }}
+            cta={{ label: 'Read the brief', href: '/docs/orcatrade-shareholder-brief' }}
             visual={<GridVisual />}
           />
         </BentoGrid>

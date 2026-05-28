@@ -57,7 +57,7 @@ export function Hero() {
               </span>
             </Link>
             <Link
-              href="/docs/orcatrade-shareholder-brief.html"
+              href="/docs/orcatrade-shareholder-brief"
               className="group inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
             >
               Read the prospectus

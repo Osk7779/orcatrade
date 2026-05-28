@@ -24,9 +24,9 @@ const COLUMNS = [
     title: 'Company',
     links: [
       { href: '/#leadership', label: 'Leadership' },
-      { href: '/contact.html', label: 'Contact' },
+      { href: '/contact', label: 'Contact' },
       { href: '/changelog', label: 'Changelog' },
-      { href: '/account/privacy', label: 'Privacy' },
+      { href: '/regulations/privacy', label: 'Privacy' },
     ],
   },
 ];

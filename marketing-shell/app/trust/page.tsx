@@ -81,13 +81,23 @@ const SECTIONS = [
     ],
   },
   {
-    id: 'roadmap',
+    id: 'reliability',
     numeral: 'VIII',
+    title: 'Reliability.',
+    kicker: 'Status',
+    body: [
+      'Health endpoint at /api/health publishes the live status of every subsystem the platform depends on — calculators, retrieval, sanctions lists, customs integration, audit chain.',
+      'Public status page at /status with the same readout, refreshed on a short interval. Incidents are written up post-hoc, dated, and kept in the record permanently.',
+    ],
+  },
+  {
+    id: 'roadmap',
+    numeral: 'IX',
     title: 'What we do not yet have.',
     kicker: 'On record',
     body: [
       'SOC 2 Type II — not yet certified. We will publish the audit window and outcome on this page when it begins. ISO 27001 — same. We will not claim certifications we have not earned.',
-      'A formal penetration test cadence — annual once we have completed our first paid year of operation. Reports will be available under NDA to enterprise customers on request.',
+      'A formal penetration-test cadence — annual once we have completed our first paid year of operation. Reports will be available under NDA to enterprise customers on request.',
     ],
   },
 ];
