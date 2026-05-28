@@ -26,7 +26,37 @@
 
   function setError(msg) {
     var el = document.getElementById('signup-err');
-    if (el) el.textContent = msg || '';
+    if (!el) return;
+    // Plain-text error path (default).
+    el.textContent = msg || '';
+    el.classList.remove('signup-err-account-exists');
+  }
+
+  // Sprint account-uniqueness-v1 — when the server tells us the email
+  // is already claimed (409 account-exists), swap the plain error for
+  // a richer "sign in instead" message + link so the user has a clear
+  // one-click path forward without retyping.
+  function setAccountExistsError(j, email) {
+    var el = document.getElementById('signup-err');
+    if (!el) return;
+    var signInUrl = (j && j.signInUrl) || '/account/';
+    var params = [];
+    // Carry the email so /account/ can pre-fill the sign-in input —
+    // saves the user from typing the same address twice in a row.
+    if (email) params.push('email=' + encodeURIComponent(email));
+    if (pageReturnTo) params.push('return=' + encodeURIComponent(pageReturnTo));
+    var href = signInUrl + (params.length ? '?' + params.join('&') : '');
+    var msg = (j && j.error) || T('errAccountExists', 'An account with this email already exists.');
+    var linkLabel = T('btnSignInInstead', 'Sign in instead →');
+    el.innerHTML = '';
+    var span = document.createElement('span');
+    span.textContent = msg + ' ';
+    var a = document.createElement('a');
+    a.href = href;
+    a.textContent = linkLabel;
+    el.appendChild(span);
+    el.appendChild(a);
+    el.classList.add('signup-err-account-exists');
   }
 
   // Sprint returnto-resume-v1 — thread ?return= through signup so the
@@ -86,7 +116,7 @@
         credentials: 'same-origin',
         body: JSON.stringify(body),
       })
-        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, j: j }; }); })
+        .then(function (r) { return r.json().catch(function () { return {}; }).then(function (j) { return { ok: r.ok, status: r.status, j: j }; }); })
         .then(function (resp) {
           btn.disabled = false;
           btn.textContent = oldLabel;
@@ -97,6 +127,8 @@
             document.getElementById('sent-msg-magic').hidden = withPw;
             document.getElementById('sent-msg-password').hidden = !withPw;
             showState('sent');
+          } else if (resp.status === 409 && resp.j && resp.j.reason === 'account-exists') {
+            setAccountExistsError(resp.j, email);
           } else {
             setError((resp.j && resp.j.error) || T('errSignupFailed', 'Could not start signup.'));
           }

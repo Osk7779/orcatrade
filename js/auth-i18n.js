@@ -50,6 +50,8 @@
       errEmail: 'Enter a valid email address.',
       errPwShort: 'Password must be at least 12 characters.',
       errSignupFailed: 'Could not start signup.',
+      errAccountExists: 'An account with this email already exists.',
+      btnSignInInstead: 'Sign in instead →',
       errNetwork: 'Network error:',
 
       // ── /account/ sign-in state ──
@@ -116,6 +118,8 @@
       errEmail: 'Podaj prawidłowy adres e-mail.',
       errPwShort: 'Hasło musi mieć co najmniej 12 znaków.',
       errSignupFailed: 'Nie udało się rozpocząć rejestracji.',
+      errAccountExists: 'Konto z tym adresem e-mail już istnieje.',
+      btnSignInInstead: 'Zaloguj się zamiast tego →',
       errNetwork: 'Błąd sieci:',
 
       signinTitle: 'Zaloguj się do OrcaTrade',
@@ -180,6 +184,8 @@
       errEmail: 'Geben Sie eine gültige E-Mail-Adresse ein.',
       errPwShort: 'Das Passwort muss mindestens 12 Zeichen lang sein.',
       errSignupFailed: 'Registrierung konnte nicht gestartet werden.',
+      errAccountExists: 'Mit dieser E-Mail-Adresse besteht bereits ein Konto.',
+      btnSignInInstead: 'Stattdessen anmelden →',
       errNetwork: 'Netzwerkfehler:',
 
       signinTitle: 'Bei OrcaTrade anmelden',
