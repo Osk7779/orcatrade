@@ -380,3 +380,28 @@ test('status page knows about the sentry subsystem', () => {
   const html = fs.readFileSync(path.join(__dirname, '..', 'status', 'index.html'), 'utf8');
   assert.match(html, /sentry:\s*\{\s*name:/);
 });
+
+// ── release tagging ────────────────────────────────────
+
+test('buildEvent stamps the release from VERCEL_GIT_COMMIT_SHA (truncated 8)', () => {
+  const prior = process.env.VERCEL_GIT_COMMIT_SHA;
+  try {
+    process.env.VERCEL_GIT_COMMIT_SHA = 'deadbeefcafebabe1234';
+    const env = sentry.buildEvent({ level: 'info', message: 'release smoke' });
+    assert.equal(env.payload.release, 'deadbeef');
+  } finally {
+    if (prior === undefined) delete process.env.VERCEL_GIT_COMMIT_SHA;
+    else process.env.VERCEL_GIT_COMMIT_SHA = prior;
+  }
+});
+
+test('buildEvent falls back to release="dev" when no commit SHA is present', () => {
+  const prior = process.env.VERCEL_GIT_COMMIT_SHA;
+  delete process.env.VERCEL_GIT_COMMIT_SHA;
+  try {
+    const env = sentry.buildEvent({ level: 'info', message: 'release smoke' });
+    assert.equal(env.payload.release, 'dev');
+  } finally {
+    if (prior !== undefined) process.env.VERCEL_GIT_COMMIT_SHA = prior;
+  }
+});
