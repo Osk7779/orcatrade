@@ -1,6 +1,7 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { apiGet, type Prefs } from '@/lib/api';
 
 type Role = 'user' | 'assistant';
 interface Msg { role: Role; content: string }
@@ -8,14 +9,16 @@ interface Msg { role: Role; content: string }
 // The orchestrator streams Server-Sent Events; parse them off the fetch body.
 async function streamOrchestrator(
   messages: Msg[],
+  locale: string | undefined,
   onText: (delta: string) => void,
   onTool: (label: string | null) => void,
+  onDraft: () => void,
 ): Promise<void> {
   const res = await fetch('/api/orchestrator', {
     method: 'POST',
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, locale }),
   });
   if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
 
@@ -34,7 +37,12 @@ async function streamOrchestrator(
       let evt: { type: string; text?: string; name?: string; domain?: string; message?: string };
       try { evt = JSON.parse(line.slice(5).trim()); } catch { continue; }
       if (evt.type === 'text-delta' && evt.text) { onText(evt.text); onTool(null); }
-      else if (evt.type === 'tool-call') onTool(`${evt.domain || 'tool'} · ${evt.name}`);
+      else if (evt.type === 'tool-call') {
+        onTool(`${evt.domain || 'tool'} · ${evt.name}`);
+        // The orchestrator just drafted an artifact — nudge the user to the
+        // approval queue so the human click that I5 requires actually happens.
+        if (evt.name === 'draftDocument' || evt.name === 'draftCustomsEntry' || evt.name === 'draftLetterOfCredit') onDraft();
+      }
       else if (evt.type === 'tool-result') onTool(null);
       else if (evt.type === 'thinking') onTool('thinking');
       else if (evt.type === 'error') throw new Error(evt.message || 'agent error');
@@ -49,7 +57,14 @@ export default function ChatPage() {
   const [busy, setBusy] = useState(false);
   const [tool, setTool] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [draftHinted, setDraftHinted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Forward the user's stored locale (en/pl/de) so the agent replies in their
+  // preferred language — lib/agent-i18n.js drives the locale directive server-side.
+  const [locale, setLocale] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    apiGet<Prefs>('/account/preferences').then((p) => p.locale && setLocale(p.locale)).catch(() => {});
+  }, []);
 
   async function send() {
     const text = input.trim();
@@ -59,9 +74,11 @@ export default function ChatPage() {
     setMessages([...next, { role: 'assistant', content: '' }]);
     setInput('');
     setBusy(true);
+    setDraftHinted(false);
     try {
       await streamOrchestrator(
         next,
+        locale,
         (delta) => setMessages((cur) => {
           const copy = cur.slice();
           const last = copy[copy.length - 1];
@@ -69,6 +86,7 @@ export default function ChatPage() {
           return copy;
         }),
         setTool,
+        () => setDraftHinted(true),
       );
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'The agent could not respond.');
@@ -104,6 +122,12 @@ export default function ChatPage() {
           </div>
         ))}
         {tool && <div className="font-mono text-xs text-[var(--color-accent-soft)]">⚙ {tool}…</div>}
+        {draftHinted && !busy && (
+          <a href="/app/drafts"
+            className="block border border-amber-500/40 bg-amber-500/10 text-amber-200 text-xs px-4 py-2 rounded-sm hover:bg-amber-500/15">
+            ◆ Draft prepared — open <b>/app/drafts</b> to review and approve. The platform never sends, files, or wire-transfers on its own; the human click is the record.
+          </a>
+        )}
         {err && <div className="text-red-400 text-sm">{err}</div>}
       </div>
 
