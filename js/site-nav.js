@@ -65,9 +65,11 @@
       { label: 'Pricing',   href: '/pricing/',   match: ['/pricing/'] },
       // Sprint nav-account-link: visible everywhere on the site.
       // /account/ handles both signed-in (shows account home + quick
-      // links) and signed-out (shows the magic-link sign-in form) —
-      // a single link works for both states, no JS gating needed.
-      { label: 'Sign in',   href: '/account/',   match: ['/account/'] },
+      // links) and signed-out (shows the magic-link sign-in form).
+      // The Sign-in link below is a server-rendered fallback; the
+      // account-widget script (Sprint account-widget-v1) upgrades
+      // this slot to a logged-in dropdown after fetch('/api/auth/me').
+      { label: 'Sign in',   href: '/account/',   match: ['/account/'], dataAttr: 'data-nav-signin' },
     ],
     langSwitcher: [
       { code: 'EN', href: '/' },
@@ -120,6 +122,11 @@
       'Sign in': 'Zaloguj',
       'Open navigation': 'Otwórz nawigację',
       'Close navigation': 'Zamknij nawigację',
+      'Account': 'Konto',
+      'Account home': 'Strona konta',
+      'Saved plans': 'Zapisane plany',
+      'Settings': 'Ustawienia',
+      'Sign out': 'Wyloguj',
     },
     DE: {
       'Home': 'Startseite',
@@ -163,6 +170,11 @@
       'Sign in': 'Anmelden',
       'Open navigation': 'Navigation öffnen',
       'Close navigation': 'Navigation schließen',
+      'Account': 'Konto',
+      'Account home': 'Konto-Startseite',
+      'Saved plans': 'Gespeicherte Pläne',
+      'Settings': 'Einstellungen',
+      'Sign out': 'Abmelden',
     },
   };
 
@@ -236,7 +248,8 @@
     const href = localizeHref(item.href, locale);
     const matchList = (item.match || [item.href]).map(m => localizeHref(m, locale));
     const active = pathStartsWith(currentPath, matchList);
-    return `<a href="${href}"${active ? ' class="active"' : ''}>${t(item.label, locale)}</a>`;
+    const dataAttr = item.dataAttr ? ' ' + item.dataAttr : '';
+    return `<a href="${href}"${active ? ' class="active"' : ''}${dataAttr}>${t(item.label, locale)}</a>`;
   }
 
   function renderToolsDropdown(currentPath, locale) {
@@ -344,6 +357,204 @@
     });
   }
 
+  // ── Sprint account-widget-v1 ─────────────────────────────────
+  // Persistent top-right account widget. The static nav above renders
+  // a "Sign in" link as the SSR fallback (works with no JS, no auth).
+  // After mount, we hit /api/auth/me once and — if the user is signed
+  // in — replace that link with an account dropdown showing their
+  // email + quick links + "Sign out". Cookie-credentialed, single
+  // round-trip.
+  //
+  // To kill the flash-of-wrong-content for return visitors, we mirror
+  // /api/auth/me's positive responses into localStorage as a "session
+  // hint". On the next page load the hint lets us render the dropdown
+  // synchronously, before fetch resolves; the background fetch then
+  // either confirms (no DOM churn) or revokes (hint clears + dropdown
+  // reverts to the Sign-in link). The cookie remains the source of
+  // truth — the hint is just a cache to keep the UI honest.
+
+  const SESSION_HINT_KEY = 'orcatrade.session.hint.v1';
+  const SESSION_HINT_TTL_MS = 24 * 60 * 60 * 1000; // 24 h
+
+  function readSessionHint() {
+    try {
+      const raw = window.localStorage.getItem(SESSION_HINT_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (!parsed || typeof parsed.email !== 'string') return null;
+      if (!parsed.savedAt || (Date.now() - parsed.savedAt) > SESSION_HINT_TTL_MS) {
+        window.localStorage.removeItem(SESSION_HINT_KEY);
+        return null;
+      }
+      return parsed;
+    } catch (_) { return null; }
+  }
+
+  function writeSessionHint(user) {
+    try {
+      window.localStorage.setItem(SESSION_HINT_KEY, JSON.stringify({
+        email: user.email,
+        savedAt: Date.now(),
+      }));
+    } catch (_) { /* private mode / disabled storage — non-blocking */ }
+  }
+
+  function clearSessionHint() {
+    try { window.localStorage.removeItem(SESSION_HINT_KEY); } catch (_) {}
+  }
+
+  function maskEmail(email) {
+    const e = String(email || '');
+    const at = e.indexOf('@');
+    if (at < 1) return e;
+    const local = e.slice(0, at);
+    const domain = e.slice(at);
+    if (local.length <= 14) return local + domain;
+    return local.slice(0, 12) + '…' + domain;
+  }
+
+  function renderAccountDropdown(user, locale) {
+    const label = maskEmail(user.email);
+    const home = t('Account home', locale);
+    const plans = t('Saved plans', locale);
+    const settings = t('Settings', locale);
+    const signOut = t('Sign out', locale);
+    return (
+      '<div class="nav-account is-signed-in" data-nav-account>' +
+        '<button class="nav-account-toggle" type="button" aria-expanded="false" aria-haspopup="menu">' +
+          '<span class="nav-account-avatar" aria-hidden="true">' + (label[0] || '?').toUpperCase() + '</span>' +
+          '<span class="nav-account-email">' + label + '</span>' +
+          '<span class="nav-account-caret" aria-hidden="true">▾</span>' +
+        '</button>' +
+        '<div class="nav-account-menu" role="menu">' +
+          '<div class="nav-account-menu-email" title="' + user.email + '">' + user.email + '</div>' +
+          '<a role="menuitem" href="/account/">' + home + '</a>' +
+          '<a role="menuitem" href="/account/plans/">' + plans + '</a>' +
+          '<a role="menuitem" href="/account/preferences/">' + settings + '</a>' +
+          '<button role="menuitem" type="button" class="nav-account-signout" data-nav-signout>' + signOut + '</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function bindAccountWidget(headerEl, locale) {
+    const wrap = headerEl.querySelector('[data-nav-account]');
+    if (!wrap) return;
+    const toggle = wrap.querySelector('.nav-account-toggle');
+    const menu = wrap.querySelector('.nav-account-menu');
+    if (!toggle || !menu) return;
+
+    function close() {
+      wrap.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+    }
+    function open() {
+      wrap.classList.add('is-open');
+      toggle.setAttribute('aria-expanded', 'true');
+    }
+
+    toggle.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (wrap.classList.contains('is-open')) close(); else open();
+    });
+    document.addEventListener('click', function (e) {
+      if (!wrap.contains(e.target)) close();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') close();
+    });
+
+    const signOutBtn = wrap.querySelector('[data-nav-signout]');
+    if (signOutBtn) {
+      signOutBtn.addEventListener('click', function () {
+        signOutBtn.disabled = true;
+        clearSessionHint();
+        fetch('/api/auth/logout', {
+          method: 'POST',
+          credentials: 'same-origin',
+          headers: { 'Content-Type': 'application/json' },
+        }).catch(function () {}).then(function () {
+          // Stay on the current page when it's public — signing out
+          // shouldn't yank a user off the article they were reading.
+          // Auth-gated surfaces (anything under /account/, /tools/,
+          // /dashboard/) bounce to the homepage so the next render
+          // doesn't error out against a vanished session.
+          const path = window.location.pathname || '/';
+          const authGated = ['/account/', '/tools/', '/dashboard/'].some(function (p) {
+            return path.indexOf(p) === 0;
+          });
+          window.location.href = authGated ? '/' : path;
+        });
+      });
+    }
+  }
+
+  function swapInWidget(headerEl, user, locale) {
+    const existing = headerEl.querySelector('[data-nav-account]');
+    if (existing) {
+      // Already a widget — just refresh the email if the server gave
+      // us a fresher value (e.g. case change). Keeps event listeners.
+      const emailEl = existing.querySelector('.nav-account-email');
+      if (emailEl) emailEl.textContent = maskEmail(user.email);
+      const fullEl = existing.querySelector('.nav-account-menu-email');
+      if (fullEl) { fullEl.textContent = user.email; fullEl.setAttribute('title', user.email); }
+      const avatarEl = existing.querySelector('.nav-account-avatar');
+      if (avatarEl) avatarEl.textContent = (user.email[0] || '?').toUpperCase();
+      return;
+    }
+    const slot = headerEl.querySelector('[data-nav-signin]');
+    if (!slot) return;
+    const tmp = document.createElement('div');
+    tmp.innerHTML = renderAccountDropdown(user, locale);
+    const widget = tmp.firstElementChild;
+    slot.parentNode.replaceChild(widget, slot);
+    bindAccountWidget(headerEl, locale);
+  }
+
+  function revertToSignIn(headerEl, locale) {
+    const existing = headerEl.querySelector('[data-nav-account]');
+    if (!existing) return;
+    const a = document.createElement('a');
+    a.href = '/account/';
+    a.setAttribute('data-nav-signin', '');
+    a.textContent = t('Sign in', locale);
+    existing.parentNode.replaceChild(a, existing);
+  }
+
+  function upgradeAccountWidget(headerEl, locale) {
+    // Don't bother on the /account/ page itself — that page does its
+    // own auth check and shows a richer UI; a duplicate widget up top
+    // is visual noise on the sign-in screen.
+    const path = window.location.pathname || '/';
+    if (path.indexOf('/account/') === 0) return;
+
+    // Optimistic path: if localStorage says the user is signed in,
+    // render the widget BEFORE the network call resolves. Eliminates
+    // the flash of "Sign in" → widget that return visitors would
+    // otherwise see on every navigation.
+    const hint = readSessionHint();
+    if (hint) swapInWidget(headerEl, { email: hint.email }, locale);
+
+    fetch('/api/auth/me', {
+      credentials: 'same-origin',
+      headers: { 'Accept': 'application/json' },
+    }).then(function (r) {
+      if (r.status === 401) return { signedOut: true };
+      if (!r.ok) return null;
+      return r.json().catch(function () { return null; });
+    }).then(function (data) {
+      if (data && data.signedOut) {
+        // Server says no — undo the optimistic widget if we rendered one.
+        clearSessionHint();
+        revertToSignIn(headerEl, locale);
+        return;
+      }
+      if (!data || !data.user || !data.user.email) return;
+      writeSessionHint(data.user);
+      swapInWidget(headerEl, data.user, locale);
+    }).catch(function () { /* network blip — keep whatever state we're in */ });
+  }
+
   function init() {
     const headerEl = document.querySelector('header[data-site-header]');
     if (!headerEl) return;
@@ -351,6 +562,7 @@
     const locale = detectLocale(currentPath);
     headerEl.innerHTML = renderHeader(currentPath);
     bindMobileNav(headerEl, locale);
+    upgradeAccountWidget(headerEl, locale);
   }
 
   if (document.readyState === 'loading') {

@@ -236,6 +236,29 @@
     catch (_) { return ''; }
   })();
 
+  // Sprint account-uniqueness-v1 — when a duplicate-signup attempt
+  // sends the user here, the link carries ?email=<their-address> so
+  // they don't have to retype it. Pre-fill the sign-in input as soon
+  // as the DOM is ready (the signed-out state isn't shown until the
+  // /api/auth/me check finishes, but pre-filling is cheap so we just
+  // do it unconditionally — for an already-signed-in user the input
+  // never becomes visible).
+  (function () {
+    try {
+      var params = new URLSearchParams(window.location.search);
+      var emailParam = (params.get('email') || '').trim().toLowerCase();
+      if (emailParam && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(emailParam)) {
+        var inp = document.getElementById('email');
+        if (inp) inp.value = emailParam;
+        // Strip ?email= from the visible URL so the address doesn't
+        // sit in the location bar / browser history after refresh.
+        params.delete('email');
+        var qs = params.toString();
+        window.history.replaceState({}, '', window.location.pathname + (qs ? '?' + qs : '') + window.location.hash);
+      }
+    } catch (_) { /* non-blocking */ }
+  })();
+
   // Sprint mfa-totp-v1 — a magic-link sign-in on an MFA-enabled account
   // lands here as /account/?mfa=<challengeId>(&return=…). Detect it and
   // jump straight to the challenge state.
