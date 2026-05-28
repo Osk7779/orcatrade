@@ -130,6 +130,10 @@ const handlers = {
   // customer's IdP provisions/deprovisions org members via a per-org bearer
   // token (lib/scim-store.js). Machine-to-machine; no session cookie.
   scim: require('../lib/handlers/scim'),
+  // Trade-finance + insurance introducer (apex II7). GET lists providers,
+  // POST /intro audit-logs an intro request. We're the introducer, not a
+  // broker/adviser/principal — the user follows up with the provider directly.
+  marketplace: require('../lib/handlers/marketplace'),
 };
 
 module.exports = async (req, res) => {
