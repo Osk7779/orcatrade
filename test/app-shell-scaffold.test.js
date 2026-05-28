@@ -165,6 +165,13 @@ test('Plan detail surfaces the reproducibility verdict (III3 made visible)', () 
   assert.match(read('lib/api.ts'), /interface Reproduction/);
 });
 
+test('Plans list shows the per-row reproducibility badge (no extra fetch)', () => {
+  const list = read('app/(authed)/plans/page.tsx');
+  assert.match(list, /ReproBadge/);
+  assert.match(list, /reproducible/);
+  assert.match(read('lib/api.ts'), /reproducible\?:/);
+});
+
 test('the accent colour is ivory white, not gold (user preference, locked in)', () => {
   const css = read('app/globals.css');
   assert.match(css, /--color-accent:\s*#fafaf7/i);

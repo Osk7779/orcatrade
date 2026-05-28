@@ -22,6 +22,27 @@ function DriftBadge({ delta }: { delta?: SavedPlan['delta'] }) {
   );
 }
 
+// Reproducibility verdict from the server-stamped flag (no extra fetch per row).
+// Stays out of the way: green tick on full reproducibility, amber diamond when
+// the market data has moved, nothing when no snapshot was bound (legacy plans).
+function ReproBadge({ p }: { p: SavedPlan }) {
+  if (p.reproducible == null) return null;
+  if (p.reproducible) {
+    return (
+      <span className="font-mono text-xs px-2 py-0.5 rounded-sm text-emerald-300 bg-emerald-500/10"
+        title="Reproducible — market data unchanged since you saved this plan">
+        ✓ reproducible
+      </span>
+    );
+  }
+  return (
+    <span className="font-mono text-xs px-2 py-0.5 rounded-sm text-amber-300 bg-amber-500/10"
+      title="Market data has drifted; the original euros are still recoverable from the stored snapshot — open the plan to see the original vs today.">
+      ◆ drifted
+    </span>
+  );
+}
+
 export default function PlansPage() {
   const [state, setState] = useState<'loading' | 'auth' | 'error' | 'ready'>('loading');
   const [plans, setPlans] = useState<SavedPlan[]>([]);
@@ -67,6 +88,7 @@ export default function PlansPage() {
                   <div className="flex items-center gap-3">
                     <span className="font-serif text-lg text-ivory truncate">{p.label || inp.productCategory || p.id}</span>
                     <DriftBadge delta={p.delta} />
+                    <ReproBadge p={p} />
                   </div>
                   <div className="font-mono text-xs text-white/45 mt-1">
                     {(inp.originCountry || '?')}→{(inp.destinationCountry || '?')}
@@ -85,7 +107,7 @@ export default function PlansPage() {
       )}
 
       <p className="text-white/40 text-xs mt-6">
-        Figures recompute against today’s tariff, freight and FX data. A ▲/▼ badge marks plans whose landed cost has moved ≥5% since you saved them.
+        Figures recompute against today’s tariff, freight and FX data. A ▲/▼ badge marks plans whose landed cost has moved ≥5% since you saved them; ✓ / ◆ marks reproducibility against the stored data snapshot.
       </p>
     </div>
   );

@@ -73,6 +73,11 @@ export interface SavedPlan {
   snapshot?: CostSnapshot | null;
   current?: CostSnapshot | null;
   delta?: PlanDelta | null;
+  // Reproducibility verdict computed once per request (apex III3 surfaced inline).
+  reproducible?: boolean | null;
+  dataDrifted?: boolean | null;
+  dataSnapshotId?: string | null;
+  currentDataSnapshotId?: string | null;
 }
 
 // GET /api/plans/<id>/reproduce — reproducibility / data-drift verdict (III3)

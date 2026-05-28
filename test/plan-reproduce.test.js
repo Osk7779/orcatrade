@@ -134,3 +134,16 @@ test('reproduce: unknown plan → 404', async () => {
   await plansHandler(req, res);
   assert.equal(res.statusCode, 404);
 });
+
+test('GET /plans list stamps reproducible:true on a freshly-saved plan', async () => {
+  kv._resetMemoryStore();
+  await savePlan();
+  const req = authedReq('GET', null, ['plans'], '/api/plans');
+  const res = mockRes();
+  await plansHandler(req, res);
+  const list = JSON.parse(res.body);
+  assert.equal(list.plans.length, 1);
+  assert.equal(list.plans[0].reproducible, true);
+  assert.equal(list.plans[0].dataDrifted, false);
+  assert.match(list.plans[0].currentDataSnapshotId, /^ds_[0-9a-f]{16}$/);
+});
