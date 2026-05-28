@@ -2,6 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { apiGet, AuthError, type SavedPortfolio } from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
+import { LoadingNotice, ErrorNotice, AuthNotice, EmptyState } from '@/components/States';
 
 function eur(n?: number | null) {
   if (n == null || !Number.isFinite(n)) return '—';
@@ -14,51 +16,84 @@ export default function PortfoliosPage() {
 
   useEffect(() => {
     apiGet<{ ok: boolean; portfolios: SavedPortfolio[] }>('/portfolio/list')
-      .then((d) => { setItems(d.portfolios || []); setState('ready'); })
+      .then((d) => {
+        setItems(d.portfolios || []);
+        setState('ready');
+      })
       .catch((e) => setState(e instanceof AuthError ? 'auth' : 'error'));
   }, []);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading your portfolios…</p>;
-  if (state === 'auth') {
-    return (
-      <div className="max-w-md">
-        <h1 className="text-3xl mb-3">Sign in to see your portfolios</h1>
-        <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a>
-      </div>
-    );
-  }
-  if (state === 'error') return <p className="text-red-400 text-sm">Couldn’t load your portfolios. Please retry shortly.</p>;
+  if (state === 'loading') return <LoadingNotice label="Loading your portfolios…" />;
+  if (state === 'auth') return <AuthNotice title="Sign in to see your portfolios." />;
+  if (state === 'error') return <ErrorNotice />;
 
   return (
     <div>
-      <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Portfolios</div>
-      <div className="flex items-end justify-between mb-8">
-        <h1 className="text-4xl">Multi-SKU portfolios</h1>
-        <a href="/start/" className="text-sm px-4 py-2 bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm font-medium">+ New</a>
-      </div>
+      <PageHeader
+        kicker="Portfolios"
+        title="Multi-SKU portfolios."
+        sub="Bundle several SKUs into one landed-cost view. Blended duty, consolidation savings and totals priced end-to-end against today's data."
+        actions={
+          <a
+            href="/start/"
+            className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-5 py-2.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+          >
+            + New portfolio
+            <span
+              aria-hidden
+              className="transition-transform duration-500 group-hover:translate-x-0.5"
+            >
+              →
+            </span>
+          </a>
+        }
+      />
 
       {!items.length ? (
-        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-white/60">
-          <p className="mb-4">No saved portfolios yet — bundle several SKUs into one landed-cost view.</p>
-          <a href="/start/" className="text-[var(--color-accent)] underline">Build a portfolio →</a>
-        </div>
+        <EmptyState
+          body="No saved portfolios yet — bundle several SKUs into one landed-cost view."
+          ctaLabel="Build a portfolio"
+          ctaHref="/start/"
+        />
       ) : (
-        <div className="grid sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] sm:grid-cols-2">
           {items.map((p) => {
             const s = p.snapshot || {};
             return (
-              <div key={p.id} className="border border-[var(--color-line)] p-5">
-                <div className="font-serif text-lg text-ivory mb-1">{p.label || p.id}</div>
-                <div className="font-mono text-xs text-white/45 mb-4">
-                  {p.lineCount ?? 0} SKU{(p.lineCount ?? 0) === 1 ? '' : 's'}
-                  {p.savedAt ? ` · saved ${String(p.savedAt).slice(0, 10)}` : ''}
+              <article
+                key={p.id}
+                className="group flex flex-col gap-5 bg-[var(--color-ink)] p-6 transition-colors duration-700 hover:bg-[var(--color-navy-soft)] md:p-7"
+              >
+                <div>
+                  <h3
+                    className="font-serif text-[1.3rem] leading-tight tracking-[-0.016em] text-[var(--color-ivory)]"
+                    style={{
+                      fontVariationSettings: "'SOFT' 35, 'opsz' 144",
+                      fontWeight: 550,
+                    }}
+                  >
+                    {p.label || p.id}
+                  </h3>
+                  <div className="mt-1.5 font-mono text-[11.5px] font-medium tracking-tight text-[var(--color-ivory-mute)]">
+                    {p.lineCount ?? 0} SKU{(p.lineCount ?? 0) === 1 ? '' : 's'}
+                    {p.savedAt ? ` · saved ${String(p.savedAt).slice(0, 10)}` : ''}
+                  </div>
                 </div>
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <Metric label="Landed / shipment" value={eur(s.totals?.perShipmentLandedTotal)} />
-                  <Metric label="Blended duty" value={s.blendedDutyRatePct != null ? `${s.blendedDutyRatePct}%` : '—'} />
-                  <Metric label="Consolidation saving" value={eur(s.consolidationSavingEur)} />
+                <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] sm:grid-cols-3">
+                  <Metric
+                    label="Landed / shipment"
+                    value={eur(s.totals?.perShipmentLandedTotal)}
+                  />
+                  <Metric
+                    label="Blended duty"
+                    value={s.blendedDutyRatePct != null ? `${s.blendedDutyRatePct}%` : '—'}
+                  />
+                  <Metric
+                    label="Consolidation saving"
+                    value={eur(s.consolidationSavingEur)}
+                  />
                 </div>
-              </div>
+              </article>
             );
           })}
         </div>
@@ -69,9 +104,13 @@ export default function PortfoliosPage() {
 
 function Metric({ label, value }: { label: string; value: string }) {
   return (
-    <div>
-      <div className="font-mono text-white/85">{value}</div>
-      <div className="text-[0.62rem] uppercase tracking-wider text-white/40 mt-0.5">{label}</div>
+    <div className="flex flex-col gap-1 bg-[var(--color-ink)] p-4">
+      <div className="font-mono text-[13px] font-medium tabular-nums text-[var(--color-ivory)]">
+        {value}
+      </div>
+      <div className="font-serif text-[11.5px] italic text-[var(--color-ivory-mute)]">
+        {label}
+      </div>
     </div>
   );
 }

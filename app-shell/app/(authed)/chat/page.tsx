@@ -1,11 +1,14 @@
 'use client';
 
 import { useRef, useState } from 'react';
+import { PageHeader } from '@/components/PageHeader';
 
 type Role = 'user' | 'assistant';
-interface Msg { role: Role; content: string }
+interface Msg {
+  role: Role;
+  content: string;
+}
 
-// The orchestrator streams Server-Sent Events; parse them off the fetch body.
 async function streamOrchestrator(
   messages: Msg[],
   onText: (delta: string) => void,
@@ -31,14 +34,25 @@ async function streamOrchestrator(
     for (const chunk of chunks) {
       const line = chunk.trim();
       if (!line.startsWith('data:')) continue;
-      let evt: { type: string; text?: string; name?: string; domain?: string; message?: string };
-      try { evt = JSON.parse(line.slice(5).trim()); } catch { continue; }
-      if (evt.type === 'text-delta' && evt.text) { onText(evt.text); onTool(null); }
-      else if (evt.type === 'tool-call') onTool(`${evt.domain || 'tool'} · ${evt.name}`);
+      let evt: {
+        type: string;
+        text?: string;
+        name?: string;
+        domain?: string;
+        message?: string;
+      };
+      try {
+        evt = JSON.parse(line.slice(5).trim());
+      } catch {
+        continue;
+      }
+      if (evt.type === 'text-delta' && evt.text) {
+        onText(evt.text);
+        onTool(null);
+      } else if (evt.type === 'tool-call') onTool(`${evt.domain || 'tool'} · ${evt.name}`);
       else if (evt.type === 'tool-result') onTool(null);
       else if (evt.type === 'thinking') onTool('thinking');
       else if (evt.type === 'error') throw new Error(evt.message || 'agent error');
-      // 'final' text is the accumulation of text-delta we already have; 'done' ends the stream.
     }
   }
 }
@@ -62,65 +76,131 @@ export default function ChatPage() {
     try {
       await streamOrchestrator(
         next,
-        (delta) => setMessages((cur) => {
-          const copy = cur.slice();
-          const last = copy[copy.length - 1];
-          if (last && last.role === 'assistant') copy[copy.length - 1] = { ...last, content: last.content + delta };
-          return copy;
-        }),
+        (delta) =>
+          setMessages((cur) => {
+            const copy = cur.slice();
+            const last = copy[copy.length - 1];
+            if (last && last.role === 'assistant')
+              copy[copy.length - 1] = { ...last, content: last.content + delta };
+            return copy;
+          }),
         setTool,
       );
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'The agent could not respond.');
-      // Drop the empty assistant bubble on hard failure.
       setMessages((cur) => (cur[cur.length - 1]?.content ? cur : cur.slice(0, -1)));
     } finally {
       setBusy(false);
       setTool(null);
-      requestAnimationFrame(() => scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }));
+      requestAnimationFrame(() =>
+        scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight }),
+      );
     }
   }
 
   return (
-    <div className="max-w-2xl flex flex-col h-[calc(100vh-6rem)]">
-      <h1 className="text-4xl mb-1">Ask the agent</h1>
-      <p className="font-mono text-xs text-white/45 mb-6">
-        Calculator-grounded across customs, logistics, sourcing &amp; finance — every number cites its tool.
-      </p>
+    <div className="flex h-[calc(100vh-9rem)] max-w-[800px] flex-col md:h-[calc(100vh-6rem)]">
+      <PageHeader
+        kicker="Ask the agent"
+        title="Calculator-grounded, every number cited."
+        sub="The agent reasons across customs, logistics, sourcing and finance — each number it surfaces names the tool that produced it."
+      />
 
-      <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-4 pr-1">
+      <div
+        ref={scrollRef}
+        className="flex-1 overflow-y-auto pr-1"
+      >
         {messages.length === 0 && (
-          <div className="text-white/50 text-sm border border-[var(--color-line)] px-5 py-4">
-            Ask anything about your imports — e.g. <span className="text-white/75">“What’s the landed cost of 5,000 cotton t-shirts from Vietnam to Poland, and does EVFTA cut my duty?”</span>
+          <div className="border border-[var(--color-navy-line)] bg-[var(--color-ink)] p-6 md:p-7">
+            <div className="flex items-center gap-3">
+              <span aria-hidden className="font-serif text-[14px] text-[var(--color-ivory-dim)]/60">
+                ❦
+              </span>
+              <span className="font-serif text-[12.5px] italic text-[var(--color-ivory-mute)]">
+                Try one of these
+              </span>
+            </div>
+            <p
+              className="mt-4 font-serif text-[1rem] italic leading-[1.5] text-[var(--color-ivory-dim)]"
+              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
+            >
+              &ldquo;What is the landed cost of 5,000 cotton t-shirts from Vietnam to
+              Poland, and does EVFTA cut my duty?&rdquo;
+            </p>
           </div>
         )}
-        {messages.map((m, i) => (
-          <div key={i} className={m.role === 'user' ? 'text-right' : ''}>
-            <div className={`inline-block max-w-[90%] px-4 py-2.5 text-sm whitespace-pre-wrap text-left rounded-sm ${
-              m.role === 'user' ? 'bg-[var(--color-accent)] text-[var(--color-ink)]' : 'border border-[var(--color-line)] text-white/85'
-            }`}>
-              {m.content || (busy && i === messages.length - 1 ? <span className="text-white/40">…</span> : '')}
+
+        <div className="flex flex-col gap-5 pt-5">
+          {messages.map((m, i) => (
+            <div
+              key={i}
+              className={m.role === 'user' ? 'flex justify-end' : 'flex justify-start'}
+            >
+              <div
+                className={
+                  m.role === 'user'
+                    ? 'max-w-[88%] bg-[var(--color-ivory)] px-5 py-3 text-[14.5px] leading-[1.55] text-[var(--color-ink)] whitespace-pre-wrap'
+                    : 'max-w-[88%] border border-[var(--color-navy-line)] bg-[var(--color-ink)] px-5 py-3.5 text-[14.5px] leading-[1.65] text-[var(--color-ivory)] whitespace-pre-wrap'
+                }
+              >
+                {m.content || (busy && i === messages.length - 1 ? (
+                  <span className="font-serif italic text-[var(--color-ivory-mute)]">
+                    composing…
+                  </span>
+                ) : '')}
+              </div>
             </div>
+          ))}
+        </div>
+
+        {tool && (
+          <div className="mt-5 flex items-center gap-2 font-mono text-[12px] tracking-tight text-[var(--color-ivory-mute)]">
+            <span
+              aria-hidden
+              className="inline-block size-1.5 animate-pulse bg-[var(--color-ivory-dim)]"
+            />
+            {tool}…
           </div>
-        ))}
-        {tool && <div className="font-mono text-xs text-[var(--color-accent-soft)]">⚙ {tool}…</div>}
-        {err && <div className="text-red-400 text-sm">{err}</div>}
+        )}
+
+        {err && (
+          <div className="mt-5 border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/5 p-4">
+            <p className="font-serif text-[14px] italic text-[var(--color-ivory)]">{err}</p>
+          </div>
+        )}
       </div>
 
-      <div className="flex gap-2 pt-4 border-t border-[var(--color-line)] mt-4">
-        <textarea
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
-          rows={1}
-          placeholder="Ask about duty, routing, sourcing, FX, compliance…"
-          className="flex-1 resize-none bg-transparent border border-[var(--color-line)] px-3 py-2.5 text-sm rounded-sm text-white"
-        />
-        <button
-          disabled={busy || !input.trim()}
-          onClick={send}
-          className="px-5 py-2.5 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40 self-end"
-        >Send</button>
+      <div className="mt-6 border-t border-[var(--color-navy-line)] pt-5">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+          <textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                send();
+              }
+            }}
+            rows={2}
+            placeholder="Ask about duty, routing, sourcing, FX, compliance…"
+            className="flex-1 resize-none border border-[var(--color-navy-line)] bg-transparent p-3.5 text-[14px] leading-[1.6] text-[var(--color-ivory)] placeholder:text-[var(--color-ivory-mute)]/60 focus:border-[var(--color-ivory-dim)] focus:outline-none"
+          />
+          <button
+            disabled={busy || !input.trim()}
+            onClick={send}
+            className="group inline-flex shrink-0 items-center justify-center gap-2 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {busy ? 'Sending…' : 'Send'}
+            {!busy && (
+              <span
+                aria-hidden
+                className="transition-transform duration-500 group-hover:translate-x-0.5"
+              >
+                →
+              </span>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

@@ -3,6 +3,8 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { apiGet, AuthError, type SavedPlan } from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
+import { LoadingNotice, ErrorNotice, AuthNotice, EmptyState } from '@/components/States';
 
 function eur(n?: number | null) {
   if (n == null || !Number.isFinite(n)) return '—';
@@ -14,30 +16,37 @@ function DriftBadge({ delta }: { delta?: SavedPlan['delta'] }) {
   const up = (delta.landedDeltaPct ?? 0) >= 0;
   return (
     <span
-      className={`font-mono text-xs px-2 py-0.5 rounded-sm ${up ? 'text-red-300 bg-red-500/10' : 'text-emerald-300 bg-emerald-500/10'}`}
-      title={`${eur(delta.landedDeltaEur)} since saved${delta.primaryDriver ? ` · mostly ${delta.primaryDriver}` : ''}`}
+      className={`inline-flex items-center gap-1 px-2 py-0.5 font-mono text-[10.5px] font-medium tabular-nums ${
+        up
+          ? 'bg-[var(--color-critical)]/12 text-[var(--color-critical)]'
+          : 'bg-[var(--color-positive)]/12 text-[var(--color-positive)]'
+      }`}
+      title={`${eur(delta.landedDeltaEur)} since saved${
+        delta.primaryDriver ? ` · mostly ${delta.primaryDriver}` : ''
+      }`}
     >
       {up ? '▲' : '▼'} {Math.abs(delta.landedDeltaPct)}%
     </span>
   );
 }
 
-// Reproducibility verdict from the server-stamped flag (no extra fetch per row).
-// Stays out of the way: green tick on full reproducibility, amber diamond when
-// the market data has moved, nothing when no snapshot was bound (legacy plans).
 function ReproBadge({ p }: { p: SavedPlan }) {
   if (p.reproducible == null) return null;
   if (p.reproducible) {
     return (
-      <span className="font-mono text-xs px-2 py-0.5 rounded-sm text-emerald-300 bg-emerald-500/10"
-        title="Reproducible — market data unchanged since you saved this plan">
+      <span
+        className="inline-flex items-center gap-1 bg-[var(--color-positive)]/12 px-2 py-0.5 font-mono text-[10.5px] font-medium text-[var(--color-positive)]"
+        title="Reproducible — market data unchanged since you saved this plan"
+      >
         ✓ reproducible
       </span>
     );
   }
   return (
-    <span className="font-mono text-xs px-2 py-0.5 rounded-sm text-amber-300 bg-amber-500/10"
-      title="Market data has drifted; the original euros are still recoverable from the stored snapshot — open the plan to see the original vs today.">
+    <span
+      className="inline-flex items-center gap-1 bg-[var(--color-warning)]/12 px-2 py-0.5 font-mono text-[10.5px] font-medium text-[var(--color-warning)]"
+      title="Market data has drifted; the original euros are still recoverable from the stored snapshot."
+    >
       ◆ drifted
     </span>
   );
@@ -49,66 +58,92 @@ export default function PlansPage() {
 
   useEffect(() => {
     apiGet<{ ok: boolean; plans: SavedPlan[] }>('/plans')
-      .then((d) => { setPlans(d.plans || []); setState('ready'); })
+      .then((d) => {
+        setPlans(d.plans || []);
+        setState('ready');
+      })
       .catch((e) => setState(e instanceof AuthError ? 'auth' : 'error'));
   }, []);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading your plans…</p>;
-  if (state === 'auth') {
-    return (
-      <div className="max-w-md">
-        <h1 className="text-3xl mb-3">Sign in to see your plans</h1>
-        <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a>
-      </div>
-    );
-  }
-  if (state === 'error') return <p className="text-red-400 text-sm">Couldn’t load your plans. Please retry shortly.</p>;
+  if (state === 'loading') return <LoadingNotice label="Loading your plans…" />;
+  if (state === 'auth') return <AuthNotice title="Sign in to see your plans." />;
+  if (state === 'error') return <ErrorNotice />;
 
   return (
     <div>
-      <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Plans</div>
-      <div className="flex items-end justify-between mb-8">
-        <h1 className="text-4xl">Saved import plans</h1>
-        <a href="/start/" className="text-sm px-4 py-2 bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm font-medium">+ New plan</a>
-      </div>
+      <PageHeader
+        kicker="Plans"
+        title="Saved import plans."
+        sub="Recomputed against today's tariff, freight and FX data. A ▲/▼ badge marks plans whose landed cost has moved ≥5% since you saved them; ✓ / ◆ marks reproducibility against the stored data snapshot."
+        actions={
+          <Link
+            href="/start/"
+            className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-5 py-2.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+          >
+            + New plan
+            <span
+              aria-hidden
+              className="transition-transform duration-500 group-hover:translate-x-0.5"
+            >
+              →
+            </span>
+          </Link>
+        }
+      />
 
       {!plans.length ? (
-        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-white/60">
-          <p className="mb-4">You haven’t saved any import plans yet.</p>
-          <a href="/start/" className="text-[var(--color-accent)] underline">Build your first plan →</a>
-        </div>
+        <EmptyState
+          body="You have not saved any import plans yet."
+          ctaLabel="Build your first plan"
+          ctaHref="/start/"
+        />
       ) : (
-        <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)]">
-          {plans.map((p) => {
-            const landed = p.current?.perShipmentLandedTotal ?? p.snapshot?.perShipmentLandedTotal;
+        <div className="border border-[var(--color-navy-line)]">
+          {plans.map((p, i) => {
+            const landed =
+              p.current?.perShipmentLandedTotal ?? p.snapshot?.perShipmentLandedTotal;
             const inp = p.inputs || {};
             return (
-              <Link key={p.id} href={`/plans/${p.id}`} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.03]">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-3">
-                    <span className="font-serif text-lg text-ivory truncate">{p.label || inp.productCategory || p.id}</span>
+              <Link
+                key={p.id}
+                href={`/plans/${p.id}`}
+                className={`group flex flex-col gap-3 px-5 py-4 transition-colors duration-500 hover:bg-[var(--color-navy-soft)] md:flex-row md:items-center md:justify-between md:px-6 md:py-5 ${
+                  i > 0 ? 'border-t border-[var(--color-navy-line)]' : ''
+                }`}
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span
+                      className="truncate font-serif text-[1.05rem] leading-tight text-[var(--color-ivory)]"
+                      style={{
+                        fontVariationSettings: "'SOFT' 35, 'opsz' 144",
+                        fontWeight: 550,
+                      }}
+                    >
+                      {p.label || inp.productCategory || p.id}
+                    </span>
                     <DriftBadge delta={p.delta} />
                     <ReproBadge p={p} />
                   </div>
-                  <div className="font-mono text-xs text-white/45 mt-1">
-                    {(inp.originCountry || '?')}→{(inp.destinationCountry || '?')}
+                  <div className="mt-1.5 font-mono text-[11.5px] font-medium tracking-tight text-[var(--color-ivory-mute)]">
+                    {inp.originCountry || '?'} → {inp.destinationCountry || '?'}
                     {inp.hsCode ? ` · HS ${inp.hsCode}` : ''}
                     {p.savedAt ? ` · saved ${String(p.savedAt).slice(0, 10)}` : ''}
                   </div>
                 </div>
-                <div className="text-right shrink-0 pl-4">
-                  <div className="font-mono text-sm text-white/85">{eur(landed)}</div>
-                  <div className="text-[0.66rem] uppercase tracking-wider text-white/40">landed / shipment</div>
+                <div className="flex flex-row items-baseline gap-3 md:flex-col md:items-end md:gap-0.5">
+                  <div className="font-mono text-[14px] font-medium tabular-nums text-[var(--color-ivory)]">
+                    {eur(landed)}
+                  </div>
+                  <div className="font-serif text-[11.5px] italic text-[var(--color-ivory-mute)]">
+                    landed / shipment
+                  </div>
                 </div>
               </Link>
             );
           })}
         </div>
       )}
-
-      <p className="text-white/40 text-xs mt-6">
-        Figures recompute against today’s tariff, freight and FX data. A ▲/▼ badge marks plans whose landed cost has moved ≥5% since you saved them; ✓ / ◆ marks reproducibility against the stored data snapshot.
-      </p>
     </div>
   );
 }
