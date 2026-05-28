@@ -130,6 +130,18 @@ test('Team page exists, is in the sidebar, and drives the RBAC endpoints', () =>
   assert.match(read('lib/api.ts'), /apiDelete/);
 });
 
+test('Drafts page drives the document approval workflow (I5)', () => {
+  assert.ok(exists('app/(authed)/drafts/page.tsx'), 'drafts page missing');
+  const drafts = read('app/(authed)/drafts/page.tsx');
+  assert.match(drafts, /action: 'save'/);
+  assert.match(drafts, /decide\('approve'\)/);
+  assert.match(drafts, /decide\('reject'\)/);
+  assert.match(drafts, /list-mine/);
+  assert.match(drafts, /srcDoc=\{current\.html\}/);     // iframe preview wired
+  assert.match(read('components/Sidebar.tsx'), /href: '\/drafts'/);
+  assert.match(read('lib/api.ts'), /interface Draft\b/);
+});
+
 test('Dashboard shows a first-run activation path for new accounts', () => {
   const dash = read('app/(authed)/dashboard/page.tsx');
   assert.match(dash, /planCount === 0/);

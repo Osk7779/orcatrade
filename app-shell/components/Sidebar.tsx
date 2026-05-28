@@ -11,6 +11,7 @@ const NAV: Array<{ label: string; href: string; inApp?: boolean }> = [
   { label: 'Monitoring alerts', href: '/alerts', inApp: true },
   { label: 'Compliance calendar', href: '/calendar', inApp: true },
   { label: 'Documents', href: '/documents', inApp: true },
+  { label: 'Drafts', href: '/drafts', inApp: true },
   { label: 'Screening', href: '/screening', inApp: true },
   { label: 'Team', href: '/team', inApp: true },
   { label: 'Preferences', href: '/preferences', inApp: true },

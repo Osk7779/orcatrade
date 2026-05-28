@@ -216,3 +216,27 @@ export interface ScimStatus {
   endpoint?: string;
   token?: string; // present only in the POST (mint) response, shown once
 }
+
+// /api/documents — types + drafts + approval workflow (apex I5)
+export type DraftStatus = 'pending_approval' | 'approved' | 'rejected';
+export interface DocType {
+  id: string;
+  label: string;
+  description: string;
+}
+export interface Draft {
+  id: string;
+  type: string;
+  label?: string;
+  status: DraftStatus;
+  createdAt: string;
+  updatedAt: string;
+  decisionNotes?: string;
+  decidedAt?: string;
+}
+export interface DraftWithHtml {
+  ok: boolean;
+  draft: Draft;
+  html: string;
+  idempotent?: boolean;
+}
