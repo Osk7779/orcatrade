@@ -2,57 +2,48 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>AI cost dashboard — OrcaTrade</title>
+  <title>Wizard funnel — OrcaTrade</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Per-Anthropic-call cost telemetry: spend by agent, by prompt version, by model. Sourced from the structured ai_call event log." />
-  <link rel="canonical" href="https://orcatrade.pl/dashboard/ai/" />
+  <meta name="description" content="Wizard funnel — per-step completion + drop-off, sourced from the durable event log." />
+  <link rel="canonical" href="https://orcatrade.pl/dashboard/funnel/" />
   <meta name="robots" content="noindex, nofollow" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet" />
   <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/styles.css" />
+  <link rel="stylesheet" href="/css/styles.css">
   <style>
-    body { background: #050507; color: rgba(255,255,255,0.92); font-family: 'Geist', system-ui, sans-serif; }
-    .ai-shell { max-width: 1180px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
-    .ai-head { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 2rem; padding-bottom: 1.2rem; border-bottom: 1px solid rgba(255,255,255,0.06); }
-    .ai-head h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 2rem; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
-    .ai-head .meta { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.45); letter-spacing: 0.08em; text-transform: uppercase; }
+    .shell { max-width: 1080px; margin: 0 auto; padding: 3rem 1.5rem 5rem; }
+    h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3.5vw + 0.6rem, 2.6rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.4rem; letter-spacing: -0.02em; }
+    .sub { font-size: 0.92rem; color: rgba(255,255,255,0.6); margin-bottom: 1.6rem; line-height: 1.55; }
+    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
+    .breadcrumbs a { color: rgba(255,255,255,0.7); text-decoration: none; }
 
-    .controls { display: flex; gap: 0.6rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.5rem; padding: 1rem 1.2rem; background: rgba(13,15,20,0.6); border: 1px solid rgba(255,255,255,0.06); }
-    .controls label { font-family: 'Geist Mono', monospace; font-size: 0.66rem; color: rgba(255,255,255,0.55); letter-spacing: 0.1em; text-transform: uppercase; }
-    .controls input { padding: 0.5rem 0.7rem; background: rgba(8, 11, 19, 0.7); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.8rem; outline: none; }
-    .controls input:focus { border-color: rgba(184,190,200,0.4); }
-    .btn { padding: 0.55rem 1rem; font-family: inherit; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: transparent; color: rgba(255,255,255,0.92); border: 1px solid rgba(184,190,200,0.4); cursor: pointer; transition: all 0.18s; }
-    .btn:hover:not(:disabled) { background: rgba(184,190,200,0.06); }
-    .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+    .token-form { padding: 1.6rem 1.8rem; background: rgba(184,168,114,0.06); border: 1px solid rgba(200, 168, 90, 0.3); margin-bottom: 1.5rem; }
+    .token-form label { display: block; font-size: 0.78rem; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.65); margin-bottom: 0.4rem; }
+    .token-form input { width: 100%; max-width: 480px; padding: 0.6rem 0.8rem; background: rgba(8,11,19,0.6); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.92); font-family: 'Geist Mono', monospace; font-size: 0.85rem; }
+    .token-form button { padding: 0.6rem 1.1rem; margin-left: 0.6rem; font-size: 0.74rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; background: #b8bec8; color: #0a0912; border: 1px solid #b8bec8; cursor: pointer; }
+    .err { font-size: 0.82rem; color: #c95050; margin-top: 0.5rem; }
 
-    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1px; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.06); margin-bottom: 1.5rem; }
-    .stat { background: #0a0c12; padding: 1.1rem 1.3rem; }
-    .stat .num { font-family: 'Cormorant Garant', serif; font-size: 1.7rem; font-weight: 700; color: rgba(255,255,255,0.97); letter-spacing: -0.02em; line-height: 1; }
-    .stat .num.warn { color: rgba(220, 188, 110, 1); }
-    .stat .label { font-family: 'Geist Mono', monospace; font-size: 0.66rem; color: rgba(255,255,255,0.5); letter-spacing: 0.12em; text-transform: uppercase; margin-top: 0.4rem; }
+    .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin-bottom: 1.6rem; }
+    .tile { padding: 1.1rem 1.2rem; background: rgba(13,15,20,0.55); border: 1px solid rgba(255,255,255,0.07); }
+    .tile .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 0.35rem; }
+    .tile .value { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.95rem; color: rgba(255,255,255,0.97); line-height: 1.05; }
+    .tile .sub-tile { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; }
 
-    .panel { background: #0a0c12; border: 1px solid rgba(255,255,255,0.06); padding: 1.2rem 1.3rem; margin-bottom: 1.5rem; }
-    .panel h2 { font-family: 'Cormorant Garant', serif; font-size: 1.2rem; font-weight: 600; margin: 0 0 0.8rem; color: rgba(255,255,255,0.95); }
+    .panel { padding: 1.4rem 1.6rem; background: rgba(13,15,20,0.45); border: 1px solid rgba(255,255,255,0.07); margin-bottom: 1rem; }
+    .panel h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; color: rgba(255,255,255,0.95); margin-bottom: 0.9rem; }
 
-    .bar-row { display: grid; grid-template-columns: 160px 1fr 80px; gap: 0.7rem; align-items: center; margin-bottom: 0.4rem; font-family: 'Geist Mono', monospace; font-size: 0.78rem; }
-    .bar-row .name { color: rgba(255,255,255,0.82); }
-    .bar-row .bar { height: 0.55rem; background: linear-gradient(to right, rgba(184,190,200,0.55), rgba(184,190,200,0.2)); border-radius: 1px; }
-    .bar-row .val { color: rgba(255,255,255,0.7); text-align: right; }
+    .funnel { display: grid; grid-template-columns: 1fr; gap: 0.5rem; }
+    .step { display: grid; grid-template-columns: 12rem 1fr 6rem 6rem; gap: 0.8rem; align-items: center; font-family: 'Geist Mono', monospace; font-size: 0.82rem; }
+    .step .label { color: rgba(255,255,255,0.85); }
+    .step .bar-track { height: 1.2rem; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.05); position: relative; }
+    .step .bar-fill { height: 100%; background: linear-gradient(to right, rgba(184,190,200,0.7), rgba(184,190,200,0.3)); }
+    .step .count { color: rgba(255,255,255,0.85); text-align: right; }
+    .step .drop { color: rgba(180,120,120,0.85); text-align: right; }
+    .step .drop.ok { color: rgba(120,180,140,0.85); }
 
-    table.calls { width: 100%; border-collapse: collapse; background: #0a0c12; border: 1px solid rgba(255,255,255,0.06); }
-    table.calls th, table.calls td { padding: 0.5rem 0.8rem; text-align: left; font-family: 'Geist Mono', monospace; font-size: 0.74rem; border-bottom: 1px solid rgba(255,255,255,0.04); color: rgba(255,255,255,0.78); }
-    table.calls th { color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.62rem; background: rgba(255,255,255,0.02); }
-    table.calls td.cost { color: rgba(220, 188, 110, 1); text-align: right; }
-    table.calls td.latency { color: rgba(150, 200, 230, 1); text-align: right; }
-
-    .err { padding: 1rem 1.2rem; background: rgba(232, 128, 128, 0.08); border: 1px solid rgba(232, 128, 128, 0.3); color: #e88080; font-family: 'Geist Mono', monospace; font-size: 0.82rem; margin-bottom: 1.5rem; }
-    .empty { padding: 1.4rem 1.6rem; text-align: center; font-size: 0.92rem; color: rgba(255,255,255,0.55); background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); }
-
-    .note { margin-top: 1.5rem; font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.4); line-height: 1.7; max-width: 80ch; }
-    .note strong { color: rgba(255,255,255,0.6); }
-    .note a { color: rgba(220, 188, 110, 0.85); text-decoration: none; }
+    .meta-line { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 1rem; letter-spacing: 0.06em; }
   </style>
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
@@ -108,55 +99,35 @@
   </script>
 </head>
 <body>
-  <main class="ai-shell">
-    <div class="ai-head">
-      <h1>AI cost dashboard</h1>
-      <div class="meta" id="lastChecked">—</div>
-    </div>
+  <main class="shell">
+    <div class="breadcrumbs"><a href="/dashboard/">Dashboards</a> · Wizard funnel</div>
+    <h1>Wizard funnel</h1>
+    <p class="sub">Step-by-step completion of the Import Plan Builder, sourced from the durable event log (<code>wizard_step_completed</code>). Top of the funnel is anyone landing on <code>/start/</code>; the bottom is a submitted plan.</p>
 
     <div id="errBanner" class="err" hidden></div>
 
-    <div class="controls">
-      <label for="tokenInput">Token</label>
-      <input id="tokenInput" type="password" placeholder="ORCATRADE_LEADS_TOKEN" autocomplete="off" />
-      <button id="reloadBtn" class="btn">Reload</button>
+    <div class="token-form" id="tokenForm">
+      <label for="tokenInput">Admin token</label>
+      <input type="password" id="tokenInput" autocomplete="off" placeholder="ORCATRADE_LEADS_TOKEN" />
+      <button id="tokenSubmit" type="button">View</button>
     </div>
 
-    <div id="stats" class="stats"></div>
+    <div id="content" hidden>
+      <div class="tiles">
+        <div class="tile"><div class="label">Wizard sessions</div><div class="value" id="sessionsValue">0</div><div class="sub-tile" id="sessionsSub"></div></div>
+        <div class="tile"><div class="label">Submitted plans</div><div class="value" id="submittedValue">0</div><div class="sub-tile" id="submittedSub"></div></div>
+        <div class="tile"><div class="label">Overall completion</div><div class="value" id="completionValue">—</div><div class="sub-tile">step 1 → submit</div></div>
+        <div class="tile"><div class="label">Worst-drop step</div><div class="value" id="worstStepValue">—</div><div class="sub-tile" id="worstStepSub"></div></div>
+      </div>
 
-    <div class="panel">
-      <h2>Spend by agent (cents)</h2>
-      <div id="byAgent"></div>
-    </div>
-
-    <div class="panel">
-      <h2>Spend by prompt version (cents)</h2>
-      <div id="byPromptVersion"></div>
-    </div>
-
-    <div class="panel">
-      <h2>Spend by tier (cents) — F6 per-cohort view</h2>
-      <div id="byTier"></div>
-    </div>
-
-    <div class="panel">
-      <h2>Top 10 most expensive calls</h2>
-      <div id="topCalls"></div>
-    </div>
-
-    <div class="note">
-      <strong>What this shows:</strong> every Anthropic API call from a production agent emits a structured <code>ai_call</code>
-      event ({ agent, promptVersion, model, inputTokens, outputTokens, cacheReadTokens, costCents, latencyMs, stopReason }).
-      The dashboard reads the most recent ones via <a href="/api/audit">/api/audit?type=ai_call</a>.
-      No PII — the events carry no email or user identifier, only the agent + prompt + model + token counts.
-      Pricing source: <a href="https://www.anthropic.com/pricing">anthropic.com/pricing</a>, frozen in
-      <a href="/docs/security/">lib/ai/cost-telemetry.js</a> for deterministic offline cost math.
-      <br/><br/>
-      Sibling dashboards: <a href="/dashboard/leads/">conversion analytics →</a> · <a href="/dashboard/audit/">audit log →</a>
+      <div class="panel">
+        <h2>Step-by-step completion</h2>
+        <div class="funnel" id="funnel"></div>
+        <div class="meta-line" id="metaLine"></div>
+      </div>
     </div>
   </main>
-
-  <script src="./app.js"></script>
+  <script src="/dashboard/funnel/app.js" defer></script>
 
 <!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>

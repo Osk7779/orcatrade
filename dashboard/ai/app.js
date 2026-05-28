@@ -45,6 +45,7 @@
     var totalOutTokens = 0;
     var byAgent = {};        // agent → { cents, calls }
     var byPromptVersion = {}; // 'agent:vN' → { cents, calls }
+    var byTier = {};         // tier → { cents, calls } — F6 per-tenant cohort view
     var oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     var inWeek = 0;
     for (var i = 0; i < events.length; i++) {
@@ -65,12 +66,17 @@
       if (!byPromptVersion[pvKey]) byPromptVersion[pvKey] = { cents: 0, calls: 0 };
       byPromptVersion[pvKey].cents += cents;
       byPromptVersion[pvKey].calls++;
+
+      var tier = e.tier || 'untiered';
+      if (!byTier[tier]) byTier[tier] = { cents: 0, calls: 0 };
+      byTier[tier].cents += cents;
+      byTier[tier].calls++;
     }
     return {
       totalCents, totalInTokens, totalOutTokens, inWeek,
       callCount: events.filter(function (e) { return e.type === 'ai_call'; }).length,
       meanCostCents: 0,  // filled below
-      byAgent, byPromptVersion,
+      byAgent, byPromptVersion, byTier,
     };
   }
 
@@ -171,6 +177,7 @@
           el('stats').innerHTML = '';
           el('byAgent').innerHTML = '';
           el('byPromptVersion').innerHTML = '';
+          if (el('byTier')) el('byTier').innerHTML = '';
           el('topCalls').innerHTML = '';
         }
         return false;
@@ -185,6 +192,10 @@
       renderStats(agg);
       renderBars('byAgent', agg.byAgent);
       renderBars('byPromptVersion', agg.byPromptVersion);
+      // F6 per-cohort view: AI spend split by user tier (free/starter/...)
+      // so we can see which tier is driving AI COGS. The element is optional
+      // — older index.html that hasn't been updated will simply skip it.
+      if (el('byTier')) renderBars('byTier', agg.byTier);
       renderTopCalls(events);
       el('lastChecked').textContent = 'Last checked: ' + new Date(body.asOf).toLocaleTimeString() + ' · ' + agg.callCount + ' calls';
       return true;
