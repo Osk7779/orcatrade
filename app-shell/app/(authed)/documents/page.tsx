@@ -1,7 +1,15 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { apiGet, apiPost, type AuditResult, type AuditFinding, type SavedPlan, type Severity } from '@/lib/api';
+import {
+  apiGet,
+  apiPost,
+  type AuditResult,
+  type AuditFinding,
+  type SavedPlan,
+  type Severity,
+} from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
 
 const DOC_TYPES = [
   { id: 'commercial_invoice', label: 'Commercial invoice' },
@@ -10,15 +18,35 @@ const DOC_TYPES = [
   { id: 'certificate_of_origin', label: 'Certificate of origin' },
 ];
 
-const VERDICT: Record<string, { label: string; cls: string }> = {
-  blocking_issues: { label: 'Blocking issues', cls: 'text-red-400 border-l-red-500' },
-  review_needed: { label: 'Review needed', cls: 'text-amber-400 border-l-amber-500' },
-  minor_issues: { label: 'Minor issues', cls: 'text-white/70 border-l-white/30' },
-  consistent: { label: 'Consistent', cls: 'text-emerald-300 border-l-emerald-500' },
+const VERDICT: Record<string, { label: string; tone: string; rule: string }> = {
+  blocking_issues: {
+    label: 'Blocking issues',
+    tone: 'text-[var(--color-critical)]',
+    rule: 'before:bg-[var(--color-critical)]',
+  },
+  review_needed: {
+    label: 'Review needed',
+    tone: 'text-[var(--color-warning)]',
+    rule: 'before:bg-[var(--color-warning)]',
+  },
+  minor_issues: {
+    label: 'Minor issues',
+    tone: 'text-[var(--color-ivory-dim)]',
+    rule: 'before:bg-[var(--color-ivory-dim)]',
+  },
+  consistent: {
+    label: 'Consistent',
+    tone: 'text-[var(--color-positive)]',
+    rule: 'before:bg-[var(--color-positive)]',
+  },
 };
 
 const SEV_TEXT: Record<Severity, string> = {
-  critical: 'text-red-400', high: 'text-amber-400', medium: 'text-white/70', low: 'text-white/55', info: 'text-sky-400',
+  critical: 'text-[var(--color-critical)]',
+  high: 'text-[var(--color-warning)]',
+  medium: 'text-[var(--color-ivory-dim)]',
+  low: 'text-[var(--color-ivory-mute)]',
+  info: 'text-[var(--color-info)]',
 };
 
 export default function DocumentsPage() {
@@ -31,15 +59,23 @@ export default function DocumentsPage() {
   const [err, setErr] = useState('');
 
   useEffect(() => {
-    apiGet<{ plans: SavedPlan[] }>('/plans').then((d) => setPlans(d.plans || [])).catch(() => {});
+    apiGet<{ plans: SavedPlan[] }>('/plans')
+      .then((d) => setPlans(d.plans || []))
+      .catch(() => {});
   }, []);
 
   async function audit(e: React.FormEvent) {
     e.preventDefault();
     if (!text.trim()) return;
-    setBusy(true); setErr(''); setResult(null);
+    setBusy(true);
+    setErr('');
+    setResult(null);
     try {
-      const body: Record<string, unknown> = { action: 'audit', documentType: docType, text: text.trim() };
+      const body: Record<string, unknown> = {
+        action: 'audit',
+        documentType: docType,
+        text: text.trim(),
+      };
       if (planId) body.fromPlanId = planId;
       setResult(await apiPost<AuditResult>('/documents', body));
     } catch {
@@ -52,63 +88,158 @@ export default function DocumentsPage() {
   const v = result?.verdict ? VERDICT[result.verdict] : null;
 
   return (
-    <div className="max-w-3xl">
-      <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Documents</div>
-      <h1 className="text-4xl mb-2">Document audit</h1>
-      <p className="text-white/60 text-sm mb-7 leading-relaxed">
-        Paste a commercial invoice, packing list or certificate of origin. We extract the fields and check them —
-        optionally against one of your saved plans — for HS / origin / value mismatches, arithmetic errors, undervaluation
-        risk, missing preference evidence and CBAM/EUDR documentation.
-      </p>
+    <div className="max-w-[920px]">
+      <PageHeader
+        kicker="Documents"
+        title="Document audit."
+        sub="Paste a commercial invoice, packing list or certificate of origin. We extract the fields and check them — optionally against one of your saved plans — for HS / origin / value mismatches, arithmetic errors, undervaluation risk, missing preference evidence and CBAM/EUDR documentation."
+      />
 
-      <form onSubmit={audit} className="flex flex-col gap-3 mb-6">
-        <div className="flex gap-3 flex-wrap">
-          <select value={docType} onChange={(e) => setDocType(e.target.value)} className="bg-white/[0.04] border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm">
-            {DOC_TYPES.map((d) => <option key={d.id} value={d.id}>{d.label}</option>)}
-          </select>
-          <select value={planId} onChange={(e) => setPlanId(e.target.value)} className="bg-white/[0.04] border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm">
-            <option value="">Compare against: (no plan)</option>
-            {plans.map((p) => <option key={p.id} value={p.id}>{p.label || p.id}</option>)}
-          </select>
+      <form onSubmit={audit} className="flex flex-col gap-5 border border-[var(--color-navy-line)] bg-[var(--color-ink)]/60 p-6 md:p-8">
+        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+          <FormSelect
+            id="docType"
+            label="Document type"
+            value={docType}
+            onChange={setDocType}
+            options={DOC_TYPES.map((d) => ({ value: d.id, label: d.label }))}
+          />
+          <FormSelect
+            id="planId"
+            label="Compare against"
+            value={planId}
+            onChange={setPlanId}
+            options={[
+              { value: '', label: 'No plan — extract only' },
+              ...plans.map((p) => ({ value: p.id, label: p.label || p.id })),
+            ]}
+          />
         </div>
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={9}
-          placeholder={'Paste the document text here…\n\ne.g.\nCommercial Invoice\nOrigin: China\nHS code: 8712 00 30\nTotal: EUR 40,000'}
-          className="bg-white/[0.04] border border-[var(--color-line)] px-3 py-2 text-sm font-mono rounded-sm focus:outline-none focus:border-white/30"
-        />
-        <button disabled={busy || !text.trim()} className="self-start px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40">
-          {busy ? 'Auditing…' : 'Audit document'}
-        </button>
+
+        <label htmlFor="docText" className="flex flex-col gap-2">
+          <span className="font-serif text-[13px] italic text-[var(--color-ivory-dim)]">
+            Document text
+          </span>
+          <textarea
+            id="docText"
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            rows={9}
+            placeholder={'Paste the document text here…\n\ne.g.\nCommercial Invoice\nOrigin: China\nHS code: 8712 00 30\nTotal: EUR 40,000'}
+            className="resize-y border border-[var(--color-navy-line)] bg-transparent p-3.5 font-mono text-[13px] leading-[1.65] text-[var(--color-ivory)] placeholder:text-[var(--color-ivory-mute)]/60 focus:border-[var(--color-ivory-dim)] focus:outline-none"
+          />
+        </label>
+
+        <div className="flex justify-end">
+          <button
+            disabled={busy || !text.trim()}
+            className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {busy ? 'Auditing…' : 'Audit document'}
+            {!busy && (
+              <span
+                aria-hidden
+                className="transition-transform duration-500 group-hover:translate-x-0.5"
+              >
+                →
+              </span>
+            )}
+          </button>
+        </div>
       </form>
 
-      {err && <p className="text-red-400 text-sm">{err}</p>}
+      {err && (
+        <div className="mt-6 border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/5 p-4">
+          <p className="font-serif text-[14px] italic text-[var(--color-ivory)]">{err}</p>
+        </div>
+      )}
 
       {result && v && (
-        <div className={`border border-[var(--color-line)] border-l-2 ${v.cls} px-5 py-4`}>
-          <div className={`font-mono text-[0.7rem] uppercase tracking-wider mb-2 ${v.cls.split(' ')[0]}`}>Verdict: {v.label}</div>
+        <div
+          className={`relative mt-8 bg-[var(--color-ink)] p-6 before:absolute before:left-0 before:top-0 before:h-full before:w-[2px] md:p-7 ${v.rule}`}
+          style={{ border: '1px solid var(--color-navy-line)' }}
+        >
+          <div className="font-mono text-[11px] font-medium uppercase tracking-tight">
+            <span className="text-[var(--color-ivory-mute)]">Verdict:</span>{' '}
+            <span className={v.tone}>{v.label}</span>
+          </div>
+
           {result.extraction && (
-            <div className="text-white/45 text-xs mb-3 font-mono">
-              extracted {result.extraction.extractedFields?.length || 0} field(s) · confidence {result.extraction.confidence}
-              {result.extraction.missingFields?.length ? ` · missing: ${result.extraction.missingFields.join(', ')}` : ''}
+            <div className="mt-3 font-mono text-[11.5px] font-medium tracking-tight text-[var(--color-ivory-mute)]">
+              extracted {result.extraction.extractedFields?.length || 0} field
+              {(result.extraction.extractedFields?.length || 0) === 1 ? '' : 's'} ·
+              confidence {result.extraction.confidence}
+              {result.extraction.missingFields?.length
+                ? ` · missing: ${result.extraction.missingFields.join(', ')}`
+                : ''}
             </div>
           )}
+
           {result.findings?.length ? (
-            <ul className="flex flex-col gap-2">
+            <ul className="mt-5 flex flex-col gap-3">
               {result.findings.map((f: AuditFinding, i) => (
-                <li key={i} className="text-sm">
-                  <span className={`font-mono text-[0.62rem] uppercase mr-2 ${SEV_TEXT[f.severity] || 'text-white/50'}`}>{f.severity}</span>
-                  <span className="text-white/80">{f.message}</span>
+                <li
+                  key={i}
+                  className="flex items-baseline gap-3 text-[14px] leading-[1.6] text-[var(--color-ivory-dim)]"
+                >
+                  <span
+                    className={`font-mono text-[10.5px] font-medium uppercase tabular-nums ${
+                      SEV_TEXT[f.severity] || 'text-[var(--color-ivory-mute)]'
+                    }`}
+                  >
+                    {f.severity}
+                  </span>
+                  <span>{f.message}</span>
                 </li>
               ))}
             </ul>
           ) : (
-            <p className="text-white/60 text-sm">No issues found against the provided inputs.</p>
+            <p className="mt-5 font-serif text-[14px] italic text-[var(--color-ivory-dim)]">
+              No issues found against the provided inputs.
+            </p>
           )}
-          {result.advisory && <p className="text-white/40 text-xs mt-4 leading-relaxed">{result.advisory}</p>}
+
+          {result.advisory && (
+            <p className="mt-5 max-w-[60ch] font-serif text-[12.5px] italic leading-[1.55] text-[var(--color-ivory-mute)]">
+              {result.advisory}
+            </p>
+          )}
         </div>
       )}
     </div>
+  );
+}
+
+function FormSelect({
+  id,
+  label,
+  value,
+  onChange,
+  options,
+}: {
+  id: string;
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+}) {
+  return (
+    <label htmlFor={id} className="flex flex-col gap-2">
+      <span className="font-serif text-[13px] italic text-[var(--color-ivory-dim)]">
+        {label}
+      </span>
+      <select
+        id={id}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="border-b border-[var(--color-navy-line)] bg-transparent py-2.5 text-[14px] text-[var(--color-ivory)] focus:border-[var(--color-ivory-dim)] focus:outline-none [&>option]:bg-[var(--color-ink)] [&>option]:text-[var(--color-ivory)]"
+      >
+        {options.map((o) => (
+          <option key={o.value} value={o.value}>
+            {o.label}
+          </option>
+        ))}
+      </select>
+    </label>
   );
 }
