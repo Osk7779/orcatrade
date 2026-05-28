@@ -130,6 +130,18 @@ test('Team page exists, is in the sidebar, and drives the RBAC endpoints', () =>
   assert.match(read('lib/api.ts'), /apiDelete/);
 });
 
+test('Drafts page drives the document approval workflow (I5)', () => {
+  assert.ok(exists('app/(authed)/drafts/page.tsx'), 'drafts page missing');
+  const drafts = read('app/(authed)/drafts/page.tsx');
+  assert.match(drafts, /action: 'save'/);
+  assert.match(drafts, /decide\('approve'\)/);
+  assert.match(drafts, /decide\('reject'\)/);
+  assert.match(drafts, /list-mine/);
+  assert.match(drafts, /srcDoc=\{current\.html\}/);     // iframe preview wired
+  assert.match(read('components/Sidebar.tsx'), /href: '\/drafts'/);
+  assert.match(read('lib/api.ts'), /interface Draft\b/);
+});
+
 test('Dashboard shows a first-run activation path for new accounts', () => {
   const dash = read('app/(authed)/dashboard/page.tsx');
   assert.match(dash, /planCount === 0/);
@@ -163,6 +175,13 @@ test('Plan detail surfaces the reproducibility verdict (III3 made visible)', () 
   assert.match(detail, /Reproducibility/);
   // The api client exposes the Reproduction type the panel consumes.
   assert.match(read('lib/api.ts'), /interface Reproduction/);
+});
+
+test('Plans list shows the per-row reproducibility badge (no extra fetch)', () => {
+  const list = read('app/(authed)/plans/page.tsx');
+  assert.match(list, /ReproBadge/);
+  assert.match(list, /reproducible/);
+  assert.match(read('lib/api.ts'), /reproducible\?:/);
 });
 
 test('the accent colour is ivory white, not gold (user preference, locked in)', () => {

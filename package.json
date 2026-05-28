@@ -6,7 +6,8 @@
     "test": "ORCATRADE_DISABLE_LIVE_TARIC=1 node --test",
     "db:migrate": "node scripts/db-migrate.js",
     "eval": "node scripts/agent-eval.js",
-    "eval:list": "node scripts/agent-eval.js --list-cases --agent orchestrator"
+    "eval:list": "node scripts/agent-eval.js --list-cases --agent orchestrator",
+    "smoke": "node scripts/smoke.js"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.36.0",
