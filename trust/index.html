@@ -122,6 +122,12 @@
     <section>
       <h2>Audit &amp; accountability</h2>
       <p>State changes — plan and portfolio edits, restock and inventory actions, membership and access changes — are written to an audit log with the actor, timestamp, and before/after context. Administrators can review the tenant's activity feed with personal data redacted.</p>
+      <p><strong>Tamper-evident by design.</strong> Each entry is hash-chained at write time (<code>_seq</code>, <code>_prevHash</code>, <code>_hash</code>) over a personal-data-free projection, so any in-place edit, deletion or reordering of a stored row breaks the chain and is detectable. We publish two verification endpoints — one to re-walk the stored chain (<code>GET /api/audit?format=verify-stored</code>), one to produce an independently-verifiable export an auditor can recompute offline (<code>GET /api/audit?format=chain</code>) — so the integrity guarantee doesn't require trusting our own code. Lawful GDPR Article&nbsp;17 erasure pseudonymises the actor without breaking the chain. Full procedure: <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/audit-trail.md">audit-trail.md</a>.</p>
+    </section>
+
+    <section>
+      <h2>Reproducibility of every euro</h2>
+      <p>The numbers we show you — landed cost, duty, FX risk, anti-dumping exposure — are bound at save time to a content-addressed snapshot of the volatile market data behind them (FX rates, ETS price, AD/CVD measures, the resolved MFN rate). That snapshot id (<code>ds_…</code>) travels with the plan forever. Opening a saved plan calls <code>GET /api/plans/&lt;id&gt;/reproduce</code> and tells you, plainly, whether today's market data still produces the same euros — and when it doesn't, it itemises exactly which values moved (FX rate, AD/CVD rate, ETS price) and recomputes the <em>original</em> landed total side-by-side with today's. "Recompute any euro we ever showed you" is a feature, not a claim.</p>
     </section>
 
     <section>
