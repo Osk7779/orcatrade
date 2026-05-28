@@ -28,6 +28,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/regulations/privacy',
     '/docs/orcatrade-shareholder-brief',
     '/start',
+    '/search',
+    '/sourcing',
+    '/intelligence',
+    '/logistics',
+    '/finance',
+    '/process',
   ].map((path) => ({
     url: `${SITE}${path}`,
     lastModified: now,

@@ -49,7 +49,7 @@ export function PillarsBento() {
             status="live"
             title="OrcaTrade Intelligence."
             description="EU/UK customs, CBAM, EUDR, REACH, CE-marking, anti-dumping and countervailing duties — surfaced from one calculator-grounded engine, with citations and confidence tiers on every claim."
-            cta={{ label: 'See the guides', href: '/guides/compliance' }}
+            cta={{ label: 'Open Intelligence', href: '/intelligence' }}
             visual={<FlagshipVisual />}
           />
           <BentoCard
@@ -57,7 +57,7 @@ export function PillarsBento() {
             status="live"
             title="OrcaTrade Search."
             description="Type any HS code, product, supplier or lane. Get every regime that touches it."
-            cta={{ label: 'Open Search', href: '/start' }}
+            cta={{ label: 'Open Search', href: '/search' }}
             visual={<GridVisual />}
           />
           <BentoCard
@@ -65,7 +65,7 @@ export function PillarsBento() {
             status="live"
             title="OrcaTrade Sourcing."
             description="Six Asia origins, supplier screening, factory-risk feeds, sample-quote rebranding."
-            cta={{ label: 'Explore sourcing', href: '/guides/sourcing' }}
+            cta={{ label: 'Open Sourcing', href: '/sourcing' }}
             visual={<GridVisual />}
           />
           <BentoCard
@@ -73,7 +73,7 @@ export function PillarsBento() {
             status="live"
             title="OrcaTrade Logistics."
             description="Lane routing across DE, NL, PL, ES, IT, FR and beyond. Door-to-door priced end-to-end."
-            cta={{ label: 'Routing guides', href: '/guides/routing' }}
+            cta={{ label: 'Open Logistics', href: '/logistics' }}
             visual={<GridVisual />}
           />
           <BentoCard
@@ -81,7 +81,7 @@ export function PillarsBento() {
             status="beta"
             title="OrcaTrade Finance."
             description="Working capital, FX hedging windows, total cost of ownership — for orders of €50k–€500k."
-            cta={{ label: 'Read the brief', href: '/docs/orcatrade-shareholder-brief' }}
+            cta={{ label: 'Open Finance', href: '/finance' }}
             visual={<GridVisual />}
           />
         </BentoGrid>
