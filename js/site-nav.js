@@ -522,12 +522,6 @@
   }
 
   function upgradeAccountWidget(headerEl, locale) {
-    // Don't bother on the /account/ page itself — that page does its
-    // own auth check and shows a richer UI; a duplicate widget up top
-    // is visual noise on the sign-in screen.
-    const path = window.location.pathname || '/';
-    if (path.indexOf('/account/') === 0) return;
-
     // Optimistic path: if localStorage says the user is signed in,
     // render the widget BEFORE the network call resolves. Eliminates
     // the flash of "Sign in" → widget that return visitors would
