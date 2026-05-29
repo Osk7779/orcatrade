@@ -143,7 +143,13 @@
       border: 1px solid rgba(184,190,200,0.3);
       color: rgba(184,190,200,0.8);
     }
-    #root { padding-top: 44px; }
+    /* Hide the old fixed search-back-bar — the unified site-nav header
+       already provides the Back-to-Group link, brand, and locale switcher.
+       Without this, the back-bar floats on top of the new header. */
+    .search-back-bar { display: none !important; }
+    /* The unified header is part of normal flow, so the SPA's #root no
+       longer needs the 44px shim that was reserved for the back-bar. */
+    #root { padding-top: 0; }
   </style>
   <body>
 <header data-site-header></header>
