@@ -22,17 +22,7 @@
     { "source": "/account/screen/:path*", "destination": "/app/screening/:path*", "permanent": false },
     { "source": "/account/orgs/:path*", "destination": "/app/orgs/:path*", "permanent": false },
 
-    { "source": "/intelligence.html", "destination": "/intelligence", "permanent": true },
-    { "source": "/sourcing.html", "destination": "/sourcing", "permanent": true },
-    { "source": "/finance.html", "destination": "/finance", "permanent": true },
-    { "source": "/search.html", "destination": "/search", "permanent": true },
-    { "source": "/process.html", "destination": "/process", "permanent": true },
-    { "source": "/services.html", "destination": "/process", "permanent": true },
-    { "source": "/orcatrade.html", "destination": "/", "permanent": true },
-    { "source": "/contact.html", "destination": "/contact", "permanent": true },
-
-    { "source": "/agent/:path*", "destination": "/agents", "permanent": true },
-    { "source": "/dashboard/:path*", "destination": "/app/dashboard", "permanent": false }
+    { "source": "/orcatrade.html", "destination": "/", "permanent": true }
   ],
   "rewrites": [
     {
@@ -48,50 +38,8 @@
 
     { "source": "/", "destination": "https://orcatrade-marketing.vercel.app/" },
 
-    { "source": "/contact", "destination": "https://orcatrade-marketing.vercel.app/contact" },
-    { "source": "/founding", "destination": "https://orcatrade-marketing.vercel.app/founding" },
-    { "source": "/founding/:path*", "destination": "https://orcatrade-marketing.vercel.app/founding/:path*" },
-    { "source": "/trust", "destination": "https://orcatrade-marketing.vercel.app/trust" },
-    { "source": "/trust/:path*", "destination": "https://orcatrade-marketing.vercel.app/trust/:path*" },
-    { "source": "/changelog", "destination": "https://orcatrade-marketing.vercel.app/changelog" },
-    { "source": "/changelog/:path*", "destination": "https://orcatrade-marketing.vercel.app/changelog/:path*" },
-    { "source": "/regulations/:path*", "destination": "https://orcatrade-marketing.vercel.app/regulations/:path*" },
-    { "source": "/docs/orcatrade-shareholder-brief", "destination": "https://orcatrade-marketing.vercel.app/docs/orcatrade-shareholder-brief" },
-
-    { "source": "/start", "destination": "https://orcatrade-marketing.vercel.app/start" },
-    { "source": "/start/:path*", "destination": "https://orcatrade-marketing.vercel.app/start/:path*" },
-    { "source": "/tools/:path*", "destination": "https://orcatrade-marketing.vercel.app/tools/:path*" },
     { "source": "/signin", "destination": "https://orcatrade-marketing.vercel.app/signin" },
-    { "source": "/agents", "destination": "https://orcatrade-marketing.vercel.app/agents" },
-    { "source": "/buyer-verification", "destination": "https://orcatrade-marketing.vercel.app/buyer-verification" },
-    { "source": "/factory-risk", "destination": "https://orcatrade-marketing.vercel.app/factory-risk" },
-    { "source": "/analysis", "destination": "https://orcatrade-marketing.vercel.app/analysis" },
-
-    { "source": "/search", "destination": "https://orcatrade-marketing.vercel.app/search" },
-    { "source": "/sourcing", "destination": "https://orcatrade-marketing.vercel.app/sourcing" },
-    { "source": "/intelligence", "destination": "https://orcatrade-marketing.vercel.app/intelligence" },
-    { "source": "/logistics", "destination": "https://orcatrade-marketing.vercel.app/logistics" },
-    { "source": "/finance", "destination": "https://orcatrade-marketing.vercel.app/finance" },
-    { "source": "/process", "destination": "https://orcatrade-marketing.vercel.app/process" },
-
-    { "source": "/examples", "destination": "https://orcatrade-marketing.vercel.app/examples" },
-    { "source": "/examples/:slug*", "destination": "https://orcatrade-marketing.vercel.app/examples/:slug*" },
-
-    { "source": "/guides", "destination": "https://orcatrade-marketing.vercel.app/guides" },
-    { "source": "/guides/customs", "destination": "https://orcatrade-marketing.vercel.app/guides/customs" },
-    { "source": "/guides/customs/:slug*", "destination": "https://orcatrade-marketing.vercel.app/guides/customs/:slug*" },
-    { "source": "/guides/sourcing", "destination": "https://orcatrade-marketing.vercel.app/guides/sourcing" },
-    { "source": "/guides/sourcing/:slug*", "destination": "https://orcatrade-marketing.vercel.app/guides/sourcing/:slug*" },
-    { "source": "/guides/routing", "destination": "https://orcatrade-marketing.vercel.app/guides/routing" },
-    { "source": "/guides/routing/:slug*", "destination": "https://orcatrade-marketing.vercel.app/guides/routing/:slug*" },
-    { "source": "/guides/warehouse", "destination": "https://orcatrade-marketing.vercel.app/guides/warehouse" },
-    { "source": "/guides/warehouse/:slug*", "destination": "https://orcatrade-marketing.vercel.app/guides/warehouse/:slug*" },
-    { "source": "/guides/compliance", "destination": "https://orcatrade-marketing.vercel.app/guides/compliance" },
-    { "source": "/guides/compliance/:slug*", "destination": "https://orcatrade-marketing.vercel.app/guides/compliance/:slug*" },
-    { "source": "/guides/preferential-origin", "destination": "https://orcatrade-marketing.vercel.app/guides/preferential-origin" },
-    { "source": "/guides/preferential-origin/:slug*", "destination": "https://orcatrade-marketing.vercel.app/guides/preferential-origin/:slug*" },
-    { "source": "/guides/trade-defence", "destination": "https://orcatrade-marketing.vercel.app/guides/trade-defence" },
-    { "source": "/guides/trade-defence/:slug*", "destination": "https://orcatrade-marketing.vercel.app/guides/trade-defence/:slug*" },
+    { "source": "/docs/orcatrade-shareholder-brief", "destination": "https://orcatrade-marketing.vercel.app/docs/orcatrade-shareholder-brief" },
 
     { "source": "/sitemap.xml", "destination": "https://orcatrade-marketing.vercel.app/sitemap.xml" },
     { "source": "/robots.txt", "destination": "https://orcatrade-marketing.vercel.app/robots.txt" },
