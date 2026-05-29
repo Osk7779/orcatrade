@@ -4,18 +4,53 @@ import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { TimezoneClocks } from './timezone-clocks';
 
-const NAV = [
-  { href: '/#platform', label: 'Platform' },
-  { href: '/tools/quote-rebrand/', label: 'Tools' },
-  { href: '/#examples', label: 'Examples' },
-  { href: '/#leadership', label: 'Team' },
-  { href: '/#news', label: 'News' },
+const PRIMARY = [
+  { href: '/', label: 'Home' },
+  { href: '/platform/', label: 'Platform' },
+  { href: '/start/', label: 'Build a plan' },
+];
+
+const TOOLS_GROUPS = [
+  {
+    heading: 'AI Agents',
+    items: [
+      { label: 'Agent Hub', href: '/agents/' },
+      { label: 'Operations Orchestrator', href: '/agent/orchestrator/' },
+      { label: 'Sourcing Agent', href: '/agent/sourcing/' },
+      { label: 'Compliance Agent', href: '/agent/' },
+      { label: 'Logistics Agent', href: '/agent/logistics/' },
+      { label: 'Finance Agent', href: '/agent/finance/' },
+    ],
+  },
+  {
+    heading: 'Trade Services',
+    items: [
+      { label: 'Trade Documents', href: '/documents/' },
+      { label: 'Insurance', href: '/insurance/' },
+      { label: 'Buyer Verification', href: '/buyer-verification/' },
+      { label: 'Samples', href: '/samples/' },
+      { label: 'Returns', href: '/returns/' },
+    ],
+  },
+  {
+    heading: 'Logistics',
+    items: [
+      { label: 'Routing', href: '/routing/' },
+      { label: 'Customs', href: '/customs/' },
+      { label: 'Warehouse', href: '/warehouse/' },
+    ],
+  },
+];
+
+const SECONDARY = [
+  { href: '/guides/', label: 'Guides' },
+  { href: '/dashboard/', label: 'Dashboard' },
+  { href: '/pricing/', label: 'Pricing' },
 ];
 
 export function MobileMenu() {
   const [open, setOpen] = useState(false);
 
-  // Lock body scroll while panel is open, restore on close/unmount.
   useEffect(() => {
     if (open) {
       const prev = document.body.style.overflow;
@@ -26,7 +61,6 @@ export function MobileMenu() {
     }
   }, [open]);
 
-  // Escape closes the panel.
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -38,8 +72,6 @@ export function MobileMenu() {
 
   return (
     <>
-      {/* Trigger — two hairline rules, no rounding. Reads as 'this is a menu,
-          not a button.' */}
       <button
         type="button"
         onClick={() => setOpen(true)}
@@ -51,14 +83,12 @@ export function MobileMenu() {
         <span className="block h-px w-6 bg-[var(--color-ivory)]" />
       </button>
 
-      {/* Panel — full screen, dark ink, generous editorial typography. */}
       {open && (
         <div
           className="fixed inset-0 z-[100] flex flex-col bg-[var(--color-ink)]/97 backdrop-blur-2xl md:hidden"
           role="dialog"
           aria-modal="true"
         >
-          {/* Top row mirrors the masthead so the close stays inside the same frame */}
           <div className="flex h-[72px] items-center justify-between border-b border-[var(--color-navy-line)] px-7">
             <Link
               href="/"
@@ -67,16 +97,11 @@ export function MobileMenu() {
             >
               <span
                 className="text-[1.55rem] tracking-[-0.022em]"
-                style={{
-                  fontVariationSettings: "'SOFT' 28, 'opsz' 144",
-                  fontWeight: 600,
-                }}
+                style={{ fontVariationSettings: "'SOFT' 28, 'opsz' 144", fontWeight: 600 }}
               >
                 OrcaTrade
               </span>
-              <span className="text-[1rem] italic text-[var(--color-ivory-mute)]">
-                Group
-              </span>
+              <span className="text-[1rem] italic text-[var(--color-ivory-mute)]">Group</span>
             </Link>
             <button
               type="button"
@@ -91,35 +116,69 @@ export function MobileMenu() {
             </button>
           </div>
 
-          {/* Nav stack — display-size serif so it feels like a chapter index */}
-          <nav className="flex flex-1 flex-col gap-6 overflow-y-auto px-7 py-10">
-            {NAV.map((item) => (
+          <nav className="flex flex-1 flex-col gap-7 overflow-y-auto px-7 py-8">
+            {PRIMARY.map((item) => (
               <Link
                 key={item.href}
                 href={item.href}
                 onClick={() => setOpen(false)}
-                className="font-serif text-[2.2rem] leading-tight tracking-[-0.018em] text-[var(--color-ivory)] transition-opacity duration-300 hover:opacity-70"
-                style={{
-                  fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                  fontWeight: 550,
-                }}
+                className="font-serif text-[1.8rem] leading-tight tracking-[-0.018em] text-[var(--color-ivory)] transition-opacity duration-300 hover:opacity-70"
+                style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
               >
                 {item.label}
               </Link>
             ))}
 
-            <span className="my-4 h-px bg-[var(--color-navy-line)]" />
+            <span className="h-px bg-[var(--color-navy-line)]" />
 
-            <Link
-              href="/start"
+            {TOOLS_GROUPS.map((group) => (
+              <div key={group.heading} className="flex flex-col gap-3">
+                <div className="flex items-center gap-2">
+                  <span aria-hidden className="font-serif text-[12px] text-[var(--color-ivory-dim)]/55">
+                    ❦
+                  </span>
+                  <span className="font-serif text-[11.5px] italic tracking-[0.05em] uppercase text-[var(--color-ivory-mute)]">
+                    {group.heading}
+                  </span>
+                </div>
+                {group.items.map((item) => (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    className="text-[15px] font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
+                  >
+                    {item.label}
+                  </a>
+                ))}
+              </div>
+            ))}
+
+            <span className="h-px bg-[var(--color-navy-line)]" />
+
+            {SECONDARY.map((item) => (
+              <a
+                key={item.href}
+                href={item.href}
+                onClick={() => setOpen(false)}
+                className="text-[16.5px] font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
+              >
+                {item.label}
+              </a>
+            ))}
+
+            <span className="my-2 h-px bg-[var(--color-navy-line)]" />
+
+            <a
+              href="/start/"
               onClick={() => setOpen(false)}
               className="inline-flex w-fit items-center gap-3 bg-[var(--color-ivory)] px-7 py-4 text-[13px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
             >
               Build my import plan
               <span aria-hidden>→</span>
-            </Link>
-            <Link
-              href="/signin"
+            </a>
+            <a
+              href="/account/"
               onClick={() => setOpen(false)}
               className="inline-flex items-center gap-2 text-[15px] font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
             >
@@ -127,10 +186,9 @@ export function MobileMenu() {
               <span aria-hidden className="text-[var(--color-ivory-mute)]">
                 ↗
               </span>
-            </Link>
+            </a>
           </nav>
 
-          {/* Footer of the panel — the live clocks confirm 'open globally' */}
           <div className="border-t border-[var(--color-navy-line)] px-7 py-5">
             <TimezoneClocks />
           </div>
