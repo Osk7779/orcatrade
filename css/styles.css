@@ -3134,3 +3134,258 @@ header {
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   margin: 1.1em 0;
 }
+
+/* =========================================================================
+   REDESIGN OVERLAY — 2026-05-29
+   Editorial restyle that sits on top of every static page. We change tokens,
+   fonts and a small set of component skins; we do NOT touch layout, forms,
+   JS hooks, links, or any tool functionality. Every page that links to this
+   file picks the new look up automatically.
+
+   Palette: monochrome navy (#050507) + ivory (#fafaf7), no gold accent.
+   Type:    Fraunces (variable, headings) + Inter (body) + IBM Plex Mono.
+   Vibe:    Quieter background, hairline borders, italic-serif kickers, the
+            same vocabulary as marketing-shell + app-shell so the surfaces
+            feel like one product.
+   ========================================================================= */
+
+/* New fonts — pull from Google Fonts (CSP already allows fonts.gstatic.com).
+   Fraunces is variable on the SOFT + opsz axes to match the marketing-shell
+   editorial display treatment. */
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght,SOFT@9..144,300..700,0..100&family=Inter:wght@400;450;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Surface */
+  --navy: #050507;
+  --navy-soft: #0a1628;
+  --navy-line: rgba(255, 255, 255, 0.08);
+
+  /* Type — replace ghosted greys with confident ivory */
+  --cream: #fafaf7;
+  --cream-soft: #c9ccd3;
+  --cream-mute: rgba(250, 250, 247, 0.55);
+
+  /* Accent is ivory now. Kill the gold tint. */
+  --gold: #fafaf7;
+  --gold-soft: rgba(250, 250, 247, 0.72);
+  --gold-glow: rgba(250, 250, 247, 0.12);
+
+  /* Hairlines + panels */
+  --panel: rgba(10, 14, 24, 0.92);
+  --panel-strong: rgba(10, 14, 24, 0.98);
+  --line: rgba(255, 255, 255, 0.08);
+  --glow: rgba(250, 250, 247, 0.10);
+}
+
+/* Quieter background — kill the radial-gradient blob and the soft glow band.
+   Money likes silence. A flat #050507 with the tiniest top-edge lift. */
+body {
+  font-family: 'Inter', system-ui, -apple-system, 'Helvetica Neue', Arial, sans-serif !important;
+  font-weight: 450 !important;
+  font-optical-sizing: auto;
+  background: #050507 !important;
+  color: var(--cream);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+body::before {
+  background-image:
+    radial-gradient(circle at 12% -10%, rgba(250, 250, 247, 0.04) 0, transparent 40%),
+    radial-gradient(circle at 88% 110%, rgba(250, 250, 247, 0.03) 0, transparent 45%) !important;
+}
+
+/* Editorial display — Fraunces with optical-size + soft axes.
+   Headings use 550 weight, SOFT 35 (editorial sharpness), opsz 144. */
+h1, h2, h3, h4 {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  letter-spacing: -0.018em !important;
+  font-optical-sizing: auto;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+}
+
+h1 {
+  letter-spacing: -0.022em !important;
+  line-height: 1.06 !important;
+}
+
+/* Kickers / eyebrows — switch from uppercase Geist to italic-serif Fraunces.
+   Same role (signal a section) but feels editorial, not press-release. */
+.label, .eyebrow, .section-label, .pillar-label, .section-kicker,
+.hero-kicker, .card-tag, .news-tag, .rep-role, .group-unit-kicker {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  font-weight: 450 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  color: var(--cream-mute) !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144;
+}
+
+/* Monospace — IBM Plex with tabular figures so money/dates/codes line up. */
+code, pre, .mono, .tabular, [class*="mono"], [class*="num"] {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace !important;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Sharper edges. Radius 0–4px maximum; no big rounded cards. */
+.btn, button, .card, .panel, .surface, input[type="text"], input[type="email"],
+input[type="tel"], textarea, select {
+  border-radius: 0 !important;
+}
+
+/* Primary CTA — ivory pill on navy, no glow. Confident, not flashy. */
+.btn-primary, .cta-primary, .button-primary, .start-cta, .submit, button[type="submit"] {
+  background: var(--cream) !important;
+  color: var(--navy) !important;
+  border: none !important;
+  box-shadow: none !important;
+  text-shadow: none !important;
+  letter-spacing: 0.04em !important;
+  font-weight: 600 !important;
+  transition: background-color 0.5s ease, transform 0.5s ease !important;
+}
+
+.btn-primary:hover, .cta-primary:hover, .button-primary:hover, .start-cta:hover,
+.submit:hover, button[type="submit"]:hover {
+  background: #ffffff !important;
+}
+
+/* Secondary buttons — hairline outlined, ivory text. */
+.btn-secondary, .cta-secondary, .button-secondary, .btn-ghost {
+  background: transparent !important;
+  color: var(--cream) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  box-shadow: none !important;
+  transition: border-color 0.5s ease, background-color 0.5s ease !important;
+}
+
+.btn-secondary:hover, .cta-secondary:hover, .button-secondary:hover, .btn-ghost:hover {
+  border-color: rgba(255, 255, 255, 0.45) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Inputs — hairline border, transparent fill, no glow. */
+input[type="text"], input[type="email"], input[type="tel"], input[type="number"],
+input[type="search"], textarea, select {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--cream) !important;
+  box-shadow: none !important;
+  transition: border-color 0.3s ease !important;
+}
+
+input[type="text"]:focus, input[type="email"]:focus, input[type="tel"]:focus,
+input[type="number"]:focus, input[type="search"]:focus, textarea:focus, select:focus {
+  border-color: rgba(250, 250, 247, 0.4) !important;
+  outline: none !important;
+}
+
+::placeholder {
+  color: rgba(250, 250, 247, 0.35) !important;
+}
+
+/* Cards / panels — hairline border, navy fill, no glow.
+   Specifically targets the existing card classes used throughout the site. */
+.card, .panel, .surface, .pillar-card, .news-card, .matrix-card,
+.guide-card, .example-card, .feature-card, .agent-card, .rep-card,
+.metric-card, .lead-card, .footer-block, .content-card, .timeline-item {
+  background: var(--navy-soft) !important;
+  border: 1px solid var(--line) !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+/* Section dividers — hairline horizontal rule. */
+hr, .divider, .section-divider {
+  border: none !important;
+  border-top: 1px solid var(--line) !important;
+  height: 0 !important;
+  margin: 4rem 0 !important;
+}
+
+/* Nav bar — fully transparent, hairline bottom. No glassy blur stack. */
+nav, .nav, .topnav, header.nav, header.main-nav, .site-header, .global-header {
+  background: rgba(5, 5, 7, 0.85) !important;
+  backdrop-filter: blur(12px) saturate(140%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(140%) !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: none !important;
+}
+
+/* Footer — hairline top, no gradient. */
+footer, .footer, .site-footer {
+  background: #050507 !important;
+  border-top: 1px solid var(--line) !important;
+  box-shadow: none !important;
+}
+
+/* Links — restrained ivory, hairline underline. */
+a {
+  color: var(--cream) !important;
+  text-decoration-color: rgba(250, 250, 247, 0.25) !important;
+  text-underline-offset: 3px !important;
+  transition: text-decoration-color 0.3s ease, color 0.3s ease !important;
+}
+
+a:hover {
+  color: var(--cream) !important;
+  text-decoration-color: rgba(250, 250, 247, 0.7) !important;
+}
+
+/* Strip gold from anywhere it still bleeds through. */
+.accent, .accent-color, .text-gold, .text-accent {
+  color: var(--cream) !important;
+}
+
+.bg-gold, .bg-accent {
+  background-color: var(--cream) !important;
+  color: var(--navy) !important;
+}
+
+/* Reduce decorative glows / shadows site-wide. */
+.glow, .glow-soft, .ring, [class*="shadow-"], [class*="glow-"] {
+  box-shadow: none !important;
+  filter: none !important;
+}
+
+/* Hero — reduce the cosmic weight; let the typography carry it. */
+.hero, .hero-section, .pillar-hero, .landing-hero {
+  background: transparent !important;
+}
+
+.hero h1, .hero-title, .pillar-hero h1 {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-variation-settings: 'SOFT' 28, 'opsz' 144 !important;
+  letter-spacing: -0.022em !important;
+}
+
+/* Body copy — slightly more weight than browser default to stop the "AI thin" feel. */
+p, li, dd {
+  font-weight: 450;
+  line-height: 1.65;
+}
+
+/* Captions / meta — italic-serif greys. */
+.caption, .meta, .timestamp, .footnote, small {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 400;
+  color: var(--cream-mute);
+}
+
+/* Tabular numerics on anything that looks like money/dates/percent. */
+[class*="price"], [class*="cost"], [class*="amount"], [class*="figure"],
+[class*="metric-value"], .stat-number, .number, .duty-rate, .eur, .pct {
+  font-family: 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace !important;
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+}
+
+/* Selection — ivory on navy, no colour. */
+::selection {
+  background: rgba(250, 250, 247, 0.85);
+  color: #050507;
+}
