@@ -2,20 +2,22 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { apiGet, apiPost, AuthError, type Alert, type Severity } from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
+import { LoadingNotice, ErrorNotice, AuthNotice, EmptyState } from '@/components/States';
 
-const SEV_CLASS: Record<Severity, string> = {
-  critical: 'border-l-red-500',
-  high: 'border-l-amber-500',
-  medium: 'border-l-white/40',
-  low: 'border-l-white/15',
-  info: 'border-l-sky-500/60',
+const SEV_RULE: Record<Severity, string> = {
+  critical: 'before:bg-[var(--color-critical)]',
+  high: 'before:bg-[var(--color-warning)]',
+  medium: 'before:bg-[var(--color-ivory-dim)]',
+  low: 'before:bg-[var(--color-navy-line)]',
+  info: 'before:bg-[var(--color-info)]',
 };
-const SEV_TEXT: Record<Severity, string> = {
-  critical: 'text-red-400',
-  high: 'text-amber-400',
-  medium: 'text-white/70',
-  low: 'text-white/55',
-  info: 'text-sky-400',
+const SEV_LABEL: Record<Severity, string> = {
+  critical: 'text-[var(--color-critical)]',
+  high: 'text-[var(--color-warning)]',
+  medium: 'text-[var(--color-ivory-dim)]',
+  low: 'text-[var(--color-ivory-mute)]',
+  info: 'text-[var(--color-info)]',
 };
 const TYPE_LABEL: Record<string, string> = {
   plan_cost_drift: 'Cost drift',
@@ -32,62 +34,108 @@ export default function AlertsPage() {
 
   const load = useCallback(() => {
     apiGet<{ alerts: Alert[]; openCount: number }>('/account/alerts')
-      .then((d) => { setAlerts(d.alerts || []); setOpenCount(d.openCount || 0); setState('ready'); })
+      .then((d) => {
+        setAlerts(d.alerts || []);
+        setOpenCount(d.openCount || 0);
+        setState('ready');
+      })
       .catch((e) => setState(e instanceof AuthError ? 'auth' : 'error'));
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   async function act(action: string, id?: string) {
-    try { await apiPost('/account/alerts', { action, id }); load(); } catch { /* keep UI; reload will resync */ }
+    try {
+      await apiPost('/account/alerts', { action, id });
+      load();
+    } catch {
+      /* keep UI; reload will resync */
+    }
   }
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading your alerts…</p>;
-  if (state === 'auth') {
-    return (
-      <div className="max-w-md">
-        <h1 className="text-3xl mb-3">Sign in to see your alerts</h1>
-        <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a>
-      </div>
-    );
-  }
-  if (state === 'error') return <p className="text-red-400 text-sm">Couldn’t load your alerts. Please retry shortly.</p>;
+  if (state === 'loading') return <LoadingNotice label="Loading your alerts…" />;
+  if (state === 'auth') return <AuthNotice title="Sign in to see your alerts." />;
+  if (state === 'error') return <ErrorNotice />;
 
   return (
     <div>
-      <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Monitoring</div>
-      <div className="flex items-end justify-between mb-8">
-        <h1 className="text-4xl">Monitoring alerts</h1>
-        {openCount > 0 && (
-          <button onClick={() => act('markAllRead')} className="text-xs font-mono px-3 py-2 border border-[var(--color-line)] hover:bg-white/5">
-            Mark all read ({openCount})
-          </button>
-        )}
-      </div>
+      <PageHeader
+        kicker="Monitoring"
+        title="Monitoring alerts."
+        sub="The monitoring agent checks weekly for cost drift, FX exposure, deadlines and sanctions changes — and flags anything that has moved materially since you saved."
+        actions={
+          openCount > 0 ? (
+            <button
+              onClick={() => act('markAllRead')}
+              className="inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-4 py-2 font-mono text-[11.5px] font-medium tracking-tight text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
+            >
+              Mark all read · {openCount}
+            </button>
+          ) : null
+        }
+      />
 
       {!alerts.length ? (
-        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-white/60">
-          Nothing flagged on your saved plans right now. The monitoring agent checks weekly for cost drift, FX exposure, deadlines and sanctions changes.
-        </div>
+        <EmptyState body="Nothing flagged on your saved plans right now." />
       ) : (
         <div className="flex flex-col gap-3">
           {alerts.map((a) => (
-            <div key={a.id} className={`border border-[var(--color-line)] border-l-2 ${SEV_CLASS[a.severity] || 'border-l-white/20'} ${a.status !== 'open' ? 'opacity-55' : ''} px-5 py-4`}>
-              <div className="flex items-start justify-between gap-4">
-                <div className="min-w-0">
-                  <div className="font-mono text-[0.62rem] uppercase tracking-wider text-white/45 mb-1">{TYPE_LABEL[a.type] || a.type}</div>
-                  <div className="font-serif text-lg text-ivory">{a.title}</div>
-                  {a.body && <p className="text-sm text-white/65 mt-1 leading-relaxed">{a.body}</p>}
+            <article
+              key={a.id}
+              className={`relative bg-[var(--color-ink)] p-5 transition-opacity duration-500 before:absolute before:left-0 before:top-0 before:h-full before:w-[2px] md:p-6 ${
+                SEV_RULE[a.severity] || 'before:bg-[var(--color-navy-line)]'
+              } ${a.status !== 'open' ? 'opacity-55' : ''}`}
+              style={{ border: '1px solid var(--color-navy-line)' }}
+            >
+              <div className="flex flex-col items-start gap-3 md:flex-row md:items-start md:justify-between md:gap-6">
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-3">
+                    <span className="font-serif text-[12px] italic text-[var(--color-ivory-mute)]">
+                      {TYPE_LABEL[a.type] || a.type}
+                    </span>
+                    <span
+                      className={`font-mono text-[10.5px] font-medium uppercase tabular-nums ${
+                        SEV_LABEL[a.severity] || 'text-[var(--color-ivory-mute)]'
+                      }`}
+                    >
+                      {a.severity}
+                    </span>
+                  </div>
+                  <h3
+                    className="mt-2 font-serif text-[1.15rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
+                    style={{
+                      fontVariationSettings: "'SOFT' 35, 'opsz' 144",
+                      fontWeight: 550,
+                    }}
+                  >
+                    {a.title}
+                  </h3>
+                  {a.body && (
+                    <p className="mt-2 max-w-[60ch] text-[13.5px] leading-[1.6] text-[var(--color-ivory-dim)]">
+                      {a.body}
+                    </p>
+                  )}
                 </div>
-                <span className={`font-mono text-[0.62rem] uppercase shrink-0 ${SEV_TEXT[a.severity] || 'text-white/50'}`}>{a.severity}</span>
               </div>
-              <div className="flex gap-2 mt-3">
+              <div className="mt-4 flex flex-wrap gap-2">
                 {a.status === 'open' && (
-                  <button onClick={() => act('markRead', a.id)} className="text-[0.7rem] font-mono px-2.5 py-1 border border-[var(--color-line)] hover:bg-white/5">Mark read</button>
+                  <button
+                    onClick={() => act('markRead', a.id)}
+                    className="inline-flex items-center gap-1.5 border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[11px] font-medium tracking-tight text-[var(--color-ivory-dim)] transition-all duration-300 hover:border-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)]"
+                  >
+                    Mark read
+                  </button>
                 )}
-                <button onClick={() => act('dismiss', a.id)} className="text-[0.7rem] font-mono px-2.5 py-1 border border-[var(--color-line)] hover:bg-white/5">Dismiss</button>
+                <button
+                  onClick={() => act('dismiss', a.id)}
+                  className="inline-flex items-center gap-1.5 border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[11px] font-medium tracking-tight text-[var(--color-ivory-dim)] transition-all duration-300 hover:border-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)]"
+                >
+                  Dismiss
+                </button>
               </div>
-            </div>
+            </article>
           ))}
         </div>
       )}

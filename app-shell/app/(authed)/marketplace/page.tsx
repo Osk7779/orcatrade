@@ -1,6 +1,8 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { PageHeader } from '@/components/PageHeader';
+import { AuthNotice, ErrorNotice, LoadingNotice } from '@/components/States';
 import { apiGet, apiPost, AuthError } from '@/lib/api';
 
 interface Provider {
@@ -15,7 +17,14 @@ interface Provider {
 }
 interface IntroResponse {
   ok: boolean;
-  provider: { id: string; name: string; introContact: string; takeRatePct: number; products: string[]; region: string };
+  provider: {
+    id: string;
+    name: string;
+    introContact: string;
+    takeRatePct: number;
+    products: string[];
+    region: string;
+  };
   followUp: string;
 }
 
@@ -37,80 +46,156 @@ export default function MarketplacePage() {
 
   useEffect(() => {
     apiGet<{ ok: boolean; providers: Provider[]; disclaimer: string }>('/marketplace')
-      .then((d) => { setProviders(d.providers || []); setState('ready'); })
+      .then((d) => {
+        setProviders(d.providers || []);
+        setState('ready');
+      })
       .catch((e) => setState(e instanceof AuthError ? 'auth' : 'error'));
   }, []);
 
   async function requestIntro(p: Provider) {
-    setBusyId(p.id); setErr(null); setIntroResult(null);
+    setBusyId(p.id);
+    setErr(null);
+    setIntroResult(null);
     try {
       const r = await apiPost<IntroResponse>('/marketplace/intro', { providerId: p.id });
       setIntroResult(r);
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Intro request failed.');
-    } finally { setBusyId(null); }
+    } finally {
+      setBusyId(null);
+    }
   }
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading marketplace…</p>;
-  if (state === 'auth') return (
-    <div className="max-w-md"><h1 className="text-3xl mb-3">Sign in to use the marketplace</h1>
-      <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a></div>
-  );
-  if (state === 'error') return <p className="text-red-400 text-sm">Couldn’t load the marketplace.</p>;
+  if (state === 'loading') return <LoadingNotice label="Loading marketplace…" />;
+  if (state === 'auth')
+    return (
+      <AuthNotice
+        title="Sign in to use the marketplace."
+        sub="Curated trade finance and insurance providers. Sign in with a magic link to request a recorded intro."
+      />
+    );
+  if (state === 'error')
+    return <ErrorNotice label="Couldn't load the marketplace. Please retry shortly." />;
 
   const filtered = filter ? providers.filter((p) => p.products.includes(filter)) : providers;
   const productSet = Array.from(new Set(providers.flatMap((p) => p.products))).sort();
 
   return (
-    <div className="max-w-3xl">
-      <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Marketplace</div>
-      <h1 className="text-4xl mb-2">Trade finance &amp; insurance</h1>
-      <p className="text-white/60 text-sm mb-3 leading-relaxed">
-        Curated providers for LC issuance, supply-chain financing, invoice discounting, trade-credit insurance and cargo insurance.
-        OrcaTrade is an <b>introducer</b> — not a broker, adviser, or principal. The request below records the intro for audit and shares the provider's contact path; you negotiate directly.
-      </p>
+    <div className="max-w-[800px]">
+      <PageHeader
+        kicker="Marketplace"
+        title="Trade finance &amp; insurance."
+        sub="Curated providers for letter-of-credit issuance, supply-chain finance, invoice discounting, trade-credit insurance and cargo cover. OrcaTrade is an introducer — not a broker, adviser, or principal. The request below records the intro for audit and shares the provider's contact path; you negotiate directly."
+      />
 
-      {err && <p className="text-red-400 text-sm mb-3">{err}</p>}
+      {err && (
+        <div className="mb-6 border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/5 p-4">
+          <p className="font-serif text-[14px] italic text-[var(--color-ivory)]">{err}</p>
+        </div>
+      )}
 
-      <div className="flex flex-wrap gap-2 mb-6">
-        <button onClick={() => setFilter('')}
-          className={`text-xs font-mono px-3 py-1.5 rounded-sm border ${filter === '' ? 'border-[var(--color-accent)] text-[var(--color-accent)]' : 'border-[var(--color-line)] text-white/60'}`}>
+      <div className="mb-8 flex flex-wrap items-center gap-2">
+        <button
+          onClick={() => setFilter('')}
+          className={`border px-3 py-1.5 font-mono text-[11px] tracking-[0.04em] transition-colors duration-300 ${
+            filter === ''
+              ? 'border-[var(--color-ivory)] text-[var(--color-ivory)]'
+              : 'border-[var(--color-navy-line)] text-[var(--color-ivory-mute)] hover:border-[var(--color-ivory-dim)] hover:text-[var(--color-ivory-dim)]'
+          }`}
+        >
           All
         </button>
         {productSet.map((p) => (
-          <button key={p} onClick={() => setFilter(p)}
-            className={`text-xs font-mono px-3 py-1.5 rounded-sm border ${filter === p ? 'border-[var(--color-accent)] text-[var(--color-accent)]' : 'border-[var(--color-line)] text-white/60'}`}>
+          <button
+            key={p}
+            onClick={() => setFilter(p)}
+            className={`border px-3 py-1.5 font-mono text-[11px] tracking-[0.04em] transition-colors duration-300 ${
+              filter === p
+                ? 'border-[var(--color-ivory)] text-[var(--color-ivory)]'
+                : 'border-[var(--color-navy-line)] text-[var(--color-ivory-mute)] hover:border-[var(--color-ivory-dim)] hover:text-[var(--color-ivory-dim)]'
+            }`}
+          >
             {PRODUCT_LABELS[p] || p}
           </button>
         ))}
       </div>
 
       {introResult && (
-        <div className="border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 text-sm px-4 py-3 mb-5">
-          <div className="font-medium">{introResult.provider.name} · intro recorded</div>
-          <div className="font-mono text-xs mt-1">{introResult.provider.introContact}</div>
-          <p className="text-emerald-100/80 text-xs mt-2">{introResult.followUp}</p>
+        <div className="mb-8 border border-[var(--color-navy-line)] bg-[var(--color-ink)] p-6">
+          <div className="flex items-center gap-3">
+            <span aria-hidden className="font-serif text-[14px] text-[var(--color-ivory-dim)]/60">
+              ❦
+            </span>
+            <span className="font-serif text-[11.5px] italic tracking-[0.05em] text-[var(--color-ivory-mute)]">
+              Intro recorded
+            </span>
+          </div>
+          <h2
+            className="mt-3 font-serif text-[1.4rem] leading-[1.15] tracking-[-0.012em] text-[var(--color-ivory)]"
+            style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
+          >
+            {introResult.provider.name}
+          </h2>
+          <div className="mt-3 font-mono text-[12.5px] tabular-nums text-[var(--color-ivory-dim)]">
+            {introResult.provider.introContact}
+          </div>
+          <p className="mt-4 max-w-[60ch] font-serif text-[14px] italic leading-[1.55] text-[var(--color-ivory-dim)]">
+            {introResult.followUp}
+          </p>
         </div>
       )}
 
-      <div className="space-y-3">
+      <div className="flex flex-col gap-4">
         {filtered.map((p) => (
-          <section key={p.id} className="border border-[var(--color-line)] px-5 py-4">
-            <div className="flex items-start justify-between gap-4">
+          <section
+            key={p.id}
+            className="border border-[var(--color-navy-line)] bg-[var(--color-ink)] p-6 transition-colors duration-300 hover:border-[var(--color-ivory-dim)]/30"
+          >
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
               <div className="min-w-0">
-                <div className="text-ivory text-base font-medium">{p.name}</div>
-                <div className="font-mono text-[0.66rem] text-white/45 mt-0.5">{p.region} · take-rate {p.takeRatePct}%</div>
+                <h3
+                  className="font-serif text-[1.25rem] leading-[1.2] tracking-[-0.01em] text-[var(--color-ivory)]"
+                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
+                >
+                  {p.name}
+                </h3>
+                <div className="mt-1.5 flex flex-wrap items-center gap-x-3 gap-y-1 font-mono text-[11px] tracking-[0.04em] text-[var(--color-ivory-mute)]">
+                  <span>{p.region}</span>
+                  <span aria-hidden className="inline-block size-1 bg-[var(--color-ivory-mute)]/40" />
+                  <span>take-rate {p.takeRatePct}%</span>
+                </div>
               </div>
-              <button disabled={busyId === p.id} onClick={() => requestIntro(p)}
-                className="shrink-0 px-3 py-1.5 text-xs font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40">
-                Request intro
+              <button
+                disabled={busyId === p.id}
+                onClick={() => requestIntro(p)}
+                className="group inline-flex shrink-0 items-center gap-2 bg-[var(--color-ivory)] px-5 py-2.5 text-[12px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {busyId === p.id ? 'Recording…' : 'Request intro'}
+                {busyId !== p.id && (
+                  <span
+                    aria-hidden
+                    className="transition-transform duration-500 group-hover:translate-x-0.5"
+                  >
+                    →
+                  </span>
+                )}
               </button>
             </div>
-            <p className="text-white/70 text-sm mt-2">{p.summary}</p>
-            {p.notes && <p className="text-white/45 text-xs mt-1">{p.notes}</p>}
-            <div className="flex flex-wrap gap-1.5 mt-2">
+            <p className="mt-4 max-w-[64ch] font-serif text-[14.5px] leading-[1.6] text-[var(--color-ivory-dim)]">
+              {p.summary}
+            </p>
+            {p.notes && (
+              <p className="mt-2 max-w-[64ch] font-serif text-[13px] italic leading-[1.55] text-[var(--color-ivory-mute)]">
+                {p.notes}
+              </p>
+            )}
+            <div className="mt-4 flex flex-wrap gap-1.5">
               {p.products.map((pr) => (
-                <span key={pr} className="font-mono text-[0.62rem] uppercase tracking-wider px-2 py-0.5 rounded-sm bg-white/[0.04] text-white/65 border border-white/10">
+                <span
+                  key={pr}
+                  className="border border-[var(--color-navy-line)] px-2 py-0.5 font-mono text-[10.5px] tracking-[0.04em] text-[var(--color-ivory-mute)]"
+                >
                   {PRODUCT_LABELS[pr] || pr}
                 </span>
               ))}

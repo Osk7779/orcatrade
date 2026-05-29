@@ -1,14 +1,26 @@
 'use client';
 
 import { useCallback, useEffect, useState } from 'react';
-import { apiGet, apiPost, apiDelete, AuthError, type Org, type OrgDetail, type ScimStatus } from '@/lib/api';
+import {
+  apiGet,
+  apiPost,
+  apiDelete,
+  AuthError,
+  type Org,
+  type OrgDetail,
+  type ScimStatus,
+} from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
+import { LoadingNotice, ErrorNotice, AuthNotice } from '@/components/States';
 
 function roleLabel(role: string) {
   return role.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
 export default function TeamPage() {
-  const [state, setState] = useState<'loading' | 'auth' | 'empty' | 'ready' | 'error'>('loading');
+  const [state, setState] = useState<'loading' | 'auth' | 'empty' | 'ready' | 'error'>(
+    'loading',
+  );
   const [detail, setDetail] = useState<OrgDetail | null>(null);
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -26,7 +38,10 @@ export default function TeamPage() {
   const load = useCallback(async () => {
     try {
       const list = await apiGet<{ ok: boolean; orgs: Org[] }>('/orgs');
-      if (!list.orgs || list.orgs.length === 0) { setState('empty'); return; }
+      if (!list.orgs || list.orgs.length === 0) {
+        setState('empty');
+        return;
+      }
       await loadDetail(list.orgs[0].id);
     } catch (e) {
       if (e instanceof AuthError) setState('auth');
@@ -34,11 +49,14 @@ export default function TeamPage() {
     }
   }, [loadDetail]);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    load();
+  }, [load]);
 
   async function mutate(fn: () => Promise<unknown>) {
     if (!detail) return;
-    setBusy(true); setErr(null);
+    setBusy(true);
+    setErr(null);
     try {
       await fn();
       await loadDetail(detail.org.id);
@@ -49,33 +67,57 @@ export default function TeamPage() {
     }
   }
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading team…</p>;
-  if (state === 'auth') return (
-    <div className="max-w-md"><h1 className="text-3xl mb-3">Sign in to manage your team</h1>
-      <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a></div>
-  );
-  if (state === 'error') return <p className="text-red-400 text-sm">Couldn’t load your team.</p>;
+  if (state === 'loading') return <LoadingNotice label="Loading team…" />;
+  if (state === 'auth') return <AuthNotice title="Sign in to manage your team." />;
+  if (state === 'error') return <ErrorNotice />;
 
   if (state === 'empty') {
     return (
-      <div className="max-w-md">
-        <h1 className="text-4xl mb-2">Team</h1>
-        <p className="text-white/60 text-sm mb-6">You’re not part of an organisation yet. Create one to invite colleagues and assign roles.</p>
-        <div className="flex gap-2">
-          <input value={newOrgName} onChange={(e) => setNewOrgName(e.target.value)} placeholder="Organisation name"
-            className="flex-1 bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-white" />
+      <div className="max-w-[600px]">
+        <PageHeader
+          kicker="Team"
+          title="Create your organisation."
+          sub="You are not part of an organisation yet. Create one to invite colleagues and assign roles."
+        />
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <input
+            value={newOrgName}
+            onChange={(e) => setNewOrgName(e.target.value)}
+            placeholder="Organisation name"
+            className="flex-1 border-b border-[var(--color-navy-line)] bg-transparent px-1 py-3 text-[15px] text-[var(--color-ivory)] placeholder:text-[var(--color-ivory-mute)]/60 focus:border-[var(--color-ivory-dim)] focus:outline-none"
+          />
           <button
             disabled={busy || newOrgName.trim().length < 2}
             onClick={async () => {
-              setBusy(true); setErr(null);
-              try { await apiPost('/orgs', { name: newOrgName.trim() }); await load(); }
-              catch (e) { setErr(e instanceof Error ? e.message : 'Could not create'); }
-              finally { setBusy(false); }
+              setBusy(true);
+              setErr(null);
+              try {
+                await apiPost('/orgs', { name: newOrgName.trim() });
+                await load();
+              } catch (e) {
+                setErr(e instanceof Error ? e.message : 'Could not create');
+              } finally {
+                setBusy(false);
+              }
             }}
-            className="px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40"
-          >Create</button>
+            className="group inline-flex shrink-0 items-center gap-2 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            {busy ? 'Creating…' : 'Create'}
+            {!busy && (
+              <span
+                aria-hidden
+                className="transition-transform duration-500 group-hover:translate-x-0.5"
+              >
+                →
+              </span>
+            )}
+          </button>
         </div>
-        {err && <p className="text-red-400 text-xs mt-3">{err}</p>}
+        {err && (
+          <p className="mt-4 font-serif text-[13.5px] italic text-[var(--color-critical)]">
+            {err}
+          </p>
+        )}
       </div>
     );
   }
@@ -84,43 +126,77 @@ export default function TeamPage() {
   const { org, members, myRole, canManageMembers, assignableRoles } = detail;
 
   return (
-    <div className="max-w-2xl">
-      <h1 className="text-4xl mb-1">{org.name}</h1>
-      <div className="font-mono text-xs text-white/45 mb-8">
-        {members.length} member{members.length === 1 ? '' : 's'} · your role: {roleLabel(myRole)}
-        {org.planTier ? ` · ${org.planTier} plan` : ''}
-      </div>
+    <div className="max-w-[820px]">
+      <PageHeader
+        kicker="Team"
+        title={org.name}
+        meta={
+          <>
+            {members.length} member{members.length === 1 ? '' : 's'} · your role:{' '}
+            {roleLabel(myRole)}
+            {org.planTier ? ` · ${org.planTier} plan` : ''}
+          </>
+        }
+      />
 
-      {err && <p className="text-red-400 text-sm mb-4">{err}</p>}
+      {err && (
+        <div className="mb-6 border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/5 p-4">
+          <p className="font-serif text-[14px] italic text-[var(--color-ivory)]">{err}</p>
+        </div>
+      )}
 
-      <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)] mb-6">
-        {members.map((m) => {
+      <SectionHead kicker="Members" />
+      <div className="border border-[var(--color-navy-line)]">
+        {members.map((m, i) => {
           const isOwner = m.role === 'owner';
           return (
-            <div key={m.email} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
-              <span className="text-white/85 truncate">{m.email}{m.joinedAt ? '' : ' (invited)'}</span>
-              <div className="flex items-center gap-2 shrink-0">
+            <div
+              key={m.email}
+              className={`flex flex-col items-start gap-3 px-5 py-4 md:flex-row md:items-center md:justify-between md:px-6 ${
+                i > 0 ? 'border-t border-[var(--color-navy-line)]' : ''
+              }`}
+            >
+              <span className="truncate font-serif text-[14.5px] text-[var(--color-ivory)]">
+                {m.email}
+                {!m.joinedAt && (
+                  <span className="ml-2 font-serif italic text-[var(--color-ivory-mute)]">
+                    (invited)
+                  </span>
+                )}
+              </span>
+              <div className="flex flex-wrap items-center gap-2">
                 {canManageMembers && !isOwner ? (
                   <>
                     <select
                       value={m.role}
                       disabled={busy}
-                      onChange={(e) => mutate(() => apiPost(`/orgs/${org.id}/role`, { email: m.email, role: e.target.value }))}
-                      className="bg-[var(--color-ink)] border border-[var(--color-line)] text-white/85 text-xs px-2 py-1 rounded-sm"
+                      onChange={(e) =>
+                        mutate(() =>
+                          apiPost(`/orgs/${org.id}/role`, { email: m.email, role: e.target.value }),
+                        )
+                      }
+                      className="border border-[var(--color-navy-line)] bg-[var(--color-ink)] px-3 py-1.5 text-[12.5px] text-[var(--color-ivory)] focus:border-[var(--color-ivory-dim)] focus:outline-none [&>option]:bg-[var(--color-ink)] [&>option]:text-[var(--color-ivory)]"
                     >
-                      {/* Keep the current role selectable even if it's the legacy 'member'. */}
                       {[...new Set([m.role, ...assignableRoles])].map((r) => (
-                        <option key={r} value={r}>{roleLabel(r)}</option>
+                        <option key={r} value={r}>
+                          {roleLabel(r)}
+                        </option>
                       ))}
                     </select>
                     <button
                       disabled={busy}
-                      onClick={() => mutate(() => apiPost(`/orgs/${org.id}/remove`, { email: m.email }))}
-                      className="text-xs text-red-300/80 hover:text-red-300 px-2 py-1"
-                    >Remove</button>
+                      onClick={() =>
+                        mutate(() => apiPost(`/orgs/${org.id}/remove`, { email: m.email }))
+                      }
+                      className="px-3 py-1.5 font-mono text-[11.5px] font-medium tracking-tight text-[var(--color-critical)] transition-colors duration-300 hover:bg-[var(--color-critical)]/10"
+                    >
+                      Remove
+                    </button>
                   </>
                 ) : (
-                  <span className="font-mono text-xs text-white/55">{roleLabel(m.role)}</span>
+                  <span className="font-mono text-[11.5px] font-medium tracking-tight text-[var(--color-ivory-mute)]">
+                    {roleLabel(m.role)}
+                  </span>
                 )}
               </div>
             </div>
@@ -129,30 +205,52 @@ export default function TeamPage() {
       </div>
 
       {canManageMembers && (
-        <section className="border border-[var(--color-line)] px-5 py-5">
-          <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-3">Invite a colleague</div>
-          <div className="flex gap-2">
+        <section className="mt-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]/60 p-6 md:p-8">
+          <SectionHead kicker="Invite a colleague" />
+          <div className="flex flex-col gap-3 sm:flex-row">
             <input
-              value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="colleague@company.com" type="email"
-              className="flex-1 bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-white"
+              value={inviteEmail}
+              onChange={(e) => setInviteEmail(e.target.value)}
+              placeholder="colleague@company.com"
+              type="email"
+              className="flex-1 border-b border-[var(--color-navy-line)] bg-transparent px-1 py-2.5 text-[14.5px] text-[var(--color-ivory)] placeholder:text-[var(--color-ivory-mute)]/60 focus:border-[var(--color-ivory-dim)] focus:outline-none"
             />
             <select
-              value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}
-              className="bg-[var(--color-ink)] border border-[var(--color-line)] text-white/85 text-sm px-2 rounded-sm"
+              value={inviteRole}
+              onChange={(e) => setInviteRole(e.target.value)}
+              className="border border-[var(--color-navy-line)] bg-transparent px-3 py-2.5 text-[14px] text-[var(--color-ivory)] focus:border-[var(--color-ivory-dim)] focus:outline-none [&>option]:bg-[var(--color-ink)] [&>option]:text-[var(--color-ivory)]"
             >
-              {assignableRoles.map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}
+              {assignableRoles.map((r) => (
+                <option key={r} value={r}>
+                  {roleLabel(r)}
+                </option>
+              ))}
             </select>
             <button
               disabled={busy || !inviteEmail.includes('@')}
-              onClick={() => mutate(async () => {
-                await apiPost(`/orgs/${org.id}/invite`, { email: inviteEmail.trim(), role: inviteRole });
-                setInviteEmail('');
-              })}
-              className="px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40"
-            >Invite</button>
+              onClick={() =>
+                mutate(async () => {
+                  await apiPost(`/orgs/${org.id}/invite`, {
+                    email: inviteEmail.trim(),
+                    role: inviteRole,
+                  });
+                  setInviteEmail('');
+                })
+              }
+              className="group inline-flex shrink-0 items-center gap-2 bg-[var(--color-ivory)] px-5 py-2.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Invite
+              <span
+                aria-hidden
+                className="transition-transform duration-500 group-hover:translate-x-0.5"
+              >
+                →
+              </span>
+            </button>
           </div>
-          <p className="text-white/40 text-xs mt-3">
-            Roles set what a colleague can do. Only owners and admins can manage members; ownership transfers separately.
+          <p className="mt-4 font-serif text-[12.5px] italic text-[var(--color-ivory-mute)]">
+            Roles set what a colleague can do. Only owners and admins can manage members;
+            ownership transfers separately.
           </p>
         </section>
       )}
@@ -162,8 +260,22 @@ export default function TeamPage() {
   );
 }
 
-// Owner-only SCIM/SSO provisioning panel — mint/rotate/revoke the per-org token
-// the customer's IdP uses to auto-provision members (apex III1).
+function SectionHead({ kicker }: { kicker: string }) {
+  return (
+    <div className="mb-5 flex items-baseline gap-3 border-b border-[var(--color-navy-line)] pb-3">
+      <span aria-hidden className="font-serif text-[12.5px] text-[var(--color-ivory-dim)]/60">
+        ❦
+      </span>
+      <span
+        className="font-serif text-[1rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
+        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
+      >
+        {kicker}
+      </span>
+    </div>
+  );
+}
+
 function ScimPanel({ orgId }: { orgId: string }) {
   const [status, setStatus] = useState<ScimStatus | null>(null);
   const [minted, setMinted] = useState<string | null>(null);
@@ -172,7 +284,9 @@ function ScimPanel({ orgId }: { orgId: string }) {
   const refresh = useCallback(() => {
     apiGet<ScimStatus>(`/orgs/${orgId}/scim`).then(setStatus).catch(() => {});
   }, [orgId]);
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
   async function mint() {
     setBusy(true);
@@ -180,47 +294,75 @@ function ScimPanel({ orgId }: { orgId: string }) {
       const r = await apiPost<ScimStatus>(`/orgs/${orgId}/scim`, {});
       if (r.token) setMinted(r.token);
       refresh();
-    } finally { setBusy(false); }
+    } finally {
+      setBusy(false);
+    }
   }
   async function revoke() {
     setBusy(true);
-    try { await apiDelete(`/orgs/${orgId}/scim`); setMinted(null); refresh(); }
-    finally { setBusy(false); }
+    try {
+      await apiDelete(`/orgs/${orgId}/scim`);
+      setMinted(null);
+      refresh();
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
-    <section className="border border-[var(--color-line)] px-5 py-5 mt-6">
-      <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-1">Automated provisioning (SCIM / SSO)</div>
-      <p className="text-white/55 text-xs mb-3">
-        Connect your identity provider (Okta, Entra ID) to auto-provision members and map IdP groups to roles.
+    <section className="mt-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]/60 p-6 md:p-8">
+      <SectionHead kicker="Automated provisioning (SCIM / SSO)" />
+      <p className="max-w-[60ch] text-[13.5px] leading-[1.6] text-[var(--color-ivory-dim)]">
+        Connect your identity provider (Okta, Entra ID) to auto-provision members and map
+        IdP groups to roles.
       </p>
 
-      <div className="flex items-center justify-between gap-3 text-sm mb-3">
-        <span className="text-white/70">
-          {status?.configured
-            ? <>SCIM token active{status.lastUsedAt ? ` · last used ${String(status.lastUsedAt).slice(0, 10)}` : ' · not yet used'}</>
-            : 'No SCIM token yet'}
+      <div className="mt-5 flex flex-col items-start justify-between gap-3 sm:flex-row sm:items-center">
+        <span className="font-serif text-[14px] italic text-[var(--color-ivory-dim)]">
+          {status?.configured ? (
+            <>
+              SCIM token active
+              {status.lastUsedAt
+                ? ` · last used ${String(status.lastUsedAt).slice(0, 10)}`
+                : ' · not yet used'}
+            </>
+          ) : (
+            'No SCIM token yet'
+          )}
         </span>
         <div className="flex gap-2">
-          <button disabled={busy} onClick={mint}
-            className="px-3 py-1.5 text-xs font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40">
+          <button
+            disabled={busy}
+            onClick={mint}
+            className="inline-flex items-center gap-2 bg-[var(--color-ivory)] px-4 py-2 text-[12px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+          >
             {status?.configured ? 'Rotate token' : 'Generate token'}
           </button>
           {status?.configured && (
-            <button disabled={busy} onClick={revoke} className="px-3 py-1.5 text-xs text-red-300/80 hover:text-red-300">Revoke</button>
+            <button
+              disabled={busy}
+              onClick={revoke}
+              className="px-3 py-2 font-mono text-[11.5px] font-medium tracking-tight text-[var(--color-critical)] transition-colors duration-300 hover:bg-[var(--color-critical)]/10"
+            >
+              Revoke
+            </button>
           )}
         </div>
       </div>
 
       {minted && (
-        <div className="border border-[var(--color-accent)]/40 bg-white/[0.03] px-4 py-3 mb-3">
-          <div className="text-[0.65rem] uppercase tracking-wider text-[var(--color-accent-soft)] mb-1">Copy now — shown once</div>
-          <code className="block font-mono text-xs text-white/90 break-all">{minted}</code>
+        <div className="mt-5 border border-[var(--color-ivory-dim)]/40 bg-[var(--color-navy)]/30 p-4">
+          <div className="font-serif text-[12px] italic text-[var(--color-ivory-mute)]">
+            Copy now — shown once
+          </div>
+          <code className="mt-2 block break-all font-mono text-[12.5px] font-medium tracking-tight text-[var(--color-ivory)]">
+            {minted}
+          </code>
         </div>
       )}
 
       {status?.endpoint && (
-        <div className="font-mono text-[0.7rem] text-white/45">
+        <div className="mt-4 font-mono text-[11px] tracking-tight text-[var(--color-ivory-mute)]">
           SCIM base URL: {status.endpoint} · Bearer auth
         </div>
       )}

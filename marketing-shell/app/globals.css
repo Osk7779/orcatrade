@@ -1,0 +1,150 @@
+@import "tailwindcss";
+
+/*
+  OrcaTrade marketing design tokens.
+
+  Mirrors app-shell so both surfaces share one palette. Monochrome navy +
+  ivory only — no gold, no accent colour. Hierarchy comes from weight, scale
+  and spacing, not from a third hue. State colours (positive, warning,
+  critical) are functional, never decorative.
+*/
+@theme {
+  /* Surface */
+  --color-ink: #050507;            /* deepest navy/black — base canvas */
+  --color-navy: #0a1628;           /* primary navy — elevated panels */
+  --color-navy-soft: #111e33;      /* card surfaces */
+  --color-navy-line: rgba(255, 255, 255, 0.08);
+
+  /* Type */
+  --color-ivory: #fafaf7;          /* primary text — full opacity, not ghosted */
+  --color-ivory-dim: #c9ccd3;      /* secondary text — used sparingly */
+  --color-ivory-mute: rgba(250, 250, 247, 0.55); /* tertiary, captions only */
+
+  /* Accent = ivory. One token, never gold. */
+  --color-accent: #fafaf7;
+  --color-accent-soft: rgba(250, 250, 247, 0.72);
+  --color-accent-glow: rgba(250, 250, 247, 0.18);
+
+  /* Functional state — used only when status is the message */
+  --color-positive: #10b981;
+  --color-warning: #f59e0b;
+  --color-critical: #ef4444;
+  --color-info: #60a5fa;
+
+  /* Type stacks. Variable next/font CSS variables are injected on <html>; we
+     point each Tailwind font token at the matching CSS var with sensible
+     system fallbacks. */
+  --font-sans: var(--font-sans), 'Inter', system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-serif), 'Fraunces', Georgia, serif;
+  --font-mono: var(--font-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+* {
+  border-color: var(--color-navy-line);
+}
+
+html,
+body {
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Default body type carries a touch more weight than browser-default 400.
+     Stops body copy reading as thin/AI-generated. */
+  font-weight: 450;
+  font-optical-sizing: auto;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.018em;
+  font-weight: 550;
+  font-optical-sizing: auto;
+  /* Fraunces SOFT axis (0=hard, 100=soft). 35 keeps the editorial sharpness
+     without feeling cold. */
+  font-variation-settings: 'SOFT' 35, 'opsz' 144;
+}
+
+/* Tabular numerics by default — money, dates, codes shouldn't dance. */
+.font-mono,
+[class*='font-mono'],
+[class*='tabular-nums'] {
+  font-variant-numeric: tabular-nums;
+}
+
+/* Default weight for mono labels — bumped to 500 so 10–11px uppercase
+   stops feeling AI-thin. Components that explicitly set font-weight win. */
+.font-mono,
+[class*='font-mono'] {
+  font-weight: 500;
+}
+
+/* Aurora keyframes — slow drifting navy gradient behind the hero.
+   No colour shift, only opacity + position. Premium discretion. */
+@keyframes aurora-drift {
+  0% { transform: translate(0%, 0%) rotate(0deg); }
+  50% { transform: translate(-2%, 2%) rotate(180deg); }
+  100% { transform: translate(0%, 0%) rotate(360deg); }
+}
+
+/* Animated beam dash sweep — used inside the Asia→Europe SVG path */
+@keyframes beam-sweep {
+  0% { stroke-dashoffset: 200; }
+  100% { stroke-dashoffset: 0; }
+}
+
+/* Sparkles — soft pulse used on hero accent words */
+@keyframes sparkle-twinkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50%      { opacity: 1; transform: scale(1); }
+}
+
+/* Marquee — translate one full width left; paired siblings make it seamless */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+
+/* Subtle shine sweep across portrait images on hover */
+@keyframes portrait-shine {
+  0%   { transform: translate(-100%, -100%) rotate(35deg); opacity: 0; }
+  20%  { opacity: 0.7; }
+  100% { transform: translate(100%, 100%) rotate(35deg); opacity: 0; }
+}
+
+/* Border beam — hairline gradient that travels around a card's perimeter. */
+@keyframes border-beam {
+  100% { offset-distance: 100%; }
+}
+
+/* Ambient drift — twelve motes in the hero, each with their own --drift
+   horizontal offset. Opacity comes in slowly, holds, then fades. */
+@keyframes mote-drift {
+  0%   { transform: translate(0, 0); opacity: 0; }
+  20%  { opacity: 0.55; }
+  50%  { transform: translate(var(--drift, 0), -8px); opacity: 0.7; }
+  80%  { opacity: 0.4; }
+  100% { transform: translate(0, 0); opacity: 0; }
+}
+
+/* Star fade — for the ambient star field around the globe. Peak opacity
+   capped low (~0.32) so the stars read as barely-there flickers, never
+   as a proper starscape. */
+@keyframes star-fade {
+  0%, 100% { opacity: 0; transform: scale(0.4); }
+  50%      { opacity: 0.32; transform: scale(1); }
+}
+
+/* Reduced motion: kill all decorative animations */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

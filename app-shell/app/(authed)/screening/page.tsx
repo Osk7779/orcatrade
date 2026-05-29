@@ -2,12 +2,29 @@
 
 import { useState } from 'react';
 import { apiPost, type ScreenResult } from '@/lib/api';
+import { PageHeader } from '@/components/PageHeader';
 
-const STATUS_COPY: Record<string, { label: string; cls: string }> = {
-  potential_match: { label: 'Potential match — escalate', cls: 'text-red-400 border-l-red-500' },
-  no_match: { label: 'No match on the loaded lists', cls: 'text-emerald-300 border-l-emerald-500' },
-  no_sample_match: { label: 'No match on the sample list', cls: 'text-white/70 border-l-white/30' },
-  invalid: { label: 'Not screenable', cls: 'text-amber-400 border-l-amber-500' },
+const STATUS_COPY: Record<string, { label: string; tone: string; rule: string }> = {
+  potential_match: {
+    label: 'Potential match — escalate',
+    tone: 'text-[var(--color-critical)]',
+    rule: 'before:bg-[var(--color-critical)]',
+  },
+  no_match: {
+    label: 'No match on the loaded lists',
+    tone: 'text-[var(--color-positive)]',
+    rule: 'before:bg-[var(--color-positive)]',
+  },
+  no_sample_match: {
+    label: 'No match on the sample list',
+    tone: 'text-[var(--color-ivory-dim)]',
+    rule: 'before:bg-[var(--color-ivory-dim)]',
+  },
+  invalid: {
+    label: 'Not screenable',
+    tone: 'text-[var(--color-warning)]',
+    rule: 'before:bg-[var(--color-warning)]',
+  },
 };
 
 export default function ScreeningPage() {
@@ -19,7 +36,9 @@ export default function ScreeningPage() {
   async function screen(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
-    setBusy(true); setErr(''); setResult(null);
+    setBusy(true);
+    setErr('');
+    setResult(null);
     try {
       setResult(await apiPost<ScreenResult>('/screen', { name: name.trim() }));
     } catch {
@@ -32,46 +51,92 @@ export default function ScreeningPage() {
   const sc = result ? STATUS_COPY[result.status] || STATUS_COPY.no_sample_match : null;
 
   return (
-    <div className="max-w-2xl">
-      <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Screening</div>
-      <h1 className="text-4xl mb-2">Denied-party screening</h1>
-      <p className="text-white/60 text-sm mb-7 leading-relaxed">
-        Check a supplier, buyer or vessel name against the consolidated sanctions lists (OFAC · UK OFSI · UN · EU).
-        Indicative only — it can flag a potential match, but never returns an all-clear.
-      </p>
+    <div className="max-w-[820px]">
+      <PageHeader
+        kicker="Screening"
+        title="Denied-party screening."
+        sub="Check a supplier, buyer or vessel name against the consolidated sanctions lists (OFAC · UK OFSI · UN · EU). Indicative only — it can flag a potential match, but never returns an all-clear."
+      />
 
-      <form onSubmit={screen} className="flex gap-2 mb-6">
+      <form onSubmit={screen} className="flex flex-col gap-3 sm:flex-row sm:items-stretch">
         <input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Volcano Trading Company"
-          className="flex-1 bg-white/[0.04] border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm focus:outline-none focus:border-white/30"
+          className="flex-1 border-b border-[var(--color-navy-line)] bg-transparent px-1 py-3 text-[15px] text-[var(--color-ivory)] placeholder:text-[var(--color-ivory-mute)]/60 focus:border-[var(--color-ivory-dim)] focus:outline-none"
         />
-        <button disabled={busy || !name.trim()} className="px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40">
+        <button
+          disabled={busy || !name.trim()}
+          className="group inline-flex shrink-0 items-center justify-center gap-2 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+        >
           {busy ? 'Screening…' : 'Screen'}
+          {!busy && (
+            <span
+              aria-hidden
+              className="transition-transform duration-500 group-hover:translate-x-0.5"
+            >
+              →
+            </span>
+          )}
         </button>
       </form>
 
-      {err && <p className="text-red-400 text-sm">{err}</p>}
+      {err && (
+        <div className="mt-6 border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/5 p-4">
+          <p className="font-serif text-[14px] italic text-[var(--color-ivory)]">{err}</p>
+        </div>
+      )}
 
       {result && sc && (
-        <div className={`border border-[var(--color-line)] border-l-2 ${sc.cls} px-5 py-4`}>
-          <div className={`font-mono text-[0.7rem] uppercase tracking-wider mb-1 ${sc.cls.split(' ')[0]}`}>{sc.label}</div>
-          <div className="text-sm text-white/70 mb-3">
-            Screened “{result.query}” against {result.authoritative ? 'the loaded consolidated lists' : 'the illustrative sample'}
-            {typeof result.matchCount === 'number' ? ` · ${result.matchCount} match${result.matchCount === 1 ? '' : 'es'}` : ''}.
+        <div
+          className={`relative mt-8 bg-[var(--color-ink)] p-6 before:absolute before:left-0 before:top-0 before:h-full before:w-[2px] md:p-7 ${sc.rule}`}
+          style={{ border: '1px solid var(--color-navy-line)' }}
+        >
+          <div
+            className={`font-mono text-[11px] font-medium uppercase tracking-tight ${sc.tone}`}
+          >
+            {sc.label}
+          </div>
+          <div className="mt-3 max-w-[60ch] font-serif text-[15px] italic leading-[1.55] text-[var(--color-ivory-dim)]">
+            Screened &ldquo;<span className="not-italic font-medium text-[var(--color-ivory)]">{result.query}</span>&rdquo; against{' '}
+            {result.authoritative
+              ? 'the loaded consolidated lists'
+              : 'the illustrative sample'}
+            {typeof result.matchCount === 'number'
+              ? ` · ${result.matchCount} match${result.matchCount === 1 ? '' : 'es'}`
+              : ''}
+            .
           </div>
           {!!result.matches?.length && (
-            <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)] mb-3">
+            <div className="mt-5 border border-[var(--color-navy-line)]">
               {result.matches.map((m, i) => (
-                <div key={i} className="px-3 py-2 flex justify-between items-center text-sm">
-                  <span className="text-ivory">{m.name}{m.programme ? <span className="text-white/45"> · {m.programme}</span> : null}</span>
-                  <span className="font-mono text-xs text-white/55">{m.listSource} · {Math.round((m.score ?? 0) * 100)}%</span>
+                <div
+                  key={i}
+                  className={`flex items-center justify-between gap-3 px-4 py-3 text-[13.5px] ${
+                    i > 0 ? 'border-t border-[var(--color-navy-line)]' : ''
+                  }`}
+                >
+                  <span className="text-[var(--color-ivory)]">
+                    {m.name}
+                    {m.programme && (
+                      <span className="font-serif italic text-[var(--color-ivory-mute)]">
+                        {' '}
+                        · {m.programme}
+                      </span>
+                    )}
+                  </span>
+                  <span className="font-mono text-[11.5px] font-medium tabular-nums text-[var(--color-ivory-mute)]">
+                    {m.listSource} · {Math.round((m.score ?? 0) * 100)}%
+                  </span>
                 </div>
               ))}
             </div>
           )}
-          {result.advisory && <p className="text-white/50 text-xs leading-relaxed">{result.advisory}</p>}
+          {result.advisory && (
+            <p className="mt-5 max-w-[60ch] font-serif text-[12.5px] italic leading-[1.55] text-[var(--color-ivory-mute)]">
+              {result.advisory}
+            </p>
+          )}
         </div>
       )}
     </div>
