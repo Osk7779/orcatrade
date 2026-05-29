@@ -44,6 +44,8 @@ const GROUPS: NavGroup[] = [
     kicker: 'Account',
     items: [
       { label: 'Team', href: '/team', inApp: true },
+      { label: 'Organisations', href: '/orgs', inApp: true },
+      { label: 'Activity', href: '/activity', inApp: true },
       { label: 'Preferences', href: '/preferences', inApp: true },
       { label: 'Billing', href: '/billing', inApp: true },
       { label: 'Security', href: '/security', inApp: true },
