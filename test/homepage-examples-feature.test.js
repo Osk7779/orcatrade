@@ -1,6 +1,14 @@
 // Sprint AA — homepage examples-feature section tests.
 // Verifies the worked-examples block is present on EN/PL/DE homepages with
 // the right links, tags, and headlines.
+//
+// 2026-05-30 marketing-shell migration retired the static root index.html
+// (commit 2c21a9d0). The EN entry is filtered out below if the file is
+// missing, and three EN-specific assertions further down are skipped with
+// the same marker. Coverage of the examples-feature block on the
+// marketing-shell-rendered root is tracked under Phase 1 of
+// docs/execution-plan.md. PL and DE locale homepages remain static and
+// fully covered.
 
 const test = require('node:test');
 const assert = require('node:assert/strict');
@@ -9,11 +17,13 @@ const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
 
-const HOMEPAGES = [
+const ALL_HOMEPAGES = [
   { locale: 'en', file: 'index.html', wizardHref: 'start/', allLink: 'examples/' },
   { locale: 'pl', file: 'pl/index.html', wizardHref: 'start/', allLink: 'examples/' },
   { locale: 'de', file: 'de/index.html', wizardHref: 'start/', allLink: 'examples/' },
 ];
+const HOMEPAGES = ALL_HOMEPAGES.filter(hp => fs.existsSync(path.join(ROOT, hp.file)));
+const SKIP_MARKETING_SHELL = { skip: 'marketing-shell migration: root index.html retired; coverage moved to Phase 1' };
 
 const FEATURED_SLUGS = [
   'chinese-ebike-importer-87pct-combined-ad-cvd',
@@ -51,7 +61,7 @@ for (const hp of HOMEPAGES) {
   });
 }
 
-test('EN homepage section title mentions "Three real scenarios"', () => {
+test('EN homepage section title mentions "Three real scenarios"', SKIP_MARKETING_SHELL, () => {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   assert.match(html, /Three real scenarios/);
 });
@@ -66,7 +76,7 @@ test('DE homepage section title is in German ("Drei reale Szenarien")', () => {
   assert.match(html, /Drei reale Szenarien/);
 });
 
-test('EN homepage e-bike card mentions €97,300', () => {
+test('EN homepage e-bike card mentions €97,300', SKIP_MARKETING_SHELL, () => {
   const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
   assert.match(html, /€97,300/);
 });

@@ -76,27 +76,40 @@ test('js/globe.js: pauses the rAF loop when document is hidden', () => {
 });
 
 // ── index.html wiring ────────────────────────────────
+//
+// 2026-05-30 marketing-shell migration retired the static root index.html
+// (commit 2c21a9d0). The four wiring tests below targeted that file and
+// asserted the static homepage carried the hero globe. The new editorial
+// homepage shipped via marketing-shell may or may not include the globe;
+// that decision and the corresponding new tests (against the marketing-
+// shell rendered output) are tracked under Phase 1 of
+// docs/execution-plan.md. Until then the four assertions below are
+// explicitly skipped — the JS contract tests above (js/globe.js content,
+// PointerEvents, prefers-reduced-motion, visibilitychange) continue to
+// run, so the globe asset itself is still covered.
 
-test('index.html: hero canvas has [data-globe] + cursor: grab', () => {
+const SKIP_MARKETING_SHELL = { skip: 'marketing-shell migration: root index.html retired; coverage moved to Phase 1' };
+
+test('index.html: hero canvas has [data-globe] + cursor: grab', SKIP_MARKETING_SHELL, () => {
   const html = readFile('index.html');
   assert.match(html, /<canvas[^>]*data-globe[^>]*>/);
   assert.match(html, /\.hero-globe-bg\s*\{[^}]*cursor:\s*grab/);
 });
 
-test('index.html: drag is disabled on touch + small viewports', () => {
+test('index.html: drag is disabled on touch + small viewports', SKIP_MARKETING_SHELL, () => {
   const html = readFile('index.html');
   // Mobile + coarse-pointer disable — drag on a bg canvas fights vertical scroll
   assert.match(html, /@media\s*\(hover:\s*none\)/);
   assert.match(html, /pointer-events:\s*none/);
 });
 
-test('index.html: loads d3 + js/globe.js (defer)', () => {
+test('index.html: loads d3 + js/globe.js (defer)', SKIP_MARKETING_SHELL, () => {
   const html = readFile('index.html');
   assert.match(html, /cdn\.jsdelivr\.net\/npm\/d3@7/);
   assert.match(html, /<script[^>]*defer[^>]*src="js\/globe\.js"/);
 });
 
-test('index.html: globe is decorative (aria-hidden) so screen readers skip it', () => {
+test('index.html: globe is decorative (aria-hidden) so screen readers skip it', SKIP_MARKETING_SHELL, () => {
   const html = readFile('index.html');
   // Attribute order on the canvas is not load-bearing — match either order.
   const canvasTag = (html.match(/<canvas[^>]*data-globe[^>]*>/) || [''])[0];

@@ -105,7 +105,11 @@ test('/agent/outbound/ enforces the brand voice in the prompt', () => {
 
 // ── home-page navigation surfaces (lightweight) ──────
 
-test('home page footer links to press + partners (or top nav)', () => {
+// 2026-05-30 marketing-shell migration retired the static root index.html
+// (commit 2c21a9d0). This soft check targeted that file. Coverage of
+// home-page nav surfaces on the marketing-shell-rendered root is tracked
+// under Phase 1 of docs/execution-plan.md.
+test('home page footer links to press + partners (or top nav)', { skip: 'marketing-shell migration: root index.html retired; coverage moved to Phase 1' }, () => {
   // Either a header nav or a footer link is acceptable. We just want at
   // least one entry point from the home page.
   const html = readFile('index.html');
