@@ -34,6 +34,11 @@ export default function sitemap(): MetadataRoute.Sitemap {
     '/logistics',
     '/finance',
     '/process',
+    '/agents',
+    '/signin',
+    '/buyer-verification',
+    '/factory-risk',
+    '/analysis',
   ].map((path) => ({
     url: `${SITE}${path}`,
     lastModified: now,

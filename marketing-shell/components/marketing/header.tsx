@@ -102,7 +102,7 @@ export function Header() {
               </span>
             </Link>
             <Link
-              href="/app/dashboard"
+              href="/signin"
               className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
             >
               Sign in

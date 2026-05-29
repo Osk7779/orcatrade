@@ -119,7 +119,7 @@ export function MobileMenu() {
               <span aria-hidden>→</span>
             </Link>
             <Link
-              href="/app/dashboard"
+              href="/signin"
               onClick={() => setOpen(false)}
               className="inline-flex items-center gap-2 text-[15px] font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
             >

@@ -44,7 +44,7 @@ export function AuthNotice({
         }
       />
       <a
-        href="/account/"
+        href="/signin"
         className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
       >
         Sign in
