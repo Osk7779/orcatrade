@@ -14,7 +14,16 @@
     { "source": "/feed.xml", "destination": "/api/feed?format=rss" },
     { "source": "/atom.xml", "destination": "/api/feed?format=atom" },
     { "source": "/share/:code", "destination": "/api/share/:code" },
-    { "source": "/api/:path+", "destination": "/api/[...path]" }
+    { "source": "/api/:path+", "destination": "/api/[...path]" },
+
+    {
+      "source": "/_next/:path*",
+      "destination": "https://orcatrade-marketing.vercel.app/_next/:path*"
+    },
+    {
+      "source": "/",
+      "destination": "https://orcatrade-marketing.vercel.app/"
+    }
   ],
   "headers": [
     {
@@ -50,7 +59,7 @@
         },
         {
           "key": "Content-Security-Policy",
-          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https:; connect-src 'self' https://va.vercel-scripts.com https://*.vercel.app; manifest-src 'self'; upgrade-insecure-requests"
+          "value": "default-src 'self'; base-uri 'self'; object-src 'none'; frame-ancestors 'self'; form-action 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://va.vercel-scripts.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' data: https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data: https: blob:; connect-src 'self' https://va.vercel-scripts.com https://*.vercel.app; manifest-src 'self'; worker-src 'self' blob:; upgrade-insecure-requests"
         }
       ]
     }
