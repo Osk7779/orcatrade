@@ -45,6 +45,9 @@ const GROUPS: NavGroup[] = [
     items: [
       { label: 'Team', href: '/team', inApp: true },
       { label: 'Preferences', href: '/preferences', inApp: true },
+      { label: 'Billing', href: '/billing', inApp: true },
+      { label: 'Security', href: '/security', inApp: true },
+      { label: 'Privacy & data', href: '/privacy', inApp: true },
     ],
   },
 ];
