@@ -1,0 +1,53 @@
+name: db-migrate
+
+# One-shot, manually-triggered Postgres migration runner. The connection
+# string lives in GitHub Secrets (DATABASE_URL_UNPOOLED) — it never reaches
+# the workflow log (GitHub auto-redacts) and never reaches a human chat.
+#
+# The script (scripts/db-migrate.js) is idempotent: each migration file is
+# CREATE TABLE IF NOT EXISTS / ADD COLUMN IF NOT EXISTS / ALTER TABLE DROP
+# CONSTRAINT IF EXISTS, and a schema_versions row records what's been
+# applied. Re-running this workflow is safe — already-applied migrations
+# just print "skipped".
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Dry-run (parse + show planned migrations without applying)'
+        required: false
+        default: 'false'
+        type: choice
+        options: ['false', 'true']
+
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci --no-audit --no-fund
+
+      - name: Migrate
+        env:
+          DATABASE_URL_UNPOOLED: ${{ secrets.DATABASE_URL_UNPOOLED }}
+        run: |
+          if [[ "${{ inputs.dry_run }}" == "true" ]]; then
+            node scripts/db-migrate.js --dry-run
+          else
+            node scripts/db-migrate.js
+          fi
+
+      - name: Summary
+        if: always()
+        run: |
+          echo "::group::Tip"
+          echo "Re-run any time. Already-applied migrations are skipped via schema_versions."
+          echo "::endgroup::"

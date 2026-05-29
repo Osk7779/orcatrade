@@ -1,7 +1,8 @@
 'use client';
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { PageHeader } from '@/components/PageHeader';
+import { apiGet, type Prefs } from '@/lib/api';
 
 type Role = 'user' | 'assistant';
 interface Msg {
@@ -11,14 +12,16 @@ interface Msg {
 
 async function streamOrchestrator(
   messages: Msg[],
+  locale: string | undefined,
   onText: (delta: string) => void,
   onTool: (label: string | null) => void,
+  onDraft: () => void,
 ): Promise<void> {
   const res = await fetch('/api/orchestrator', {
     method: 'POST',
     credentials: 'same-origin',
     headers: { 'Content-Type': 'application/json', Accept: 'text/event-stream' },
-    body: JSON.stringify({ messages }),
+    body: JSON.stringify({ messages, locale }),
   });
   if (!res.ok || !res.body) throw new Error(`HTTP ${res.status}`);
 
@@ -49,8 +52,15 @@ async function streamOrchestrator(
       if (evt.type === 'text-delta' && evt.text) {
         onText(evt.text);
         onTool(null);
-      } else if (evt.type === 'tool-call') onTool(`${evt.domain || 'tool'} · ${evt.name}`);
-      else if (evt.type === 'tool-result') onTool(null);
+      } else if (evt.type === 'tool-call') {
+        onTool(`${evt.domain || 'tool'} · ${evt.name}`);
+        if (
+          evt.name === 'draftDocument' ||
+          evt.name === 'draftCustomsEntry' ||
+          evt.name === 'draftLetterOfCredit'
+        )
+          onDraft();
+      } else if (evt.type === 'tool-result') onTool(null);
       else if (evt.type === 'thinking') onTool('thinking');
       else if (evt.type === 'error') throw new Error(evt.message || 'agent error');
     }
@@ -63,7 +73,16 @@ export default function ChatPage() {
   const [busy, setBusy] = useState(false);
   const [tool, setTool] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [draftHinted, setDraftHinted] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
+  // Forward the user's stored locale (en/pl/de) so the agent replies in their
+  // preferred language — lib/agent-i18n.js drives the locale directive server-side.
+  const [locale, setLocale] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    apiGet<Prefs>('/account/preferences')
+      .then((p) => p.locale && setLocale(p.locale))
+      .catch(() => {});
+  }, []);
 
   async function send() {
     const text = input.trim();
@@ -73,9 +92,11 @@ export default function ChatPage() {
     setMessages([...next, { role: 'assistant', content: '' }]);
     setInput('');
     setBusy(true);
+    setDraftHinted(false);
     try {
       await streamOrchestrator(
         next,
+        locale,
         (delta) =>
           setMessages((cur) => {
             const copy = cur.slice();
@@ -85,6 +106,7 @@ export default function ChatPage() {
             return copy;
           }),
         setTool,
+        () => setDraftHinted(true),
       );
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'The agent could not respond.');
@@ -106,10 +128,7 @@ export default function ChatPage() {
         sub="The agent reasons across customs, logistics, sourcing and finance — each number it surfaces names the tool that produced it."
       />
 
-      <div
-        ref={scrollRef}
-        className="flex-1 overflow-y-auto pr-1"
-      >
+      <div ref={scrollRef} className="flex-1 overflow-y-auto pr-1">
         {messages.length === 0 && (
           <div className="border border-[var(--color-navy-line)] bg-[var(--color-ink)] p-6 md:p-7">
             <div className="flex items-center gap-3">
@@ -161,6 +180,26 @@ export default function ChatPage() {
             />
             {tool}…
           </div>
+        )}
+
+        {draftHinted && !busy && (
+          <a
+            href="/drafts"
+            className="mt-5 block border border-[var(--color-navy-line)] bg-[var(--color-ink)] p-5 transition-colors duration-300 hover:border-[var(--color-ivory-dim)]"
+          >
+            <div className="flex items-center gap-2">
+              <span aria-hidden className="font-serif text-[14px] text-[var(--color-ivory-dim)]/60">
+                ❦
+              </span>
+              <span className="font-serif text-[11.5px] italic tracking-[0.05em] text-[var(--color-ivory-mute)]">
+                Draft prepared
+              </span>
+            </div>
+            <p className="mt-2 font-serif text-[14.5px] italic leading-[1.55] text-[var(--color-ivory)]">
+              Open <span className="not-italic">/drafts</span> to review and approve. The platform
+              never files, sends, or wire-transfers on its own — the human click is the record.
+            </p>
+          </a>
         )}
 
         {err && (

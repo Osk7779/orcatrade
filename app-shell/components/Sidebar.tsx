@@ -38,6 +38,7 @@ const GROUPS: NavGroup[] = [
       { label: 'Documents', href: '/documents', inApp: true },
       { label: 'Drafts', href: '/drafts', inApp: true },
       { label: 'Screening', href: '/screening', inApp: true },
+      { label: 'Marketplace', href: '/marketplace', inApp: true },
     ],
   },
   {

@@ -40,6 +40,11 @@
     table.events td.t-founding_applied { color: rgba(220, 160, 80, 1); }
     table.events td.t-auth_signin, table.events td.t-auth_signup { color: rgba(150, 200, 230, 1); }
     table.events td.t-plan_share_opened { color: rgba(150, 150, 200, 0.85); }
+    /* Document approval workflow (apex I5) — colour-coded so an auditor
+       can scan the approve/reject lifecycle at a glance. */
+    table.events td.t-document_drafted { color: rgba(220, 188, 110, 1); }
+    table.events td.t-document_approved { color: #7ed28a; }
+    table.events td.t-document_rejected { color: #ef9a9a; }
     table.events td.hash { color: rgba(255,255,255,0.4); }
     table.events td.payload { color: rgba(255,255,255,0.6); max-width: 480px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: help; }
 
