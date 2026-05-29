@@ -58,6 +58,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           Skip to content
         </a>
 
+        {/* Title-plate intro — once per browser session, gated by
+            sessionStorage. Subsequent navigations within the session skip
+            it entirely. */}
+        <IntroOverlay />
+
         {/* Shared chrome — every page gets it for free */}
         <Header />
         <TracingBeam />
