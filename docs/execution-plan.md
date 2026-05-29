@@ -347,9 +347,22 @@ For each: Claude drafts requirements + recommended option; Oskar decides.
 |---|---|---|---|
 | 2026-05-30 | Adopt this plan as the canonical 18-month contract | Oskar + Claude | Supersedes ad-hoc sprint planning |
 | 2026-05-30 | Raise the engineering bar to "big-corp standard" — measured against SAP GTS / Descartes / ONESOURCE | Oskar | See [feedback-corp-standard](../../../.claude/projects/-Users-oskarklepuszewski-Desktop-orcatrade-copy/memory/feedback_corp_standard.md) |
-| **PENDING** | **P0.10:** kill or queue `requestHumanReview`? | Oskar to decide | Blocks Phase 0 kickoff |
-| **PENDING** | **P0.11:** wire `lookupHsCode` to TARIC or remove? | Oskar to decide | Blocks Phase 0 kickoff |
-| **PENDING** | **P0 scope confirmation:** 27 PRs / 4 weeks — confirm or trim? | Oskar to decide | Blocks Phase 0 kickoff |
+| 2026-05-30 | **P0.10:** build *minimal* `requestHumanReview` queue (KV list + admin endpoint + email to ops alias). ~0.5 day. Full ops-dashboard deferred to Phase 2 (P2.6). | Oskar | Keeps the agent's escalation promise honest without over-building. |
+| 2026-05-30 | **P0.11:** wire `lookupHsCode` to TARIC HS search (top-N with confidence scores). ~1 day. | Oskar | Compliance agent is HS-code expert; removing it would gut the product. |
+| 2026-05-30 | **P0 scope:** confirm 27 PRs / 4 weeks. Scaffold and fixes interleaved (see "Phase 0 execution order" below). | Oskar | Scaffold pays for itself across Phases 1–5. |
+
+### Phase 0 execution order
+
+To get the audit-clean state ASAP **and** have every later PR benefit from the corp-grade scaffold, PRs ship in this sequence:
+
+| Wave | PRs | Why this order |
+|---|---|---|
+| 1 — Smallest unblockers (week 1) | P0.1 green tests · P0.13 delete `_legacy/index.html` · P0.5 import-boundary test · P0.6 model-string constants | Tiny diffs; immediately make CI honest before any scaffold pollutes the picture. |
+| 2 — Scaffold first wave (week 1–2) | P0.F PR template · P0.B conventional commits + release-please · P0.A ADR repo + 8 backfilled ADRs · P0.E TypeScript baseline · P0.G handbook | Every later PR will land using these conventions. |
+| 3 — Scaffold second wave (week 2) | P0.D CodeQL + gitleaks + Dependabot + Snyk + SBOM · P0.C branch protection with 9 required checks · P0.J OpenAPI scaffold · P0.I C4 diagrams · P0.H runbook template + 5 runbooks | Gates merge from here on. |
+| 4 — Fixes (week 2–3) | P0.2 schema-002 migration + parity test · P0.3 Anthropic circuit-breaker · P0.4 audit-write non-swallow · P0.7 Sentry middleware · P0.8 `/api/health` timeouts + SLO · P0.12 intro overlay a11y | All inherit the scaffold from wave 2–3. |
+| 5 — Product decisions (week 3) | P0.10 minimal `requestHumanReview` queue · P0.11 wire `lookupHsCode` to TARIC | Land late so they can be tested under the new gates. |
+| 6 — Gating + docs (week 4) | P0.9 smoke as deploy gate · P0.15 eval gate on push · P0.14 docs sweep (CLAUDE.md, security/, marketing copy) | Phase 0 exit. Every promise now matches enforcement. |
 
 ---
 
@@ -358,3 +371,4 @@ For each: Claude drafts requirements + recommended option; Oskar decides.
 | Version | Date | Change | Author |
 |---|---|---|---|
 | v1 | 2026-05-30 | Initial plan after full audit; supersedes ad-hoc sprint planning | Claude (paired with Oskar) |
+| v1.1 | 2026-05-30 | Resolved 3 Phase-0 pending decisions; added Phase 0 execution order (6 waves) | Claude |
