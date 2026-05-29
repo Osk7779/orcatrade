@@ -4113,3 +4113,243 @@ em {
 strong, b {
   font-weight: 600;
 }
+
+/* =========================================================================
+   OVERRIDES — round 3
+   Catches the alternate type system used inside several page-scoped <style>
+   blocks: .kicker, .h1/.h2/.h3, .lead, .brand, .back, .subtitle, the OS-nav
+   leftover, lang switchers, scenario buttons, TOC titles, etc. Force-applies
+   the editorial vocabulary so every page reads as one product.
+   ========================================================================= */
+
+/* Page-local kickers (analysis, compliance, factory-risk, supply-chain) */
+.kicker,
+.toc-title,
+.field label,
+.scenario-btn,
+.section-label {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  font-weight: 450 !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  color: var(--cream-mute) !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  font-size: 12.5px !important;
+}
+
+.kicker::before {
+  content: "❦ ";
+  font-style: normal;
+  font-weight: 400;
+  margin-right: 0.4em;
+  color: rgba(250, 250, 247, 0.4);
+}
+
+/* Page-local display titles */
+.h1, h1.title {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-variation-settings: 'SOFT' 28, 'opsz' 144 !important;
+  letter-spacing: -0.024em !important;
+  line-height: 1.04 !important;
+  color: var(--cream) !important;
+}
+
+.h1 em, h1.title em {
+  font-style: italic !important;
+  color: var(--cream) !important;
+  font-variation-settings: 'SOFT' 50, 'opsz' 144 !important;
+}
+
+.h2, h2.title, h2.title--md {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  letter-spacing: -0.018em !important;
+  color: var(--cream) !important;
+}
+
+.h3 {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  color: var(--cream) !important;
+}
+
+/* Lead / subtitle paragraphs */
+.lead, .subtitle, .hero p.subtitle {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+  color: var(--cream-soft) !important;
+  max-width: 60ch;
+  line-height: 1.55 !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144;
+}
+
+/* Back link (used on /intelligence and others) */
+.back {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.04em !important;
+  color: var(--cream-mute) !important;
+  text-transform: none !important;
+  text-decoration: none !important;
+  display: inline-block;
+  margin-bottom: 1.5rem;
+  transition: color 0.3s ease;
+}
+.back:hover {
+  color: var(--cream) !important;
+}
+
+/* Hide any LEFTOVER hardcoded nav blocks. site-nav.js renders into
+   <header data-site-header>; this kills duplicate OS-style navs that the
+   per-page <style> blocks still attempt to style. */
+header[data-site-header] + nav.nav,
+body > nav.nav:first-of-type {
+  display: none !important;
+}
+
+/* If a page still uses the old .nav-inner directly (some sub-brand pages
+   used it standalone), at least quiet its styling. */
+.nav-inner {
+  background: rgba(5, 5, 7, 0.85) !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: none !important;
+}
+
+.brand {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.022em !important;
+  text-transform: none !important;
+  color: var(--cream) !important;
+  font-variation-settings: 'SOFT' 28, 'opsz' 144 !important;
+}
+.brand span {
+  font-style: italic !important;
+  color: var(--cream-mute) !important;
+  font-weight: 400 !important;
+}
+
+/* Language switcher — clean hairline buttons */
+.lang-switcher {
+  display: inline-flex;
+  gap: 0.5rem;
+}
+.lang-btn {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11px !important;
+  letter-spacing: 0.06em !important;
+  border: 1px solid var(--line) !important;
+  background: transparent !important;
+  color: var(--cream-mute) !important;
+  padding: 0.3rem 0.55rem !important;
+  border-radius: 0 !important;
+  text-transform: uppercase;
+  transition: border-color 0.3s ease, color 0.3s ease;
+}
+.lang-btn:hover {
+  color: var(--cream) !important;
+  border-color: rgba(250, 250, 247, 0.3) !important;
+}
+.lang-btn.active {
+  color: var(--cream) !important;
+  border-color: var(--cream) !important;
+}
+
+/* Form fields used by /analysis, /signin, quote-rebrand etc. */
+.field input, .field select, .field textarea {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--cream) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+.field input:focus, .field select:focus, .field textarea:focus {
+  border-color: rgba(250, 250, 247, 0.45) !important;
+  background: transparent !important;
+}
+
+.form-card {
+  background: var(--navy-soft) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+/* Page-local primary buttons (analysis, compliance) — kill uppercase,
+   gradient, glow. Match site-wide ivory primary. */
+button.btn-primary,
+.btn-primary,
+input[type="submit"].btn-primary,
+.scenario-btn--active {
+  background: var(--cream) !important;
+  background-image: none !important;
+  color: var(--navy) !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  border-radius: 0 !important;
+  border: 1px solid var(--cream) !important;
+  box-shadow: none !important;
+  font-weight: 600 !important;
+}
+
+.btn-primary:hover {
+  filter: none !important;
+  background: #ffffff !important;
+}
+
+/* Scenario buttons (analysis page presets) — hairline secondary style */
+.scenario-btn {
+  background: transparent !important;
+  border: 1px solid var(--line) !important;
+  color: var(--cream-mute) !important;
+  border-radius: 0 !important;
+  letter-spacing: 0.02em !important;
+  text-transform: none !important;
+  font-style: italic !important;
+}
+.scenario-btn:hover {
+  color: var(--cream) !important;
+  border-color: rgba(250, 250, 247, 0.3) !important;
+}
+
+/* TOC sidebars (intelligence side-toc, analysis report toc) */
+.toc-list a, .page-toc a {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  letter-spacing: 0.01em !important;
+  color: var(--cream-mute) !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144;
+}
+.toc-list a:hover, .toc-list a.active,
+.page-toc a:hover {
+  color: var(--cream) !important;
+  border-left-color: var(--cream) !important;
+}
+
+/* Feature list bullets — use a hairline dash instead of triangle. */
+.feature-list li::before {
+  content: "—" !important;
+  color: rgba(250, 250, 247, 0.5) !important;
+  margin-right: 0.6em;
+}
+
+/* Section title H2 alternate */
+.section-title {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  letter-spacing: -0.018em !important;
+}
+
+/* Aurora blobs from intelligence.html — soften them */
+.aurora-blob {
+  opacity: 0.25 !important;
+  filter: blur(80px) !important;
+  mix-blend-mode: screen !important;
+}

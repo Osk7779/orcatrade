@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<title>OrcaTrade — Shareholder Technical & Business Brief</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --navy: #0A1628;
+    --navy-mid: #1c2d44;
+    --navy-soft: #44566f;
+    --ivory: #FAFAF7;
+    --gold: #b08d2d;
+    --gold-soft: #c9a84a;
+    --green: #1f7a54;
+    --red: #b3402f;
+    --amber: #b3791f;
+    --line: #e4e1d6;
+    --ink: #20262e;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  @page { size: A4; margin: 0; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    color: var(--ink);
+    background: #fff;
+    margin: 0;
+    font-size: 9.6pt;
+    line-height: 1.5;
+  }
+  .page {
+    width: 210mm;
+    height: 297mm;
+    padding: 18mm 18mm 16mm;
+    margin: 0;
+    background: #fff;
+    position: relative;
+    overflow: hidden;
+    page-break-after: always;
+    break-after: page;
+  }
+  .page:last-child { page-break-after: auto; break-after: auto; }
+  /* Screenshot helper only (no effect on PDF render, which has no #fragment). */
+  .page:target { position: fixed; top: 0; left: 0; z-index: 9999; }
+
+  h1, h2, h3, h4 { font-family: 'Cormorant Garamond', Georgia, serif; color: var(--navy); font-weight: 600; letter-spacing: -0.01em; }
+  h2 { font-size: 20pt; margin: 0 0 4pt; padding-bottom: 5pt; border-bottom: 2px solid var(--gold); }
+  h3 { font-size: 13.5pt; margin: 12pt 0 3pt; color: var(--navy-mid); }
+  h4 { font-size: 11pt; margin: 9pt 0 2pt; color: var(--navy-mid); font-weight: 700; }
+  p { margin: 0 0 5.5pt; }
+  ul, ol { margin: 0 0 6pt; padding-left: 15pt; }
+  li { margin-bottom: 2.5pt; }
+  strong { color: var(--navy); font-weight: 600; }
+  code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 8.6pt; background: #f3f2ec; padding: 0.5pt 3pt; border-radius: 2px; color: var(--navy-mid); }
+  .kicker { font-family: 'JetBrains Mono', monospace; font-size: 7.6pt; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 6pt; }
+  .lead { font-size: 10.6pt; color: var(--navy-soft); line-height: 1.55; }
+
+  /* Cover */
+  .cover { background: var(--navy); color: var(--ivory); display: flex; flex-direction: column; justify-content: space-between; }
+  .cover h1 { color: #fff; font-size: 46pt; line-height: 1.02; margin: 0 0 8pt; }
+  .cover .sub { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 18pt; color: var(--gold-soft); }
+  .cover .brandline { font-family: 'JetBrains Mono', monospace; letter-spacing: 0.3em; text-transform: uppercase; font-size: 9pt; color: var(--gold-soft); }
+  .cover .meta { font-size: 9pt; color: #9fb0c4; border-top: 1px solid #243750; padding-top: 12pt; line-height: 1.7; }
+  .cover .confidential { display: inline-block; border: 1px solid var(--gold-soft); color: var(--gold-soft); font-family: 'JetBrains Mono', monospace; font-size: 7.5pt; letter-spacing: 0.18em; text-transform: uppercase; padding: 4pt 9pt; }
+
+  /* Components */
+  .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10pt 16pt; }
+  .grid3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 9pt; }
+  .stat { border: 1px solid var(--line); border-top: 3px solid var(--gold); padding: 9pt 11pt; }
+  .stat .n { font-family: 'Cormorant Garamond', serif; font-size: 24pt; font-weight: 700; color: var(--navy); line-height: 1; }
+  .stat .l { font-size: 8.2pt; color: var(--navy-soft); margin-top: 3pt; text-transform: uppercase; letter-spacing: 0.06em; }
+  .callout { background: #f7f6f0; border-left: 3px solid var(--gold); padding: 8pt 11pt; margin: 7pt 0; font-size: 9pt; }
+  .callout.navy { background: var(--navy); color: var(--ivory); border-left-color: var(--gold-soft); }
+  .callout.navy strong { color: #fff; }
+  .principle { border: 1px solid var(--line); padding: 6.5pt 11pt; margin-bottom: 6pt; }
+  .principle .num { font-family: 'Cormorant Garamond', serif; color: var(--gold); font-weight: 700; font-size: 13pt; }
+  table { width: 100%; border-collapse: collapse; margin: 6pt 0; font-size: 8.4pt; }
+  th, td { text-align: left; padding: 3.6pt 7pt; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { background: var(--navy); color: #fff; font-family: 'Inter', sans-serif; font-weight: 600; font-size: 7.6pt; text-transform: uppercase; letter-spacing: 0.05em; }
+  tr:nth-child(even) td { background: #faf9f4; }
+  .tag { display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 7.4pt; padding: 1.5pt 5pt; border-radius: 2px; background: #ece9dd; color: var(--navy-mid); margin-right: 3pt; }
+  .tag.green { background: #e1efe7; color: var(--green); }
+  .tag.gold { background: #f3ead0; color: var(--gold); }
+  .flow { font-family: 'JetBrains Mono', monospace; font-size: 8.2pt; background: var(--navy); color: var(--ivory); padding: 10pt 12pt; line-height: 1.7; border-radius: 3px; white-space: pre-wrap; }
+  .flow .hl { color: var(--gold-soft); }
+  .toc-row { display: flex; justify-content: space-between; border-bottom: 1px dotted var(--line); padding: 4.5pt 0; font-size: 10pt; }
+  .toc-row .t { color: var(--navy-mid); }
+  .toc-row .p { font-family: 'JetBrains Mono', monospace; color: var(--gold); }
+  .footer { position: absolute; bottom: 10mm; left: 18mm; right: 18mm; display: flex; justify-content: space-between; font-family: 'JetBrains Mono', monospace; font-size: 7pt; color: #9aa3ad; border-top: 1px solid var(--line); padding-top: 5pt; letter-spacing: 0.05em; }
+  .small { font-size: 8.4pt; color: var(--navy-soft); }
+  .pillar { border: 1px solid var(--line); border-left: 3px solid var(--navy); padding: 8pt 11pt; margin-bottom: 7pt; }
+  .pillar h4 { margin-top: 0; }
+  .done { color: var(--green); font-weight: 600; }
+  .next { color: var(--amber); font-weight: 600; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════ COVER ════════════════ -->
+<section id="pg1" class="page cover">
+  <div>
+    <div class="brandline">OrcaTrade</div>
+  </div>
+  <div>
+    <div class="kicker" style="color:var(--gold-soft)">Shareholder Brief · Technical &amp; Business</div>
+    <h1>OrcaTrade</h1>
+    <div class="sub">The import-operations team, available 24/7.</div>
+    <p style="color:#b9c6d6; max-width: 130mm; margin-top:14pt; font-size:11pt; line-height:1.6;">
+      A complete account of what we have built: the platform, how the AI agents operate,
+      how and where we hold data, the security and compliance posture, and the road to a
+      category-defining trade-compliance business.
+    </p>
+  </div>
+  <div>
+    <span class="confidential">Confidential — for shareholders</span>
+    <div class="meta">
+      Prepared 25 May 2026 &nbsp;·&nbsp; Version 1.0 &nbsp;·&nbsp; orcatrade.pl<br/>
+      Scope: production system as deployed. Every figure in this document is drawn from the live codebase and test suite.
+    </div>
+  </div>
+</section>
+
+<!-- ════════════════ CONTENTS ════════════════ -->
+<section id="pg2" class="page">
+  <div class="kicker">Contents</div>
+  <h2>What's in this brief</h2>
+  <div style="margin-top:14pt;">
+    <div class="toc-row"><span class="t">1 &nbsp;·&nbsp; Executive summary</span><span class="p">03</span></div>
+    <div class="toc-row"><span class="t">2 &nbsp;·&nbsp; What OrcaTrade is — the product &amp; five domains</span><span class="p">04</span></div>
+    <div class="toc-row"><span class="t">3 &nbsp;·&nbsp; The core principle — calculator-grounded AI (the moat)</span><span class="p">05</span></div>
+    <div class="toc-row"><span class="t">4 &nbsp;·&nbsp; Platform architecture</span><span class="p">06</span></div>
+    <div class="toc-row"><span class="t">5 &nbsp;·&nbsp; The data layer — how &amp; where we hold data</span><span class="p">07</span></div>
+    <div class="toc-row"><span class="t">6 &nbsp;·&nbsp; Privacy, PII &amp; GDPR</span><span class="p">08</span></div>
+    <div class="toc-row"><span class="t">7 &nbsp;·&nbsp; The AI agent system — how the agents operate</span><span class="p">09</span></div>
+    <div class="toc-row"><span class="t">8 &nbsp;·&nbsp; Retrieval, models &amp; cost discipline</span><span class="p">11</span></div>
+    <div class="toc-row"><span class="t">9 &nbsp;·&nbsp; Security &amp; enterprise trust</span><span class="p">12</span></div>
+    <div class="toc-row"><span class="t">10 &nbsp;·&nbsp; Reliability &amp; observability</span><span class="p">13</span></div>
+    <div class="toc-row"><span class="t">11 &nbsp;·&nbsp; Quality engineering — tests &amp; the eval moat</span><span class="p">14</span></div>
+    <div class="toc-row"><span class="t">12 &nbsp;·&nbsp; The content / SEO acquisition moat</span><span class="p">15</span></div>
+    <div class="toc-row"><span class="t">13 &nbsp;·&nbsp; Roadmap — the billion-dollar plan</span><span class="p">16</span></div>
+    <div class="toc-row"><span class="t">14 &nbsp;·&nbsp; Team</span><span class="p">17</span></div>
+    <div class="toc-row"><span class="t">15 &nbsp;·&nbsp; Appendix — stack, data tables, glossary</span><span class="p">18</span></div>
+  </div>
+  <div class="callout navy" style="margin-top:24pt;">
+    <strong>One-sentence thesis.</strong> OrcaTrade pairs deterministic, audited trade-compliance calculators with a suite of
+    AI agents that reason over them — so European importers get the judgement of a senior customs/logistics/finance team,
+    grounded in numbers a regulator or auditor can verify, at software margins.
+  </div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>Contents</span></div>
+</section>
+
+<!-- ════════════════ 1. EXECUTIVE SUMMARY ════════════════ -->
+<section id="pg3" class="page">
+  <div class="kicker">01 · Executive summary</div>
+  <h2>The business at a glance</h2>
+  <p class="lead">OrcaTrade is an AI-native trade-compliance and import-operations platform for European SMEs sourcing from Asia.
+  Five domains — search, sourcing, intelligence (compliance), logistics, finance — delivered as one platform that produces
+  recommendations the user can <em>trust</em>, because every number is computed by audited code, never invented by a language model.</p>
+
+  <div class="grid3" style="margin:14pt 0;">
+    <div class="stat"><div class="n">5+1</div><div class="l">AI agents + orchestrator</div></div>
+    <div class="stat"><div class="n">2,949</div><div class="l">Automated tests, all green</div></div>
+    <div class="stat"><div class="n">727</div><div class="l">Indexed web pages</div></div>
+    <div class="stat"><div class="n">10</div><div class="l">Deterministic calculators</div></div>
+    <div class="stat"><div class="n">39,813</div><div class="l">Live sanctions designations</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">Languages (EN / PL / DE)</div></div>
+  </div>
+
+  <h3>What we have built (production today)</h3>
+  <ul>
+    <li><strong>A trustworthy decision engine.</strong> Ten deterministic calculators cover EU/UK customs &amp; duty, anti-dumping/countervailing duties, preferential origin, CBAM, EUDR, REACH, CE marking, FX risk, freight routing, warehousing, working capital and total cost of ownership.</li>
+    <li><strong>Six AI agents</strong> (compliance, logistics, sourcing, finance, a meta-orchestrator, and a personal agent that reasons over the signed-in user's own data) that call the calculators as tools and write the prose on top, with citations.</li>
+    <li><strong>A proactive monitoring agent</strong> that watches every saved plan and flags cost drift, FX exposure, compliance deadlines and sanctions changes — automatically.</li>
+    <li><strong>A durable data spine</strong> on Postgres + Redis, with GDPR-grade privacy, a tamper-evident audit trail, and live denied-party screening against the OFAC, UK OFSI and UN consolidated lists.</li>
+    <li><strong>An acquisition moat</strong> of 727 indexed pages including 658 localised SEO guides across three languages.</li>
+  </ul>
+
+  <h3>Why it matters</h3>
+  <p>Import compliance is high-stakes and getting harder: CBAM, EUDR, anti-dumping stacks and sanctions regimes change constantly,
+  and a single mistake can mean a seized container, a back-dated duty bill, or a sanctions breach. SMEs cannot afford a full
+  in-house trade team. OrcaTrade is that team — as software — and the combination of <em>(a)</em> a growing corpus of regulatory
+  data, <em>(b)</em> AI agents tuned and evaluated against it, and <em>(c)</em> a connected base of importer accounts compounds
+  into a defensible moat over time.</p>
+
+  <div class="callout"><strong>Build posture.</strong> The company is deliberately investing now to lift earlier pre-funding constraints —
+  promoting Postgres to the durable corpus, adopting frontier models for customer-facing reasoning, and building the enterprise-trust
+  surfaces that remove buyer objections. This brief documents the system as it stands and the plan from here.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>1 · Executive summary &nbsp;·&nbsp; 03</span></div>
+</section>
+
+<!-- ════════════════ 2. PRODUCT ════════════════ -->
+<section id="pg4" class="page">
+  <div class="kicker">02 · The product</div>
+  <h2>What OrcaTrade is — five domains, one platform</h2>
+  <p>An importer comes to OrcaTrade with a question — "what will it really cost to bring 1,000 e-bikes from China into Poland,
+  and what am I legally on the hook for?" The platform answers it end-to-end, across five connected domains.</p>
+
+  <h3>The five domains</h3>
+  <table>
+    <tr><th>Domain</th><th>What it answers</th><th>Backed by</th></tr>
+    <tr><td><strong>Search</strong></td><td>Find the right HS commodity code, supplier archetype, and starting assumptions.</td><td>Curated HS lookup, guides corpus</td></tr>
+    <tr><td><strong>Sourcing</strong></td><td>Supplier evaluation, MOQ &amp; FOB economics, sample logistics, factory scoring.</td><td><span class="mono">sourcing-quote</span>, <span class="mono">sample-quote</span></td></tr>
+    <tr><td><strong>Intelligence<br/>(compliance)</strong></td><td>Duty, anti-dumping/CVD, preferential origin, CBAM, EUDR, REACH, CE — what applies and what it costs.</td><td><span class="mono">customs-quote</span> + regime DBs</td></tr>
+    <tr><td><strong>Logistics</strong></td><td>Sea/air mode choice, lane routing, bonded warehousing, customs clearance.</td><td><span class="mono">routing-quote</span>, <span class="mono">warehouse-quote</span></td></tr>
+    <tr><td><strong>Finance</strong></td><td>Payment instruments, FX risk &amp; hedging, working-capital cycle, insurance, returns, total cost of ownership.</td><td><span class="mono">finance-quote</span>, <span class="mono">fx-quote</span>, <span class="mono">tco-quote</span></td></tr>
+  </table>
+
+  <h3>The flagship surface — the Import Plan Builder</h3>
+  <p>The interactive <span class="mono">/start/</span> wizard (also <span class="mono">/pl/start/</span>, <span class="mono">/de/start/</span>) takes a handful of inputs —
+  product, origin, destination, value, weight, payment terms — and runs the full calculator chain to produce a single, shareable
+  <strong>import plan</strong>: landed cost broken down to the cent, duty and AD/CVD stacking, preferential-origin alternatives,
+  compliance obligations, freight options, working-capital impact and an annual total-cost-of-ownership view. Plans can be saved,
+  compared across origins, re-run under alternate scenarios, exported to PDF, and shared by link.</p>
+
+  <h3>The conversational surface — the agents</h3>
+  <p>On top of the structured wizard, the user can simply <em>ask</em>. The orchestrator agent routes the question across all five
+  domains, calls whichever calculators are relevant, and returns a grounded answer with citations and a clear recommendation —
+  escalating to a human before anything irreversible.</p>
+
+  <div class="callout"><strong>Coverage today.</strong> EU &amp; UK customs and duty · anti-dumping / countervailing duties · preferential origin
+  (EBA, GSP/GSP+, EVFTA, EUKFTA, EUJEPA, A.TR) · CBAM · EUDR · REACH · CE marking (LVD/EMC/RED, machinery) · RoHS · WEEE · batteries ·
+  toys · cosmetics · GPSR · PPWR · footwear labelling · FX across 13 currencies · sea/air freight · bonded warehousing · working capital · TCO.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>2 · The product &nbsp;·&nbsp; 04</span></div>
+</section>
+
+<!-- ════════════════ 3. CORE PRINCIPLE ════════════════ -->
+<section id="pg5" class="page">
+  <div class="kicker">03 · The core principle</div>
+  <h2>Calculator-grounded AI — why our numbers can be trusted</h2>
+  <p class="lead">The single most important design decision in the company: <strong>the language model never produces a number
+  that drives a business decision.</strong> Every figure — duty, landed cost, FX risk, revenue, deadline — is computed by
+  deterministic code. The AI writes the explanation on top, and must cite the calculator that produced each number.</p>
+
+  <div class="callout navy">
+    <strong>The contrast that wins deals.</strong> A generic AI chatbot will confidently hallucinate a duty rate. OrcaTrade
+    physically cannot: the duty rate comes from an audited calculator, the AI is only allowed to narrate it, and an automated
+    test parses every number in the AI's output and fails the build if any of them doesn't trace to a calculator result.
+  </div>
+
+  <h3>How it is enforced (not just promised)</h3>
+  <div class="principle"><span class="num">1.</span> <strong>All money/quote maths live in dedicated calculators</strong> (<span class="mono">lib/intelligence/*-quote.js</span>). They contain no AI code.</div>
+  <div class="principle"><span class="num">2.</span> <strong>The AI SDK may only be imported in the agent/handler layer</strong> — never in a calculator. Calculators stay provably LLM-free.</div>
+  <div class="principle"><span class="num">3.</span> <strong>Integer-cents money.</strong> No floating-point arithmetic on money anywhere in the calculators; a shared money module uses banker's rounding and converts only at the boundaries.</div>
+  <div class="principle"><span class="num">4.</span> <strong>Citations are required.</strong> The agents cite a <span class="mono">[chunk-id]</span> for every regulatory claim and the tool for every number, with explicit confidence tiers.</div>
+  <div class="principle"><span class="num">5.</span> <strong>Grounding is tested.</strong> The eval scorer extracts every monetary/percentage token from an agent's answer and asserts each matches a calculator output within tolerance — an ungrounded number fails the case.</div>
+
+  <h3>What the AI <em>is</em> for</h3>
+  <p>Judgement and language: understanding a messy real-world question, choosing which calculators to run and in what order,
+  weighing trade-offs ("hedge or accept this FX exposure?"), explaining a result in plain UK English across three languages,
+  and knowing when to stop and escalate to a human. That is genuinely valuable — and it is safe precisely because the numbers
+  underneath it are not the model's to invent.</p>
+
+  <div class="callout"><strong>Why this is the moat, not a constraint.</strong> It lets us deploy frontier models aggressively on the
+  <em>reasoning</em> while keeping the <em>arithmetic</em> auditable. Regulators, insurers and enterprise buyers can be shown exactly
+  where every number came from — which is the entire basis of trust in this market.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>3 · Core principle &nbsp;·&nbsp; 05</span></div>
+</section>
+
+<!-- ════════════════ 4. ARCHITECTURE ════════════════ -->
+<section id="pg6" class="page">
+  <div class="kicker">04 · Platform architecture</div>
+  <h2>How the platform is built</h2>
+  <p>OrcaTrade runs on <strong>Vercel</strong> with auto-deploy on every push to <span class="mono">main</span>. The back end is a lean,
+  dependency-light Node.js codebase; the front end is a fast static site plus the interactive wizard, with a full application shell
+  on the near-term roadmap.</p>
+
+  <h3>The request path</h3>
+  <div class="flow">browser / API client
+   │
+   ▼
+<span class="hl">api/[...path].js</span>  — single Vercel function, ~50 logical endpoints
+   │   routes /api/customs → customs handler, /api/orchestrator → meta-agent, …
+   ▼
+<span class="hl">lib/handlers/*</span>   — request handling, auth, the AI agents
+   │
+   ├─▶ <span class="hl">lib/intelligence/*-quote.js</span>  — deterministic calculators (no AI)
+   ├─▶ <span class="hl">lib/ai/*</span>                      — the only place the AI SDK is imported
+   ├─▶ <span class="hl">KV (Upstash Redis)</span>            — sessions, cache, rate limits, hot state
+   └─▶ <span class="hl">Neon Postgres</span>                 — durable corpus (dual-write)</div>
+
+  <h3>Key architectural choices</h3>
+  <div class="grid2">
+    <div>
+      <h4>Consolidated router</h4>
+      <p class="small">All ~50 endpoints dispatch through one serverless function. URL semantics are preserved
+      (<span class="mono">/api/customs</span> still means customs). This kept the system within platform function limits while staying simple to reason about.</p>
+      <h4>Versioned API contracts</h4>
+      <p class="small">Public responses are served under a frozen <span class="mono">/api/v1/</span> contract; breaking changes go to a new version, so integrations never break silently.</p>
+    </div>
+    <div>
+      <h4>Lean dependency surface</h4>
+      <p class="small">Only two runtime dependencies — the Anthropic AI SDK and the Neon Postgres driver. A small attack surface, fast cold starts, and no build-pipeline fragility.</p>
+      <h4>Resilient by default</h4>
+      <p class="small">Every external HTTP call is wrapped with a timeout, a fallback and retries via a circuit breaker, and logged through a structured logger. An upstream outage degrades gracefully rather than failing the user.</p>
+    </div>
+  </div>
+
+  <h3>Scheduled work</h3>
+  <p>Background jobs run on a token-gated cron dispatcher driven by GitHub Actions — twelve jobs today, including the nightly
+  tariff-cache warm, the weekly sanctions-list refresh, the regulatory-drift watcher, the compliance-deadline reminders, and the
+  new proactive monitoring scan. Every run records its outcome to a dashboard so "did Monday's job actually fire?" is always answerable.</p>
+
+  <div class="callout"><strong>Graceful degradation is a theme.</strong> No database configured? The system serves sample data and never crashes.
+  No embeddings key? Retrieval falls back to keyword search. A sanctions refresh missed? Screening falls back to a bundled list and
+  says so. The platform is built to keep working when a piece is missing.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>4 · Architecture &nbsp;·&nbsp; 06</span></div>
+</section>
+
+<!-- ════════════════ 5. DATA LAYER ════════════════ -->
+<section id="pg7" class="page">
+  <div class="kicker">05 · The data layer</div>
+  <h2>How &amp; where we hold data</h2>
+  <p class="lead">OrcaTrade runs a two-tier data spine: a fast key-value store for hot, ephemeral state, and a durable Postgres
+  corpus for everything that must survive and be queried across users. Critical records are written to <em>both</em> (dual-write),
+  with the key-value store as the synchronous primary and Postgres as the durable backstop.</p>
+
+  <h3>Tier 1 — KV (Upstash Redis): fast &amp; ephemeral</h3>
+  <p>Holds session cookies, magic-link tokens, rate-limit counters, the warmed tariff cache, circuit-breaker state, and the hot copy
+  of user records (saved plans, portfolios, alerts, agent memory). Reads and writes are sub-millisecond; entries carry sensible TTLs.</p>
+
+  <h3>Tier 2 — Neon Postgres: durable corpus</h3>
+  <p>The system of record that outlives KV's TTLs and supports cross-user analytics. Schema is migration-tracked
+  (auto-discovered, versioned, idempotent). Current tables:</p>
+  <table>
+    <tr><th>Table</th><th>Holds</th><th>Privacy</th></tr>
+    <tr><td><span class="mono">users / organisations / memberships</span></td><td>Accounts, orgs, seats</td><td>email_hash only</td></tr>
+    <tr><td><span class="mono">saved_plans / saved_portfolios</span></td><td>Import plans &amp; multi-SKU catalogues</td><td>email_hash only</td></tr>
+    <tr><td><span class="mono">actuals</span></td><td>Real outcomes vs forecasts (calibration)</td><td>email_hash only</td></tr>
+    <tr><td><span class="mono">monitoring_alerts</span></td><td>Proactive monitoring alerts</td><td>email_hash only</td></tr>
+    <tr><td><span class="mono">agent_memory</span></td><td>Per-user facts the agent remembers</td><td>email_hash only</td></tr>
+    <tr><td><span class="mono">corpus_chunks</span></td><td>Regulatory text + vector embeddings (RAG)</td><td>no PII</td></tr>
+    <tr><td><span class="mono">sanctions_entries / sanctions_refresh</span></td><td>OFAC/OFSI/UN designations + freshness</td><td>public data</td></tr>
+    <tr><td><span class="mono">audit_log / events</span></td><td>State-change &amp; analytics trail</td><td>pseudonymised</td></tr>
+    <tr><td><span class="mono">subscriptions / prompt_runs</span></td><td>Billing state · AI cost telemetry</td><td>email_hash only</td></tr>
+  </table>
+
+  <h3>The dual-write pattern</h3>
+  <div class="flow">save a plan
+   │
+   ├─▶ <span class="hl">KV</span>      write the full record  (synchronous — the UI reads this)
+   └─▶ <span class="hl">Postgres</span> mirror it, best-effort  (durable corpus; a DB blip never breaks the save)</div>
+  <p class="small">The KV write is authoritative and returned immediately; the Postgres mirror is fire-and-forget and can never break a
+  flow that already succeeded. This is how we get both speed and durability without a heavy ORM or transaction coupling.</p>
+
+  <div class="callout"><strong>Direction of travel.</strong> The roadmap promotes Postgres to the primary store as volumes grow, with the
+  durable corpus already in place via dual-write today — so the migration is an evolution, not a rebuild.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>5 · Data layer &nbsp;·&nbsp; 07</span></div>
+</section>
+
+<!-- ════════════════ 6. PRIVACY ════════════════ -->
+<section id="pg8" class="page">
+  <div class="kicker">06 · Privacy, PII &amp; GDPR</div>
+  <h2>How we protect personal data</h2>
+  <p class="lead">Privacy is built into the data model, not bolted on. The guiding rule: <strong>no raw personal data in Postgres
+  or in the event log.</strong> A user's email address is stored only as a one-way hash; the raw address lives only where it is
+  operationally required (the session cookie and the magic-link/email service).</p>
+
+  <h3>How identity is handled</h3>
+  <ul>
+    <li><strong>email_hash everywhere durable.</strong> Postgres and the event log key users by a SHA-256-derived hash, never the raw address. Analytics work; re-identification does not.</li>
+    <li><strong>Passwordless auth.</strong> Sign-in is by magic link — no passwords stored, nothing to breach. Sessions are signed cookies with a "sign out everywhere" revocation list.</li>
+    <li><strong>Secrets are never logged</strong>, never put in error messages, and never sent to the AI layer. Environment variables are validated at startup.</li>
+  </ul>
+
+  <h3>Data-subject rights (GDPR Articles 15, 17, 20)</h3>
+  <table>
+    <tr><th>Right</th><th>How OrcaTrade honours it</th></tr>
+    <tr><td><strong>Access / portability</strong></td><td><span class="mono">GET /api/account/export</span> returns a complete JSON copy of everything held — saved plans, events, monitoring alerts and agent memory.</td></tr>
+    <tr><td><strong>Erasure</strong></td><td><span class="mono">POST /api/account/delete</span> hard-deletes plans, alerts and agent memory, pseudonymises event-log entries, and signs the user out — across both data tiers.</td></tr>
+    <tr><td><strong>Transparency</strong></td><td>A public Trust Centre documents data handling, sub-processors, retention and reliability; a cookie-consent banner gates analytics.</td></tr>
+  </table>
+
+  <h3>The compliance posture</h3>
+  <p>The platform is built UK/EU-first for ICO and GDPR compliance. The Trust Centre is honest about current state — for example,
+  it states plainly that SOC 2 certification is on the roadmap rather than claiming it prematurely (and that honesty is itself
+  enforced by a test). A formal SOC 2 Type II / ISO 27001 path is a funded roadmap item.</p>
+
+  <div class="callout navy"><strong>Why shareholders should care.</strong> Enterprise and channel buyers run a data-protection review before
+  they sign. Having minimised PII, real export/erasure endpoints, an audit trail and a Trust Centre <em>already in place</em> shortens
+  that review from a blocker to a checkbox.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>6 · Privacy &amp; GDPR &nbsp;·&nbsp; 08</span></div>
+</section>
+
+<!-- ════════════════ 7. AGENTS ════════════════ -->
+<section id="pg9" class="page">
+  <div class="kicker">07 · The AI agent system</div>
+  <h2>How the agents operate</h2>
+  <p class="lead">OrcaTrade fields five domain agents plus a meta-orchestrator and a personal agent. Each is a tool-use loop:
+  the model reasons, calls a calculator as a tool, reads the deterministic result, and continues until it can answer — then writes
+  grounded prose with citations.</p>
+
+  <h3>The roster</h3>
+  <table>
+    <tr><th>Agent</th><th>Owns</th><th>Representative tools</th></tr>
+    <tr><td><strong>Compliance</strong></td><td>Duty, AD/CVD, CBAM, EUDR, REACH, CE, sanctions screening</td><td><span class="mono">computeLandedCost</span>, <span class="mono">checkCbamApplicability</span>, <span class="mono">screenCounterparty</span></td></tr>
+    <tr><td><strong>Logistics</strong></td><td>Mode choice, routing, bonded warehousing, clearance</td><td><span class="mono">routing</span>, <span class="mono">warehouse</span></td></tr>
+    <tr><td><strong>Sourcing</strong></td><td>Supplier economics, MOQ/FOB, samples, factory scoring</td><td><span class="mono">sourcing</span>, <span class="mono">sample</span></td></tr>
+    <tr><td><strong>Finance</strong></td><td>Payment terms, FX/hedging, working capital, TCO, insurance</td><td><span class="mono">fx</span>, <span class="mono">tco</span>, <span class="mono">finance</span></td></tr>
+    <tr><td><strong>Orchestrator</strong></td><td>Routes any question across all five domains (merges 14+ tools)</td><td>all of the above</td></tr>
+    <tr><td><strong>Personal</strong></td><td>Reasons over the signed-in user's <em>own</em> saved plans, portfolios, deadlines &amp; memory</td><td><span class="mono">listMySavedPlans</span>, <span class="mono">getMySavedPlanDrift</span>, <span class="mono">recallMemory</span></td></tr>
+  </table>
+
+  <h3>The tool-use loop</h3>
+  <div class="flow">user question
+   │
+   ▼  the agent decides which calculators it needs
+ call tool ──▶ <span class="hl">deterministic calculator</span> ──▶ exact result (integer-cents)
+   │                                                  │
+   └────────── loops, gathering grounded numbers ◀────┘
+   │
+   ▼
+ final answer  — prose + <span class="hl">[chunk-id]</span> citations + tool-cited numbers + confidence tier
+                 (escalates to a human before anything irreversible)</div>
+
+  <h3>Discipline built into every agent</h3>
+  <ul>
+    <li><strong>Cite the source.</strong> Every regulatory claim cites a retrieved chunk; every number cites the tool that produced it.</li>
+    <li><strong>Know the limits.</strong> Out-of-scope questions (e.g. medical-device regulation) trigger an honest "not in scope" + human escalation, never a confident guess.</li>
+    <li><strong>Escalate before harm.</strong> High-value or committed actions call a human-review tool rather than proceeding autonomously.</li>
+    <li><strong>Privacy by construction.</strong> The personal agent's tools are locked to the authenticated user — the model cannot request another user's data.</li>
+  </ul>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>7 · The agent system &nbsp;·&nbsp; 09</span></div>
+</section>
+
+<!-- ════════════════ 7b. NEW AGENTS ════════════════ -->
+<section id="pg10" class="page">
+  <div class="kicker">07 · The AI agent system (continued)</div>
+  <h2>The proactive monitoring agent &amp; agent memory</h2>
+  <p class="lead">The agents are not only reactive. The newest capability is a <strong>proactive monitoring agent</strong> — the system
+  watches every customer's saved plans on a schedule and tells them what changed, before they have to ask.</p>
+
+  <h3>The monitoring agent</h3>
+  <p>A calculator-grounded rules engine re-evaluates each saved plan and portfolio against current data and raises a structured
+  <strong>alert</strong> when something material moves:</p>
+  <table>
+    <tr><th>Signal</th><th>What it catches</th></tr>
+    <tr><td><strong>Cost drift</strong></td><td>A plan's landed cost has moved ≥5% since it was saved — a tariff change, a new anti-dumping measure, or a freight move. The alert names the driver.</td></tr>
+    <tr><td><strong>FX exposure</strong></td><td>An unhedged non-EUR plan where the FX calculator now recommends hedging, with the one-sigma risk figure.</td></tr>
+    <tr><td><strong>Compliance deadline</strong></td><td>A CBAM/EUDR statutory deadline on the user's goods is approaching.</td></tr>
+    <tr><td><strong>Sanctions update</strong></td><td>The consolidated sanctions lists changed — prompting a re-screen of counterparties.</td></tr>
+  </table>
+  <p>Alerts land in an in-app inbox (with read/dismiss controls) and, where the user opts in, a weekly email digest. Re-scans
+  update existing alerts rather than spamming. Every figure is recomputed by the calculators — the agent never guesses a number.</p>
+
+  <h3>Agent memory &amp; continuity</h3>
+  <p>The personal agent can now <strong>remember</strong> durable facts a customer states — "our target margin is 35%", "we always
+  clear through Rotterdam", "our main supplier is in Shenzhen" — and recall them in future conversations. Memory is per-user,
+  capped, stored email-hash-only in the durable corpus, and fully covered by the export and erasure endpoints. This turns a series
+  of one-off chats into a relationship that compounds.</p>
+
+  <div class="callout navy"><strong>Strategic significance.</strong> Reactive Q&amp;A is a feature any competitor can copy. A monitoring agent
+  that has watched a customer's plans for a year — and an assistant that remembers how they operate — is a switching cost. This is the
+  beginning of the "import-operations team available 24/7" becoming literally true.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>7 · The agent system &nbsp;·&nbsp; 10</span></div>
+</section>
+
+<!-- ════════════════ 8. MODELS & RETRIEVAL ════════════════ -->
+<section id="pg11" class="page">
+  <div class="kicker">08 · Retrieval, models &amp; cost</div>
+  <h2>What powers the reasoning</h2>
+
+  <h3>Models</h3>
+  <p>Customer-facing agent reasoning runs on a <strong>frontier Claude model</strong> (Opus-class), chosen because the quality of
+  judgement directly affects whether a customer trusts the answer. Cheaper, faster model tiers are reserved for work that never
+  reaches a customer decision. <strong>Prompt caching</strong> keeps the stable parts of each request (the tool definitions and the
+  system prompt) cached, cutting cost and latency on every call. Every AI call's token usage and cost is recorded to telemetry.</p>
+
+  <h3>Retrieval — how the agents know the regulations</h3>
+  <p>The regulatory corpus is indexed for <strong>hybrid retrieval</strong>: a keyword search and a semantic vector search are run
+  in parallel and their results fused, so the agent finds the right passage whether the user's wording matches the regulation's
+  wording or not. Each retrieved passage carries a <span class="mono">[chunk-id]</span> the agent cites. If the embeddings service is
+  unavailable, retrieval falls back to pure keyword search — it degrades, it never fails.</p>
+
+  <div class="grid2">
+    <div class="stat"><div class="n">Hybrid</div><div class="l">Keyword + vector retrieval, fused</div></div>
+    <div class="stat"><div class="n">Cited</div><div class="l">Every claim traces to a chunk id</div></div>
+  </div>
+
+  <h3>The evaluation moat</h3>
+  <p>Agent quality is not left to chance. A library of eval cases pins the behaviour we require — the right tools called, the right
+  citations, the right escalation, and crucially that <em>every number in the answer is grounded in a calculator output</em>. An
+  offline scorer runs free on every code push (a coverage gate that fails the build if the eval suite thins out), and a nightly job
+  runs the full suite against the live model. As models improve, these cases let us upgrade with confidence rather than hope.</p>
+
+  <div class="callout"><strong>The compounding asset.</strong> The corpus, the calculators, the eval cases and the customer data are
+  mutually reinforcing: more regulatory coverage improves answers, more eval cases lock in quality, and more customer plans sharpen
+  the calibration of our forecasts against real outcomes.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>8 · Models &amp; retrieval &nbsp;·&nbsp; 11</span></div>
+</section>
+
+<!-- ════════════════ 9. SECURITY ════════════════ -->
+<section id="pg12" class="page">
+  <div class="kicker">09 · Security &amp; enterprise trust</div>
+  <h2>Trust as a built feature</h2>
+
+  <h3>Tamper-evident audit trail</h3>
+  <p>Every state change is logged with actor, timestamp and before/after state. Beyond a plain log, the audit trail can be exported
+  as a <strong>hash-chained</strong> sequence — each entry cryptographically links to the previous one, so any after-the-fact tampering
+  is detectable. This is the evidence base for due diligence, partner revenue reviews, and regulatory audit.</p>
+
+  <h3>Live denied-party screening</h3>
+  <p>OrcaTrade screens supplier, buyer and vessel names against the real consolidated sanctions lists — refreshed weekly into Postgres:</p>
+  <div class="grid3">
+    <div class="stat"><div class="n">19,050</div><div class="l">US OFAC SDN</div></div>
+    <div class="stat"><div class="n">19,761</div><div class="l">UK OFSI</div></div>
+    <div class="stat"><div class="n">1,002</div><div class="l">UN Security Council</div></div>
+  </div>
+  <p class="small" style="margin-top:6pt;">The matching engine is deterministic (name normalisation, token-sort, fuzzy + alias matching) and <strong>safe by design</strong>:
+  it can flag a potential match, but it can never declare a party "clear" — a non-match always carries the advisory that the user must
+  still confirm against the official source. That conservatism is enforced by tests.</p>
+
+  <h3>Reproducibility &amp; provenance</h3>
+  <p>Every generated plan is stamped with the calculator version, the data as-of date and the generation timestamp — so a result can
+  be reproduced and explained months later. This is what lets us stand behind a number to an auditor.</p>
+
+  <h3>Other controls</h3>
+  <ul>
+    <li><strong>Role-based access</strong> with organisations, seats and membership management.</li>
+    <li><strong>Rate limiting</strong> on public endpoints; <strong>token-gated</strong> admin and cron surfaces.</li>
+    <li><strong>Secrets hygiene</strong> — startup validation, never logged, never sent to the AI layer.</li>
+  </ul>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>9 · Security &amp; trust &nbsp;·&nbsp; 12</span></div>
+</section>
+
+<!-- ════════════════ 10. RELIABILITY ════════════════ -->
+<section id="pg13" class="page">
+  <div class="kicker">10 · Reliability &amp; observability</div>
+  <h2>Keeping the lights on</h2>
+
+  <h3>Health &amp; status</h3>
+  <p>A structured health endpoint reports the live status of every subsystem — the database, the cache, the tariff cache, email,
+  billing, the AI provider, error tracking, sanctions data and retrieval. A public status page surfaces this, and an uptime check
+  runs on a schedule. The same endpoint underpins paging: a cache outage is a paging condition; a degraded non-critical subsystem is not.</p>
+
+  <h3>Circuit breakers &amp; structured logging</h3>
+  <p>Every outbound call to a third party — tariff data, email, the AI provider — is wrapped in a circuit breaker with a timeout,
+  retries and a fallback, and traced through a structured logger with request IDs. When an upstream has a bad day, OrcaTrade serves
+  a degraded-but-working experience instead of an error page, and the operator can see exactly what happened.</p>
+
+  <h3>Error tracking</h3>
+  <p>Production errors flow to a hosted error-tracking service (live today), so regressions surface immediately with full context.</p>
+
+  <h3>Scheduled jobs (12)</h3>
+  <table>
+    <tr><th>Job</th><th>Cadence</th><th>Purpose</th></tr>
+    <tr><td><span class="mono">monitoring-scan</span></td><td>Weekly</td><td>Proactive alerts on saved plans</td></tr>
+    <tr><td><span class="mono">sanctions-refresh</span></td><td>Weekly</td><td>Re-fetch OFAC/OFSI/UN lists</td></tr>
+    <tr><td><span class="mono">compliance-deadline-reminders</span></td><td>Weekly</td><td>CBAM/EUDR deadline emails</td></tr>
+    <tr><td><span class="mono">regime-change-check</span></td><td>Weekly</td><td>Watch EU regulation sources for drift</td></tr>
+    <tr><td><span class="mono">taric-warm</span></td><td>Daily</td><td>Warm the tariff cache for instant answers</td></tr>
+    <tr><td><span class="mono">calibration-drift-check</span></td><td>Daily</td><td>Forecast-vs-actuals drift alerting</td></tr>
+    <tr><td><span class="mono">weekly-user-digest · plan/portfolio-revision · founder-digest · rag-reindex · db-migrate</span></td><td>Various</td><td>Engagement, re-indexing, migrations</td></tr>
+  </table>
+  <div class="callout"><strong>Operability is a feature.</strong> Because every scheduled job records its last run and outcome, and every
+  subsystem reports health, the team can answer "is everything working?" in seconds — which is what lets a small team run a system
+  enterprise buyers will depend on.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>10 · Reliability &nbsp;·&nbsp; 13</span></div>
+</section>
+
+<!-- ════════════════ 11. QUALITY ════════════════ -->
+<section id="pg14" class="page">
+  <div class="kicker">11 · Quality engineering</div>
+  <h2>Why the system can be trusted to be correct</h2>
+  <p class="lead">Correctness in trade compliance is not optional — a wrong duty rate is a real financial liability. OrcaTrade treats
+  its test suite as the product contract.</p>
+
+  <div class="grid3" style="margin:12pt 0;">
+    <div class="stat"><div class="n">2,949</div><div class="l">Automated tests, all green</div></div>
+    <div class="stat"><div class="n">2</div><div class="l">Node LTS versions in CI</div></div>
+    <div class="stat"><div class="n">27</div><div class="l">AI eval cases (offline)</div></div>
+  </div>
+
+  <h3>What the tests cover</h3>
+  <ul>
+    <li><strong>Every calculator</strong> — duty stacking, preferential origin, CBAM/EUDR applicability, FX maths, working capital, TCO — has unit tests pinning the exact numbers.</li>
+    <li><strong>Regression snapshots</strong> guard that a refactor never silently changes a customer-facing figure.</li>
+    <li><strong>The grounding guarantee</strong> is itself tested — the scorer fails any AI answer containing a number that doesn't trace to a calculator.</li>
+    <li><strong>Architectural rules</strong> are enforced in code (e.g. the AI SDK cannot leak into a calculator).</li>
+    <li><strong>Privacy invariants</strong> — that no raw email reaches Postgres, that erasure truly erases — are tested.</li>
+  </ul>
+
+  <h3>Continuous integration</h3>
+  <p>Every push to <span class="mono">main</span> runs the full suite on two Node versions before it can deploy. The offline AI-eval
+  coverage gate runs in the same pass; a nightly workflow runs the eval suite against the live model. Deployment is automatic once
+  the suite is green.</p>
+
+  <div class="callout navy"><strong>The discipline compounds.</strong> A green 2,949-test suite is not just hygiene — it is what allows a
+  lean team to ship substantial features weekly without breaking the numbers customers rely on. It is also the first thing a technical
+  acquirer or lead investor will inspect, and it holds up.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>11 · Quality engineering &nbsp;·&nbsp; 14</span></div>
+</section>
+
+<!-- ════════════════ 12. SEO MOAT ════════════════ -->
+<section id="pg15" class="page">
+  <div class="kicker">12 · The acquisition moat</div>
+  <h2>The content / SEO engine</h2>
+  <p class="lead">Alongside the product, OrcaTrade has built a substantial organic-acquisition asset: <strong>658 localised
+  regulatory guides</strong> across English, Polish and German, within 727 indexed pages total — each one a genuine, calculator-backed
+  answer to a real importer's question.</p>
+
+  <h3>What it is</h3>
+  <ul>
+    <li>One guide per anti-dumping/countervailing measure, per preferential-origin regime, and per compliance regime (CBAM, EUDR, REACH, CE, RoHS, WEEE, batteries, toys, cosmetics, GPSR, PPWR, footwear) — each in three languages.</li>
+    <li>A worked-example gallery of real import scenarios (e.g. Chinese e-bikes with 87% combined AD+CVD, Bangladesh apparel under EBA, Turkish steel under A.TR) that each run the real calculators and deep-link into the wizard with inputs pre-filled.</li>
+    <li>Full hreflang/sitemap localisation so each language ranks in its own market, with contextual cross-linking between guides.</li>
+  </ul>
+
+  <h3>Why it is a moat</h3>
+  <p>These pages are not thin SEO filler — each is grounded in the same calculators that power the product, so they are accurate,
+  hard to replicate, and convert: a reader who lands on "anti-dumping duty on Chinese e-bikes" is one click from building their own
+  plan. The corpus took sustained effort to build and compounds in search ranking over time. It is a low-cost, durable top-of-funnel
+  that a generic competitor cannot quickly copy.</p>
+
+  <div class="grid3">
+    <div class="stat"><div class="n">658</div><div class="l">Localised SEO guides</div></div>
+    <div class="stat"><div class="n">727</div><div class="l">Indexed pages total</div></div>
+    <div class="stat"><div class="n">3</div><div class="l">Market languages</div></div>
+  </div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>12 · Acquisition moat &nbsp;·&nbsp; 15</span></div>
+</section>
+
+<!-- ════════════════ 13. ROADMAP ════════════════ -->
+<section id="pg16" class="page">
+  <div class="kicker">13 · Roadmap</div>
+  <h2>The path from here — the four pillars</h2>
+  <p>The company's strategy is organised as a re-platforming foundation plus four pillars. Items marked <span class="done">done</span>
+  are in production today; <span class="next">next</span> items are the funded plan.</p>
+
+  <div class="pillar">
+    <h4>Foundation — the re-platform</h4>
+    <p class="small"><span class="done">Done:</span> hybrid pgvector retrieval, Postgres durable corpus via dual-write, frontier-model adoption, prompt caching, observability.
+    <span class="next">Next:</span> promote Postgres to primary, durable queues for async work, a full Next.js application shell.</p>
+  </div>
+  <div class="pillar">
+    <h4>Pillar I — Agent depth &amp; autonomy</h4>
+    <p class="small"><span class="done">Done:</span> frontier-model agents, the proactive monitoring agent (flagship), agent memory, the eval moat.
+    <span class="next">Next:</span> document intelligence (ingest &amp; audit a customer's own paperwork), agents that produce the artifact (draft the filing) with human approval, multi-agent delegation.</p>
+  </div>
+  <div class="pillar">
+    <h4>Pillar II — Platform breadth</h4>
+    <p class="small"><span class="done">Done:</span> sanctions screening (OFAC/OFSI/UN), the compliance calendar, document pre-fill.
+    <span class="next">Next:</span> deeper HS10 + rules-of-origin, supplier intelligence &amp; verification, real-time freight &amp; schedules, a trade-finance/insurance marketplace.</p>
+  </div>
+  <div class="pillar">
+    <h4>Pillar III — Enterprise trust &amp; scale</h4>
+    <p class="small"><span class="done">Done:</span> tamper-evident audit export, reproducibility/provenance, the public Trust Centre, role-based access.
+    <span class="next">Next:</span> SCIM provisioning, write-time immutable audit, SOC 2 Type II / ISO 27001, formal SLAs, data-residency options.</p>
+  </div>
+  <div class="pillar">
+    <h4>Pillar IV — Product surface &amp; go-to-market</h4>
+    <p class="small"><span class="done">Done:</span> the authenticated account surfaces (plans, portfolios, calendar, alerts, screening), the SEO engine.
+    <span class="next">Next:</span> the full app shell, onboarding/activation, pricing &amp; packaging for the new value, operational dashboards.</p>
+  </div>
+
+  <div class="callout navy"><strong>Where the money goes.</strong> Investment is directed at the things that either deepen the moat (agent
+  autonomy, regulatory breadth, the data corpus) or remove a buyer objection (SOC 2, SLAs, the app shell). The foundation to support
+  all of it is already in production.</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>13 · Roadmap &nbsp;·&nbsp; 16</span></div>
+</section>
+
+<!-- ════════════════ 14. TEAM ════════════════ -->
+<section id="pg17" class="page">
+  <div class="kicker">14 · Team</div>
+  <h2>Who is building this</h2>
+  <p>A focused founding team spanning the platform engineering, operations, supply chain, and commercial sides of the business —
+  with the technical depth to build a system this rigorous and the operational and market knowledge to sell it.</p>
+
+  <table>
+    <tr><th>Role</th><th>Remit</th></tr>
+    <tr><td><strong>Founder / Platform</strong></td><td>Architect of the platform — the calculator engines, the AI agent suite, the compliance overlay, and the test/CI discipline that underpins it all.</td></tr>
+    <tr><td><strong>Arman Sirin · Chief Operating Officer</strong></td><td>Runs operations — turning the platform's recommendations into executed imports; supply-chain delivery, carrier and partner relationships, and the operational backbone that scales client onboarding without scaling headcount.</td></tr>
+    <tr><td><strong>Chief Supply Chain Officer</strong></td><td>Supply-chain execution and the Asia-side sourcing and freight relationships.</td></tr>
+    <tr><td><strong>Commercial / Client</strong></td><td>European importer relationships, onboarding and partnerships.</td></tr>
+  </table>
+
+  <div class="callout" style="margin-top:14pt;"><strong>Operating principle.</strong> The team ships continuously — substantial,
+  tested, deployed features on a weekly cadence — while holding a hard line on the correctness and trust guarantees that make the
+  product defensible. This brief is itself a snapshot of a system under active, disciplined development.</div>
+
+  <h3>How to verify everything in this brief</h3>
+  <p class="small">Every claim here is drawn from the live codebase and the passing test suite as of 25 May 2026 — the architecture,
+  the data model, the agent behaviour, the privacy controls, the sanctions counts, and the test totals are all directly inspectable.
+  Independent technical due diligence is welcomed.</p>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>14 · Team &nbsp;·&nbsp; 17</span></div>
+</section>
+
+<!-- ════════════════ 15. APPENDIX ════════════════ -->
+<section id="pg18" class="page">
+  <div class="kicker">15 · Appendix</div>
+  <h2>Reference</h2>
+
+  <h3>Technology stack</h3>
+  <table>
+    <tr><th>Layer</th><th>Choice</th></tr>
+    <tr><td>Hosting / deploy</td><td>Vercel — auto-deploy on push to <span class="mono">main</span>, environment separation</td></tr>
+    <tr><td>Runtime</td><td>Node.js, lean CommonJS codebase; single consolidated serverless router</td></tr>
+    <tr><td>AI</td><td>Anthropic Claude (frontier model for customer-facing reasoning) + prompt caching</td></tr>
+    <tr><td>Retrieval</td><td>Hybrid keyword + vector (pgvector) with reciprocal-rank fusion</td></tr>
+    <tr><td>Durable data</td><td>Neon Postgres (migration-tracked, idempotent schema)</td></tr>
+    <tr><td>Hot data / cache</td><td>Upstash Redis (KV)</td></tr>
+    <tr><td>Email</td><td>Transactional email service (magic links, digests)</td></tr>
+    <tr><td>Billing</td><td>Stripe (subscriptions)</td></tr>
+    <tr><td>Observability</td><td>Hosted error tracking + structured logs + health endpoint + status page</td></tr>
+    <tr><td>Scheduling</td><td>GitHub Actions cron → token-gated dispatcher (12 jobs)</td></tr>
+    <tr><td>Validation</td><td>Schema validation at every external boundary; env validated at startup</td></tr>
+  </table>
+
+  <h3>The ten calculators</h3>
+  <p class="small"><span class="tag">customs-quote</span><span class="tag">routing-quote</span><span class="tag">warehouse-quote</span><span class="tag">sourcing-quote</span><span class="tag">sample-quote</span><span class="tag">finance-quote</span><span class="tag">fx-quote</span><span class="tag">tco-quote</span><span class="tag">insurance-quote</span><span class="tag">returns-quote</span></p>
+
+  <h3>Glossary</h3>
+  <table>
+    <tr><th>Term</th><th>Meaning</th></tr>
+    <tr><td>HS code</td><td>Harmonised System commodity code — determines duty and which regimes apply</td></tr>
+    <tr><td>AD / CVD</td><td>Anti-dumping / countervailing duty — punitive duties that stack on top of base duty</td></tr>
+    <tr><td>CBAM</td><td>EU Carbon Border Adjustment Mechanism — carbon levy + reporting on imports</td></tr>
+    <tr><td>EUDR</td><td>EU Deforestation Regulation — due-diligence on covered commodities</td></tr>
+    <tr><td>Preferential origin</td><td>Trade-agreement rules that reduce or zero duty (EBA, GSP, EVFTA, A.TR, …)</td></tr>
+    <tr><td>TARIC</td><td>The EU's integrated tariff database</td></tr>
+    <tr><td>Landed cost</td><td>The all-in cost to get goods to the door: goods + freight + duty + VAT + fees</td></tr>
+    <tr><td>Working capital / CCC</td><td>Cash tied up in the trade cycle (inventory + receivables − payables)</td></tr>
+    <tr><td>RAG</td><td>Retrieval-augmented generation — grounding the AI in retrieved regulatory text</td></tr>
+    <tr><td>Dual-write</td><td>Writing a record to both the cache and the durable database</td></tr>
+  </table>
+
+  <div class="callout navy" style="margin-top:14pt;"><strong>OrcaTrade.</strong> The import-operations team, available 24/7 —
+  built on numbers you can audit. &nbsp;·&nbsp; orcatrade.pl</div>
+  <div class="footer"><span>OrcaTrade · Confidential</span><span>15 · Appendix &nbsp;·&nbsp; 18</span></div>
+</section>
+
+</body>
+</html>
