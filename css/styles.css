@@ -3699,3 +3699,417 @@ p, li, dd {
   .fade-up { opacity: 1; transform: none; }
   .text-reveal > span { opacity: 1; transform: none; }
 }
+
+/* =========================================================================
+   STRUCTURAL RESTYLE — round 2
+   Targets the existing class names used across the static pages so that
+   sections, tool cards, hero blocks and titles all pick up the editorial
+   feel without us editing each page. Pairs with the REDESIGN OVERLAY
+   above; this block goes deeper into the actual layout components.
+   ========================================================================= */
+
+/* Section rhythm — generous, editorial spacing */
+.section {
+  padding-top: clamp(4rem, 8vw, 8rem) !important;
+  padding-bottom: clamp(4rem, 8vw, 8rem) !important;
+}
+
+.section::before {
+  display: none !important; /* kill the soft glow band on every section */
+}
+
+.section--hero,
+.section--hero-center {
+  padding-top: clamp(6rem, 12vw, 11rem) !important;
+  padding-bottom: clamp(4rem, 7vw, 7rem) !important;
+}
+
+/* Display titles — Fraunces, editorial weight, tight tracking. The "title"
+   class is the workhorse heading across the site. */
+.title,
+.title--md,
+.section-title {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  letter-spacing: -0.022em !important;
+  font-optical-sizing: auto;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  line-height: 1.06 !important;
+}
+
+.title em,
+.title--md em {
+  font-style: italic !important;
+  color: var(--cream) !important;
+  font-variation-settings: 'SOFT' 50, 'opsz' 144 !important;
+}
+
+/* Kickers + section labels — italic-serif, fleuron-spaced */
+.section-kicker,
+.hero-kicker,
+.tool-num,
+.card-tag,
+.news-tag {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  font-weight: 450 !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  color: var(--cream-mute) !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+}
+
+/* Add a fleuron ❦ before kickers as a typographic accent. */
+.section-kicker::before,
+.hero-kicker::before {
+  content: "❦ ";
+  font-style: normal;
+  font-weight: 400;
+  margin-right: 0.4em;
+  color: rgba(250, 250, 247, 0.4);
+}
+
+/* Tool cards — the recurring "3 cards across" component on pillar pages.
+   Hairline border, navy fill, italic-serif kicker, Fraunces title, body in
+   Inter. The whole card is the link target. */
+.tools-grid {
+  display: grid !important;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)) !important;
+  gap: 1.25rem !important;
+  margin-top: 2.5rem !important;
+}
+
+.tool-card {
+  background: var(--navy-soft) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  padding: 2rem 1.75rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 0.75rem !important;
+  text-decoration: none !important;
+  transition: border-color 0.5s ease, background-color 0.5s ease, transform 0.5s ease !important;
+  position: relative;
+}
+
+.tool-card:hover {
+  border-color: rgba(250, 250, 247, 0.25) !important;
+  background: rgba(10, 14, 24, 0.96) !important;
+  transform: translateY(-1px);
+}
+
+.tool-card--accent {
+  background: var(--navy-soft) !important;
+  border-color: rgba(250, 250, 247, 0.18) !important;
+}
+
+.tool-num {
+  font-size: 11.5px !important;
+  margin-bottom: 0.5rem !important;
+}
+
+.tool-num::before {
+  content: "❦ ";
+  font-style: normal;
+  margin-right: 0.25em;
+  color: rgba(250, 250, 247, 0.4);
+}
+
+.tool-title {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-size: clamp(1.3rem, 1.8vw, 1.55rem) !important;
+  letter-spacing: -0.012em !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  color: var(--cream) !important;
+  line-height: 1.15 !important;
+}
+
+.tool-desc {
+  font-size: 14.5px !important;
+  line-height: 1.6 !important;
+  color: var(--cream-soft) !important;
+  font-family: 'Inter', system-ui, sans-serif !important;
+}
+
+.tool-cta {
+  margin-top: 1rem !important;
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+  color: var(--cream) !important;
+  letter-spacing: 0.01em !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+}
+
+.tool-cta::after {
+  content: "→";
+  font-style: normal;
+  transition: transform 0.5s ease;
+}
+
+.tool-card:hover .tool-cta::after {
+  transform: translateX(2px);
+}
+
+/* Hero block — pulled tighter, no excessive ornamentation */
+.section--hero-center .hero-globe-bg {
+  opacity: 0.7 !important;
+}
+
+.hero-kicker {
+  font-size: 12.5px !important;
+  margin-bottom: 1.5rem !important;
+}
+
+.hero-title,
+.hero-title-center {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-size: clamp(2.5rem, 6vw, 4.6rem) !important;
+  letter-spacing: -0.024em !important;
+  line-height: 1.04 !important;
+  font-variation-settings: 'SOFT' 28, 'opsz' 144 !important;
+}
+
+.hero-title span,
+.hero-title-center span {
+  font-style: italic !important;
+  font-variation-settings: 'SOFT' 50, 'opsz' 144 !important;
+}
+
+.hero-body,
+.hero-body-center {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+  font-size: clamp(1.05rem, 1.4vw, 1.2rem) !important;
+  line-height: 1.5 !important;
+  color: var(--cream-soft) !important;
+  max-width: 56ch !important;
+  margin: 1.75rem auto !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144;
+}
+
+.hero-meta {
+  margin-top: 1.5rem !important;
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.05em !important;
+  color: var(--cream-mute) !important;
+}
+
+.hero-tag {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  font-weight: 450 !important;
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  color: var(--cream-mute) !important;
+}
+
+.hero-divider {
+  background: var(--line) !important;
+  height: 1px !important;
+  width: 24px !important;
+}
+
+.hero-detail {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+  text-transform: none !important;
+  letter-spacing: 0.04em !important;
+  color: var(--cream-soft) !important;
+}
+
+.hero-actions {
+  margin-top: 2.5rem !important;
+  gap: 0.85rem !important;
+}
+
+/* Buttons — sharp, confident, no rounding, no glow */
+.btn {
+  border-radius: 0 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+  font-weight: 600 !important;
+  font-size: 12.5px !important;
+  padding: 0.95rem 1.6rem !important;
+  box-shadow: none !important;
+  border-width: 1px !important;
+  transition: background-color 0.5s ease, border-color 0.5s ease, color 0.5s ease, transform 0.5s ease !important;
+}
+
+.btn-primary {
+  background: var(--cream) !important;
+  color: var(--navy) !important;
+  border: 1px solid var(--cream) !important;
+  text-shadow: none !important;
+}
+
+.btn-primary:hover {
+  background: #ffffff !important;
+  border-color: #ffffff !important;
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent !important;
+  color: var(--cream) !important;
+  border: 1px solid rgba(250, 250, 247, 0.25) !important;
+}
+
+.btn-ghost:hover {
+  border-color: rgba(250, 250, 247, 0.5) !important;
+  background: rgba(255, 255, 255, 0.02) !important;
+}
+
+/* Section intro / lede — italic-serif body lead text */
+.section-intro {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  font-size: clamp(1.05rem, 1.3vw, 1.18rem) !important;
+  line-height: 1.55 !important;
+  color: var(--cream-soft) !important;
+  max-width: 60ch !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144;
+}
+
+/* CTA box — the bottom recurring "Get your X" panel */
+.cta-box {
+  background: var(--navy-soft) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  padding: clamp(2.5rem, 5vw, 4rem) !important;
+  box-shadow: none !important;
+  text-align: center;
+}
+
+.cta-box h2 {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-size: clamp(1.8rem, 3vw, 2.4rem) !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  letter-spacing: -0.018em !important;
+}
+
+.cta-box p {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  color: var(--cream-soft) !important;
+  max-width: 52ch;
+  margin: 1.25rem auto 2rem !important;
+}
+
+/* Hero cards — interior panels used on /pricing, /platform, /agents */
+.hero-card {
+  background: var(--navy-soft) !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
+}
+
+.hero-card:hover {
+  border-color: rgba(250, 250, 247, 0.25) !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+.hero-card-title {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-weight: 550 !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  letter-spacing: -0.012em !important;
+}
+
+.hero-card-badge {
+  font-family: 'IBM Plex Mono', monospace !important;
+  letter-spacing: 0.06em !important;
+  font-weight: 500 !important;
+  border-radius: 0 !important;
+  text-transform: uppercase;
+  font-size: 10px;
+}
+
+/* Hero metrics — the stat-row that appears on several pages */
+.hero-metrics {
+  border-top: 1px solid var(--line) !important;
+  border-bottom: 1px solid var(--line) !important;
+  background: transparent !important;
+}
+
+/* Hero steps — the inline numbered progression */
+.hero-steps {
+  font-family: 'IBM Plex Mono', monospace !important;
+  font-size: 11.5px !important;
+  letter-spacing: 0.05em !important;
+  color: var(--cream-mute) !important;
+}
+
+.hero-steps span {
+  color: var(--cream) !important;
+}
+
+/* Top nav — hairline only, no chrome */
+.site-nav,
+.global-nav,
+.topnav {
+  background: rgba(5, 5, 7, 0.85) !important;
+  backdrop-filter: blur(12px) saturate(140%) !important;
+  border-bottom: 1px solid var(--line) !important;
+  box-shadow: none !important;
+}
+
+/* Tables (used by /pricing, audit dashboards, /trust) — austere, hairline */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+th, td {
+  border-bottom: 1px solid var(--line) !important;
+  padding: 0.85rem 0.75rem !important;
+  text-align: left;
+  font-weight: 450;
+}
+
+th {
+  font-family: 'Fraunces', Georgia, serif !important;
+  font-style: italic !important;
+  font-weight: 450 !important;
+  color: var(--cream-mute) !important;
+  text-transform: none !important;
+  letter-spacing: 0.02em !important;
+  font-size: 12.5px;
+}
+
+/* Code / pre — IBM Plex Mono everywhere */
+pre, code, kbd, samp {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace !important;
+}
+
+/* Form labels — italic-serif so they share the editorial vocabulary */
+label, .field-label, .form-label {
+  font-family: 'Fraunces', Georgia, serif;
+  font-style: italic;
+  font-weight: 450;
+  color: var(--cream-mute);
+  letter-spacing: 0.015em;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144;
+}
+
+/* Strong em throughout */
+em {
+  font-style: italic;
+  color: inherit;
+  font-variation-settings: 'SOFT' 50, 'opsz' 144;
+}
+
+strong, b {
+  font-weight: 600;
+}
