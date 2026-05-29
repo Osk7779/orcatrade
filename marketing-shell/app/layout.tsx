@@ -59,7 +59,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </a>
 
         {/* Shared chrome — every page gets it for free */}
-        <IntroOverlay />
         <Header />
         <TracingBeam />
 

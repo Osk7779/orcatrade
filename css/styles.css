@@ -4787,3 +4787,13 @@ footer {
 .section-intro {
   color: var(--cream-soft) !important;
 }
+
+/* =========================================================================
+   KILL INTRO OVERLAYS
+   Hide the full-screen "ORCATRADE GROUP" intro that sits over the hero on
+   /pl/ and /de/ (and the marketing-shell React IntroOverlay was already
+   removed from layout.tsx). Users hated the 3-second block on every visit.
+   ========================================================================= */
+#intro-overlay {
+  display: none !important;
+}
