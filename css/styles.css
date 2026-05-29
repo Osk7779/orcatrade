@@ -3709,20 +3709,13 @@ p, li, dd {
    above; this block goes deeper into the actual layout components.
    ========================================================================= */
 
-/* Section rhythm — generous, editorial spacing */
-.section {
-  padding-top: clamp(4rem, 8vw, 8rem) !important;
-  padding-bottom: clamp(4rem, 8vw, 8rem) !important;
-}
-
+/* Section rhythm — let pages keep their own paddings. We removed the
+   aggressive clamp(4rem, 8vw, 8rem) override here because it was making
+   the .section hero panels ~300px tall before any content, producing an
+   apparent huge empty navy area above the hero on /intelligence and
+   similar pages. */
 .section::before {
   display: none !important; /* kill the soft glow band on every section */
-}
-
-.section--hero,
-.section--hero-center {
-  padding-top: clamp(6rem, 12vw, 11rem) !important;
-  padding-bottom: clamp(4rem, 7vw, 7rem) !important;
 }
 
 /* Display titles — Fraunces, editorial weight, tight tracking. The "title"
@@ -4796,4 +4789,48 @@ footer {
    ========================================================================= */
 #intro-overlay {
   display: none !important;
+}
+
+/* =========================================================================
+   FORCE unified-nav layout regardless of page-scoped .nav overrides
+   Some static pages (intelligence.html, the OS-era pages) define their own
+   .nav rule without padding/flex/max-width because they expected a
+   .nav-inner wrapper. site-nav.js renders without that wrapper, so the
+   nav collapses without layout. Force the layout here.
+   ========================================================================= */
+header[data-site-header] > .nav {
+  max-width: 1280px !important;
+  margin: 0 auto !important;
+  padding: 1.1rem 1.5rem !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  gap: 1.5rem !important;
+  flex-wrap: nowrap !important;
+}
+
+header[data-site-header] {
+  display: block !important;
+  position: sticky !important;
+  top: 0 !important;
+  z-index: 1000 !important;
+  min-height: 0 !important;
+}
+
+/* Tools mega-dropdown — only show on hover, never permanently. */
+header[data-site-header] .nav-dropdown-menu.grouped {
+  display: none !important;
+}
+header[data-site-header] .nav-dropdown:hover .nav-dropdown-menu.grouped,
+header[data-site-header] .nav-dropdown.is-open .nav-dropdown-menu.grouped {
+  display: grid !important;
+}
+
+/* nav-links itself must lay out horizontally even when page-scoped CSS
+   broke it (some pages collapsed nav-links to a column). */
+header[data-site-header] .nav-links {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: 1.4rem !important;
 }
