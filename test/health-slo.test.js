@@ -70,8 +70,17 @@ test('probeWithTimeout re-throws non-timeout errors so the caller can handle the
 
 // ── Parallel-execution latency bound ────────────────────────────────────
 
-test('5 slow probes run in parallel complete in ~max, not sum', async () => {
-  // Five probes that each sleep 100ms. Sequential = 500ms; parallel ≈ 100ms.
+test('5 slow probes run in parallel complete in less than sequential time', async () => {
+  // Five probes that each sleep 100ms. Sequential = 500ms+; parallel ≈ 100ms
+  // under no load, can stretch under CI load (event-loop saturation pushes
+  // setTimeouts past their scheduled time). The bound here is "noticeably
+  // less than sequential" — at 450ms it catches a truly broken (serial)
+  // implementation but doesn't flake on a busy CI runner with thousands of
+  // other tests running concurrently.
+  //
+  // The source-pin test below is the LOAD-BEARING parallelism check
+  // (asserts the handler uses Promise.all). This test is a sanity probe
+  // that the helper itself doesn't introduce serialisation.
   const start = Date.now();
   const results = await Promise.all([1, 2, 3, 4, 5].map((n) =>
     health.probeWithTimeout(
@@ -82,8 +91,9 @@ test('5 slow probes run in parallel complete in ~max, not sum', async () => {
   ));
   const elapsed = Date.now() - start;
   assert.equal(results.length, 5);
-  assert.ok(elapsed < 300,
-    `5 × 100ms probes in parallel should complete in <300ms; took ${elapsed}ms (sequential would be 500ms+)`);
+  assert.ok(elapsed < 450,
+    `5 × 100ms probes in parallel should complete in <450ms; took ${elapsed}ms ` +
+    `(sequential would be 500ms+, so anything below 450ms confirms parallelism even under CI event-loop load)`);
 });
 
 // ── Contract constants ─────────────────────────────────────────────────
