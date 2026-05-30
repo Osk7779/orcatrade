@@ -72,6 +72,7 @@ audit trail of why the decision evolved.
 | [0011](0011-security-scanning-stack.md) | Security scanning stack: CodeQL + gitleaks + Dependabot + Snyk + CycloneDX SBOM | Accepted |
 | [0012](0012-branch-protection-policy.md) | Branch protection on `main`: required checks + Code Owner review + linear history | Accepted |
 | [0013](0013-c4-diagrams-via-mermaid.md) | C4 architecture diagrams via Mermaid C4 syntax in markdown (deviates from plan's Structurizr suggestion) | Accepted |
+| [0014](0014-openapi-generated-from-contracts.md) | OpenAPI 3.1 specification generated from `lib/contracts/v1/`, not hand-authored | Accepted |
 
 ## Background
 
