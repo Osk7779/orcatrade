@@ -31,8 +31,8 @@ C4Component
         Component(snapshotStore, "snapshot-store", "lib/snapshot-store.js", "Reproducibility snapshots (FX + AD/CVD + CBAM).<br/>TARIC pinning is Phase 1 P1.1 — currently NOT pinned.")
     }
 
-    Container_Boundary(missing, "GAP: written but undefined in schema.sql") {
-        Component(missingTables, "7 tables", "various lib/* stores", "agent_memory · monitoring_alerts · drafts · corpus_chunks · sanctions_entries · sanctions_refresh · data_snapshots<br/>Phase 0 P0.2 closes (schema-002-missing-tables.sql).")
+    Container_Boundary(perfeat, "Per-feature schemas (migrations 002-008)") {
+        Component(featureSchemas, "7 feature tables", "lib/db/schema-{002..008}-*.sql", "sanctions_entries · sanctions_refresh (002) · corpus_chunks (003) · monitoring_alerts (004) · agent_memory (005) · data_snapshots (006) · drafts (008).<br/>Each defined in its own migration file, applied alphabetically by scripts/db-migrate.js.<br/>Parity vs. writers enforced by test/db-schema-writer-parity.test.js (P0.2).")
     }
 
     System_Ext(upstash, "Upstash Redis", "Primary KV")
@@ -79,23 +79,27 @@ Three shapes to notice:
 2. **The audit chain is verifiable-export, not write-time tamper-evident.**
    See [ADR 0011](../adr/0011-security-scanning-stack.md)'s related
    work + Phase 1 P1.2 for the write-time hash + daily-root plan.
-3. **The "GAP" box is the 2026-05-30 audit's biggest finding.** Seven
-   PG tables are written to by store helpers but not defined in
-   `schema.sql`. Writes have been failing silently (per
-   [docs/runbooks/pg-outage.md](../runbooks/pg-outage.md) step 5's
-   "half-applied migration" recovery procedure). Phase 0 P0.2 closes
-   this with `schema-002-missing-tables.sql` + a writer-vs-schema
-   parity test.
+3. **The "per-feature schemas" box.** The 2026-05-30 audit originally
+   flagged these seven tables as "written to but undefined in
+   `schema.sql`" — a real-looking gap. On investigation (Phase 0 P0.2),
+   the tables ARE defined: in per-feature migration files
+   `schema-002-…` through `schema-008-…`, all applied alphabetically
+   by `scripts/db-migrate.js`. The audit had inspected `schema.sql`
+   alone and missed the migration files. P0.2 ships
+   `test/db-schema-writer-parity.test.js` which prevents the inverse
+   mistake going forward — fails CI loudly if any handler writes to
+   a table no migration creates.
 
 ## What's not in the diagram
 
 - **TARIC cache** — sits in the KV box but isn't shown explicitly;
   see [docs/runbooks/kv-outage.md](../runbooks/kv-outage.md) for its
   role in the impact table.
-- **Sanctions list** — partially in the "GAP" box (`sanctions_entries`
-  + `sanctions_refresh` tables undefined); the in-memory bundled
-  sample is the fallback. See [docs/handbook/security.md](../handbook/security.md)
-  sub-processor table for the source.
+- **Sanctions list** is defined in `schema-002-sanctions.sql`
+  (`sanctions_entries` + `sanctions_refresh`); the in-memory bundled
+  sample remains the runtime fallback when PG is unreachable. See
+  [docs/handbook/security.md](../handbook/security.md) sub-processor
+  table for the source.
 - **Saved-plans revision history** — currently PG-only (KV stores the
   latest only); appears as a `pgClient` consumer but not as a separate
   component because the revision logic is inline in `lib/portfolio-revision.js`.
@@ -104,7 +108,6 @@ Three shapes to notice:
 
 Update this diagram when:
 
-- Phase 0 P0.2 ships → "GAP: 7 tables" container disappears
 - Phase 0 P0.4 ships → `eventsModule`'s "swallow on failure" annotation
   changes to "refuse 2xx on failure"
 - Phase 1 P1.1 ships → `snapshotStore`'s TARIC pinning annotation
