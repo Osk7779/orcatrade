@@ -130,6 +130,11 @@ const handlers = {
   // customer's IdP provisions/deprovisions org members via a per-org bearer
   // token (lib/scim-store.js). Machine-to-machine; no session cookie.
   scim: require('../lib/handlers/scim'),
+  // Human-review queue inspector (Phase 0 P0.10). GET = list queued
+  // tickets; POST = claim or resolve. Admin-gated (same pattern as
+  // /api/audit). Backs the lib/human-review.js queue that the 5 agents'
+  // requestHumanReview tool writes to. See docs/runbooks/human-review-queue.md.
+  'human-review': require('../lib/handlers/human-review'),
 };
 
 module.exports = async (req, res) => {

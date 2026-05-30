@@ -206,19 +206,25 @@ test('searchRegulations returns hits with chunkId for CBAM steel query', async (
 
 // ── requestHumanReview ────────────────────────────────────
 
-test('requestHumanReview returns ticket id and routes to handoff target', () => {
-  const r = toolImpls.requestHumanReview({
+test('requestHumanReview returns a queued ticket id and routes to handoff target', async () => {
+  // Post P0.10: ticket ids are minted by lib/human-review.js (KV-backed
+  // queue), shape `tkt_<base36-time>_<8hex>`. Old per-agent prefix
+  // (`tkt_log_…`) was the fake-ticket stub now retired.
+  const r = await toolImpls.requestHumanReview({
     reason: 'Cargo > €50k forwarder booking in flight',
     severity: 'major',
     handoffTo: 'human_ops',
   });
-  assert.match(r.ticketId, /^tkt_log_/);
+  assert.match(r.ticketId, /^tkt_[a-z0-9]+_[0-9a-f]{8}$/);
   assert.equal(r.handoffTo, 'human_ops');
-  assert.equal(r.severity, 'major');
+  // Queue normalises the agent's `info|minor|moderate|major|critical`
+  // vocab onto its leaner 4-level `low|medium|high|critical` axis.
+  // `major` → `high`.
+  assert.equal(r.severity, 'high');
 });
 
-test('requestHumanReview defaults handoffTo to human_ops', () => {
-  const r = toolImpls.requestHumanReview({
+test('requestHumanReview defaults handoffTo to human_ops', async () => {
+  const r = await toolImpls.requestHumanReview({
     reason: 'Anti-dumping risk on CN steel',
     severity: 'moderate',
   });
