@@ -1,0 +1,56 @@
+name: gitleaks
+
+# Phase 0 task P0.D of docs/execution-plan.md. See ADR 0011.
+#
+# Secrets scanning. Runs against:
+#   - the full git history on push to main (catches secrets that crept in
+#     via any prior commit, including stale branches that were merged
+#     without secrets review)
+#   - the PR diff only on PR events (fast — typical PR is <50 files)
+#
+# Detects: API keys, AWS/GCP/Azure credentials, private keys, JWTs,
+# OAuth tokens, generic high-entropy strings matching common secret
+# shapes (Stripe sk_, GitHub gh[pousr]_, etc.).
+#
+# Free version of gitleaks-action — no licence key needed. The pro
+# version adds multi-format scanning and advanced reporting, neither of
+# which we need today.
+#
+# Complements the runtime discipline in lib/log.js (no secrets in logs)
+# and the convention in docs/handbook/security.md (no secrets in errors,
+# AI prompts, or commits).
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  scan:
+    name: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout (full history on push; PR head on pull_request)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Run gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GITLEAKS_ENABLE_COMMENTS: post a PR comment on findings.
+          # Helpful even when CI blocks merge — gives the author a
+          # one-click view of which file + line tripped.
+          GITLEAKS_ENABLE_COMMENTS: 'true'
+          # GITLEAKS_ENABLE_SUMMARY: post a job summary.
+          GITLEAKS_ENABLE_SUMMARY: 'true'
