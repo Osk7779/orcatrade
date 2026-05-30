@@ -1,0 +1,41 @@
+name: release-please
+
+# Phase 0 task P0.B of docs/execution-plan.md.
+#
+# On every push to main, release-please scans conventional-commit messages
+# since the last release. If there are user-impacting commits (feat / fix /
+# perf / sec / refactor / revert / BREAKING CHANGE), it opens or updates a
+# "Release PR" that:
+#   1. bumps the SemVer in package.json + .release-please-manifest.json
+#   2. appends a new section to CHANGELOG.md grouped by commit type
+#   3. uses the commit subjects + PR links as the changelog entries
+#
+# When that Release PR merges, release-please tags a GitHub Release and
+# publishes the version.
+#
+# Repo settings prerequisite (one-off, not in code):
+#   Settings → Actions → General → Workflow permissions
+#     → "Read and write permissions" + "Allow GitHub Actions to create
+#       and approve pull requests"
+# Without those, release-please can't open the Release PR.
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: release-please
+    runs-on: ubuntu-latest
+    steps:
+      - name: Run release-please
+        uses: googleapis/release-please-action@v4
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
+          target-branch: main

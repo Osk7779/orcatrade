@@ -1,0 +1,42 @@
+name: commitlint
+
+# Phase 0 task P0.B of docs/execution-plan.md.
+#
+# Validates every commit message on the PR against the conventional-commits
+# spec defined in commitlint.config.js. Blocks merge if any commit message
+# doesn't parse — so non-conventional commits never reach main and never
+# silently drop out of CHANGELOG.md.
+#
+# Runs only on PRs (not on push) because main is a fast-forward of merged
+# PRs — if the PR commits passed, main is fine. Avoids the noise of
+# re-running on every release-please commit and merge commit.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  commitlint:
+    name: commitlint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history needed for commitlint range)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Lint PR commit messages
+        uses: wagoid/commitlint-github-action@v6
+        with:
+          configFile: commitlint.config.js
+          # Soft-fail on warnings; hard-fail on errors. type-enum is an
+          # error rule so a wrong type blocks merge.
+          failOnWarnings: false
+          failOnErrors: true
+          # Re-check existing PR commits when the PR is edited (helpful
+          # when a commit is reworded via force-push).
+          helpURL: https://www.conventionalcommits.org/
