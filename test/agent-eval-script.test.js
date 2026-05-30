@@ -20,6 +20,7 @@ test('parseArgs defaults to compliance agent', () => {
   assert.equal(o.listCases, false);
   assert.equal(o.requireGrounding, false);
   assert.equal(o.onlyId, null);
+  assert.equal(o.threshold, 1.0, 'default threshold must be strict (100%) to preserve legacy semantics');
 });
 
 test('parseArgs --agent <name> picks an agent', () => {
@@ -43,6 +44,34 @@ test('parseArgs --bail + positional case id + --require-grounding', () => {
 test('parseArgs --list-cases works without API key', () => {
   const o = runner.parseArgs(['--list-cases', '--agent', 'finance']);
   assert.equal(o.listCases, true);
+});
+
+// ── --threshold flag (P0.15 — CI gate) ──────────────────────
+
+test('parseArgs --threshold 0.95 (fraction form)', () => {
+  const o = runner.parseArgs(['--threshold', '0.95']);
+  assert.equal(o.threshold, 0.95);
+});
+
+test('parseArgs --threshold=95 (percent form, equals)', () => {
+  const o = runner.parseArgs(['--threshold=95']);
+  assert.equal(o.threshold, 0.95);
+});
+
+test('parseArgs --threshold 1 (full strict, fraction)', () => {
+  const o = runner.parseArgs(['--threshold', '1']);
+  assert.equal(o.threshold, 1);
+});
+
+test('parseArgs --threshold 100 (full strict, percent)', () => {
+  const o = runner.parseArgs(['--threshold', '100']);
+  assert.equal(o.threshold, 1);
+});
+
+test('parseArgs --threshold combines with --agent and other flags', () => {
+  const o = runner.parseArgs(['--agent', 'orchestrator', '--threshold', '0.9']);
+  assert.equal(o.agent, 'orchestrator');
+  assert.equal(o.threshold, 0.9);
 });
 
 test('AGENT_HANDLERS map covers all 5 agents', () => {
