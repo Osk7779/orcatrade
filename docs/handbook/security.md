@@ -119,7 +119,7 @@ review (the reviewer notes it in the AC):
 | Dependabot dependency updates | ✓ live (PR #15) |
 | Snyk vulnerability scan | ✓ live, opt-in via `SNYK_TOKEN` repo secret (PR #15) |
 | SBOM (CycloneDX) per release | ✓ live, fires on `release-please` release event (PR #15) |
-| Branch protection (required checks, two-eyes) | Phase 0 P0.C |
+| Branch protection (required checks, Code Owners, linear history) | ✓ live, applied via [runbook](../runbooks/repo-settings-branch-protection.md) (PR #16) |
 | Annual external pen test | Phase 3 P3.5 |
 | Private bug bounty | Phase 3 P3.6 |
 | SOC 2 Type II / ISO 27001 / ISO 27701 | Phase 3-5 |

@@ -70,6 +70,7 @@ audit trail of why the decision evolved.
 | [0009](0009-conventional-commits-release-please.md) | Conventional commits + release-please + SemVer for `CHANGELOG.md` | Accepted |
 | [0010](0010-typescript-incremental-adoption.md) | Incremental TypeScript adoption: opt-in `@ts-check` per file, new files `.ts` | Accepted |
 | [0011](0011-security-scanning-stack.md) | Security scanning stack: CodeQL + gitleaks + Dependabot + Snyk + CycloneDX SBOM | Accepted |
+| [0012](0012-branch-protection-policy.md) | Branch protection on `main`: required checks + Code Owner review + linear history | Accepted |
 
 ## Background
 
