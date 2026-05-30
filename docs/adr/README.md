@@ -71,6 +71,7 @@ audit trail of why the decision evolved.
 | [0010](0010-typescript-incremental-adoption.md) | Incremental TypeScript adoption: opt-in `@ts-check` per file, new files `.ts` | Accepted |
 | [0011](0011-security-scanning-stack.md) | Security scanning stack: CodeQL + gitleaks + Dependabot + Snyk + CycloneDX SBOM | Accepted |
 | [0012](0012-branch-protection-policy.md) | Branch protection on `main`: required checks + Code Owner review + linear history | Accepted |
+| [0013](0013-c4-diagrams-via-mermaid.md) | C4 architecture diagrams via Mermaid C4 syntax in markdown (deviates from plan's Structurizr suggestion) | Accepted |
 
 ## Background
 
