@@ -38,12 +38,8 @@ const SCAN_DIRS = [
 ];
 
 // Exact files exempted. Keep this list small and well-justified — every
-// addition is debt.
-const EXEMPT_FILES = new Set([
-  // TEMPORARY exemption pending the ESM→CJS + MODELS-adoption follow-up.
-  // See docs/execution-plan.md and PR #7 body, "Discovered issue".
-  'lib/handlers/factory-score.js',
-]);
+// addition is debt. Empty set means the rule is fully enforced.
+const EXEMPT_FILES = new Set([]);
 
 // The forbidden pattern. Lowercase `model:` (the Anthropic API field name)
 // followed by optional whitespace and a string literal opener.
@@ -99,13 +95,13 @@ test('the three previously-drifted handlers now import MODELS from the registry'
   const quickCheck = fs.readFileSync(path.join(ROOT, 'lib/handlers/quick-check.js'), 'utf8');
   assert.match(quickCheck, /require\(['"]\.\.\/ai\/models['"]\)/, 'quick-check.js must import MODELS');
 
-  // factory-score.js is the exempted file. Verify the exemption note is
-  // present + the value still mirrors MODELS.TRIAGE. When the follow-up
-  // lands and removes the exemption, this assertion can be replaced with the
-  // import check.
+  // factory-score.js was previously exempted because its ESM-syntax under a
+  // CJS dispatcher made `require('../ai/models')` unsafe. PR #10 converted
+  // the file to CJS + adopted MODELS.TRIAGE; the exemption is now removed
+  // and the import is mandatory like every other handler.
   const factoryScore = fs.readFileSync(path.join(ROOT, 'lib/handlers/factory-score.js'), 'utf8');
-  assert.match(factoryScore, /MUST mirror MODELS\.TRIAGE/, 'factory-score.js must carry the mirror-MODELS.TRIAGE comment until the import follow-up lands');
-  assert.match(factoryScore, /model: 'claude-haiku-4-5'/, 'factory-score.js must mirror the registry TRIAGE value (claude-haiku-4-5, no dated suffix)');
+  assert.match(factoryScore, /require\(['"]\.\.\/ai\/models['"]\)/, 'factory-score.js must import MODELS (post-CJS-conversion)');
+  assert.match(factoryScore, /model: MODELS\.TRIAGE/, 'factory-score.js must select the TRIAGE tier via MODELS.TRIAGE');
 });
 
 test('lib/ai/models.js exports the expected MODELS shape', () => {
