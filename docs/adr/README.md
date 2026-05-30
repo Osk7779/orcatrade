@@ -68,6 +68,7 @@ audit trail of why the decision evolved.
 | [0007](0007-api-v1-stable-contracts.md) | Public API contracts under `/api/vN/` are stable per version | Accepted |
 | [0008](0008-email-pseudonymisation.md) | Email is stored only as a salted server-side pseudonym | Accepted |
 | [0009](0009-conventional-commits-release-please.md) | Conventional commits + release-please + SemVer for `CHANGELOG.md` | Accepted |
+| [0010](0010-typescript-incremental-adoption.md) | Incremental TypeScript adoption: opt-in `@ts-check` per file, new files `.ts` | Accepted |
 
 ## Background
 

@@ -108,9 +108,13 @@ calculators:
 ## How to work
 
 - **Tests are the contract.** Run `npm test`
-  (`ORCATRADE_DISABLE_LIVE_TARIC=1 node --test`). Suite is currently ~2,751
+  (`ORCATRADE_DISABLE_LIVE_TARIC=1 node --test`). Suite is currently ~3,100+
   tests, all green — keep it green. New deterministic logic ships with unit
   tests; LLM-touching code gets eval cases, not brittle unit tests.
+- **TypeScript: new code lands as `.ts`.** Strict `tsconfig.json` + `tsc --noEmit`
+  via `npm run typecheck` runs in CI on every PR. Existing `.js` files are
+  migrated incrementally: opt in with `// @ts-check` at the top + add JSDoc
+  annotations. See [docs/adr/0010-typescript-incremental-adoption.md](docs/adr/0010-typescript-incremental-adoption.md).
 - **Naming:** files kebab-case, functions/vars camelCase, DB columns snake_case.
 - **User-facing copy is UK English.** EUR figures like `€179,100`; ISO-2
   country codes (CN, VN, DE, PL).
