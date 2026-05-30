@@ -75,6 +75,7 @@ audit trail of why the decision evolved.
 | [0014](0014-openapi-generated-from-contracts.md) | OpenAPI 3.1 specification generated from `lib/contracts/v1/`, not hand-authored | Accepted |
 | [0015](0015-human-review-queue.md) | Human-review escalation is a real KV-backed queue, not a stubbed tool | Accepted |
 | [0016](0016-hs-code-lookup-calculator-grounded.md) | `lookupHsCode` is calculator-grounded — curated HS6 map + opt-in TARIC enrichment, never an LLM guess | Accepted |
+| [0017](0017-pr-smoke-as-deploy-gate.md) | PR-time smoke (`pr-smoke`) is the merge gate; post-deploy `smoke` is the tripwire | Accepted |
 
 ## Background
 

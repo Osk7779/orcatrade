@@ -35,7 +35,7 @@ gh api \
       "typecheck",
       "commitlint",
       "evals (offline)",
-      "smoke",
+      "pr-smoke",
       "codeql / analyse (javascript-typescript)",
       "gitleaks / scan"
     ]
@@ -79,7 +79,7 @@ EOF
 4. Check **Require status checks to pass before merging**
    - Check **Require branches to be up to date before merging**
    - Search + add each of: `test (20)`, `test (22)`, `typecheck`,
-     `commitlint`, `evals (offline)`, `smoke`, `codeql / analyse (javascript-typescript)`,
+     `commitlint`, `evals (offline)`, `pr-smoke`, `codeql / analyse (javascript-typescript)`,
      `gitleaks / scan`
 5. Check **Require conversation resolution before merging**
 6. Check **Require linear history**
@@ -114,6 +114,29 @@ When a new workflow ships (e.g. P0.J's OpenAPI validation), update the
 `contexts` array in this runbook + re-run the `gh api` command. The
 ADR 0012 §"Status check inventory" table should also be updated in the
 same PR.
+
+## Why `smoke` is NOT in required contexts (post-P0.9)
+
+`smoke` (the post-deploy probe at
+[.github/workflows/smoke.yml](../../.github/workflows/smoke.yml))
+fires on **`push` to `main`** — after the deploy is already live.
+By design it cannot gate a merge. Listing it as a required context
+would create a permanent "Expected" pending check on every PR
+because the workflow never reports against a PR head SHA.
+
+The merge-gating equivalent is `pr-smoke`
+([.github/workflows/pr-smoke.yml](../../.github/workflows/pr-smoke.yml))
+which fires on `pull_request` events, waits for Vercel's preview
+deployment status, then probes that URL with the same
+[scripts/smoke.js](../../scripts/smoke.js) script. See
+[ADR 0017](../adr/0017-pr-smoke-as-deploy-gate.md) for the rationale
+behind the two-stage design.
+
+If a future change makes `smoke.yml` also fire on pull requests, this
+ADR + runbook must be updated to reintroduce `smoke` to the required
+contexts list (and the enforcement test in
+[test/branch-protection-sync.test.js](../../test/branch-protection-sync.test.js)
+will fail until they are).
 
 ## Rollback
 
