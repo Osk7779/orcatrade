@@ -77,6 +77,7 @@ audit trail of why the decision evolved.
 | [0016](0016-hs-code-lookup-calculator-grounded.md) | `lookupHsCode` is calculator-grounded — curated HS6 map + opt-in TARIC enrichment, never an LLM guess | Accepted |
 | [0017](0017-pr-smoke-as-deploy-gate.md) | PR-time smoke (`pr-smoke`) is the merge gate; post-deploy `smoke` is the tripwire | Accepted |
 | [0018](0018-eval-gate-post-merge-95pct.md) | Live AI-eval gate: post-merge, ≥95% pass-rate per agent, hard fail | Accepted |
+| [0019](0019-docs-staleness-floor-tests.md) | Customer-facing doc claims are floor-tested in CI (test counts, tool counts, ADR cross-refs, security-doc freshness) | Accepted |
 
 ## Background
 
