@@ -82,6 +82,12 @@ const handlers = {
   // recent events with PII redacted (email → emailHash) for the
   // /dashboard/audit/ admin view. Same token-gate as /api/leads.
   audit: require('../lib/handlers/audit'),
+  // Public verifiable audit-chain anchor (apex III2). GET
+  // /api/audit-anchor returns { chainHead, chainLength, asOf,
+  // genesis } — no admin gate, no PII. Lets customers pin the
+  // current head so a future chain rewrite is third-party
+  // detectable. See docs/security/audit-trail.md.
+  'audit-anchor': require('../lib/handlers/audit-anchor'),
   // Cross-user calibration analytics (Sprint BG-1.6). GET /api/calibration
   // returns aggregate variance stats grouped by category / origin /
   // destination / route — reads via actuals.listFromPg() which JOINs
