@@ -55,6 +55,47 @@ test('CBAM does not apply to EEA EFTA origin even for covered goods', () => {
   });
   assert.equal(result.applies, false);
   assert.match(result.reason, /EEA/);
+  assert.match(result.citation, /Art\. 2\(3\)/);
+});
+
+// ── Intra-EU origin: CBAM Art. 2(1) bounds ────────────────────────
+
+test('CBAM does not apply to intra-EU origin (DE→PL): not an import into the customs territory', () => {
+  // Goods of EU origin moving between EU member states aren't
+  // "imports into the customs territory of the Union" — CBAM
+  // Art. 2(1) bounds the regulation to imports from outside the
+  // customs territory. This was a calculator gap caught by PR
+  // #32's slice-3c reproducibility tests (which had to use
+  // Iceland to get an applies:false case where DE would have
+  // logically been correct).
+  const result = determineCbamApplicability({
+    productCategory: 'iron and steel',
+    originCountry: 'DE',
+  });
+  assert.equal(result.applies, false);
+  assert.equal(result.categoryKey, 'iron_and_steel');
+  assert.match(result.citation, /Art\. 2\(1\)/);
+  assert.match(result.reason, /intra.EU|EU member states|customs territory/i);
+});
+
+test('CBAM exclusion covers all 27 EU member states (sample: FR, IT, PL, IE)', () => {
+  for (const origin of ['FR', 'IT', 'PL', 'IE']) {
+    const result = determineCbamApplicability({
+      productCategory: 'iron and steel',
+      originCountry: origin,
+    });
+    assert.equal(result.applies, false, `${origin} should be excluded as intra-EU`);
+    assert.match(result.citation, /Art\. 2\(1\)/);
+  }
+});
+
+test('CBAM still applies to non-EU/non-EEA origin (CN steel)', () => {
+  // Regression guard: the EU exclusion must not over-apply.
+  const result = determineCbamApplicability({
+    productCategory: 'iron and steel',
+    originCountry: 'CN',
+  });
+  assert.equal(result.applies, true, 'CN steel still in scope');
 });
 
 test('CBAM applicability returns amber confidence without HS code, green with', () => {
