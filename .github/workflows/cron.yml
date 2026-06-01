@@ -57,6 +57,13 @@ on:
     # so cost-drift + sanctions-delta signals are fresh. Per-user alert dedupe
     # + 6-day email dedupe in the handler make re-fires safe.
     - cron: '0 9 * * 4'
+    # Daily 02:00 UTC — audit-anchor history snapshot (apex III2).
+    # Captures the current chain head + length so the public
+    # /api/audit-anchor/history endpoint reflects a real time-series.
+    # 1-hour dedupe window in recordAnchorSnapshot makes a manual
+    # re-fire safe. Runs before TARIC warm + calibration drift so a
+    # quiet-night anchor lands before morning activity perturbs it.
+    - cron: '0 2 * * *'
   workflow_dispatch:
     inputs:
       job:
@@ -76,6 +83,7 @@ on:
           - sanctions-refresh
           - rag-reindex
           - db-migrate
+          - audit-anchor-snapshot
 
 jobs:
   dispatch:
@@ -106,6 +114,8 @@ jobs:
             echo "job=sanctions-refresh" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 9 * * 4" ]; then
             echo "job=monitoring-scan" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 2 * * *" ]; then
+            echo "job=audit-anchor-snapshot" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi
