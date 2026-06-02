@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Audit-chain anchors | OrcaTrade trust</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Rolling history of OrcaTrade's tamper-evident audit-chain head. Public, verifiable, append-only — pin any row externally and detect a future chain rewrite." />
+  <link rel="canonical" href="https://orcatrade.pl/trust/anchors/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet" />
+  <link rel="stylesheet" href="/css/styles.css" />
+  <meta property="og:title" content="Audit-chain anchors | OrcaTrade trust" />
+  <meta property="og:description" content="Verifiable rolling history of the OrcaTrade tamper-evident audit-chain head." />
+  <style>
+    body { background: #050507; color: rgba(255,255,255,0.92); font-family: 'Geist', system-ui, sans-serif; }
+    .trust-shell { max-width: 920px; margin: 0 auto; padding: 4rem 1.5rem 6rem; }
+    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.5); margin-bottom: 1.2rem; letter-spacing: 0.06em; }
+    .breadcrumbs a { color: rgba(220, 188, 110, 0.85); text-decoration: none; }
+    h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2.1rem, 4vw + 0.5rem, 2.9rem); font-weight: 600; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
+    .lead { font-size: 1.02rem; line-height: 1.7; color: rgba(255,255,255,0.72); margin-bottom: 2.2rem; max-width: 66ch; }
+    section { margin-bottom: 2.4rem; }
+    section h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.4rem; font-weight: 600; color: rgba(255,255,255,0.96); margin: 0 0 0.6rem; letter-spacing: -0.005em; }
+    section p { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.72); margin: 0 0 0.8rem; max-width: 66ch; }
+    a.inline { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
+    a.inline:hover { text-decoration: underline; }
+
+    /* ── Timeline ──────────────────────────────────────── */
+    .timeline { display: flex; flex-direction: column; gap: 0; margin-top: 1rem; border-left: 2px solid rgba(220, 188, 110, 0.3); padding-left: 1.2rem; }
+    .timeline .anchor-row { position: relative; padding: 0.85rem 0; border-bottom: 1px dashed rgba(255,255,255,0.07); }
+    .timeline .anchor-row:last-child { border-bottom: none; }
+    .timeline .anchor-row::before { content: ''; position: absolute; left: -1.55rem; top: 1.15rem; width: 8px; height: 8px; background: rgba(220, 188, 110, 0.8); border-radius: 50%; box-shadow: 0 0 0 2px #050507; }
+    .timeline .anchor-row.is-newest::before { background: #5fb56b; box-shadow: 0 0 0 2px #050507, 0 0 8px rgba(95, 181, 107, 0.4); }
+    .anchor-row .when { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.85); margin-bottom: 0.25rem; }
+    .anchor-row .when .newest-pill { display: inline-block; font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(95, 181, 107, 0.95); border: 1px solid rgba(95, 181, 107, 0.5); padding: 0.06rem 0.4rem; margin-left: 0.5rem; }
+    .anchor-row .head { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.65); word-break: break-all; }
+    .anchor-row .meta { font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; letter-spacing: 0.04em; }
+    .anchor-row .meta strong { color: rgba(220, 188, 110, 0.9); font-weight: 600; }
+
+    /* ── States ────────────────────────────────────────── */
+    .state { padding: 1rem 1.2rem; background: rgba(13, 15, 20, 0.5); border: 1px solid rgba(255,255,255,0.07); margin-top: 1rem; }
+    .state.loading { color: rgba(255,255,255,0.6); }
+    .state.empty { color: rgba(255,255,255,0.7); }
+    .state.error { color: rgba(232, 128, 128, 0.95); border-color: rgba(232, 128, 128, 0.4); background: rgba(232, 128, 128, 0.04); }
+    .state strong { color: rgba(255,255,255,0.95); }
+    .state code { font-family: 'Geist Mono', monospace; font-size: 0.85em; background: rgba(255,255,255,0.04); padding: 0.05rem 0.3rem; }
+
+    [hidden] { display: none !important; }
+  </style>
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+</head>
+<body>
+  <div class="trust-shell">
+    <div class="breadcrumbs"><a href="/trust/">Trust</a> · Audit anchors</div>
+    <h1>Audit-chain anchors</h1>
+    <p class="lead">Every event OrcaTrade writes — sign-ins, plan saves, org changes, agent escalations — is sealed into a sha256 hash chain at write time. The current chain head is published at <code><a class="inline" href="/api/audit-anchor">/api/audit-anchor</a></code>; this page renders the rolling history of those heads. <strong>Pin any row externally</strong>, then come back later — if the chain at that row's sequence number no longer matches the head you saved, the chain was rewritten and we can't hide it.</p>
+
+    <section>
+      <h2>Rolling history (most recent first)</h2>
+      <p>Snapshot taken daily at 02:00 UTC by the audit-anchor-snapshot cron job. The chain only grows append-only, so <code>chainLength</code> must monotonically increase down the list. A regression is detectable evidence that the chain was rewritten.</p>
+      <div id="anchors-loading" class="state loading">Loading the anchor history…</div>
+      <div id="anchors-empty" class="state empty" hidden>
+        <strong>No anchors recorded yet.</strong> The daily snapshot fires at 02:00 UTC; rows will appear within 24 hours of this page going live. The current live anchor is always available at <code><a class="inline" href="/api/audit-anchor">/api/audit-anchor</a></code>.
+      </div>
+      <div id="anchors-error" class="state error" hidden>
+        <strong>Couldn't fetch the anchor history.</strong> The endpoint may be temporarily unavailable. Try again in a moment, or hit <code><a class="inline" href="/api/audit-anchor/history">/api/audit-anchor/history</a></code> directly to see the raw response.
+      </div>
+      <div class="timeline" id="anchors-timeline" hidden></div>
+    </section>
+
+    <section>
+      <h2>How to verify externally</h2>
+      <p>The verification protocol is <code>sha256(prevHash + canonical(event))</code> over a personal-data-free projection of each event. Full algorithm and the projection's exclusion list: <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/audit-trail.md">docs/security/audit-trail.md</a>.</p>
+      <ol>
+        <li>Fetch <code>/api/audit-anchor</code> now. Save the <code>{ chainHead, chainLength, asOf }</code> locally.</li>
+        <li>Come back any time later. The new <code>chainLength</code> must be ≥ what you saved.</li>
+        <li>The chain head at your earlier <code>chainLength</code> must still equal what you saved. OrcaTrade ops can re-walk the stored chain via <code>GET /api/audit?format=verify-stored</code> and the result must agree with this page.</li>
+        <li>If your earlier head no longer matches at its earlier sequence number, the chain was rewritten. The integrity guarantee rides on sha256 — not on trusting our auth surface.</li>
+      </ol>
+    </section>
+  </div>
+
+  <script src="/trust/anchors/app.js"></script>
+</body>
+</html>
