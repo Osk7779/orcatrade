@@ -49,6 +49,39 @@
   --ot-font-mono: 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
+/* Override the legacy --gold CSS variable so anywhere a static page or
+   stylesheet uses it (color: var(--gold); border-color: var(--gold);
+   etc.) the visible result is ivory, not warm gold. Two well-known
+   variants — :root scope (most pages) and on body for older surfaces. */
+:root,
+html,
+body {
+  --gold: #fafaf7 !important;
+  --gold-soft: rgba(250, 250, 247, 0.72) !important;
+  --cream: var(--ot-ivory) !important;
+  --accent-color: var(--ot-ivory) !important;
+}
+
+/* Wholesale Cormorant-Garant → Fraunces remap. The legacy SEO + account
+   pages declare font-family directly on hero titles, brand text, and
+   editorial accents — without this override the shell's h1/h2/h3 rule
+   would miss them. */
+[style*='Cormorant'],
+.hero-title-center,
+.hero-title,
+.hero-eyebrow,
+.guide-hero h1,
+.guide-section h2,
+.unit-section h2,
+.feature-card h3,
+.tier-name,
+.addon-name,
+.brand-text span:first-child,
+[class*='cormorant'] {
+  font-family: var(--ot-font-serif) !important;
+  font-variation-settings: 'SOFT' 28, 'opsz' 144;
+}
+
 /* Strip the warm-gold accent everywhere it's used. The legacy stylesheet
    used rgba(220, 188, 110, *) for links and CTAs; ivory wins. */
 a:not([class]),
