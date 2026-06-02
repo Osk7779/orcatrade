@@ -68,7 +68,15 @@
       "destination": "https://orcatrade-marketing.vercel.app/pl"
     },
     {
+      "source": "/pl/",
+      "destination": "https://orcatrade-marketing.vercel.app/pl"
+    },
+    {
       "source": "/de",
+      "destination": "https://orcatrade-marketing.vercel.app/de"
+    },
+    {
+      "source": "/de/",
       "destination": "https://orcatrade-marketing.vercel.app/de"
     },
 
