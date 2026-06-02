@@ -29,7 +29,7 @@ customers in Phase 2 (P2.E, P2.13).
 
 ## What triggers a page
 
-Currently three sources:
+Currently four sources:
 
 1. **`/api/health` probe** ([lib/handlers/health.js](../../lib/handlers/health.js))
    from the [uptime workflow](../../.github/workflows/uptime.yml) every
@@ -37,7 +37,13 @@ Currently three sources:
 2. **Sentry capture** of an unhandled error (per [ADR 0006](../adr/0006-circuit-breaker-on-external-calls.md)
    — Sentry wiring is wired but underutilised; coverage expansion is
    Phase 0 P0.7).
-3. **Customer email** to support / `intelligence@orcatrade.pl`.
+3. **Human-review queue email** to `ORCATRADE_OPS_EMAIL` — fired by
+   [lib/human-review.js](../../lib/human-review.js) whenever an agent
+   invokes `requestHumanReview` (per [ADR 0015](../adr/0015-human-review-queue.md)).
+   Drain SLA: **acknowledge within 4 business hours, resolve within 24
+   business hours**. Drain procedure:
+   [docs/runbooks/human-review-queue.md](../runbooks/human-review-queue.md).
+4. **Customer email** to support / `intelligence@orcatrade.pl`.
 
 Manual reports from Oskar's own usage of the product also count — if
 you find a bug while using the app, file it as an issue + assess severity.
