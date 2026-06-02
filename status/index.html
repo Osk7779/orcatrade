@@ -50,6 +50,32 @@
     .footnote a:hover { color: rgba(220, 188, 110, 1); }
 
     .err-banner { padding: 1rem 1.3rem; background: rgba(232, 128, 128, 0.07); border: 1px solid rgba(232, 128, 128, 0.3); color: #e88080; font-family: 'Geist Mono', monospace; font-size: 0.8rem; margin-bottom: 2rem; }
+
+    /* Uptime + incidents + anchor sections (added 2026-06-02) */
+    .uptime-section, .incidents-section, .anchor-section { margin-top: 2.5rem; padding: 1.5rem 1.6rem; border: 1px solid rgba(255,255,255,0.07); background: rgba(255,255,255,0.015); }
+    .section-head { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 0.5rem; }
+    .section-head h2 { font-family: 'Cormorant Garant', serif; font-size: 1.3rem; font-weight: 600; margin: 0; }
+    .section-sub { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.45); letter-spacing: 0.08em; text-transform: uppercase; }
+    .section-blurb { font-size: 0.86rem; line-height: 1.55; color: rgba(255,255,255,0.65); margin: 0.5rem 0 1rem; max-width: 70ch; }
+    .section-blurb a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
+    .section-blurb a:hover { color: rgba(220, 188, 110, 1); }
+
+    .uptime-bar { display: flex; gap: 2px; height: 32px; align-items: stretch; padding: 0.4rem 0; }
+    .uptime-bar .tick { flex: 1 1 auto; min-width: 4px; border-radius: 1px; transition: background 0.2s; background: rgba(255,255,255,0.06); }
+    .uptime-bar .tick.ok { background: linear-gradient(180deg, rgba(126, 210, 138, 0.85), rgba(126, 210, 138, 0.55)); }
+    .uptime-bar .tick.degraded { background: linear-gradient(180deg, rgba(220, 188, 110, 0.85), rgba(220, 188, 110, 0.55)); }
+    .uptime-bar .tick.down { background: linear-gradient(180deg, rgba(232, 128, 128, 0.9), rgba(232, 128, 128, 0.55)); }
+    .uptime-stat { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.55); margin-top: 0.4rem; }
+
+    .incidents-list { margin-top: 0.6rem; }
+    .incident { padding: 0.8rem 1rem; background: rgba(255,255,255,0.025); border-left: 2px solid rgba(255,255,255,0.15); font-size: 0.88rem; line-height: 1.55; }
+    .incident.none { color: rgba(255,255,255,0.65); border-left-color: rgba(126, 210, 138, 0.5); }
+    .incident.none strong { color: rgba(126, 210, 138, 0.9); font-weight: 600; }
+    .incident .inline, .incidents-list a.inline { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
+
+    .anchor-display { background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 0.7rem 0.9rem; font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.78); white-space: pre-wrap; word-break: break-all; line-height: 1.55; }
+
+    code.inline, .section-blurb code, .footnote code, .legend code { font-family: 'Geist Mono', monospace; font-size: 0.85em; padding: 0.05rem 0.3rem; background: rgba(255,255,255,0.05); border-radius: 1px; }
   </style>
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
@@ -121,6 +147,54 @@
 
     <div class="subs" id="subs"></div>
 
+    <section class="uptime-section" id="uptimeSection">
+      <div class="section-head">
+        <h2>This session's uptime</h2>
+        <span class="section-sub" id="uptimeSampleCount">collecting…</span>
+      </div>
+      <p class="section-blurb">
+        Each green tick is a successful <code>/api/health</code> probe from
+        this browser, 30 seconds apart. This is a per-visitor view —
+        what you see is verifiably real, but the window is your session.
+        For cross-visitor evidence of continuous operation, see the
+        <a class="inline" href="/trust/anchors/">tamper-evident audit-chain history</a>
+        — a fresh anchor is published nightly by an independent
+        GitHub-hosted cron job; gaps would surface a missed day.
+      </p>
+      <div class="uptime-bar" id="uptimeBar" aria-label="Uptime sparkline"></div>
+      <div class="uptime-stat" id="uptimeStat">—</div>
+    </section>
+
+    <section class="incidents-section">
+      <div class="section-head">
+        <h2>Recent incidents</h2>
+        <span class="section-sub">last 90 days</span>
+      </div>
+      <div class="incidents-list" id="incidentsList">
+        <div class="incident none">
+          <strong>No incidents recorded in the last 90 days.</strong>
+          When one happens we publish the start time, scope, and
+          remediation here within the
+          <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/incident-response.md">incident-response SLA</a>.
+          The list is sourced from <code>docs/incidents/</code>; an
+          empty list is the honest current state, not "we choose not
+          to publish."
+        </div>
+      </div>
+    </section>
+
+    <section class="anchor-section">
+      <div class="section-head">
+        <h2>Audit-chain anchor</h2>
+        <span class="section-sub" id="anchorLengthLabel">—</span>
+      </div>
+      <p class="section-blurb">
+        The current public anchor proves the audit chain hasn't been
+        rewritten. Published unauthenticated, no PII.
+      </p>
+      <div class="anchor-display" id="anchorDisplay">loading anchor…</div>
+    </section>
+
     <div class="legend">
       <strong>Status legend:</strong> <span style="color:#7ed28a">●</span> ok — fully operational ·
       <span style="color:rgba(220,188,110,1)">●</span> degraded — partial functionality, platform still serves ·
@@ -182,6 +256,76 @@
       `;
     }
 
+    // Browser-local uptime tracker — each visitor sees only their own
+    // session's probes, but what they see is verifiably real (they can
+    // open DevTools and watch the fetches). For cross-visitor evidence
+    // of continuous operation, see the linked tamper-evident audit
+    // chain.
+    const UPTIME_STORAGE_KEY = 'orcatrade.status.uptimeSamples';
+    const UPTIME_MAX_SAMPLES = 60;   // ~30 minutes at 30s interval
+
+    function loadSamples() {
+      try {
+        const raw = sessionStorage.getItem(UPTIME_STORAGE_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      } catch (_) { return []; }
+    }
+    function saveSamples(samples) {
+      try { sessionStorage.setItem(UPTIME_STORAGE_KEY, JSON.stringify(samples)); } catch (_) {}
+    }
+    function renderUptimeBar(samples) {
+      const bar = document.getElementById('uptimeBar');
+      if (!bar) return;
+      // Pad to UPTIME_MAX_SAMPLES with empty placeholders so the bar
+      // grows visually as samples accumulate.
+      const padded = [...new Array(Math.max(0, UPTIME_MAX_SAMPLES - samples.length)).fill(null), ...samples];
+      bar.innerHTML = padded.map(s => {
+        if (!s) return '<div class="tick"></div>';
+        return `<div class="tick ${s.status}" title="${new Date(s.ts).toLocaleTimeString()} · ${s.status}"></div>`;
+      }).join('');
+      const stat = document.getElementById('uptimeStat');
+      const total = samples.length;
+      if (total === 0) {
+        stat.textContent = 'No samples yet — wait 30 seconds.';
+        return;
+      }
+      const okCount = samples.filter(s => s.status === 'ok').length;
+      const pct = ((okCount / total) * 100).toFixed(total >= 10 ? 1 : 0);
+      stat.textContent = `${okCount} ok / ${total} samples · ${pct}% this session`;
+      const countEl = document.getElementById('uptimeSampleCount');
+      if (countEl) countEl.textContent = `${total} sample${total === 1 ? '' : 's'}`;
+    }
+    function recordSample(status) {
+      const samples = loadSamples();
+      samples.push({ ts: Date.now(), status });
+      while (samples.length > UPTIME_MAX_SAMPLES) samples.shift();
+      saveSamples(samples);
+      renderUptimeBar(samples);
+    }
+
+    // Anchor display (mirrors /trust/'s widget; reuses the same public
+    // endpoint).
+    async function refreshAnchor() {
+      const display = document.getElementById('anchorDisplay');
+      const label = document.getElementById('anchorLengthLabel');
+      if (!display) return;
+      try {
+        const res = await fetch('/api/audit-anchor', { credentials: 'omit', cache: 'no-store' });
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const j = await res.json();
+        if (!j || !j.ok) throw new Error('anchor not ok');
+        display.textContent =
+          'chainHead:   ' + j.chainHead + '\n' +
+          'chainLength: ' + j.chainLength + '\n' +
+          'asOf:        ' + j.asOf + '\n' +
+          'genesis:     ' + j.genesis;
+        if (label) label.textContent = `${j.chainLength} events`;
+      } catch (_) {
+        display.textContent = '(anchor temporarily unavailable)';
+      }
+    }
+
     async function refresh() {
       const errEl = document.getElementById('errBanner');
       try {
@@ -200,17 +344,24 @@
         subs.innerHTML = Object.entries(body.subsystems).map(([k, v]) => renderSubsystem(k, v)).join('');
         document.getElementById('lastChecked').textContent = `Last checked: ${new Date(body.ts).toLocaleTimeString()} · ${Date.now() - t0} ms`;
         errEl.hidden = true;
+        recordSample(body.status);
       } catch (err) {
         errEl.hidden = false;
         errEl.textContent = `Could not reach /api/health: ${err.message}`;
         document.getElementById('overall').className = 'overall down';
         document.getElementById('overallLabel').textContent = 'Status page cannot reach the platform';
         document.getElementById('lastChecked').textContent = `Failed at ${new Date().toLocaleTimeString()}`;
+        recordSample('down');
       }
     }
 
+    // Boot: render any pre-existing samples first (sessionStorage)
+    // so the bar isn't empty on a refresh.
+    renderUptimeBar(loadSamples());
     refresh();
+    refreshAnchor();
     setInterval(refresh, 30_000);
+    setInterval(refreshAnchor, 5 * 60_000);  // anchor changes less often; 5 min is fine
   </script>
 
 <!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
