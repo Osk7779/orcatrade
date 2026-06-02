@@ -60,14 +60,33 @@ test('package.json runtime dependencies match the allowlist exactly', () => {
   }
 });
 
-test('package.json declares NO devDependencies (the test rig is plain Node)', () => {
+// Allowed devDependencies. Each entry needs a justification. The test
+// rig itself is plain Node (no jest/mocha/test-framework devDep), but
+// the apex plan's P0.E (TypeScript baseline) introduced typescript +
+// @types/node for opt-in type-checking via `npm run typecheck`. Anything
+// not on this list trips the gate.
+const ALLOWED_DEV_DEPS = Object.freeze({
+  'typescript': 'P0.E TypeScript baseline — opt-in @ts-check on JS files + .ts in new modules. tsc --noEmit via `npm run typecheck`.',
+  '@types/node': 'Type definitions for the Node std library — required for the typescript opt-in path.',
+});
+
+test('package.json devDependencies match the allowlist exactly', () => {
   const pkg = readPkg();
   const dev = pkg.devDependencies || {};
-  // We run on node --test and node:assert — no jest, no mocha, no
-  // typescript at test time. If a devDep sneaks in, surface it loudly
-  // so the addition is a deliberate decision.
-  assert.deepEqual(Object.keys(dev), [],
-    `devDependencies should be empty (got: ${Object.keys(dev).join(', ')}). The test rig is pure-Node; adding a devDep means widening the toolchain.`);
+  const declared = Object.keys(dev).sort();
+  const allowed = Object.keys(ALLOWED_DEV_DEPS).sort();
+  const added = declared.filter(d => !ALLOWED_DEV_DEPS[d]);
+  const removed = allowed.filter(d => !dev[d]);
+  if (added.length || removed.length) {
+    const msg = [
+      'devDependency drift detected:',
+      added.length ? `  ADDED (not in allowlist): ${added.join(', ')}` : null,
+      added.length ? '    → add an entry to ALLOWED_DEV_DEPS in this test, with a justification, in the SAME commit' : null,
+      removed.length ? `  REMOVED (still in allowlist): ${removed.join(', ')}` : null,
+      removed.length ? '    → if intentional, delete the allowlist entry; if accidental, restore the dep' : null,
+    ].filter(Boolean).join('\n');
+    assert.fail(msg);
+  }
 });
 
 test('package.json is private (cannot be published to npm by accident)', () => {
