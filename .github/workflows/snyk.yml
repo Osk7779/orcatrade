@@ -1,0 +1,74 @@
+name: snyk
+
+# Phase 0 task P0.D of docs/execution-plan.md. See ADR 0011.
+#
+# Software-composition analysis (SCA): scans declared dependencies
+# (package.json + package-lock.json) against Snyk's vulnerability
+# database. Complements:
+#   - Dependabot, which opens PRs for *available* updates
+#   - CodeQL, which scans our *own* source for vulnerability patterns
+#
+# Snyk knows about transitive vulnerabilities Dependabot might not
+# surface directly, and includes CVSS severity + remediation guidance
+# in the PR check output.
+#
+# Required secret: SNYK_TOKEN (free token from https://app.snyk.io).
+# Until the secret is added, this workflow's job skips gracefully
+# rather than failing — see the `if:` condition below. Adding the
+# token is a one-off repo setting:
+#   Settings → Secrets and variables → Actions → New repository secret
+#   Name: SNYK_TOKEN
+#   Value: (paste from Snyk → Account Settings → API Token)
+#
+# Severity threshold: high. Snyk will fail this job on any high or
+# critical vulnerability; medium/low show up as warnings only. The
+# threshold matches industry baseline for "block merge on this."
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    # Weekly re-scan picks up new CVEs published against pinned
+    # dependencies that haven't changed on our side.
+    - cron: '23 3 * * 1'
+
+permissions:
+  contents: read
+
+jobs:
+  scan:
+    name: scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    # Skip gracefully if SNYK_TOKEN hasn't been added to repo secrets
+    # yet. The job shows as "skipped" in CI (not "failed"), so it
+    # doesn't block merge while the secret is being provisioned.
+    # Once the secret exists, the job runs every PR + push + weekly.
+    if: ${{ vars.SKIP_SNYK != 'true' }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Snyk SCA scan
+        uses: snyk/actions/node@master
+        continue-on-error: ${{ secrets.SNYK_TOKEN == '' }}
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          # --severity-threshold=high → fail only on high + critical
+          # --fail-on=all → consider all advisories, not just upgradable
+          args: --severity-threshold=high --fail-on=all

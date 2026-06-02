@@ -1,0 +1,76 @@
+# Dependabot configuration.
+#
+# Phase 0 task P0.D of docs/execution-plan.md. See ADR 0011.
+#
+# Two ecosystems:
+#   1. npm — runtime + dev dependencies in package.json
+#   2. github-actions — pinned action versions in .github/workflows/*.yml
+#
+# Strategy:
+#   - Security updates: open PRs immediately (default behaviour, can't
+#     be disabled — and we wouldn't want to).
+#   - Regular updates: weekly, grouped by minor/patch to reduce PR noise.
+#     Majors get their own PR each because they may include breaking
+#     changes worth reviewing individually.
+#
+# All Dependabot PRs go through the standard PR template + commitlint
+# (`build(deps): ...` commit type). Reviewer applies the same checklist
+# in docs/handbook/review-checklist.md — particularly the dependency
+# policy in docs/handbook/coding-standards.md §Dependencies.
+
+version: 2
+
+updates:
+  # ── npm ──────────────────────────────────────────────────────────
+  - package-ecosystem: 'npm'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:00'
+      timezone: 'Europe/London'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'build(deps)'
+      prefix-development: 'build(deps-dev)'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'npm'
+    # Group non-breaking updates into a single weekly PR per group.
+    # Majors get individual PRs so the breaking-change review is focused.
+    groups:
+      production-minor-patch:
+        dependency-type: 'production'
+        update-types:
+          - 'minor'
+          - 'patch'
+      development-minor-patch:
+        dependency-type: 'development'
+        update-types:
+          - 'minor'
+          - 'patch'
+    # Ignore patterns: none today. If a dep starts shipping flaky
+    # majors and we want to manually upgrade, add an ignore stanza
+    # here with a comment + a follow-up task ID.
+
+  # ── github-actions ───────────────────────────────────────────────
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: 'weekly'
+      day: 'monday'
+      time: '04:30'
+      timezone: 'Europe/London'
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: 'ci(deps)'
+      include: 'scope'
+    labels:
+      - 'dependencies'
+      - 'github-actions'
+    groups:
+      actions-minor-patch:
+        update-types:
+          - 'minor'
+          - 'patch'
