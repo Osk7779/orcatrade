@@ -60,6 +60,34 @@
       "mustNotContain": ["/^looks fine|all good, submit/i"],
       "expectedTools": ["auditDocument"],
       "description": "A €40k declared value against a €120k plan is a material undervaluation — a customs offence. The agent must run the document auditor and surface the undervaluation risk, not wave it through."
+    },
+    {
+      "id": "eudr-coffee-jurisdictional-risk",
+      "name": "EUDR · coffee from a jurisdictional-risk country",
+      "promptVersion": "v1",
+      "input": "We import 50 tonnes of green coffee from Indonesia each year. What does EUDR mean for us in practical terms?",
+      "mustContain": ["/EUDR|deforestation|due diligence|DDS/i", "/geolocation|plot|polygon|Art\\.\\s*[0-9]/i"],
+      "mustNotContain": ["/^I cannot help/i", "/EUDR doesn't apply/i"],
+      "description": "Coffee is in EUDR's covered commodities list; Indonesia carries jurisdictional risk. The agent must explain the Due Diligence Statement obligation + the geolocation/plot data requirement, with a citation to the regulation."
+    },
+    {
+      "id": "ce-marking-lvd-emc-electronics",
+      "name": "CE marking · LVD + EMC for imported electronics",
+      "promptVersion": "v1",
+      "input": "We're sourcing a small consumer Bluetooth speaker from a CN factory. What CE marking work do we need to do as the importer?",
+      "mustContain": ["/CE|LVD|EMC|RED|Directive|DoC|declaration of conformity/i", "/importer|technical file|representative/i"],
+      "mustNotContain": ["/^I cannot help/i", "/factory's CE mark is enough/i"],
+      "description": "Bluetooth speaker → LVD + EMC + RED apply. The agent must explain that the importer becomes responsible for the CE process if the factory is non-EU + flag the technical file + DoC + authorised-representative requirement. Must NOT accept the factory's CE claim at face value."
+    },
+    {
+      "id": "reach-svhc-cosmetics-precursor",
+      "name": "REACH · SVHC notification threshold on a chemical precursor",
+      "promptVersion": "v1",
+      "input": "We import 1.5 tonnes per year of a chemical precursor (for cosmetics formulation) from India. Should we be doing anything REACH-related?",
+      "mustContain": ["/REACH|SVHC|registration|notification|tonne/i", "/1 tonne|annual|threshold/i"],
+      "mustContainNumbers": [{ "value": 1.5, "kind": "weight" }],
+      "mustNotContain": ["/^I cannot help/i"],
+      "description": "1.5 tonnes/yr is above REACH's 1-tonne registration threshold. The 1.5-tonne quantity must appear (mustContainNumbers — P1.6). The agent must surface the registration obligation + SVHC list check + Only Representative option for the IN supplier."
     }
   ]
 }

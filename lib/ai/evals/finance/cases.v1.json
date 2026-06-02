@@ -56,6 +56,34 @@
       "mustContain": ["/total cost|TCO|landed|all.?in|carrying|inventory/i", "/€|\\$|[0-9]/"],
       "mustNotContain": ["/^I cannot help/i", "/just (go|pick) (with )?the cheaper/i"],
       "description": "Total cost of ownership can invert a unit-price decision once freight, duty and inventory carrying cost are included. The agent must reason on the all-in figure, not the sticker price."
+    },
+    {
+      "id": "incoterm-fob-vs-cif",
+      "name": "Incoterm · FOB vs CIF on a €40k consignment",
+      "promptVersion": "v1",
+      "input": "Supplier offered me CIF Rotterdam at $42,000 or FOB Shanghai at $38,000 plus my own freight + insurance. Which is the better deal on a 40-foot container?",
+      "mustContain": ["/Incoterm|FOB|CIF|insurance/i", "/[€\\$][0-9]/"],
+      "mustNotContain": ["/^I cannot help/i", "/always (go|pick) (with )?FOB/i"],
+      "description": "FOB+self-arranged is usually cheaper but transfers risk earlier; the agent must explain the risk handoff + show the all-in math, not assert a universal rule."
+    },
+    {
+      "id": "lc-cost-recovery-threshold",
+      "name": "LC · when is the LC fee worth it?",
+      "promptVersion": "v1",
+      "input": "I quoted my customer a tight margin. A confirmed LC will cost me 1.5% of the order value. The order is €30k. Is the LC still worth it?",
+      "mustContain": ["/risk|exposure|first-time|established|track record/i", "/€[0-9]|%/"],
+      "mustNotContain": ["/^I cannot help/i", "/skip the LC to save the fee/i"],
+      "description": "1.5% LC fee on €30k = €450. The agent must put that cost against the alternative — the supplier walking away with the deposit on a TT — and frame the answer around supplier risk profile, not just margin pressure."
+    },
+    {
+      "id": "ad-cvd-margin-impact",
+      "name": "Margin · AD/CVD landing on a thin-margin SKU",
+      "promptVersion": "v1",
+      "input": "Anti-dumping just hit our supplier at 38.5%. We were running at 12% gross margin on this SKU. What does the math actually say about whether we keep selling it?",
+      "mustContain": ["/margin|gross|net|loss|break.?even/i", "/[0-9]+(\\.[0-9]+)?\\s*%/"],
+      "mustContainNumbers": [{ "value": 38.5, "kind": "percent" }],
+      "mustNotContain": ["/^I cannot help/i", "/(absorb|swallow) the duty/i"],
+      "description": "The cited 38.5% AD must appear in the agent's response (mustContainNumbers — apex P1.6 numeric-fidelity gate). Margin math should surface whether the SKU now loses money at the current price + what alternative origins look like."
     }
   ]
 }

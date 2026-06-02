@@ -54,6 +54,34 @@
       "mustContain": ["/LCL|FCL|container|consolidat|cubic|cbm/i", "/€[0-9]|cost|per/i"],
       "mustNotContain": ["/^I cannot help/i"],
       "description": "At ~12cbm/month the LCL-vs-FCL break-even is live (a 20ft holds ~28-33cbm). The agent must reason on the per-cbm economics with figures, not give a generic answer."
+    },
+    {
+      "id": "bonded-vs-clearance-seasonal",
+      "name": "Bonded warehouse · seasonal SKU cash-flow trade-off",
+      "promptVersion": "v1",
+      "input": "We import Christmas decorations in August but only start selling them in November. A 40ft container, €60,000 cargo value. Bonded storage vs. clearing on arrival?",
+      "mustContain": ["/bond|deferral|cash flow|VAT|duty/i", "/€[0-9]|day|month/i"],
+      "mustNotContain": ["/^I cannot help/i"],
+      "description": "Three-month seasonal hold + €60k value → bonded warehousing's duty/VAT deferral usually wins on working capital terms. The agent must show the cash-flow math + bonded storage cost + decision."
+    },
+    {
+      "id": "insurance-cargo-claim-coverage",
+      "name": "Insurance · ICC clauses + war/strikes endorsement",
+      "promptVersion": "v1",
+      "input": "We're shipping €180k of electronics ex-Vietnam. Cargo insurance broker quoted us 0.18% premium under ICC(A). Is that enough coverage for a tech consignment crossing pirate-risk waters?",
+      "mustContain": ["/ICC|institute cargo|warranty|exclusion|war|strikes/i", "/%|€[0-9]/"],
+      "mustContainNumbers": [{ "value": 180000, "kind": "money" }],
+      "mustNotContain": ["/^I cannot help/i"],
+      "description": "ICC(A) is broadest standard cover; war/strikes is a separate endorsement. The €180k cargo value must appear (mustContainNumbers — apex P1.6); the agent must explain what's covered + flag the war/strikes gap, not just assert coverage."
+    },
+    {
+      "id": "lead-time-buffer-stock",
+      "name": "Lead time · buffer-stock math for 6-week ocean transit",
+      "promptVersion": "v1",
+      "input": "Sea freight from Shenzhen to Rotterdam is currently running 38-45 days. We sell 800 units/week. How much buffer stock should I hold to avoid stockouts during a transit slip?",
+      "mustContain": ["/buffer|safety stock|stockout|lead time|day/i", "/[0-9]+/"],
+      "mustNotContain": ["/^I cannot help/i"],
+      "description": "Buffer-stock math: weekly demand × max-vs-min lead-time variance. The agent must compute the buffer figure, not give a generic 'hold more stock' answer."
     }
   ]
 }

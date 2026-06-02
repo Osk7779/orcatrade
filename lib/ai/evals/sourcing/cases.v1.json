@@ -65,6 +65,35 @@
       "mustContain": ["/risk|concentration|single|diversif|second source/i"],
       "mustNotContain": ["/^I cannot help/i", "/no risk at all/i"],
       "description": "Single-source concentration is a real supply-chain risk. The agent must name it and offer a mitigation (second source / dual sourcing / safety stock), not dismiss it."
+    },
+    {
+      "id": "supplier-vetting-first-order",
+      "name": "Supplier vetting · first-order due diligence checklist",
+      "promptVersion": "v1",
+      "input": "New supplier in Yiwu wants to onboard us for €40k of homeware orders. What checks should I run before sending a deposit?",
+      "mustContain": ["/registration|verification|sanction|bank|reference/i", "/check|verify|confirm/i"],
+      "mustContainNumbers": [{ "value": 40000, "kind": "money" }],
+      "mustNotContain": ["/^I cannot help/i", "/just (trust|wire) (the )?supplier/i"],
+      "description": "First-order €40k → multi-step vetting required (Yiwu business licence, bank account name match, sanctions screen, prior export references). The €40k value must appear (mustContainNumbers — P1.6); the agent must not skip due-diligence steps to save time."
+    },
+    {
+      "id": "factory-score-interpretation",
+      "name": "Factory score · interpreting a 62/100 result",
+      "promptVersion": "v1",
+      "input": "Our factory score tool returned 62/100 for a supplier we like. What does that actually mean and should we still order?",
+      "mustContain": ["/factory score|signal|indicator|risk/i", "/62|score|out of/i"],
+      "mustNotContain": ["/^I cannot help/i", "/(safe|definitely OK) to order/i"],
+      "description": "Factory score is INDICATIVE not authoritative. The agent must explain what the score reflects (registration, export history, banking signals) + recommend additional verification at that band, NOT clear the supplier on score alone."
+    },
+    {
+      "id": "country-shift-trade-defence",
+      "name": "Country shift · anti-dumping pushing diversification",
+      "promptVersion": "v1",
+      "input": "Our CN supplier of bicycle parts now attracts 48.5% anti-dumping. Vietnam quotes 8% higher unit price. Where do we land?",
+      "mustContain": ["/anti.?dumping|AD|origin|landed/i", "/48\\.5|%/"],
+      "mustContainNumbers": [{ "value": 48.5, "kind": "percent" }],
+      "mustNotContain": ["/^I cannot help/i", "/transship/i"],
+      "description": "Once AD lands at 48.5%, a +8% unit price in VN is usually net-cheaper landed. The 48.5% rate must appear in prose (mustContainNumbers — P1.6). Transshipment is forbidden (illegal circumvention) — the agent must NOT suggest it."
     }
   ]
 }
