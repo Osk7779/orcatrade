@@ -31,6 +31,7 @@ and are reviewable through the standard PR flow.
 | [auth-subsystem-failure.md](auth-subsystem-failure.md) | Magic-link login broken; customers can't sign in; sessions vanishing |
 | [billing-pipeline-failure.md](billing-pipeline-failure.md) | Stripe checkout/portal failing; webhook receiver 5xx; (Phase 2+) metering events lost |
 | [ai-agent-failure.md](ai-agent-failure.md) | Agent endpoints 5xx/hanging; empty content; cost spike; eval regression |
+| [human-review-queue.md](human-review-queue.md) | Drain `/api/human-review` — agents escalated to a human and are blocking on action (4 h ack / 24 h resolve SLA) |
 | [kv-outage.md](kv-outage.md) | Upstash Redis down or degraded; sessions vanishing; rate-limit counters resetting; mutations refusing (post-P0.4) |
 | [pg-outage.md](pg-outage.md) | Neon Postgres down or slow; dual-write arm failing; (post-P1.4) customer reads broken; lock contention; migration partial-apply |
 | [repo-settings-branch-protection.md](repo-settings-branch-protection.md) | Apply (or re-apply) the branch-protection policy on `main` per ADR 0012 |

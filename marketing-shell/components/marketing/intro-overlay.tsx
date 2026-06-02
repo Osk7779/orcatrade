@@ -9,6 +9,7 @@ import { motion, AnimatePresence } from 'motion/react';
 //   2. Hairline ────── ❦ ──────
 //   3. ORCATRADE GROUP, Fraunces 144, with letter-spacing ease-in
 //   4. Italic-serif lede — "Asia to Europe — on one operating layer."
+//   5. (P0.12 a11y) Visible "Press any key to continue" hint
 //
 // Each element reveals in sequence with a staggered ease-out. The whole
 // plate fades after a hold, and a sessionStorage flag means it only
@@ -16,10 +17,35 @@ import { motion, AnimatePresence } from 'motion/react';
 // the user isn't waiting on a 2-second curtain on every page).
 //
 // Dismisses early on the user's first scroll or first pointer-down.
+//
+// Accessibility (Phase 0 P0.12):
+//   - prefers-reduced-motion: skipped entirely. Per WCAG 2.3.3, when the
+//     user signals they want reduced motion the decorative intro is not
+//     shown (it's a curtain over the real content; the real content is
+//     what the user came for). The session flag is set so subsequent
+//     reloads also skip — consistent with the played-already path.
+//   - role="dialog" + aria-label so screen readers announce the overlay
+//     instead of skipping it (the prior aria-hidden silently swallowed
+//     the brand intro for SR users).
+//   - aria-live="polite" on the kicker so the announcement happens once
+//     the plate is rendered, not the moment the dialog opens.
+//   - Visible "Press any key to continue" hint at the bottom, surfaced
+//     after the wordmark settles. WCAG 2.2.1 (Timing Adjustable) — the
+//     intro is dismissible at any time + the dismiss mechanism is now
+//     visible, not just discoverable by accident.
 
 const SESSION_KEY = 'orcatrade.intro.played.v2';
 const HOLD_MS = 4000;
 const FADE_MS = 600;
+
+function prefersReducedMotion(): boolean {
+  if (typeof window === 'undefined' || !window.matchMedia) return false;
+  try {
+    return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
 
 export function IntroOverlay() {
   const [visible, setVisible] = useState(false);
@@ -28,6 +54,17 @@ export function IntroOverlay() {
   useEffect(() => {
     // Skip if we already played the intro this session.
     if (typeof window !== 'undefined' && sessionStorage.getItem(SESSION_KEY)) {
+      return;
+    }
+    // P0.12 a11y: skip entirely when the user has requested reduced motion.
+    // Set the session flag so reloads also skip — matches the already-played
+    // path for consistency.
+    if (prefersReducedMotion()) {
+      try {
+        sessionStorage.setItem(SESSION_KEY, '1');
+      } catch {
+        /* private mode etc. */
+      }
       return;
     }
 
@@ -73,7 +110,9 @@ export function IntroOverlay() {
     <AnimatePresence>
       {visible && (
         <motion.div
-          aria-hidden
+          role="dialog"
+          aria-label="OrcaTrade Group — site intro"
+          aria-live="polite"
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: FADE_MS / 1000, ease: [0.16, 1, 0.3, 1] }}
@@ -163,6 +202,18 @@ export function IntroOverlay() {
               style={{ fontVariationSettings: "'SOFT' 50, 'opsz' 144" }}
             >
               Asia to Europe — on one operating layer.
+            </motion.span>
+
+            {/* P0.12 a11y — visible dismiss hint. Fades in after the lede so it
+                doesn't compete with the brand reveal but is on-screen by the
+                time most readers would otherwise reach for the keyboard. */}
+            <motion.span
+              initial={{ opacity: 0 }}
+              animate={{ opacity: revealed ? 0.5 : 0 }}
+              transition={{ duration: 0.6, delay: 1.6, ease: [0.16, 1, 0.3, 1] }}
+              className="mt-10 font-mono text-[10px] uppercase tracking-[0.24em] text-[var(--color-ivory-mute)]"
+            >
+              Press any key, or scroll, to continue
             </motion.span>
           </div>
         </motion.div>

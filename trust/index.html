@@ -37,6 +37,8 @@
     .note { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.55); border-left: 2px solid rgba(220, 188, 110, 0.4); padding: 0.5rem 0 0.5rem 0.9rem; margin: 1rem 0; line-height: 1.6; }
     .footer-note { margin-top: 2.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.07); font-size: 0.86rem; color: rgba(255,255,255,0.55); line-height: 1.7; }
     .footer-note a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
+    .anchor-pre { background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 0.8rem 1rem; margin: 0.8rem 0 0; overflow-x: auto; }
+    .anchor-pre code { font-family: 'Geist Mono', monospace; font-size: 0.78rem; line-height: 1.5; color: rgba(255,255,255,0.82); white-space: pre; }
   </style>
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
@@ -122,7 +124,30 @@
     <section>
       <h2>Audit &amp; accountability</h2>
       <p>State changes — plan and portfolio edits, restock and inventory actions, membership and access changes — are written to an audit log with the actor, timestamp, and before/after context. Administrators can review the tenant's activity feed with personal data redacted.</p>
-      <p><strong>Tamper-evident by design.</strong> Each entry is hash-chained at write time (<code>_seq</code>, <code>_prevHash</code>, <code>_hash</code>) over a personal-data-free projection, so any in-place edit, deletion or reordering of a stored row breaks the chain and is detectable. We publish two verification endpoints — one to re-walk the stored chain (<code>GET /api/audit?format=verify-stored</code>), one to produce an independently-verifiable export an auditor can recompute offline (<code>GET /api/audit?format=chain</code>) — so the integrity guarantee doesn't require trusting our own code. Lawful GDPR Article&nbsp;17 erasure pseudonymises the actor without breaking the chain. Full procedure: <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/audit-trail.md">audit-trail.md</a>.</p>
+      <p><strong>Tamper-evident by design.</strong> Each entry is hash-chained at write time (<code>_seq</code>, <code>_prevHash</code>, <code>_hash</code>) over a personal-data-free projection, so any in-place edit, deletion or reordering of a stored row breaks the chain and is detectable. We publish two admin verification endpoints — one to re-walk the stored chain (<code>GET /api/audit?format=verify-stored</code>), one to produce an independently-verifiable export an auditor can recompute offline (<code>GET /api/audit?format=chain</code>) — so the integrity guarantee doesn't require trusting our own code. Lawful GDPR Article&nbsp;17 erasure pseudonymises the actor without breaking the chain. Full procedure: <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/audit-trail.md">audit-trail.md</a>.</p>
+      <p><strong>Public verifiable anchor.</strong> The current chain head is published at <code><a class="inline" href="/api/audit-anchor">GET /api/audit-anchor</a></code> — no admin token, no PII, just the sha256 head and length. Fetch it periodically and store each <code>{ chainHead, chainLength, asOf }</code> locally; a later fetch whose chain doesn't pass through your earlier head is third-party-detectable evidence that the chain was rewritten. The integrity claim doesn't require you to trust our auth surface — only the cryptographic property of sha256.</p>
+      <pre data-audit-anchor class="anchor-pre"><code>loading current anchor…</code></pre>
+      <script>
+        (function () {
+          var el = document.querySelector('[data-audit-anchor] code');
+          if (!el) return;
+          fetch('/api/audit-anchor', { credentials: 'omit' })
+            .then(function (r) { return r.ok ? r.json() : null; })
+            .then(function (j) {
+              if (!j || !j.ok) { el.textContent = '(anchor temporarily unavailable)'; return; }
+              el.textContent =
+                '$ curl https://orcatrade.pl/api/audit-anchor\n\n' +
+                '{\n' +
+                '  "ok": true,\n' +
+                '  "asOf": ' + JSON.stringify(j.asOf) + ',\n' +
+                '  "genesis": ' + JSON.stringify(j.genesis) + ',\n' +
+                '  "chainHead": ' + JSON.stringify(j.chainHead) + ',\n' +
+                '  "chainLength": ' + j.chainLength + '\n' +
+                '}';
+            })
+            .catch(function () { el.textContent = '(anchor temporarily unavailable)'; });
+        }());
+      </script>
     </section>
 
     <section>

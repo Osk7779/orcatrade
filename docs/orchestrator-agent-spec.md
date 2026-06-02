@@ -45,7 +45,7 @@ Fourteen tools — every unique tool from the two specialists. Three tools are s
 | `compareWarehouseHubs` | logistics | warehouse-quote |
 | `recommendShipmentPlan` | logistics | composes routing+customs+warehouse |
 | `getDestinationVatRate` | logistics | customs-quote helper |
-| `lookupHsCode` | shared | placeholder |
+| `lookupHsCode` | shared | calculator-grounded ([ADR 0016](adr/0016-hs-code-lookup-calculator-grounded.md)) |
 | `requestHumanReview` | shared | escalation |
 
 That's 16 tools total once we count the shared three once. The Orchestrator can call any of them in any order.
