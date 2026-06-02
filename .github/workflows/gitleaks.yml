@@ -40,12 +40,12 @@ jobs:
 
     steps:
       - name: Checkout (full history on push; PR head on pull_request)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0
 
       - name: Run gitleaks
-        uses: gitleaks/gitleaks-action@v2
+        uses: gitleaks/gitleaks-action@v3
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # GITLEAKS_ENABLE_COMMENTS: post a PR comment on findings.
