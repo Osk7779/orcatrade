@@ -26,7 +26,12 @@ export default function SignInPage() {
     setState('sending');
     setErr('');
     try {
-      const res = await fetch('/api/auth/magic-link', {
+      // The root project's auth dispatcher (lib/handlers/auth.js) lives at
+      // /api/auth/<sub-action>. Magic-link issuance is the `request`
+      // sub-action; verify / me / logout are siblings. The same secret
+      // (ORCATRADE_AUTH_SECRET) signs the session cookie across surfaces
+      // so /app/* sees this sign-in immediately.
+      const res = await fetch('/api/auth/request', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },

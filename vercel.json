@@ -22,6 +22,8 @@
       "destination": "https://orcatrade-marketing.vercel.app/_next/:path*"
     },
 
+    { "source": "/changelog", "destination": "https://orcatrade-marketing.vercel.app/changelog" },
+    { "source": "/signin", "destination": "https://orcatrade-marketing.vercel.app/signin" },
     { "source": "/agents", "destination": "https://orcatrade-marketing.vercel.app/agents" },
     { "source": "/analysis", "destination": "https://orcatrade-marketing.vercel.app/analysis" },
     { "source": "/buyer-verification", "destination": "https://orcatrade-marketing.vercel.app/buyer-verification" },

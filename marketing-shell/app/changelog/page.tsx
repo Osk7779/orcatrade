@@ -13,6 +13,45 @@ export const metadata: Metadata = {
 // posture-statement language — no fabricated numbers.
 const ENTRIES: TimelineEntry[] = [
   {
+    date: '2026-06-02',
+    kicker: 'Design',
+    title: 'Visual unification — fifteen public routes onto the modern shell.',
+    bullets: [
+      'Fifteen marketing surfaces (agents, analysis, buyer-verification, contact, factory-risk, finance, founding, intelligence, logistics, process, regulations, search, sourcing, trust, examples) flip from legacy static HTML to the marketing shell — navy + ivory tokens, 21st.dev motion vocabulary, fully responsive 320px–1920px.',
+      'Trust page extended with a published certifications & roadmap table, an AI use section, a documents grid linking every load-bearing security doc in the repo, and a live audit-chain anchor receipt.',
+      'Auth, status and quote calculator carry forward; the wizard at /start and admin dashboards retheme in subsequent waves.',
+    ],
+  },
+  {
+    date: '2026-06-02',
+    kicker: 'Observability',
+    title: 'Per-handler SLO instrumentation + public /api/slo snapshot.',
+    bullets: [
+      'Every dispatched request records latency + status into a 24-hour rolling bucket; p50/p95/p99 + error rate per handler are queryable.',
+      'Targets calibrated per surface: /api/health 500 ms p95, calculator routes 1 s, specialist agents 8 s, orchestrator 12 s.',
+      'Fire-and-forget recording — telemetry never blocks the request. KV-outage degradation returns an empty snapshot, not a 5xx.',
+    ],
+  },
+  {
+    date: '2026-06-02',
+    kicker: 'Privacy',
+    title: 'Salted email pseudonym (apex P1.3).',
+    bullets: [
+      'New emailHashSalted() — HMAC-SHA256 keyed by EMAIL_PSEUDO_SALT. Resists dictionary attack against a breached hash store; the legacy unsalted hash stays as the default for back-compat.',
+      'No silent fallback: the salted path throws if the salt is unset or short. A silent fallback would defeat the purpose entirely.',
+      'Documented in the .env scaffold with an openssl rand -hex 32 hint and rotation guidance.',
+    ],
+  },
+  {
+    date: '2026-06-02',
+    kicker: 'Reproducibility',
+    title: 'TARIC duty pinning per quote (apex P1.1).',
+    bullets: [
+      'Every saved plan now pins the per-quote TARIC duty rate alongside FX, ETS price and AD/CVD measures. Recompute reads the pinned rate as the source of truth; every euro is reproducible from the inputs.',
+      'New checkTaricDrift compares pinned-vs-live so the reproducibility verdict UI can badge "duty rate moved since you saved this", with a 0.1pp tolerance band against schedule noise.',
+    ],
+  },
+  {
     date: '2026-05-27 · 28',
     kicker: 'Enterprise',
     title: 'Enterprise access, end-to-end reproducibility, in-app agent.',
