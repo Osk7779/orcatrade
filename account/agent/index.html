@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Operations Orchestrator | OrcaTrade</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Ask the OrcaTrade Operations Orchestrator a cross-domain trade-compliance question and watch it route to specialist agents in real time." />
+  <link rel="canonical" href="https://orcatrade.pl/account/agent/" />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
+  <style>
+    /* ── Layout ─────────────────────────────────────────── */
+    .agent-shell { max-width: 980px; margin: 0 auto; padding: 3rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .agent-shell h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(1.9rem, 3.5vw + 0.6rem, 2.6rem); font-weight: 600; color: rgba(255,255,255,0.97); margin-bottom: 0.4rem; line-height: 1.15; letter-spacing: -0.02em; }
+    .agent-shell .lead { font-size: 0.95rem; line-height: 1.65; color: rgba(255,255,255,0.65); margin-bottom: 2rem; max-width: 64ch; }
+    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
+    .breadcrumbs a { color: rgba(255,255,255,0.7); text-decoration: none; }
+    .breadcrumbs a:hover { color: rgba(255,255,255,0.95); }
+
+    /* ── Transcript ──────────────────────────────────────── */
+    .transcript { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 1.6rem; }
+    .turn { padding: 1rem 1.2rem; background: rgba(13, 15, 20, 0.5); border: 1px solid rgba(255,255,255,0.07); }
+    .turn .role { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 0.45rem; }
+    .turn.user .role { color: rgba(150, 200, 230, 0.85); }
+    .turn.agent .role { color: rgba(220, 188, 110, 0.85); }
+    .turn .body { font-size: 0.95rem; line-height: 1.65; color: rgba(255,255,255,0.85); white-space: pre-wrap; }
+    .turn .body code { font-family: 'Geist Mono', monospace; font-size: 0.86em; background: rgba(255,255,255,0.04); padding: 0.05rem 0.3rem; }
+    /* [chunk-id] citations are surfaced as muted monospace pills so
+       the calculator-grounded discipline is visually obvious to a
+       customer reviewing the transcript. */
+    .turn .citation { font-family: 'Geist Mono', monospace; font-size: 0.72rem; padding: 0.05rem 0.4rem; background: rgba(150, 200, 230, 0.08); border: 1px solid rgba(150, 200, 230, 0.2); color: rgba(150, 200, 230, 0.85); margin: 0 0.05rem; }
+
+    /* ── Tool-call trace (the enterprise-trust surface) ─── */
+    .trace { margin-top: 0.6rem; padding-top: 0.6rem; border-top: 1px dashed rgba(255,255,255,0.1); display: flex; flex-direction: column; gap: 0.3rem; }
+    .trace .trace-kicker { font-family: 'Geist Mono', monospace; font-size: 0.62rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 0.2rem; }
+    .tool-call { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.75); padding: 0.3rem 0.55rem; background: rgba(255,255,255,0.025); border-left: 2px solid rgba(220, 188, 110, 0.45); display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: baseline; }
+    .tool-call .tc-name { color: rgba(220, 188, 110, 0.95); font-weight: 600; }
+    .tool-call .tc-domain { color: rgba(255,255,255,0.45); }
+    .tool-call .tc-args { color: rgba(255,255,255,0.55); font-size: 0.7rem; flex-basis: 100%; word-break: break-word; }
+    .tool-call.failed { border-left-color: rgba(220, 110, 90, 0.7); }
+    .tool-call.failed .tc-name { color: rgba(220, 110, 90, 0.95); }
+
+    /* ── Status pills ────────────────────────────────────── */
+    .status-pill { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; padding: 0.2rem 0.6rem; border: 1px solid; display: inline-block; }
+    .status-pill.thinking { color: rgba(150, 200, 230, 0.95); border-color: rgba(150, 200, 230, 0.4); }
+    .status-pill.error { color: #e88080; border-color: rgba(232, 128, 128, 0.5); }
+    .status-pill.done { color: rgba(120, 200, 130, 0.95); border-color: rgba(120, 200, 130, 0.5); }
+
+    /* ── Input form ──────────────────────────────────────── */
+    .composer { padding: 1.1rem 1.2rem; background: rgba(8, 11, 19, 0.65); border: 1px solid rgba(255,255,255,0.08); position: sticky; bottom: 1rem; }
+    .composer label { display: block; font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.55); margin-bottom: 0.4rem; }
+    .composer textarea { width: 100%; min-height: 80px; padding: 0.65rem 0.85rem; background: rgba(13, 15, 20, 0.7); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.92); font-family: inherit; font-size: 0.95rem; line-height: 1.5; outline: none; resize: vertical; }
+    .composer textarea:focus { border-color: rgba(220, 188, 110, 0.45); }
+    .composer .row { display: flex; gap: 0.5rem; align-items: center; flex-wrap: wrap; margin-top: 0.7rem; }
+    .composer button { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.55rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; border: 1px solid var(--accent-color, #b8bec8); cursor: pointer; font-weight: 700; }
+    .composer button:hover:not(:disabled) { filter: brightness(1.08); }
+    .composer button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .composer .hint { font-size: 0.75rem; color: rgba(255,255,255,0.5); }
+
+    /* ── Auth-needed panel ───────────────────────────────── */
+    .auth-needed { padding: 1.5rem 1.7rem; background: rgba(220, 188, 110, 0.06); border: 1px solid rgba(220, 188, 110, 0.3); margin-bottom: 1.6rem; }
+    .auth-needed p { font-size: 0.94rem; line-height: 1.6; color: rgba(255,255,255,0.85); margin-bottom: 0.6rem; }
+    .auth-needed a { color: rgba(220, 188, 110, 0.95); text-decoration: none; font-weight: 600; }
+
+    /* ── Empty state ─────────────────────────────────────── */
+    .empty { padding: 1.4rem 1.5rem; background: rgba(255,255,255,0.02); border: 1px dashed rgba(255,255,255,0.1); color: rgba(255,255,255,0.7); font-size: 0.92rem; line-height: 1.6; }
+    .empty .examples { margin-top: 0.8rem; display: flex; flex-direction: column; gap: 0.35rem; }
+    .empty .examples button { text-align: left; background: transparent; border: 1px dashed rgba(255,255,255,0.15); color: rgba(255,255,255,0.78); padding: 0.5rem 0.75rem; font-family: inherit; font-size: 0.88rem; cursor: pointer; }
+    .empty .examples button:hover { border-color: rgba(220, 188, 110, 0.5); color: rgba(255,255,255,0.95); }
+
+    /* Hidden until JS shows the relevant panel. */
+    [hidden] { display: none !important; }
+  </style>
+  <!-- favicon set v9 (injected) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png">
+</head>
+<body>
+  <div class="agent-shell">
+    <div class="breadcrumbs"><a href="/account/">Account</a> · Operations Orchestrator</div>
+    <h1>Operations Orchestrator</h1>
+    <p class="lead">Ask any cross-domain trade-compliance question — CBAM exposure, anti-dumping risk, landed cost on a new lane, working-capital impact of a payment-terms change. The orchestrator routes to specialist agents (compliance, sourcing, logistics, finance) and shows you exactly which tools it called along the way. Every number traces to a calculator; every regulatory claim cites a chunk.</p>
+
+    <!-- Auth-required: shown if /api/auth/me 401s. -->
+    <div class="auth-needed" id="agent-auth-needed" hidden>
+      <p><strong>Sign in required.</strong> The Operations Orchestrator is a Growth-tier feature.</p>
+      <p><a href="/account/?next=/account/agent/">→ Sign in</a></p>
+    </div>
+
+    <!-- Loaded state: chat surface. -->
+    <div id="agent-loaded" hidden>
+      <div class="transcript" id="agent-transcript" aria-live="polite" aria-atomic="false">
+        <div class="empty" id="agent-empty">
+          <strong>Ask a question.</strong> A few starters:
+          <div class="examples" id="agent-examples">
+            <button type="button" data-example="I'm importing 80t of Chinese steel rebar into Poland (CIF Gdańsk €120k, 30-day terms). What's my landed total, CBAM exposure, and any anti-dumping risk?">80t CN steel → PL: landed total + CBAM + AD risk</button>
+            <button type="button" data-example="A new supplier in Vietnam quoted EVFTA preferential origin for our furniture line. Walk me through what evidence we need + the duty saving vs CN sourcing.">VN furniture under EVFTA — evidence + duty saving</button>
+            <button type="button" data-example="What's the working-capital impact of switching from 30 to 60-day payment terms on €4M annual CN apparel imports?">CCC math: 30→60-day terms on €4M CN apparel</button>
+          </div>
+        </div>
+      </div>
+
+      <form class="composer" id="agent-form">
+        <label for="agent-input">Your question</label>
+        <textarea id="agent-input" placeholder="e.g. I'm sourcing aluminium wheels from China, 12 SKUs, €450k/yr — what should I budget for CBAM + duty + freight?"></textarea>
+        <div class="row">
+          <button type="submit" id="agent-submit">Ask</button>
+          <span class="hint">Streams replies live · Shows every tool call · Cites every chunk</span>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="/account/agent/app.js"></script>
+</body>
+</html>
