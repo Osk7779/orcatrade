@@ -39,6 +39,28 @@
     .footer-note a { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
     .anchor-pre { background: rgba(8, 11, 19, 0.6); border: 1px solid rgba(255,255,255,0.08); padding: 0.8rem 1rem; margin: 0.8rem 0 0; overflow-x: auto; }
     .anchor-pre code { font-family: 'Geist Mono', monospace; font-size: 0.78rem; line-height: 1.5; color: rgba(255,255,255,0.82); white-space: pre; }
+
+    /* On-page navigation (added 2026-06-02) */
+    .trust-nav { display: flex; flex-wrap: wrap; gap: 0.4rem 0.9rem; align-items: baseline; margin: 1.5rem 0 2.4rem; padding: 1rem 1.2rem; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.07); font-family: 'Geist Mono', monospace; font-size: 0.78rem; }
+    .trust-nav strong { font-weight: 600; color: rgba(255,255,255,0.7); letter-spacing: 0.04em; text-transform: uppercase; font-size: 0.7rem; margin-right: 0.4rem; }
+    .trust-nav a { color: rgba(220, 188, 110, 0.92); text-decoration: none; padding: 0.15rem 0; border-bottom: 1px solid transparent; }
+    .trust-nav a:hover { border-bottom-color: rgba(220, 188, 110, 0.5); }
+
+    /* Certifications table */
+    .cert-table { width: 100%; border-collapse: collapse; margin-top: 0.8rem; font-size: 0.88rem; }
+    .cert-table th, .cert-table td { padding: 0.55rem 0.7rem; text-align: left; border-bottom: 1px solid rgba(255,255,255,0.06); color: rgba(255,255,255,0.82); }
+    .cert-table th { color: rgba(255,255,255,0.5); font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; font-size: 0.7rem; background: rgba(255,255,255,0.02); }
+    .cert-badge { display: inline-block; padding: 0.15rem 0.55rem; font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.05em; text-transform: uppercase; border: 1px solid; border-radius: 1px; }
+    .cert-badge.ok { color: #6dc28a; border-color: rgba(109, 194, 138, 0.5); background: rgba(109, 194, 138, 0.08); }
+    .cert-badge.ready { color: #c9b070; border-color: rgba(201, 176, 112, 0.5); background: rgba(201, 176, 112, 0.08); }
+    .cert-badge.warn { color: rgba(255,255,255,0.55); border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); }
+
+    /* Documents grid */
+    .doc-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 0.7rem; margin-top: 0.8rem; }
+    .doc { display: block; background: rgba(255,255,255,0.025); border: 1px solid rgba(255,255,255,0.08); padding: 0.85rem 1rem; text-decoration: none; color: inherit; transition: border-color 0.15s, background 0.15s; }
+    .doc:hover { border-color: rgba(220, 188, 110, 0.4); background: rgba(255,255,255,0.04); }
+    .doc-name { font-weight: 600; color: rgba(220, 188, 110, 0.92); font-size: 0.92rem; font-family: 'Geist Mono', monospace; letter-spacing: 0.02em; }
+    .doc-desc { font-size: 0.82rem; color: rgba(255,255,255,0.62); margin-top: 0.35rem; line-height: 1.5; }
   </style>
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
@@ -101,7 +123,22 @@
       OrcaTrade handles import-operations data for businesses moving goods into the EU and UK. This page describes the controls in place today — and what's on our roadmap — in plain terms. We'd rather under-claim and be accurate than overstate our posture.
     </p>
 
-    <section>
+    <nav class="trust-nav" aria-label="On this page">
+      <strong>On this page:</strong>
+      <a href="#gdpr">GDPR data rights</a>
+      <a href="#auth">Auth &amp; access</a>
+      <a href="#audit">Audit trail</a>
+      <a href="#reproducibility">Reproducibility</a>
+      <a href="#ai">AI use</a>
+      <a href="#appsec">Application security</a>
+      <a href="#reliability">Reliability</a>
+      <a href="#subprocessors">Subprocessors</a>
+      <a href="#certifications">Certifications</a>
+      <a href="#documents">Documents we publish</a>
+      <a href="#disclosure">Responsible disclosure</a>
+    </nav>
+
+    <section id="gdpr">
       <h2>Your data rights (GDPR)</h2>
       <p>Data-subject rights are a button, not a support ticket. From your account you can, at any time:</p>
       <ul>
@@ -111,7 +148,7 @@
       <p>Both live under <a class="inline" href="/account/privacy/">Privacy &amp; data</a>. We minimise what we store: where an email address isn't needed for delivery it's kept only as a one-way hash, never in plain text in our analytical store.</p>
     </section>
 
-    <section>
+    <section id="auth">
       <h2>Authentication &amp; access</h2>
       <ul>
         <li><strong>Passwordless sign-in</strong> — magic links, so there is no password for us to store or for an attacker to steal.</li>
@@ -121,7 +158,7 @@
       </ul>
     </section>
 
-    <section>
+    <section id="audit">
       <h2>Audit &amp; accountability</h2>
       <p>State changes — plan and portfolio edits, restock and inventory actions, membership and access changes — are written to an audit log with the actor, timestamp, and before/after context. Administrators can review the tenant's activity feed with personal data redacted.</p>
       <p><strong>Tamper-evident by design.</strong> Each entry is hash-chained at write time (<code>_seq</code>, <code>_prevHash</code>, <code>_hash</code>) over a personal-data-free projection, so any in-place edit, deletion or reordering of a stored row breaks the chain and is detectable. We publish two admin verification endpoints — one to re-walk the stored chain (<code>GET /api/audit?format=verify-stored</code>), one to produce an independently-verifiable export an auditor can recompute offline (<code>GET /api/audit?format=chain</code>) — so the integrity guarantee doesn't require trusting our own code. Lawful GDPR Article&nbsp;17 erasure pseudonymises the actor without breaking the chain. Full procedure: <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/audit-trail.md">audit-trail.md</a>.</p>
@@ -150,12 +187,25 @@
       </script>
     </section>
 
-    <section>
+    <section id="reproducibility">
       <h2>Reproducibility of every euro</h2>
-      <p>The numbers we show you — landed cost, duty, FX risk, anti-dumping exposure — are bound at save time to a content-addressed snapshot of the volatile market data behind them (FX rates, ETS price, AD/CVD measures, the resolved MFN rate). That snapshot id (<code>ds_…</code>) travels with the plan forever. Opening a saved plan calls <code>GET /api/plans/&lt;id&gt;/reproduce</code> and tells you, plainly, whether today's market data still produces the same euros — and when it doesn't, it itemises exactly which values moved (FX rate, AD/CVD rate, ETS price) and recomputes the <em>original</em> landed total side-by-side with today's. "Recompute any euro we ever showed you" is a feature, not a claim.</p>
+      <p>The numbers we show you — landed cost, duty, FX risk, anti-dumping exposure — are bound at save time to a content-addressed snapshot of the volatile market data behind them (FX rates, ETS price, AD/CVD measures, and — as of 2026-06-02 — the per-quote TARIC duty rate pinned with its source + asOf timestamp). That snapshot id (<code>ds_…</code>) travels with the plan forever. Opening a saved plan calls <code>GET /api/plans/&lt;id&gt;/reproduce</code> and tells you, plainly, whether today's market data still produces the same euros — and when it doesn't, it itemises exactly which values moved (FX rate, AD/CVD rate, ETS price, TARIC duty rate) and recomputes the <em>original</em> landed total side-by-side with today's. "Recompute any euro we ever showed you" is a feature, not a claim.</p>
     </section>
 
-    <section>
+    <section id="ai">
+      <h2>AI use</h2>
+      <p>OrcaTrade deploys five AI agents (compliance, sourcing, logistics, finance, orchestrator), each documented with a published <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/ai/model-cards/README.md">model card</a> covering intended use, out-of-scope use, model + provider, inputs &amp; outputs, calculator-grounding contract, evaluations, known limitations and human oversight.</p>
+      <ul>
+        <li><strong>No decision-driving numbers from the LLM.</strong> Every monetary, percentage, weight or duty-rate figure in an agent response comes from a deterministic calculator output, not the model. Enforced by two complementary eval gates: <code>checkGrounding</code> (catches fabrication) and <code>checkNumericFidelity</code> (catches omission).</li>
+        <li><strong>EU AI Act classification:</strong> all five agents are <strong>Limited Risk</strong> (Art. 50 transparency only). Full position published at <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/ai/eu-ai-act-conformance.md">docs/ai/eu-ai-act-conformance.md</a>.</li>
+        <li><strong>No training on customer data.</strong> Anthropic does not train on API traffic (per their commercial terms); we don't fine-tune; we don't train any models ourselves.</li>
+        <li><strong>Human-in-the-loop on irreversible action.</strong> Any tool call that would file a customs declaration, surrender a CBAM certificate, sign a supplier contract above threshold or submit an EUDR Due Diligence Statement routes through <code>requestHumanReview</code> first — the platform itself never files.</li>
+        <li><strong>Per-tenant spend cap.</strong> Hard EUR/month limit per tier (free €1 / starter €15 / growth €100 / scale €500) bounds runaway-cost exposure before it surfaces as a billing surprise.</li>
+        <li><strong>Threat models</strong> for prompt injection, tool poisoning and the customer API surface are published at <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/threat-models/">docs/security/threat-models/</a> — gaps are listed honestly.</li>
+      </ul>
+    </section>
+
+    <section id="appsec">
       <h2>Application &amp; transport security</h2>
       <ul>
         <li><strong>HTTPS everywhere, enforced.</strong> Strict-Transport-Security (HSTS) with a two-year max-age and <code>includeSubDomains</code> tells browsers to only ever reach us over TLS — no downgrade to plain HTTP.</li>
@@ -167,12 +217,12 @@
       </ul>
     </section>
 
-    <section>
+    <section id="disclosure">
       <h2>Responsible disclosure</h2>
       <p>We welcome reports from security researchers. Our policy and contact details are published at <a class="inline" href="/.well-known/security.txt">/.well-known/security.txt</a> (RFC&nbsp;9116). Report a suspected vulnerability privately, give us reasonable time to fix it, and we won't pursue good-faith research.</p>
     </section>
 
-    <section>
+    <section id="reliability">
       <h2>Reliability</h2>
       <ul>
         <li>A public <a class="inline" href="/status/">status page</a> and a machine-readable health check.</li>
@@ -181,7 +231,7 @@
       </ul>
     </section>
 
-    <section>
+    <section id="subprocessors">
       <h2>Subprocessors</h2>
       <p>We use a small, deliberately limited set of infrastructure providers. The current set:</p>
       <div class="sub-grid">
@@ -196,14 +246,86 @@
       <p style="margin-top:0.9rem;">A signed Data Processing Agreement (DPA) and the full, current subprocessor list are available to customers on request.</p>
     </section>
 
-    <section>
-      <h2>Compliance roadmap</h2>
-      <p>Being straight about where we are:</p>
-      <ul>
-        <li><strong>SOC 2 Type II</strong> — readiness work is in progress; we are not yet certified, and we won't claim a certification we don't hold.</li>
-        <li>GDPR data-subject tooling, audit logging, SSO, and graceful degradation are <strong>in place today</strong> (described above).</li>
-      </ul>
+    <section id="certifications">
+      <h2>Certifications &amp; compliance roadmap</h2>
+      <p>Being straight about where we are: we are <strong>not yet certified</strong> against SOC 2 or ISO 27001, and we won't claim a certification we don't hold. Roadmap below.</p>
+      <table class="cert-table">
+        <thead><tr><th>Standard / framework</th><th>Status</th><th>Target</th></tr></thead>
+        <tbody>
+          <tr><td>GDPR — data-subject tooling, audit log, retention enforcement</td><td><span class="cert-badge ok">Live</span></td><td>—</td></tr>
+          <tr><td>UK ICO data-protection registration</td><td><span class="cert-badge warn">Queued</span></td><td>Before first paying customer</td></tr>
+          <tr><td>EU AI Act — Limited Risk transparency (Art. 50)</td><td><span class="cert-badge ok">Live</span></td><td>—</td></tr>
+          <tr><td>SOC 2 Type I — scoping</td><td><span class="cert-badge ready">Ready</span></td><td>Phase 2 (post seed)</td></tr>
+          <tr><td>SOC 2 Type II</td><td><span class="cert-badge warn">Queued</span></td><td>Post Type I + 6&nbsp;months operating evidence</td></tr>
+          <tr><td>ISO 27001</td><td><span class="cert-badge warn">Queued</span></td><td>Phase 3</td></tr>
+          <tr><td>ISO 27701 (privacy ISMS extension)</td><td><span class="cert-badge warn">Queued</span></td><td>Phase 3 (paired with ISO 27001)</td></tr>
+          <tr><td>Third-party penetration test</td><td><span class="cert-badge ready">Scope brief published</span></td><td>Phase 1 close</td></tr>
+        </tbody>
+      </table>
       <div class="note">If a security or procurement team needs our security questionnaire, DPA, or subprocessor list to evaluate OrcaTrade, contact us and we'll turn it around quickly.</div>
+    </section>
+
+    <section id="documents">
+      <h2>Documents we publish</h2>
+      <p>Every load-bearing security &amp; compliance claim on this page is backed by a versioned document in the repository. Each document carries a "Last updated" date and a revision history. Procurement reviewers can read the underlying claim, not just the marketing.</p>
+      <div class="doc-grid">
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/SECURITY.md">
+          <div class="doc-name">SECURITY.md</div>
+          <div class="doc-desc">Vulnerability-disclosure policy, response SLAs, scope, no-legal-action promise</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/data-flow.md">
+          <div class="doc-name">Data flow &amp; retention</div>
+          <div class="doc-desc">Every personal datum, where it lives, how long, how each GDPR right maps to an endpoint</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/retention-policy.md">
+          <div class="doc-name">Retention policy</div>
+          <div class="doc-desc">Per-table retention periods + nightly programmatic purge + verification job</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/audit-trail.md">
+          <div class="doc-name">Audit trail</div>
+          <div class="doc-desc">Tamper-evident hash chain + independent verification procedure</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/subprocessors.md">
+          <div class="doc-name">Subprocessors</div>
+          <div class="doc-desc">Full third-party processor list with DPA links + transfer mechanisms</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/vendor-tprm.md">
+          <div class="doc-name">Vendor TPRM</div>
+          <div class="doc-desc">12-question security questionnaire answered per subprocessor</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/dpa-template.md">
+          <div class="doc-name">DPA template</div>
+          <div class="doc-desc">Article 28 Data Processing Agreement + Annex A (TOMs)</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/soc2-readiness.md">
+          <div class="doc-name">SOC 2 readiness</div>
+          <div class="doc-desc">Honest gap analysis against AICPA TSC — what's in, what's queued, what we're not</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/incident-response.md">
+          <div class="doc-name">Incident response</div>
+          <div class="doc-desc">Severity classes, runbooks, breach-notification SLAs, post-mortem cadence</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/threat-models/">
+          <div class="doc-name">Threat models</div>
+          <div class="doc-desc">STRIDE walk-throughs for AI agent + customer API + magic-link auth — with gaps listed</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/pentest-scope.md">
+          <div class="doc-name">Pen-test scope brief</div>
+          <div class="doc-desc">Engagement scope OrcaTrade hands to a pen-test vendor — RoE + cost estimate</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/ai/model-cards/README.md">
+          <div class="doc-name">AI model cards</div>
+          <div class="doc-desc">Per-agent intended use / scope / evaluations / limits / oversight</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/docs/ai/eu-ai-act-conformance.md">
+          <div class="doc-name">EU AI Act conformance</div>
+          <div class="doc-desc">Published Limited-Risk classification + Art. 50 transparency evidence</div>
+        </a>
+        <a class="doc" href="https://github.com/Osk7779/orcatrade/blob/main/CONTRIBUTING.md">
+          <div class="doc-name">Contributing</div>
+          <div class="doc-desc">Engineering norms, hard rules, what requires a PR review</div>
+        </a>
+      </div>
     </section>
 
     <div class="footer-note">
