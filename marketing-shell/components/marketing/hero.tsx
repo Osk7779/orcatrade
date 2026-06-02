@@ -10,6 +10,7 @@ import { MotionHeadline } from './motion-headline';
 import { AmbientParticles } from './ambient-particles';
 import { GlobeStars } from './globe-stars';
 import { cn } from '@/lib/utils';
+import { EN_COPY, type HomepageCopy } from '@/lib/i18n/homepage-copy';
 
 // Cinematic intro orchestrated with the IntroOverlay title plate:
 //
@@ -35,17 +36,16 @@ const INTRO_MS_FIRST_LOAD = INTRO_OVERLAY_TOTAL_MS + POST_INTRO_BEAT_MS;
 const INTRO_MS_REPEAT = 1500;
 const SESSION_KEY = 'orcatrade.intro.played.v2';
 
-const HEADLINE_LINES = [
-  'Source it.',
-  'Clear it.',
-  'Move it.',
-  <SparklesText key="finance" count={8}>
-    Finance it.
-  </SparklesText>,
-];
-
-export function Hero() {
+export function Hero({ copy = EN_COPY.hero }: { copy?: HomepageCopy['hero'] }) {
   const [settled, setSettled] = useState(false);
+  const headlineLines = [
+    copy.headline[0],
+    copy.headline[1],
+    copy.headline[2],
+    <SparklesText key="finance" count={8}>
+      {copy.headline[3]}
+    </SparklesText>,
+  ];
 
   useEffect(() => {
     const alreadyShown =
@@ -92,7 +92,7 @@ export function Hero() {
           >
             <span className="h-px w-10 bg-[var(--color-ivory-dim)]/50" />
             <span className="text-[12px] font-medium tracking-tight text-[var(--color-ivory-dim)]">
-              One platform · Asia → Europe
+              {copy.kicker}
             </span>
           </motion.div>
 
@@ -105,7 +105,7 @@ export function Hero() {
                 ? 'text-[clamp(3.4rem,7.6vw+0.4rem,6.4rem)]'
                 : 'text-[clamp(3rem,6.2vw+0.4rem,5.6rem)]',
             )}
-            lines={HEADLINE_LINES}
+            lines={headlineLines}
           />
 
           {/* Body + CTAs + colophon — fade in once we settle */}
@@ -116,10 +116,7 @@ export function Hero() {
             className="flex flex-col gap-10"
           >
             <p className="max-w-[52ch] text-[15.5px] leading-[1.78] text-[var(--color-ivory-dim)]">
-              OrcaTrade is the import operations team available 24/7 for European
-              businesses sourcing from Asia. Search, sourcing, compliance, logistics
-              and finance — on one calculator-grounded platform, with citations on
-              every recommendation.
+              {copy.body}
             </p>
 
             <div className="flex flex-wrap items-center gap-3 pt-2">
@@ -127,7 +124,7 @@ export function Hero() {
                 href="/start"
                 className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-all duration-500 hover:bg-white"
               >
-                Build my import plan
+                {copy.ctaPrimary}
                 <span
                   aria-hidden
                   className="transition-transform duration-500 group-hover:translate-x-0.5"
@@ -139,7 +136,7 @@ export function Hero() {
                 href="/docs/orcatrade-shareholder-brief"
                 className="group inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
               >
-                Read the prospectus
+                {copy.ctaSecondary}
               </Link>
             </div>
 
@@ -149,7 +146,7 @@ export function Hero() {
                 ❦
               </span>
               <span className="font-serif text-[14px] italic text-[var(--color-ivory-mute)]">
-                Operating across the EU, the UK and Asia.
+                {copy.footer}
               </span>
             </div>
           </motion.div>
@@ -168,10 +165,10 @@ export function Hero() {
             <Globe />
             <div className="mt-8 flex flex-col items-center gap-1.5">
               <span className="font-serif text-[1.05rem] italic leading-tight text-[var(--color-ivory-dim)]">
-                Lanes observed between Asia and Europe — live.
+                {copy.globeCaption}
               </span>
               <span className="text-[11px] font-medium tracking-tight text-[var(--color-ivory-mute)]">
-                From Shanghai and Ho Chi Minh to Warsaw, Berlin and Amsterdam.
+                {copy.globeSubCaption}
               </span>
             </div>
           </motion.div>

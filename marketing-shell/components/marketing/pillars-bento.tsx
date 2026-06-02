@@ -1,5 +1,6 @@
 import { BentoGrid, BentoCard } from './bento-grid';
 import { FadeUp } from './fade-up';
+import { EN_COPY, type HomepageCopy } from '@/lib/i18n/homepage-copy';
 
 // Five stages of an import — matches the live OrcaTrade.pl framing
 // (Find it · Source it · Verify it · Ship it · Finance it). Verify it
@@ -25,7 +26,11 @@ const GridVisual = () => (
   />
 );
 
-export function PillarsBento() {
+export function PillarsBento({
+  copy = EN_COPY.pillarsSection,
+}: {
+  copy?: HomepageCopy['pillarsSection'];
+}) {
   return (
     <section
       id="pillars"
@@ -37,7 +42,7 @@ export function PillarsBento() {
             className="font-serif text-[clamp(2.2rem,3.8vw+0.4rem,3.4rem)] leading-[1.08] tracking-[-0.022em] text-[var(--color-ivory)]"
             style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
           >
-            Five stages. One platform.
+            {copy.title}
           </h2>
         </FadeUp>
 
@@ -45,43 +50,43 @@ export function PillarsBento() {
           <BentoCard
             span={2}
             flagship
-            kicker="Stage 03 · Verify it · Flagship"
+            kicker={copy.intelligence.kicker}
             status="live"
-            title="OrcaTrade Intelligence."
-            description="EU/UK customs, CBAM, EUDR, REACH, CE-marking, anti-dumping and countervailing duties — surfaced from one calculator-grounded engine, with citations and confidence tiers on every claim."
-            cta={{ label: 'Open Intelligence', href: '/intelligence' }}
+            title={copy.intelligence.title}
+            description={copy.intelligence.description}
+            cta={{ label: copy.intelligence.cta, href: '/intelligence' }}
             visual={<FlagshipVisual />}
           />
           <BentoCard
-            kicker="Stage 01 · Find it"
+            kicker={copy.search.kicker}
             status="live"
-            title="OrcaTrade Search."
-            description="Type any HS code, product, supplier or lane. Get every regime that touches it."
-            cta={{ label: 'Open Search', href: '/search' }}
+            title={copy.search.title}
+            description={copy.search.description}
+            cta={{ label: copy.search.cta, href: '/search' }}
             visual={<GridVisual />}
           />
           <BentoCard
-            kicker="Stage 02 · Source it"
+            kicker={copy.sourcing.kicker}
             status="live"
-            title="OrcaTrade Sourcing."
-            description="Six Asia origins, supplier screening, factory-risk feeds, sample-quote rebranding."
-            cta={{ label: 'Open Sourcing', href: '/sourcing' }}
+            title={copy.sourcing.title}
+            description={copy.sourcing.description}
+            cta={{ label: copy.sourcing.cta, href: '/sourcing' }}
             visual={<GridVisual />}
           />
           <BentoCard
-            kicker="Stage 04 · Ship it"
+            kicker={copy.logistics.kicker}
             status="live"
-            title="OrcaTrade Logistics."
-            description="Lane routing across DE, NL, PL, ES, IT, FR and beyond. Door-to-door priced end-to-end."
-            cta={{ label: 'Open Logistics', href: '/logistics' }}
+            title={copy.logistics.title}
+            description={copy.logistics.description}
+            cta={{ label: copy.logistics.cta, href: '/logistics' }}
             visual={<GridVisual />}
           />
           <BentoCard
-            kicker="Stage 05 · Finance it"
+            kicker={copy.finance.kicker}
             status="beta"
-            title="OrcaTrade Finance."
-            description="Working capital, FX hedging windows, total cost of ownership — for orders of €50k–€500k."
-            cta={{ label: 'Open Finance', href: '/finance' }}
+            title={copy.finance.title}
+            description={copy.finance.description}
+            cta={{ label: copy.finance.cta, href: '/finance' }}
             visual={<GridVisual />}
           />
         </BentoGrid>

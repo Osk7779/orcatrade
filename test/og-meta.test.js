@@ -49,8 +49,12 @@ const SAMPLE_PAGES = [
   'pl/zalozyciele-10/index.html',
   'de/gruender-10/index.html',
   'compliance/index.html',
-  'pl/index.html',
-  'de/index.html',
+  // pl/index.html and de/index.html were retired alongside the EN root
+  // index.html when the marketing-shell took over the homepage surface.
+  // Their archived counterparts at pl/legacy/ and de/legacy/ still carry
+  // the canonical OG image + analytics block, so coverage is preserved.
+  'pl/legacy/index.html',
+  'de/legacy/index.html',
   'pl/cennik/index.html',
   'de/preise/index.html',
 ];

@@ -1,12 +1,11 @@
 import { FadeUp } from './fade-up';
+import { EN_COPY, type HomepageCopy } from '@/lib/i18n/homepage-copy';
 
 // Editorial pull-paragraph with a serif drop cap. Static — class beats
 // motion here. The reveal cadence of the page is carried by the
 // surrounding chapter rules and the FadeUp on the kicker and signature.
-const BODY =
-  'uropean businesses deserve import operations that are calculated, cited, and explained — not estimated, not assumed, not lost to the next intermediary. OrcaTrade exists to make the next container a known quantity — landed cost, every regime, end to end — before it leaves the factory.';
 
-export function Manifesto() {
+export function Manifesto({ copy = EN_COPY.manifesto }: { copy?: HomepageCopy['manifesto'] }) {
   return (
     <section
       id="manifesto"
@@ -16,7 +15,7 @@ export function Manifesto() {
         <FadeUp className="flex items-center gap-4">
           <span className="h-px w-10 bg-[var(--color-ivory-dim)]/50" />
           <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
-            On principle
+            {copy.eyebrow}
           </span>
         </FadeUp>
 
@@ -30,9 +29,9 @@ export function Manifesto() {
               className="float-left mr-3 pt-[0.18em] font-serif text-[clamp(4.6rem,9vw+0.6rem,7.4rem)] leading-[0.78] text-[var(--color-ivory)]"
               style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 600 }}
             >
-              E
+              {copy.dropCap}
             </span>
-            <span className="italic">{BODY}</span>
+            <span className="italic">{copy.bodyAfterDropCap}</span>
           </p>
         </FadeUp>
 
@@ -46,7 +45,7 @@ export function Manifesto() {
 
         <div className="mt-6 text-center">
           <span className="font-serif text-[12.5px] italic tracking-tight text-[var(--color-ivory-mute)]">
-            OrcaTrade Group · MMXXVI
+            {copy.colophon}
           </span>
         </div>
       </div>

@@ -4,48 +4,56 @@ import Link from 'next/link';
 import { useState } from 'react';
 import { Marquee } from './marquee';
 import { FadeUp } from './fade-up';
+import { EN_COPY, type HomepageCopy } from '@/lib/i18n/homepage-copy';
 
 // Real guide topics from the live OrcaTrade.pl /guides/compliance/ tree.
-// Nothing fabricated — every link resolves to an actual published guide.
-const TICKER = [
-  { topic: 'CBAM', label: 'Carbon Border Adjustment Mechanism — definitive period' },
-  { topic: 'EUDR', label: 'EU Deforestation Regulation — due-diligence and the geolocation file' },
-  { topic: 'REACH', label: 'REACH — SVHC, registration thresholds and authorisation' },
-  { topic: 'CE LVD/EMC/RED', label: 'CE marking for electrical equipment — low voltage, EMC, radio' },
-  { topic: 'GPSR', label: 'General Product Safety Regulation — EU responsible person required' },
-  { topic: 'WEEE', label: 'WEEE — producer registration and the take-back obligation' },
-  { topic: 'PPWR', label: 'Packaging and Packaging Waste Regulation — material thresholds' },
-  { topic: 'Cosmetics 1223/2009', label: 'Cosmetics Regulation — CPNP, Product Information File, Responsible Person' },
+// Topic codes (CBAM, EUDR, REACH…) stay verbatim across locales; only
+// the human-readable label is localized below from the source bundle.
+const TICKER_TOPICS = [
+  'CBAM',
+  'EUDR',
+  'REACH',
+  'CE LVD/EMC/RED',
+  'GPSR',
+  'WEEE',
+  'PPWR',
+  'Cosmetics 1223/2009',
+];
+const TICKER_LABELS_EN = [
+  'Carbon Border Adjustment Mechanism — definitive period',
+  'EU Deforestation Regulation — due-diligence and the geolocation file',
+  'REACH — SVHC, registration thresholds and authorisation',
+  'CE marking for electrical equipment — low voltage, EMC, radio',
+  'General Product Safety Regulation — EU responsible person required',
+  'WEEE — producer registration and the take-back obligation',
+  'Packaging and Packaging Waste Regulation — material thresholds',
+  'Cosmetics Regulation — CPNP, Product Information File, Responsible Person',
+];
+const TICKER_LABELS_PL = [
+  'Carbon Border Adjustment Mechanism — okres definitywny',
+  'EU Deforestation Regulation — due diligence i plik geolokalizacji',
+  'REACH — SVHC, progi rejestracji i autoryzacja',
+  'Oznakowanie CE dla urządzeń elektrycznych — niskie napięcie, EMC, radio',
+  'General Product Safety Regulation — wymagana osoba odpowiedzialna w UE',
+  'WEEE — rejestracja producenta i obowiązek odbioru',
+  'Packaging and Packaging Waste Regulation — progi materiałowe',
+  'Rozporządzenie kosmetyczne — CPNP, Dokument Informacyjny, Osoba Odpowiedzialna',
+];
+const TICKER_LABELS_DE = [
+  'Carbon Border Adjustment Mechanism — definitive Periode',
+  'EU Deforestation Regulation — Sorgfaltspflicht und Geolokalisierungsdatei',
+  'REACH — SVHC, Registrierungsschwellen und Zulassung',
+  'CE-Kennzeichnung für elektrische Geräte — Niederspannung, EMV, Funk',
+  'General Product Safety Regulation — EU-verantwortliche Person erforderlich',
+  'WEEE — Herstellerregistrierung und Rücknahmepflicht',
+  'Packaging and Packaging Waste Regulation — Material-Schwellenwerte',
+  'Kosmetikverordnung — CPNP, Produktinformationsdatei, Verantwortliche Person',
 ];
 
-const FEATURED = [
-  {
-    href: '/guides/compliance/cbam/',
-    tag: 'Compliance · CBAM',
-    regime: 'Carbon Border Adjustment Mechanism',
-    title: 'CBAM — what changes in the definitive period.',
-    excerpt:
-      'Reporting closes 31 December 2025. From January 2026 financial obligations begin: registration, embedded-emissions declarations, and CBAM certificate purchase for steel, cement, aluminium, fertilisers, electricity and hydrogen.',
-    readMin: 9,
-  },
-  {
-    href: '/guides/compliance/eudr/',
-    tag: 'Compliance · EUDR',
-    regime: 'EU Deforestation Regulation',
-    title: 'EUDR — due diligence statements and the geolocation file.',
-    excerpt:
-      'Soy, palm oil, cattle, coffee, cocoa, rubber, wood — and many derived products. Importers file due-diligence statements with plot-level geolocations. Includes textiles in the next rollout window.',
-    readMin: 11,
-  },
-  {
-    href: '/guides/compliance/gpsr/',
-    tag: 'Compliance · GPSR',
-    regime: 'General Product Safety Regulation',
-    title: 'GPSR — why every non-EU seller now needs an EU responsible person.',
-    excerpt:
-      'Effective 13 December 2024 for consumer products. Article 4 forces non-EU sellers to appoint an EU-established economic operator before placing goods on the market.',
-    readMin: 7,
-  },
+const FEATURED_META = [
+  { href: '/guides/compliance/cbam/', readMin: 9 },
+  { href: '/guides/compliance/eudr/', readMin: 11 },
+  { href: '/guides/compliance/gpsr/', readMin: 7 },
 ];
 
 const TickerItem = ({ topic, label }: { topic: string; label: string }) => (
@@ -56,7 +64,20 @@ const TickerItem = ({ topic, label }: { topic: string; label: string }) => (
   </span>
 );
 
-function NewsCard({ article }: { article: (typeof FEATURED)[number] }) {
+type NewsArticle = HomepageCopy['newsSection']['items'][number] & {
+  href: string;
+  readMin: number;
+};
+
+function NewsCard({
+  article,
+  minSuffix,
+  readGuide,
+}: {
+  article: NewsArticle;
+  minSuffix: string;
+  readGuide: string;
+}) {
   const [spot, setSpot] = useState({ x: 0, y: 0, visible: false });
 
   return (
@@ -87,7 +108,7 @@ function NewsCard({ article }: { article: (typeof FEATURED)[number] }) {
           {article.tag}
         </span>
         <span className="text-[10.5px] font-medium tracking-tight text-[var(--color-ivory-mute)]">
-          {article.readMin} min
+          {article.readMin} {minSuffix}
         </span>
       </div>
 
@@ -108,7 +129,7 @@ function NewsCard({ article }: { article: (typeof FEATURED)[number] }) {
         </span>
         <span className="inline-flex items-center gap-2 text-[12.5px] font-medium text-[var(--color-ivory)]">
           <span className="relative">
-            Read the guide
+            {readGuide}
             <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--color-ivory)]/70 transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
           </span>
           <span
@@ -123,7 +144,20 @@ function NewsCard({ article }: { article: (typeof FEATURED)[number] }) {
   );
 }
 
-export function TradeNews() {
+export function TradeNews({
+  copy = EN_COPY.newsSection,
+  locale = 'en',
+}: {
+  copy?: HomepageCopy['newsSection'];
+  locale?: 'en' | 'pl' | 'de';
+}) {
+  const labels =
+    locale === 'pl' ? TICKER_LABELS_PL : locale === 'de' ? TICKER_LABELS_DE : TICKER_LABELS_EN;
+  const ticker = TICKER_TOPICS.map((topic, i) => ({ topic, label: labels[i] }));
+  const articles: NewsArticle[] = copy.items.map((item, i) => ({
+    ...item,
+    ...FEATURED_META[i],
+  }));
   return (
     <section
       id="news"
@@ -135,14 +169,14 @@ export function TradeNews() {
             className="max-w-[32ch] font-serif text-[clamp(2.2rem,3.8vw+0.4rem,3.4rem)] leading-[1.08] tracking-[-0.022em] text-[var(--color-ivory)]"
             style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
           >
-            From the desk &mdash; the reference library.
+            {copy.title}
           </h2>
           <Link
             href="/guides/compliance/"
             className="group inline-flex items-center gap-2 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500"
           >
             <span className="relative">
-              All compliance guides
+              {copy.viewAll}
               <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--color-ivory)]/70 transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
             </span>
             <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">
@@ -153,15 +187,20 @@ export function TradeNews() {
 
         <div className="mb-16 border-y border-[var(--color-navy-line)] bg-[var(--color-ink)] py-5">
           <Marquee durationMs={70_000} pauseOnHover>
-            {TICKER.map((item) => (
+            {ticker.map((item) => (
               <TickerItem key={item.topic + item.label} topic={item.topic} label={item.label} />
             ))}
           </Marquee>
         </div>
 
         <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3">
-          {FEATURED.map((article) => (
-            <NewsCard key={article.href} article={article} />
+          {articles.map((article) => (
+            <NewsCard
+              key={article.href}
+              article={article}
+              minSuffix={copy.minSuffix}
+              readGuide={copy.readGuide}
+            />
           ))}
         </div>
       </div>

@@ -4,6 +4,7 @@ import { forwardRef, useRef } from 'react';
 import { AnimatedBeam } from './animated-beam';
 import { FadeUp } from './fade-up';
 import { cn } from '@/lib/utils';
+import { EN_COPY, type HomepageCopy } from '@/lib/i18n/homepage-copy';
 
 const ORIGINS = ['CN', 'VN', 'IN', 'BD', 'TR'];
 const DESTINATIONS = ['DE', 'FR', 'NL', 'PL', 'ES', 'IT'];
@@ -28,7 +29,7 @@ const Node = forwardRef<
 ));
 Node.displayName = 'Node';
 
-export function StoryBeam() {
+export function StoryBeam({ copy = EN_COPY.storyBeam }: { copy?: HomepageCopy['storyBeam'] }) {
   const containerRef = useRef<HTMLDivElement>(null);
   const hubRef = useRef<HTMLDivElement>(null);
   const originRefs = useRef(ORIGINS.map(() => ({ current: null as HTMLDivElement | null })));
@@ -45,13 +46,11 @@ export function StoryBeam() {
             className="font-serif text-[clamp(2.2rem,3.8vw+0.4rem,3.4rem)] leading-[1.08] tracking-[-0.022em] text-[var(--color-ivory)]"
             style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
           >
-            One platform between six origins
-            <br className="hidden md:block" /> and your European market.
+            {copy.title[0]}
+            <br className="hidden md:block" /> {copy.title[1]}
           </h2>
           <p className="mx-auto mt-6 max-w-[58ch] text-[15.5px] leading-[1.78] text-[var(--color-ivory-dim)]">
-            Every lane is priced end-to-end — HS classification, duty,
-            anti-dumping, CBAM, REACH, freight, last mile, FX and working
-            capital — surfaced from one calculator-grounded engine.
+            {copy.body}
           </p>
         </FadeUp>
 

@@ -1,46 +1,26 @@
 import Image from 'next/image';
 import { FadeUp } from './fade-up';
+import { EN_COPY, type HomepageCopy } from '@/lib/i18n/homepage-copy';
 
-const TEAM = [
-  {
-    name: 'Jay Xie',
-    role: 'CEO · Co-Founder',
-    quote:
-      'A factory you can ring at 2 a.m. is worth ten you can only email.',
-    bio: 'Leads sourcing strategy and supplier partnerships across Asia — quality, clear communication, dependable timelines.',
-    photo: '/leadership/jay-xie.jpg',
-    location: 'Hong Kong · London',
-  },
-  {
-    name: 'Arman Sirin',
-    role: 'Chief Operating Officer',
-    quote:
-      'A plan is a hypothesis. Execution is the only thing that prices itself.',
-    bio: 'Runs OrcaTrade’s operations — turning the platform’s recommendations into executed imports. Owns supply-chain delivery, carriers and partners.',
-    photo: '/leadership/arman-sirin.png',
-    location: 'Istanbul · London',
-  },
-  {
-    name: 'Yiu Cheung',
-    role: 'Head of Logistics',
-    quote:
-      'A container arrives on time because of a hundred small decisions you will never see.',
-    bio: 'Oversees shipment planning across sea and air routes, keeping schedules and handovers aligned from factory to destination.',
-    photo: '/leadership/yiu-cheung.png',
-    location: 'Hong Kong',
-  },
-  {
-    name: 'Oskar Klepuszewski',
-    role: 'Co-Founder · CFO',
-    quote:
-      'The cheapest decision is the one you can model before you make it.',
-    bio: 'Oversees European operations and financial planning, keeping commercial decisions and cross-border execution aligned.',
-    photo: '/leadership/oskar-klepuszewski.jpg',
-    location: 'Warsaw · London',
-  },
+// Names, photos and locations don't translate; role / quote / bio do.
+const TEAM_BASE = [
+  { name: 'Jay Xie', photo: '/leadership/jay-xie.jpg', location: 'Hong Kong · London' },
+  { name: 'Arman Sirin', photo: '/leadership/arman-sirin.png', location: 'Istanbul · London' },
+  { name: 'Yiu Cheung', photo: '/leadership/yiu-cheung.png', location: 'Hong Kong' },
+  { name: 'Oskar Klepuszewski', photo: '/leadership/oskar-klepuszewski.jpg', location: 'Warsaw · London' },
 ];
 
-export function Leadership() {
+export function Leadership({
+  copy = EN_COPY.leadershipSection,
+}: {
+  copy?: HomepageCopy['leadershipSection'];
+}) {
+  const team = TEAM_BASE.map((person, i) => ({
+    ...person,
+    role: copy.members[i].role,
+    quote: copy.members[i].quote,
+    bio: copy.members[i].bio,
+  }));
   return (
     <section
       id="leadership"
@@ -52,16 +32,15 @@ export function Leadership() {
             className="font-serif text-[clamp(2.2rem,3.8vw+0.4rem,3.4rem)] leading-[1.08] tracking-[-0.022em] text-[var(--color-ivory)]"
             style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
           >
-            Built by people who&rsquo;ve imported.
+            {copy.title}
           </h2>
           <p className="mx-auto mt-6 max-w-[58ch] font-serif text-[1.1rem] italic leading-[1.55] text-[var(--color-ivory-dim)]">
-            Founded by University College London students who lived the gap
-            between European buyers and Asian manufacturing.
+            {copy.lead}
           </p>
         </FadeUp>
 
         <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2">
-          {TEAM.map((person) => (
+          {team.map((person) => (
             <article
               key={person.name}
               className="group relative flex flex-col gap-6 bg-[var(--color-ink)] p-9 transition-colors duration-700 hover:bg-[var(--color-navy-soft)] md:flex-row md:gap-9 md:p-10"

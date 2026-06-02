@@ -66,12 +66,19 @@ test('EN homepage section title mentions "Three real scenarios"', SKIP_MARKETING
   assert.match(html, /Three real scenarios/);
 });
 
-test('PL homepage section title is in Polish ("Trzy realne scenariusze")', () => {
+// Static PL/DE homepages were retired alongside the EN one when the
+// marketing-shell took over the homepage surface. Translated copy now
+// lives in marketing-shell/lib/i18n/homepage-copy.ts; the editorial
+// composition is the same EN/PL/DE single source. These per-locale
+// content asserts are skipped accordingly.
+const SKIP_PL_DE_LEGACY = { skip: 'marketing-shell migration: pl/index.html + de/index.html archived to pl/legacy/, de/legacy/' };
+
+test('PL homepage section title is in Polish ("Trzy realne scenariusze")', SKIP_PL_DE_LEGACY, () => {
   const html = fs.readFileSync(path.join(ROOT, 'pl/index.html'), 'utf8');
   assert.match(html, /Trzy realne scenariusze/);
 });
 
-test('DE homepage section title is in German ("Drei reale Szenarien")', () => {
+test('DE homepage section title is in German ("Drei reale Szenarien")', SKIP_PL_DE_LEGACY, () => {
   const html = fs.readFileSync(path.join(ROOT, 'de/index.html'), 'utf8');
   assert.match(html, /Drei reale Szenarien/);
 });
@@ -81,12 +88,12 @@ test('EN homepage e-bike card mentions €97,300', SKIP_MARKETING_SHELL, () => {
   assert.match(html, /€97,300/);
 });
 
-test('PL homepage e-bike card mentions €97 300 (Polish thousands separator)', () => {
+test('PL homepage e-bike card mentions €97 300 (Polish thousands separator)', SKIP_PL_DE_LEGACY, () => {
   const html = fs.readFileSync(path.join(ROOT, 'pl/index.html'), 'utf8');
   assert.match(html, /€97 300/);
 });
 
-test('DE homepage e-bike card mentions €97.300 (German thousands separator)', () => {
+test('DE homepage e-bike card mentions €97.300 (German thousands separator)', SKIP_PL_DE_LEGACY, () => {
   const html = fs.readFileSync(path.join(ROOT, 'de/index.html'), 'utf8');
   assert.match(html, /€97\.300/);
 });
