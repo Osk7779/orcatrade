@@ -86,23 +86,30 @@ audit promise).
 
 ### Confirmation
 
-**Today: documented but not yet enforced.** The grep enforcement test is
-Phase 0 task P0.4 in [docs/execution-plan.md](../execution-plan.md), which
-has not yet shipped. Until it does, the rule lives in this ADR + in code
-review.
+**Enforced as of PR #21 (Phase 0 P0.4).**
 
-P0.4 will land:
+- [test/audit-log-non-swallow.test.js](../../test/audit-log-non-swallow.test.js)
+  scans the five named mutation-handler files for three swallow patterns:
+  single-line `try { await events.record(...) } catch (_) {}`, multi-line
+  variants, and `.catch(() => {})` promise-chain swallows. Mutation-tested.
+- All 21 swallow sites across `plans.js` (2), `portfolio.js` (3),
+  `account.js` (3), `orgs.js` (9), `scim.js` (4) migrated. Audit-write
+  failures now propagate to the dispatcher's outer try/catch at
+  `api/[...path].js:197` and return 5xx to the caller — the *visible
+  failure* corp-grade posture replacing the prior silent swallow.
 
-- A test that scans `lib/handlers/*.js` for the swallowed-audit pattern
-  (`events.record(...)` followed by `.catch(() => {})` or wrapped in a
-  `try { events.record ... } catch (_) {}` with no rethrow)
-- Migration of the five known violations (`plans.js`, `account.js`,
-  `portfolio.js`, `orgs.js`, `scim.js`) to the non-swallowed pattern
-- Mutation-test discipline like PR #7 / PR #8
+**Known gap (Phase 1):** the canonical ADR-0005 shape is "audit FIRST,
+mutation SECOND" — the handler should refuse with 503 *before* mutating
+state if audit cannot persist. Today's PR #21 fix is the smaller form:
+mutation runs first, audit runs after, audit failure is no longer
+swallowed but the state has already changed. The reorder-to-audit-first
+refactor is a Phase 1 follow-up; the enforcement test stays load-bearing
+either way.
 
-This ADR is the *commitment*; P0.4 is the *enforcement*. The two ship
-together when P0.4 lands; this ADR's status will not change (already
-Accepted), but the Confirmation section will be updated.
+Auth + billing handlers have their own swallow patterns that are
+deliberately out of P0.4's scope — auth_signin failure tolerance is a
+judgement call (a KV outage shouldn't lock everyone out), not the same
+class of bug. Separate triage if/when needed.
 
 ## Pros and cons of the options
 

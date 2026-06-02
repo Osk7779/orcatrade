@@ -9,7 +9,9 @@ Code). It complements three other documents; read all four together:
 | [CLAUDE.md](../../CLAUDE.md) | Orientation: what the codebase is + current constraints |
 | [docs/execution-plan.md](../execution-plan.md) | Canonical 18-month roadmap + 15 standing orders |
 | [docs/adr/](../adr/) | Architecture Decision Records — the "why" behind every hard rule |
-| **`docs/handbook/`** (this directory) | The "how" — concrete conventions, checklists, runbook entry points |
+| [docs/architecture/](../architecture/) | C4 diagrams — the "what talks to what" (L1 System Context · L2 Container · L3 Component) |
+| [docs/runbooks/](../runbooks/) | Operational procedures — apply this setting, respond to this alert, recover from this failure |
+| **`docs/handbook/`** (this directory) | The "how" — concrete conventions, checklists, day-1 reference |
 
 If those four ever disagree, the **execution plan is canonical**. Open a
 PR to reconcile.
