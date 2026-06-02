@@ -21,6 +21,23 @@
       "source": "/_next/:path*",
       "destination": "https://orcatrade-marketing.vercel.app/_next/:path*"
     },
+
+    { "source": "/agents", "destination": "https://orcatrade-marketing.vercel.app/agents" },
+    { "source": "/analysis", "destination": "https://orcatrade-marketing.vercel.app/analysis" },
+    { "source": "/buyer-verification", "destination": "https://orcatrade-marketing.vercel.app/buyer-verification" },
+    { "source": "/contact", "destination": "https://orcatrade-marketing.vercel.app/contact" },
+    { "source": "/factory-risk", "destination": "https://orcatrade-marketing.vercel.app/factory-risk" },
+    { "source": "/finance", "destination": "https://orcatrade-marketing.vercel.app/finance" },
+    { "source": "/founding", "destination": "https://orcatrade-marketing.vercel.app/founding" },
+    { "source": "/intelligence", "destination": "https://orcatrade-marketing.vercel.app/intelligence" },
+    { "source": "/logistics", "destination": "https://orcatrade-marketing.vercel.app/logistics" },
+    { "source": "/process", "destination": "https://orcatrade-marketing.vercel.app/process" },
+    { "source": "/regulations", "destination": "https://orcatrade-marketing.vercel.app/regulations" },
+    { "source": "/search", "destination": "https://orcatrade-marketing.vercel.app/search" },
+    { "source": "/sourcing", "destination": "https://orcatrade-marketing.vercel.app/sourcing" },
+    { "source": "/trust", "destination": "https://orcatrade-marketing.vercel.app/trust" },
+    { "source": "/examples", "destination": "https://orcatrade-marketing.vercel.app/examples" },
+
     {
       "source": "/",
       "destination": "https://orcatrade-marketing.vercel.app/"
