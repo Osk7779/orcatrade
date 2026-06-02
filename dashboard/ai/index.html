@@ -135,6 +135,11 @@
     </div>
 
     <div class="panel">
+      <h2>Spend by tenant (top 20)</h2>
+      <div id="byTenant"></div>
+    </div>
+
+    <div class="panel">
       <h2>Top 10 most expensive calls</h2>
       <div id="topCalls"></div>
     </div>
@@ -143,7 +148,8 @@
       <strong>What this shows:</strong> every Anthropic API call from a production agent emits a structured <code>ai_call</code>
       event ({ agent, promptVersion, model, inputTokens, outputTokens, cacheReadTokens, costCents, latencyMs, stopReason }).
       The dashboard reads the most recent ones via <a href="/api/audit">/api/audit?type=ai_call</a>.
-      No PII — the events carry no email or user identifier, only the agent + prompt + model + token counts.
+      No raw PII — events carry only the SHA-256 first-16-hex <code>emailHash</code> pseudonym (per ADR&nbsp;0008)
+      alongside agent + prompt + model + token counts. The per-tenant panel groups by that pseudonym.
       Pricing source: <a href="https://www.anthropic.com/pricing">anthropic.com/pricing</a>, frozen in
       <a href="/docs/security/">lib/ai/cost-telemetry.js</a> for deterministic offline cost math.
       <br/><br/>

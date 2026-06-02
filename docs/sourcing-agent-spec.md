@@ -37,7 +37,7 @@ The Sourcing Agent answers four questions for any import-sourcing decision:
 | `assessSourcingRisk` | Risk profile for one country × category pair | `sourcing-quote.js` |
 | `estimateSourcingLeadTime` | Production + sea freight estimate, MOQ-sensitive | `sourcing-quote.js` |
 | `listSupplierShortlist` | Curated sample suppliers (anonymised portfolio examples) | `sourcing-quote.js` |
-| `lookupHsCode` | HS suggestion — placeholder | shared |
+| `lookupHsCode` | Calculator-grounded HS6 suggestion + opt-in MFN enrichment — [ADR 0016](adr/0016-hs-code-lookup-calculator-grounded.md) | shared |
 | `searchRegulations` | Cross-references when EUDR (wood, soy, palm), REACH (cosmetics), or CE comes up | shared |
 | `requestHumanReview` | Mandatory escalation for first PO above €20k | shared |
 
