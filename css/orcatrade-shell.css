@@ -1019,6 +1019,304 @@ footer a:hover,
   filter: blur(80px) !important;
 }
 
+/* ───────────────────────────────────────────────────────────────
+ * ──  AGENT CHAT INTERFACE  ──
+ * Override the inline-styled /agent/* pages so the chat tool looks
+ * like a marketing-shell editorial surface instead of a dev console.
+ * ─────────────────────────────────────────────────────────────── */
+
+/* Tab bar (Orchestrator/Sourcing/Compliance/Logistics/Finance) */
+.agent-switch {
+  border-color: var(--ot-navy-line) !important;
+  background: var(--ot-navy-soft) !important;
+  border-radius: 0 !important;
+  padding: 4px !important;
+  margin: 1.5rem auto 2rem !important;
+}
+.agent-switch a {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+  padding: 8px 16px !important;
+  border-radius: 0 !important;
+  transition: background 0.3s ease, color 0.3s ease !important;
+}
+.agent-switch a:hover {
+  color: var(--ot-ivory) !important;
+}
+.agent-switch a.active {
+  background: var(--ot-ivory) !important;
+  color: var(--ot-ink) !important;
+  font-weight: 600 !important;
+}
+
+/* Suggestion buttons (quick-prompt chips below the input) */
+.suggestion-btn {
+  font-family: var(--ot-font-sans) !important;
+  font-size: 13px !important;
+  color: var(--ot-ivory-dim) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  background: transparent !important;
+  border-radius: 0 !important;
+  padding: 0.6rem 1rem !important;
+  transition: color 0.3s ease, border-color 0.3s ease, background 0.3s ease !important;
+}
+.suggestion-btn:hover {
+  color: var(--ot-ivory) !important;
+  border-color: rgba(250, 250, 247, 0.3) !important;
+  background: var(--ot-navy-soft) !important;
+}
+
+/* Conversation messages */
+.msg {
+  background: var(--ot-ink) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  border-radius: 0 !important;
+  font-family: var(--ot-font-sans) !important;
+  font-size: 15px !important;
+  line-height: 1.7 !important;
+  color: var(--ot-ivory) !important;
+  padding: 1.25rem 1.5rem !important;
+}
+.msg--user {
+  background: var(--ot-navy-soft) !important;
+  border-color: rgba(250, 250, 247, 0.15) !important;
+}
+.msg--agent .role-tag {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+  margin-bottom: 0.65rem !important;
+}
+
+/* Citation chips */
+.cite {
+  background: var(--ot-navy-soft) !important;
+  color: var(--ot-ivory) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  border-radius: 0 !important;
+  font-family: var(--ot-font-mono) !important;
+  font-size: 11px !important;
+  padding: 0.1rem 0.45rem !important;
+}
+.cite:hover {
+  background: rgba(250, 250, 247, 0.08) !important;
+  border-color: rgba(250, 250, 247, 0.2) !important;
+}
+
+/* Tool-trace block (the "calling tool X" callout) */
+.tool-trace {
+  background: rgba(17, 30, 51, 0.4) !important;
+  border-left-color: var(--ot-ivory-dim) !important;
+  font-family: var(--ot-font-mono) !important;
+  font-size: 12.5px !important;
+  color: var(--ot-ivory-dim) !important;
+}
+.tool-row .icon {
+  color: var(--ot-ivory) !important;
+}
+.tool-row.ok .icon { color: var(--ot-positive) !important; }
+.tool-row.fail .icon { color: var(--ot-critical) !important; }
+.tool-row .domain {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.14em !important;
+  border-color: var(--ot-navy-line) !important;
+  color: var(--ot-ivory-mute) !important;
+}
+.tool-row .domain.compliance,
+.domain-pill.compliance {
+  color: var(--ot-ivory) !important;
+  border-color: rgba(250, 250, 247, 0.25) !important;
+}
+.tool-row .domain.logistics,
+.domain-pill.logistics {
+  color: var(--ot-info) !important;
+  border-color: rgba(96, 165, 250, 0.35) !important;
+}
+
+/* Composer (the sticky input bar at the bottom) */
+.composer {
+  background: linear-gradient(180deg, transparent, rgba(5, 5, 7, 0.92) 30%, var(--ot-ink) 70%) !important;
+}
+.composer-inner {
+  border: 1px solid var(--ot-navy-line) !important;
+  background: var(--ot-navy-soft) !important;
+  border-radius: 0 !important;
+  padding: 0.75rem !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+.composer textarea {
+  background: transparent !important;
+  border: none !important;
+  font-family: var(--ot-font-sans) !important;
+  font-size: 15px !important;
+  color: var(--ot-ivory) !important;
+  padding: 0.55rem 0.8rem !important;
+}
+.composer textarea::placeholder {
+  color: var(--ot-ivory-mute) !important;
+}
+.composer button {
+  background: var(--ot-ivory) !important;
+  color: var(--ot-ink) !important;
+  font-family: var(--ot-font-sans) !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  padding: 0.85rem 1.5rem !important;
+  border-radius: 0 !important;
+  border: 1px solid var(--ot-ivory) !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.composer button:hover:not(:disabled) {
+  background: #ffffff !important;
+  filter: none !important;
+  transform: none !important;
+}
+
+/* Domain legend (the "■ compliance ■ logistics" key) */
+.domain-legend {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 10.5px !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+}
+.domain-legend .swatch.compliance {
+  background: var(--ot-ivory) !important;
+}
+.domain-legend .swatch.logistics {
+  background: var(--ot-info) !important;
+}
+
+/* Disclaimer footer on agent pages */
+.agent-disclaimer {
+  font-family: var(--ot-font-serif) !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+  color: var(--ot-ivory-mute) !important;
+  border-top-color: var(--ot-navy-line) !important;
+  line-height: 1.65 !important;
+}
+
+/* ───────────────────────────────────────────────────────────────
+ * ──  /start/ WIZARD FORM  ──
+ * Native <select> elements show macOS chrome by default. Replace
+ * with a fully-custom appearance that matches the editorial input
+ * styling, including a serif chevron indicator.
+ * ─────────────────────────────────────────────────────────────── */
+select {
+  -webkit-appearance: none !important;
+  -moz-appearance: none !important;
+  appearance: none !important;
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ot-ivory-mute) 50%),
+    linear-gradient(135deg, var(--ot-ivory-mute) 50%, transparent 50%) !important;
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 13px) 50% !important;
+  background-size:
+    5px 5px,
+    5px 5px !important;
+  background-repeat: no-repeat !important;
+  padding-right: 2.5rem !important;
+  cursor: pointer;
+}
+select:focus {
+  background-image:
+    linear-gradient(45deg, transparent 50%, var(--ot-ivory) 50%),
+    linear-gradient(135deg, var(--ot-ivory) 50%, transparent 50%) !important;
+}
+select option {
+  background: var(--ot-ink) !important;
+  color: var(--ot-ivory) !important;
+}
+
+/* Wizard step indicator (• 1 ── 2 ── 3 ──) */
+.wizard .step,
+.progress-step {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: var(--ot-font-mono) !important;
+  font-size: 10.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+}
+.wizard .step.active,
+.progress-step.active {
+  color: var(--ot-ivory) !important;
+}
+.wizard .step-num,
+.progress-step .step-num {
+  width: 28px;
+  height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--ot-navy-line);
+  font-family: var(--ot-font-mono) !important;
+  font-size: 12px !important;
+  color: var(--ot-ivory-mute) !important;
+}
+.wizard .step.active .step-num,
+.progress-step.active .step-num {
+  border-color: var(--ot-ivory) !important;
+  color: var(--ot-ivory) !important;
+}
+
+.wizard .field-row {
+  display: grid;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
+}
+.wizard .field-row.three {
+  grid-template-columns: 1fr;
+}
+@media (min-width: 768px) {
+  .wizard .field-row.three {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+.wizard .helper {
+  font-family: var(--ot-font-serif) !important;
+  font-style: italic !important;
+  font-size: 13.5px !important;
+  line-height: 1.6 !important;
+  color: var(--ot-ivory-mute) !important;
+  margin-top: 0.5rem !important;
+}
+
+/* ───────────────────────────────────────────────────────────────
+ * ──  Hide the Cache Settings dev panel  ──
+ * The Cache Settings toggle (js/cache-preferences.js) was a debug
+ * panel that surfaced on every page bottom-left. Real cache-prefs
+ * UI lives under /account/privacy/. Hide the floating panel here
+ * so it stops competing with editorial content; users who need it
+ * still get it via the privacy page.
+ * ─────────────────────────────────────────────────────────────── */
+.ot-cache-widget,
+.ot-cache-widget-toggle,
+.ot-cache-widget-panel,
+.ot-cache-overlay,
+[data-cache-preference-toggle],
+.cache-preferences-toggle,
+.cache-settings-toggle,
+.orcatrade-cache-toggle {
+  display: none !important;
+}
+
 /* ── Mobile polish ──
  * Tighten section padding + restore tap targets on small screens. */
 @media (max-width: 640px) {

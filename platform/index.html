@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>OrcaTrade Platform — Asia → Europe Import Operating System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="From 'I don't know how to do this' to goods on the warehouse floor. Five stages of the import journey — Find it · Verify it · Ship it · Finance it — coordinated on one platform.">
+  <meta property="og:title" content="OrcaTrade Platform — Asia → Europe Import Operating System" />
+  <meta property="og:description" content="Five stages of the import journey, on one platform. AI agents, verified suppliers, EU-first compliance, Hong Kong feet on the ground." />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="../css/styles.css">
+  <link rel="alternate" hreflang="en" href="https://www.orcatrade.pl/platform/" />
+  <link rel="alternate" hreflang="pl" href="https://www.orcatrade.pl/pl/platforma/" />
+  <link rel="alternate" hreflang="de" href="https://www.orcatrade.pl/de/plattform/" />
+  <link rel="alternate" hreflang="x-default" href="https://www.orcatrade.pl/platform/" />
+  <style>
+    /* ── PLATFORM-SPECIFIC ── */
+    .stage {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: clamp(2rem, 4vw, 4rem);
+      align-items: start;
+      padding: clamp(3rem, 6vw, 6rem) 0;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .stage:first-of-type { border-top: none; }
+    @media (max-width: 880px) {
+      .stage { grid-template-columns: 1fr; }
+    }
+    .stage-marker {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      position: sticky;
+      top: 7rem;
+    }
+    .stage-num {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: clamp(3rem, 6vw, 4.4rem);
+      font-weight: 700;
+      line-height: 1;
+      letter-spacing: -0.02em;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .stage-num em {
+      font-style: italic;
+      font-weight: 500;
+      color: var(--accent-color, #b8bec8);
+    }
+    .stage-tag {
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--accent-color, #b8bec8);
+      opacity: 0.85;
+    }
+    .stage-product {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+    }
+    .stage-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.66rem;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      padding: 0.25rem 0.55rem;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      color: rgba(255, 255, 255, 0.7);
+      width: fit-content;
+    }
+    .stage-status--live { color: #6fa66f; border-color: rgba(111, 166, 111, 0.4); background: rgba(111, 166, 111, 0.06); }
+    .stage-status--new { color: var(--accent-color, #b8bec8); border-color: rgba(184, 190, 200, 0.4); background: rgba(184, 190, 200, 0.06); }
+    .stage-status--soon { color: #c9a256; border-color: rgba(201, 162, 86, 0.4); background: rgba(201, 162, 86, 0.06); }
+    .stage-status--beta { color: rgba(255, 255, 255, 0.85); border-color: rgba(255, 255, 255, 0.25); background: rgba(255, 255, 255, 0.04); }
+
+    .stage-question {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: clamp(1.6rem, 2.4vw + 0.6rem, 2.4rem);
+      font-weight: 600;
+      letter-spacing: -0.015em;
+      line-height: 1.15;
+      margin-bottom: 1.2rem;
+      color: rgba(255, 255, 255, 0.96);
+    }
+    .stage-question em { font-style: italic; color: var(--accent-color, #b8bec8); }
+    .stage-answer {
+      font-size: 1rem;
+      line-height: 1.72;
+      color: rgba(255, 255, 255, 0.78);
+      margin-bottom: 1.6rem;
+      max-width: 56ch;
+    }
+    .stage-bullets {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 1.8rem;
+      display: grid;
+      gap: 0.7rem;
+    }
+    .stage-bullets li {
+      font-size: 0.9rem;
+      line-height: 1.6;
+      color: rgba(255, 255, 255, 0.85);
+      display: flex;
+      gap: 0.7rem;
+    }
+    .stage-bullets li::before {
+      content: "▸";
+      flex-shrink: 0;
+      color: var(--accent-color, #b8bec8);
+    }
+    .stage-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.84rem;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      color: var(--accent-color, #b8bec8);
+      padding-bottom: 0.2rem;
+      border-bottom: 1px solid rgba(184, 190, 200, 0.4);
+      transition: border-color 0.18s, color 0.18s;
+    }
+    .stage-link:hover { color: #fff; border-color: #fff; }
+
+    /* Stage rail — vertical timeline element */
+    .stage-rail {
+      position: fixed;
+      left: 1.6rem;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 35;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      padding: 1rem 0.7rem;
+      background: rgba(8, 12, 22, 0.6);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+    }
+    .stage-rail a {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      transition: color 0.18s;
+      text-decoration: none;
+    }
+    .stage-rail a::before {
+      content: "";
+      width: 0.55rem;
+      height: 0.55rem;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      transition: background 0.18s, border-color 0.18s;
+    }
+    .stage-rail a.active { color: #fff; }
+    .stage-rail a.active::before { background: var(--accent-color, #b8bec8); border-color: var(--accent-color, #b8bec8); }
+    .stage-rail a:hover { color: rgba(255, 255, 255, 0.9); }
+    @media (max-width: 1280px) { .stage-rail { display: none; } }
+
+    /* Manifesto section */
+    .manifesto {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1px;
+      margin-top: 2.5rem;
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(255, 255, 255, 0.07);
+    }
+    .manifesto-card {
+      background: #0d0f14;
+      padding: 1.8rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+    }
+    .manifesto-card .h {
+      font-family: 'Cormorant Garant', Georgia, serif;
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: rgba(255, 255, 255, 0.95);
+    }
+    .manifesto-card .p {
+      font-size: 0.86rem;
+      line-height: 1.65;
+      color: rgba(255, 255, 255, 0.72);
+    }
+    @media (max-width: 720px) { .manifesto { grid-template-columns: 1fr; } }
+  </style>
+
+  <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
+  <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
+  <link rel="icon" type="image/png" sizes="48x48" href="data:image/png;base64,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" />
+  <link rel="icon" type="image/png" sizes="192x192" href="/icons/orca-192.png" />
+  <link rel="icon" type="image/png" sizes="512x512" href="/icons/orca-512.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/icons/orca-16.png" />
+  <link rel="icon" href="/icons/orca.ico" sizes="any" />
+  <link rel="shortcut icon" href="/icons/orca.ico" />
+  <link rel="apple-touch-icon" sizes="180x180" href="/icons/orca-apple.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <meta name="theme-color" content="#0a1628" />
+  <!-- Sprint H: Open Graph + Twitter Card. Per-page og:title / og:description
+       stay where they're defined; we just inject the brand-shared image,
+       site_name, type, and Twitter card meta so every share renders as a
+       branded preview card instead of a bare URL. og:type preserves the
+       page's own value (e.g. "article" on SEO guides) when present. -->
+  <meta property="og:image" content="https://orcatrade.pl/og-1200x630.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="OrcaTrade — Asia to Europe import operating system" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="OrcaTrade" />
+  <meta property="og:locale" content="en_GB" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:image" content="https://orcatrade.pl/og-1200x630.png" />
+  <meta name="twitter:site" content="@orcatradegroup" />
+  <script>
+    /* v7 defensive favicon: re-inject as data URI at runtime so the browser
+       can't reuse a stale per-URL "no favicon" decision. The data URI
+       guarantees the icon exists even if every network fetch is suppressed. */
+    (function () {
+      try {
+        var existing = document.querySelectorAll('link[rel~="icon"]');
+        existing.forEach(function (el) { el.parentNode && el.parentNode.removeChild(el); });
+        var primary = document.createElement('link');
+        primary.rel = 'icon'; primary.type = 'image/png';
+        primary.setAttribute('sizes', '32x32');
+        primary.href = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAHz0lEQVR42o2Xe3BU1R3HP+fcu8/sbl6QBEKg4REoICQK2mAFgdKBUiiVWigjDjMVprUVH4gVHEZn6mMKWqUVLUOlUWhVinagLXaoloK24dXwWgmRV2oQUkhCkk12N7v33tM/NlnuPsJ4dnbuPeeec37f3+98z+8hHAVVChQ3mkCQvSlI+aaSK24+N/0d2zop+hGpbE+V1kuMJJ7ZNu4bSQfYB0Qkvyt0lUWDvqXKZhGVRQQZ4yKLHTMl2FfIvi1SrZAOKf2boB88SRtls2Q2ODITk0KkaWDXMmkbkamzygKhbx/Rj2oyuylTtRUpfdUv8UQKUNUPq1LfJTdpwrbVDU1EmimFjVgiBa6y/foA3tgtMVNmp3Aqy+0klFIgNQkKDNPEMAwspZCaTIzboIt+uKGSMgT6zbRPYauUKKWIdnaBEHgCPnJzfEgh6QqHCV/vBNNED/jQdR3TNNP0EmlQEn29vwNVNhC6phEJdSN0jekzvkbFiDLcbhd+vw8hwOV0YFmKYP0Fdu/ZT/R6J+78AKZpJg9G2UipbJwRjoJKlcTWK7VvkgA0TRJpbee2229h6ZK5fBpsoOHCZa61dVJfdwrcHnICPoYOHsjcb95J9R238MZbu9mzex/uwjwsS2W96EleOAoqVabJEz1N04i2trN4ybdYtPAbPLluEw3BBorLBvPOthe5fKWFh1e/QEtrB8LpQHV0MmrsSF7f+DP2fnSY9eu34i7ItYGwWyERAZIA0pumaUSvd7DguzN56rH7mLPwcVpa2vEX5hG62sqkKVUcObCDEydPM3v+Cpo/v4KW68dsD+EM5PDxB6+y88+fsGHD7xLHYSmbksomx1PyDGnXSQpJPNJD+Yih1Lz6BD958lecCZ7DW5CLYZjoXjdN5z9n4fy7mTBxPAu+fTfB+vPk+LyUlJUQi8bZ969jrFg6m4bGZpqamnE4HVhKZXhcPZ0YvSTAihuseeQHHD1ez8f7juLOD6CUoiccgUiUe5bMY/ToETRevMiFi018Z/4Mzp5v4nLzNcqHDiHSHWHL9r3kBnwAGIaB1DSUSnXGenrwkQJ6wlFGjilnyuTRrHp6C0JKNE2j+2orlZMn8NCPl4BSzP3eTzl0NEiorR3iMbwDCln7+AMMLRvEyVNneH/XR5QUD2DWzGqO/CdIKBxBSi0lTmb4ASkkxA2mTB5DR0eIY8HzCLeT7rZ2HlixiCnVVWzZupPaT46CrqN5PXjyA1iGSW6un+5whK7uMIWF+Vy73smF+s/A52dY2SC6o7GEBWxxRBcZXlqBlIz6SglNX1zlensIKxLh4ZX3o2k6P/zROpSU5BQV3vCGcRNN17hyqZkNr9SwdvVy7qqupHbvVrojURrOXeKNN9/j8qVmZC8X+mTp6dFcKQWaRo7XyfWOLmJt7Sy+fwFtHV1s++274PZAzKC71/MJjxuXx0U8HKWoeADH//0ug0pLk3teu9rMuYtXCIW6Ey47zeL9uuKenjgoi4qJY3F73NRs3ob05zO1upK5c6ZSOX4UukNn1VMbqTt8HKHp7Ny+nphp8vY77xM800jtwRN0dXdhmXHqjp3FmeNJap8BQCRJKCBu0NreRawnysgRZbz51i7GVU5g4/pVzJw1FZCE2lo4VHeaxotNDC4u5OWX11J76CTTZy9PuOC4AULw2saVdHb1UHfiQjJEKVsql2EBpRTSqfP3/ccpHljA0ZPnmXZnJXt2vkRHKMxzz7/Gn/56gGD9eXpCEapuHcu0aZPYtHkHBz78J46CgTg1HcM0KMgLMKy0mJo/7kMZBkK4sJSVEmt0FAghklfDshS628mpM41cbe1kxLAi3tv2LJtrdvHsL2oIx2IMLy+lYtRQ/D4fHo+LD/cdJBaPM7F6EqfPNKKUhdEdZdwd4/B63Rys+yzhqpXKyBfljcjcm2kJUJbCqeuEw1E2PL2CJ575DY8+soHW9k5mTZ9E6aBCVDjC8qVzWLNyEZgm+XkBqsYNx+lIsFwp+P68r1Nbd5amC5dxup2oNE+oEOhC2CK06Au/kkhbB8sevJf9B4P8/u2/IQI5eDwuPvjHEeLRGIQ7aGnronhgIcFjn4LXx+G6M+TkuIm1hrhrxmTGVAxj8fIX0FwOUCotIVW2jMhGQgHEDRN/UT6lgwbw69d3sPmVR6meNI7w/1rRpMSf60NqbnRdIqREujzk+L14PC66WtopKy9l9YMLWfPzrTRfvobD5bSxP7XK0EnJ5xRCSIxohIrxIzhQe5KW5lZe3LSTh5YvIM/vZc/eWqKaBhYYcYN4LIYCwpEeVE+cqlu/yrL7ZvPcL//AoYNB3Hl+LNNKizc3MgRpr1WSuHQJyuLYyXNofh+n6ht5bN1mSoryWLFsHrdXVoBUxOMxlDJRhklFeSn33jOD26pG8/xL2zl0+DTuPH+W1Cw1ddXtJFS9aZHD4eC/l67R2RVBSonudRONm2yt+QtFQ4ooLRnAgMEl5AW8CBRDhg9BSsnBYw00XfwC4XLiDuRg9mqevdzptbuzoEopMq+HpVQiMNnmSymJxeJYPXH8+QE87kQuaFkWba0doGm4XYnrphRfqglnQaVSaVWM6qfwSC6SAtMwE1lO70SHriW83JeV3MsDnbSroWyXxF6c2RNVZSmklEitL4D1/pMuNpndptUcKqO6+j+5a4uw1CIbwAAAAABJRU5ErkJggg==';
+        document.head.appendChild(primary);
+        var large = document.createElement('link');
+        large.rel = 'icon'; large.type = 'image/png';
+        large.setAttribute('sizes', '192x192');
+        large.href = '/icons/orca-192.png';
+        document.head.appendChild(large);
+        var apple = document.createElement('link');
+        apple.rel = 'apple-touch-icon'; apple.setAttribute('sizes', '180x180');
+        apple.href = '/icons/orca-apple.png';
+        document.head.appendChild(apple);
+      } catch (e) {}
+    })();
+  </script>
+</head>
+
+<body>
+
+  <!-- AURORA -->
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
+  </div>
+
+  <!-- STAGE RAIL · vertical journey indicator (desktop) -->
+  <nav class="stage-rail" aria-label="Journey stages">
+    <a href="#stage-1" data-rail="stage-1">01 · Find</a>
+    <a href="#stage-2" data-rail="stage-2">02 · Source</a>
+    <a href="#stage-3" data-rail="stage-3">03 · Verify</a>
+    <a href="#stage-4" data-rail="stage-4">04 · Ship</a>
+    <a href="#stage-5" data-rail="stage-5">05 · Finance</a>
+  </nav>
+
+  <!-- PAGE TOC · right-edge dot navigation -->
+  <nav class="page-toc" aria-label="Page navigation">
+    <a href="#top" data-toc="top"><span>Top</span></a>
+    <a href="#journey" data-toc="journey"><span>Journey</span></a>
+    <a href="#why" data-toc="why"><span>Why us</span></a>
+    <a href="#cta" data-toc="cta"><span>Engage</span></a>
+  </nav>
+
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <!-- HERO -->
+      <section class="section unit-hero" id="top">
+        <a href="../index.html" class="back-link">← Back to OrcaTrade Group</a>
+        <div class="hero-kicker" data-reveal="hero">The platform · One operating layer</div>
+        <h1 class="unit-hero-title" data-reveal="hero">From <em>"I don't know how to do this"</em><br>to goods on the warehouse floor.</h1>
+        <p class="unit-hero-body" data-reveal="hero">
+          Importing from Asia is a five-stage journey. Most importers stitch it together themselves across
+          freight forwarders, sourcing agents, customs brokers, compliance consultants, and banks. We
+          built one platform that runs the whole flow — backed by AI agents, verified suppliers, EU-first
+          compliance, and feet on the ground in Hong Kong.
+        </p>
+
+        <div class="hero-meta" data-reveal="hero">
+          <div class="hero-tag">Find · Verify · Ship · Finance</div>
+          <div class="hero-divider"></div>
+          <div class="hero-detail">5 stages · 1 platform · Asia → Europe</div>
+        </div>
+
+        <div class="hero-actions" data-reveal="hero" style="margin-top:1.4rem;">
+          <a class="btn btn-primary" href="#journey">See the five stages</a>
+          <a class="btn btn-ghost" href="../pricing/">See pricing</a>
+        </div>
+      </section>
+
+      <!-- JOURNEY -->
+      <section class="section" id="journey">
+        <div class="section-kicker">The five-stage journey</div>
+        <h2 class="section-title">Each stage answers one question.</h2>
+        <p class="section-intro">Five products, but the customer experiences one journey from "where do I find it?" to "how do I pay for it?"</p>
+
+        <!-- STAGE 01 · FIND -->
+        <article class="stage" id="stage-1">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 01</div>
+            <div class="stage-num"><em>Find</em> it</div>
+            <div class="stage-product">OrcaTrade Search</div>
+            <div class="stage-status stage-status--beta">Beta</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"Where do I <em>find</em> the right supplier?"</h3>
+            <p class="stage-answer">
+              AI factory search across vetted Asian manufacturers. Filter by category, country,
+              MOQ, and certifications. No more weeks of digging through Alibaba or 1688 trying to
+              tell real factories from trading companies.
+            </p>
+            <ul class="stage-bullets">
+              <li>Curated database of pre-vetted manufacturers across China, Vietnam, India</li>
+              <li>Filter by capability, capacity, MOQ, certifications, export track record</li>
+              <li>Two-mode search: real knowledge mode and honesty mode</li>
+              <li>Returns 3–5 candidates with comparable scoring, not 500 unranked results</li>
+            </ul>
+            <a href="../search/" class="stage-link">Open Search →</a>
+          </div>
+        </article>
+
+        <!-- STAGE 02 · SOURCE -->
+        <article class="stage" id="stage-2">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 02</div>
+            <div class="stage-num"><em>Source</em> it</div>
+            <div class="stage-product">OrcaTrade Sourcing</div>
+            <div class="stage-status stage-status--live">Live</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"How do I <em>negotiate</em>, sample, and contract?"</h3>
+            <p class="stage-answer">
+              Asia procurement and quality control, end-to-end. Sample coordination,
+              price negotiation, factory audits, and structured QC gates so you don't catch
+              defects at your warehouse dock.
+            </p>
+            <ul class="stage-bullets">
+              <li>Supplier scouting and vetting against your spec, volume, and compliance needs</li>
+              <li>Sample coordination and golden-sample lock-down</li>
+              <li>Pre-prod, mid-prod, and pre-shipment QC inspections</li>
+              <li>Price and payment-term negotiation on your behalf</li>
+            </ul>
+            <a href="../sourcing.html" class="stage-link">Open Sourcing →</a>
+          </div>
+        </article>
+
+        <!-- STAGE 03 · VERIFY -->
+        <article class="stage" id="stage-3">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 03 · Flagship</div>
+            <div class="stage-num"><em>Verify</em> it</div>
+            <div class="stage-product">OrcaTrade Intelligence</div>
+            <div class="stage-status stage-status--live">Live</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"Is this supplier <em>safe</em>? Am I <em>compliant</em>?"</h3>
+            <p class="stage-answer">
+              Three live pillars: shipment visibility, factory risk scoring, EU compliance.
+              The new flagship CBAM analysis returns a regulatory brief in seconds — every claim cited
+              to the regulation, every figure with the math shown.
+            </p>
+            <ul class="stage-bullets">
+              <li>Shipment tracking with route pressure and disruption forecasts</li>
+              <li>Factory scoring across risk, audit, capacity, stability, compliance</li>
+              <li>CBAM, EUDR, CSDDD applicability with article-level citations</li>
+              <li>Confidence badges throughout — missing evidence is never marked ready</li>
+            </ul>
+            <a href="../intelligence.html" class="stage-link">Open Intelligence →</a>
+          </div>
+        </article>
+
+        <!-- STAGE 04 · SHIP -->
+        <article class="stage" id="stage-4">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 04 · New</div>
+            <div class="stage-num"><em>Ship</em> it</div>
+            <div class="stage-product">OrcaTrade Logistics</div>
+            <div class="stage-status stage-status--new">New</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"How do I <em>actually move</em> and clear the goods?"</h3>
+            <p class="stage-answer">
+              Asset-light import management. We coordinate forwarders, brokers, and inspectors
+              from one desk so you don't get buried in email chains. Hong Kong feet on the ground,
+              Polish licensed customs broker partner, EU-wide last-mile.
+            </p>
+            <ul class="stage-bullets">
+              <li>Tier 1 — Freight Forwarding Lite: booking via vetted forwarders, transactional</li>
+              <li>Tier 2 — Full Import Management: end-to-end run, supplier to warehouse</li>
+              <li>Tier 3 — Compliance &amp; Advisory: CBAM, CE, REACH, EUDR audit packages</li>
+              <li>Sea, air, and China–Europe rail via Małaszewicze</li>
+            </ul>
+            <a href="../logistics/" class="stage-link">Open Logistics →</a>
+          </div>
+        </article>
+
+        <!-- STAGE 05 · FINANCE -->
+        <article class="stage" id="stage-5">
+          <div class="stage-marker">
+            <div class="stage-tag">Stage 05</div>
+            <div class="stage-num"><em>Finance</em> it</div>
+            <div class="stage-product">OrcaTrade Finance</div>
+            <div class="stage-status stage-status--soon">Coming Soon</div>
+          </div>
+          <div>
+            <h3 class="stage-question">"How do I <em>pay</em>, hedge, and finance the deal?"</h3>
+            <p class="stage-answer">
+              Trade finance and cross-border payments designed around the realities of European
+              SMEs sourcing from Asia. Payment-term recommendations, FX hedging suggestions,
+              working-capital options that use the platform's own shipment and supplier data.
+            </p>
+            <ul class="stage-bullets">
+              <li>Payment-term recommendations (LC vs TT vs DA/DP) tied to supplier risk score</li>
+              <li>FX exposure modelling and hedging guidance</li>
+              <li>Trade finance options for cash-flow-constrained importers</li>
+              <li>Multi-currency wallet across EUR, USD, CNY, HKD, PLN</li>
+            </ul>
+            <a href="../finance.html" class="stage-link">Open Finance →</a>
+          </div>
+        </article>
+
+      </section>
+
+      <!-- WHY -->
+      <section class="section" id="why">
+        <div class="section-kicker">Why this works</div>
+        <h2 class="section-title">The moat is operational, not technical.</h2>
+        <p class="section-intro">A horizontal AI platform is easy to build and easy to copy. What you can't copy: years of supplier data, an HK office, and an EU-compliance posture built in from day one.</p>
+
+        <div class="manifesto">
+          <article class="manifesto-card">
+            <div class="h">Hong Kong feet on the ground.</div>
+            <p class="p">Yiu Cheung leads logistics out of Hong Kong. Pure-digital forwarders can't match in-person supplier verification, sample consolidation, or dispute resolution at the SME price point. We can.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">EU-first regulation, not an afterthought.</div>
+            <p class="p">CBAM, EUDR, REACH, CE, RoHS, EU AI Act. Most platforms are American-centric and treat EU regs as bolt-ons. Our compliance engine is the front door, not a sidebar.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">AI agents that operate the platform.</div>
+            <p class="p">Sourcing, Compliance, Logistics, Finance, and an Operations orchestrator. Agents route, execute, and escalate to humans when it matters. Every irreversible action stays human-approved.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">Asset-light by design.</div>
+            <p class="p">No directly operated ships, planes, trucks, or warehouses. We coordinate the partners who already own that capacity. Margins stay healthy and capital requirements bounded.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">Built for SME reality.</div>
+            <p class="p">€50k–€2M annual import volume, 2–50 shipments per year. Big enough to need help, small enough that DSV and K+N won't return your call. We sit in that gap.</p>
+          </article>
+          <article class="manifesto-card">
+            <div class="h">Polish, German, and English first.</div>
+            <p class="p">Every meaningful page lives in EN, PL, and DE. Polish e-commerce founders, German Mittelstand, broader CEE — we speak the languages and the customs systems.</p>
+          </article>
+        </div>
+      </section>
+
+      <!-- CTA -->
+      <section class="section" id="cta">
+        <div style="text-align:center; margin-bottom:2rem;">
+          <div class="section-kicker">Engage</div>
+          <h2 class="section-title">Two ways to start.</h2>
+          <p class="section-intro" style="margin: 0 auto;">Run a real CBAM analysis to see the depth of the platform, or request a logistics quote to put a real shipment through.</p>
+        </div>
+
+        <div class="manifesto" style="grid-template-columns: 1fr 1fr;">
+          <article class="manifesto-card spotlight">
+            <div class="h">Generate an EU compliance brief.</div>
+            <p class="p">Tell us what you import. We check CBAM and EUDR — applicability, exposure math, evidence gaps, ranked actions, every claim cited. Free.</p>
+            <a href="../analysis/" class="stage-link" style="margin-top:1rem;">Run the brief →</a>
+          </article>
+          <article class="manifesto-card spotlight">
+            <div class="h">Request a logistics quote.</div>
+            <p class="p">Multi-step form, ~2 minutes. Cargo type, volume, route, Incoterm. We respond within one business day with a quote across our three service tiers.</p>
+            <a href="../logistics/#inquiry" class="stage-link" style="margin-top:1rem;">Request a quote →</a>
+          </article>
+        </div>
+
+        <p style="text-align:center; margin-top:2.5rem; font-size:0.84rem; color: rgba(255,255,255,0.55); letter-spacing: 0.04em;">
+          Or just <a href="../index.html#contact" style="color: var(--accent-color, #b8bec8); border-bottom: 1px dotted rgba(184,190,200,0.4);">say hello</a> and we'll route you.
+        </p>
+      </section>
+    </main>
+
+    <footer>
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span>Warsaw, London &amp; Hong Kong • Europe ↔ Asia</span>
+        <span><a href="#top">Back to top</a></span>
+        <div class="footer-socials">
+          <a href="https://www.instagram.com/orcatradegroup?igsh=MWpra3YwMGthaWcyMw==" target="_blank" rel="noopener" aria-label="OrcaTrade Instagram"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none"/></svg></a>
+          <a href="https://www.linkedin.com/company/orcatrade-holding/" target="_blank" rel="noopener" aria-label="OrcaTrade LinkedIn"><svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect x="2" y="9" width="4" height="12"/><circle cx="4" cy="4" r="2"/></svg></a>
+        </div>
+      </div>
+    </footer>
+  </div>
+
+  <script src="../js/cache-preferences.js"></script>
+  <script src="../js/site-nav.js"></script>
+  <script src="../js/main.js"></script>
+  <script src="../js/chat.js"></script>
+  <script src="../js/transitions.js"></script>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+
+    /* PAGE TOC + STAGE RAIL SCROLL-SPY + NAV LIFT */
+    (function () {
+      var tocLinks = document.querySelectorAll('.page-toc a');
+      var railLinks = document.querySelectorAll('.stage-rail a');
+      var headerEl = document.querySelector('header');
+
+      var tocSections = Array.prototype.map.call(tocLinks, function (link) {
+        return document.getElementById(link.getAttribute('href').slice(1));
+      }).filter(Boolean);
+
+      var stages = Array.prototype.map.call(railLinks, function (link) {
+        return document.getElementById(link.getAttribute('href').slice(1));
+      }).filter(Boolean);
+
+      function setActive(links, sections) {
+        if (!sections.length) return;
+        var fromTop = window.scrollY + 160;
+        var current = sections[0];
+        for (var i = 0; i < sections.length; i++) {
+          if (sections[i].offsetTop <= fromTop) current = sections[i];
+        }
+        var activeId = current.id;
+        Array.prototype.forEach.call(links, function (link) {
+          link.classList.toggle('active', link.getAttribute('href') === '#' + activeId);
+        });
+      }
+
+      function onScroll() {
+        if (headerEl) headerEl.classList.toggle('scrolled', window.scrollY > 24);
+        setActive(tocLinks, tocSections);
+        setActive(railLinks, stages);
+      }
+      window.addEventListener('scroll', onScroll, { passive: true });
+      onScroll();
+    })();
+
+    /* CURSOR-FOLLOWING SPOTLIGHT */
+    (function () {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      document.querySelectorAll('.spotlight').forEach(function (card) {
+        card.addEventListener('pointermove', function (e) {
+          var rect = card.getBoundingClientRect();
+          card.style.setProperty('--mx', ((e.clientX - rect.left) / rect.width * 100) + '%');
+          card.style.setProperty('--my', ((e.clientY - rect.top) / rect.height * 100) + '%');
+        });
+      });
+    })();
+  </script>
+
+<!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
+<script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>
+<script defer src="/js/cookie-consent.js"></script>
+</body>
+</html>
