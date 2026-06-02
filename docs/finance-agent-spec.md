@@ -40,7 +40,7 @@ The Finance Agent answers five concrete questions for any cross-border trade tra
 | `estimateFxHedgingCost` | Forward premium vs unhedged 1-sigma risk for 7 currency pairs | `finance-quote.js` |
 | `calculateWorkingCapitalCycle` | DIO + DSO − DPO + annual carry cost on €100k sample | `finance-quote.js` |
 | `assessTradeCreditCover` | Annual premium estimate for buyer-side trade credit insurance | `finance-quote.js` |
-| `lookupHsCode` | HS placeholder (shared) | shared |
+| `lookupHsCode` | Calculator-grounded HS6 suggestion + opt-in MFN enrichment — [ADR 0016](adr/0016-hs-code-lookup-calculator-grounded.md) | shared |
 | `searchRegulations` | For FX restrictions / capital controls cross-references | shared |
 | `requestHumanReview` | Mandatory escalation for amounts > €100,000 or commercial commitments | shared |
 

@@ -66,9 +66,16 @@ test('assessTradeCreditCover via agent returns premium', () => {
   assert.ok(r.annualPremiumEur > 0);
 });
 
-test('lookupHsCode returns low-confidence placeholder', () => {
-  const r = toolImpls.lookupHsCode({ productDescription: 'cotton t-shirt' });
-  assert.equal(r.confidence, 0);
+test('lookupHsCode returns a real suggestion via lib/intelligence/hs-code-lookup', async () => {
+  // P0.11: replaces the prior `confidence: 0` placeholder. Calculator-
+  // grounded module returns ranked HS6 candidates + a confidence tier
+  // — never null suggestion for well-known queries.
+  const r = await toolImpls.lookupHsCode({ productDescription: 'cotton t-shirt' });
+  assert.ok(r.suggestion, 'expected a suggestion');
+  assert.match(r.suggestion.hs6, /^6109/);
+  assert.ok(r.confidence > 0);
+  assert.ok(['high', 'medium', 'low'].includes(r.confidenceTier));
+  assert.match(r.verifyUrl, /taric\.ec\.europa\.eu/);
 });
 
 test('searchRegulations returns hits for capital controls query', async () => {
@@ -76,12 +83,15 @@ test('searchRegulations returns hits for capital controls query', async () => {
   assert.ok(r.hits.length > 0);
 });
 
-test('requestHumanReview returns ticket id with finance prefix', () => {
-  const r = toolImpls.requestHumanReview({
+test('requestHumanReview returns a queued ticket id (lib/human-review)', async () => {
+  // Post P0.10: ticket ids are minted by lib/human-review.js (KV-backed
+  // queue) and follow `tkt_<base36-time>_<8hex>`. The old per-agent prefix
+  // (`tkt_fin_…`) was a placeholder before the real queue existed.
+  const r = await toolImpls.requestHumanReview({
     reason: 'LC issuance above €100k',
     severity: 'major',
     handoffTo: 'banking_partner',
   });
-  assert.match(r.ticketId, /^tkt_fin_/);
+  assert.match(r.ticketId, /^tkt_[a-z0-9]+_[0-9a-f]{8}$/);
   assert.equal(r.handoffTo, 'banking_partner');
 });
