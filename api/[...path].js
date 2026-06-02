@@ -73,6 +73,11 @@ const handlers = {
   // structured status for KV, TARIC warm cache, Resend/Stripe/Anthropic
   // env vars. 200 = ok | degraded; 503 = KV down (paging condition).
   health: require('../lib/handlers/health'),
+  // Public SLO snapshot (apex P1.A). GET /api/slo returns per-handler
+  // p50/p95/p99 latencies + error rate over the last 24h rolling
+  // window, populated by the dispatcher's instrumentation in
+  // lib/slo.js. Consumed by /status/ for the live SLO display.
+  slo: require('../lib/handlers/slo'),
   // GDPR data subject endpoints (Sprint BG-5.1). GET /api/account/export
   // returns a JSON dump of everything we hold for the signed-in user;
   // POST /api/account/delete pseudonymises events + hard-deletes plans
@@ -204,8 +209,25 @@ module.exports = async (req, res) => {
     }));
   }
 
+  // Apex P1.A — per-handler SLO instrumentation. Records latency +
+  // status for every dispatched call into a 24h-rolling KV bucket.
+  // Fire-and-forget post-response so it never blocks the user. See
+  // lib/slo.js + /api/slo for the consumption surface.
+  const sloStart = Date.now();
+  const slo = require('../lib/slo');
+  function recordSlo() {
+    const ms = Date.now() - sloStart;
+    const status = res.statusCode || 200;
+    // Don't await — purely fire-and-forget.
+    Promise.resolve()
+      .then(() => slo.record(key, ms, status))
+      .catch(() => { /* telemetry must never break the request */ });
+  }
+
   try {
-    return await handler(req, res);
+    const result = await handler(req, res);
+    recordSlo();
+    return result;
   } catch (err) {
     // log.error forwards to Sentry as an exception (with stack frames)
     // when the `err` extra is an Error — see lib/log.js forwardToSentry
@@ -214,9 +236,13 @@ module.exports = async (req, res) => {
     if (!res.headersSent) {
       res.setHeader('Content-Type', 'application/json');
       res.statusCode = 500;
-      return res.end(JSON.stringify({ error: err.message || 'Internal handler error', requestId }));
+      const body = JSON.stringify({ error: err.message || 'Internal handler error', requestId });
+      res.end(body);
+      recordSlo();
+      return;
     }
     if (!res.writableEnded) res.end();
+    recordSlo();
   }
 };
 
