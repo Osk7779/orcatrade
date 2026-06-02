@@ -1,6 +1,6 @@
 # Data flow & retention
 
-**Last reviewed:** 2026-05-17
+**Last reviewed:** 2026-06-01
 **Owner:** Oskar Klepuszewski
 
 Source of truth for what personal data OrcaTrade collects, where it lives, how long it's kept, and which subprocessor handles each leg.
@@ -92,7 +92,7 @@ What's stored: nothing per request. The probe writes a transient `health:probe` 
 | Backend | What lives there | Provider | Region |
 |---|---|---|---|
 | **KV (Redis-protocol)** | Magic tokens, session-revocation list (future), events log, saved plans, user tiers, Stripe customer mapping, circuit-breaker state, TARIC rate cache, health probe | Upstash Redis (via Vercel Marketplace) | Frankfurt (eu-central-1) |
-| **Postgres** | *Planned in Phase α* — orgs, audit log, events (replacing KV log) | Neon (planned) | Frankfurt |
+| **Postgres** | **Live** — events log (dual-write mirror), saved plans (dual-write), portfolios, data snapshots, RBAC roles, organisations + memberships. KV remains hot-path primary; PG is the durable corpus that outlives KV TTL. Cutover to PG-primary in flight (apex A2 — see [read-shadow PRs #33 + #34](https://github.com/Osk7779/orcatrade/pulls?q=read-shadow)). | Neon | eu-central-1 (verify on the Neon project dashboard) |
 | **Object storage** | None (no file uploads in v1) | — | — |
 | **Stripe** | Customer records, subscriptions, payment methods | Stripe | Ireland (EU) |
 

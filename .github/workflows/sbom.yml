@@ -1,0 +1,64 @@
+name: sbom
+
+# Phase 0 task P0.D of docs/execution-plan.md. See ADR 0011.
+#
+# Generates a CycloneDX Software Bill of Materials (SBOM) when a
+# release-please release is published, and attaches it to the GitHub
+# Release as an asset. CycloneDX is the OWASP-maintained, widely-
+# adopted SBOM standard; procurement reviewers ask for it by name in
+# SOC 2 + ISO 27001 questionnaires.
+#
+# The SBOM includes:
+#   - Direct + transitive dependencies (from package-lock.json)
+#   - Versions
+#   - Licences
+#   - PURL identifiers
+#   - Hashes
+#
+# Generated per release rather than per push to keep release artefacts
+# small + identifiable. The release-please workflow in
+# .github/workflows/release-please.yml is the upstream trigger; this
+# workflow listens on the `release` event when the tagged release lands.
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: write   # write needed to upload the SBOM as a release asset
+
+jobs:
+  generate:
+    name: generate
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout the released tag
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies (production tree for SBOM accuracy)
+        run: npm ci
+
+      - name: Generate CycloneDX SBOM
+        run: |
+          npx --yes @cyclonedx/cyclonedx-npm@latest \
+            --output-format JSON \
+            --output-file sbom.cdx.json \
+            --spec-version 1.5
+
+      - name: Upload SBOM as release asset
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${{ github.event.release.tag_name }}" \
+            sbom.cdx.json \
+            --clobber
