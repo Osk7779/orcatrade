@@ -136,8 +136,12 @@ test('every generated example exists on disk', async () => {
       const file = path.join(ROOT, `${localePrefix}examples/${e.slug}/index.html`);
       assert.ok(fs.existsSync(file), `${file} missing`);
     }
-    const idx = path.join(ROOT, `${localePrefix}examples/index.html`);
-    assert.ok(fs.existsSync(idx), `${idx} missing`);
+    // EN /examples/ index now serves from marketing-shell — no static
+    // emission. PL/DE still have static indexes.
+    if (locale !== 'en') {
+      const idx = path.join(ROOT, `${localePrefix}examples/index.html`);
+      assert.ok(fs.existsSync(idx), `${idx} missing`);
+    }
   }
 });
 

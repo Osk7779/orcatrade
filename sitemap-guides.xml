@@ -5631,16 +5631,6 @@
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://orcatrade.pl/examples/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/" />
-    <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/" />
-    <xhtml:link rel="alternate" hreflang="de" href="https://orcatrade.pl/de/examples/" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/examples/" />
-    <lastmod>2026-06-02</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.8</priority>
-  </url>
-  <url>
     <loc>https://orcatrade.pl/examples/polish-apparel-importer-from-china/</loc>
     <xhtml:link rel="alternate" hreflang="en" href="https://orcatrade.pl/examples/polish-apparel-importer-from-china/" />
     <xhtml:link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/examples/polish-apparel-importer-from-china/" />

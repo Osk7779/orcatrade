@@ -2882,9 +2882,12 @@ async function run() {
   writePage(wIndex.path, wIndex.html);
   generated.push(wIndex);
 
-  // Guides root
+  // Guides root — EN now serves from marketing-shell. PL/DE roots still
+  // emit (see generateGuidesRootPL / generateGuidesRootDE below). The
+  // EN static index has been archived to guides/legacy/index.html for
+  // reference; coverage in tests was updated to point there.
   const gRoot = generateGuidesRoot();
-  writePage(gRoot.path, gRoot.html);
+  // writePage(gRoot.path, gRoot.html);  // EN root deferred to marketing-shell
   generated.push(gRoot);
 
   // ── Polish (PL) localisations ──

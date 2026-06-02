@@ -583,10 +583,17 @@ function generateIndexPage(locale) {
 async function build() {
   const generated = [];
   for (const locale of ['en', 'pl', 'de']) {
-    const idx = generateIndexPage(locale);
-    fs.mkdirSync(path.dirname(path.join(ROOT, idx.relPath)), { recursive: true });
-    fs.writeFileSync(path.join(ROOT, idx.relPath), idx.html, 'utf8');
-    generated.push(idx);
+    // EN /examples/ now serves from marketing-shell. Only emit the
+    // per-locale static index for PL and DE (which still own those
+    // pages until the marketing-shell port lands). The EN static
+    // index used to live at examples/index.html; it's been archived
+    // to examples/legacy/index.html.
+    if (locale !== 'en') {
+      const idx = generateIndexPage(locale);
+      fs.mkdirSync(path.dirname(path.join(ROOT, idx.relPath)), { recursive: true });
+      fs.writeFileSync(path.join(ROOT, idx.relPath), idx.html, 'utf8');
+      generated.push(idx);
+    }
     for (const example of EXAMPLES) {
       const page = await generateExamplePage(example, locale);
       if (!page) continue;
