@@ -1,0 +1,196 @@
+/* OrcaTrade shared design-token shell — applied to every static HTML
+   surface that doesn't run on the marketing-shell Next.js project.
+   Mirrors marketing-shell's globals.css token system so navy + ivory
+   is consistent across the legacy account/, dashboard/, and SEO-tree
+   pages until each is ported into a Next.js project.
+
+   Loaded LAST in <head> so it cascades over each page's inline
+   styles. Override discipline:
+     1. Replace the warm-gold accent (rgba(220,188,110,…)) with the
+        canonical ivory accent. Gold violates the design lock.
+     2. Pin the type stack to Fraunces / Inter / IBM Plex Mono with
+        sensible fallbacks.
+     3. Normalise the dark background to the canonical ink colour.
+     4. Provide a responsive grid container + tap-target floor for
+        mobile.
+     5. Provide [data-fade-up] reveal state classes for the
+        scroll-reveal JS to toggle.
+
+   Design lock: dark navy + ivory only, no gold/amber. State colours
+   (positive/warning/critical) used only when status IS the message.
+*/
+
+:root {
+  /* Surface */
+  --ot-ink: #050507;
+  --ot-navy: #0a1628;
+  --ot-navy-soft: #111e33;
+  --ot-navy-line: rgba(255, 255, 255, 0.08);
+
+  /* Type */
+  --ot-ivory: #fafaf7;
+  --ot-ivory-dim: #c9ccd3;
+  --ot-ivory-mute: rgba(250, 250, 247, 0.55);
+
+  /* Accent = ivory. Single token. */
+  --ot-accent: #fafaf7;
+  --ot-accent-soft: rgba(250, 250, 247, 0.72);
+  --ot-accent-glow: rgba(250, 250, 247, 0.18);
+
+  /* Functional state — used only when status is the message */
+  --ot-positive: #10b981;
+  --ot-warning: #f59e0b;
+  --ot-critical: #ef4444;
+  --ot-info: #60a5fa;
+
+  /* Type stacks */
+  --ot-font-sans: 'Inter', 'Geist', system-ui, -apple-system, sans-serif;
+  --ot-font-serif: 'Fraunces', 'Cormorant Garant', Georgia, serif;
+  --ot-font-mono: 'IBM Plex Mono', 'Geist Mono', ui-monospace, SFMono-Regular, monospace;
+}
+
+/* Strip the warm-gold accent everywhere it's used. The legacy stylesheet
+   used rgba(220, 188, 110, *) for links and CTAs; ivory wins. */
+a:not([class]),
+.inline,
+a.inline,
+a.tier-cta,
+.btn:not(.btn-secondary):not(.btn-ghost),
+.footnote a,
+.footer-note a,
+.note a,
+[data-link-accent] {
+  color: var(--ot-ivory) !important;
+}
+
+a:hover,
+.inline:hover,
+[data-link-accent]:hover {
+  color: var(--ot-ivory-dim) !important;
+}
+
+/* Buttons: switch to ivory border / ivory fill (solid) or ivory-tinted ghost */
+.btn,
+.btn-primary,
+.tier-cta {
+  background: var(--ot-ivory) !important;
+  color: var(--ot-ink) !important;
+  border-color: var(--ot-ivory) !important;
+}
+.btn:hover,
+.btn-primary:hover,
+.tier-cta:hover {
+  background: var(--ot-ivory-dim) !important;
+  border-color: var(--ot-ivory-dim) !important;
+}
+.btn-ghost,
+.tier-cta--ghost,
+.btn-secondary {
+  background: transparent !important;
+  color: var(--ot-ivory) !important;
+  border: 1px solid rgba(250, 250, 247, 0.4) !important;
+}
+.btn-ghost:hover,
+.tier-cta--ghost:hover,
+.btn-secondary:hover {
+  border-color: var(--ot-ivory) !important;
+  background: rgba(250, 250, 247, 0.05) !important;
+}
+
+/* Pills, badges, dingbats that used the warm gold */
+.popular-flag,
+.tier-popular-flag,
+[class*='accent-gold'],
+[data-accent='gold'] {
+  color: var(--ot-ivory) !important;
+  border-color: var(--ot-ivory) !important;
+}
+
+/* Headings: prefer Fraunces serif over the legacy Cormorant when both
+   are loaded; keeps the marketing-shell aesthetic. */
+h1, h2, h3,
+.unit-hero-title,
+.section-title,
+.tier-name,
+.card-title,
+.addon-name {
+  font-family: var(--ot-font-serif) !important;
+  color: var(--ot-ivory);
+  letter-spacing: -0.01em;
+}
+
+body {
+  font-family: var(--ot-font-sans);
+  background: var(--ot-ink);
+  color: var(--ot-ivory);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+code, pre, .mono, [class*='mono'] {
+  font-family: var(--ot-font-mono);
+}
+
+/* Responsive — ensure touch targets, sensible padding on small screens */
+@media (max-width: 640px) {
+  .section,
+  main > section,
+  main > .section {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  button,
+  .btn,
+  .tier-cta,
+  a.btn,
+  a.tier-cta {
+    min-height: 44px;
+    padding: 0.85rem 1.1rem;
+  }
+  /* Stack any grid on mobile */
+  .tier-grid,
+  .partner-grid,
+  .feature-grid,
+  .service-grid,
+  .addons {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+/* Scroll-reveal: initial state hidden, JS adds .ot-revealed */
+[data-fade-up] {
+  opacity: 0;
+  transform: translateY(16px);
+  transition: opacity 0.6s cubic-bezier(0.22, 1, 0.36, 1),
+              transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform;
+}
+[data-fade-up].ot-revealed {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-fade-up] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Subtle ambient — soft gradient on every page background, mirrors
+   the homepage's aurora without the full motion. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 20% 0%, rgba(96, 165, 250, 0.07), transparent 60%),
+    radial-gradient(50% 40% at 80% 100%, rgba(250, 250, 247, 0.04), transparent 60%);
+  z-index: 0;
+}
+body > * {
+  position: relative;
+  z-index: 1;
+}
