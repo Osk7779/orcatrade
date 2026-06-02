@@ -200,7 +200,7 @@ test('sentinel: every /examples/<slug>/ directory has a matching corpus entry', 
   const dirSlugs = fs.readdirSync(examplesDir, { withFileTypes: true })
     .filter((d) => d.isDirectory())
     .map((d) => d.name)
-    .filter((s) => s !== 'index.html'); // defensive
+    .filter((s) => s !== 'index.html' && s !== 'legacy'); // defensive
   const corpusSet = new Set(SLUGS);
   const missing = dirSlugs.filter((s) => !corpusSet.has(s));
   assert.deepEqual(missing, [], 'these /examples/* pages have no regression coverage: ' + missing.join(', '));

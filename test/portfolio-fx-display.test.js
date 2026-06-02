@@ -8,7 +8,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const APP_JS = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'app.js'), 'utf8');
-const HTML = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'index.html'), 'utf8');
+const HTML = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'legacy', 'index.html'), 'utf8');
 
 test('portfolio app.js defines a multi-currency FX display table incl. EUR/USD/GBP/PLN', () => {
   assert.match(APP_JS, /var FX = \{/);

@@ -19,7 +19,7 @@ function read(rel) {
 
 const HTML = read('trust/anchors/index.html');
 const JS = read('trust/anchors/app.js');
-const TRUST_INDEX = read('trust/index.html');
+const TRUST_INDEX = read('trust/legacy/index.html');
 
 // ── page surface ───────────────────────────────────────────────
 

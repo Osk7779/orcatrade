@@ -156,7 +156,7 @@ test('applyAuthI18n leaves <html lang> alone for EN', () => {
 // ── Page wiring contracts ───────────────────────────────
 
 test('/signup/ loads auth-i18n.js + carries data-i18n on key elements', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'signup', 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'signup', 'legacy', 'index.html'), 'utf8');
   assert.match(html, /\/js\/auth-i18n\.js/);
   assert.match(html, /data-i18n="signupTitle"/);
   assert.match(html, /data-i18n="btnSendLink"/);

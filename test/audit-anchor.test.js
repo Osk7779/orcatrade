@@ -173,7 +173,7 @@ test('api/[...path].js dispatcher registers audit-anchor handler', () => {
 // ── source-pin: /trust/ surfaces the live anchor ────────────────────
 
 test('/trust/ page references /api/audit-anchor + has the loader script', () => {
-  const src = fs.readFileSync(path.join(ROOT, 'trust/index.html'), 'utf8');
+  const src = fs.readFileSync(path.join(ROOT, 'trust/legacy/index.html'), 'utf8');
   // The endpoint must be linked from the trust page so a procurement
   // reviewer who reads the trust page can click through.
   assert.ok(

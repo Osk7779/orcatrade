@@ -2,52 +2,81 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Audit-chain anchors | OrcaTrade trust</title>
+  <title>OrcaTrade Guides — sourcing, routing, customs, warehousing for Asia–Europe importers</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Rolling history of OrcaTrade's tamper-evident audit-chain head. Public, verifiable, append-only — pin any row externally and detect a future chain rewrite." />
-  <link rel="canonical" href="https://orcatrade.pl/trust/anchors/" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet" />
-  <link rel="stylesheet" href="/css/styles.css" />
-  <meta property="og:title" content="Audit-chain anchors | OrcaTrade trust" />
-  <meta property="og:description" content="Verifiable rolling history of the OrcaTrade tamper-evident audit-chain head." />
+  <meta name="description" content="Long-form guides for European SMEs importing from Asia. Country sourcing comparisons, transport mode selection, customs landed-cost calculations, and EU 3PL hub benchmarks. Calculator-grounded." />
+  <link rel="canonical" href="https://orcatrade.pl/guides/" />
+  <link rel="alternate" hreflang="en" href="https://orcatrade.pl/guides/" />
+  <link rel="alternate" hreflang="pl" href="https://orcatrade.pl/pl/guides/" />
+  <link rel="alternate" hreflang="x-default" href="https://orcatrade.pl/guides/" />
+  <meta property="og:title" content="OrcaTrade Guides — sourcing, routing, customs, warehousing for Asia–Europe importers" />
+  <meta property="og:description" content="Long-form guides for European SMEs importing from Asia. Country sourcing comparisons, transport mode selection, customs landed-cost calculations, and EU 3PL hub benchmarks. Calculator-grounded." />
+  <meta property="og:url" content="https://orcatrade.pl/guides/" />
+  <meta name="twitter:title" content="OrcaTrade Guides — sourcing, routing, customs, warehousing for Asia–Europe importers" />
+  <meta name="twitter:description" content="Long-form guides for European SMEs importing from Asia. Country sourcing comparisons, transport mode selection, customs landed-cost calculations, and EU 3PL hub benchmarks. Calculator-grounded." />
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garant:wght@400;500;600;700&family=Geist+Mono&display=swap" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/geist@1.3.0/dist/fonts/geist-sans/style.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="/css/styles.css">
   <style>
-    body { background: #050507; color: rgba(255,255,255,0.92); font-family: 'Geist', system-ui, sans-serif; }
-    .trust-shell { max-width: 920px; margin: 0 auto; padding: 4rem 1.5rem 6rem; }
-    .breadcrumbs { font-family: 'Geist Mono', monospace; font-size: 0.74rem; color: rgba(255,255,255,0.5); margin-bottom: 1.2rem; letter-spacing: 0.06em; }
-    .breadcrumbs a { color: rgba(220, 188, 110, 0.85); text-decoration: none; }
-    h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2.1rem, 4vw + 0.5rem, 2.9rem); font-weight: 600; margin-bottom: 0.7rem; letter-spacing: -0.01em; }
-    .lead { font-size: 1.02rem; line-height: 1.7; color: rgba(255,255,255,0.72); margin-bottom: 2.2rem; max-width: 66ch; }
-    section { margin-bottom: 2.4rem; }
-    section h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.4rem; font-weight: 600; color: rgba(255,255,255,0.96); margin: 0 0 0.6rem; letter-spacing: -0.005em; }
-    section p { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.72); margin: 0 0 0.8rem; max-width: 66ch; }
-    a.inline { color: rgba(220, 188, 110, 0.9); text-decoration: none; }
-    a.inline:hover { text-decoration: underline; }
+    .guide-shell { max-width: 920px; margin: 0 auto; padding: 3rem 1.5rem 6rem; position: relative; z-index: 1; }
+    .guide-breadcrumb { font-size: 0.74rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-bottom: 1.4rem; }
+    .guide-breadcrumb a { color: rgba(255,255,255,0.55); text-decoration: none; }
+    .guide-breadcrumb a:hover { color: rgba(255,255,255,0.95); }
+    .guide-hero h1 { font-family: 'Cormorant Garant', Georgia, serif; font-size: clamp(2rem, 4vw + 0.5rem, 3rem); font-weight: 600; letter-spacing: -0.02em; line-height: 1.1; margin-bottom: 1rem; color: rgba(255,255,255,0.97); max-width: 24ch; }
+    .guide-hero .lead { font-size: 1rem; line-height: 1.7; color: rgba(255,255,255,0.72); max-width: 60ch; }
+    .guide-hero .kicker { font-family: 'Cormorant Garant', Georgia, serif; font-size: 0.74rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.22em; color: var(--accent-color, #b8bec8); margin-bottom: 1rem; }
 
-    /* ── Timeline ──────────────────────────────────────── */
-    .timeline { display: flex; flex-direction: column; gap: 0; margin-top: 1rem; border-left: 2px solid rgba(220, 188, 110, 0.3); padding-left: 1.2rem; }
-    .timeline .anchor-row { position: relative; padding: 0.85rem 0; border-bottom: 1px dashed rgba(255,255,255,0.07); }
-    .timeline .anchor-row:last-child { border-bottom: none; }
-    .timeline .anchor-row::before { content: ''; position: absolute; left: -1.55rem; top: 1.15rem; width: 8px; height: 8px; background: rgba(220, 188, 110, 0.8); border-radius: 50%; box-shadow: 0 0 0 2px #050507; }
-    .timeline .anchor-row.is-newest::before { background: #5fb56b; box-shadow: 0 0 0 2px #050507, 0 0 8px rgba(95, 181, 107, 0.4); }
-    .anchor-row .when { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.85); margin-bottom: 0.25rem; }
-    .anchor-row .when .newest-pill { display: inline-block; font-size: 0.6rem; letter-spacing: 0.16em; text-transform: uppercase; color: rgba(95, 181, 107, 0.95); border: 1px solid rgba(95, 181, 107, 0.5); padding: 0.06rem 0.4rem; margin-left: 0.5rem; }
-    .anchor-row .head { font-family: 'Geist Mono', monospace; font-size: 0.78rem; color: rgba(255,255,255,0.65); word-break: break-all; }
-    .anchor-row .meta { font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.5); margin-top: 0.25rem; letter-spacing: 0.04em; }
-    .anchor-row .meta strong { color: rgba(220, 188, 110, 0.9); font-weight: 600; }
+    .guide-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); margin: 2rem 0; }
+    @media (max-width: 700px) { .guide-stats { grid-template-columns: repeat(2, 1fr); } }
+    .guide-stat { background: #0d0f14; padding: 1.1rem 1.2rem; }
+    .guide-stat .num { font-family: 'Cormorant Garant', serif; font-size: 1.6rem; font-weight: 700; color: rgba(255,255,255,0.97); line-height: 1; letter-spacing: -0.02em; }
+    .guide-stat .label { font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.14em; text-transform: uppercase; color: rgba(255,255,255,0.5); margin-top: 0.4rem; }
 
-    /* ── States ────────────────────────────────────────── */
-    .state { padding: 1rem 1.2rem; background: rgba(13, 15, 20, 0.5); border: 1px solid rgba(255,255,255,0.07); margin-top: 1rem; }
-    .state.loading { color: rgba(255,255,255,0.6); }
-    .state.empty { color: rgba(255,255,255,0.7); }
-    .state.error { color: rgba(232, 128, 128, 0.95); border-color: rgba(232, 128, 128, 0.4); background: rgba(232, 128, 128, 0.04); }
-    .state strong { color: rgba(255,255,255,0.95); }
-    .state code { font-family: 'Geist Mono', monospace; font-size: 0.85em; background: rgba(255,255,255,0.04); padding: 0.05rem 0.3rem; }
+    .guide-section { margin-top: 3rem; }
+    .guide-section h2 { font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.5rem; font-weight: 600; letter-spacing: -0.01em; color: rgba(255,255,255,0.97); margin-bottom: 0.6rem; }
+    .guide-section p { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.78); margin-bottom: 0.8em; max-width: 70ch; }
+    .guide-section ul { font-size: 0.95rem; line-height: 1.7; color: rgba(255,255,255,0.78); padding-left: 1.4rem; max-width: 68ch; }
+    .guide-section ul li { margin-bottom: 0.3em; }
+    .guide-section strong { color: rgba(255,255,255,0.97); }
 
-    [hidden] { display: none !important; }
+    .specialty-block, .caution-block { padding: 1rem 1.3rem; margin: 1.2rem 0; }
+    .specialty-block { background: rgba(111, 166, 111, 0.06); border-left: 2px solid rgba(111, 166, 111, 0.5); }
+    .caution-block { background: rgba(201, 80, 80, 0.06); border-left: 2px solid rgba(201, 80, 80, 0.5); }
+    .specialty-block .label, .caution-block .label { font-size: 0.66rem; letter-spacing: 0.16em; text-transform: uppercase; font-weight: 600; margin-bottom: 0.3rem; }
+    .specialty-block .label { color: rgba(111, 166, 111, 0.95); }
+    .caution-block .label { color: rgba(201, 80, 80, 0.85); }
+
+    .data-table { width: 100%; border-collapse: collapse; margin: 1.2rem 0; font-size: 0.9rem; }
+    .data-table th, .data-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(255,255,255,0.07); color: rgba(255,255,255,0.78); }
+    .data-table th { background: rgba(255,255,255,0.03); color: rgba(255,255,255,0.92); font-weight: 600; font-size: 0.78rem; letter-spacing: 0.06em; text-transform: uppercase; }
+    .data-table tr:nth-child(even) td { background: rgba(255,255,255,0.015); }
+    .data-table .num { font-family: 'Geist Mono', monospace; }
+
+    .related-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1px; background: rgba(255,255,255,0.07); border: 1px solid rgba(255,255,255,0.07); margin-top: 2rem; }
+    @media (max-width: 700px) { .related-grid { grid-template-columns: 1fr; } }
+    .related-card { background: #0d0f14; padding: 1rem 1.2rem; text-decoration: none; transition: background 0.15s; }
+    .related-card:hover { background: rgba(184, 190, 200, 0.05); }
+    .related-card .related-tag { font-size: 0.66rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--accent-color, #b8bec8); margin-bottom: 0.3rem; }
+    .related-card h3 { font-family: 'Cormorant Garant', serif; font-size: 0.98rem; font-weight: 600; color: rgba(255,255,255,0.94); margin-bottom: 0.2rem; line-height: 1.3; }
+    .related-card .related-desc { font-size: 0.78rem; color: rgba(255,255,255,0.6); line-height: 1.5; }
+
+    .agent-cta {
+      position: sticky; bottom: 1.5rem; margin: 2.5rem 0 0;
+      padding: 1.4rem 1.6rem;
+      background: linear-gradient(135deg, rgba(184,190,200,0.1), rgba(184,190,200,0.02));
+      border: 1px solid rgba(184,190,200,0.4);
+      display: flex; align-items: center; justify-content: space-between; gap: 1.2rem;
+      flex-wrap: wrap;
+    }
+    .agent-cta .cta-text { flex: 1; min-width: 240px; }
+    .agent-cta .cta-text h3 { font-family: 'Cormorant Garant', serif; font-size: 1.15rem; font-weight: 600; margin-bottom: 0.3rem; color: rgba(255,255,255,0.97); }
+    .agent-cta .cta-text p { font-size: 0.86rem; color: rgba(255,255,255,0.7); margin: 0; line-height: 1.5; }
+    .agent-cta a { padding: 0.7rem 1.2rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none; transition: filter 0.18s, transform 0.18s; flex-shrink: 0; }
+    .agent-cta a:hover { filter: brightness(1.08); transform: translateY(-1px); }
   </style>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"CollectionPage","name":"OrcaTrade Guides — sourcing, routing, customs, warehousing for Asia–Europe importers","description":"Long-form guides for European SMEs importing from Asia. Country sourcing comparisons, transport mode selection, customs landed-cost calculations, and EU 3PL hub benchmarks. Calculator-grounded.","url":"https://orcatrade.pl/guides/"}</script>
 
   <!-- favicon set v9 injected by scripts/inject-favicon-tags.js -->
   <link rel="icon" type="image/png" sizes="32x32" href="data:image/png;base64,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" />
@@ -69,7 +98,7 @@
   <meta property="og:image:width" content="1200" />
   <meta property="og:image:height" content="630" />
   <meta property="og:image:alt" content="OrcaTrade — Asia to Europe import operating system" />
-  <meta property="og:type" content="website" />
+  <meta property="og:type" content="article" />
   <meta property="og:site_name" content="OrcaTrade" />
   <meta property="og:locale" content="en_GB" />
   <meta name="twitter:card" content="summary_large_image" />
@@ -102,37 +131,71 @@
   </script>
 </head>
 <body>
-  <div class="trust-shell">
-    <div class="breadcrumbs"><a href="/trust/">Trust</a> · Audit anchors</div>
-    <h1>Audit-chain anchors</h1>
-    <p class="lead">Every event OrcaTrade writes — sign-ins, plan saves, org changes, agent escalations — is sealed into a sha256 hash chain at write time. The current chain head is published at <code><a class="inline" href="/api/audit-anchor">/api/audit-anchor</a></code>; this page renders the rolling history of those heads. <strong>Pin any row externally</strong>, then come back later — if the chain at that row's sequence number no longer matches the head you saved, the chain was rewritten and we can't hide it.</p>
-
-    <section>
-      <h2>Rolling history (most recent first)</h2>
-      <p>Snapshot taken daily at 02:00 UTC by the audit-anchor-snapshot cron job. The chain only grows append-only, so <code>chainLength</code> must monotonically increase down the list. A regression is detectable evidence that the chain was rewritten.</p>
-      <div id="anchors-loading" class="state loading">Loading the anchor history…</div>
-      <div id="anchors-empty" class="state empty" hidden>
-        <strong>No anchors recorded yet.</strong> The daily snapshot fires at 02:00 UTC; rows will appear within 24 hours of this page going live. The current live anchor is always available at <code><a class="inline" href="/api/audit-anchor">/api/audit-anchor</a></code>.
-      </div>
-      <div id="anchors-error" class="state error" hidden>
-        <strong>Couldn't fetch the anchor history.</strong> The endpoint may be temporarily unavailable. Try again in a moment, or hit <code><a class="inline" href="/api/audit-anchor/history">/api/audit-anchor/history</a></code> directly to see the raw response.
-      </div>
-      <div class="timeline" id="anchors-timeline" hidden></div>
-    </section>
-
-    <section>
-      <h2>How to verify externally</h2>
-      <p>The verification protocol is <code>sha256(prevHash + canonical(event))</code> over a personal-data-free projection of each event. Full algorithm and the projection's exclusion list: <a class="inline" href="https://github.com/Osk7779/orcatrade/blob/main/docs/security/audit-trail.md">docs/security/audit-trail.md</a>.</p>
-      <ol>
-        <li>Fetch <code>/api/audit-anchor</code> now. Save the <code>{ chainHead, chainLength, asOf }</code> locally.</li>
-        <li>Come back any time later. The new <code>chainLength</code> must be ≥ what you saved.</li>
-        <li>The chain head at your earlier <code>chainLength</code> must still equal what you saved. OrcaTrade ops can re-walk the stored chain via <code>GET /api/audit?format=verify-stored</code> and the result must agree with this page.</li>
-        <li>If your earlier head no longer matches at its earlier sequence number, the chain was rewritten. The integrity guarantee rides on sha256 — not on trusting our auth surface.</li>
-      </ol>
-    </section>
+  <div class="aurora" aria-hidden="true">
+    <div class="aurora-blob b1"></div>
+    <div class="aurora-blob b2"></div>
+    <div class="aurora-blob b3"></div>
   </div>
 
-  <script src="/trust/anchors/app.js"></script>
+  <div class="page">
+    <header data-site-header></header>
+
+    <main>
+      <article class="guide-shell">
+        
+    <nav class="guide-breadcrumb"><a href="/">Home</a> · Guides</nav>
+    <header class="guide-hero">
+      <p class="kicker">OrcaTrade Guides</p>
+      <h1>Calculator-grounded guides for Asia–Europe trade.</h1>
+      <p class="lead">No filler content. Every guide is anchored to OrcaTrade's deterministic calculators for sourcing, routing, customs, and warehousing — so the numbers you read are the same numbers you'd get from running the agent. Browse by domain below.</p>
+    </header>
+
+    <section class="guide-section">
+      <h2>Sourcing</h2>
+      <p>Where to source — country comparisons across CN / VN / IN / BD / TR for eight product categories. FOB index, lead time, MOQ, quality and IP risk per combination.</p>
+      <a href="/guides/sourcing/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 40 sourcing guides →</a>
+    </section>
+
+    <section class="guide-section">
+      <h2>Routing</h2>
+      <p>How to ship between Asia and Europe — corridor guides covering sea FCL, sea LCL, air, and rail (where viable) for the major lanes. Calculator-grounded cost, transit, and CO₂ per shipment band.</p>
+      <a href="/guides/routing/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 30 routing guides →</a>
+    </section>
+
+    <section class="guide-section">
+      <h2>Customs</h2>
+      <p>Landed-cost calculations for the major HS chapters across six EU member states. Duty + VAT + brokerage math, preferential FTA comparisons, bonded-warehouse alternatives.</p>
+      <a href="/guides/customs/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 36 customs guides →</a>
+    </section>
+
+    <section class="guide-section">
+      <h2>Warehouse / 3PL</h2>
+      <p>Six EU 3PL hub profiles — Rotterdam, Hamburg, Frankfurt, Poznań, Prague, Barcelona. Storage cost, pick &amp; pack pricing, sample monthly cost for typical SME shippers.</p>
+      <a href="/guides/warehouse/" style="display:inline-block; margin-top: 0.4rem; padding: 0.6rem 1rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; font-size: 0.78rem; text-decoration: none;">Browse 6 warehouse guides →</a>
+    </section>
+  
+        
+        <aside style="margin-top: 3rem; padding: 1.6rem 1.8rem; background: linear-gradient(135deg, rgba(184,168,114,0.08), rgba(184,190,200,0.03)); border: 1px solid rgba(200, 168, 90, 0.3); text-align: center;">
+          <div style="font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(200, 168, 90, 0.95); margin-bottom: 0.4rem; font-weight: 600;">Build your full plan</div>
+          <h3 style="font-family: 'Cormorant Garant', Georgia, serif; font-size: 1.25rem; font-weight: 600; color: rgba(255,255,255,0.97); margin: 0 0 0.4rem;">Don't just read — get a personalised plan in 60 seconds.</h3>
+          <p style="font-size: 0.88rem; color: rgba(255,255,255,0.7); margin: 0 auto 1rem; max-width: 50ch; line-height: 1.6;">Six questions, all four calculators (sourcing, routing, customs, warehouse) compose your specific landed cost and recommendations. Free, calculator-grounded, no newsletter.</p>
+          <a href="/start/" style="display: inline-block; padding: 0.7rem 1.3rem; background: var(--accent-color, #b8bec8); color: #0a0912; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase; text-decoration: none;">Build my plan →</a>
+        </aside>
+      </article>
+    </main>
+
+    <footer style="position: relative; z-index: 1;">
+      <div class="footer-inner">
+        <span>© <span id="year"></span> OrcaTrade Group. All rights reserved.</span>
+        <span><a href="/">Back to OrcaTrade Group</a></span>
+      </div>
+    </footer>
+  </div>
+
+  <script src="/js/cache-preferences.js"></script>
+  <script src="/js/site-nav.js"></script>
+  <script src="/js/main.js"></script>
+  <script>document.getElementById('year').textContent = new Date().getFullYear();</script>
 
 <!-- analytics v2 (consent-gated) injected by scripts/inject-favicon-tags.js -->
 <script>window.va=window.va||function(){(window.vaq=window.vaq||[]).push(arguments);};</script>

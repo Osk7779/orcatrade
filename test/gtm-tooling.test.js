@@ -11,44 +11,44 @@ function readFile(rel) { return fs.readFileSync(path.join(ROOT, rel), 'utf8'); }
 // ── /press/ ──────────────────────────────────────────
 
 test('/press/ index exists with positioning sentence', () => {
-  const html = readFile('press/index.html');
+  const html = readFile('press/legacy/index.html');
   assert.match(html, /Press kit/);
   assert.match(html, /Positioning sentence/);
   assert.match(html, /operating system for European SMEs importing from Asia/);
 });
 
 test('/press/ has founder bio + Oskar Klepuszewski named', () => {
-  const html = readFile('press/index.html');
+  const html = readFile('press/legacy/index.html');
   assert.match(html, /Oskar Klepuszewski/);
   assert.match(html, /Founder &amp; CFO|Founder &amp;amp; CFO/i);
 });
 
 test('/press/ links to brand-kit + logo asset', () => {
-  const html = readFile('press/index.html');
+  const html = readFile('press/legacy/index.html');
   assert.match(html, /\/orcatrade_logo\.png/);
   assert.match(html, /\/docs\/brand-kit\//);
 });
 
 test('/press/ has noindex robots tag absent (we want press kit indexed)', () => {
-  const html = readFile('press/index.html');
+  const html = readFile('press/legacy/index.html');
   assert.doesNotMatch(html, /robots"\s+content="noindex/i);
 });
 
 test('/press/ provides press contact route', () => {
-  const html = readFile('press/index.html');
+  const html = readFile('press/legacy/index.html');
   assert.match(html, /press@orcatrade\.pl/);
   assert.match(html, /\?intent=press/);
 });
 
 test('/press/ canonical points to /press/', () => {
-  const html = readFile('press/index.html');
+  const html = readFile('press/legacy/index.html');
   assert.match(html, /canonical" href="https:\/\/orcatrade\.pl\/press\/"/);
 });
 
 // ── /partners/ ───────────────────────────────────────
 
 test('/partners/ index exists with three relationship modes called out', () => {
-  const html = readFile('partners/index.html');
+  const html = readFile('partners/legacy/index.html');
   assert.match(html, /Partners|partner/);
   assert.match(html, /Recommended/);
   assert.match(html, /Referral/);
@@ -56,14 +56,14 @@ test('/partners/ index exists with three relationship modes called out', () => {
 });
 
 test('/partners/ covers freight + finance + FX + insurance + inspection categories', () => {
-  const html = readFile('partners/index.html');
+  const html = readFile('partners/legacy/index.html');
   for (const heading of ['Freight forwarding', 'Trade finance', 'FX', 'Insurance', 'Inspections']) {
     assert.match(html, new RegExp(heading, 'i'), `expected partners page to cover ${heading}`);
   }
 });
 
 test('/partners/ has CTA for becoming a partner', () => {
-  const html = readFile('partners/index.html');
+  const html = readFile('partners/legacy/index.html');
   assert.match(html, /\?intent=partnership/);
 });
 

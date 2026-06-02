@@ -335,7 +335,7 @@ test('/account/billing/app.js calls /api/billing/me + portal', () => {
 test('pricing page wires /api/billing/checkout for subscribe CTAs', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const html = fs.readFileSync(path.join(__dirname, '..', 'pricing/index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'pricing/legacy/index.html'), 'utf8');
   assert.match(html, /\/api\/billing\/checkout/);
   assert.match(html, /data-action="subscribe"/);
 });

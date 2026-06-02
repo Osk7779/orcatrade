@@ -298,7 +298,7 @@ test('createPendingSignup: drops unsafe returnTo to null', async () => {
 // ── /pricing/ + /account/ + /signup/ markup contracts ───
 
 test('/pricing/ uses /signup/?return=… on 401 + auto-resumes on ?subscribe=', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'pricing', 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'pricing', 'legacy', 'index.html'), 'utf8');
   // Routes 401 visitors to /signup/, not /account/, because /signup/ is
   // the explicit entry for new users (and signed-out visitors are
   // statistically more likely to be new).

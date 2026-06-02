@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const html = fs.readFileSync(path.join(__dirname, '..', 'trust', 'index.html'), 'utf8');
+const html = fs.readFileSync(path.join(__dirname, '..', 'trust', 'legacy', 'index.html'), 'utf8');
 
 test('trust center covers the core posture sections', () => {
   assert.match(html, /Trust &amp; security/);

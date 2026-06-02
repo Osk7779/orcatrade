@@ -40,15 +40,15 @@ const ROOT = path.resolve(__dirname, '..');
 // marketing-shell migration note at the top of this file.
 const SAMPLE_PAGES = [
   'start/index.html',
-  'pricing/index.html',
-  'agents/index.html',
-  'platform/index.html',
-  'press/index.html',
-  'partners/index.html',
-  'founding/index.html',
+  'pricing/legacy/index.html',
+  'agents/legacy/index.html',
+  'platform/legacy/index.html',
+  'press/legacy/index.html',
+  'partners/legacy/index.html',
+  'founding/legacy/index.html',
   'pl/zalozyciele-10/index.html',
   'de/gruender-10/index.html',
-  'compliance/index.html',
+  'compliance/legacy/index.html',
   // pl/index.html and de/index.html were retired alongside the EN root
   // index.html when the marketing-shell took over the homepage surface.
   // Their archived counterparts at pl/legacy/ and de/legacy/ still carry

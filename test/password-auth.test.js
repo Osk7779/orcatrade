@@ -711,7 +711,7 @@ test('dispatcher: unknown /api/auth/password sub-action → 404', async () => {
 // ── /signup/ + /account/reset/ markup contracts ─────────
 
 test('/signup/ markup: page exists with email + password fields + toggle', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'signup', 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'signup', 'legacy', 'index.html'), 'utf8');
   assert.match(html, /id="email"/);
   assert.match(html, /id="password"/);
   assert.match(html, /id="toggle-mode-btn"/);

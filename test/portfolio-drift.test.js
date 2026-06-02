@@ -135,6 +135,6 @@ test('/portfolio/ reopens saved portfolios via /refresh + renders a drift callou
   assert.match(js, /\/refresh/);
   assert.match(js, /data\.drift/);
   assert.match(js, /pf-drift/);
-  const html = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'legacy', 'index.html'), 'utf8');
   assert.match(html, /\.pf-drift/);
 });

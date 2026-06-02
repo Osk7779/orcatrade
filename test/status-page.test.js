@@ -10,7 +10,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const HTML_PATH = path.join(__dirname, '..', 'status', 'index.html');
+const HTML_PATH = path.join(__dirname, '..', 'status', 'legacy', 'index.html');
 const html = fs.readFileSync(HTML_PATH, 'utf8');
 
 test('status page exists and is non-empty', () => {

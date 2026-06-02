@@ -216,7 +216,7 @@ test('handler: POST returns 405', async () => {
 test('pricing page CTAs carry data-tier attributes', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const html = fs.readFileSync(path.join(__dirname, '..', 'pricing/index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'pricing/legacy/index.html'), 'utf8');
   for (const id of ['free', 'starter', 'growth', 'scale', 'enterprise']) {
     assert.match(html, new RegExp(`data-tier="${id}"`), `expected data-tier="${id}" on a CTA`);
   }
@@ -225,7 +225,7 @@ test('pricing page CTAs carry data-tier attributes', () => {
 test('pricing page bootstraps /api/tiers/me current-plan badge', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const html = fs.readFileSync(path.join(__dirname, '..', 'pricing/index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'pricing/legacy/index.html'), 'utf8');
   assert.match(html, /\/api\/tiers\/me/);
   assert.match(html, /tier--current/);
 });

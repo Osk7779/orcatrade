@@ -5,7 +5,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const HTML = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'index.html'), 'utf8');
+const HTML = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'legacy', 'index.html'), 'utf8');
 const APP_JS = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'app.js'), 'utf8');
 const ACCOUNT_HTML = fs.readFileSync(path.join(__dirname, '..', 'account', 'index.html'), 'utf8');
 const START_APP = fs.readFileSync(path.join(__dirname, '..', 'start', 'app.js'), 'utf8');

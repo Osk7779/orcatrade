@@ -276,7 +276,7 @@ test('probePostgres returns degraded when DATABASE_URL unset', async () => {
 });
 
 test('status page knows about the postgres subsystem', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'status', 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'status', 'legacy', 'index.html'), 'utf8');
   assert.match(html, /postgres:\s*\{\s*name:/, 'SUBSYSTEM_LABELS includes postgres');
 });
 

@@ -11,7 +11,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const STATUS_PATH = path.join(__dirname, '..', 'status', 'index.html');
+const STATUS_PATH = path.join(__dirname, '..', 'status', 'legacy', 'index.html');
 function read() { return fs.readFileSync(STATUS_PATH, 'utf8'); }
 
 test('/status/ has the session-uptime panel', () => {

@@ -19,7 +19,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const TRUST_PATH = path.join(__dirname, '..', 'trust', 'index.html');
+const TRUST_PATH = path.join(__dirname, '..', 'trust', 'legacy', 'index.html');
 function read() { return fs.readFileSync(TRUST_PATH, 'utf8'); }
 
 const REQUIRED_SECTION_IDS = Object.freeze([

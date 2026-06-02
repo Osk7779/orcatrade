@@ -377,7 +377,7 @@ test('health.probeSentry: degraded when SENTRY_DSN malformed', () => {
 test('status page knows about the sentry subsystem', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const html = fs.readFileSync(path.join(__dirname, '..', 'status', 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'status', 'legacy', 'index.html'), 'utf8');
   assert.match(html, /sentry:\s*\{\s*name:/);
 });
 

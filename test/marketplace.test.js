@@ -74,7 +74,7 @@ test('exemplars: country mix covers both ASEAN + South Asia + EU', () => {
 // ── Static page presence ─────────────────────────────
 
 test('/marketplace/index.html present + canonical points to /marketplace/', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'marketplace/index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'marketplace/legacy/index.html'), 'utf8');
   assert.match(html, /Vetted supplier directory/);
   assert.match(html, /id="supplier-grid"/);
   assert.match(html, /id="country-filter"/);
@@ -82,7 +82,7 @@ test('/marketplace/index.html present + canonical points to /marketplace/', () =
 });
 
 test('/marketplace/index.html surfaces the anonymisation banner', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'marketplace/index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'marketplace/legacy/index.html'), 'utf8');
   assert.match(html, /anonymised/i);
   assert.match(html, /Why anonymised/);
 });
@@ -101,14 +101,14 @@ test('/marketplace/app.js renders intro CTA per card', () => {
 });
 
 test('/marketplace/index.html links to vetting application CTA', () => {
-  const html = fs.readFileSync(path.join(__dirname, '..', 'marketplace/index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(__dirname, '..', 'marketplace/legacy/index.html'), 'utf8');
   assert.match(html, /\?intent=supplier-vetting/);
 });
 
 // ── Sprint K: Founding 10 positioning alignment ──────
 
 const FOUNDING_LINKS = [
-  { file: 'marketplace/index.html',    href: '/founding/',          phrase: 'Founding 10' },
+  { file: 'marketplace/legacy/index.html',    href: '/founding/',          phrase: 'Founding 10' },
   { file: 'pl/marketplace/index.html', href: '/pl/zalozyciele-10/', phrase: 'Założycieli 10' },
   { file: 'de/marketplace/index.html', href: '/de/gruender-10/',    phrase: 'Gründer 10' },
 ];
@@ -128,7 +128,7 @@ test('EN marketplace banner explains both WHY anonymised AND WHEN it goes live',
   // Sprint K tied the live-directory timeline to the Founding 10 onboarding
   // milestone. Before J/K the page said "why" but not "when" — the new copy
   // must surface both halves.
-  const en = fs.readFileSync(path.join(__dirname, '..', 'marketplace/index.html'), 'utf8');
+  const en = fs.readFileSync(path.join(__dirname, '..', 'marketplace/legacy/index.html'), 'utf8');
   assert.match(en, /Why anonymised/, 'EN marketplace lost the "Why anonymised" framing');
   assert.match(en, /when it goes live|when we'?ve onboarded|onboarded our first/i,
     'EN marketplace must surface the live-directory timeline');
