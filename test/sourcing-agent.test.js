@@ -64,9 +64,13 @@ test('listSupplierShortlist returns curated examples', () => {
   assert.ok(r.suppliers.length > 0);
 });
 
-test('lookupHsCode returns low-confidence placeholder', () => {
-  const r = toolImpls.lookupHsCode({ productDescription: 'cotton t-shirt' });
-  assert.equal(r.confidence, 0);
+test('lookupHsCode returns a real suggestion via lib/intelligence/hs-code-lookup', async () => {
+  // P0.11: replaces the prior `confidence: 0` placeholder.
+  const r = await toolImpls.lookupHsCode({ productDescription: 'cotton t-shirt' });
+  assert.ok(r.suggestion, 'expected a suggestion');
+  assert.match(r.suggestion.hs6, /^6109/);
+  assert.ok(r.confidence > 0);
+  assert.match(r.verifyUrl, /taric\.ec\.europa\.eu/);
 });
 
 test('searchRegulations returns hits for EUDR wood query', async () => {
@@ -74,10 +78,13 @@ test('searchRegulations returns hits for EUDR wood query', async () => {
   assert.ok(r.hits.length > 0);
 });
 
-test('requestHumanReview returns ticket id with sourcing prefix', () => {
-  const r = toolImpls.requestHumanReview({
+test('requestHumanReview returns a queued ticket id (lib/human-review)', async () => {
+  // Post P0.10: ticket ids are minted by lib/human-review.js (KV-backed
+  // queue), shape `tkt_<base36-time>_<8hex>`. Old per-agent prefix
+  // (`tkt_src_…`) was the fake-ticket stub now retired.
+  const r = await toolImpls.requestHumanReview({
     reason: 'First PO above €20k for VN furniture',
     severity: 'major',
   });
-  assert.match(r.ticketId, /^tkt_src_/);
+  assert.match(r.ticketId, /^tkt_[a-z0-9]+_[0-9a-f]{8}$/);
 });
