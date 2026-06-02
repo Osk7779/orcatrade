@@ -129,6 +129,36 @@
     .share-pane .share-meta { font-family: 'Geist Mono', monospace; font-size: 0.7rem; color: rgba(255,255,255,0.5); margin-top: 0.55rem; letter-spacing: 0.04em; }
     .share-pane .share-meta strong { color: rgba(220, 188, 110, 0.95); font-weight: 600; }
     .share-pane .err { color: #c95050; font-size: 0.78rem; margin-top: 0.4rem; }
+
+    /* Reproducibility verdict (apex III3 slice 3c) ─────────────── */
+    .plan-reproduce { margin-top: 0.55rem; }
+    .reproduce-toggle { background: transparent; border: 1px dashed rgba(255,255,255,0.18); color: rgba(255,255,255,0.75); font-family: 'Geist Mono', monospace; font-size: 0.7rem; letter-spacing: 0.1em; text-transform: uppercase; padding: 0.45rem 0.8rem; cursor: pointer; transition: all 0.15s; }
+    .reproduce-toggle:hover:not(:disabled) { border-color: rgba(95, 181, 107, 0.6); color: rgba(120, 200, 130, 0.95); }
+    .reproduce-toggle:disabled { opacity: 0.55; cursor: wait; }
+    .repro-verdict { padding: 0.7rem 0.9rem; margin-top: 0.5rem; background: rgba(8, 11, 19, 0.6); border-left: 2px solid rgba(255,255,255,0.18); font-size: 0.78rem; line-height: 1.5; }
+    .repro-verdict.repro-ok { border-left-color: rgba(95, 181, 107, 0.7); background: rgba(95, 181, 107, 0.04); }
+    .repro-verdict.repro-drift { border-left-color: rgba(220, 188, 110, 0.7); background: rgba(220, 188, 110, 0.04); }
+    .repro-verdict.repro-unknown { border-left-color: rgba(150, 160, 170, 0.4); }
+    .repro-verdict.repro-error { border-left-color: rgba(232, 128, 128, 0.7); background: rgba(232, 128, 128, 0.04); color: rgba(255,200,200,0.85); }
+    .repro-verdict .repro-headline { color: rgba(255,255,255,0.92); margin-bottom: 0.5rem; }
+    .repro-drift-list { font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.72); margin: 0.35rem 0; }
+    .repro-drift-row { display: grid; grid-template-columns: 1fr auto auto auto; gap: 0.4rem; padding: 0.18rem 0; }
+    .repro-drift-row .repro-drift-key { color: rgba(220, 188, 110, 0.9); }
+    .repro-drift-row .repro-drift-from { color: rgba(255,255,255,0.5); }
+    .repro-drift-row .repro-drift-arrow { color: rgba(255,255,255,0.4); }
+    .repro-drift-row .repro-drift-to { color: rgba(255,255,255,0.88); }
+    .repro-drift-row.repro-drift-more { grid-template-columns: 1fr; color: rgba(255,255,255,0.45); font-style: italic; }
+    .repro-recovered { margin-top: 0.55rem; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1); }
+    .repro-recovered-title { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(150, 200, 230, 0.85); margin-bottom: 0.3rem; }
+    .repro-recovered-values { display: flex; gap: 0.5rem; align-items: baseline; flex-wrap: wrap; }
+    .repro-recovered-orig { font-family: 'Geist Mono', monospace; font-size: 0.95rem; color: rgba(120, 200, 130, 0.95); }
+    .repro-recovered-sep { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+    .repro-recovered-curr { font-family: 'Geist Mono', monospace; font-size: 0.85rem; color: rgba(255,255,255,0.7); }
+    .repro-recovered-note { font-size: 0.7rem; color: rgba(255,255,255,0.45); margin-top: 0.25rem; }
+    .repro-fx { margin-top: 0.55rem; padding-top: 0.5rem; border-top: 1px dashed rgba(255,255,255,0.1); }
+    .repro-fx-title { font-family: 'Geist Mono', monospace; font-size: 0.66rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(150, 200, 230, 0.85); margin-bottom: 0.3rem; }
+    .repro-fx-row { display: flex; justify-content: space-between; font-family: 'Geist Mono', monospace; font-size: 0.72rem; color: rgba(255,255,255,0.78); padding: 0.15rem 0; }
+    .repro-snapshot { font-family: 'Geist Mono', monospace; font-size: 0.66rem; color: rgba(255,255,255,0.35); margin-top: 0.55rem; letter-spacing: 0.04em; }
   </style>
 
 

@@ -114,12 +114,19 @@ review (the reviewer notes it in the AC):
 | `test/model-registry-enforcement.test.js` (no hardcoded model IDs) | ✓ live (PR #7) |
 | Conventional commits + commitlint | ✓ live (PR #11) |
 | TypeScript strict typecheck | ✓ live (PR #13) |
-| CodeQL static analysis | Phase 0 P0.D |
-| gitleaks secrets scan | Phase 0 P0.D |
-| Dependabot dependency updates | Phase 0 P0.D |
-| Snyk vulnerability scan | Phase 0 P0.D |
-| SBOM (CycloneDX) per release | Phase 0 P0.D |
-| Branch protection (required checks, two-eyes) | Phase 0 P0.C |
+| CodeQL static analysis | ✓ live (PR #15) |
+| gitleaks secrets scan | ✓ live (PR #15) |
+| Dependabot dependency updates | ✓ live (PR #15) |
+| Snyk vulnerability scan | ✓ live, opt-in via `SNYK_TOKEN` repo secret (PR #15) |
+| SBOM (CycloneDX) per release | ✓ live, fires on `release-please` release event (PR #15) |
+| Branch protection (required checks, Code Owners, linear history) | ✓ live, applied via [runbook](../runbooks/repo-settings-branch-protection.md) (PR #16) |
 | Annual external pen test | Phase 3 P3.5 |
 | Private bug bounty | Phase 3 P3.6 |
 | SOC 2 Type II / ISO 27001 / ISO 27701 | Phase 3-5 |
+
+**One-off setup needed after PR #15 merges** (per the workflow files'
+documentation):
+- Add `SNYK_TOKEN` to repo secrets (from your Snyk account → API Token)
+  for the Snyk scan to actually run. Until then it skips gracefully.
+- Verify "Settings → Code security → Dependabot security updates" is
+  on (typically on by default for repos with `dependabot.yml`).

@@ -33,6 +33,29 @@ const GREEN = '\x1b[32m';
 const RED = '\x1b[31m';
 const DIM = '\x1b[2m';
 
+// GitHub Actions workflow-command emission for failure annotations.
+// `::error file=…,title=…::message` makes a failing probe appear as
+// a red annotation in the PR's Checks / Files-changed UI rather
+// than only in the action log. ADR 0017's known-gap close-out.
+// Only emits when running inside GHA (CI=true && GITHUB_ACTIONS=true);
+// otherwise the helper is a no-op so local runs stay readable.
+function inGithubActions() {
+  return process.env.CI === 'true' && process.env.GITHUB_ACTIONS === 'true';
+}
+function emitGhaError({ name, url, reason }) {
+  if (!inGithubActions()) return;
+  const escape = (s) => String(s == null ? '' : s)
+    .replace(/%/g, '%25').replace(/\r/g, '%0D').replace(/\n/g, '%0A');
+  // file= must be a workspace-relative path. We're a runtime-probe
+  // script — there's no source file to blame — so we anchor on the
+  // script itself; the PR reviewer follows the annotation back to
+  // smoke.js where the probe list lives, sees `name` + `url`, and
+  // knows which probe failed without scrolling the action log.
+  const title = `smoke probe failed: ${escape(name)}`;
+  const msg = `${escape(name)}  ${escape(url)}  ${escape(reason || 'unknown')}`;
+  console.log(`::error file=scripts/smoke.js,title=${title}::${msg}`);
+}
+
 async function probe(name, path, check) {
   const url = base + path;
   const ctrl = new AbortController();
@@ -45,10 +68,13 @@ async function probe(name, path, check) {
       console.log(`${GREEN}✓${RESET} ${name}  ${DIM}${url} → ${res.status}  ${verdict.note || ''}${RESET}`);
       return true;
     }
+    const reason = `expected check failed: ${verdict.reason} (got status ${res.status})`;
     console.log(`${RED}✗${RESET} ${name}  ${DIM}${url} → ${res.status}${RESET}  ${verdict.reason}`);
+    emitGhaError({ name, url, reason });
     return false;
   } catch (err) {
     console.log(`${RED}✗${RESET} ${name}  ${DIM}${url}${RESET}  ${err.message}`);
+    emitGhaError({ name, url, reason: err.message });
     return false;
   } finally {
     clearTimeout(timer);
@@ -93,14 +119,26 @@ const probes = [
     : { ok: false, reason: `expected 200, got ${status}` }],
 ];
 
-(async () => {
-  console.log(`${DIM}smoke against ${base}${RESET}`);
-  let pass = 0;
-  for (const [name, path, check] of probes) {
-    if (await probe(name, path, check)) pass++;
-  }
-  const total = probes.length;
-  const colour = pass === total ? GREEN : RED;
-  console.log(`${colour}${pass}/${total} probes passed${RESET}`);
-  process.exit(pass === total ? 0 : 1);
-})();
+// Only run the probe loop when invoked directly (node scripts/smoke.js).
+// When required from a test file, expose the helpers so the
+// GHA-annotation logic can be unit-tested without spinning up real
+// HTTP probes.
+if (require.main === module) {
+  (async () => {
+    console.log(`${DIM}smoke against ${base}${RESET}`);
+    let pass = 0;
+    for (const [name, path, check] of probes) {
+      if (await probe(name, path, check)) pass++;
+    }
+    const total = probes.length;
+    const colour = pass === total ? GREEN : RED;
+    console.log(`${colour}${pass}/${total} probes passed${RESET}`);
+    process.exit(pass === total ? 0 : 1);
+  })();
+}
+
+module.exports = {
+  emitGhaError,
+  inGithubActions,
+  probes,
+};
