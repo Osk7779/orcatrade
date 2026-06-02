@@ -274,10 +274,37 @@
     </div>`;
   }
 
-  function renderLangSwitcher(locale) {
+  // Strip /pl/ or /de/ prefix to recover the EN-canonical href so we can
+  // swap to a different locale on the same page (route-aware), matching
+  // the marketing-shell <Header /> behaviour.
+  function toEnCanonical(path) {
+    if (!path) return '/';
+    if (path.indexOf('/pl/') === 0) return path.slice(3) || '/';
+    if (path.indexOf('/de/') === 0) return path.slice(3) || '/';
+    return path;
+  }
+  // Reverse SLUG_OVERRIDES: if the current PL/DE path is one of the
+  // translated slugs (e.g. /pl/cennik/), recover its EN equivalent
+  // (/pricing/) so switching to DE lands on /de/preise/, not /de/cennik/.
+  function fromTranslatedSlug(path, locale) {
+    const overrides = SLUG_OVERRIDES[locale] || {};
+    for (const en in overrides) {
+      if (overrides[en] === path) return en;
+    }
+    return null;
+  }
+
+  function renderLangSwitcher(currentPath, locale) {
+    const enCanonical = (function () {
+      if (locale === 'EN') return currentPath || '/';
+      const translated = fromTranslatedSlug(currentPath, locale);
+      if (translated) return translated;
+      return toEnCanonical(currentPath);
+    })();
     const buttons = NAV.langSwitcher.map(l => {
       const cls = 'lang-btn' + (l.code === locale ? ' lang-active' : '');
-      return `<a href="${l.href}" class="${cls}">${l.code}</a>`;
+      const href = localizeHref(enCanonical, l.code);
+      return `<a href="${href}" class="${cls}">${l.code}</a>`;
     }).join('');
     return `<div class="lang-switcher">${buttons}</div>`;
   }
@@ -287,7 +314,7 @@
     const primaryLinksHtml = NAV.primary.map(item => renderLink(item, currentPath, locale)).join('');
     const secondaryLinksHtml = NAV.secondary.map(item => renderLink(item, currentPath, locale)).join('');
     const toolsHtml = renderToolsDropdown(currentPath, locale);
-    const langSwitcherHtml = renderLangSwitcher(locale);
+    const langSwitcherHtml = renderLangSwitcher(currentPath, locale);
     const brandHref = localizeHref(NAV.brand.href, locale);
     const navOpenLabel = t('Open navigation', locale);
 

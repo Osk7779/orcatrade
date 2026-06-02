@@ -62,7 +62,27 @@
     {
       "source": "/",
       "destination": "https://orcatrade-marketing.vercel.app/"
-    }
+    },
+
+    { "source": "/pl/changelog", "destination": "https://orcatrade-marketing.vercel.app/changelog" },
+    { "source": "/pl/status", "destination": "https://orcatrade-marketing.vercel.app/status" },
+    { "source": "/pl/trust", "destination": "https://orcatrade-marketing.vercel.app/trust" },
+    { "source": "/pl/trust/anchors", "destination": "https://orcatrade-marketing.vercel.app/trust/anchors" },
+    { "source": "/pl/portfolio", "destination": "https://orcatrade-marketing.vercel.app/portfolio" },
+    { "source": "/pl/signin", "destination": "https://orcatrade-marketing.vercel.app/signin" },
+    { "source": "/pl/signup", "destination": "https://orcatrade-marketing.vercel.app/signup" },
+    { "source": "/pl/contact", "destination": "https://orcatrade-marketing.vercel.app/contact" },
+    { "source": "/pl/process", "destination": "https://orcatrade-marketing.vercel.app/process" },
+
+    { "source": "/de/changelog", "destination": "https://orcatrade-marketing.vercel.app/changelog" },
+    { "source": "/de/status", "destination": "https://orcatrade-marketing.vercel.app/status" },
+    { "source": "/de/trust", "destination": "https://orcatrade-marketing.vercel.app/trust" },
+    { "source": "/de/trust/anchors", "destination": "https://orcatrade-marketing.vercel.app/trust/anchors" },
+    { "source": "/de/portfolio", "destination": "https://orcatrade-marketing.vercel.app/portfolio" },
+    { "source": "/de/signin", "destination": "https://orcatrade-marketing.vercel.app/signin" },
+    { "source": "/de/signup", "destination": "https://orcatrade-marketing.vercel.app/signup" },
+    { "source": "/de/contact", "destination": "https://orcatrade-marketing.vercel.app/contact" },
+    { "source": "/de/process", "destination": "https://orcatrade-marketing.vercel.app/process" }
   ],
   "headers": [
     {

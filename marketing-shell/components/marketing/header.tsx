@@ -1,10 +1,12 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { ScrollProgress } from './scroll-progress';
 import { TimezoneClocks } from './timezone-clocks';
 import { MobileMenu } from './mobile-menu';
+import { detectLocale, switchLocale } from '@/lib/i18n-routes';
 
 // Full TOOLS dropdown mirrors js/site-nav.js — every existing tool page on
 // the static site is reachable from the marketing-shell header. URLs point
@@ -53,13 +55,12 @@ const SECONDARY = [
   { label: 'Pricing', href: '/pricing/' },
 ];
 
-const LOCALES = [
-  { label: 'EN', active: true, href: '/' },
-  { label: 'PL', active: false, href: '/pl/' },
-  { label: 'DE', active: false, href: '/de/' },
-];
+type LocaleCode = 'EN' | 'PL' | 'DE';
+const LOCALE_CODES: LocaleCode[] = ['EN', 'PL', 'DE'];
 
 export function Header() {
+  const pathname = usePathname() || '/';
+  const currentLocale = detectLocale(pathname);
   const [toolsOpen, setToolsOpen] = useState(false);
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -89,25 +90,29 @@ export function Header() {
         <div className="mx-auto flex h-10 max-w-[1320px] items-center justify-between gap-4 px-6 md:gap-6 md:px-9">
           <TimezoneClocks />
           <div className="hidden items-center gap-2 text-[12px] md:flex">
-            {LOCALES.map((l, i) => (
-              <span key={l.label} className="flex items-center gap-2">
-                {l.active ? (
-                  <span className="font-semibold text-[var(--color-ivory)]">{l.label}</span>
-                ) : (
-                  <a
-                    href={l.href}
-                    className="font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
-                  >
-                    {l.label}
-                  </a>
-                )}
-                {i < LOCALES.length - 1 && (
-                  <span aria-hidden className="text-[var(--color-navy-line)]">
-                    /
-                  </span>
-                )}
-              </span>
-            ))}
+            {LOCALE_CODES.map((code, i) => {
+              const isActive = code === currentLocale;
+              const href = switchLocale(pathname, code);
+              return (
+                <span key={code} className="flex items-center gap-2">
+                  {isActive ? (
+                    <span className="font-semibold text-[var(--color-ivory)]">{code}</span>
+                  ) : (
+                    <a
+                      href={href}
+                      className="font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
+                    >
+                      {code}
+                    </a>
+                  )}
+                  {i < LOCALE_CODES.length - 1 && (
+                    <span aria-hidden className="text-[var(--color-navy-line)]">
+                      /
+                    </span>
+                  )}
+                </span>
+              );
+            })}
           </div>
         </div>
       </div>
