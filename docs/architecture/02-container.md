@@ -10,8 +10,8 @@ C4Container
     Person(internal, "Oskar / on-call", "Operator")
 
     System_Boundary(orcatrade, "OrcaTrade") {
-        Container(marketing, "marketing-shell", "Next.js 15 App Router", "Editorial homepage at /<br/>+ ~580 SEO-localised guides (EN/PL/DE).<br/>Future: lands at Vercel preview per branch.")
-        Container(static, "Static HTML surface", "Hand-authored HTML + small JS", "~730 pages: /start/ wizard,<br/>/intelligence, /sourcing, /finance, /process,<br/>/pricing, /agents, /platform, /press, /partners.<br/>Migrating into Next.js shells incrementally.")
+        Container(marketing, "marketing-shell", "Next.js 15 App Router", "Editorial homepage at /<br/>+ 658 SEO-localised guides (EN/PL/DE).<br/>Future: lands at Vercel preview per branch.")
+        Container(static, "Static HTML surface", "Hand-authored HTML + small JS", "744 pages: /start/ wizard,<br/>/intelligence, /sourcing, /finance, /process,<br/>/pricing, /agents, /platform, /press, /partners.<br/>Migrating into Next.js shells incrementally.")
         Container(appshell, "app-shell", "Next.js 15 App Router", "Authenticated product UI at /app/*.<br/>Today: dashboard only.<br/>Phase 2: plans, portfolios, drafts, audit-log viewer, admin team UI.")
         Container(dispatcher, "API dispatcher", "Single Vercel function: api/[...path].js", "Routes ~50 endpoints to lib/handlers/*.js.<br/>Single function due to Vercel Hobby 12-fn cap.<br/>Wraps every external call in lib/circuit.js (Phase 0 P0.3 migration).")
         Container(handlers, "Handlers + agents", "CommonJS modules in lib/handlers/", "Request handlers + 5 agent tool-use loops:<br/>compliance · logistics · sourcing · finance · orchestrator")

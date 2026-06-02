@@ -109,40 +109,6 @@
    regexes. Update the eval cases under
    [lib/ai/evals/](../../lib/ai/evals/) as needed.
 
-9. **Eval-gate red on a recent merge.** The post-merge gate
-   ([.github/workflows/eval-gate.yml](../../.github/workflows/eval-gate.yml),
-   per [ADR 0018](../adr/0018-eval-gate-post-merge-95pct.md))
-   fires on `push: main` when AI-relevant files change and fails
-   the workflow when any agent's pass-rate drops below **95%**.
-   When it fires:
-
-   ```bash
-   # 1. Identify the offending merge:
-   gh run list --workflow=eval-gate.yml --limit 5
-   gh run view <run-id> --log-failed   # see which agent + which case
-
-   # 2. Decide: revert vs. case-rewrite.
-   #    - If the failing case is testing real behaviour that
-   #      regressed → revert the merge:
-   gh pr list --search "merged:>$(date -u -d '24 hours ago' +%Y-%m-%d)" --base main
-   gh pr revert <pr-number>   # opens a revert PR; merge it
-
-   #    - If the failing case is testing the wrong thing
-   #      (e.g. an outdated regex, an Anthropic style change) →
-   #      update lib/ai/evals/<agent>/cases.v1.json in a follow-up PR,
-   #      cite the upstream change in the PR description
-
-   # 3. Re-run the gate against the revert / fix commit:
-   gh workflow run eval-gate.yml \
-     --ref main \
-     -f agent=<agent>   # leave blank to re-run all
-   ```
-
-   **Note on missing key:** if `ANTHROPIC_API_KEY` was unset on
-   the run, the gate emits a `::warning::` and exits 0 (advisory
-   pass per ADR 0018). Treat that as a real-failure signal and
-   re-run after restoring the secret.
-
 ## Verification
 
 After mitigation:
