@@ -288,18 +288,25 @@ test('cron handler JOBS map includes db-migrate', () => {
 });
 
 // ── Regression: @neondatabase/serverless API shape ─────────────────
-// The serverless driver exposes `sql(text, params)` as the function call
-// — there is NO `.query()` method on the returned client. A previous
-// version of db-migrate.js + db/client.js called `sql.query(...)` which
-// failed at runtime with "sql.query is not a function". These tests pin
-// the correct call shape so a future refactor can't silently regress.
+// The Neon driver changed call shape across major versions:
+//   v0.x: `sql(text, params)` is the only documented entry point;
+//         `.query()` doesn't exist.
+//   v1.x: `.query(text, params)` is the documented entry point;
+//         the bare call form is deprecated and errors with
+//         "This function can now be called only as a tagged-template
+//         function".
+// lib/db/client.js MUST handle BOTH (we ship across versions during
+// the Dependabot upgrade window). The shim picks whichever shape the
+// installed driver supports.
 
-test('lib/db/client.js calls the neon client as sql(text, params), not sql.query()', () => {
+test('lib/db/client.js supports both v0.x bare-call and v1.x .query() Neon shapes', () => {
   const text = fs.readFileSync(path.join(__dirname, '..', 'lib', 'db', 'client.js'), 'utf8');
-  // The single call site inside query() must be `client(sql, params)`.
-  assert.match(text, /const result = await client\(sql,\s*params\)/);
-  // And it must NOT have a stray `.query(` left over.
-  assert.doesNotMatch(text, /client\.query\(/, 'lib/db/client.js should not use client.query()');
+  // Both shapes must be referenced in the call site. The shim:
+  //   typeof client.query === 'function' ? client.query(...) : client(...)
+  assert.match(text, /client\.query\(sql,\s*params\)/,
+    'v1.x .query() path must be present');
+  assert.match(text, /await client\(sql,\s*params\)/,
+    'v0.x bare-call path must be present (fallback)');
 });
 
 test('scripts/db-migrate.js calls sql(text, params), not sql.query()', () => {
