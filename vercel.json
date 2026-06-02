@@ -25,6 +25,7 @@
     { "source": "/changelog", "destination": "https://orcatrade-marketing.vercel.app/changelog" },
     { "source": "/pricing", "destination": "https://orcatrade-marketing.vercel.app/pricing" },
     { "source": "/status", "destination": "https://orcatrade-marketing.vercel.app/status" },
+    { "source": "/trust/anchors", "destination": "https://orcatrade-marketing.vercel.app/trust/anchors" },
     { "source": "/signin", "destination": "https://orcatrade-marketing.vercel.app/signin" },
     { "source": "/agents", "destination": "https://orcatrade-marketing.vercel.app/agents" },
     { "source": "/analysis", "destination": "https://orcatrade-marketing.vercel.app/analysis" },
