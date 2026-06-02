@@ -4,6 +4,16 @@
 // (scripts/inject-favicon-tags.js) is the source of truth — these tests
 // catch the case where the injector is bypassed (a sub-generator writes
 // HTML without running the injector, or the marker pattern drifts).
+//
+// 2026-05-30 marketing-shell migration: the static root `index.html` was
+// retired (see _legacy/) when the new editorial homepage shipped via
+// marketing-shell (Next.js, served at `/` by Vercel rewrite, commit
+// 2c21a9d0). Static-file OG-meta coverage for the rendered root is
+// therefore no longer possible from this test. Coverage for the
+// marketing-shell root is tracked under Phase 1 of docs/execution-plan.md
+// and will land as a Playwright/HTTP test against the built or deployed
+// marketing-shell output. Every other landing-surface page below is
+// still hand-rolled HTML at the listed path; assertions remain.
 
 'use strict';
 
@@ -25,8 +35,10 @@ const ROOT = path.resolve(__dirname, '..');
 // the SEO generator's own post-build injector hook (see
 // scripts/generate-seo-pages.js#run), and idempotence on every other
 // page is asserted directly below.
+//
+// Also excluded (intentionally): the root `index.html` — see the
+// marketing-shell migration note at the top of this file.
 const SAMPLE_PAGES = [
-  'index.html',
   'start/index.html',
   'pricing/index.html',
   'agents/index.html',
@@ -42,6 +54,13 @@ const SAMPLE_PAGES = [
   'pl/cennik/index.html',
   'de/preise/index.html',
 ];
+
+// Hand-rolled landing used for the injector marker + idempotence spot-
+// checks below. Previously `index.html`; swapped to `start/index.html`
+// after the marketing-shell migration retired the static root. Any
+// stable hand-rolled page that runs through scripts/inject-favicon-tags.js
+// would do.
+const INJECTOR_SPOT_CHECK_PAGE = 'start/index.html';
 
 test('OG image file exists at the canonical path', () => {
   const ogPath = path.join(ROOT, 'og-1200x630.png');
@@ -98,14 +117,14 @@ for (const rel of SAMPLE_PAGES) {
 
 test('injector marker is current (catches stale legacy markers)', () => {
   // Spot-check: any one page should carry the current marker, not an old one.
-  const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(ROOT, INJECTOR_SPOT_CHECK_PAGE), 'utf8');
   assert.match(html, /favicon set v9 injected/);
   assert.doesNotMatch(html, /favicon set v8 injected/);
 });
 
 test('injector idempotence: re-injecting does not duplicate OG meta', () => {
   // Count og:image occurrences on a sample page. Should be exactly 1.
-  const html = fs.readFileSync(path.join(ROOT, 'index.html'), 'utf8');
+  const html = fs.readFileSync(path.join(ROOT, INJECTOR_SPOT_CHECK_PAGE), 'utf8');
   const matches = html.match(/property="og:image"[^:]/g) || [];
   assert.equal(matches.length, 1, `expected 1 og:image, got ${matches.length}`);
 });

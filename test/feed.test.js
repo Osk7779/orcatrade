@@ -169,7 +169,12 @@ test('vercel.json rewrites /feed.xml + /atom.xml to /api/feed', () => {
   assert.ok(sources.includes('/atom.xml'), 'expected /atom.xml rewrite');
 });
 
-test('home page advertises RSS + Atom feeds via <link rel="alternate">', () => {
+// 2026-05-30 marketing-shell migration retired the static root index.html
+// (commit 2c21a9d0). The RSS/Atom <link rel="alternate"> assertion below
+// targeted that file. Coverage for the rendered marketing-shell root is
+// tracked under Phase 1 of docs/execution-plan.md (marketing-shell-aware
+// HTTP/Playwright tests).
+test('home page advertises RSS + Atom feeds via <link rel="alternate">', { skip: 'marketing-shell migration: root index.html retired; coverage moved to Phase 1' }, () => {
   const fs = require('node:fs');
   const html = fs.readFileSync(path.join(PROJECT_ROOT, 'index.html'), 'utf8');
   assert.match(html, /type="application\/rss\+xml"/);
