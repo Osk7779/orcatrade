@@ -347,8 +347,12 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // weekly scan that emails users about upcoming CBAM/EUDR deadlines.
   // Sprint monitoring-v1 adds monitoring-scan — the proactive monitoring
   // agent's engine run as a weekly scan over saved plans + portfolios.
+  // Apex III2 follow-on adds audit-anchor-snapshot — daily 02:00 UTC
+  // capture of the events.js chain head into a rolling history so the
+  // public /api/audit-anchor/history endpoint reflects a real time-series.
   const ids = Object.keys(cronHandler.JOBS).sort();
   assert.deepEqual(ids, [
+    'audit-anchor-snapshot',
     'calibration-drift-check',
     'compliance-deadline-reminders',
     'db-migrate',
