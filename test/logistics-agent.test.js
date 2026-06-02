@@ -186,10 +186,13 @@ test('getDestinationVatRate errors on non-EU country', () => {
 
 // ── lookupHsCode (placeholder) ────────────────────────────
 
-test('lookupHsCode returns low-confidence placeholder', () => {
-  const r = toolImpls.lookupHsCode({ productDescription: 'cotton shirt' });
-  assert.equal(r.confidence, 0);
+test('lookupHsCode returns a real suggestion via lib/intelligence/hs-code-lookup', async () => {
+  // P0.11: replaces the prior `confidence: 0` placeholder.
+  const r = await toolImpls.lookupHsCode({ productDescription: 'cotton shirt' });
+  assert.ok(r.suggestion, 'expected a suggestion');
+  assert.ok(r.confidence > 0);
   assert.ok(r.message);
+  assert.match(r.verifyUrl, /taric\.ec\.europa\.eu/);
 });
 
 // ── searchRegulations ─────────────────────────────────────

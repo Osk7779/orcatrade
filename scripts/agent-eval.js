@@ -57,6 +57,12 @@ function parseArgs(argv) {
     listCases: false,
     requireGrounding: false,
     onlyId: null,
+    // `threshold` is the minimum pass-rate (passes / total) for the
+    // process to exit 0. Default 1.0 = "every case must pass" (the
+    // legacy + nightly-eval contract). CI gate jobs (P0.15) pass
+    // `--threshold 0.95` to tolerate a small failure budget without
+    // forcing CI red on a single flaky case.
+    threshold: 1.0,
   };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
@@ -65,6 +71,8 @@ function parseArgs(argv) {
     else if (a === '--require-grounding') opts.requireGrounding = true;
     else if (a === '--agent') { opts.agent = String(argv[++i] || ''); }
     else if (a.startsWith('--agent=')) opts.agent = a.slice('--agent='.length);
+    else if (a === '--threshold') { opts.threshold = parseThreshold(argv[++i]); }
+    else if (a.startsWith('--threshold=')) opts.threshold = parseThreshold(a.slice('--threshold='.length));
     else if (a.startsWith('--')) {
       console.error(color(`Unknown flag: ${a}`, 'red'));
       process.exit(2);
@@ -75,6 +83,27 @@ function parseArgs(argv) {
     process.exit(2);
   }
   return opts;
+}
+
+// --threshold accepts a fraction (0.95) OR a percent (95). Reject any
+// value outside (0, 1] so a fat-fingered `--threshold 95.5` doesn't
+// silently pass everything.
+function parseThreshold(raw) {
+  if (raw == null) {
+    console.error(color('--threshold requires a value (0-1 fraction or 1-100 percent)', 'red'));
+    process.exit(2);
+  }
+  const n = Number(raw);
+  if (!Number.isFinite(n)) {
+    console.error(color(`--threshold "${raw}" is not a number`, 'red'));
+    process.exit(2);
+  }
+  const fraction = n > 1 ? n / 100 : n;
+  if (fraction <= 0 || fraction > 1) {
+    console.error(color(`--threshold ${raw} out of range — use 0-1 fraction or 1-100 percent`, 'red'));
+    process.exit(2);
+  }
+  return fraction;
 }
 
 // ── Case loading + normalisation ──────────────────────────────
@@ -313,15 +342,27 @@ async function main() {
 
   const passed = results.filter(r => !r.failures || r.failures.length === 0).length;
   const failed = results.length - passed;
+  const total = results.length;
+  const passRate = total > 0 ? passed / total : 0;
+  const thresholdPct = (opts.threshold * 100).toFixed(0);
+  const passRatePct = (passRate * 100).toFixed(1);
   console.log('');
   if (failed === 0) {
-    console.log(color(`  ✓ ${passed}/${results.length} cases passed.`, 'green'));
+    console.log(color(`  ✓ ${passed}/${total} cases passed (100%, threshold ${thresholdPct}%).`, 'green'));
     process.exit(0);
-  } else {
-    console.log(color(`  ✗ ${failed}/${results.length} cases failed.`, 'red'));
-    console.log(color(`  ✓ ${passed} passed.`, 'dim'));
-    process.exit(1);
   }
+  // Some failures. Whether to exit non-zero depends on the threshold.
+  // Default threshold is 1.0 (strict; legacy behaviour) — any failure
+  // exits 1. Looser thresholds (e.g. 0.95 from the CI gate) allow a
+  // small failure budget.
+  console.log(color(`  ✗ ${failed}/${total} cases failed.`, 'red'));
+  console.log(color(`  ✓ ${passed} passed (${passRatePct}%, threshold ${thresholdPct}%).`, 'dim'));
+  if (passRate >= opts.threshold) {
+    console.log(color(`  ⚠ pass rate ${passRatePct}% meets threshold ${thresholdPct}% — exiting 0`, 'yellow'));
+    process.exit(0);
+  }
+  console.log(color(`  ✗ pass rate ${passRatePct}% below threshold ${thresholdPct}% — exiting 1`, 'red'));
+  process.exit(1);
 }
 
 // Expose internals for the test harness. main() only runs when this file

@@ -66,9 +66,16 @@ test('assessTradeCreditCover via agent returns premium', () => {
   assert.ok(r.annualPremiumEur > 0);
 });
 
-test('lookupHsCode returns low-confidence placeholder', () => {
-  const r = toolImpls.lookupHsCode({ productDescription: 'cotton t-shirt' });
-  assert.equal(r.confidence, 0);
+test('lookupHsCode returns a real suggestion via lib/intelligence/hs-code-lookup', async () => {
+  // P0.11: replaces the prior `confidence: 0` placeholder. Calculator-
+  // grounded module returns ranked HS6 candidates + a confidence tier
+  // — never null suggestion for well-known queries.
+  const r = await toolImpls.lookupHsCode({ productDescription: 'cotton t-shirt' });
+  assert.ok(r.suggestion, 'expected a suggestion');
+  assert.match(r.suggestion.hs6, /^6109/);
+  assert.ok(r.confidence > 0);
+  assert.ok(['high', 'medium', 'low'].includes(r.confidenceTier));
+  assert.match(r.verifyUrl, /taric\.ec\.europa\.eu/);
 });
 
 test('searchRegulations returns hits for capital controls query', async () => {

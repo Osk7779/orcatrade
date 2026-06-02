@@ -7,7 +7,10 @@ The audience is split:
 - **Engineers** working on the platform — start with [`data-flow.md`](data-flow.md) and [`incident-response.md`](incident-response.md).
 - **The DPO / founder** during a regulator interaction — every file in this folder is the answer set, version-controlled, dated.
 
-For the broader engineering plan that ties into compliance, see [`../backend-grade-plan.md`](../backend-grade-plan.md) Track 5.
+For the binding policy set that backs the controls in this folder, see
+[`../adr/`](../adr/) (18 numbered ADRs, each with an enforcement test
+named in its `## Confirmation` section). For the broader engineering
+roadmap, see [`../backend-grade-plan.md`](../backend-grade-plan.md) Track 5.
 
 ---
 
