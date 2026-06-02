@@ -72,7 +72,7 @@ aspirational today and become CI/SLO gates as each track matures.
 | **Autonomy** | Advice on request, 8–10 turn tool loops | Agents monitor 24/7, alert proactively on *your* exposure, and draft the artifact (filing/doc/email) for human approval |
 | **Reliability** | Circuit breakers, `/status/`, Sentry, uptime workflow | 99.9% uptime SLA, multi-region, error budgets, paging, graceful degradation on every upstream |
 | **Trust** | GDPR export/delete, audit feed, SSO/OIDC, `docs/security/` | SOC 2 Type II, ISO 27001 path, SCIM, immutable hash-chained audit, EU data residency, trust center |
-| **Surface** | 744 static HTML pages + a 6-step wizard | Authenticated app shell (dashboards, agent chat, alerts inbox, doc vault, compliance calendar) + the SEO moat preserved |
+| **Surface** | ~730 static HTML pages + a 6-step wizard | Authenticated app shell (dashboards, agent chat, alerts inbox, doc vault, compliance calendar) + the SEO moat preserved |
 | **Economics** | Anthropic per-call, no caching at scale | Prompt caching + tiered model routing keep AI COGS <15% of revenue at the margin; gross margin >80% |
 
 ---
@@ -83,10 +83,13 @@ Not starting from zero — starting from a genuinely strong, green-suite base.
 
 **Strengths to build on:**
 - **5 calculator-grounded AI agents** (compliance, logistics, sourcing,
-  finance) + an **orchestrator meta-agent** merging 14 tools, with
+  finance) + an **orchestrator meta-agent** merging the full 33-tool
+  surface (4 specialists' tool sets + delegation tools), with
   `[chunk-id]` citations, confidence discipline, and `requestHumanReview`
-  escalation gates — see [lib/handlers/orchestrator.js](lib/handlers/orchestrator.js)
-  and [lib/ai/prompts/orchestrator/v1.txt](lib/ai/prompts/orchestrator/v1.txt).
+  escalation gates (real KV-backed queue per
+  [ADR 0015](docs/adr/0015-human-review-queue.md), not a stub) — see
+  [lib/handlers/orchestrator.js](lib/handlers/orchestrator.js) and
+  [lib/ai/prompts/orchestrator/v1.txt](lib/ai/prompts/orchestrator/v1.txt).
 - **Personal agent tools** that reason over the signed-in user's own saved
   plans/portfolios with no way to address another user's data —
   [lib/handlers/orchestrator-personal.js](lib/handlers/orchestrator-personal.js).
@@ -94,12 +97,13 @@ Not starting from zero — starting from a genuinely strong, green-suite base.
   CE, anti-dumping/countervailing, FX, sourcing, routing, warehouse, TCO,
   working capital — all in [lib/intelligence/](lib/intelligence/), all
   migrated to integer-cents money math ([money.js](lib/intelligence/money.js)).
-- **2,751 passing tests** (was 562 a few sprints ago) — tests-as-contract
-  is real, not aspirational.
+- **3,200+ passing tests** (was 562 a few sprints ago, 2,751 mid-2026)
+  — tests-as-contract is real, not aspirational. Phase 0 added enforcement
+  tests for every load-bearing ADR; drift fails CI.
 - **Live TARIC client**, prompt registry + eval scorer
   ([lib/ai/evals/scorer.js](lib/ai/evals/scorer.js)), cost telemetry,
   circuit breakers, structured logging, GDPR endpoints, SSO/OIDC, Stripe
-  scaffolding, audit feed, 658 localised SEO guides (EN/PL/DE).
+  scaffolding, audit feed, ~580 localised SEO guides (EN/PL/DE).
 - **Postgres (Neon) landing via dual-write** — events, actuals, and saved
   portfolios already write to both KV and Postgres ([lib/db/schema.sql](lib/db/schema.sql)).
 
@@ -137,7 +141,7 @@ investment era.
 6. **Human-in-the-loop on irreversibility.** *(new)* The more autonomous the
    agents get, the harder this rule holds: nothing irreversible — a filing,
    a booking, a payment instruction — happens without explicit human approval.
-7. **Preserve the SEO moat.** 658 ranking guide pages are an asset. The
+7. **Preserve the SEO moat.** ~580 ranking guide pages are an asset. The
    re-platform migrates the *app* first and leaves marketing/SEO HTML for
    last, behind a measured plan.
 
@@ -201,7 +205,7 @@ semantics; idempotent handlers.
 static site. Aligns with the already-recorded architecture direction
 (migrate app routes first, marketing/SEO last).
 **Scope:** Stand up a Next.js App Router app behind auth that hosts the
-product surface (Pillar IV). Marketing + 658 SEO guides stay as-is initially,
+product surface (Pillar IV). Marketing + ~580 SEO guides stay as-is initially,
 proxied/rewritten, and migrate last. AI Gateway-ready, Server Components for
 data-heavy dashboards.
 **Deliverable:** app skeleton deployed, auth bridged to existing magic-link
@@ -478,7 +482,7 @@ portfolio-level scenario views — all grounded in deterministic calculators.
 **Deliverable:** dashboard component library, key operational views.
 
 ### IV5 — Marketing site evolution (preserve the moat)
-**Why:** 658 ranking guides are an acquisition asset; the homepage must now
+**Why:** ~580 ranking guides are an acquisition asset; the homepage must now
 sell a platform vision and enterprise credibility, not a calculator.
 **Scope:** Elevate homepage/product pages (logos, case studies, ROI proof,
 trust center link), keep the wizard as the top-of-funnel lead magnet, migrate

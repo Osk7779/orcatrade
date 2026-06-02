@@ -1,0 +1,117 @@
+name: eval-gate
+
+# Phase 0 P0.15 of docs/execution-plan.md.
+#
+# Post-merge live-agent eval gate. Runs the real Anthropic API
+# against every case in lib/ai/evals/<agent>/cases.v1.json for each
+# of the 5 agents, in parallel, with a 95% pass-rate threshold. A
+# below-threshold result fails the workflow → GitHub emails the
+# repo owner + Sentry captures the run via the post-deploy job.
+#
+# Why post-merge and not on every PR
+# ──────────────────────────────────
+# Per-PR live eval costs ~$5-7 per run with Opus 4.7 (29 cases ×
+# ~10k tokens). For an active branch with 10 pushes/day that's
+# ~$50-70/day in CI spend before the team grows. The merge gate
+# offered by [pr-smoke](pr-smoke.yml) catches crash regressions on
+# the preview deploy; this workflow catches reasoning regressions
+# the moment they land on main, with a hard fail signal that
+# triggers a manual revert. The nightly comprehensive job
+# (.github/workflows/evals.yml) keeps its 100%-strict semantics
+# as a separate signal — it's the "nothing has drifted overnight"
+# tripwire, distinct from this "the last merge didn't regress"
+# tripwire.
+#
+# See [ADR 0018](../../docs/adr/0018-eval-gate-post-merge-95pct.md)
+# for the full design rationale + 5 alternatives considered.
+
+on:
+  push:
+    branches: [main]
+    # Only fire when AI-relevant code actually changed. Skips
+    # doc-only / SEO-rotation / CI-only pushes so we don't spend
+    # Anthropic budget on no-op merges.
+    paths:
+      - 'lib/handlers/agent.js'
+      - 'lib/handlers/orchestrator.js'
+      - 'lib/handlers/orchestrator-personal.js'
+      - 'lib/handlers/sourcing-agent.js'
+      - 'lib/handlers/logistics-agent.js'
+      - 'lib/handlers/finance-agent.js'
+      - 'lib/ai/**'
+      - 'lib/intelligence/**'
+      - 'scripts/agent-eval.js'
+      - '.github/workflows/eval-gate.yml'
+  workflow_dispatch:
+    inputs:
+      agent:
+        description: 'Agent to eval (blank = all)'
+        required: false
+        type: choice
+        default: ''
+        options:
+          - ''
+          - orchestrator
+          - compliance
+          - finance
+          - logistics
+          - sourcing
+      threshold:
+        description: 'Pass-rate threshold (fraction 0-1 or percent 1-100)'
+        required: false
+        default: '0.95'
+
+# A second push to main while a gate run is in flight should still
+# get its own gate result — DO NOT cancel-in-progress here, unlike
+# pr-smoke. If a regression lands across two consecutive commits,
+# we want to see both gate results so the revert target is
+# unambiguous.
+concurrency:
+  group: eval-gate-${{ github.sha }}
+
+permissions:
+  contents: read
+
+jobs:
+  eval-gate:
+    name: eval-gate (${{ matrix.agent }})
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      # Let every agent run to completion even if one fails — the
+      # full report tells ops which agent regressed.
+      fail-fast: false
+      matrix:
+        agent: [orchestrator, compliance, finance, logistics, sourcing]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      # Skip agents not selected on a manual single-agent run.
+      - name: Should this agent run?
+        id: gate
+        run: |
+          SEL="${{ github.event.inputs.agent }}"
+          if [ -n "$SEL" ] && [ "$SEL" != "${{ matrix.agent }}" ]; then
+            echo "run=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Eval ${{ matrix.agent }} (threshold ${{ github.event.inputs.threshold || '0.95' }})
+        if: steps.gate.outputs.run == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          THRESHOLD: ${{ github.event.inputs.threshold || '0.95' }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::warning::ANTHROPIC_API_KEY not set — eval gate skipped (treat as advisory pass; ops must investigate)"
+            exit 0
+          fi
+          node scripts/agent-eval.js --agent ${{ matrix.agent }} --threshold "$THRESHOLD"
