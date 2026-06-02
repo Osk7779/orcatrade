@@ -69,15 +69,24 @@ export function toEnCanonical(path: string): string {
   return path || '/';
 }
 
+// Normalize so /pricing and /pricing/ are treated identically — Next.js'
+// usePathname() returns the no-trailing-slash form, while SLUG_OVERRIDES
+// is keyed with trailing slashes for parity with js/site-nav.js.
+function withTrailingSlash(href: string): string {
+  if (!href || href.endsWith('/')) return href;
+  return href + '/';
+}
+
 export function localizeHref(enHref: string, locale: Locale): string {
   if (locale === 'EN') return enHref;
   if (!enHref || !enHref.startsWith('/')) return enHref;
   if (isAppRoute(enHref)) return enHref;
   if (enHref === '/') return '/' + locale.toLowerCase() + '/';
-  if (EN_ONLY.has(enHref)) return enHref; // graceful: keep EN
+  const enWithSlash = withTrailingSlash(enHref);
+  if (EN_ONLY.has(enWithSlash)) return enHref; // graceful: keep EN
   const overrides = SLUG_OVERRIDES[locale];
-  if (overrides[enHref]) return overrides[enHref];
-  return '/' + locale.toLowerCase() + enHref;
+  if (overrides[enWithSlash]) return overrides[enWithSlash];
+  return '/' + locale.toLowerCase() + enWithSlash;
 }
 
 // For the header lang switcher: given the user's current path, return
