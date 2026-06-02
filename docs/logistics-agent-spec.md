@@ -30,7 +30,7 @@ Eight tools, three of which are shared with the Compliance Agent.
 | `estimateLandedCost` | Calls `customs-quote.calculateQuote` for duty/VAT/brokerage + bonded scenario | no |
 | `compareWarehouseHubs` | Calls `warehouse-quote.calculateQuote` for six EU 3PL hubs | no |
 | `recommendShipmentPlan` | Composes routing + customs + warehouse for a unified plan | no |
-| `lookupHsCode` | HS suggestion — placeholder routes to access2markets | shared |
+| `lookupHsCode` | Calculator-grounded HS6 suggestion + opt-in MFN enrichment — [ADR 0016](adr/0016-hs-code-lookup-calculator-grounded.md) | shared |
 | `searchRegulations` | BM25 over corpus when CBAM / steel anti-dumping / WEEE comes up | shared |
 | `getDestinationVatRate` | Quick VAT rate lookup for an EU country | no |
 | `requestHumanReview` | Mandatory escalation for cargo > €50k or final commitments | shared |

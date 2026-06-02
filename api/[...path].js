@@ -82,6 +82,12 @@ const handlers = {
   // recent events with PII redacted (email → emailHash) for the
   // /dashboard/audit/ admin view. Same token-gate as /api/leads.
   audit: require('../lib/handlers/audit'),
+  // Public verifiable audit-chain anchor (apex III2). GET
+  // /api/audit-anchor returns { chainHead, chainLength, asOf,
+  // genesis } — no admin gate, no PII. Lets customers pin the
+  // current head so a future chain rewrite is third-party
+  // detectable. See docs/security/audit-trail.md.
+  'audit-anchor': require('../lib/handlers/audit-anchor'),
   // Cross-user calibration analytics (Sprint BG-1.6). GET /api/calibration
   // returns aggregate variance stats grouped by category / origin /
   // destination / route — reads via actuals.listFromPg() which JOINs
@@ -130,6 +136,11 @@ const handlers = {
   // customer's IdP provisions/deprovisions org members via a per-org bearer
   // token (lib/scim-store.js). Machine-to-machine; no session cookie.
   scim: require('../lib/handlers/scim'),
+  // Human-review queue inspector (Phase 0 P0.10). GET = list queued
+  // tickets; POST = claim or resolve. Admin-gated (same pattern as
+  // /api/audit). Backs the lib/human-review.js queue that the 5 agents'
+  // requestHumanReview tool writes to. See docs/runbooks/human-review-queue.md.
+  'human-review': require('../lib/handlers/human-review'),
 };
 
 module.exports = async (req, res) => {
