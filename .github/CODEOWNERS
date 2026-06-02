@@ -1,0 +1,46 @@
+# OrcaTrade code owners
+#
+# GitHub's CODEOWNERS file. When a PR touches a path listed here, the
+# matching owner(s) are automatically requested as reviewers. With
+# branch protection's "Require review from Code Owners" enabled
+# (see docs/runbooks/repo-settings-branch-protection.md), at least
+# one Code Owner approval is required to merge.
+#
+# Format: each line is `path-glob @owner [@owner...]`. Later matches win.
+#
+# Phase 0 task P0.C of docs/execution-plan.md. See ADR 0012.
+
+# ── Default owner ────────────────────────────────────────────────────
+# Until engineer #2 joins (target: end of Phase 1 per execution plan §10),
+# Oskar is the default owner for everything. This row is the catch-all
+# for any file not matched by a more specific rule below.
+* @Osk7779
+
+# ── Critical surfaces (named explicitly so they survive a refactor) ─
+
+# The execution plan + the ADR repository — any change to architectural
+# direction must go through the default owner.
+/docs/execution-plan.md       @Osk7779
+/docs/adr/                    @Osk7779
+
+# Money + audit + AI core — every change must go through the default
+# owner, no exceptions. Listed explicitly so a future co-owner setup
+# doesn't accidentally include these in a delegation by glob.
+/lib/intelligence/money.js    @Osk7779
+/lib/audit-chain.js           @Osk7779
+/lib/events.js                @Osk7779
+/lib/ai/                      @Osk7779
+/lib/handlers/agent.js        @Osk7779
+/lib/handlers/orchestrator.js @Osk7779
+
+# Hard-rule enforcement tests — same posture
+/test/import-boundary.test.js              @Osk7779
+/test/model-registry-enforcement.test.js   @Osk7779
+/test/api-v1-contract.test.js              @Osk7779
+
+# CI workflows + repo configuration — same posture
+/.github/                     @Osk7779
+/package.json                 @Osk7779
+/package-lock.json            @Osk7779
+/tsconfig.json                @Osk7779
+/vercel.json                  @Osk7779

@@ -1,0 +1,33 @@
+# EditorConfig — cross-editor whitespace + EOL consistency.
+# https://editorconfig.org
+#
+# OrcaTrade's existing JS files use 2-space indentation and LF line
+# endings throughout. This file pins those conventions so a new
+# contributor's editor doesn't silently convert tabs or CRLF every
+# time they save a file.
+
+root = true
+
+[*]
+charset = utf-8
+end_of_line = lf
+insert_final_newline = true
+trim_trailing_whitespace = true
+indent_style = space
+indent_size = 2
+
+# Markdown files often need trailing whitespace for explicit line breaks.
+[*.md]
+trim_trailing_whitespace = false
+
+# Makefiles require literal tabs.
+[Makefile]
+indent_style = tab
+
+# package.json convention is 2-space (handled by * above; spelled out for clarity).
+[package.json]
+indent_size = 2
+
+# Workflow YAML uses 2-space; pinning explicitly so a future tool default doesn't drift.
+[.github/workflows/*.yml]
+indent_size = 2
