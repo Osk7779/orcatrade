@@ -65,7 +65,7 @@ The full list, ordered by where in the dev loop they catch issues:
 | `typecheck` | [.github/workflows/typecheck.yml](../../.github/workflows/typecheck.yml) | TypeScript type holes in `@ts-check` files + `.ts` files |
 | `test (20)` + `test (22)` | [.github/workflows/test.yml](../../.github/workflows/test.yml) | Unit + contract test failures on both supported Node versions |
 | `evals (offline)` | [.github/workflows/evals.yml](../../.github/workflows/evals.yml) | Agent eval regressions on the offline scorer (the live eval is nightly, advisory) |
-| `pr-smoke` | [.github/workflows/pr-smoke.yml](../../.github/workflows/pr-smoke.yml) | PR-time gate: waits for Vercel preview, probes the preview URL via [scripts/smoke.js](../../scripts/smoke.js). The merge-gating sibling of `smoke` (which fires post-deploy). Per [ADR 0017](0017-pr-smoke-as-deploy-gate.md). |
+| `smoke` | [.github/workflows/smoke.yml](../../.github/workflows/smoke.yml) | Post-deploy smoke test (when wired as a deploy gate, P0.9) |
 | `codeql / analyse (javascript-typescript)` | [.github/workflows/codeql.yml](../../.github/workflows/codeql.yml) | SAST findings in our own source |
 | `gitleaks / scan` | [.github/workflows/gitleaks.yml](../../.github/workflows/gitleaks.yml) | Secrets in commits / diffs |
 
