@@ -1,0 +1,97 @@
+name: pr-smoke
+
+# Phase 0 P0.9 of docs/execution-plan.md.
+#
+# PR-time gate: probes the Vercel preview deployment for the PR head
+# SHA and fails the check if any smoke probe fails. Configured as a
+# required status check on `main` (per ADR 0012 + ADR 0017) so a PR
+# cannot be merged with a broken preview.
+#
+# Why a separate workflow from .github/workflows/smoke.yml
+# ─────────────────────────────────────────────────────────
+# `smoke.yml` runs **post-deploy** on push to `main`. By the time it
+# fails, the bad bundle is already live and customer-visible. That
+# workflow stays — it's the tripwire that catches drift between
+# preview env and prod env. But it cannot gate merges, because it
+# never fires on a PR. This workflow fires on a PR + waits for
+# Vercel's preview-deployment status to publish, then probes that URL.
+#
+# Resolving the preview URL
+# ─────────────────────────
+# Vercel's GitHub integration publishes deployment statuses against
+# the PR head SHA with `environment: "Preview …"`. We poll the
+# GitHub Deployments API for the first `success` status's
+# `target_url`, with a 10-minute timeout. No vercel CLI / token
+# needed; no third-party action — only the built-in `GITHUB_TOKEN`.
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+
+# Cancel an in-flight run when the PR is updated — the new commit
+# will spin up a new Vercel preview and a new probe run.
+concurrency:
+  group: pr-smoke-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  deployments: read
+  pull-requests: read
+
+jobs:
+  # Job key = required-status-check context name (per GitHub's convention
+  # for single-job workflows). Keep `pr-smoke` here in lock-step with the
+  # contexts list in docs/runbooks/repo-settings-branch-protection.md.
+  pr-smoke:
+    # Skip drafts — Vercel doesn't always deploy drafts, and either
+    # way nobody is asking for a merge yet.
+    if: github.event.pull_request.draft == false
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '20'
+
+      - name: Wait for Vercel preview deployment
+        id: vercel
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SHA: ${{ github.event.pull_request.head.sha }}
+          REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          MAX_ATTEMPTS=60   # 60 × 10s = 10 minutes
+          for attempt in $(seq 1 $MAX_ATTEMPTS); do
+            # Find a Vercel deployment for this SHA in the Preview env.
+            # Vercel labels the environment "Preview" or "Preview – <branch>".
+            DEPLOY_ID=$(gh api "repos/$REPO/commits/$SHA/deployments" \
+              --jq '[.[] | select(.environment | startswith("Preview"))][0].id // empty')
+
+            if [ -n "$DEPLOY_ID" ]; then
+              URL=$(gh api "repos/$REPO/deployments/$DEPLOY_ID/statuses" \
+                --jq '[.[] | select(.state == "success")][0].target_url // empty')
+              if [ -n "$URL" ]; then
+                echo "Found preview URL: $URL"
+                echo "url=$URL" >> "$GITHUB_OUTPUT"
+                exit 0
+              fi
+              # Surface in-flight / failure states so a stuck preview
+              # is debuggable from the action log without leaving the tab.
+              STATE=$(gh api "repos/$REPO/deployments/$DEPLOY_ID/statuses" \
+                --jq '[.[]][0].state // "no-status"')
+              echo "Preview deploy id=$DEPLOY_ID state=$STATE (attempt $attempt/$MAX_ATTEMPTS)"
+            else
+              echo "No preview deployment for $SHA yet (attempt $attempt/$MAX_ATTEMPTS)"
+            fi
+            sleep 10
+          done
+          echo "::error::Vercel preview never reported success within 10min — check the Vercel dashboard"
+          exit 1
+
+      - name: Smoke against preview URL
+        run: |
+          node scripts/smoke.js --base "${{ steps.vercel.outputs.url }}"

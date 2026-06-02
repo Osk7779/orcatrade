@@ -149,9 +149,9 @@ Implementation status as of the date at the top of this file. For ongoing detail
 
 ### A.5 Data integrity
 
-- 1,464 automated tests cover the calculator surface, auth, GDPR endpoints, circuit logic, structured logging
-- Integer-cents arithmetic (`lib/intelligence/money.js`) for monetary calculations — no float drift at €5M+ scale
-- Git-based change control — every production change is a reviewable commit with a clear message and test coverage
+- 3,200+ automated tests cover the calculator surface, auth, GDPR endpoints, circuit logic, structured logging, the human-review queue, the calculator-grounded HS-code lookup, branch-protection sync, and the eval-gate workflow shape
+- Integer-cents arithmetic ([`lib/intelligence/money.js`](../../lib/intelligence/money.js)) for monetary calculations — no float drift at €5M+ scale ([ADR 0004](../adr/0004-integer-cents-money.md))
+- Git-based change control — every production change is a reviewable commit with required status checks (test, typecheck, commitlint, offline evals, pr-smoke, CodeQL, gitleaks), Code Owner approval, and linear history ([ADR 0012](../adr/0012-branch-protection-policy.md)); post-merge eval gate at ≥95% pass-rate per agent ([ADR 0018](../adr/0018-eval-gate-post-merge-95pct.md))
 
 ### A.6 Personnel
 

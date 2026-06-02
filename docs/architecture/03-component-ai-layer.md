@@ -8,7 +8,7 @@ C4Component
 
     Container_Boundary(handlers, "Handlers (lib/handlers/)") {
         Component(agent, "compliance agent", "lib/handlers/agent.js", "Tool-use loop. CBAM / EUDR / REACH / CE / customs queries.")
-        Component(orchestrator, "orchestrator", "lib/handlers/orchestrator.js", "Meta-agent. Merges 14 tools across specialisms. Plans delegation.")
+        Component(orchestrator, "orchestrator", "lib/handlers/orchestrator.js", "Meta-agent. Merges 33+ tools across specialisms. Plans delegation.")
         Component(finance, "finance agent", "lib/handlers/finance-agent.js", "FX, working capital, TCO, payment terms")
         Component(logistics, "logistics agent", "lib/handlers/logistics-agent.js", "Routing, mode, warehouse hub, landed cost")
         Component(sourcing, "sourcing agent", "lib/handlers/sourcing-agent.js", "Supplier discovery, lane, country risk")

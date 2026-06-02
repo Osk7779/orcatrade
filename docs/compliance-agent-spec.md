@@ -230,15 +230,33 @@ The Compliance Agent has access to seven tools. Each is implemented as a Vercel 
 
 ### 6. lookupHsCode
 
+Calculator-grounded HS6 suggestion + (optional) live MFN-rate enrichment.
+See [ADR 0016](adr/0016-hs-code-lookup-calculator-grounded.md) for the
+decision and [lib/intelligence/hs-code-lookup.js](../lib/intelligence/hs-code-lookup.js)
+for the implementation. Returns:
+
+```
+{
+  suggestion:     { hs6, label, chapter } | null,
+  candidates:     [{ hs6, label, chapter, score }, …],   // up to 5
+  confidence:     number in [0, 1],
+  confidenceTier: 'high' | 'medium' | 'low' | 'none',
+  dutyEstimate:   { rate, ratePercent, sourceLabel, asOf, stale, fromCache } | null,
+  verifyUrl:      string,                                // TARIC deep link
+  message:        string,                                // human-readable
+  productDescription, originCountry?, intendedUse?
+}
+```
+
 ```json
 {
   "name": "lookupHsCode",
-  "description": "Suggest a CN/HS code for a product description. Returns {code, description, confidence, alternatives}. Confidence < 0.7 means the importer must verify against EU TARIC before filing. Never use the suggestion for a customs declaration without human verification.",
+  "description": "Deterministic HS6 suggestion from a curated 120+-entry product map, plus (when originCountry is given) a live MFN-rate enrichment from the UK Trade Tariff sanity-check feed (cached 7d in KV). Always returns up to 5 ranked candidates + a confidence tier (high/medium/low/none) + a TARIC consultation deep-link. NEVER present the suggestion as a final classification — the agent must surface the verify URL and instruct the user to confirm with their customs broker.",
   "input_schema": {
     "type": "object",
     "properties": {
       "productDescription": { "type": "string" },
-      "originCountry": { "type": "string" },
+      "originCountry": { "type": "string", "description": "Optional ISO-2 origin (e.g. CN, VN). When set, the tool enriches with the current MFN rate." },
       "intendedUse": { "type": "string", "description": "Optional intended use of the product, e.g. 'industrial machinery component', 'consumer electronics'." }
     },
     "required": ["productDescription"]

@@ -9,7 +9,7 @@
 ## Context and problem statement
 
 After Wave 1 + Wave 2 + Wave 3 P0.D, OrcaTrade has eight CI gates
-configured (`test`, `typecheck`, `commitlint`, `evals`, `smoke`,
+configured (`test`, `typecheck`, `commitlint`, `evals`, `pr-smoke`,
 `codeql`, `gitleaks`, `snyk`). Without branch protection, these gates
 **report** results but don't **block** anything — a PR with a failing
 typecheck or a planted secret can still be merged by clicking "Merge"
@@ -65,7 +65,7 @@ The full list, ordered by where in the dev loop they catch issues:
 | `typecheck` | [.github/workflows/typecheck.yml](../../.github/workflows/typecheck.yml) | TypeScript type holes in `@ts-check` files + `.ts` files |
 | `test (20)` + `test (22)` | [.github/workflows/test.yml](../../.github/workflows/test.yml) | Unit + contract test failures on both supported Node versions |
 | `evals (offline)` | [.github/workflows/evals.yml](../../.github/workflows/evals.yml) | Agent eval regressions on the offline scorer (the live eval is nightly, advisory) |
-| `smoke` | [.github/workflows/smoke.yml](../../.github/workflows/smoke.yml) | Post-deploy smoke test (when wired as a deploy gate, P0.9) |
+| `pr-smoke` | [.github/workflows/pr-smoke.yml](../../.github/workflows/pr-smoke.yml) | PR-time deploy gate: waits for Vercel preview, then runs `scripts/smoke.js` against it (P0.9). `smoke.yml` remains as the post-deploy tripwire but is NOT the merge gate. |
 | `codeql / analyse (javascript-typescript)` | [.github/workflows/codeql.yml](../../.github/workflows/codeql.yml) | SAST findings in our own source |
 | `gitleaks / scan` | [.github/workflows/gitleaks.yml](../../.github/workflows/gitleaks.yml) | Secrets in commits / diffs |
 
