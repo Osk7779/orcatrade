@@ -1731,6 +1731,149 @@ footer {
   width: 100%;
 }
 
+/* ===== Account Widget (Sprint account-widget-v1) =====
+   Replaces the static "Sign in" link in the nav when the user is
+   authenticated. Sits in the same secondary-links slot so it inherits
+   the rightward positioning of the existing layout. Click-toggle (not
+   hover) because it's a settings-class menu rather than browsing. */
+
+.nav-account {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-account-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--cream);
+  font-family: inherit;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  padding: 0.32rem 0.6rem 0.32rem 0.36rem;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: background 0.15s ease, border-color 0.15s ease;
+  max-width: 220px;
+}
+
+.nav-account-toggle:hover,
+.nav-account.is-open .nav-account-toggle {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
+.nav-account-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  background: linear-gradient(135deg, #b8bec8, #6f7783);
+  color: #0a0912;
+  font-weight: 700;
+  font-size: 0.72rem;
+  letter-spacing: 0;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.nav-account-email {
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 12rem;
+}
+
+.nav-account-caret {
+  font-size: 0.65rem;
+  opacity: 0.6;
+  margin-left: 0.05rem;
+  transition: transform 0.15s ease;
+}
+
+.nav-account.is-open .nav-account-caret {
+  transform: rotate(180deg);
+}
+
+.nav-account-menu {
+  display: none;
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  min-width: 260px;
+  background: rgba(6, 10, 20, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  padding: 0.5rem;
+  backdrop-filter: blur(16px);
+  box-shadow: 0 20px 44px rgba(0, 0, 0, 0.8);
+  z-index: 220;
+  flex-direction: column;
+}
+
+.nav-account.is-open .nav-account-menu {
+  display: flex;
+}
+
+.nav-account-menu-email {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.55);
+  padding: 0.55rem 0.8rem 0.7rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  margin-bottom: 0.3rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+}
+
+.nav-account-menu a,
+.nav-account-menu button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.55rem 0.8rem;
+  font-size: 0.82rem;
+  font-family: inherit;
+  letter-spacing: 0.05em;
+  color: var(--cream);
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+.nav-account-menu a:hover,
+.nav-account-menu button:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #fff;
+}
+
+.nav-account-menu a::after {
+  display: none;
+}
+
+.nav-account-signout {
+  border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
+  margin-top: 0.3rem;
+  color: rgba(255, 200, 200, 0.85) !important;
+}
+
+.nav-account-signout:hover {
+  background: rgba(201, 80, 80, 0.12) !important;
+  color: #f4b8b8 !important;
+}
+
+@media (max-width: 840px) {
+  .nav-account-email { max-width: 8rem; }
+  .nav-account-menu { right: auto; left: 0; min-width: 240px; }
+}
+
 /* ===== Back Link ===== */
 
 .back-link {

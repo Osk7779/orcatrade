@@ -56,6 +56,10 @@ export interface PlanDelta {
   significant?: boolean;
   primaryDriver?: string | null;
   daysSinceSaved?: number;
+  // Per-component movement since save — exposed by lib/plan-diff.js so the
+  // detail view can show "what changed" line by line.
+  components?: { dutyEur?: number; vatEur?: number; transportEur?: number; brokerageEur?: number };
+  dutyRateDelta?: number | null;
 }
 export interface CostSnapshot {
   perShipmentLandedTotal?: number;
@@ -215,4 +219,28 @@ export interface ScimStatus {
   lastUsedAt?: string | null;
   endpoint?: string;
   token?: string; // present only in the POST (mint) response, shown once
+}
+
+// /api/documents — types + drafts + approval workflow (apex I5)
+export type DraftStatus = 'pending_approval' | 'approved' | 'rejected';
+export interface DocType {
+  id: string;
+  label: string;
+  description: string;
+}
+export interface Draft {
+  id: string;
+  type: string;
+  label?: string;
+  status: DraftStatus;
+  createdAt: string;
+  updatedAt: string;
+  decisionNotes?: string;
+  decidedAt?: string;
+}
+export interface DraftWithHtml {
+  ok: boolean;
+  draft: Draft;
+  html: string;
+  idempotent?: boolean;
 }

@@ -1,0 +1,56 @@
+// OrcaTrade tsconfig — Phase 0 task P0.E of docs/execution-plan.md.
+// See docs/adr/0010-typescript-incremental-adoption.md for the rationale.
+//
+// Strategy: strict for .ts and opted-in .js files; pure .js files compile
+// without typechecking unless they carry `// @ts-check` at the top. New
+// files land as .ts.
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "lib": ["ES2022"],
+    "noEmit": true,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "strictPropertyInitialization": true,
+    "alwaysStrict": true,
+    "noImplicitThis": true,
+    "useUnknownInCatchVariables": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+
+    // allowJs: TS parses .js so types from .js files can propagate.
+    // checkJs: false means .js files are NOT typechecked by default;
+    // they opt in per-file with `// @ts-check` at the top.
+    "allowJs": true,
+    "checkJs": false
+  },
+
+  "include": [
+    "lib/**/*",
+    "scripts/**/*",
+    "test/**/*",
+    "api/**/*"
+  ],
+
+  "exclude": [
+    "node_modules",
+    "_legacy",
+    "marketing-shell",
+    "app-shell",
+    ".vercel",
+    "**/*.html"
+  ]
+}

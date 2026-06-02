@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "test": "ORCATRADE_DISABLE_LIVE_TARIC=1 node --test",
+    "typecheck": "tsc --noEmit",
     "db:migrate": "node scripts/db-migrate.js",
     "eval": "node scripts/agent-eval.js",
     "eval:list": "node scripts/agent-eval.js --list-cases --agent orchestrator",
@@ -13,5 +14,9 @@
     "@anthropic-ai/sdk": "^0.36.0",
     "@neondatabase/serverless": "^0.10.0",
     "pdf-lib": "^1.17.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3",
+    "@types/node": "^22.9.0"
   }
 }

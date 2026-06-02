@@ -168,12 +168,16 @@ test('recommendShipmentPlan composes routing + customs + warehouse via Orchestra
   assert.ok(r.warehouse.recommendation);
 });
 
-test('requestHumanReview via Orchestrator generates a ticket id', () => {
-  const r = toolImpls.requestHumanReview({
+test('requestHumanReview via Orchestrator generates a queued ticket id', async () => {
+  // Post P0.10: orchestrator inherits requestHumanReview from one of the
+  // four specialists via Object.assign — calls reach lib/human-review.js
+  // and return the same `tkt_<base36-time>_<8hex>` id shape.
+  const r = await toolImpls.requestHumanReview({
     reason: 'Cross-domain anti-dumping flag',
     severity: 'moderate',
     handoffTo: 'compliance_agent',
   });
-  assert.ok(r.ticketId);
-  assert.equal(r.severity, 'moderate');
+  assert.match(r.ticketId, /^tkt_[a-z0-9]+_[0-9a-f]{8}$/);
+  // Queue maps the agent vocab onto its leaner axis: `moderate` → `medium`.
+  assert.equal(r.severity, 'medium');
 });
