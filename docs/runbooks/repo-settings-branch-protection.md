@@ -35,7 +35,7 @@ gh api \
       "typecheck",
       "commitlint",
       "evals (offline)",
-      "smoke",
+      "pr-smoke",
       "codeql / analyse (javascript-typescript)",
       "gitleaks / scan"
     ]
@@ -79,7 +79,7 @@ EOF
 4. Check **Require status checks to pass before merging**
    - Check **Require branches to be up to date before merging**
    - Search + add each of: `test (20)`, `test (22)`, `typecheck`,
-     `commitlint`, `evals (offline)`, `smoke`, `codeql / analyse (javascript-typescript)`,
+     `commitlint`, `evals (offline)`, `pr-smoke`, `codeql / analyse (javascript-typescript)`,
      `gitleaks / scan`
 5. Check **Require conversation resolution before merging**
 6. Check **Require linear history**
