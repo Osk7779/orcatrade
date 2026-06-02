@@ -405,3 +405,646 @@ body > * {
   position: relative;
   z-index: 1;
 }
+
+/* ═══════════════════════════════════════════════════════════════════
+ * ──  EDITORIAL LAYER  ──
+ *
+ * Comprehensive overrides that retune every legacy static surface
+ * (account/, dashboard/, guides/, examples/, /start/, /pl/*, /de/*,
+ * trust/, founding/, contact/, etc.) to wear the marketing-shell
+ * homepage's editorial aesthetic: 1280px containers, generous
+ * section padding, Fraunces titles, ivory ghost cards on ink
+ * backgrounds, hairline chapter rules, ink-tinted forms.
+ * ═══════════════════════════════════════════════════════════════════ */
+
+/* ── Containers ──
+ * Marketing-shell uses max-w-[1280px] on every section. Legacy shells
+ * used 920–1120px which feels cramped next to the editorial homepage.
+ * Cap up while preserving generous gutters. */
+.account-shell,
+.dash-shell,
+.guide-shell,
+.start-shell,
+.ex-shell,
+.section,
+main > section,
+main > .section,
+.page > main,
+.page > .main,
+.unit-section,
+.welcome-hero,
+.start-hero,
+.guide-hero {
+  max-width: 1280px !important;
+  margin-left: auto !important;
+  margin-right: auto !important;
+  padding-left: 1.5rem !important;
+  padding-right: 1.5rem !important;
+}
+@media (min-width: 768px) {
+  .account-shell,
+  .dash-shell,
+  .guide-shell,
+  .start-shell,
+  .ex-shell,
+  .section,
+  main > section,
+  main > .section,
+  .unit-section {
+    padding-left: 2.25rem !important;
+    padding-right: 2.25rem !important;
+  }
+}
+
+/* ── Section rhythm ──
+ * Marketing-shell rhythm: py-20 md:py-32 (= 80px / 128px). Apply to
+ * any legacy section that doesn't already declare its own padding. */
+section[id]:not(.section--hero-center):not(.start-hero):not(.welcome-hero),
+.unit-section,
+.guide-section,
+main > article > section,
+main > div > section {
+  padding-top: 5rem !important;
+  padding-bottom: 5rem !important;
+}
+@media (min-width: 768px) {
+  section[id]:not(.section--hero-center):not(.start-hero):not(.welcome-hero),
+  .unit-section,
+  .guide-section {
+    padding-top: 8rem !important;
+    padding-bottom: 8rem !important;
+  }
+}
+
+/* ── Hero patterns ──
+ * Every variant of "hero" on the legacy site (account-card welcome,
+ * guide hero, start hero, dashboard hero, unit hero, etc.) gets the
+ * editorial type scale: massive Fraunces headline with serif weight,
+ * tight tracking, generous line-height. */
+.account-shell h1,
+.dash-shell h1,
+.guide-hero h1,
+.start-hero h1,
+.ex-shell h1,
+.unit-hero-title,
+.section--hero-center h1,
+.welcome-hero h1,
+main > section:first-of-type h1,
+main > article > h1 {
+  font-family: var(--ot-font-serif) !important;
+  font-size: clamp(2.4rem, 5.2vw + 0.4rem, 4.6rem) !important;
+  font-weight: 550 !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.024em !important;
+  color: var(--ot-ivory) !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  margin-top: 0 !important;
+  margin-bottom: 1.5rem !important;
+  max-width: 22ch;
+}
+.guide-hero .lead,
+.start-hero .lead,
+.unit-hero-lead,
+.welcome-hero .wh-lead,
+main > section:first-of-type > p:first-of-type {
+  font-family: var(--ot-font-sans) !important;
+  font-size: 16px !important;
+  line-height: 1.75 !important;
+  color: var(--ot-ivory-dim) !important;
+  max-width: 60ch !important;
+}
+
+/* Kicker / eyebrow — small uppercase tag above hero. */
+.guide-breadcrumb,
+.section-kicker,
+.unit-hero-kicker,
+.welcome-hero .wh-kicker,
+.start-hero .kicker,
+.guide-hero .kicker,
+[class*='eyebrow'],
+[class*='kicker']:not(.wh-kicker):not(.unit-hero-kicker) {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+}
+
+/* ── Headings inside sections ──
+ * Mid-page H2/H3 use the marketing-shell scale. */
+section h2,
+.guide-section h2,
+.unit-section h2,
+main h2 {
+  font-family: var(--ot-font-serif) !important;
+  font-size: clamp(1.8rem, 3.4vw + 0.3rem, 2.8rem) !important;
+  font-weight: 550 !important;
+  letter-spacing: -0.018em !important;
+  line-height: 1.12 !important;
+  color: var(--ot-ivory) !important;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144 !important;
+  margin-top: 0 !important;
+  margin-bottom: 1.25rem !important;
+}
+main h3,
+.feature-card h3,
+.tier-name,
+.addon-name,
+.card-title {
+  font-family: var(--ot-font-serif) !important;
+  font-size: clamp(1.25rem, 1.6vw + 0.3rem, 1.7rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.014em !important;
+  color: var(--ot-ivory) !important;
+}
+
+/* ── Editorial chapter rule ──
+ * The homepage uses <ChapterRule /> between sections. Replicate the
+ * visual treatment for any legacy <hr> or .divider, plus auto-inject
+ * between top-level <section> siblings. */
+hr,
+.divider,
+.section-divider {
+  border: 0 !important;
+  height: 1px !important;
+  background: var(--ot-navy-line) !important;
+  margin: 4rem auto !important;
+  max-width: 1280px !important;
+}
+
+/* ── Cards: navy-line on ink, hover navy-soft ──
+ * Most legacy cards (tier, feature, addon, related-card, quote-card,
+ * example-card, group-card, news-card, panel, etc.) get a uniform
+ * ink/navy-line treatment matching marketing-shell's BentoCard. */
+.card,
+.tier,
+.feature,
+.feature-card,
+.addon,
+.related-card,
+.quote-card,
+.example-card,
+.group-card,
+.news-card,
+.story-card,
+.panel,
+.other-card,
+.guide-card,
+.unit-card,
+[class*='-card']:not(.welcome-hero):not(.onboarding-card):not(.account-card) {
+  background: var(--ot-ink) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  border-radius: 0 !important;
+  padding: 2rem 1.75rem !important;
+  transition: background 0.4s ease, border-color 0.4s ease !important;
+}
+.card:hover,
+.tier:hover,
+.feature-card:hover,
+.related-card:hover,
+.example-card:hover,
+.group-card:hover,
+.news-card:hover,
+.other-card:hover,
+.unit-card:hover {
+  background: var(--ot-navy-soft) !important;
+  border-color: rgba(250, 250, 247, 0.12) !important;
+}
+
+/* Account-card / welcome-hero — homepage-style ghost panel. */
+.account-card,
+.welcome-hero,
+.onboarding-card {
+  background: rgba(17, 30, 51, 0.45) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  border-radius: 0 !important;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* ── Grids: collapse to a single column on mobile, generous gap ── */
+.related-grid,
+.feature-grid,
+.tier-grid,
+.partner-grid,
+.service-grid,
+.addons,
+.examples-grid,
+.group-grid,
+.news-grid {
+  display: grid !important;
+  gap: 1px !important;
+  background: var(--ot-navy-line) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  grid-template-columns: 1fr !important;
+}
+@media (min-width: 768px) {
+  .related-grid,
+  .feature-grid,
+  .service-grid,
+  .examples-grid,
+  .group-grid,
+  .news-grid {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+  .tier-grid,
+  .partner-grid,
+  .addons {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
+/* ── Forms ──
+ * Marketing-shell input pattern: bg-ink/50, navy-line border, no
+ * radius, ivory text, focus → ivory-dim border. */
+input[type='text'],
+input[type='email'],
+input[type='password'],
+input[type='tel'],
+input[type='url'],
+input[type='search'],
+input[type='number'],
+select,
+textarea {
+  width: 100%;
+  background: rgba(5, 5, 7, 0.5) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  border-radius: 0 !important;
+  color: var(--ot-ivory) !important;
+  font-family: var(--ot-font-sans) !important;
+  font-size: 15px !important;
+  line-height: 1.5 !important;
+  padding: 0.7rem 0.9rem !important;
+  outline: none !important;
+  transition: border-color 0.3s ease, background 0.3s ease !important;
+}
+input:focus,
+select:focus,
+textarea:focus {
+  border-color: rgba(250, 250, 247, 0.45) !important;
+  background: rgba(5, 5, 7, 0.85) !important;
+}
+input::placeholder,
+textarea::placeholder {
+  color: var(--ot-ivory-mute) !important;
+  opacity: 1;
+}
+label,
+.field-row > label,
+.label,
+[class*='label']:not(.brand-text *) {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 10px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+}
+
+/* Helper / error text under inputs. */
+.helper,
+.field-helper {
+  font-family: var(--ot-font-sans) !important;
+  font-size: 12.5px !important;
+  color: var(--ot-ivory-mute) !important;
+  margin-top: 0.4rem !important;
+}
+.err,
+.field-error {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 12px !important;
+  color: var(--ot-critical) !important;
+  margin-top: 0.4rem !important;
+}
+
+/* ── Buttons (extend the basic .btn override from earlier) ──
+ * Match marketing-shell CTA sizing + spacing. */
+.btn,
+.btn-primary,
+.tier-cta,
+button[type='submit'] {
+  display: inline-flex !important;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.9rem 1.6rem !important;
+  font-family: var(--ot-font-sans) !important;
+  font-size: 12.5px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+  border-radius: 0 !important;
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+.btn-ghost,
+.tier-cta--ghost,
+.btn-secondary {
+  padding: 0.9rem 1.6rem !important;
+  font-family: var(--ot-font-sans) !important;
+  font-size: 12.5px !important;
+  font-weight: 500 !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  border-radius: 0 !important;
+}
+
+/* ── Tables ──
+ * Editorial dark-glass treatment for any data table. */
+table,
+.data-table,
+.spec-table {
+  width: 100%;
+  border-collapse: collapse !important;
+  font-family: var(--ot-font-sans) !important;
+  font-size: 14.5px !important;
+  margin: 2rem 0 !important;
+}
+table th,
+.data-table th {
+  text-align: left !important;
+  padding: 0.75rem 1rem !important;
+  background: rgba(255, 255, 255, 0.03) !important;
+  color: var(--ot-ivory) !important;
+  font-family: var(--ot-font-mono) !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  border-bottom: 1px solid var(--ot-navy-line) !important;
+}
+table td,
+.data-table td {
+  padding: 0.8rem 1rem !important;
+  color: var(--ot-ivory-dim) !important;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+}
+table tr:hover td {
+  background: rgba(255, 255, 255, 0.015) !important;
+}
+.data-table .num,
+table .num {
+  font-family: var(--ot-font-mono) !important;
+  color: var(--ot-ivory) !important;
+}
+
+/* ── Stat blocks ──
+ * Editorial number-display style for .guide-stats, .stats, .metric. */
+.guide-stat,
+.stat,
+.metric {
+  background: var(--ot-ink) !important;
+  padding: 1.5rem 1.4rem !important;
+}
+.guide-stat .num,
+.stat .num,
+.stat-value,
+.metric-value {
+  font-family: var(--ot-font-serif) !important;
+  font-size: clamp(2rem, 2.6vw + 0.4rem, 2.8rem) !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.022em !important;
+  color: var(--ot-ivory) !important;
+  line-height: 1 !important;
+}
+.guide-stat .label,
+.stat .label,
+.stat-label,
+.metric-label {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 10.5px !important;
+  font-weight: 500 !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+  margin-top: 0.5rem !important;
+}
+
+/* ── Lists ──
+ * Body lists in editorial style: tight tracking, subdued bullets. */
+.guide-section ul,
+.guide-section ol,
+section ul:not(.nav-links):not(.examples-grid):not(.related-grid),
+main article ul {
+  font-family: var(--ot-font-sans) !important;
+  font-size: 15px !important;
+  line-height: 1.78 !important;
+  color: var(--ot-ivory-dim) !important;
+  padding-left: 1.4rem !important;
+  max-width: 68ch;
+}
+.guide-section ul li::marker,
+section ul li::marker {
+  color: var(--ot-ivory-mute);
+}
+
+/* ── Code blocks ──
+ * IBM Plex Mono on a navy-soft surface, like the marketing-shell. */
+pre,
+code,
+.mono,
+[class*='mono']:not(.brand-text *) {
+  font-family: var(--ot-font-mono) !important;
+}
+pre {
+  background: rgba(17, 30, 51, 0.6) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  border-radius: 0 !important;
+  padding: 1.2rem !important;
+  font-size: 13px !important;
+  line-height: 1.55 !important;
+  color: var(--ot-ivory) !important;
+  overflow-x: auto;
+}
+code:not(pre code) {
+  background: rgba(17, 30, 51, 0.5);
+  padding: 0.1rem 0.4rem;
+  border-radius: 2px;
+  font-size: 0.92em;
+  color: var(--ot-ivory);
+}
+
+/* ── Specialty / caution callouts ──
+ * Used heavily across SEO guides. Reframe in editorial idiom. */
+.specialty-block,
+.caution-block,
+.note,
+.warning,
+[class*='callout'] {
+  background: rgba(17, 30, 51, 0.4) !important;
+  border-left: 2px solid var(--ot-ivory-dim) !important;
+  border-top: 0 !important;
+  border-right: 0 !important;
+  border-bottom: 0 !important;
+  padding: 1.2rem 1.4rem !important;
+  margin: 1.5rem 0 !important;
+}
+.caution-block,
+.warning {
+  border-left-color: var(--ot-warning) !important;
+}
+.specialty-block .label,
+.caution-block .label,
+.note .label,
+.warning .label {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 10px !important;
+  letter-spacing: 0.16em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+  margin-bottom: 0.4rem !important;
+  display: block;
+}
+
+/* ── Quick-link / sidebar lists ──
+ * Account sidebar, dashboard sidebar, guide-tree links — same surface
+ * pattern across all three. Restyle to the editorial ghost-link look. */
+.quick-links a,
+.sidebar-link,
+.ql-title,
+.sidebar-section a,
+.other-card,
+.related-card {
+  text-decoration: none !important;
+  color: var(--ot-ivory) !important;
+}
+.quick-links a {
+  display: block;
+  background: rgba(17, 30, 51, 0.35) !important;
+  border: 1px solid var(--ot-navy-line) !important;
+  padding: 0.85rem 1rem !important;
+  margin-bottom: 0.5rem !important;
+  transition: background 0.3s ease, border-color 0.3s ease !important;
+}
+.quick-links a:hover {
+  background: var(--ot-navy-soft) !important;
+  border-color: rgba(250, 250, 247, 0.12) !important;
+}
+.ql-title {
+  font-family: var(--ot-font-serif) !important;
+  font-size: 16px !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.014em !important;
+}
+.ql-sub {
+  font-family: var(--ot-font-serif) !important;
+  font-style: italic !important;
+  font-size: 13px !important;
+  color: var(--ot-ivory-mute) !important;
+  margin-top: 0.2rem !important;
+  display: block;
+}
+
+/* ── Editorial signature block ──
+ * For sections that close with a colophon / signature, mirror the
+ * marketing-shell Manifesto ending: hairline → ❦ → hairline. */
+.signature,
+.colophon,
+.footer-note {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 4rem;
+  font-family: var(--ot-font-serif) !important;
+  font-size: 13px !important;
+  font-style: italic !important;
+  color: var(--ot-ivory-mute) !important;
+}
+
+/* ── Footer ──
+ * Apply a quieter ink palette + Fraunces ornament treatment. */
+footer,
+.site-footer,
+.footer-inner {
+  background: var(--ot-ink) !important;
+  border-top: 1px solid var(--ot-navy-line) !important;
+  color: var(--ot-ivory-dim) !important;
+  padding-top: 3rem !important;
+  padding-bottom: 3rem !important;
+}
+footer a,
+.site-footer a,
+.footer-inner a {
+  color: var(--ot-ivory-dim) !important;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+footer a:hover,
+.site-footer a:hover,
+.footer-inner a:hover {
+  color: var(--ot-ivory) !important;
+}
+
+/* ── Progress / step indicators ──
+ * /start/ wizard, onboarding. */
+.progress-step,
+.step,
+.step-num {
+  font-family: var(--ot-font-mono) !important;
+  font-size: 11px !important;
+  letter-spacing: 0.14em !important;
+  text-transform: uppercase !important;
+  color: var(--ot-ivory-mute) !important;
+}
+.progress-step.active,
+.step.active {
+  color: var(--ot-ivory) !important;
+}
+
+/* ── Tags / pills ──
+ * Tag pills (regime tags, category tags) styled like the marketing-shell
+ * news-card tag: serif italic, ivory-mute. */
+.tag,
+.pill,
+.example-tag,
+.related-tag,
+.regime-tag,
+.badge:not(.popular-flag) {
+  font-family: var(--ot-font-serif) !important;
+  font-style: italic !important;
+  font-size: 12px !important;
+  color: var(--ot-ivory-mute) !important;
+  background: transparent !important;
+  border: 0 !important;
+  padding: 0 !important;
+}
+
+/* ── Page-level aurora dampening ──
+ * Many legacy pages render their own .aurora blobs which fight the
+ * shell's ambient gradient. Dial the legacy aurora back to subtle. */
+.aurora {
+  opacity: 0.35 !important;
+}
+.aurora-blob {
+  filter: blur(80px) !important;
+}
+
+/* ── Mobile polish ──
+ * Tighten section padding + restore tap targets on small screens. */
+@media (max-width: 640px) {
+  section[id]:not(.section--hero-center),
+  .unit-section,
+  .guide-section {
+    padding-top: 3.5rem !important;
+    padding-bottom: 3.5rem !important;
+  }
+  .account-shell,
+  .dash-shell,
+  .guide-shell,
+  .start-shell,
+  .ex-shell {
+    padding-left: 1.25rem !important;
+    padding-right: 1.25rem !important;
+  }
+  .card,
+  .tier,
+  .feature-card,
+  .related-card,
+  .example-card,
+  .quote-card,
+  .news-card,
+  .other-card {
+    padding: 1.5rem 1.25rem !important;
+  }
+}
+
