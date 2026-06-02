@@ -380,6 +380,165 @@
       '</div>';
   }
 
+  // ── Reproducibility verdict (apex III3 slice 3c, app-shell surface) ─
+  //
+  // Calls GET /api/plans/<id>/reproduce on demand. The endpoint
+  // exists for every saved plan and reports one of:
+  //   • data-unchanged           — guaranteed identical reproduction
+  //   • data-drifted             — itemised diff + the ORIGINAL numbers
+  //                                recovered from the snapshot
+  //   • no-snapshot-bound        — pre-snapshot-binding plan; re-save to bind
+  //   • drift-snapshot-unavailable — drift detected but the original
+  //                                snapshot is no longer retrievable
+  //
+  // Until P1.A3-3c the endpoint had no UI surface — the "built-but-inert"
+  // failure mode the enterprise-ready re-sequencing exists to fix. This
+  // pane is the demo: "yes, your plan from 30 days ago still reproduces.
+  // Here's the audit trail." For enterprise procurement, that's the
+  // strongest trust artefact we can hand them outside SOC 2.
+
+  function renderReproducePane(record) {
+    return '<div class="plan-reproduce" data-plan-reproduce>' +
+        '<button type="button" class="reproduce-toggle" data-action="reproduce-open">' +
+          'Check reproducibility' +
+        '</button>' +
+      '</div>';
+  }
+
+  function reproduceStatusClass(status) {
+    if (status === 'data-unchanged') return 'repro-ok';
+    if (status === 'data-drifted') return 'repro-drift';
+    return 'repro-unknown';   // no-snapshot-bound, drift-snapshot-unavailable
+  }
+
+  function reproduceHeadline(verdict) {
+    if (verdict.status === 'data-unchanged') {
+      return 'Reproducible · the market data behind this plan is unchanged since you saved it.';
+    }
+    if (verdict.status === 'data-drifted') {
+      var n = (verdict.drift && verdict.drift.length) || 0;
+      return 'Drifted · ' + n + ' market-data value' + (n === 1 ? '' : 's') +
+        ' moved since save. Original numbers are still recoverable from the snapshot.';
+    }
+    if (verdict.status === 'no-snapshot-bound') {
+      return 'No snapshot bound · this plan was saved before reproducibility binding shipped. Re-save it to bind one.';
+    }
+    if (verdict.status === 'drift-snapshot-unavailable') {
+      return 'Drifted · the original snapshot is no longer retrievable to itemise what moved.';
+    }
+    return 'Reproducibility status: ' + escapeHtml(String(verdict.status || 'unknown'));
+  }
+
+  function renderDriftRow(d) {
+    // diffDataSnapshots changes have shape:
+    //   { path, kind: 'added'|'removed'|'changed', from?, to? }
+    var label = String(d.path || '(unknown)');
+    var was = d.from != null ? String(d.from) : '—';
+    var now = d.to != null ? String(d.to) : '—';
+    return '<div class="repro-drift-row">' +
+        '<span class="repro-drift-key">' + escapeHtml(label) + '</span>' +
+        '<span class="repro-drift-from">was ' + escapeHtml(was) + '</span>' +
+        '<span class="repro-drift-arrow">→</span>' +
+        '<span class="repro-drift-to">' + escapeHtml(now) + '</span>' +
+      '</div>';
+  }
+
+  function renderLandedReproductionBlock(lr) {
+    if (!lr || !lr.original) return '';
+    var orig = Number.isFinite(lr.original.perShipmentLandedTotal) ? lr.original.perShipmentLandedTotal : null;
+    var curr = lr.current && Number.isFinite(lr.current.perShipmentLandedTotal) ? lr.current.perShipmentLandedTotal : null;
+    if (orig == null) return '';
+    return '<div class="repro-recovered">' +
+        '<div class="repro-recovered-title">Original landed total recovered</div>' +
+        '<div class="repro-recovered-values">' +
+          '<span class="repro-recovered-orig">' + fmtEur(orig) + '</span>' +
+          (curr != null
+            ? '<span class="repro-recovered-sep">vs today</span>' +
+              '<span class="repro-recovered-curr">' + fmtEur(curr) + '</span>'
+            : '') +
+        '</div>' +
+        '<div class="repro-recovered-note">Deterministically recomputed by pinning the calculators to the stored snapshot.</div>' +
+      '</div>';
+  }
+
+  function renderFxReproductionBlock(fr) {
+    if (!fr || !fr.original) return '';
+    return '<div class="repro-fx">' +
+        '<div class="repro-fx-title">FX, then and now (' + escapeHtml(String(fr.currency || '')) + ')</div>' +
+        '<div class="repro-fx-row">' +
+          '<span>Saved rate</span>' +
+          '<span>' + escapeHtml(String(fr.original.spotRateForeignPerEur)) +
+            ' (' + escapeHtml(String(fr.original.asOf || '')) + ')</span>' +
+        '</div>' +
+        '<div class="repro-fx-row">' +
+          '<span>Current rate</span>' +
+          '<span>' + escapeHtml(String(fr.current.spotRateForeignPerEur)) +
+            ' (' + escapeHtml(String(fr.current.asOf || '')) + ')</span>' +
+        '</div>' +
+      '</div>';
+  }
+
+  function renderReproduceVerdict(verdict) {
+    var cls = 'repro-verdict ' + reproduceStatusClass(verdict.status);
+    var head = '<div class="repro-headline">' + escapeHtml(reproduceHeadline(verdict)) + '</div>';
+    var driftBlock = '';
+    if (verdict.status === 'data-drifted' && Array.isArray(verdict.drift) && verdict.drift.length) {
+      driftBlock = '<div class="repro-drift-list">' +
+        verdict.drift.slice(0, 6).map(renderDriftRow).join('') +
+        (verdict.drift.length > 6
+          ? '<div class="repro-drift-row repro-drift-more">+ ' + (verdict.drift.length - 6) + ' more</div>'
+          : '') +
+      '</div>';
+    }
+    var recovered = renderLandedReproductionBlock(verdict.landedReproduction);
+    var fxBlock = renderFxReproductionBlock(verdict.fxReproduction);
+    var snapLine = '';
+    if (verdict.storedSnapshotId) {
+      snapLine = '<div class="repro-snapshot">Snapshot ' +
+        escapeHtml(String(verdict.storedSnapshotId).slice(0, 12)) + '…' +
+        (verdict.currentSnapshotId
+          ? ' • current ' + escapeHtml(String(verdict.currentSnapshotId).slice(0, 12)) + '…'
+          : '') +
+        '</div>';
+    }
+    return '<div class="' + cls + '">' +
+        head +
+        driftBlock +
+        recovered +
+        fxBlock +
+        snapLine +
+      '</div>';
+  }
+
+  function loadReproduceVerdict(card, planId) {
+    var pane = card.querySelector('[data-plan-reproduce]');
+    if (!pane) return;
+    var toggle = pane.querySelector('.reproduce-toggle');
+    if (toggle) {
+      toggle.disabled = true;
+      toggle.textContent = 'Checking…';
+    }
+    fetch('/api/plans/' + encodeURIComponent(planId) + '/reproduce', {
+      credentials: 'same-origin',
+    })
+      .then(function (r) {
+        if (!r.ok) throw new Error('reproduce ' + r.status);
+        return r.json();
+      })
+      .then(function (verdict) {
+        // The endpoint always returns { ok: true, ... } on a 200; defensive
+        // check anyway in case the contract changes.
+        if (!verdict || verdict.ok === false) throw new Error('verdict failed');
+        pane.innerHTML = renderReproduceVerdict(verdict);
+      })
+      .catch(function (err) {
+        pane.innerHTML = '<div class="repro-verdict repro-error">' +
+          'Couldn’t fetch reproducibility verdict (' + escapeHtml(err.message || 'error') + ').' +
+          ' <button type="button" data-action="reproduce-open">Try again</button>' +
+        '</div>';
+      });
+  }
+
   // Diff badge: only render when we have both a saved snapshot and a recomputed
   // total. Significance threshold (≥5%) comes from the server.
   function renderDelta(r) {
@@ -432,6 +591,7 @@
           renderDelta(r) +
           renderActualBlock(r) +
           renderSharePane(r) +
+          renderReproducePane(r) +
         '</div>' +
         '<div class="plan-actions">' +
           '<a href="' + url + '">Open</a>' +
@@ -487,6 +647,15 @@
         if (toggle) toggle.style.display = 'none';
         var input = card.querySelector('[data-actual-input]');
         if (input) input.focus();
+        return;
+      }
+      if (action === 'reproduce-open') {
+        // Apex III3 slice 3c — fetch + render the reproducibility
+        // verdict for this plan. On-demand (not autoloaded) to avoid
+        // a fan-out of /api/plans/<id>/reproduce calls on every page
+        // render; the data doesn't change unless the snapshot store
+        // sees new market data, so a manual fetch is fine UX.
+        loadReproduceVerdict(card, planId);
         return;
       }
       if (action === 'actual-clear') {

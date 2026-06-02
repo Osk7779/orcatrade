@@ -1,0 +1,43 @@
+name: typecheck
+
+# Phase 0 task P0.E of docs/execution-plan.md.
+#
+# Strict TypeScript typecheck of:
+#   - every .ts file under lib/ / scripts/ / test/ / api/
+#   - every .js file that opts in via `// @ts-check` at the top
+#
+# Pure .js files without @ts-check are parsed but not checked. This is
+# the incremental migration policy — see ADR 0010
+# (docs/adr/0010-typescript-incremental-adoption.md).
+#
+# Runs on every PR + every push to main. Blocks merge on type errors via
+# branch protection (planned in Phase 0 Wave 3 P0.C).
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    name: typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript typecheck
+        run: npm run typecheck
