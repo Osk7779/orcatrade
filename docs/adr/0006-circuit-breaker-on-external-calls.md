@@ -75,20 +75,38 @@ upstream once (e.g. `'anthropic-messages'`) and wraps each call with
 
 ### Confirmation
 
-**Today: partially enforced.** `lib/circuit.js` exists; Resend is wrapped;
-Anthropic is not. Phase 0 task P0.3 in [docs/execution-plan.md](../execution-plan.md)
-is the migration:
+**Enforced for Anthropic as of PR #22 (Phase 0 P0.3).** Resend was wrapped
+in Wave 1; Anthropic is the second upstream brought under the rule.
 
-- All six handlers making raw `fetch('https://api.anthropic.com/...')` calls
-  (agent.js, finance-agent.js, logistics-agent.js, orchestrator.js,
-  sourcing-agent.js, supply-chain.js, factory-score.js post-PR #10) wrap
-  in `circuit.run('anthropic-messages', ...)`
-- A new test in `test/circuit-coverage.test.js` greps for unwrapped
-  `fetch('https://api.<upstream>...')` patterns and fails on any miss
-- TARIC client, Stripe, Voyage AI similarly enumerated
+- All 6 plan-named handlers (agent.js, finance-agent.js, logistics-agent.js,
+  orchestrator.js, sourcing-agent.js, supply-chain.js) now wrap their
+  Anthropic call in `circuit.run('anthropic-messages', ...)` with a
+  fallback that throws (preserving the existing handler error path).
+  Shared circuit name across all 6 — one sustained Anthropic outage
+  trips one circuit, not six.
+- [test/anthropic-circuit-wrap.test.js](../../test/anthropic-circuit-wrap.test.js)
+  is the enforcement gate. Three assertions: (1) every file containing
+  a raw `'https://api.anthropic.com'` reference must also contain
+  `circuit.run('anthropic-...')`; (2) the 6 named handlers specifically
+  must use the wrap + import the circuit module; (3) `EXEMPT_FILES`
+  entries must still exist (catches accidental deletion of an exempted
+  file without cleaning up the exemption). Mutation-tested.
 
-This ADR is the *commitment*; P0.3 is the *enforcement*. Until P0.3 lands,
-the rule is documented but partially live.
+**Known gaps (each tracked):**
+
+- **`lib/handlers/factory-score.js`** — temporarily in `EXEMPT_FILES`.
+  Wrapped in the follow-up PR after PR #10 (factory-score ESM→CJS
+  conversion) merges. The file's current ESM-under-CJS-dispatcher state
+  makes a clean wrap dependent on PR #10's restructure.
+- **`lib/intelligence/model-runtime.js`** (will become `lib/ai/model-runtime.js`
+  after PR #8 lands) — temporarily in `EXEMPT_FILES`. Wrapping at the
+  wrong path would create a merge conflict with PR #8; the follow-up
+  lands once PR #8 merges and the path is canonical.
+- **TARIC client, Stripe, Voyage AI** — out of scope for P0.3 (whose
+  plan-listed scope was Anthropic only). Phase 1 hardening tranche will
+  extend the same pattern.
+
+The ADR is no longer "documented but not enforced" for Anthropic.
 
 ## Pros and cons of the options
 

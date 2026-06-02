@@ -45,6 +45,12 @@
     var totalOutTokens = 0;
     var byAgent = {};        // agent → { cents, calls }
     var byPromptVersion = {}; // 'agent:vN' → { cents, calls }
+    // Per-tenant rollup (apex P1.7 visibility — consumes the spend
+    // ledger from PR #45). Events redactRow strips raw email →
+    // emailHash, so the grouping key is the pseudonym. Anonymous
+    // events (no actor) bucket under '(anonymous)' so they don't
+    // pollute the top-spender list silently.
+    var byTenant = {};       // emailHash | '(anonymous)' → { cents, calls, tiers:Set, agents:Set }
     var oneWeekAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
     var inWeek = 0;
     for (var i = 0; i < events.length; i++) {
@@ -65,12 +71,22 @@
       if (!byPromptVersion[pvKey]) byPromptVersion[pvKey] = { cents: 0, calls: 0 };
       byPromptVersion[pvKey].cents += cents;
       byPromptVersion[pvKey].calls++;
+
+      var tenant = e.emailHash || '(anonymous)';
+      if (!byTenant[tenant]) byTenant[tenant] = { cents: 0, calls: 0, tier: null, agents: {} };
+      byTenant[tenant].cents += cents;
+      byTenant[tenant].calls++;
+      // The most recent tier observed for this tenant wins; events
+      // arrive newest-first from /api/audit (existing events.list
+      // contract). For ops the "current tier" is the useful pivot.
+      if (!byTenant[tenant].tier && e.tier) byTenant[tenant].tier = e.tier;
+      byTenant[tenant].agents[agent] = (byTenant[tenant].agents[agent] || 0) + 1;
     }
     return {
       totalCents, totalInTokens, totalOutTokens, inWeek,
       callCount: events.filter(function (e) { return e.type === 'ai_call'; }).length,
       meanCostCents: 0,  // filled below
-      byAgent, byPromptVersion,
+      byAgent, byPromptVersion, byTenant,
     };
   }
 
@@ -107,6 +123,56 @@
         + '</div>'
       );
     });
+    host.innerHTML = rows.join('');
+  }
+
+  // Per-tenant spend rollup (apex P1.7 visibility). Groups ai_call
+  // events by emailHash, shows top spenders. The hash is shown in
+  // full (12-hex) so an admin investigating a spike can grep the
+  // events log + match to the same hash. Tier column lets ops
+  // immediately spot "free-tier user near their €1 cap" vs "scale-
+  // tier user well under €500".
+  function renderByTenant(byTenant) {
+    var host = el('byTenant');
+    if (!host) return;   // backwards-compat for any deploy where the
+                         //   HTML hasn't been refreshed yet
+    var entries = Object.entries(byTenant)
+      .sort(function (a, b) { return b[1].cents - a[1].cents; })
+      .slice(0, 20);
+    if (!entries.length) {
+      host.innerHTML = '<div class="empty">No ai_call events with attributable identity yet.</div>';
+      return;
+    }
+    var rows = [
+      '<table class="calls"><thead><tr>'
+      + '<th>Tenant (emailHash)</th>'
+      + '<th>Tier</th>'
+      + '<th>Top agent</th>'
+      + '<th>Calls</th>'
+      + '<th class="cost">Spend (period)</th>'
+      + '</tr></thead><tbody>',
+    ];
+    for (var i = 0; i < entries.length; i++) {
+      var hashKey = entries[i][0];
+      var v = entries[i][1];
+      // Compute the most-used agent for this tenant — useful pivot
+      // for "is this a logistics-heavy user vs a compliance one?"
+      var topAgent = '—';
+      var maxCalls = 0;
+      for (var a in v.agents) {
+        if (v.agents[a] > maxCalls) { maxCalls = v.agents[a]; topAgent = a; }
+      }
+      rows.push(
+        '<tr>'
+        + '<td><code>' + escapeHtml(hashKey) + '</code></td>'
+        + '<td>' + escapeHtml(v.tier || '—') + '</td>'
+        + '<td>' + escapeHtml(topAgent) + '</td>'
+        + '<td>' + v.calls + '</td>'
+        + '<td class="cost">' + fmtCents(v.cents) + '</td>'
+        + '</tr>',
+      );
+    }
+    rows.push('</tbody></table>');
     host.innerHTML = rows.join('');
   }
 
@@ -171,6 +237,7 @@
           el('stats').innerHTML = '';
           el('byAgent').innerHTML = '';
           el('byPromptVersion').innerHTML = '';
+          if (el('byTenant')) el('byTenant').innerHTML = '';
           el('topCalls').innerHTML = '';
         }
         return false;
@@ -185,6 +252,7 @@
       renderStats(agg);
       renderBars('byAgent', agg.byAgent);
       renderBars('byPromptVersion', agg.byPromptVersion);
+      renderByTenant(agg.byTenant);
       renderTopCalls(events);
       el('lastChecked').textContent = 'Last checked: ' + new Date(body.asOf).toLocaleTimeString() + ' · ' + agg.callCount + ' calls';
       return true;
