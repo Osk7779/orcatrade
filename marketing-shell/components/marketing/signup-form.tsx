@@ -39,7 +39,12 @@ export function SignupForm() {
     setState('sending');
     setErrorMsg('');
     try {
-      const body: Record<string, string> = { email: normalised };
+      const body: Record<string, string> = {
+        email: normalised,
+        // Land newly-confirmed accounts on the editorial cockpit, not the
+        // legacy /account/ page. Server-validated via isSafeReturnTo.
+        returnTo: '/app/dashboard',
+      };
       if (withPassword) body.password = password;
       const res = await fetch('/api/auth/signup', {
         method: 'POST',

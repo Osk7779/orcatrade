@@ -31,11 +31,15 @@ export default function SignInPage() {
       // sub-action; verify / me / logout are siblings. The same secret
       // (ORCATRADE_AUTH_SECRET) signs the session cookie across surfaces
       // so /app/* sees this sign-in immediately.
+      // Post-verify destination: send the user straight to the editorial
+      // cockpit at /app/dashboard once their magic link succeeds. The
+      // verifier validates this server-side via isSafeReturnTo before
+      // honouring it, so an attacker can't redirect off-site.
       const res = await fetch('/api/auth/request', {
         method: 'POST',
         credentials: 'include',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: value }),
+        body: JSON.stringify({ email: value, returnTo: '/app/dashboard' }),
       });
       if (!res.ok) throw new Error(`Sign-in endpoint returned ${res.status}`);
       setState('sent');
@@ -111,19 +115,26 @@ export default function SignInPage() {
           )}
 
           <p className="mt-8 text-center font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
-            Not yet a member?{' '}
+            New here?{' '}
+            <Link
+              href="/signup"
+              className="text-[var(--color-ivory)] underline-offset-4 hover:underline"
+            >
+              Create an account
+            </Link>
+            , apply for a{' '}
             <Link
               href="/founding"
               className="text-[var(--color-ivory)] underline-offset-4 hover:underline"
             >
-              Apply for a Founding 10 spot
-            </Link>{' '}
-            or{' '}
+              Founding 10 spot
+            </Link>
+            , or{' '}
             <Link
               href="/start"
               className="text-[var(--color-ivory)] underline-offset-4 hover:underline"
             >
-              build a plan without an account
+              build a plan without one
             </Link>
             .
           </p>

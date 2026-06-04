@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { ScrollProgress } from './scroll-progress';
 import { TimezoneClocks } from './timezone-clocks';
 import { MobileMenu } from './mobile-menu';
+import { AccountWidget } from './account-widget';
 import { detectLocale, switchLocale } from '@/lib/i18n-routes';
 
 // Full TOOLS dropdown mirrors js/site-nav.js — every existing tool page on
@@ -235,18 +236,7 @@ export function Header() {
                 →
               </span>
             </a>
-            <a
-              href="/account/"
-              className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
-            >
-              Sign in
-              <span
-                aria-hidden
-                className="text-[var(--color-ivory-mute)] transition-colors duration-300 group-hover:text-[var(--color-ivory)]"
-              >
-                ↗
-              </span>
-            </a>
+            <AccountWidget />
           </div>
         </div>
       </div>
