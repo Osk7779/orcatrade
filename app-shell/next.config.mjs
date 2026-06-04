@@ -1,3 +1,8 @@
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
 /** @type {import('next').NextConfig} */
 // The app shell is served under /app on orcatrade.pl (the main site rewrites
 // /app/:path* to this separate Vercel project). basePath keeps every route,
@@ -10,6 +15,13 @@ const nextConfig = {
   // to '/api/...' hit the existing handlers directly and the session cookie is
   // sent automatically — no CORS, no token plumbing.
   poweredByHeader: false,
+  // Pin Turbopack's workspace root to this directory. Next 16 changed its
+  // root-inference default; without this, builds fail with "couldn't find
+  // next/package.json from the project directory" when run from inside the
+  // repo because Turbopack walks up past the app-shell.
+  turbopack: {
+    root: __dirname,
+  },
 };
 
 export default nextConfig;

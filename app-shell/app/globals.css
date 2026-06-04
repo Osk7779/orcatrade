@@ -1,28 +1,92 @@
 @import "tailwindcss";
 
-/* OrcaTrade design tokens — the premium dark surface used across the
-   authenticated account pages (deep near-black, ivory text, muted gold). */
+/* ─────────────────────────────────────────────────────────────────
+ * OrcaTrade Operations — design tokens
+ *
+ * Mirrors the marketing-shell editorial palette so the cockpit and
+ * the public site share one visual identity. Navy ink ground, ivory
+ * accents, no gold. Fraunces serif for editorial headlines, Inter
+ * for body, IBM Plex Mono for labels and tabular numerics.
+ * ───────────────────────────────────────────────────────────────── */
 @theme {
+  /* Surface */
   --color-ink: #050507;
   --color-navy: #0a1628;
-  --color-navy-soft: #111a2e;
+  --color-navy-soft: #111e33;
+  --color-navy-line: rgba(255, 255, 255, 0.08);
+  --color-line: rgba(255, 255, 255, 0.08);
+
+  /* Type */
   --color-ivory: #fafaf7;
-  /* Accent is ivory white (was gold). One token drives every accent so the
-     whole shell recolours from here. */
+  --color-ivory-dim: #c9ccd3;
+  --color-ivory-mute: rgba(250, 250, 247, 0.55);
   --color-accent: #fafaf7;
   --color-accent-soft: rgba(250, 250, 247, 0.72);
-  --color-line: rgba(255, 255, 255, 0.08);
-  --font-sans: var(--font-geist), system-ui, sans-serif;
-  --font-serif: var(--font-cormorant), Georgia, serif;
+  --color-accent-glow: rgba(250, 250, 247, 0.18);
+
+  /* Functional state — used only when status IS the message */
+  --color-positive: #10b981;
+  --color-warning: #f59e0b;
+  --color-critical: #ef4444;
+  --color-info: #60a5fa;
+
+  /* Type stacks */
+  --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
+  --font-serif: var(--font-fraunces), 'Cormorant Garamond', Georgia, serif;
+  --font-mono: var(--font-plex-mono), 'IBM Plex Mono', ui-monospace, SFMono-Regular, monospace;
 }
 
 html, body {
   background: var(--color-ink);
   color: rgba(255, 255, 255, 0.9);
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  font-family: var(--font-sans);
 }
 
-h1, h2, h3 {
+h1, h2, h3, h4 {
   font-family: var(--font-serif);
-  letter-spacing: -0.01em;
+  letter-spacing: -0.018em;
+  font-variation-settings: 'SOFT' 35, 'opsz' 144;
+}
+
+/* Subtle ambient gradient — mirrors marketing-shell's aurora at low
+   intensity. Sticks behind every page so the cockpit doesn't feel
+   sterile, without competing with content. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(60% 50% at 12% 0%, rgba(96, 165, 250, 0.06), transparent 60%),
+    radial-gradient(50% 40% at 88% 100%, rgba(250, 250, 247, 0.035), transparent 60%);
+  z-index: 0;
+}
+body > * {
+  position: relative;
+  z-index: 1;
+}
+
+/* Scrollbar — subdued, matches the editorial palette. */
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 0;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.12); }
+
+/* Selection — ivory on ink. */
+::selection {
+  background: rgba(250, 250, 247, 0.2);
+  color: var(--color-ivory);
+}
+
+/* Reduced motion respects user preferences across all animation. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
