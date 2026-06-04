@@ -96,15 +96,15 @@ test('founderBody includes contact + permalink', async () => {
 
 // ── Frontend i18n parity (parsed from start/i18n.js text) ─
 
-test('start/i18n.js declares en, pl, de blocks', () => {
-  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
+test('start/legacy/i18n.js declares en, pl, de blocks', () => {
+  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'i18n.js'), 'utf8');
   for (const lang of ['en:', 'pl:', 'de:']) {
     assert.ok(text.includes(lang), `${lang} block present`);
   }
 });
 
-test('start/i18n.js declares statLandedEffective in all three locales (P&L cost sub-stat)', () => {
-  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
+test('start/legacy/i18n.js declares statLandedEffective in all three locales (P&L cost sub-stat)', () => {
+  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'i18n.js'), 'utf8');
   const matches = (text.match(/statLandedEffective:/g) || []).length;
   assert.ok(matches >= 3, `expected statLandedEffective in 3 locales, found ${matches}`);
 });
@@ -113,8 +113,8 @@ test('start/i18n.js declares statLandedEffective in all three locales (P&L cost 
 // The keys are i18n-required and the locale-correct href must point
 // into the right founding page slug (mirroring js/site-nav.js
 // SLUG_OVERRIDES from Sprint J.2).
-test('start/i18n.js declares the Founding 10 cross-sell keys in all three locales', () => {
-  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
+test('start/legacy/i18n.js declares the Founding 10 cross-sell keys in all three locales', () => {
+  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'i18n.js'), 'utf8');
   const required = [
     'foundingCrossSellKicker',
     'foundingCrossSellTitle',
@@ -139,7 +139,7 @@ test('start/i18n.js declares the Founding 10 cross-sell keys in all three locale
 test('every key in en block has matching pl and de keys', () => {
   // We can't require() the browser-side i18n.js (it sets window.START_I18N),
   // so we extract top-level keys from each locale block via regex.
-  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
+  const text = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'i18n.js'), 'utf8');
 
   function extractKeysForLocale(localeName) {
     // Match the locale block: e.g. `en: { ... },` allowing nested braces

@@ -208,8 +208,8 @@ test('router registers /api/wizard-event', () => {
 
 // ── start/app.js fires fireWizardStep ────────────────
 
-test('start/app.js: fireWizardStep helper present + fires on next/back/submit', () => {
-  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'app.js'), 'utf8');
+test('start/legacy/app.js: fireWizardStep helper present + fires on next/back/submit', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'app.js'), 'utf8');
   assert.match(js, /function fireWizardStep\b/);
   assert.match(js, /\/api\/wizard-event/);
   // Wired into each transition.

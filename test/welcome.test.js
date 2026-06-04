@@ -323,8 +323,8 @@ test('plans handler: save succeeds even when welcome path throws', async () => {
 
 // ── Wizard contract ───────────────────────────────────
 
-test('start/app.js POSTs locale alongside inputs on /api/plans', () => {
-  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'app.js'), 'utf8');
+test('start/legacy/app.js POSTs locale alongside inputs on /api/plans', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'app.js'), 'utf8');
   // The save-plan fetch carries both inputs + locale in the body.
   assert.match(js, /fetch\('\/api\/plans'/);
   assert.match(js, /JSON\.stringify\(\{ inputs: plan\.inputs, locale: LOCALE \}\)/);

@@ -95,12 +95,41 @@ export function Wizard() {
     setStatus('submitting');
     setErrorMessage('');
     try {
-      const res = await fetch('/api/plan', {
+      // Map the wizard's string-typed form data onto the /api/start handler's
+      // expected shape: numeric fields parsed, blanks left undefined so
+      // server-side defaults kick in. Endpoint is the real composePlan() at
+      // lib/handlers/start.js — orchestrates sourcing + routing + customs +
+      // warehouse calculators and (when email set) sends the plan via Resend.
+      const payload: Record<string, unknown> = {
+        productCategory: data.productCategory,
+        productDescription: data.productDescription || undefined,
+        hsCode: data.hsCode || undefined,
+        originCountry: data.originCountry,
+        destinationCountry: data.destinationCountry,
+        customsValueEur: data.customsValueEur ? Number(data.customsValueEur) : undefined,
+        weightKg: data.weightKg ? Number(data.weightKg) : undefined,
+        linesCount: data.linesCount ? Number(data.linesCount) : undefined,
+        claimPreferential: data.claimPreferential,
+        quoteCurrency: data.quoteCurrency,
+        paymentTermsDays: data.paymentTermsDays ? Number(data.paymentTermsDays) : undefined,
+        urgencyWeeks: data.urgencyWeeks ? Number(data.urgencyWeeks) : undefined,
+        monthlyOrders: data.monthlyOrders ? Number(data.monthlyOrders) : undefined,
+        email: data.email,
+        company: data.company || undefined,
+      };
+      const res = await fetch('/api/start', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
+        body: JSON.stringify(payload),
+        credentials: 'same-origin',
       });
-      if (!res.ok) throw new Error(`Plan endpoint returned ${res.status}`);
+      const json = await res.json().catch(() => null);
+      if (!res.ok) {
+        const detail =
+          (json && (json.error || (json.errors && json.errors.join(', ')))) ||
+          `Plan endpoint returned ${res.status}`;
+        throw new Error(detail);
+      }
       setStatus('success');
     } catch (err) {
       setStatus('error');
@@ -566,7 +595,7 @@ function PlanResult({ data }: { data: FormData }) {
 
         <h2
           className="mt-10 font-serif text-[clamp(2rem,3.4vw+0.4rem,3rem)] leading-[1.06] tracking-[-0.02em] text-[var(--color-ivory)]"
-          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144', fontWeight: 550" }}
+          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
         >
           The plan is on its way to {data.email}.
         </h2>

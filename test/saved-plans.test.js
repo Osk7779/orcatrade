@@ -356,10 +356,10 @@ test('api/[...path].js dispatcher registers plans handler', () => {
   assert.match(dispatcher, /plans: require\('\.\.\/lib\/handlers\/plans'\)/);
 });
 
-test('start/app.js wires Save plan button via /api/plans', () => {
+test('start/legacy/app.js wires Save plan button via /api/plans', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const js = fs.readFileSync(path.join(__dirname, '..', 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'start/legacy/app.js'), 'utf8');
   assert.match(js, /id="savePlanBtn"/);
   assert.match(js, /\/api\/plans/);
   assert.match(js, /\/api\/auth\/me/);

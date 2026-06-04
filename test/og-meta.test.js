@@ -39,7 +39,7 @@ const ROOT = path.resolve(__dirname, '..');
 // Also excluded (intentionally): the root `index.html` — see the
 // marketing-shell migration note at the top of this file.
 const SAMPLE_PAGES = [
-  'start/index.html',
+  'start/legacy/index.html',
   'pricing/legacy/index.html',
   'agents/legacy/index.html',
   'platform/legacy/index.html',
@@ -60,11 +60,11 @@ const SAMPLE_PAGES = [
 ];
 
 // Hand-rolled landing used for the injector marker + idempotence spot-
-// checks below. Previously `index.html`; swapped to `start/index.html`
+// checks below. Previously `index.html`; swapped to `start/legacy/index.html`
 // after the marketing-shell migration retired the static root. Any
 // stable hand-rolled page that runs through scripts/inject-favicon-tags.js
 // would do.
-const INJECTOR_SPOT_CHECK_PAGE = 'start/index.html';
+const INJECTOR_SPOT_CHECK_PAGE = 'start/legacy/index.html';
 
 test('OG image file exists at the canonical path', () => {
   const ogPath = path.join(ROOT, 'og-1200x630.png');

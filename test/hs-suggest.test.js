@@ -209,8 +209,8 @@ test('customs-quote async path accepts a 6-digit HS code (gate >= 6)', () => {
 
 // ── i18n completeness across EN/PL/DE ───────────────────
 
-test('start/i18n.js carries hsLookup* keys in EN, PL, and DE', () => {
-  const src = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
+test('start/legacy/i18n.js carries hsLookup* keys in EN, PL, and DE', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'i18n.js'), 'utf8');
   const keys = ['hsLookupToggle', 'hsLookupQueryPh', 'hsLookupNote', 'hsLookupNoResults', 'hsLookupChapter'];
   // Each key must appear at least 3 times (once per locale block).
   for (const k of keys) {
@@ -221,8 +221,8 @@ test('start/i18n.js carries hsLookup* keys in EN, PL, and DE', () => {
 
 // ── Wizard wiring ───────────────────────────────────────
 
-test('start/app.js mounts the HS lookup + fetches /api/hs-suggest', () => {
-  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'app.js'), 'utf8');
+test('start/legacy/app.js mounts the HS lookup + fetches /api/hs-suggest', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'app.js'), 'utf8');
   assert.match(js, /function mountHsLookup/);
   assert.match(js, /mountHsLookup\(\)/);
   assert.match(js, /\/api\/hs-suggest\?q=/);

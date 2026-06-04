@@ -205,23 +205,23 @@ test('router registers /api/share-check', () => {
 
 // ── Wizard contract ────────────────────────────────
 
-test('start/app.js: reads ?share= and calls /api/share-check/<code>', () => {
-  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'app.js'), 'utf8');
+test('start/legacy/app.js: reads ?share= and calls /api/share-check/<code>', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'app.js'), 'utf8');
   assert.match(js, /urlParams\.get\(['"]share['"]\)/);
   assert.match(js, /\/api\/share-check\//);
   assert.match(js, /maybeValidateShareCode/);
 });
 
-test('start/app.js: 404 from share-check triggers the revoked overlay', () => {
-  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'app.js'), 'utf8');
+test('start/legacy/app.js: 404 from share-check triggers the revoked overlay', () => {
+  const js = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'app.js'), 'utf8');
   assert.match(js, /showShareRevokedOverlay/);
   assert.match(js, /r\.status\s*===\s*404/);
   // The overlay replaces the wizard shell entirely.
   assert.match(js, /share-revoked-overlay/);
 });
 
-test('start/wizard.css: revoked-overlay styles present', () => {
-  const css = fs.readFileSync(path.join(__dirname, '..', 'start', 'wizard.css'), 'utf8');
+test('start/legacy/wizard.css: revoked-overlay styles present', () => {
+  const css = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'wizard.css'), 'utf8');
   assert.match(css, /\.share-revoked-overlay\b/);
   assert.match(css, /\.share-revoked-card\b/);
   assert.match(css, /\.share-revoked-cta\b/);

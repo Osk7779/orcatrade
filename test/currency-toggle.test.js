@@ -8,13 +8,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const APP_JS = fs.readFileSync(path.join(__dirname, '..', 'start/app.js'), 'utf8');
-const I18N_JS = fs.readFileSync(path.join(__dirname, '..', 'start/i18n.js'), 'utf8');
-const WIZARD_CSS = fs.readFileSync(path.join(__dirname, '..', 'start/wizard.css'), 'utf8');
+const APP_JS = fs.readFileSync(path.join(__dirname, '..', 'start/legacy/app.js'), 'utf8');
+const I18N_JS = fs.readFileSync(path.join(__dirname, '..', 'start/legacy/i18n.js'), 'utf8');
+const WIZARD_CSS = fs.readFileSync(path.join(__dirname, '..', 'start/legacy/wizard.css'), 'utf8');
 
 // ── Static contract: app.js wires the toggle correctly ────
 
-test('start/app.js: FX_DISPLAY rates table includes EUR/USD/CNY/VND/PLN', () => {
+test('start/legacy/app.js: FX_DISPLAY rates table includes EUR/USD/CNY/VND/PLN', () => {
   assert.match(APP_JS, /FX_DISPLAY\s*=\s*\{/);
   assert.match(APP_JS, /EUR:\s*1\.0/);
   assert.match(APP_JS, /USD:\s*1\.08/);
@@ -23,22 +23,22 @@ test('start/app.js: FX_DISPLAY rates table includes EUR/USD/CNY/VND/PLN', () => 
   assert.match(APP_JS, /PLN:\s*4\.30/);
 });
 
-test('start/app.js: fmtEur emits .amt[data-eur] span', () => {
+test('start/legacy/app.js: fmtEur emits .amt[data-eur] span', () => {
   assert.match(APP_JS, /class="amt" data-eur=/);
 });
 
-test('start/app.js: applyDisplayCurrency walks .amt[data-eur] nodes', () => {
+test('start/legacy/app.js: applyDisplayCurrency walks .amt[data-eur] nodes', () => {
   assert.match(APP_JS, /applyDisplayCurrency/);
   assert.match(APP_JS, /\.amt\[data-eur\]/);
 });
 
-test('start/app.js: currency preference persists in localStorage', () => {
+test('start/legacy/app.js: currency preference persists in localStorage', () => {
   assert.match(APP_JS, /CURRENCY_PREF_KEY/);
   assert.match(APP_JS, /localStorage\.setItem\(CURRENCY_PREF_KEY/);
   assert.match(APP_JS, /localStorage\.getItem\(CURRENCY_PREF_KEY/);
 });
 
-test('start/app.js: toggle is rendered into the result block', () => {
+test('start/legacy/app.js: toggle is rendered into the result block', () => {
   assert.match(APP_JS, /class="currency-toggle"/);
   assert.match(APP_JS, /data-currency=/);
   assert.match(APP_JS, /currency-asof-banner/);

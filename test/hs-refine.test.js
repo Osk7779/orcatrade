@@ -12,9 +12,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const APP_JS = fs.readFileSync(path.join(__dirname, '..', 'start', 'app.js'), 'utf8');
-const I18N = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
-const CSS = fs.readFileSync(path.join(__dirname, '..', 'start', 'wizard.css'), 'utf8');
+const APP_JS = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'app.js'), 'utf8');
+const I18N = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'i18n.js'), 'utf8');
+const CSS = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'wizard.css'), 'utf8');
 
 // ── Reusable builder ────────────────────────────────────
 

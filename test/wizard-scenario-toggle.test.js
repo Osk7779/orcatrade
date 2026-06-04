@@ -15,44 +15,44 @@ const ROOT = path.join(__dirname, '..');
 
 // ── App.js wiring ─────────────────────────────────────
 
-test('start/app.js declares rerunPlan helper', () => {
-  const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
+test('start/legacy/app.js declares rerunPlan helper', () => {
+  const js = fs.readFileSync(path.join(ROOT, 'start/legacy/app.js'), 'utf8');
   assert.match(js, /async function rerunPlan\(inputs\)/);
 });
 
 test('rerunPlan posts to /api/start with locale-augmented inputs', () => {
-  const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(ROOT, 'start/legacy/app.js'), 'utf8');
   assert.match(js, /const payload = \{ \.\.\.inputs, locale: LOCALE \}/);
   assert.match(js, /fetch\('\/api\/start'/);
 });
 
 test('app.js exposes rerunWithPrefBtn click handler that flips claimPreferential', () => {
-  const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(ROOT, 'start/legacy/app.js'), 'utf8');
   assert.match(js, /rerunWithPrefBtn/);
   assert.match(js, /claimPreferential: true/);
 });
 
 test('app.js stashes baseline inputs before re-running', () => {
-  const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(ROOT, 'start/legacy/app.js'), 'utf8');
   assert.match(js, /state\.baselineInputs = \{ \.\.\.inputs \}/);
   assert.match(js, /state\.scenarioClaimed = true/);
 });
 
 test('app.js wires switchBackBtn to restore baseline inputs', () => {
-  const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(ROOT, 'start/legacy/app.js'), 'utf8');
   assert.match(js, /switchBackBtn/);
   assert.match(js, /state\.scenarioClaimed = false/);
   assert.match(js, /state\.baselineInputs = null/);
 });
 
 test('preferential-available callout renders the rerun button', () => {
-  const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(ROOT, 'start/legacy/app.js'), 'utf8');
   // Button only present in the prefAvailable + mfnReplaced + savings>0 branch
   assert.match(js, /id="rerunWithPrefBtn"[\s\S]*T\.btnRerunWithPref/);
 });
 
 test('scenario banner renders when scenarioClaimed && prefApplied', () => {
-  const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(ROOT, 'start/legacy/app.js'), 'utf8');
   assert.match(js, /state\.scenarioClaimed && prefApplied/);
   assert.match(js, /scenario-banner/);
   assert.match(js, /id="switchBackBtn"/);
@@ -61,7 +61,7 @@ test('scenario banner renders when scenarioClaimed && prefApplied', () => {
 // ── i18n parity ───────────────────────────────────────
 
 test('i18n has btnRerunWithPref + btnScenarioSwitchBack + scenarioBannerActive in EN/PL/DE', () => {
-  const i18n = fs.readFileSync(path.join(ROOT, 'start/i18n.js'), 'utf8');
+  const i18n = fs.readFileSync(path.join(ROOT, 'start/legacy/i18n.js'), 'utf8');
   for (const key of ['btnRerunWithPref', 'btnScenarioSwitchBack', 'scenarioBannerActive']) {
     const matches = i18n.match(new RegExp(`${key}:`, 'g'));
     assert.ok(matches && matches.length === 3, `${key}: expected 3 entries, got ${matches?.length || 0}`);
@@ -69,19 +69,19 @@ test('i18n has btnRerunWithPref + btnScenarioSwitchBack + scenarioBannerActive i
 });
 
 test('PL i18n: btnRerunWithPref is "Przelicz plan z tym zadeklarowanym →"', () => {
-  const i18n = fs.readFileSync(path.join(ROOT, 'start/i18n.js'), 'utf8');
+  const i18n = fs.readFileSync(path.join(ROOT, 'start/legacy/i18n.js'), 'utf8');
   assert.match(i18n, /btnRerunWithPref: 'Przelicz plan z tym zadeklarowanym →'/);
 });
 
 test('DE i18n: btnRerunWithPref is "Plan mit diesem beanspruchen →"', () => {
-  const i18n = fs.readFileSync(path.join(ROOT, 'start/i18n.js'), 'utf8');
+  const i18n = fs.readFileSync(path.join(ROOT, 'start/legacy/i18n.js'), 'utf8');
   assert.match(i18n, /btnRerunWithPref: 'Plan mit diesem beanspruchen →'/);
 });
 
 // ── CSS ───────────────────────────────────────────────
 
 test('wizard.css defines .scenario-banner + .pref-rerun-btn', async () => {
-  const css = fs.readFileSync(path.join(ROOT, 'start/wizard.css'), 'utf8');
+  const css = fs.readFileSync(path.join(ROOT, 'start/legacy/wizard.css'), 'utf8');
   assert.match(css, /\.scenario-banner \{/);
   assert.match(css, /\.btn-secondary\.pref-rerun-btn \{/);
 });
@@ -89,7 +89,7 @@ test('wizard.css defines .scenario-banner + .pref-rerun-btn', async () => {
 // ── State shape ───────────────────────────────────────
 
 test('app.js state object includes scenarioClaimed + baselineInputs', () => {
-  const js = fs.readFileSync(path.join(ROOT, 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(ROOT, 'start/legacy/app.js'), 'utf8');
   assert.match(js, /scenarioClaimed: false/);
   assert.match(js, /baselineInputs: null/);
 });

@@ -96,6 +96,8 @@
     { "source": "/guides/", "destination": "https://orcatrade-marketing.vercel.app/guides" },
     { "source": "/examples", "destination": "https://orcatrade-marketing.vercel.app/examples" },
     { "source": "/examples/", "destination": "https://orcatrade-marketing.vercel.app/examples" },
+    { "source": "/start", "destination": "https://orcatrade-marketing.vercel.app/start" },
+    { "source": "/start/", "destination": "https://orcatrade-marketing.vercel.app/start" },
 
     {
       "source": "/",

@@ -8,8 +8,8 @@ const path = require('node:path');
 const HTML = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'legacy', 'index.html'), 'utf8');
 const APP_JS = fs.readFileSync(path.join(__dirname, '..', 'portfolio', 'app.js'), 'utf8');
 const ACCOUNT_HTML = fs.readFileSync(path.join(__dirname, '..', 'account', 'index.html'), 'utf8');
-const START_APP = fs.readFileSync(path.join(__dirname, '..', 'start', 'app.js'), 'utf8');
-const START_I18N = fs.readFileSync(path.join(__dirname, '..', 'start', 'i18n.js'), 'utf8');
+const START_APP = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'app.js'), 'utf8');
+const START_I18N = fs.readFileSync(path.join(__dirname, '..', 'start', 'legacy', 'i18n.js'), 'utf8');
 
 // ── Page markup ─────────────────────────────────────────
 

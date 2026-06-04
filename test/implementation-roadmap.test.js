@@ -140,10 +140,10 @@ test('composePlan path: roadmap not attached to bare composePlan output', async 
   assert.equal(plan.roadmap, undefined);
 });
 
-test('start/app.js renders roadmap when present', () => {
+test('start/legacy/app.js renders roadmap when present', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const js = fs.readFileSync(path.join(__dirname, '..', 'start/app.js'), 'utf8');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'start/legacy/app.js'), 'utf8');
   assert.match(js, /renderRoadmap\(plan\.roadmap\)/);
   assert.match(js, /class="rm-phase"/);
 });
@@ -158,7 +158,7 @@ test('lib/handlers/start.js: composePlanWithRoadmap is exposed via the POST path
 test('i18n parity: roadmap keys present in EN/PL/DE', () => {
   const fs = require('node:fs');
   const path = require('node:path');
-  const js = fs.readFileSync(path.join(__dirname, '..', 'start/i18n.js'), 'utf8');
+  const js = fs.readFileSync(path.join(__dirname, '..', 'start/legacy/i18n.js'), 'utf8');
   for (const key of ['secRoadmap', 'roadmapBody', 'roadmapTotalTasks']) {
     const matches = js.match(new RegExp(`${key}:`, 'g')) || [];
     assert.equal(matches.length, 3, `expected three locale entries for ${key}`);
