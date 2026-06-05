@@ -14,6 +14,7 @@ export const metadata: Metadata = {
 const TIERS = [
   {
     name: 'Free',
+    tierId: 'free',
     who: 'Lead-gen · evaluators',
     priceMonthly: '€0',
     priceUnit: 'forever',
@@ -29,11 +30,15 @@ const TIERS = [
   },
   {
     name: 'Starter',
+    tierId: 'starter',
     who: 'Solo importers · FBA sellers',
     priceMonthly: '€99',
     priceAnnual: '€83',
     annualNote: 'billed annually · €990/yr (save €198)',
-    cta: { label: 'Get started', href: '/contact', variant: 'solid' as const },
+    // CTA opens Stripe Checkout via /api/billing/checkout. The button
+    // also carries tierId/checkout=true so an authentication redirect
+    // can resume after sign-in.
+    cta: { label: 'Get started', href: '/api/billing/checkout', variant: 'solid' as const, checkout: true },
     features: [
       '200 agent queries / month',
       'Full Factory Search access',
@@ -44,12 +49,13 @@ const TIERS = [
   },
   {
     name: 'Growth',
+    tierId: 'growth',
     who: 'Established SMEs · 5–50 shipments / yr',
     priceMonthly: '€399',
     priceAnnual: '€333',
     annualNote: 'billed annually · €3,990/yr (save €798)',
     popular: true,
-    cta: { label: 'Get started', href: '/contact', variant: 'solid' as const },
+    cta: { label: 'Get started', href: '/api/billing/checkout', variant: 'solid' as const, checkout: true },
     features: [
       '1,000 agent queries / month',
       'All five agents (Sourcing, Compliance, Logistics, Finance, Operations)',
@@ -61,11 +67,12 @@ const TIERS = [
   },
   {
     name: 'Scale',
+    tierId: 'scale',
     who: 'Mid-market · 50+ shipments / yr',
     priceMonthly: '€999',
     priceAnnual: '€833',
     annualNote: 'billed annually · €9,990/yr (save €1,998)',
-    cta: { label: 'Talk to sales', href: '/contact', variant: 'ghost' as const },
+    cta: { label: 'Get started', href: '/api/billing/checkout', variant: 'solid' as const, checkout: true },
     features: [
       'Unlimited agent queries',
       'Custom agent training on your supplier base',
@@ -77,6 +84,7 @@ const TIERS = [
   },
   {
     name: 'Enterprise',
+    tierId: 'enterprise',
     who: 'Manufacturers · distributors · retail chains',
     priceMonthly: 'Custom',
     priceUnit: 'from €2,500',

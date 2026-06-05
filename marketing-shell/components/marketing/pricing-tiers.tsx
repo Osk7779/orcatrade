@@ -14,10 +14,16 @@ interface CTA {
   label: string;
   href: string;
   variant: 'solid' | 'ghost';
+  // When true, the CTA opens Stripe Checkout via /api/billing/checkout
+  // instead of doing a plain navigation. tierId on the tier identifies
+  // the SKU. Unauthenticated visitors are bounced to /signin?return=…
+  // so they come back here ready to subscribe.
+  checkout?: boolean;
 }
 
 export interface PricingTier {
   name: string;
+  tierId?: string;
   who: string;
   priceMonthly: string;
   priceAnnual?: string;
@@ -31,9 +37,73 @@ export interface PricingTier {
 
 export function PricingTiers({ tiers }: { tiers: PricingTier[] }) {
   const [annual, setAnnual] = useState(false);
+  const [pending, setPending] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  async function startCheckout(tier: PricingTier) {
+    if (!tier.tierId) return;
+    setPending(tier.tierId);
+    setError(null);
+    try {
+      const res = await fetch('/api/billing/checkout', {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          tierId: tier.tierId,
+          billingCycle: annual ? 'annual' : 'monthly',
+        }),
+      });
+      // Sign-in gate: bounce to /signin?return=/pricing?subscribe=tierId
+      // so the user resumes the same checkout intent after authentication.
+      if (res.status === 401) {
+        const ret = encodeURIComponent(`/pricing?subscribe=${tier.tierId}&cycle=${annual ? 'annual' : 'monthly'}`);
+        window.location.href = `/signin?return=${ret}`;
+        return;
+      }
+      const data = await res.json().catch(() => null);
+      if (!res.ok || !data?.url) {
+        throw new Error(data?.error || `Checkout failed (${res.status})`);
+      }
+      // Hand off to Stripe Checkout.
+      window.location.href = data.url as string;
+    } catch (e) {
+      setPending(null);
+      setError(e instanceof Error ? e.message : 'Could not start checkout. Please try again.');
+    }
+  }
+
+  // On mount: auto-resume checkout if the URL has ?subscribe=<tierId>
+  // (set when we bounced through /signin). Runs once.
+  if (typeof window !== 'undefined') {
+    // useState initialiser would be cleaner but we need the tiers prop;
+    // a one-shot effect-style guard via a flag on window works fine here.
+    const w = window as unknown as { __orcaResumed?: boolean };
+    if (!w.__orcaResumed) {
+      w.__orcaResumed = true;
+      const params = new URLSearchParams(window.location.search);
+      const want = params.get('subscribe');
+      const cycle = params.get('cycle');
+      if (want) {
+        if (cycle === 'annual') setAnnual(true);
+        const tier = tiers.find((t) => t.tierId === want);
+        if (tier && tier.cta.checkout) {
+          // Defer slightly so React mounts before redirect.
+          setTimeout(() => startCheckout(tier), 0);
+        }
+      }
+    }
+  }
 
   return (
     <>
+      {error && (
+        <div className="mx-auto mb-6 max-w-[640px] border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/5 px-4 py-3 text-center">
+          <p className="font-serif text-[13.5px] italic text-[var(--color-ivory)]">
+            {error}
+          </p>
+        </div>
+      )}
       {/* Billing toggle — accessible, keyboard-navigable, motion-soft */}
       <div className="flex justify-center">
         <div
@@ -136,17 +206,33 @@ export function PricingTiers({ tiers }: { tiers: PricingTier[] }) {
                 )}
               </div>
 
-              <Link
-                href={tier.cta.href}
-                className={cn(
-                  'mt-6 block w-full border px-4 py-2.5 text-center font-mono text-[12px] uppercase tracking-[0.12em] transition-colors',
-                  tier.cta.variant === 'solid'
-                    ? 'border-[var(--color-ivory)] bg-[var(--color-ivory)] text-[var(--color-ink)] hover:bg-[var(--color-ivory-dim)]'
-                    : 'border-[var(--color-ivory)]/40 text-[var(--color-ivory)] hover:border-[var(--color-ivory)]',
-                )}
-              >
-                {tier.cta.label}
-              </Link>
+              {tier.cta.checkout ? (
+                <button
+                  type="button"
+                  onClick={() => startCheckout(tier)}
+                  disabled={pending === tier.tierId}
+                  className={cn(
+                    'mt-6 block w-full border px-4 py-2.5 text-center font-mono text-[12px] uppercase tracking-[0.12em] transition-colors disabled:cursor-progress disabled:opacity-60',
+                    tier.cta.variant === 'solid'
+                      ? 'border-[var(--color-ivory)] bg-[var(--color-ivory)] text-[var(--color-ink)] hover:bg-[var(--color-ivory-dim)]'
+                      : 'border-[var(--color-ivory)]/40 text-[var(--color-ivory)] hover:border-[var(--color-ivory)]',
+                  )}
+                >
+                  {pending === tier.tierId ? 'Opening checkout…' : tier.cta.label}
+                </button>
+              ) : (
+                <Link
+                  href={tier.cta.href}
+                  className={cn(
+                    'mt-6 block w-full border px-4 py-2.5 text-center font-mono text-[12px] uppercase tracking-[0.12em] transition-colors',
+                    tier.cta.variant === 'solid'
+                      ? 'border-[var(--color-ivory)] bg-[var(--color-ivory)] text-[var(--color-ink)] hover:bg-[var(--color-ivory-dim)]'
+                      : 'border-[var(--color-ivory)]/40 text-[var(--color-ivory)] hover:border-[var(--color-ivory)]',
+                  )}
+                >
+                  {tier.cta.label}
+                </Link>
+              )}
 
               <ul className="mt-7 space-y-2.5 border-t border-[var(--color-navy-line)] pt-5">
                 {tier.features.map((f) => (

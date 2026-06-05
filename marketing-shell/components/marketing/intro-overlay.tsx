@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'motion/react';
 
 // Title-plate intro. Cinematic, editorial.
@@ -35,7 +36,12 @@ import { motion, AnimatePresence } from 'motion/react';
 //     visible, not just discoverable by accident.
 
 const SESSION_KEY = 'orcatrade.intro.played.v2';
-const HOLD_MS = 4000;
+// First load: the full cinematic title plate. Subsequent in-app
+// navigations: a brief flash so the brand re-asserts itself but
+// the user isn't waiting on a 4-second curtain every time they
+// click a link.
+const HOLD_MS_FIRST = 4000;
+const HOLD_MS_NAV = 900;
 const FADE_MS = 600;
 
 function prefersReducedMotion(): boolean {
@@ -48,51 +54,52 @@ function prefersReducedMotion(): boolean {
 }
 
 export function IntroOverlay() {
+  const pathname = usePathname() || '/';
   const [visible, setVisible] = useState(false);
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
-    // Skip if we already played the intro this session.
-    if (typeof window !== 'undefined' && sessionStorage.getItem(SESSION_KEY)) {
-      return;
-    }
+    if (typeof window === 'undefined') return;
     // P0.12 a11y: skip entirely when the user has requested reduced motion.
-    // Set the session flag so reloads also skip — matches the already-played
-    // path for consistency.
+    // Set the session flag so the navigation-replay path also stays a no-op
+    // for this user — consistent with the played-already branch below.
     if (prefersReducedMotion()) {
-      try {
-        sessionStorage.setItem(SESSION_KEY, '1');
-      } catch {
-        /* private mode etc. */
-      }
+      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch { /* private mode */ }
       return;
     }
 
+    // First load this session: full 4s cinematic. Every subsequent
+    // route change: a brief title-plate flash so the brand re-asserts
+    // itself without making the user wait. The session flag is set
+    // after the first one plays.
+    const alreadyPlayed = sessionStorage.getItem(SESSION_KEY) === '1';
+    const hold = alreadyPlayed ? HOLD_MS_NAV : HOLD_MS_FIRST;
+
     setVisible(true);
+    setRevealed(false);
     // Kick the reveal one frame after mount so the entry transitions fire.
     const raf = requestAnimationFrame(() => setRevealed(true));
 
     const dismiss = () => {
       setVisible(false);
-      try {
-        sessionStorage.setItem(SESSION_KEY, '1');
-      } catch {
-        /* private mode etc. — fine, just won't gate */
-      }
+      try { sessionStorage.setItem(SESSION_KEY, '1'); } catch { /* private mode */ }
     };
 
-    const autoDismiss = window.setTimeout(dismiss, HOLD_MS);
+    const autoDismiss = window.setTimeout(dismiss, hold);
 
     // Any input from the user — scroll wheel, touch swipe, mouse click,
-    // key press — dismisses immediately. scroll alone can be too late on
-    // mobile because the body may be locked behind the overlay.
+    // key press — dismisses immediately. Only honour user input for the
+    // FIRST cinematic intro; the navigation flash is brief enough that
+    // it would dismiss before it landed otherwise.
     const onAny = () => dismiss();
-    window.addEventListener('scroll', onAny, { once: true, passive: true });
-    window.addEventListener('wheel', onAny, { once: true, passive: true });
-    window.addEventListener('touchmove', onAny, { once: true, passive: true });
-    window.addEventListener('touchstart', onAny, { once: true, passive: true });
-    window.addEventListener('pointerdown', onAny, { once: true });
-    window.addEventListener('keydown', onAny, { once: true });
+    if (!alreadyPlayed) {
+      window.addEventListener('scroll', onAny, { once: true, passive: true });
+      window.addEventListener('wheel', onAny, { once: true, passive: true });
+      window.addEventListener('touchmove', onAny, { once: true, passive: true });
+      window.addEventListener('touchstart', onAny, { once: true, passive: true });
+      window.addEventListener('pointerdown', onAny, { once: true });
+      window.addEventListener('keydown', onAny, { once: true });
+    }
 
     return () => {
       cancelAnimationFrame(raf);
@@ -104,7 +111,9 @@ export function IntroOverlay() {
       window.removeEventListener('pointerdown', onAny);
       window.removeEventListener('keydown', onAny);
     };
-  }, []);
+    // Replay on every pathname change — the user wants the brand to flash
+    // through as a loading screen between tabs, not just the first load.
+  }, [pathname]);
 
   return (
     <AnimatePresence>
