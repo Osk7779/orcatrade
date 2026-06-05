@@ -486,6 +486,7 @@ function Select({
   placeholder?: string;
   required?: boolean;
 }) {
+  const hasValue = value && value.length > 0;
   return (
     <label htmlFor={id} className="flex flex-col gap-2">
       <span className="font-serif text-[13px] italic text-[var(--color-ivory-dim)]">
@@ -496,23 +497,41 @@ function Select({
           </span>
         )}
       </span>
-      <select
-        id={id}
-        name={id}
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        required={required}
-        className="border-b border-[var(--color-navy-line)] bg-transparent py-2.5 text-[15px] text-[var(--color-ivory)] focus:border-[var(--color-ivory-dim)] focus:outline-none [&>option]:bg-[var(--color-ink)] [&>option]:text-[var(--color-ivory)]"
-      >
-        <option value="" disabled className="text-[var(--color-ivory-mute)]">
-          {placeholder ?? '—'}
-        </option>
-        {options.map((o) => (
-          <option key={o.value} value={o.value}>
-            {o.label}
+      <div className="group relative">
+        <select
+          id={id}
+          name={id}
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          required={required}
+          className={`peer w-full appearance-none border-b border-[var(--color-navy-line)] bg-transparent pl-1 pr-10 py-2.5 text-[15px] cursor-pointer focus:border-[var(--color-ivory-dim)] focus:outline-none transition-colors duration-300 hover:border-[var(--color-ivory-dim)]/60 [&>option]:bg-[var(--color-ink)] [&>option]:text-[var(--color-ivory)] [&>option]:py-2 ${hasValue ? 'text-[var(--color-ivory)]' : 'text-[var(--color-ivory-mute)]'}`}
+        >
+          <option value="" disabled>
+            {placeholder ?? '—'}
           </option>
-        ))}
-      </select>
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+        {/* Custom chevron — replaces the native macOS up/down arrows.
+            Rotates 180° on focus so it nods open when the menu unfurls. */}
+        <span
+          aria-hidden
+          className="pointer-events-none absolute right-2 top-1/2 -translate-y-1/2 flex h-6 w-6 items-center justify-center text-[var(--color-ivory-dim)] transition-all duration-300 peer-focus:text-[var(--color-ivory)] peer-focus:rotate-180 group-hover:text-[var(--color-ivory)]"
+        >
+          <svg width="11" height="6" viewBox="0 0 11 6" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path
+              d="M1 1l4.5 4L10 1"
+              stroke="currentColor"
+              strokeWidth="1.4"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </span>
+      </div>
     </label>
   );
 }

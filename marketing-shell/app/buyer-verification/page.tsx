@@ -21,7 +21,7 @@ export default function BuyerVerificationPage() {
       meta="Free for the first three checks · sanctions-safe-by-design"
       inputLabel="Buyer company name or VAT number"
       inputPlaceholder="e.g. Volcano Trading GmbH or DE123456789"
-      inputName="query"
+      inputName="companyName"
       submitLabel="Run the verification"
       endpoint="/api/buyer-verification"
       whyTitle="Why verify"
