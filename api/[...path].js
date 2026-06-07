@@ -59,6 +59,10 @@ const handlers = {
   check: require('../lib/handlers/check'),
   'quick-check': require('../lib/handlers/quick-check'),
   'factory-score': require('../lib/handlers/factory-score'),
+  // /api/factory-risk is the public marketing-shell tool surface; it
+  // wraps the same handler as factory-score (the legacy internal name).
+  // Aliasing here keeps one source of truth for the screening logic.
+  'factory-risk': require('../lib/handlers/factory-score'),
   'supply-chain': require('../lib/handlers/supply-chain'),
   news: require('../lib/handlers/news'),
   contact: require('../lib/handlers/contact'),

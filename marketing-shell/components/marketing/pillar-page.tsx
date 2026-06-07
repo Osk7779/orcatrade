@@ -16,6 +16,13 @@ export interface PillarStep {
   body: string;
 }
 
+export interface PillarTool {
+  title: string;
+  desc: string;
+  href: string;
+  eyebrow?: string;
+}
+
 export interface PillarPageProps {
   stageKicker: string;
   title: ReactNode;
@@ -26,6 +33,14 @@ export interface PillarPageProps {
   features: PillarFeature[];
   workflowIntro?: string;
   steps?: PillarStep[];
+  // Optional tool grid — direct entry points to the calculator surfaces
+  // that this pillar packages. /intelligence uses this to surface the
+  // Supply Chain, Factory Risk and Compliance tools as launch cards so
+  // the user can move from "what this is" to "open the tool" in one
+  // click. Restores the calculator/tool launch surface the legacy
+  // /intelligence page had.
+  toolsTitle?: string;
+  tools?: PillarTool[];
   closingTitle: ReactNode;
   closingLead: string;
 }
@@ -40,6 +55,8 @@ export function PillarPage({
   features,
   workflowIntro,
   steps,
+  toolsTitle,
+  tools,
   closingTitle,
   closingLead,
 }: PillarPageProps) {
@@ -147,6 +164,56 @@ export function PillarPage({
             </div>
           </section>
         </>
+      )}
+
+      {/* Tools grid — direct entry points to the calculator surfaces. */}
+      {tools && tools.length > 0 && (
+        <section className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-28">
+          <div className="mx-auto max-w-[1200px] px-6">
+            {toolsTitle && (
+              <FadeUp className="mb-12 text-center">
+                <h2
+                  className="font-serif text-[clamp(1.8rem,3vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.018em] text-[var(--color-ivory)]"
+                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
+                >
+                  {toolsTitle}
+                </h2>
+              </FadeUp>
+            )}
+            <div className={`grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-${Math.min(tools.length, 3)}`}>
+              {tools.map((t) => (
+                <Link
+                  key={t.href}
+                  href={t.href}
+                  className="group relative isolate flex flex-col gap-3 bg-[var(--color-ink)] p-8 hover:bg-[var(--color-navy-soft)] transition-colors duration-500"
+                >
+                  <span
+                    aria-hidden
+                    className="absolute top-0 left-0 h-[2px] w-0 bg-[var(--color-ivory)] transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full"
+                  />
+                  {t.eyebrow && (
+                    <div className="font-mono text-[10.5px] tracking-[0.16em] uppercase text-[var(--color-ivory-mute)]">
+                      {t.eyebrow}
+                    </div>
+                  )}
+                  <h3
+                    className="font-serif text-[1.35rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
+                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
+                  >
+                    {t.title}
+                  </h3>
+                  <p className="font-serif italic text-[14px] leading-[1.5] text-[var(--color-ivory-dim)]">
+                    {t.desc}
+                  </p>
+                  <span className="inline-flex items-center gap-1.5 mt-auto pt-3 font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--color-ivory-dim)] group-hover:text-[var(--color-ivory)] transition-colors duration-300">
+                    Open the tool
+                    <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+                  </span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </section>
       )}
 
       {/* Closing */}

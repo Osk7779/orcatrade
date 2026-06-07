@@ -47,6 +47,45 @@ export default function IntelligencePage() {
           body: 'Regulatory chunks indexed in Postgres with pgvector and BM25, fused with reciprocal rank. Voyage embeddings for the vector half. Degrades to keyword retrieval if vectors are unavailable.',
         },
       ]}
+      toolsTitle="Open the tools"
+      tools={[
+        {
+          eyebrow: 'Sanctions + EUDR + forced labour',
+          title: 'Factory risk',
+          desc: 'Score any Asian factory before the deposit. Sanctions, beneficial owners, EUDR readiness, forced-labour signals, trade-defence exposure.',
+          href: '/factory-risk',
+        },
+        {
+          eyebrow: 'Live shipment tracking',
+          title: 'Supply chain',
+          desc: 'Track every active shipment, port-by-port. Disruption forecasts, supplier risk, lane-level alerts. Composed from live carrier and port data.',
+          href: '/supply-chain',
+        },
+        {
+          eyebrow: 'CBAM · EUDR · REACH · CE',
+          title: 'Compliance brief',
+          desc: 'Lane-specific compliance report covering all 14 regimes. Free for the first run — calculator-grounded, citation-backed, queue-routed to a founder for review.',
+          href: '/compliance',
+        },
+        {
+          eyebrow: 'OFAC · OFSI · UN · EU',
+          title: 'Buyer verification',
+          desc: 'Verify a European buyer before you ship. Sanctions, beneficial owners, VAT validation against VIES, credit signals where the buyer publishes.',
+          href: '/buyer-verification',
+        },
+        {
+          eyebrow: 'One-line brief',
+          title: 'Lane analysis',
+          desc: 'Describe a lane in a sentence. We compose the calculator-grounded analysis — duty, regimes, freight, working capital — and reply within one business day.',
+          href: '/analysis',
+        },
+        {
+          eyebrow: 'TARIC · 45k designations · live',
+          title: 'Build a plan',
+          desc: 'Six-step wizard from product to landed cost. Outputs a full plan you can ship from — duty, every regime, freight, working capital, end to end.',
+          href: '/start',
+        },
+      ]}
       closingTitle={<>The flagship, on principle.</>}
       closingLead="Intelligence is where we hold the line on calculator-grounded math. Investors and customers ask: how do we know the numbers? Because we wrote them down, we cited the source, and we will reproduce them on demand."
     />
