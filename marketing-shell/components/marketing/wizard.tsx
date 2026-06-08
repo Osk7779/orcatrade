@@ -2,7 +2,10 @@
 
 import { useState, type ReactNode } from 'react';
 import Link from 'next/link';
+import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '@/lib/utils';
+import { BorderBeam } from './border-beam';
+import { NumberTicker } from './number-ticker';
 import {
   PRODUCT_CATEGORIES,
   ORIGIN_COUNTRIES,
@@ -148,9 +151,34 @@ export function Wizard() {
 
         <form
           onSubmit={submit}
-          className="mt-12 border border-[var(--color-navy-line)] bg-[var(--color-ink)]/60 p-8 md:p-12"
+          className="relative isolate mt-12 overflow-hidden border border-[var(--color-navy-line)] bg-[var(--color-ink)]/60 p-8 md:p-12"
         >
+          {/* Traces the perimeter of the active form — a soft ivory
+              beam that orbits while the user is filling fields. Stays
+              quiet (low contrast against navy) so it reads as life,
+              not noise. */}
+          <BorderBeam
+            duration={12}
+            size={260}
+            colorFrom="rgba(250,250,247,0.7)"
+            colorTo="rgba(250,250,247,0)"
+          />
+
           <StepHeader number={step} label={STEP_LABELS[step - 1]} />
+
+          {/* Animated step-body wrap — fades + slides between steps so
+              the user feels the wizard advance rather than the content
+              just blink. AnimatePresence keys the body off the step
+              number; mode="wait" lets the outgoing step finish leaving
+              before the incoming one enters. */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={step}
+              initial={{ opacity: 0, x: 12 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -12 }}
+              transition={{ duration: 0.32, ease: [0.16, 1, 0.3, 1] }}
+            >
 
           {step === 1 && (
             <div className="mt-10 flex flex-col gap-7">
@@ -333,6 +361,8 @@ export function Wizard() {
               </div>
             </div>
           )}
+            </motion.div>
+          </AnimatePresence>
 
           {status === 'error' && (
             <div className="mt-8 border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/5 p-5">
@@ -596,10 +626,28 @@ function Navigation({
 }
 
 function PlanResult({ data }: { data: FormData }) {
+  const customsValue = Number(data.customsValueEur);
+  const validCustomsValue = Number.isFinite(customsValue) && customsValue > 0;
   return (
-    <section className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-28">
+    <section className="relative isolate overflow-hidden border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-28">
+      {/* Soft aurora wash on completion — the page should feel like
+          something just landed. Kept subtle so the editorial copy
+          still leads. */}
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-0 -z-10"
+        style={{
+          background:
+            'radial-gradient(60% 50% at 20% 0%, rgba(250,250,247,0.06), transparent 60%), radial-gradient(40% 60% at 100% 100%, rgba(96,165,250,0.05), transparent 60%)',
+        }}
+      />
       <div className="mx-auto max-w-[820px] px-6">
-        <div className="flex items-center gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="flex items-center gap-4"
+        >
           <span className="h-px w-10 bg-[var(--color-ivory-dim)]/50" />
           <span
             aria-hidden
@@ -610,14 +658,17 @@ function PlanResult({ data }: { data: FormData }) {
           <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
             Plan composed
           </span>
-        </div>
+        </motion.div>
 
-        <h2
+        <motion.h2
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           className="mt-10 font-serif text-[clamp(2rem,3.4vw+0.4rem,3rem)] leading-[1.06] tracking-[-0.02em] text-[var(--color-ivory)]"
           style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
         >
           The plan is on its way to {data.email}.
-        </h2>
+        </motion.h2>
 
         <p className="mt-7 max-w-[58ch] font-serif text-[1.1rem] italic leading-[1.55] text-[var(--color-ivory-dim)]">
           We have queued the calculator-grounded plan for the lane you described.
@@ -642,9 +693,13 @@ function PlanResult({ data }: { data: FormData }) {
           <Summary
             kicker="Customs value"
             value={
-              data.customsValueEur
-                ? `€${Number(data.customsValueEur).toLocaleString('en-GB')}`
-                : '—'
+              validCustomsValue ? (
+                <>
+                  €<NumberTicker value={customsValue} />
+                </>
+              ) : (
+                '—'
+              )
             }
           />
         </div>
