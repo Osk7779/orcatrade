@@ -244,3 +244,46 @@ export interface DraftWithHtml {
   html: string;
   idempotent?: boolean;
 }
+
+// /api/shipments — system-of-record operational entity (L1.3 of the
+// strategic plan §4.1.2). Mirrors the data layer in lib/db/shipments.js
+// but typed to only the fields the dashboard reads (camelCase).
+export type ShipmentStatus =
+  | 'planned'
+  | 'booked'
+  | 'in_transit'
+  | 'cleared'
+  | 'delivered'
+  | 'exception'
+  | 'cancelled';
+
+export interface Shipment {
+  externalId: string;
+  label: string;
+  status: ShipmentStatus;
+  originCountry?: string | null;
+  destinationCountry?: string | null;
+  customsValueCents?: number | null;
+  goodsExternalId?: string | null;
+  supplierExternalId?: string | null;
+  plannedDepartureDate?: string | null;
+  plannedArrivalDate?: string | null;
+  eta?: string | null;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+}
+
+// Returned by GET /api/shipments/exceptions. Carries the full Shipment
+// plus a computed _queue block with SLA fields.
+export interface ExceptionQueueItem extends Shipment {
+  _queue: {
+    ageHours: number | null;
+    acknowledged: boolean;
+    acknowledgedAt: string | null;
+    acknowledgedBy: string | null;
+    slaBreached: boolean;
+    slaThresholdHours: number;
+  };
+  exceptionState?: Record<string, unknown>;
+}
