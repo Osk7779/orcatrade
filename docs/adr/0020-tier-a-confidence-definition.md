@@ -78,9 +78,23 @@ moment the quote is generated:
 
 A quote artefact persists its Tier-A determination as a separate
 boolean field (`tier_a_eligible: true | false`) plus the reason it
-failed if false (`tier_a_failed_reason: 'snapshot-stale-TA1' |
-'manual-override-TA4' | ...`). Both fields are append-only and
-audit-logged per ADR 0005.
+failed if false. The failure-reason taxonomy is closed — exactly
+these five strings, one per precondition:
+
+| Precondition | `tier_a_failed_reason` value |
+|---|---|
+| TA-1 (stale snapshot) | `snapshot-stale-TA1` |
+| TA-2 (non-primary source) | `non-primary-source-TA2` |
+| TA-3 (calculator not green) | `calculator-not-green-TA3` |
+| TA-4 (escalation or override present) | `escalation-or-override-TA4` |
+| TA-5 (outside coverage envelope) | `outside-coverage-TA5` |
+
+Both fields are append-only and audit-logged per ADR 0005. Adding a
+new precondition (TA-6, TA-7, …) requires a successor ADR that
+extends this taxonomy with the new closed value — never an ad-hoc
+string. The `lib/intelligence/tier-a/eligibility.js` module exports
+this taxonomy as the `REASONS` constant; a drift-guard test asserts
+every `REASONS` value appears verbatim in this ADR.
 
 The accuracy guarantee only applies to outputs where
 `tier_a_eligible === true` AND the customer subscribed to a tier
