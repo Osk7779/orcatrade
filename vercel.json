@@ -5,7 +5,13 @@
   },
   "redirects": [
     { "source": "/app", "destination": "/app/dashboard", "permanent": false },
-    { "source": "/app/", "destination": "/app/dashboard", "permanent": false }
+    { "source": "/app/", "destination": "/app/dashboard", "permanent": false },
+    { "source": "/dashboard", "destination": "/app/dashboard", "permanent": false },
+    { "source": "/dashboard/", "destination": "/app/dashboard", "permanent": false },
+    { "source": "/dashboard/login", "destination": "/signin", "permanent": false },
+    { "source": "/dashboard/login/", "destination": "/signin", "permanent": false },
+    { "source": "/dashboard/signup", "destination": "/signup", "permanent": false },
+    { "source": "/dashboard/signup/", "destination": "/signup", "permanent": false }
   ],
   "rewrites": [
     {

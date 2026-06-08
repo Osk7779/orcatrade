@@ -52,7 +52,7 @@ const PRIMARY = [
 
 const SECONDARY = [
   { label: 'Guides', href: '/guides/' },
-  { label: 'Dashboard', href: '/dashboard/' },
+  { label: 'Dashboard', href: '/app/dashboard' },
   { label: 'Pricing', href: '/pricing/' },
 ];
 

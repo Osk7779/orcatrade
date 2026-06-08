@@ -44,7 +44,7 @@ const TOOLS_GROUPS = [
 
 const SECONDARY = [
   { href: '/guides/', label: 'Guides' },
-  { href: '/dashboard/', label: 'Dashboard' },
+  { href: '/app/dashboard', label: 'Dashboard' },
   { href: '/pricing/', label: 'Pricing' },
 ];
 
