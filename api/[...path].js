@@ -34,6 +34,11 @@ const handlers = {
   // GET/POST /api/goods + GET/PATCH/DELETE /api/goods/<externalId>.
   // Auth-required + org-scoped + audit-logged on every mutation (ADR 0005).
   goods: require('../lib/handlers/goods'),
+  // Supplier master CRUD — L1.2 of docs/strategic-plan-2026-2031.md §4.1.2.
+  // GET/POST /api/suppliers + GET/PATCH/DELETE /api/suppliers/<externalId>.
+  // Same shape as goods; supplier-specific fields cover sanctions hooks,
+  // audit certs with expiry, EUDR DDS evidence, factory locations.
+  suppliers: require('../lib/handlers/suppliers'),
   // Auth (magic-link). Sub-actions resolved inside the handler from the
   // second URL segment: request / verify / me / logout.
   auth: require('../lib/handlers/auth'),
