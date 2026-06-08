@@ -539,13 +539,19 @@ function AuthGate() {
         signed-in account. Use the magic-link sign-in to continue —
         nothing is created until you click the email.
       </p>
-      <div className="mt-10">
+      <div className="mt-10 flex flex-wrap items-center gap-3">
         <Link
-          href="/account/"
+          href="/signin?return=%2Fapp%2Fdashboard"
           className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] hover:bg-white transition-colors duration-300"
         >
           Sign in
           <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+        </Link>
+        <Link
+          href="/signup?return=%2Fapp%2Fdashboard"
+          className="group inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] transition-all duration-300"
+        >
+          Create an account
         </Link>
       </div>
     </Section>
