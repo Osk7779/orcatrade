@@ -257,6 +257,25 @@ export type ShipmentStatus =
   | 'exception'
   | 'cancelled';
 
+export interface ShipmentDocument {
+  docType?: string;
+  name?: string;
+  externalId?: string;
+  url?: string;
+  attachedAt?: string;
+  draftRef?: string;
+}
+
+export interface ShipmentExceptionState {
+  reason?: string;
+  openedAt?: string;
+  previousStatus?: ShipmentStatus;
+  acknowledgedAt?: string;
+  acknowledgedBy?: string;
+  acknowledgmentNote?: string;
+  [k: string]: unknown;
+}
+
 export interface Shipment {
   externalId: string;
   label: string;
@@ -264,15 +283,46 @@ export interface Shipment {
   originCountry?: string | null;
   destinationCountry?: string | null;
   customsValueCents?: number | null;
+  weightKg?: number | null;
+  containerCount?: number | null;
   goodsExternalId?: string | null;
   supplierExternalId?: string | null;
   plannedDepartureDate?: string | null;
   plannedArrivalDate?: string | null;
+  carrier?: string | null;
+  bookingRef?: string | null;
+  blNumber?: string | null;
+  actualDepartureDate?: string | null;
   eta?: string | null;
+  lastKnownLocation?: string | null;
+  clearedAt?: string | null;
+  declarationRef?: string | null;
+  dutyPaidCents?: number | null;
+  vatPaidCents?: number | null;
+  brokeragePaidCents?: number | null;
+  deliveredAt?: string | null;
+  exceptionState?: ShipmentExceptionState;
+  documentVault?: ShipmentDocument[];
+  inputsSnapshot?: Record<string, unknown> | null;
+  quoteSnapshot?: Record<string, unknown> | null;
   createdAt: string;
   updatedAt: string;
   archivedAt?: string | null;
 }
+
+// Canonical state-transition table. Mirrors lib/db/shipments.js
+// VALID_TRANSITIONS exactly — a drift-guard test pins both sides.
+// Used by the detail page to render only the legal next-state buttons
+// from the shipment's current status.
+export const SHIPMENT_VALID_TRANSITIONS: Readonly<Record<ShipmentStatus, ReadonlyArray<ShipmentStatus>>> = Object.freeze({
+  planned: Object.freeze(['booked', 'exception', 'cancelled']),
+  booked: Object.freeze(['in_transit', 'exception', 'cancelled']),
+  in_transit: Object.freeze(['cleared', 'exception', 'cancelled']),
+  cleared: Object.freeze(['delivered', 'exception']),
+  delivered: Object.freeze(['exception']),
+  exception: Object.freeze(['planned', 'booked', 'in_transit', 'cleared', 'delivered', 'cancelled']),
+  cancelled: Object.freeze([]),
+}) as Readonly<Record<ShipmentStatus, ReadonlyArray<ShipmentStatus>>>;
 
 // Returned by GET /api/shipments/exceptions. Carries the full Shipment
 // plus a computed _queue block with SLA fields.

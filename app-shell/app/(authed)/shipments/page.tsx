@@ -262,8 +262,15 @@ function ShipmentList({ shipments }: { shipments: Shipment[] }) {
         </thead>
         <tbody>
           {shipments.map((s) => (
-            <tr key={s.externalId} className="border-t border-[var(--color-navy-line)]">
-              <td className="px-6 py-4 font-serif text-[14px] text-white">{s.label}</td>
+            <tr
+              key={s.externalId}
+              className="border-t border-[var(--color-navy-line)] hover:bg-[var(--color-navy-soft)]/30 transition-colors"
+            >
+              <td className="px-6 py-4 font-serif text-[14px] text-white">
+                <Link href={`/shipments/${encodeURIComponent(s.externalId)}`} className="hover:underline">
+                  {s.label}
+                </Link>
+              </td>
               <td className="px-2 py-4">
                 <span
                   className="font-mono text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 border"
