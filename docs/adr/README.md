@@ -74,6 +74,11 @@ audit trail of why the decision evolved.
 | [0013](0013-c4-diagrams-via-mermaid.md) | C4 architecture diagrams via Mermaid C4 syntax in markdown (deviates from plan's Structurizr suggestion) | Accepted |
 | [0014](0014-openapi-generated-from-contracts.md) | OpenAPI 3.1 specification generated from `lib/contracts/v1/`, not hand-authored | Accepted |
 | [0015](0015-human-review-queue.md) | Human-review escalation is a real KV-backed queue, not a stubbed tool | Accepted |
+| [0016](0016-hs-code-lookup-calculator-grounded.md) | HS-code lookup is calculator-grounded, never a fake-confidence placeholder | Accepted |
+| [0017](0017-pr-smoke-as-deploy-gate.md) | PR smoke probes the Vercel preview deployment as a merge-blocking gate | Accepted |
+| [0018](0018-eval-gate-post-merge-95pct.md) | Post-merge eval gate requires ≥95% pass rate per agent for AI-touching merges | Accepted |
+| [0019](0019-docs-staleness-floor-tests.md) | Customer-facing doc claims are floor-tested in CI | Accepted |
+| [0020](0020-tier-a-confidence-definition.md) | Tier-A confidence — deterministic eligibility for liability-bearing numbers | Accepted |
 
 ## Background
 

@@ -19,31 +19,42 @@ EU/UK customs & duty, CBAM, EUDR, REACH, CE marking, anti-dumping /
 countervailing duties, FX, routing, warehousing, working capital, TCO.
 
 The product is the import operations team available 24/7 — see the apex
-strategy in [docs/billion-dollar-plan.md](docs/billion-dollar-plan.md).
+strategy in [docs/strategic-plan-2026-2031.md](docs/strategic-plan-2026-2031.md).
 
 ## The planning docs (read in this order for direction)
 
-1. [docs/billion-dollar-plan.md](docs/billion-dollar-plan.md) — **apex plan.**
-   Where the company is going (foundation re-platform + four pillars: agent
-   autonomy, platform breadth, enterprise trust, product/GTM). Start here for
-   "big picture" / "billion-dollar grade" asks.
-2. [docs/dev-plan.md](docs/dev-plan.md) — week-to-week **product/SEO sprint
+1. [docs/strategic-plan-2026-2031.md](docs/strategic-plan-2026-2031.md) —
+   **apex 5-year strategic frame.** Path to $1B ARR via three leaps
+   (advisor → system of record → marketplace → embedded distribution) +
+   capital plan (Pre-seed → Seed → A → B → C → IPO) + hiring sequence +
+   regulatory/geographic roadmap + top-10 risk register. Start here for
+   "big picture" / "where is this going" / "what changes after the
+   18-month plan" asks.
+2. [docs/execution-plan.md](docs/execution-plan.md) — **canonical
+   18-month operational roadmap** (Phases 0-2). The calendar contract
+   the strategic plan's Phase 3 hands off from.
+3. [docs/billion-dollar-plan.md](docs/billion-dollar-plan.md) — predecessor
+   apex (pillar-shaped, no calendar). Superseded as the apex by the
+   strategic plan above; still useful as the pillar reference for
+   foundation/agent/platform/trust work in progress.
+4. [docs/dev-plan.md](docs/dev-plan.md) — week-to-week **product/SEO sprint
    tracker** + chronological history of shipped sprints. Useful as an audit
    log; do **not** rewrite past entries.
-3. [docs/backend-grade-plan.md](docs/backend-grade-plan.md) — backend / infra
+5. [docs/backend-grade-plan.md](docs/backend-grade-plan.md) — backend / infra
    / scale / enterprise / GDPR / observability / AI-eval vision (six tracks).
 
 **For policy**, not direction, the binding source is
 [docs/adr/](docs/adr/) — the Architecture Decision Records catalogue.
-ADRs 0001-0019 cover every load-bearing rule (calculator-grounding,
+ADRs 0001-0020 cover every load-bearing rule (calculator-grounding,
 SDK boundary, money discipline, audit-log-before-success, circuit
 breakers, API-version stability, email pseudonymisation, conventional
 commits, incremental TypeScript, security scanning, branch protection,
 C4 diagrams, OpenAPI generation, the human-review queue, the
 calculator-grounded HS-code lookup, the staged-smoke deploy gate, the
-post-merge eval gate, and the docs-staleness floor tests). Each ADR
-has a `## Confirmation` section naming the enforcement test that
-prevents drift.
+post-merge eval gate, the docs-staleness floor tests, and the Tier-A
+confidence definition that backs the liability-bearing accuracy
+guarantee). Each ADR has a `## Confirmation` section naming the
+enforcement test that prevents drift.
 
 `CODEX.md` at the root is a **stale** old task spec — ignore it for direction.
 
