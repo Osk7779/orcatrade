@@ -30,6 +30,10 @@ const handlers = {
   // with { lines: [<plan-input>, …] } → per-line plans + a portfolio
   // aggregate (total landed, blended duty, per-lane consolidation savings).
   portfolio: require('../lib/handlers/portfolio'),
+  // Goods master CRUD — L1.1 of docs/strategic-plan-2026-2031.md §4.1.2.
+  // GET/POST /api/goods + GET/PATCH/DELETE /api/goods/<externalId>.
+  // Auth-required + org-scoped + audit-logged on every mutation (ADR 0005).
+  goods: require('../lib/handlers/goods'),
   // Auth (magic-link). Sub-actions resolved inside the handler from the
   // second URL segment: request / verify / me / logout.
   auth: require('../lib/handlers/auth'),
