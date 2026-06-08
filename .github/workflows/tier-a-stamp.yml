@@ -1,0 +1,61 @@
+name: tier-a-stamp
+
+# Stamps the Tier-A calculator green-state after the test suite passes
+# on `main`. Satisfies ADR 0020 TA-3 ("calculator passed regression
+# within the last 24 hours"). Runs only on push-to-main — PR runs are
+# ineligible because their tests don't represent main's green state.
+#
+# Without this job, every Tier-A evaluation in production returns
+# eligible:false with reason 'calculator-not-green-TA3'. With it,
+# main-merged calculator code becomes Tier-A-eligible until the stamp's
+# 24h window elapses.
+#
+# Secrets required (set in repo settings → secrets → actions):
+#   KV_REST_API_URL    — Upstash KV REST URL
+#   KV_REST_API_TOKEN  — Upstash KV REST token (write scope)
+#
+# Without those secrets the script no-ops cleanly (exit 0); the job
+# stays green so this workflow being on the required-checks list
+# doesn't accidentally block merges before KV is wired.
+
+on:
+  push:
+    branches: [main]
+
+# Don't queue stamps — if multiple commits land in quick succession,
+# the later run supersedes the earlier one.
+concurrency:
+  group: tier-a-stamp-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  stamp:
+    name: stamp calculator green-state
+    runs-on: ubuntu-latest
+    # Wait for the test workflow on the same SHA to succeed before
+    # stamping. needs: is cross-workflow via the `workflow_run` event
+    # only — here we instead rely on the test job being a required
+    # check, so by the time `push` fires this workflow, tests have
+    # already passed on PR merge. For belt-and-braces, we ALSO re-run
+    # the suite here before stamping.
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Re-run test suite (gate the stamp)
+        run: npm test
+        env:
+          ORCATRADE_AUTH_SECRET: ci-test-secret-do-not-use-in-prod
+
+      - name: Stamp calculator green-state
+        run: node scripts/tier-a-stamp.js
+        env:
+          KV_REST_API_URL: ${{ secrets.KV_REST_API_URL }}
+          KV_REST_API_TOKEN: ${{ secrets.KV_REST_API_TOKEN }}
