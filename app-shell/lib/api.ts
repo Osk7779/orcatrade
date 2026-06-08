@@ -310,6 +310,32 @@ export interface Shipment {
   archivedAt?: string | null;
 }
 
+// /api/goods — Goods master entity (L1.1 of the strategic plan).
+// Typed to the fields the dashboard list + detail views read.
+
+export interface ReachSvhcFlag {
+  cas?: string;
+  name?: string;
+  threshold_pct?: number;
+  [k: string]: unknown;
+}
+
+export interface Goods {
+  externalId: string;
+  sku: string;
+  displayName: string;
+  hsCode: string;
+  originCountry?: string | null;
+  typicalUnitValueCents?: number | null;
+  cbamInScope: boolean;
+  reachSvhcFlags?: ReachSvhcFlag[];
+  restrictedSubstances?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+}
+
 // Canonical state-transition table. Mirrors lib/db/shipments.js
 // VALID_TRANSITIONS exactly — a drift-guard test pins both sides.
 // Used by the detail page to render only the legal next-state buttons
