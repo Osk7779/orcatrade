@@ -39,6 +39,11 @@ const handlers = {
   // Same shape as goods; supplier-specific fields cover sanctions hooks,
   // audit certs with expiry, EUDR DDS evidence, factory locations.
   suppliers: require('../lib/handlers/suppliers'),
+  // Shipment master — L1.3 of docs/strategic-plan-2026-2031.md §4.1.2.
+  // The central operational entity. GET/POST /api/shipments +
+  // GET/PATCH/DELETE /api/shipments/<externalId> +
+  // POST /api/shipments/<externalId>/transition for state changes.
+  shipments: require('../lib/handlers/shipments'),
   // Auth (magic-link). Sub-actions resolved inside the handler from the
   // second URL segment: request / verify / me / logout.
   auth: require('../lib/handlers/auth'),
