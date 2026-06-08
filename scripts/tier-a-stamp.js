@@ -31,6 +31,7 @@ const kv = require(path.join(__dirname, '..', 'lib', 'intelligence', 'kv-store')
 // per-PR per ADR 0020.
 const CALCULATORS = [
   'customs-quote',
+  'finance-quote',
 ];
 
 async function main() {
