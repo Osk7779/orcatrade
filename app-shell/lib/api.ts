@@ -310,6 +310,53 @@ export interface Shipment {
   archivedAt?: string | null;
 }
 
+// /api/suppliers — Supplier master entity (L1.2 of the strategic plan).
+// Typed to fields the dashboard list + detail views read.
+
+export type SupplierSanctionsStatus = 'clear' | 'potential_match' | 'match' | 'pending';
+
+export interface AuditCert {
+  standard?: string;
+  issuer?: string;
+  certNumber?: string;
+  issuedAt?: string;
+  expiresAt?: string;
+  evidenceUrl?: string;
+  [k: string]: unknown;
+}
+
+export interface FactoryLocation {
+  countryCode?: string;
+  city?: string;
+  role?: string;
+  floorAreaSqm?: number;
+  [k: string]: unknown;
+}
+
+export interface Supplier {
+  externalId: string;
+  entityName: string;
+  legalForm?: string | null;
+  hqCountry: string;
+  registrationNumber?: string | null;
+  registrationAuthority?: string | null;
+  website?: string | null;
+  factoryLocations?: FactoryLocation[];
+  sanctionsLastScreenedAt?: string | null;
+  sanctionsLastStatus?: SupplierSanctionsStatus | null;
+  sanctionsLastMatchSummary?: Record<string, unknown>;
+  auditCerts?: AuditCert[];
+  lastOnSiteAuditDate?: string | null;
+  eudrDdsEvidence?: Record<string, unknown>;
+  trustScore?: number | null;
+  trustScoreComputedAt?: string | null;
+  trustScoreComponents?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+}
+
 // /api/goods — Goods master entity (L1.1 of the strategic plan).
 // Typed to the fields the dashboard list + detail views read.
 
