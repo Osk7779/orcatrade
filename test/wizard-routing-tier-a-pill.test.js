@@ -18,12 +18,14 @@ test('routing pill is guarded by routingTierA?.eligible === true', () => {
   assert.match(SRC, /routingTierA\?\.eligible === true && \(/);
 });
 
-test('outer wrapper now renders when ANY of the four signals is present', () => {
-  // customs eligible OR sourcing eligible OR routing eligible OR
-  // inheritance matched.
+test('outer wrapper renders when ANY of the eligible signals is present', () => {
+  // customs OR sourcing OR routing OR (later: finance) OR inheritance.
+  // Match the customs+sourcing+routing portion; later PRs may extend
+  // the OR-chain (PR #116F added finance) without invalidating this
+  // regression guard.
   assert.match(
     SRC,
-    /\(tierA\?\.eligible === true \|\| sourcingTierA\?\.eligible === true \|\| routingTierA\?\.eligible === true \|\| inheritance\)/,
+    /\(tierA\?\.eligible === true \|\| sourcingTierA\?\.eligible === true \|\| routingTierA\?\.eligible === true \|\|[^)]*inheritance\)/,
   );
 });
 
