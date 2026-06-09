@@ -16,6 +16,7 @@ import {
   type Supplier,
   type SupplierSanctionsStatus,
 } from '@/lib/api';
+import { RelatedShipments } from '@/components/RelatedShipments';
 
 function fmtDate(d?: string | null) {
   if (!d) return '—';
@@ -120,6 +121,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
       {supplier.trustScoreComponents && Object.keys(supplier.trustScoreComponents).length > 0 && (
         <TrustComponentsPanel supplier={supplier} />
       )}
+      <RelatedShipments filter={{ kind: 'supplier', externalId: supplier.externalId }} />
     </div>
   );
 }

@@ -11,6 +11,7 @@ import {
   AuthError,
   type Goods,
 } from '@/lib/api';
+import { RelatedShipments } from '@/components/RelatedShipments';
 
 function eurFromCents(cents?: number | null) {
   if (cents == null || !Number.isFinite(cents)) return '—';
@@ -76,6 +77,7 @@ export default function GoodsDetailPage({ params }: { params: Promise<{ external
       {goods.restrictedSubstances && Object.keys(goods.restrictedSubstances).length > 0 && (
         <RestrictedSubstancesPanel goods={goods} />
       )}
+      <RelatedShipments filter={{ kind: 'goods', externalId: goods.externalId }} />
     </div>
   );
 }
