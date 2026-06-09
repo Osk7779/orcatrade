@@ -34,6 +34,7 @@ const CALCULATORS = [
   'finance-quote',
   'sourcing-quote',
   'routing-quote',
+  'warehouse-quote',
 ];
 
 async function main() {
