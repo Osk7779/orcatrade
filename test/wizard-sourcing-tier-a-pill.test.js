@@ -30,12 +30,14 @@ test('customs pill still guarded by tierA?.eligible === true (no regression on P
   assert.match(SRC, /tierA\?\.eligible === true && \(/);
 });
 
-test('the outer wrapper renders when ANY of the three signals is present', () => {
-  // (customs eligible) OR (sourcing eligible) OR (inheritance matched)
-  // — collapsing to nothing when none are.
+test('the outer wrapper renders when ANY of the eligible signals is present', () => {
+  // (customs eligible) OR (sourcing eligible) OR (later: routing eligible)
+  // OR (inheritance matched) — collapsing to nothing when none are.
+  // Match the customs + sourcing portion; later PRs may extend the OR-chain
+  // (PR #115 added routing) without invalidating this regression guard.
   assert.match(
     SRC,
-    /\(tierA\?\.eligible === true \|\| sourcingTierA\?\.eligible === true \|\| inheritance\)/,
+    /\(tierA\?\.eligible === true \|\| sourcingTierA\?\.eligible === true \|\|[^)]*inheritance\)/,
   );
 });
 
