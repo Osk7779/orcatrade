@@ -86,7 +86,10 @@ test('Tier-A pill carries role="status" and an aria-label', () => {
   const pillMatch = SRC.match(/tierA\?\.eligible === true && \([\s\S]*?<\/span>\s*\)/);
   assert.ok(pillMatch, 'Tier-A pill block not located');
   assert.match(pillMatch[0], /role="status"/);
-  assert.match(pillMatch[0], /aria-label="Tier-A · underwriter-grade calculation"/);
+  // Aria-label updated from "Tier-A · underwriter-grade calculation"
+  // when the sourcing pill landed (PR #112) — both pills now name their
+  // calculator domain so screen readers can tell them apart.
+  assert.match(pillMatch[0], /aria-label="Tier-A · underwriter-grade duty calculation"/);
 });
 
 test('Goods-master pill carries role="status" and an aria-label', () => {
