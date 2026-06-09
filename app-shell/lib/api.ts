@@ -310,6 +310,28 @@ export interface Shipment {
   archivedAt?: string | null;
 }
 
+// /api/shipments/<id>/history — per-shipment audit timeline.
+// Returns events that name the shipment (entityType='shipment_master',
+// entityId=<externalId>) filtered to the customer-visible event types
+// the timeline UI renders.
+
+export type ShipmentTimelineEventType =
+  | 'shipment_master_created'
+  | 'shipment_master_updated'
+  | 'shipment_master_status_transition'
+  | 'shipment_master_exception_acknowledged'
+  | 'shipment_master_archived';
+
+export interface ShipmentTimelineEvent {
+  type: ShipmentTimelineEventType;
+  at: string;
+  actorEmailHash?: string;
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+  detail?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
 // /api/suppliers — Supplier master entity (L1.2 of the strategic plan).
 // Typed to fields the dashboard list + detail views read.
 

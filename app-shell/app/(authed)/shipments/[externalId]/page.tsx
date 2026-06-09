@@ -22,6 +22,7 @@ import {
   type Shipment,
   type ShipmentStatus,
 } from '@/lib/api';
+import { TransitionHistory } from '@/components/TransitionHistory';
 
 function eurFromCents(cents?: number | null) {
   if (cents == null || !Number.isFinite(cents)) return '—';
@@ -108,6 +109,7 @@ export default function ShipmentDetailPage({ params }: { params: Promise<{ exter
       <ReferencesPanel shipment={shipment} />
       <DocumentVaultPanel shipment={shipment} />
       <SnapshotsPanel shipment={shipment} />
+      <TransitionHistory externalId={shipment.externalId} />
     </div>
   );
 }
