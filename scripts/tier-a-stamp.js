@@ -32,6 +32,7 @@ const kv = require(path.join(__dirname, '..', 'lib', 'intelligence', 'kv-store')
 const CALCULATORS = [
   'customs-quote',
   'finance-quote',
+  'sourcing-quote',
 ];
 
 async function main() {
