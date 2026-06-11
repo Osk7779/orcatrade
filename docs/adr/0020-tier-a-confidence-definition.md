@@ -1,7 +1,7 @@
 # Tier-A confidence — deterministic eligibility for liability-bearing numbers
 
-- **Status:** Accepted
-- **Date:** 2026-06-08
+- **Status:** Accepted · Implementation shipped 2026-06-12 (see [Implementation summary](#implementation-summary))
+- **Date:** 2026-06-08 (decided) · 2026-06-12 (wedge closed)
 - **Decision-makers:** Oskar + Claude
 - **Consulted:** N/A
 - **Informed:** Anyone wiring an accuracy-guarantee claim flow; anyone
@@ -27,9 +27,19 @@ we're confident in," underwriters will refuse to renew the E&O
 policy, and the first contested claim will collapse the wedge.
 
 This ADR pins the deterministic definition. The mechanism that
-*emits* a Tier-A badge and the UI surface that *displays* it ship in
-later PRs (Phase 3, Q1 2027 per the strategic plan); this ADR is the
-contract those PRs implement against.
+*emits* a Tier-A badge and the UI surface that *displays* it
+**shipped between PRs #87 and #120 (2026-06-08 to 2026-06-12)**
+across all five platform calculators — see [Implementation
+summary](#implementation-summary) for the PR-by-PR matrix. The
+**liability-bearing accuracy guarantee** itself remains forthcoming:
+it activates in Q1 2027 once the E&O insurance binds. Until then,
+every customer-facing surface (email badges, wizard pills, ADR
+prose) uses **forthcoming-guarantee wording** — Tier-A is described
+as an auditable transparency signal, not an active financial
+guarantee. A drift-guard test pins the forthcoming language across
+~10 surfaces; any PR that introduces active-guarantee phrasing
+(accuracy-guarantee claims, refund language, money-back wording)
+without the Q1-2027-forthcoming qualifier fails CI.
 
 ## Decision drivers
 
@@ -158,22 +168,136 @@ code-verifiable on claim review.
 
 ## Confirmation
 
-- **Code:** `lib/intelligence/tier-a/` will house the eligibility
-  function (`isTierAEligible(quote, snapshots, calculatorState)`)
-  and the persistence helpers. Shipped in the Phase 3 Q1 2027 PR
-  that depends on this ADR
-- **Tests:**
-  - A unit test asserts each of TA-1 through TA-5 individually
-    causes `tier_a_eligible: false` with the correct failure reason
-  - An integration test asserts a passing quote earns `true` and
-    persists the determination to the audit log
-  - A test asserts the `tier_a_eligible` field on every persisted
-    quote matches a recomputation against the snapshot pins (so a
-    later quote-rewrite cannot silently elevate a false to a true)
+- **Code:** [`lib/intelligence/tier-a/`](../../lib/intelligence/tier-a/)
+  houses the eligibility function (`evaluate(input, opts?)` —
+  the `tier-a/index.js` entrypoint) and its sub-modules:
+  - [`eligibility.js`](../../lib/intelligence/tier-a/eligibility.js)
+    — the five-precondition check + the closed `REASONS` constant
+    (drift-guarded against this ADR's failure-reason table; see
+    `test/tier-a-adr-reasons-drift.test.js`)
+  - [`coverage.js`](../../lib/intelligence/tier-a/coverage.js) —
+    TA-5 coverage-envelope checking
+  - [`green-state.js`](../../lib/intelligence/tier-a/green-state.js)
+    — TA-3 last-green stamp read/write (KV-backed)
+
+  Each platform calculator exports a `TIER_A_COVERAGE` manifest and
+  a `buildTierAInput(quoteResult)` helper. Wired in [PR #89][pr89]
+  (customs), [PR #99][pr99] (sourcing), [PR #109][pr109] (finance),
+  [PR #113][pr113] (routing), and [PR #118][pr118] (warehouse).
+
+- **Tests** (all shipping today, not future-tense):
+  - **Per-precondition unit tests** in `test/tier-a-eligibility.test.js`
+    assert each of TA-1 through TA-5 individually causes
+    `eligible: false` with the correct `failedReason` from the
+    closed `REASONS` taxonomy
+  - **Calculator-side tests** in `test/tier-a-{customs,sourcing,
+    routing,finance,warehouse}-quote.test.js` assert each
+    calculator's `buildTierAInput` emits a well-shaped
+    `EligibilityInput` and that an end-to-end pass through
+    `tierA.evaluate()` lands on the expected verdict
+  - **Composer-side tests** in `test/start-{customs,sourcing,
+    routing,finance,warehouse}-tier-a.test.js` assert every wizard
+    plan carries a `tier_a` verdict on the corresponding sub-block
+    (customs, sourcing, routing, finance, warehouse), with the
+    correct closed-taxonomy failure reasons. A FIVE-verdict
+    aggregate assertion pins all five together.
+  - **Email-side tests** in `test/start-i18n-{customs,sourcing,
+    routing,finance,warehouse}-tier-a.test.js` pin per-locale
+    badge wording (EN / PL / DE), forthcoming-guarantee discipline,
+    and no-borrowing-of-other-calculators'-subjects.
+  - **Wizard-pill source-pinning tests** in `test/wizard-{customs,
+    sourcing,routing,finance,warehouse}-tier-a-pill.test.js` pin
+    conditional rendering, tooltip wording, aria-labels,
+    `StartResponse` type shape, and pill render order.
+  - **Cross-stack drift guard** (`test/tier-a-adr-reasons-drift.test.js`)
+    asserts every value in `REASONS` appears verbatim in this ADR's
+    failure-reason table — preventing silent drift between code and
+    contract.
+  - **PR-table drift guard** (`test/tier-a-adr-implementation-table.test.js`,
+    added 2026-06-12) asserts the [Implementation
+    summary](#implementation-summary) table in this ADR enumerates
+    all five calculators × four layers (foundation, composer,
+    email, pill) — so a future PR that ships another calculator's
+    Tier-A surface without updating this ADR's matrix fails CI.
+  - **Wording discipline drift guards** across ~10 surfaces (email
+    blocks per locale + wizard pill tooltips + per-pill aria-labels)
+    pin the forthcoming-guarantee language. The exact prohibited
+    regex patterns live in the test files themselves — see
+    `test/start-i18n-{customs,sourcing,routing,finance,warehouse}-tier-a.test.js`
+    and `test/wizard-{customs,sourcing,routing,finance,warehouse}-tier-a-pill.test.js`.
+    Categories: active-guarantee phrasing, refund/money-back
+    wording, and active-guarantee claims without the Q1-2027
+    forthcoming qualifier.
   - The floor-test pattern from ADR 0019 covers customer-facing
-    docs: any doc surface using the term "Tier-A" must reference
-    this ADR by number
+    docs: any doc surface using the term "Tier-A" references this
+    ADR by number.
+
 - **ADR drift:** This ADR is amended only by a successor ADR.
   Lowering eligibility (relaxing any of TA-1 through TA-5) requires
   an explicit "Supersedes 0020" header and a written justification
-  that an underwriter has signed off on
+  that an underwriter has signed off on. **Extending** the
+  implementation surface to a sixth calculator does NOT require a
+  successor ADR — just an update to the [Implementation
+  summary](#implementation-summary) table (the drift-guard test
+  enforces).
+
+## Implementation summary
+
+The wedge is **complete**. Every platform calculator exposes the
+full four-layer Tier-A surface — calculator foundation, `/api/start`
+composer wire-up, plan-email badge (per locale), and wizard pill.
+Each cell links to the PR that landed it.
+
+| Layer | customs-quote | sourcing-quote | routing-quote | finance-quote | warehouse-quote |
+|-------|---------------|----------------|---------------|---------------|-----------------|
+| **Foundation** (`TIER_A_COVERAGE` + `buildTierAInput`) | [PR #89][pr89] | [PR #99][pr99] | [PR #113][pr113] | [PR #109][pr109] | [PR #118][pr118] |
+| **Composer** (`/api/start` emits `plan.<calc>.tier_a`) | [PR #91][pr91] | [PR #110][pr110] | [PR #114][pr114] | [PR #116][pr116] | [PR #119][pr119] |
+| **Email badge** (per-locale, EN/PL/DE) | [PR #92][pr92] | [PR #111][pr111] | [PR #115][pr115] | [PR #117][pr117] | [PR #120][pr120] |
+| **Wizard pill** (`role="status"` + aria-label + tooltip) | [PR #98][pr98] | [PR #112][pr112] | [PR #115][pr115] | [PR #117][pr117] | [PR #120][pr120] |
+
+**5 calculators × 4 layers = 20 surfaces, all shipped.**
+
+### Operational note: today's verdicts all return `eligible: false`
+
+By design — none of the five calculators currently satisfy TA-2
+(primary-regulator source). Each uses a `PRICING_SNAPSHOT` that is
+a **mirror only** (OrcaTrade-curated benchmark survey or partner-
+forwarder/bank rate table), so every Tier-A determination today
+returns `{ eligible: false, failedReason: 'non-primary-source-TA2' }`.
+
+This is the **correct, conservative posture pre-E&O-binding** — the
+wedge surface is fully built but no customer-facing Tier-A badge
+actually appears in production today. When the primary-regulator
+sources land for each calculator, the entire downstream chain
+(composer → email → pill) lights up automatically:
+
+| Calculator | Primary-regulator gate |
+|------------|------------------------|
+| customs-quote | EU TARIC live API (live-fetch already wired; needs snapshot freshness ≤30 days at quote time) |
+| sourcing-quote | International trade indices (UN Comtrade / WTO) — pending integration |
+| routing-quote | Carrier-published rate indices (SCFI, WCI, FBX) — pending integration |
+| finance-quote | ECB FX rate table (replacing partner-bank `PRICING_SNAPSHOT.annualForwardPremiumPercent`) — pending integration |
+| warehouse-quote | EU Eurostat warehousing producer-price indices, or direct hub-published rate cards via API — pending integration |
+
+Each gate lands as a separate, calculator-scoped PR. Until then,
+the wedge stays inert AND the forthcoming-guarantee wording stays
+in place across every surface.
+
+[pr87]: https://github.com/Osk7779/orcatrade/pull/87
+[pr89]: https://github.com/Osk7779/orcatrade/pull/89
+[pr91]: https://github.com/Osk7779/orcatrade/pull/91
+[pr92]: https://github.com/Osk7779/orcatrade/pull/92
+[pr98]: https://github.com/Osk7779/orcatrade/pull/98
+[pr99]: https://github.com/Osk7779/orcatrade/pull/99
+[pr109]: https://github.com/Osk7779/orcatrade/pull/109
+[pr110]: https://github.com/Osk7779/orcatrade/pull/110
+[pr111]: https://github.com/Osk7779/orcatrade/pull/111
+[pr112]: https://github.com/Osk7779/orcatrade/pull/112
+[pr113]: https://github.com/Osk7779/orcatrade/pull/113
+[pr114]: https://github.com/Osk7779/orcatrade/pull/114
+[pr115]: https://github.com/Osk7779/orcatrade/pull/115
+[pr116]: https://github.com/Osk7779/orcatrade/pull/116
+[pr117]: https://github.com/Osk7779/orcatrade/pull/117
+[pr118]: https://github.com/Osk7779/orcatrade/pull/118
+[pr119]: https://github.com/Osk7779/orcatrade/pull/119
+[pr120]: https://github.com/Osk7779/orcatrade/pull/120
