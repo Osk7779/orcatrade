@@ -17,12 +17,14 @@
 // preserves the other panel's data. The dashboard never breaks the
 // signed-in surface because the new endpoints are still landing.
 
-import { useEffect, useMemo, useState } from 'react';
+import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
+import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
   apiGet,
   apiPost,
   AuthError,
+  SHIPMENT_STATUSES,
   type Shipment,
   type ExceptionQueueItem,
   type ShipmentStatus,
@@ -65,7 +67,19 @@ function ageLabel(hours: number | null) {
 
 type LoadState = 'loading' | 'auth' | 'error' | 'ready';
 
+// Default export — wraps the view in Suspense so the useSearchParams
+// call inside ShipmentList (PR #125's status filter) doesn't break
+// static prerendering under Next.js 15. The fallback matches the
+// existing 'loading' state to avoid a UI flash during hydration.
 export default function ShipmentsPage() {
+  return (
+    <Suspense fallback={<p className="text-white/50 text-sm">Loading shipments…</p>}>
+      <ShipmentsView />
+    </Suspense>
+  );
+}
+
+function ShipmentsView() {
   const [state, setState] = useState<LoadState>('loading');
   const [shipments, setShipments] = useState<Shipment[]>([]);
   const [queue, setQueue] = useState<ExceptionQueueItem[]>([]);
@@ -228,7 +242,60 @@ function ExceptionRow({
   );
 }
 
+// Returns the raw search-param value when it's a valid
+// ShipmentStatus, else null (treated as "all statuses"). Anything
+// outside the closed taxonomy — typos, stale URLs from before a
+// status was renamed, attempts to confuse the filter — is silently
+// ignored rather than rendering an empty list.
+function readStatusFilter(raw: string | null): ShipmentStatus | null {
+  if (!raw) return null;
+  return (SHIPMENT_STATUSES as ReadonlyArray<string>).includes(raw)
+    ? (raw as ShipmentStatus)
+    : null;
+}
+
 function ShipmentList({ shipments }: { shipments: Shipment[] }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  // URL state lets operators share a triage view: "/shipments?status=exception"
+  // is a working link that lands the recipient on the same filter.
+  // Browser back/forward also works naturally.
+  const activeFilter = readStatusFilter(searchParams.get('status'));
+
+  const visibleShipments = useMemo(() => {
+    if (!activeFilter) return shipments;
+    return shipments.filter((s) => s.status === activeFilter);
+  }, [shipments, activeFilter]);
+
+  // Count per status for the dropdown labels — operators see at a
+  // glance how many are in each bucket without applying the filter.
+  // Computed off the FULL list (not visibleShipments) so the counts
+  // don't change as the user filters.
+  const countByStatus = useMemo(() => {
+    const map: Partial<Record<ShipmentStatus, number>> = {};
+    for (const s of shipments) {
+      map[s.status] = (map[s.status] || 0) + 1;
+    }
+    return map;
+  }, [shipments]);
+
+  function setFilter(next: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (!next) {
+      params.delete('status');
+    } else {
+      params.set('status', next);
+    }
+    const qs = params.toString();
+    // replace, not push — filter changes shouldn't pollute history.
+    router.replace(qs ? `${pathname}?${qs}` : pathname);
+  }
+
+  // Top-level empty state (org has no shipments at all). Distinct
+  // from the filtered empty state below — the call-to-action only
+  // makes sense pre-data.
   if (shipments.length === 0) {
     return (
       <section className="border border-[var(--color-navy-line)] p-6">
@@ -244,52 +311,87 @@ function ShipmentList({ shipments }: { shipments: Shipment[] }) {
 
   return (
     <section className="border border-[var(--color-navy-line)]">
-      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between gap-3 flex-wrap">
         <h2 className="font-serif text-xl">All shipments</h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
-          {shipments.length} total
-        </span>
-      </div>
-      <table className="w-full">
-        <thead>
-          <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
-            <th className="px-6 py-3 font-normal">Label</th>
-            <th className="px-2 py-3 font-normal">Status</th>
-            <th className="px-2 py-3 font-normal">Route</th>
-            <th className="px-2 py-3 font-normal text-right">Customs value</th>
-            <th className="px-6 py-3 font-normal">Updated</th>
-          </tr>
-        </thead>
-        <tbody>
-          {shipments.map((s) => (
-            <tr
-              key={s.externalId}
-              className="border-t border-[var(--color-navy-line)] hover:bg-[var(--color-navy-soft)]/30 transition-colors"
+        <div className="flex items-center gap-4">
+          <label className="flex items-center gap-2">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+              Filter
+            </span>
+            <select
+              value={activeFilter || ''}
+              onChange={(e) => setFilter(e.target.value)}
+              aria-label="Filter shipments by status"
+              className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-white focus:outline-none focus:border-white/55"
             >
-              <td className="px-6 py-4 font-serif text-[14px] text-white">
-                <Link href={`/shipments/${encodeURIComponent(s.externalId)}`} className="hover:underline">
-                  {s.label}
-                </Link>
-              </td>
-              <td className="px-2 py-4">
-                <span
-                  className="font-mono text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 border"
-                  style={{ borderColor: statusTone(s.status), color: statusTone(s.status) }}
-                >
-                  {statusLabel(s.status)}
-                </span>
-              </td>
-              <td className="px-2 py-4 font-mono text-[12px] text-white/70">{formatRoute(s)}</td>
-              <td className="px-2 py-4 font-mono text-[12px] text-white/70 text-right">
-                {eurFromCents(s.customsValueCents)}
-              </td>
-              <td className="px-6 py-4 font-mono text-[11px] text-white/50">
-                {s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('en-IE') : '—'}
-              </td>
+              <option value="">All statuses ({shipments.length})</option>
+              {SHIPMENT_STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {statusLabel(s)} ({countByStatus[s] || 0})
+                </option>
+              ))}
+            </select>
+          </label>
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+            {activeFilter
+              ? `${visibleShipments.length} of ${shipments.length}`
+              : `${shipments.length} total`}
+          </span>
+        </div>
+      </div>
+      {visibleShipments.length === 0 ? (
+        <p className="px-6 py-8 font-mono text-xs text-white/45">
+          No shipments with status &ldquo;{statusLabel(activeFilter as ShipmentStatus)}&rdquo;.{' '}
+          <button
+            type="button"
+            onClick={() => setFilter('')}
+            className="underline hover:text-white"
+          >
+            Clear filter
+          </button>
+        </p>
+      ) : (
+        <table className="w-full">
+          <thead>
+            <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+              <th className="px-6 py-3 font-normal">Label</th>
+              <th className="px-2 py-3 font-normal">Status</th>
+              <th className="px-2 py-3 font-normal">Route</th>
+              <th className="px-2 py-3 font-normal text-right">Customs value</th>
+              <th className="px-6 py-3 font-normal">Updated</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {visibleShipments.map((s) => (
+              <tr
+                key={s.externalId}
+                className="border-t border-[var(--color-navy-line)] hover:bg-[var(--color-navy-soft)]/30 transition-colors"
+              >
+                <td className="px-6 py-4 font-serif text-[14px] text-white">
+                  <Link href={`/shipments/${encodeURIComponent(s.externalId)}`} className="hover:underline">
+                    {s.label}
+                  </Link>
+                </td>
+                <td className="px-2 py-4">
+                  <span
+                    className="font-mono text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 border"
+                    style={{ borderColor: statusTone(s.status), color: statusTone(s.status) }}
+                  >
+                    {statusLabel(s.status)}
+                  </span>
+                </td>
+                <td className="px-2 py-4 font-mono text-[12px] text-white/70">{formatRoute(s)}</td>
+                <td className="px-2 py-4 font-mono text-[12px] text-white/70 text-right">
+                  {eurFromCents(s.customsValueCents)}
+                </td>
+                <td className="px-6 py-4 font-mono text-[11px] text-white/50">
+                  {s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('en-IE') : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
     </section>
   );
 }

@@ -312,6 +312,22 @@ export type ShipmentStatus =
   | 'exception'
   | 'cancelled';
 
+// Iterable closed taxonomy for the dashboard list filter dropdown.
+// Drift-guarded against the ShipmentStatus union AND against
+// SHIPMENT_VALID_TRANSITIONS' key set so all three stay in lockstep.
+// Order matches the state-machine progression so the filter dropdown
+// reads as a natural pipeline: planned → booked → in_transit →
+// cleared → delivered, then the off-path states (exception, cancelled).
+export const SHIPMENT_STATUSES: ReadonlyArray<ShipmentStatus> = Object.freeze([
+  'planned',
+  'booked',
+  'in_transit',
+  'cleared',
+  'delivered',
+  'exception',
+  'cancelled',
+]) as ReadonlyArray<ShipmentStatus>;
+
 export interface ShipmentDocument {
   docType?: string;
   name?: string;
