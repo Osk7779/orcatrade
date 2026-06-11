@@ -9,6 +9,22 @@ export class AuthError extends Error {
   }
 }
 
+// Thrown when the API rejects a mutation with a 4xx and the response
+// body carries a structured error bag. Used by the edit-mode forms
+// to surface server-side validation errors inline (e.g. "hsCode must
+// be 6-10 digits" coming back from goods.updateGoods). The handler
+// shape is { error: string, errors?: string[] }; we capture both.
+export class ApiError extends Error {
+  status: number;
+  errors: string[];
+  constructor(status: number, summary: string, errors: string[]) {
+    super(summary);
+    this.name = 'ApiError';
+    this.status = status;
+    this.errors = errors;
+  }
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(`/api${path}`, {
     credentials: 'same-origin',
@@ -38,6 +54,33 @@ export async function apiDelete<T>(path: string): Promise<T> {
     headers: { Accept: 'application/json' },
   });
   if (res.status === 401) throw new AuthError();
+  if (!res.ok) throw new Error(`API ${path} failed: HTTP ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
+// PATCH wrapper used by the inline edit-mode forms. Unlike apiPost,
+// we surface 4xx response bodies as ApiError so the caller can render
+// the per-field validation errors the handler returned (e.g. goods
+// updateGoods's "hsCode must be 6-10 digits"). Non-4xx failures still
+// throw a generic Error so callers don't have to special-case them.
+export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`/api${path}`, {
+    method: 'PATCH',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (res.status === 401) throw new AuthError();
+  if (res.status >= 400 && res.status < 500) {
+    // 4xx: try to read the structured body. The handler returns
+    // { error, errors? } for validation; some endpoints just return
+    // { error }. We always surface BOTH.
+    let bag: { error?: string; errors?: string[] } = {};
+    try { bag = await res.json(); } catch (_) { /* body wasn't JSON */ }
+    const summary = bag.error || `API ${path} failed: HTTP ${res.status}`;
+    const errors = Array.isArray(bag.errors) ? bag.errors.map(String) : (bag.error ? [bag.error] : []);
+    throw new ApiError(res.status, summary, errors);
+  }
   if (!res.ok) throw new Error(`API ${path} failed: HTTP ${res.status}`);
   return res.json() as Promise<T>;
 }
