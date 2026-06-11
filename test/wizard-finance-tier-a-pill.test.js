@@ -18,12 +18,14 @@ test('finance pill is guarded by financeTierA?.eligible === true', () => {
   assert.match(SRC, /financeTierA\?\.eligible === true && \(/);
 });
 
-test('outer wrapper now renders when ANY of the five signals is present', () => {
-  // customs eligible OR sourcing eligible OR routing eligible OR
-  // finance eligible OR inheritance matched.
+test('outer wrapper renders when ANY of the eligible signals is present', () => {
+  // customs OR sourcing OR routing OR finance OR (later: warehouse)
+  // OR inheritance. Match the customs+sourcing+routing+finance
+  // portion; later PRs may extend the OR-chain (PR #120 added
+  // warehouse) without invalidating this regression guard.
   assert.match(
     SRC,
-    /\(tierA\?\.eligible === true \|\| sourcingTierA\?\.eligible === true \|\| routingTierA\?\.eligible === true \|\| financeTierA\?\.eligible === true \|\| inheritance\)/,
+    /\(tierA\?\.eligible === true \|\| sourcingTierA\?\.eligible === true \|\| routingTierA\?\.eligible === true \|\| financeTierA\?\.eligible === true \|\|[^)]*inheritance\)/,
   );
 });
 
