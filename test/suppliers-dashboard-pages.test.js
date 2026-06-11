@@ -87,9 +87,13 @@ test('sanctions panel always renders (status is load-bearing for ops)', () => {
   // Unlike REACH SVHC or audit certs, sanctions is foundational. The
   // panel must render even when status is null ('not screened') so
   // ops sees the gap.
-  assert.match(DETAIL_SRC, /<SanctionsPanel supplier=\{supplier\} \/>/);
+  //
+  // PR #124 added onRescreened — the panel can now mutate sanctions
+  // state via the re-screen action. Match the panel render but
+  // tolerate the additional prop.
+  assert.match(DETAIL_SRC, /<SanctionsPanel\s+supplier=\{supplier\}/);
   // And the panel is NOT wrapped in a conditional render — confirm
-  // there's no `&& <SanctionsPanel />` pattern.
+  // there's no `&& <SanctionsPanel` pattern.
   assert.doesNotMatch(DETAIL_SRC, /&& <SanctionsPanel/);
 });
 

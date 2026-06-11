@@ -43,6 +43,18 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   });
   if (res.status === 401) throw new AuthError();
+  // 4xx: read the structured body and surface as ApiError — same
+  // contract as apiPatch (PR #122). Callers that need only a binary
+  // ok/error don't need to catch ApiError specifically (the message
+  // is still useful), but flows that render per-field errors (e.g.
+  // supplier re-screen, future POST forms) get them via err.errors.
+  if (res.status >= 400 && res.status < 500) {
+    let bag: { error?: string; errors?: string[] } = {};
+    try { bag = await res.json(); } catch (_) { /* body wasn't JSON */ }
+    const summary = bag.error || `API ${path} failed: HTTP ${res.status}`;
+    const errors = Array.isArray(bag.errors) ? bag.errors.map(String) : (bag.error ? [bag.error] : []);
+    throw new ApiError(res.status, summary, errors);
+  }
   if (!res.ok) throw new Error(`API ${path} failed: HTTP ${res.status}`);
   return res.json() as Promise<T>;
 }
@@ -399,6 +411,7 @@ export interface GoodsTimelineEvent {
 export type SupplierTimelineEventType =
   | 'supplier_master_created'
   | 'supplier_master_updated'
+  | 'supplier_master_rescreened'
   | 'supplier_master_archived';
 
 export interface SupplierTimelineEvent {

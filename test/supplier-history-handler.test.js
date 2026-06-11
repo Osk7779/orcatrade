@@ -67,6 +67,11 @@ test('handler imports events module for listForEntity-backed history reads', () 
 // ── Drift-guard: timeline event types are explicitly enumerated ──────
 
 test('SUPPLIER_TIMELINE_EVENT_TYPES enumerates exactly the customer-visible supplier events', () => {
+  // PR #124 added 'supplier_master_rescreened' for the re-screen
+  // flow. The closed taxonomy now has 4 types — adding any new
+  // supplier_master_* event in a future PR must update this list
+  // explicitly so internal/system events never leak into a
+  // customer's timeline.
   const src = fs.readFileSync(path.join(ROOT, 'lib', 'handlers', 'suppliers.js'), 'utf8');
   const block = src.match(/SUPPLIER_TIMELINE_EVENT_TYPES = new Set\(\[([\s\S]*?)\]\)/);
   assert.ok(block, 'SUPPLIER_TIMELINE_EVENT_TYPES set not located');
@@ -74,6 +79,7 @@ test('SUPPLIER_TIMELINE_EVENT_TYPES enumerates exactly the customer-visible supp
   assert.deepEqual(types, [
     'supplier_master_archived',
     'supplier_master_created',
+    'supplier_master_rescreened',
     'supplier_master_updated',
   ]);
 });

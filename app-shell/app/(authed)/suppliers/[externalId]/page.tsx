@@ -13,6 +13,7 @@ import Link from 'next/link';
 import {
   apiGet,
   apiPatch,
+  apiPost,
   AuthError,
   ApiError,
   SUPPLIER_LEGAL_FORMS,
@@ -132,7 +133,10 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
       ) : (
         <FactsGrid supplier={supplier} />
       )}
-      <SanctionsPanel supplier={supplier} />
+      <SanctionsPanel
+        supplier={supplier}
+        onRescreened={(updated) => setSupplier(updated)}
+      />
       {supplier.auditCerts && supplier.auditCerts.length > 0 && (
         <AuditCertsPanel supplier={supplier} />
       )}
@@ -507,27 +511,82 @@ function FactsGrid({ supplier }: { supplier: Supplier }) {
   );
 }
 
-function SanctionsPanel({ supplier }: { supplier: Supplier }) {
+function SanctionsPanel({
+  supplier,
+  onRescreened,
+}: {
+  supplier: Supplier;
+  onRescreened: (updated: Supplier) => void;
+}) {
   const status = supplier.sanctionsLastStatus;
   const flagged = status === 'match' || status === 'potential_match';
+  const archived = Boolean(supplier.archivedAt);
+
+  // Self-contained re-screen state. Lifting this to the page would
+  // be possible but would couple unrelated UI sections (the edit
+  // form, the timeline, etc.) to screening operations. Keeping it
+  // local makes the SanctionsPanel a self-contained operator
+  // affordance.
+  const [rescreening, setRescreening] = useState(false);
+  const [rescreenError, setRescreenError] = useState<string>('');
+
+  async function runRescreen() {
+    if (rescreening) return;
+    setRescreening(true);
+    setRescreenError('');
+    try {
+      // POST with empty body — the supplier's identity is the URL;
+      // the server reads entityName from the persisted row, not the
+      // request. (Letting the client send a name would create a
+      // forge-the-screen-target vulnerability.)
+      const d = await apiPost<{ ok: boolean; supplier: Supplier }>(
+        `/suppliers/${encodeURIComponent(supplier.externalId)}/screen`,
+        {},
+      );
+      onRescreened(d.supplier);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setRescreenError(err.errors[0] || err.message);
+      } else if (err instanceof AuthError) {
+        setRescreenError('Sign in required to re-screen.');
+      } else {
+        setRescreenError(err instanceof Error ? err.message : 'Could not re-screen.');
+      }
+    } finally {
+      setRescreening(false);
+    }
+  }
+
   return (
     <section
       className="mb-10 border"
       style={{ borderColor: flagged ? 'var(--color-critical)' : 'var(--color-navy-line)' }}
     >
-      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between gap-3">
         <h2
           className="font-serif text-xl"
           style={{ color: flagged ? 'var(--color-critical)' : 'var(--color-ivory)' }}
         >
           Sanctions screening
         </h2>
-        <span
-          className="font-mono text-[11px] uppercase tracking-[0.12em]"
-          style={{ color: sanctionsTone(status) }}
-        >
-          {sanctionsLabel(status)}
-        </span>
+        <div className="flex items-center gap-3">
+          <span
+            className="font-mono text-[11px] uppercase tracking-[0.12em]"
+            style={{ color: sanctionsTone(status) }}
+          >
+            {sanctionsLabel(status)}
+          </span>
+          {!archived && (
+            <button
+              type="button"
+              onClick={runRescreen}
+              disabled={rescreening}
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+            >
+              {rescreening ? 'Re-screening…' : 'Re-screen'}
+            </button>
+          )}
+        </div>
       </div>
       <div className="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-y-3 gap-x-6">
         <Field label="Last screened" value={fmtDateTime(supplier.sanctionsLastScreenedAt)} />
@@ -540,6 +599,15 @@ function SanctionsPanel({ supplier }: { supplier: Supplier }) {
               {JSON.stringify(supplier.sanctionsLastMatchSummary, null, 2)}
             </pre>
           </details>
+        )}
+        {rescreenError && (
+          <p
+            role="alert"
+            className="md:col-span-2 font-mono text-[12px]"
+            style={{ color: 'var(--color-critical)' }}
+          >
+            {rescreenError}
+          </p>
         )}
       </div>
     </section>

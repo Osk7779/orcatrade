@@ -108,6 +108,15 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
           return 'Supplier record created';
         case 'supplier_master_updated':
           return 'Supplier record updated';
+        case 'supplier_master_rescreened': {
+          // The data layer writes a tight diff: only the three
+          // sanctions fields. Show the new sanctions status in the
+          // headline so the timeline reads at a glance ("Re-screened
+          // → clear" vs "Re-screened → potential match").
+          const to = (e.after as { sanctionsLastStatus?: string } | undefined)?.sanctionsLastStatus;
+          if (to) return `Re-screened → ${to.replace(/_/g, ' ')}`;
+          return 'Sanctions re-screened';
+        }
         case 'supplier_master_archived':
           return 'Supplier record archived';
         default:
@@ -116,6 +125,10 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
     },
     tone: (t) => {
       if (t === 'supplier_master_archived') return 'var(--color-ivory-mute)';
+      // Re-screen tone: deliberately ambiguous (warning amber) —
+      // the operator should READ the headline ("Re-screened →
+      // potential match" vs "→ clear") rather than tone-glance.
+      if (t === 'supplier_master_rescreened') return 'var(--color-warning)';
       if (t === 'supplier_master_updated') return 'var(--color-positive)';
       return 'var(--color-ivory)';
     },
