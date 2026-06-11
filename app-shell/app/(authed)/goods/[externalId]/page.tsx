@@ -12,6 +12,7 @@ import {
   AuthError,
   ApiError,
   type Goods,
+  type ReachSvhcFlag,
 } from '@/lib/api';
 import { RelatedShipments } from '@/components/RelatedShipments';
 import { TransitionHistory } from '@/components/TransitionHistory';
@@ -93,9 +94,15 @@ export default function GoodsDetailPage({ params }: { params: Promise<{ external
       ) : (
         <FactsGrid goods={goods} />
       )}
-      {goods.reachSvhcFlags && goods.reachSvhcFlags.length > 0 && (
-        <ReachSvhcPanel goods={goods} />
-      )}
+      {/* PR #129: Panel always renders so operators can ADD an SVHC
+          entry to a goods record that doesn't yet have any. The
+          presence-of-data check moved INSIDE the panel (read mode
+          says "No SVHCs declared yet"; edit mode lets the operator
+          add the first row). */}
+      <ReachSvhcPanel
+        goods={goods}
+        onSaved={(updated) => setGoods(updated)}
+      />
       {goods.restrictedSubstances && Object.keys(goods.restrictedSubstances).length > 0 && (
         <RestrictedSubstancesPanel goods={goods} />
       )}
@@ -414,30 +421,434 @@ function FactsGrid({ goods }: { goods: Goods }) {
   );
 }
 
-function ReachSvhcPanel({ goods }: { goods: Goods }) {
-  const flags = goods.reachSvhcFlags || [];
+// ReachSvhcPanel — read view of declared REACH SVHCs + per-row
+// editor (PR #129). The panel toggles between read mode (compact
+// list + "Edit" button) and edit mode (per-row inputs + add/remove +
+// Save/Cancel).
+//
+// Why a dedicated SVHC editor (not part of EditForm): EditForm (PR
+// #122) handles scalar identifying fields; SVHC editing is an
+// array operation with per-row inputs that don't fit a flat form.
+// Keeping it inside the panel lets operators add an SVHC without
+// touching display name / HS code / etc.
+//
+// Validation mirrors lib/db/goods.js validateForUpdate's
+// reachSvhcFlags shape: must be an array (already enforced at the
+// type boundary). Per-row constraints layered on top here:
+//   - Each row must have at least one of (name, cas) — a completely
+//     empty row is dropped at save (treated as cancellation of that
+//     row, not an error)
+//   - threshold_pct, if present, must be a finite number in 0-100
+//
+// Server-side validation re-runs on PATCH; any errors come back as
+// ApiError.errors and render inline.
+function ReachSvhcPanel({
+  goods,
+  onSaved,
+}: {
+  goods: Goods;
+  onSaved: (updated: Goods) => void;
+}) {
+  const persistedFlags = goods.reachSvhcFlags || [];
+  const archived = Boolean(goods.archivedAt);
+  const [editing, setEditing] = useState(false);
+
+  if (!editing) {
+    return (
+      <ReadModePanel
+        flags={persistedFlags}
+        archived={archived}
+        onEditClick={() => setEditing(true)}
+      />
+    );
+  }
+
   return (
-    <section className="mb-10 border" style={{ borderColor: 'var(--color-warning)' }}>
+    <SvhcEditorPanel
+      goods={goods}
+      initialFlags={persistedFlags}
+      onCancel={() => setEditing(false)}
+      onSaved={(updated) => {
+        onSaved(updated);
+        setEditing(false);
+      }}
+    />
+  );
+}
+
+function ReadModePanel({
+  flags,
+  archived,
+  onEditClick,
+}: {
+  flags: ReachSvhcFlag[];
+  archived: boolean;
+  onEditClick: () => void;
+}) {
+  const hasFlags = flags.length > 0;
+  // Border tone: warning when there are declared SVHCs (operator
+  // attention signal); muted neutral when empty (no risk to
+  // highlight).
+  const borderColor = hasFlags ? 'var(--color-warning)' : 'var(--color-navy-line)';
+  return (
+    <section className="mb-10 border" style={{ borderColor }}>
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between gap-3">
+        <h2
+          className="font-serif text-xl"
+          style={{ color: hasFlags ? 'var(--color-warning)' : 'var(--color-ivory)' }}
+        >
+          REACH SVHC flags
+        </h2>
+        <div className="flex items-center gap-3">
+          {hasFlags && (
+            <span
+              className="font-mono text-[11px] uppercase tracking-[0.12em]"
+              style={{ color: 'var(--color-warning)' }}
+            >
+              {flags.length} declared
+            </span>
+          )}
+          {!archived && (
+            <button
+              type="button"
+              onClick={onEditClick}
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+      </div>
+      {hasFlags ? (
+        <ul>
+          {flags.map((f, i) => (
+            <li
+              key={f.cas || `flag-${i}`}
+              className="px-6 py-3 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6"
+            >
+              <div>
+                <div className="font-serif text-[14px] text-white">
+                  {f.name || f.cas || 'Unnamed SVHC'}
+                </div>
+                <div className="font-mono text-[11px] text-white/55 mt-1">
+                  {f.cas ? `CAS ${f.cas}` : ''}
+                  {f.threshold_pct != null ? ` · threshold ${f.threshold_pct}%` : ''}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="px-6 py-5 font-mono text-xs text-white/45">
+          No SVHCs declared yet. {!archived && 'Click Edit to add the first entry.'}
+        </p>
+      )}
+    </section>
+  );
+}
+
+// Local working type — looser than ReachSvhcFlag so the editor can
+// hold string-typed inputs for threshold_pct (parsed at save time).
+// Carries a stable rowKey so React reconciliation survives reorders
+// and add/remove operations without losing focus or remounting
+// existing rows.
+type SvhcDraft = {
+  rowKey: string;
+  name: string;
+  cas: string;
+  thresholdPctRaw: string;
+};
+
+let rowKeyCounter = 0;
+function nextRowKey(): string {
+  rowKeyCounter += 1;
+  return `svhc-${rowKeyCounter}`;
+}
+
+function flagToDraft(f: ReachSvhcFlag): SvhcDraft {
+  return {
+    rowKey: nextRowKey(),
+    name: typeof f.name === 'string' ? f.name : '',
+    cas: typeof f.cas === 'string' ? f.cas : '',
+    thresholdPctRaw:
+      typeof f.threshold_pct === 'number' && Number.isFinite(f.threshold_pct)
+        ? String(f.threshold_pct)
+        : '',
+  };
+}
+
+function draftToFlag(d: SvhcDraft): ReachSvhcFlag | null {
+  // Drop completely-empty rows. Treats "operator added a blank row
+  // and then cancelled out of it" as a no-op rather than a validation
+  // error.
+  const name = d.name.trim();
+  const cas = d.cas.trim();
+  const thrRaw = d.thresholdPctRaw.trim();
+  if (!name && !cas && !thrRaw) return null;
+  const out: ReachSvhcFlag = {};
+  if (name) out.name = name;
+  if (cas) out.cas = cas;
+  if (thrRaw !== '') {
+    const n = Number(thrRaw);
+    if (Number.isFinite(n)) out.threshold_pct = n;
+  }
+  return out;
+}
+
+// Shallow-equality check that ignores row order — two arrays of
+// SVHCs are "equal" if every flag in one has a matching flag in the
+// other on (name, cas, threshold_pct). Used by the no-op short-
+// circuit so a re-order followed by an undo doesn't emit a no-op
+// PATCH.
+function flagsEqual(a: ReachSvhcFlag[], b: ReachSvhcFlag[]): boolean {
+  if (a.length !== b.length) return false;
+  const norm = (f: ReachSvhcFlag) =>
+    `${f.name ?? ''}|${f.cas ?? ''}|${f.threshold_pct ?? ''}`;
+  const aSet = a.map(norm).sort();
+  const bSet = b.map(norm).sort();
+  return aSet.every((v, i) => v === bSet[i]);
+}
+
+function SvhcEditorPanel({
+  goods,
+  initialFlags,
+  onCancel,
+  onSaved,
+}: {
+  goods: Goods;
+  initialFlags: ReachSvhcFlag[];
+  onCancel: () => void;
+  onSaved: (updated: Goods) => void;
+}) {
+  const [drafts, setDrafts] = useState<SvhcDraft[]>(() =>
+    initialFlags.length > 0
+      ? initialFlags.map(flagToDraft)
+      : [{ rowKey: nextRowKey(), name: '', cas: '', thresholdPctRaw: '' }],
+  );
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function updateRow(rowKey: string, patch: Partial<SvhcDraft>) {
+    setDrafts((prev) =>
+      prev.map((d) => (d.rowKey === rowKey ? { ...d, ...patch } : d)),
+    );
+  }
+
+  function removeRow(rowKey: string) {
+    setDrafts((prev) => prev.filter((d) => d.rowKey !== rowKey));
+  }
+
+  function addRow() {
+    setDrafts((prev) => [
+      ...prev,
+      { rowKey: nextRowKey(), name: '', cas: '', thresholdPctRaw: '' },
+    ]);
+  }
+
+  function clientSideErrors(materialised: ReachSvhcFlag[]): string[] {
+    const out: string[] = [];
+    materialised.forEach((f, i) => {
+      const rowNumber = i + 1;
+      // A materialised row (non-empty after draftToFlag) must carry
+      // at least name OR cas — anonymous threshold-only rows are
+      // not auditable.
+      if (!f.name && !f.cas) {
+        out.push(`Row ${rowNumber}: must have a name or a CAS number`);
+      }
+      if (f.threshold_pct != null) {
+        if (!Number.isFinite(f.threshold_pct) || f.threshold_pct < 0 || f.threshold_pct > 100) {
+          out.push(`Row ${rowNumber}: threshold % must be between 0 and 100`);
+        }
+      }
+    });
+    return out;
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors([]);
+
+    // Materialise drafts → flags (drops empty rows).
+    const materialised = drafts
+      .map(draftToFlag)
+      .filter((f): f is ReachSvhcFlag => f !== null);
+
+    const localErrors = clientSideErrors(materialised);
+    if (localErrors.length) {
+      setErrors(localErrors);
+      setSaving(false);
+      return;
+    }
+
+    // No-op short-circuit: if the materialised array matches the
+    // persisted one (ignoring order), exit without firing a PATCH.
+    if (flagsEqual(materialised, initialFlags)) {
+      setSaving(false);
+      onCancel();
+      return;
+    }
+
+    try {
+      const d = await apiPatch<{ ok: boolean; goods: Goods; unchanged: boolean }>(
+        `/goods/${encodeURIComponent(goods.externalId)}`,
+        { reachSvhcFlags: materialised },
+      );
+      onSaved(d.goods);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.errors.length ? err.errors : [err.message]);
+      } else if (err instanceof AuthError) {
+        setErrors(['Sign in required to save SVHC changes.']);
+      } else {
+        setErrors([err instanceof Error ? err.message : 'Could not save SVHC changes.']);
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-10 border bg-[var(--color-ink)]"
+      style={{ borderColor: 'var(--color-warning)' }}
+    >
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
-        <h2 className="font-serif text-xl" style={{ color: 'var(--color-warning)' }}>REACH SVHC flags</h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em]" style={{ color: 'var(--color-warning)' }}>
-          {flags.length} declared
+        <h2 className="font-serif text-xl" style={{ color: 'var(--color-warning)' }}>
+          Edit REACH SVHC flags
+        </h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          {drafts.length} {drafts.length === 1 ? 'row' : 'rows'}
         </span>
       </div>
-      <ul>
-        {flags.map((f, i) => (
-          <li key={f.cas || `flag-${i}`} className="px-6 py-3 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6">
-            <div>
-              <div className="font-serif text-[14px] text-white">{f.name || f.cas || 'Unnamed SVHC'}</div>
-              <div className="font-mono text-[11px] text-white/55 mt-1">
-                {f.cas ? `CAS ${f.cas}` : ''}
-                {f.threshold_pct != null ? ` · threshold ${f.threshold_pct}%` : ''}
-              </div>
-            </div>
-          </li>
+
+      <div className="px-6 py-5 space-y-4">
+        {drafts.map((d, i) => (
+          <SvhcEditRow
+            key={d.rowKey}
+            index={i}
+            draft={d}
+            disabled={saving}
+            onChange={(patch) => updateRow(d.rowKey, patch)}
+            onRemove={() => removeRow(d.rowKey)}
+          />
         ))}
-      </ul>
-    </section>
+        <button
+          type="button"
+          onClick={addRow}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+        >
+          + Add SVHC
+        </button>
+      </div>
+
+      {errors.length > 0 && (
+        <ul
+          className="border-t border-[var(--color-navy-line)] px-6 py-4 space-y-1"
+          role="alert"
+        >
+          {errors.map((e, i) => (
+            <li
+              key={i}
+              className="font-mono text-[12px]"
+              style={{ color: 'var(--color-critical)' }}
+            >
+              {e}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="border-t border-[var(--color-navy-line)] px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save SVHC list'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function SvhcEditRow({
+  index,
+  draft,
+  disabled,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  draft: SvhcDraft;
+  disabled: boolean;
+  onChange: (patch: Partial<SvhcDraft>) => void;
+  onRemove: () => void;
+}) {
+  const rowNumber = index + 1;
+  return (
+    <div className="grid gap-3 md:grid-cols-[1fr_180px_120px_auto] items-start border border-[var(--color-navy-line)] px-3 py-3">
+      <label className="block">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          Name <span className="text-white/35">(row {rowNumber})</span>
+        </span>
+        <input
+          type="text"
+          value={draft.name}
+          onChange={(e) => onChange({ name: e.target.value })}
+          disabled={disabled}
+          maxLength={200}
+          placeholder="e.g. Bisphenol A"
+          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <label className="block">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          CAS number
+        </span>
+        <input
+          type="text"
+          value={draft.cas}
+          onChange={(e) => onChange({ cas: e.target.value })}
+          disabled={disabled}
+          maxLength={32}
+          placeholder="80-05-7"
+          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <label className="block">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          Threshold %
+        </span>
+        <input
+          type="text"
+          value={draft.thresholdPctRaw}
+          onChange={(e) => onChange({ thresholdPctRaw: e.target.value })}
+          disabled={disabled}
+          inputMode="decimal"
+          placeholder="0.1"
+          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <button
+        type="button"
+        onClick={onRemove}
+        disabled={disabled}
+        aria-label={`Remove SVHC row ${rowNumber}`}
+        className="self-end font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+      >
+        ×
+      </button>
+    </div>
   );
 }
 

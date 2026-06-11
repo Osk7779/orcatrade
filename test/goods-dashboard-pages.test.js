@@ -79,12 +79,19 @@ test('detail page maps 404 to a friendly notFound state', () => {
 
 // ── REACH SVHC + restricted substances render guards ──────────────────
 
-test('REACH SVHC panel renders only when reachSvhcFlags has at least one entry', () => {
-  // Catching the regression where an empty array shows an empty
-  // "0 declared" panel.
-  assert.match(
+test('REACH SVHC panel renders unconditionally so empty goods can add the first entry', () => {
+  // PR #129 reversed the previous behaviour: the panel now ALWAYS
+  // renders. Read mode shows "No SVHCs declared yet" with an Edit
+  // button when empty; edit mode lets the operator add the first
+  // entry. The presence-of-data check moved inside the panel.
+  //
+  // Drift guard against accidentally restoring the
+  // `length > 0 && <ReachSvhcPanel />` conditional, which would
+  // make adding SVHCs impossible from the UI.
+  assert.match(DETAIL_SRC, /<ReachSvhcPanel\s+goods=\{goods\}/);
+  assert.doesNotMatch(
     DETAIL_SRC,
-    /goods\.reachSvhcFlags && goods\.reachSvhcFlags\.length > 0/,
+    /goods\.reachSvhcFlags && goods\.reachSvhcFlags\.length > 0 && \(\s*<ReachSvhcPanel/,
   );
 });
 
@@ -98,10 +105,18 @@ test('restricted-substances panel renders only when the object has at least one 
 test('REACH SVHC panel uses the warning brand colour (not a critical red)', () => {
   // REACH SVHC flags are an advisory disclosure, not a stop-ship
   // condition. Critical-red would over-signal.
-  const panelMatch = DETAIL_SRC.match(/function ReachSvhcPanel[\s\S]*?^\}/m);
-  assert.ok(panelMatch);
-  assert.match(panelMatch[0], /var\(--color-warning\)/);
-  assert.doesNotMatch(panelMatch[0], /var\(--color-critical\)/);
+  //
+  // PR #129 split ReachSvhcPanel into a toggle + ReadModePanel +
+  // SvhcEditorPanel. The warning colour lives in both sub-
+  // components — pin it in ReadModePanel where the original
+  // signal-colour invariant lived. The editor IS allowed to use
+  // critical-red (for ApiError surfacing); the read-mode panel
+  // is not.
+  const readPanel = DETAIL_SRC.match(/function ReadModePanel\([\s\S]*?(?=\nfunction )/);
+  assert.ok(readPanel, 'ReadModePanel not located');
+  const block = readPanel[0];
+  assert.match(block, /var\(--color-warning\)/);
+  assert.doesNotMatch(block, /var\(--color-critical\)/);
 });
 
 test('restricted-substances panel uses a <details> element (collapsible, no JS state)', () => {
