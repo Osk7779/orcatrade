@@ -1,16 +1,26 @@
 'use client';
 
-// TransitionHistory — per-shipment audit timeline. Renders the events
-// captured by lib/db/shipments.js (created → updated → state-transitions
-// → exception → acknowledged → archived) in chronological order.
+// TransitionHistory — per-entity audit timeline. Renders the events
+// captured by lib/db/<entity>.js (created → updated → status
+// transitions → exception/archive) in chronological order, polymorphic
+// on `entityKind`.
 //
 // The data layer guarantees one event per mutation (ADR 0005:
 // audit-log writes precede the success response). Surfacing those
 // events here turns silent compliance into customer-visible
 // provenance — every state change is attributable and time-stamped.
 //
+// Polymorphism: entityKind = 'shipment' | 'goods' | 'supplier'. The
+// component looks up the right URL prefix, headline copy, and tone
+// per entity kind via the LOOKUP_BY_KIND table. New entity kinds add
+// one entry to that table + extend the AuditTimelineEvent union in
+// lib/api.ts — no per-page wiring beyond passing the new entityKind
+// prop.
+//
 // Reads:
-//   GET /api/shipments/<externalId>/history → ShipmentTimelineEvent[]
+//   shipment  → GET /api/shipments/<externalId>/history
+//   goods     → GET /api/goods/<externalId>/history
+//   supplier  → GET /api/suppliers/<externalId>/history
 //
 // Best-effort: a fetch failure shows a friendly inline error rather
 // than breaking the surrounding detail page.
@@ -19,54 +29,120 @@ import { useEffect, useState } from 'react';
 import {
   apiGet,
   AuthError,
-  type ShipmentTimelineEvent,
-  type ShipmentTimelineEventType,
+  type AuditTimelineEvent,
+  type AuditTimelineEventType,
 } from '@/lib/api';
+
+export type EntityKind = 'shipment' | 'goods' | 'supplier';
 
 function fmtDateTime(d: string) {
   try { return new Date(d).toLocaleString('en-IE'); } catch { return d; }
 }
 
-function eventHeadline(e: ShipmentTimelineEvent): string {
-  switch (e.type) {
-    case 'shipment_master_created':
-      return 'Shipment created · status planned';
-    case 'shipment_master_status_transition': {
-      const from = (e.before as { status?: string } | undefined)?.status;
-      const to = (e.after as { status?: string } | undefined)?.status;
-      if (from && to) return `Status ${from} → ${to}`;
-      if (to) return `Status → ${to}`;
-      return 'Status transition';
-    }
-    case 'shipment_master_exception_acknowledged':
-      return 'Exception acknowledged';
-    case 'shipment_master_updated':
-      return 'Shipment updated';
-    case 'shipment_master_archived':
-      return 'Shipment archived';
-    default:
-      return String(e.type);
-  }
-}
-
-function eventTone(t: ShipmentTimelineEventType): string {
-  if (t === 'shipment_master_exception_acknowledged') return 'var(--color-warning)';
-  if (t === 'shipment_master_archived') return 'var(--color-ivory-mute)';
-  if (t === 'shipment_master_status_transition') return 'var(--color-positive)';
-  return 'var(--color-ivory)';
-}
+// Per-entity-kind config: pluralised URL segment + headline + tone
+// lookups. Each entity's audit-event types live in a closed taxonomy,
+// so the unmatched-default ("Status transition" / String(e.type)) only
+// fires if the server starts emitting a type the UI doesn't know
+// about yet — at which point the wrapper still renders something
+// meaningful instead of blowing up.
+const LOOKUP_BY_KIND: Record<EntityKind, {
+  urlPath: string;
+  headline: (e: AuditTimelineEvent) => string;
+  tone: (t: AuditTimelineEventType) => string;
+}> = {
+  shipment: {
+    urlPath: 'shipments',
+    headline: (e) => {
+      switch (e.type) {
+        case 'shipment_master_created':
+          return 'Shipment created · status planned';
+        case 'shipment_master_status_transition': {
+          const from = (e.before as { status?: string } | undefined)?.status;
+          const to = (e.after as { status?: string } | undefined)?.status;
+          if (from && to) return `Status ${from} → ${to}`;
+          if (to) return `Status → ${to}`;
+          return 'Status transition';
+        }
+        case 'shipment_master_exception_acknowledged':
+          return 'Exception acknowledged';
+        case 'shipment_master_updated':
+          return 'Shipment updated';
+        case 'shipment_master_archived':
+          return 'Shipment archived';
+        default:
+          return String(e.type);
+      }
+    },
+    tone: (t) => {
+      if (t === 'shipment_master_exception_acknowledged') return 'var(--color-warning)';
+      if (t === 'shipment_master_archived') return 'var(--color-ivory-mute)';
+      if (t === 'shipment_master_status_transition') return 'var(--color-positive)';
+      return 'var(--color-ivory)';
+    },
+  },
+  goods: {
+    urlPath: 'goods',
+    headline: (e) => {
+      switch (e.type) {
+        case 'goods_master_created':
+          return 'Goods record created';
+        case 'goods_master_updated':
+          return 'Goods record updated';
+        case 'goods_master_archived':
+          return 'Goods record archived';
+        default:
+          return String(e.type);
+      }
+    },
+    tone: (t) => {
+      if (t === 'goods_master_archived') return 'var(--color-ivory-mute)';
+      if (t === 'goods_master_updated') return 'var(--color-positive)';
+      return 'var(--color-ivory)';
+    },
+  },
+  supplier: {
+    urlPath: 'suppliers',
+    headline: (e) => {
+      switch (e.type) {
+        case 'supplier_master_created':
+          return 'Supplier record created';
+        case 'supplier_master_updated':
+          return 'Supplier record updated';
+        case 'supplier_master_archived':
+          return 'Supplier record archived';
+        default:
+          return String(e.type);
+      }
+    },
+    tone: (t) => {
+      if (t === 'supplier_master_archived') return 'var(--color-ivory-mute)';
+      if (t === 'supplier_master_updated') return 'var(--color-positive)';
+      return 'var(--color-ivory)';
+    },
+  },
+};
 
 type LoadState = 'loading' | 'auth' | 'error' | 'empty' | 'ready';
 
-export function TransitionHistory({ externalId }: { externalId: string }) {
+export function TransitionHistory({
+  externalId,
+  entityKind = 'shipment',
+}: {
+  externalId: string;
+  // Defaults to 'shipment' to preserve the original PR #108 call site
+  // (shipments [externalId]/page.tsx passes no entityKind prop).
+  entityKind?: EntityKind;
+}) {
   const [state, setState] = useState<LoadState>('loading');
-  const [list, setList] = useState<ShipmentTimelineEvent[]>([]);
+  const [list, setList] = useState<AuditTimelineEvent[]>([]);
   const [errorMsg, setErrorMsg] = useState<string>('');
+
+  const cfg = LOOKUP_BY_KIND[entityKind];
 
   useEffect(() => {
     let cancelled = false;
-    apiGet<{ ok: boolean; events: ShipmentTimelineEvent[] }>(
-      `/shipments/${encodeURIComponent(externalId)}/history`,
+    apiGet<{ ok: boolean; events: AuditTimelineEvent[] }>(
+      `/${cfg.urlPath}/${encodeURIComponent(externalId)}/history`,
     )
       .then((d) => {
         if (cancelled) return;
@@ -81,7 +157,7 @@ export function TransitionHistory({ externalId }: { externalId: string }) {
         setState('error');
       });
     return () => { cancelled = true; };
-  }, [externalId]);
+  }, [externalId, cfg.urlPath]);
 
   return (
     <section className="mb-10 border border-[var(--color-navy-line)]">
@@ -110,7 +186,12 @@ export function TransitionHistory({ externalId }: { externalId: string }) {
       {state === 'ready' && (
         <ol className="px-6 py-5 space-y-5">
           {list.map((e, i) => (
-            <TimelineRow key={`${e.type}-${e.at}-${i}`} event={e} />
+            <TimelineRow
+              key={`${e.type}-${e.at}-${i}`}
+              event={e}
+              headline={cfg.headline(e)}
+              tone={cfg.tone(e.type)}
+            />
           ))}
         </ol>
       )}
@@ -118,9 +199,15 @@ export function TransitionHistory({ externalId }: { externalId: string }) {
   );
 }
 
-function TimelineRow({ event }: { event: ShipmentTimelineEvent }) {
-  const headline = eventHeadline(event);
-  const tone = eventTone(event.type);
+function TimelineRow({
+  event,
+  headline,
+  tone,
+}: {
+  event: AuditTimelineEvent;
+  headline: string;
+  tone: string;
+}) {
   return (
     <li className="grid grid-cols-[auto_1fr] gap-4">
       <div

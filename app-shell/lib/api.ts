@@ -332,6 +332,55 @@ export interface ShipmentTimelineEvent {
   [k: string]: unknown;
 }
 
+// Goods master timeline event types — fed by /api/goods/<id>/history.
+// Backed by lib/db/goods.js's audit-log emissions (one event per
+// mutation per ADR 0005). Same shape as the shipment timeline event,
+// different .type values.
+export type GoodsTimelineEventType =
+  | 'goods_master_created'
+  | 'goods_master_updated'
+  | 'goods_master_archived';
+
+export interface GoodsTimelineEvent {
+  type: GoodsTimelineEventType;
+  at: string;
+  actorEmailHash?: string;
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+  detail?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+// Supplier master timeline event types — fed by
+// /api/suppliers/<id>/history. Same shape, supplier-prefixed types.
+export type SupplierTimelineEventType =
+  | 'supplier_master_created'
+  | 'supplier_master_updated'
+  | 'supplier_master_archived';
+
+export interface SupplierTimelineEvent {
+  type: SupplierTimelineEventType;
+  at: string;
+  actorEmailHash?: string;
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+  detail?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+// Union for the polymorphic TransitionHistory component. Each
+// entity-kind variant carries its own type-union and renders its own
+// headline/tone via the per-entity-kind lookup table in the component.
+export type AuditTimelineEvent =
+  | ShipmentTimelineEvent
+  | GoodsTimelineEvent
+  | SupplierTimelineEvent;
+
+export type AuditTimelineEventType =
+  | ShipmentTimelineEventType
+  | GoodsTimelineEventType
+  | SupplierTimelineEventType;
+
 // /api/suppliers — Supplier master entity (L1.2 of the strategic plan).
 // Typed to fields the dashboard list + detail views read.
 

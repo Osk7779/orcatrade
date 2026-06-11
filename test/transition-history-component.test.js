@@ -19,12 +19,21 @@ const DETAIL_SRC = fs.readFileSync(DETAIL_PATH, 'utf8');
 const API_SRC = fs.readFileSync(API_PATH, 'utf8');
 
 // ── Fetch wiring ──────────────────────────────────────────────────────
+//
+// The component is now polymorphic on `entityKind` (PR #121). The
+// URL is composed from cfg.urlPath, which maps shipment → 'shipments'
+// in the LOOKUP_BY_KIND table. Drift-guard the mapping + the URL
+// template separately.
 
-test('component fetches GET /shipments/<encoded-id>/history', () => {
+test('component fetches GET /<urlPath>/<encoded-id>/history via cfg.urlPath', () => {
+  // The literal URL template:
   assert.match(
     COMP_SRC,
-    /apiGet<\{[\s\S]*?events: ShipmentTimelineEvent\[\][\s\S]*?\}>\(\s*`\/shipments\/\$\{encodeURIComponent\(externalId\)\}\/history`/,
+    /apiGet<\{[\s\S]*?events: AuditTimelineEvent\[\][\s\S]*?\}>\(\s*`\/\$\{cfg\.urlPath\}\/\$\{encodeURIComponent\(externalId\)\}\/history`/,
   );
+  // The shipment kind maps to the 'shipments' URL prefix:
+  const shipmentCfg = COMP_SRC.match(/shipment:\s*\{[\s\S]*?urlPath:\s*'shipments'/);
+  assert.ok(shipmentCfg, 'shipment entityKind must map to urlPath: "shipments"');
 });
 
 // ── Headline derivation ───────────────────────────────────────────────
@@ -40,8 +49,12 @@ test('every timeline event type has a dedicated headline branch (no generic fall
   // must each have a switch case here. Adding a new type backend-
   // side without updating the headline switch silently falls through
   // to String(e.type) — a poor UX.
-  const fn = COMP_SRC.match(/function eventHeadline[\s\S]*?^\}/m);
-  assert.ok(fn);
+  //
+  // PR #121: the switch now lives inside LOOKUP_BY_KIND.shipment.
+  // headline rather than a top-level function. Drift-guard against
+  // the cases regardless of layout.
+  const fn = COMP_SRC.match(/shipment:\s*\{[\s\S]*?headline:[\s\S]*?\},\s*tone:/);
+  assert.ok(fn, 'shipment headline branch not located in LOOKUP_BY_KIND');
   for (const t of [
     'shipment_master_created',
     'shipment_master_status_transition',
@@ -49,15 +62,16 @@ test('every timeline event type has a dedicated headline branch (no generic fall
     'shipment_master_updated',
     'shipment_master_archived',
   ]) {
-    assert.match(fn[0], new RegExp(`case '${t}'`), `eventHeadline missing case for "${t}"`);
+    assert.match(fn[0], new RegExp(`case '${t}'`), `shipment headline missing case for "${t}"`);
   }
 });
 
 // ── Tone discipline ──────────────────────────────────────────────────
 
-test('eventTone uses brand variables only (no hex)', () => {
-  const fn = COMP_SRC.match(/function eventTone[\s\S]*?^\}/m);
-  assert.ok(fn);
+test('shipment tone uses brand variables only (no hex)', () => {
+  // PR #121: tone now lives inside LOOKUP_BY_KIND.shipment.tone.
+  const fn = COMP_SRC.match(/shipment:\s*\{[\s\S]*?tone:[\s\S]*?\},\s*\},\s*goods:/);
+  assert.ok(fn, 'shipment tone branch not located in LOOKUP_BY_KIND');
   assert.match(fn[0], /var\(--color-warning\)/);
   assert.match(fn[0], /var\(--color-ivory-mute\)/);
   assert.match(fn[0], /var\(--color-positive\)/);

@@ -12,6 +12,7 @@ import {
   type Goods,
 } from '@/lib/api';
 import { RelatedShipments } from '@/components/RelatedShipments';
+import { TransitionHistory } from '@/components/TransitionHistory';
 
 function eurFromCents(cents?: number | null) {
   if (cents == null || !Number.isFinite(cents)) return '—';
@@ -78,6 +79,7 @@ export default function GoodsDetailPage({ params }: { params: Promise<{ external
         <RestrictedSubstancesPanel goods={goods} />
       )}
       <RelatedShipments filter={{ kind: 'goods', externalId: goods.externalId }} />
+      <TransitionHistory externalId={goods.externalId} entityKind="goods" />
     </div>
   );
 }
