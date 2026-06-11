@@ -447,6 +447,15 @@ export interface FactoryLocation {
   [k: string]: unknown;
 }
 
+// Closed taxonomy for the supplier legalForm dropdown — mirror of
+// LEGAL_FORMS in lib/db/suppliers.js. A drift-guard test asserts both
+// arrays stay in lockstep (each direction). Order matches the
+// backend's frozen array.
+export const SUPPLIER_LEGAL_FORMS: ReadonlyArray<string> = Object.freeze([
+  'llc', 'gmbh', 'sp_z_o_o', 'ltd', 'sa', 'kft', 'sarl', 'srl', 'sas',
+  'inc', 'corp', 'oy', 'ab', 'as', 'bv', 'nv', 'plc', 'cooperative', 'other',
+]) as ReadonlyArray<string>;
+
 export interface Supplier {
   externalId: string;
   entityName: string;

@@ -12,7 +12,10 @@ import { use, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import {
   apiGet,
+  apiPatch,
   AuthError,
+  ApiError,
+  SUPPLIER_LEGAL_FORMS,
   type Supplier,
   type SupplierSanctionsStatus,
 } from '@/lib/api';
@@ -68,6 +71,11 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
   const [state, setState] = useState<LoadState>('loading');
   const [supplier, setSupplier] = useState<Supplier | null>(null);
   const [errorMsg, setErrorMsg] = useState<string>('');
+  // Edit mode mirrors the goods detail page (PR #122). FactsGrid
+  // swaps out for EditForm when editing; sanctions / certs / etc.
+  // panels stay in place because they're not part of the inline-
+  // editable scalar surface.
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -107,8 +115,23 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
 
   return (
     <div className="max-w-4xl">
-      <Header supplier={supplier} />
-      <FactsGrid supplier={supplier} />
+      <Header
+        supplier={supplier}
+        editing={editing}
+        onEdit={() => setEditing(true)}
+      />
+      {editing ? (
+        <EditForm
+          supplier={supplier}
+          onCancel={() => setEditing(false)}
+          onSaved={(updated) => {
+            setSupplier(updated);
+            setEditing(false);
+          }}
+        />
+      ) : (
+        <FactsGrid supplier={supplier} />
+      )}
       <SanctionsPanel supplier={supplier} />
       {supplier.auditCerts && supplier.auditCerts.length > 0 && (
         <AuditCertsPanel supplier={supplier} />
@@ -128,7 +151,15 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
   );
 }
 
-function Header({ supplier }: { supplier: Supplier }) {
+function Header({
+  supplier,
+  editing,
+  onEdit,
+}: {
+  supplier: Supplier;
+  editing: boolean;
+  onEdit: () => void;
+}) {
   return (
     <header className="mb-8">
       <Link href="/suppliers" className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/45 hover:text-white">
@@ -143,17 +174,310 @@ function Header({ supplier }: { supplier: Supplier }) {
             {' · '}{supplier.externalId}
           </p>
         </div>
-        <span
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border"
-          style={{
-            borderColor: sanctionsTone(supplier.sanctionsLastStatus),
-            color: sanctionsTone(supplier.sanctionsLastStatus),
-          }}
-        >
-          {sanctionsLabel(supplier.sanctionsLastStatus)}
-        </span>
+        <div className="flex items-start gap-3">
+          <span
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border"
+            style={{
+              borderColor: sanctionsTone(supplier.sanctionsLastStatus),
+              color: sanctionsTone(supplier.sanctionsLastStatus),
+            }}
+          >
+            {sanctionsLabel(supplier.sanctionsLastStatus)}
+          </span>
+          {!editing && !supplier.archivedAt && (
+            <button
+              type="button"
+              onClick={onEdit}
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+            >
+              Edit
+            </button>
+          )}
+        </div>
       </div>
     </header>
+  );
+}
+
+// EditForm — inline edit mode for the scalar identifying fields of a
+// supplier master record. Mirrors the goods edit form pattern from
+// PR #122: sparse patch, no-op short-circuit, inline server-error
+// rendering, client-side validation matching lib/db/suppliers.js
+// validateForUpdate.
+//
+// Editable: entityName, legalForm, hqCountry, registrationNumber,
+//           registrationAuthority, website.
+// NOT editable here (each has its own flow or is calculator-grounded):
+//   sanctionsLastStatus + sanctionsLastScreenedAt + sanctionsLastMatchSummary
+//     → re-screen action (separate operator flow)
+//   trustScore + trustScoreComponents + trustScoreComputedAt
+//     → calculator-grounded per ADR 0002, never hand-edited
+//   factoryLocations / auditCerts / eudrDdsEvidence / metadata
+//     → jsonb fields, need structured editors (deferred, same as goods)
+//   primaryContactEmailHash → PII, separate add-contact flow.
+function EditForm({
+  supplier,
+  onCancel,
+  onSaved,
+}: {
+  supplier: Supplier;
+  onCancel: () => void;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const [entityName, setEntityName] = useState(supplier.entityName);
+  const [legalForm, setLegalForm] = useState(supplier.legalForm || '');
+  const [hqCountry, setHqCountry] = useState(supplier.hqCountry);
+  const [registrationNumber, setRegistrationNumber] = useState(supplier.registrationNumber || '');
+  const [registrationAuthority, setRegistrationAuthority] = useState(supplier.registrationAuthority || '');
+  const [website, setWebsite] = useState(supplier.website || '');
+
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function clientSideErrors(): string[] {
+    const out: string[] = [];
+    if (!entityName.trim()) out.push('entityName must be a non-empty string');
+    else if (entityName.length > 200) out.push('entityName must be ≤200 chars');
+    if (!/^[A-Z]{2}$/.test(hqCountry.trim().toUpperCase())) {
+      out.push('hqCountry must be ISO-2 uppercase');
+    }
+    if (legalForm && !SUPPLIER_LEGAL_FORMS.includes(legalForm)) {
+      out.push(`legalForm must be one of: ${SUPPLIER_LEGAL_FORMS.join(', ')}`);
+    }
+    return out;
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    const localErrors = clientSideErrors();
+    if (localErrors.length) {
+      setErrors(localErrors);
+      return;
+    }
+    setSaving(true);
+    setErrors([]);
+
+    // Sparse patch — only send changed fields. Trim text inputs to
+    // collapse whitespace-only edits (which validateForUpdate would
+    // reject for required fields anyway).
+    const patch: Record<string, unknown> = {};
+    const entityTrim = entityName.trim();
+    if (entityTrim !== supplier.entityName) patch.entityName = entityTrim;
+    // legalForm: '' means "clear it" → null on the server.
+    const lfCurrent = supplier.legalForm || '';
+    if (legalForm !== lfCurrent) patch.legalForm = legalForm || null;
+    const hqNorm = hqCountry.trim().toUpperCase();
+    if (hqNorm !== supplier.hqCountry) patch.hqCountry = hqNorm;
+    const regCurrent = supplier.registrationNumber || '';
+    if (registrationNumber.trim() !== regCurrent) {
+      patch.registrationNumber = registrationNumber.trim() || null;
+    }
+    const authCurrent = supplier.registrationAuthority || '';
+    if (registrationAuthority.trim() !== authCurrent) {
+      patch.registrationAuthority = registrationAuthority.trim() || null;
+    }
+    const webCurrent = supplier.website || '';
+    if (website.trim() !== webCurrent) {
+      patch.website = website.trim() || null;
+    }
+
+    if (Object.keys(patch).length === 0) {
+      // No-change short-circuit — mirrors lib/db/suppliers.js's own
+      // setClauses-empty path. Save a round-trip + an audit-noise
+      // event.
+      setSaving(false);
+      onCancel();
+      return;
+    }
+
+    try {
+      const d = await apiPatch<{ ok: boolean; supplier: Supplier; unchanged: boolean }>(
+        `/suppliers/${encodeURIComponent(supplier.externalId)}`,
+        patch,
+      );
+      onSaved(d.supplier);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.errors.length ? err.errors : [err.message]);
+      } else if (err instanceof AuthError) {
+        setErrors(['Sign in required to save changes.']);
+      } else {
+        setErrors([err instanceof Error ? err.message : 'Could not save changes.']);
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form onSubmit={submit} className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
+        <h2 className="font-serif text-xl">Edit supplier record</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          {supplier.externalId} · sanctions/trust read-only
+        </span>
+      </div>
+
+      <div className="px-6 py-6 grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
+        <EditField
+          label="Entity name"
+          value={entityName}
+          onChange={setEntityName}
+          required
+          maxLength={200}
+        />
+        <EditSelectField
+          label="Legal form"
+          value={legalForm}
+          onChange={setLegalForm}
+          options={SUPPLIER_LEGAL_FORMS}
+          hint="Blank = unspecified."
+        />
+        <EditField
+          label="HQ country"
+          value={hqCountry}
+          onChange={(v) => setHqCountry(v.toUpperCase())}
+          required
+          hint="ISO-2 (e.g. CN, DE)."
+          maxLength={2}
+        />
+        <EditField
+          label="Registration number"
+          value={registrationNumber}
+          onChange={setRegistrationNumber}
+          hint="Blank = unspecified. Must be unique within your org."
+          maxLength={100}
+        />
+        <EditField
+          label="Registration authority"
+          value={registrationAuthority}
+          onChange={setRegistrationAuthority}
+          hint="e.g. Companies House, KRS, Handelsregister."
+          maxLength={120}
+        />
+        <EditField
+          label="Website"
+          value={website}
+          onChange={setWebsite}
+          hint="Full URL with scheme."
+          maxLength={300}
+        />
+      </div>
+
+      {errors.length > 0 && (
+        <ul
+          className="border-t border-[var(--color-navy-line)] px-6 py-4 space-y-1"
+          role="alert"
+        >
+          {errors.map((e, i) => (
+            <li
+              key={i}
+              className="font-mono text-[12px]"
+              style={{ color: 'var(--color-critical)' }}
+            >
+              {e}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="border-t border-[var(--color-navy-line)] px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save changes'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+// Reusable text input for the edit form. Named EditField (not Field)
+// because the surrounding FactsGrid already has a local Field helper
+// for read-only display. Kept local — exporting to a shared module
+// would require a styling-API negotiation that isn't worth the
+// abstraction gain at this call count.
+function EditField({
+  label,
+  value,
+  onChange,
+  required,
+  maxLength,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  required?: boolean;
+  maxLength?: number;
+  hint?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        {label}
+        {required && <span className="ml-1 text-white/60">*</span>}
+      </span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        required={required}
+        maxLength={maxLength}
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-2 font-mono text-[13px] text-white focus:outline-none focus:border-white/55"
+      />
+      {hint && (
+        <span className="block mt-1 font-mono text-[10px] text-white/40">{hint}</span>
+      )}
+    </label>
+  );
+}
+
+// Closed-taxonomy <select> with a blank "—" option. Used for
+// legalForm only at this point; if a second enum needs the same
+// pattern (e.g. supplier sanctions-status if ever surfaced), extract
+// to a shared component instead of duplicating.
+function EditSelectField({
+  label,
+  value,
+  onChange,
+  options,
+  hint,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  options: ReadonlyArray<string>;
+  hint?: string;
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-2 font-mono text-[13px] text-white focus:outline-none focus:border-white/55"
+      >
+        <option value="">—</option>
+        {options.map((o) => (
+          <option key={o} value={o}>
+            {o.toUpperCase()}
+          </option>
+        ))}
+      </select>
+      {hint && (
+        <span className="block mt-1 font-mono text-[10px] text-white/40">{hint}</span>
+      )}
+    </label>
   );
 }
 
