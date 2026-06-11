@@ -63,8 +63,15 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
           if (to) return `Status → ${to}`;
           return 'Status transition';
         }
-        case 'shipment_master_exception_acknowledged':
+        case 'shipment_master_exception_acknowledged': {
+          // The acknowledgement note (when the operator supplied one)
+          // is the most valuable audit-trail piece — surface it in
+          // the headline so timeline-scanners see WHY the exception
+          // was cleared without expanding rows.
+          const note = (e.detail as { note?: string | null } | undefined)?.note;
+          if (note) return `Exception acknowledged · "${note}"`;
           return 'Exception acknowledged';
+        }
         case 'shipment_master_updated':
           return 'Shipment updated';
         case 'shipment_master_archived':

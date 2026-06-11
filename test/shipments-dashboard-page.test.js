@@ -100,7 +100,12 @@ test('the acknowledge button is disabled once item._queue.acknowledged is true',
   // Idempotency at the UI layer mirrors the data-layer contract
   // (acknowledgeException returns { unchanged: true } on re-ack).
   // A user who clicks twice doesn't fire two POSTs.
-  assert.match(PAGE_SRC, /disabled=\{busy \|\| item\._queue\.acknowledged\}/);
+  //
+  // PR #126 aliased item._queue.acknowledged → `acknowledged` and
+  // added overLimit to the disabled chain. Drift guard against the
+  // alias source.
+  assert.match(PAGE_SRC, /const acknowledged = item\._queue\.acknowledged/);
+  assert.match(PAGE_SRC, /disabled=\{busy \|\| acknowledged \|\| overLimit\}/);
 });
 
 // ── Types live in the shared lib (no inline duplication) ──────────────

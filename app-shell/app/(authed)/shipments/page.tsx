@@ -189,15 +189,31 @@ function ExceptionRow({
 }) {
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string>('');
+  // Optional acknowledgement note. The data layer already accepts
+  // and persists this (lib/db/shipments.js:acknowledgeException
+  // stores it in exception_state.acknowledgmentNote AND in the
+  // supplier_master_exception_acknowledged audit event's detail).
+  // 500-char cap mirrors the backend's slice(0, 500); leaving the
+  // count visible keeps operators below it.
+  const [note, setNote] = useState('');
+  const NOTE_LIMIT = 500;
 
   async function acknowledge() {
     if (busy || item._queue.acknowledged) return;
     setBusy(true);
     setErr('');
+    // Trim before sending — leading/trailing whitespace adds no
+    // operator value. An all-whitespace note is treated as absent.
+    const trimmed = note.trim();
     try {
       const res = await apiPost<{ ok: boolean; shipment: Shipment & { exceptionState?: Record<string, unknown> } }>(
         `/shipments/${encodeURIComponent(item.externalId)}/exception/acknowledge`,
-        {},
+        // Send `note` only when present — the backend's `note ?
+        // String(note).slice(0, 500) : undefined` treats it as
+        // optional. Sending undefined keeps the audit event detail
+        // tight (`{ acknowledgedAt, note: null }` vs an empty
+        // string).
+        trimmed ? { note: trimmed } : {},
       );
       onAcknowledged({
         ...item,
@@ -208,6 +224,10 @@ function ExceptionRow({
           acknowledgedAt: new Date().toISOString(),
         },
       });
+      // Clear the local note buffer — the row is now in
+      // 'Acknowledged' state and the input disappears (gated on
+      // !acknowledged).
+      setNote('');
     } catch (e) {
       setErr(e instanceof Error ? e.message : 'Could not acknowledge.');
     } finally {
@@ -215,29 +235,83 @@ function ExceptionRow({
     }
   }
 
+  const acknowledged = item._queue.acknowledged;
+  const overLimit = note.length > NOTE_LIMIT;
+
   return (
-    <li className="px-6 py-4 border-b border-[var(--color-navy-line)] last:border-b-0 grid gap-3 md:grid-cols-[1fr_auto_auto] items-center">
-      <div>
-        <div className="font-serif text-[15px] text-white">{item.label}</div>
-        <div className="font-mono text-[11px] text-white/50 mt-1">
-          {formatRoute(item)} · age {ageLabel(item._queue.ageHours)}
-          {item._queue.slaBreached && (
-            <span className="ml-2 text-[var(--color-critical)]">· SLA breach</span>
-          )}
+    <li className="px-6 py-4 border-b border-[var(--color-navy-line)] last:border-b-0">
+      <div className="grid gap-3 md:grid-cols-[1fr_auto_auto] items-center">
+        <div>
+          <div className="font-serif text-[15px] text-white">{item.label}</div>
+          <div className="font-mono text-[11px] text-white/50 mt-1">
+            {formatRoute(item)} · age {ageLabel(item._queue.ageHours)}
+            {item._queue.slaBreached && (
+              <span className="ml-2 text-[var(--color-critical)]">· SLA breach</span>
+            )}
+          </div>
         </div>
+        <div className="text-right font-mono text-[11px] text-white/60">
+          {acknowledged ? 'Acknowledged' : 'Open'}
+        </div>
+        <button
+          type="button"
+          onClick={acknowledge}
+          disabled={busy || acknowledged || overLimit}
+          className="px-3 py-1.5 border border-[var(--color-ivory)]/30 text-[11px] font-mono uppercase tracking-[0.1em] hover:border-[var(--color-ivory)] disabled:cursor-not-allowed disabled:opacity-40"
+        >
+          {acknowledged ? 'Done' : busy ? 'Acknowledging…' : 'Acknowledge'}
+        </button>
       </div>
-      <div className="text-right font-mono text-[11px] text-white/60">
-        {item._queue.acknowledged ? 'Acknowledged' : 'Open'}
-      </div>
-      <button
-        type="button"
-        onClick={acknowledge}
-        disabled={busy || item._queue.acknowledged}
-        className="px-3 py-1.5 border border-[var(--color-ivory)]/30 text-[11px] font-mono uppercase tracking-[0.1em] hover:border-[var(--color-ivory)] disabled:cursor-not-allowed disabled:opacity-40"
-      >
-        {item._queue.acknowledged ? 'Done' : busy ? 'Acknowledging…' : 'Acknowledge'}
-      </button>
-      {err && <div className="md:col-span-3 text-[var(--color-critical)] text-[11px]">{err}</div>}
+      {/* Note input — only renders for unacknowledged rows. Inline
+          (not a separate modal/expand) so quick triage stays one
+          enter-key away while operators who want to capture context
+          can do so without a context shift. Empty input keeps the
+          status-quo "ack without note" path working. */}
+      {!acknowledged && (
+        <div className="mt-3 grid gap-2 md:grid-cols-[1fr_auto] items-start">
+          <label className="block">
+            <span className="sr-only">Acknowledgement note (optional)</span>
+            <input
+              type="text"
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              placeholder="Add a note (optional) — e.g. 'broker waiting on VAT recovery'"
+              maxLength={NOTE_LIMIT + 50}
+              disabled={busy}
+              className="w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+            />
+          </label>
+          <div className="font-mono text-[10px] text-right md:text-left text-white/40 pt-1.5 min-w-[64px]">
+            {overLimit ? (
+              <span style={{ color: 'var(--color-critical)' }}>
+                {note.length}/{NOTE_LIMIT}
+              </span>
+            ) : (
+              note.length > 0 && (
+                <span>
+                  {note.length}/{NOTE_LIMIT}
+                </span>
+              )
+            )}
+          </div>
+        </div>
+      )}
+      {overLimit && (
+        <p
+          role="alert"
+          className="mt-2 text-[var(--color-critical)] text-[11px] font-mono"
+        >
+          Note exceeds {NOTE_LIMIT} characters — trim before acknowledging.
+        </p>
+      )}
+      {err && (
+        <p
+          role="alert"
+          className="mt-2 text-[var(--color-critical)] text-[11px] font-mono"
+        >
+          {err}
+        </p>
+      )}
     </li>
   );
 }
