@@ -485,6 +485,25 @@ export const SUPPLIER_LEGAL_FORMS: ReadonlyArray<string> = Object.freeze([
   'inc', 'corp', 'oy', 'ab', 'as', 'bv', 'nv', 'plc', 'cooperative', 'other',
 ]) as ReadonlyArray<string>;
 
+// Iterable closed taxonomy for the suppliers list-page sanctions
+// filter (PR #127). Mirror of SANCTIONS_STATUSES in
+// lib/db/suppliers.js + the SupplierSanctionsStatus union above.
+// Order matches the operational severity: clear → pending →
+// potential_match → match so the dropdown reads naturally from
+// "safe to proceed" through "escalate".
+//
+// 'not_screened' is intentionally NOT in this list — it's a
+// pseudo-status meaning "sanctionsLastStatus is null" (the supplier
+// has never been screened). The list-page filter handles that
+// branch as a separate dropdown option since it's the absence-of-
+// status rather than a value.
+export const SUPPLIER_SANCTIONS_STATUSES: ReadonlyArray<SupplierSanctionsStatus> = Object.freeze([
+  'clear',
+  'pending',
+  'potential_match',
+  'match',
+]) as ReadonlyArray<SupplierSanctionsStatus>;
+
 export interface Supplier {
   externalId: string;
   entityName: string;

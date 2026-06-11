@@ -35,7 +35,11 @@ test('list page rows link to /goods/<encoded-id>', () => {
 });
 
 test('list page header surfaces total count + CBAM-in-scope count', () => {
-  assert.match(LIST_SRC, /\{goods\.length\} total · \{cbamCount\} CBAM-in-scope/);
+  // PR #127 added a CBAM filter dropdown — the header now reads
+  // "X total · N CBAM-in-scope" only when no filter is active
+  // (template-literal inside the unfiltered branch) and switches
+  // to "X of Y" when filtered. Match the unfiltered template.
+  assert.match(LIST_SRC, /\$\{goods\.length\} total · \$\{cbamInCount\} CBAM-in-scope/);
 });
 
 test('list page CBAM badge uses the warning brand colour (not a hard-coded amber)', () => {

@@ -36,10 +36,15 @@ test('list page rows link to /suppliers/<encoded-id>', () => {
 
 test('list header counter surfaces total + sanctions-concern count', () => {
   // Total alone isn't enough — ops needs to see the priority number
-  // (match + potential_match) at a glance. Note the outer
-  // `{matchCount > 0 ? … : ''}` is JSX (no $), the inner
-  // `${matchCount}` is template-literal interpolation (with $).
-  assert.match(LIST_SRC, /\{suppliers\.length\} total\{matchCount > 0 \? ` · \$\{matchCount\} sanctions concern` : ''\}/);
+  // (match + potential_match) at a glance.
+  //
+  // PR #127 added a sanctions filter dropdown. The header now wraps
+  // total + matchCount in a JSX Fragment under the unfiltered branch
+  // (so they sit alongside the filter-active "X of Y" template
+  // literal). The JSX is split across lines:
+  //   {suppliers.length} total
+  //   {matchCount > 0 ? ` · ${matchCount} sanctions concern` : ''}
+  assert.match(LIST_SRC, /\{suppliers\.length\} total\s*\n\s*\{matchCount > 0 \? ` · \$\{matchCount\} sanctions concern` : ''\}/);
 });
 
 test('sanctions badge tones use brand variables (no hard-coded reds/greens)', () => {
