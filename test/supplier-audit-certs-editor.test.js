@@ -292,8 +292,12 @@ test('FactoryLocationsPanel is now editable (PR #131 shipped — drift guard aga
   assert.match(SRC, /function FactoryLocationsEditorPanel/);
 });
 
-test('EudrPanel still renders read-only (deferred)', () => {
-  assert.match(SRC, /function EudrPanel\(\{ supplier \}: \{ supplier: Supplier \}\)/);
+test('EudrPanel is now editable (PR #133 shipped — drift guard against accidental rollback)', () => {
+  // PR #130 deferred this; PR #133 shipped it. Drift guard against
+  // a future refactor accidentally collapsing the editor back to a
+  // read-only panel.
+  assert.match(SRC, /function EudrPanel\(\{\s*supplier,\s*onSaved,/);
+  assert.match(SRC, /function EudrEvidenceEditorPanel/);
 });
 
 test('SanctionsPanel re-screen flow preserved (PR #124 regression guard)', () => {

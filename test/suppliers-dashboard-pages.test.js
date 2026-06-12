@@ -161,10 +161,19 @@ test('factory locations panel renders unconditionally so empty suppliers can add
   );
 });
 
-test('EUDR DDS panel renders only when the evidence object has keys', () => {
-  assert.match(
+test('EUDR DDS panel renders unconditionally so empty suppliers can add the first evidence entry', () => {
+  // PR #133 inverted this behaviour to match PRs #129/#130/#131:
+  // the panel ALWAYS renders. Read mode shows "No EUDR evidence on
+  // file yet" + Edit button; edit mode lets the operator add the
+  // first (key, value) pair. The presence-of-data check moved
+  // inside the panel.
+  //
+  // Drift guard against accidentally restoring the conditional,
+  // which would block the EUDR Article 8 due-diligence workflow.
+  assert.match(DETAIL_SRC, /<EudrPanel\s+supplier=\{supplier\}/);
+  assert.doesNotMatch(
     DETAIL_SRC,
-    /supplier\.eudrDdsEvidence && Object\.keys\(supplier\.eudrDdsEvidence\)\.length > 0/,
+    /supplier\.eudrDdsEvidence && Object\.keys\(supplier\.eudrDdsEvidence\)\.length > 0 && \(\s*<EudrPanel/,
   );
 });
 

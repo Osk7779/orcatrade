@@ -267,10 +267,12 @@ test('EditForm scalar fields still NOT touched by the factory-locations editor (
   assert.doesNotMatch(block, /factoryLocations|countryCode|floorAreaSqm/i);
 });
 
-test('EudrPanel still renders read-only (deferred to next PR)', () => {
-  // Drift guard against an accidental editor wired onto the wrong
-  // panel.
-  assert.match(SRC, /function EudrPanel\(\{ supplier \}: \{ supplier: Supplier \}\)/);
+test('EudrPanel is now editable (PR #133 shipped — drift guard against accidental rollback)', () => {
+  // PR #131 deferred this; PR #133 shipped it. Drift guard against
+  // a future refactor accidentally collapsing the editor back to a
+  // read-only panel.
+  assert.match(SRC, /function EudrPanel\(\{\s*supplier,\s*onSaved,/);
+  assert.match(SRC, /function EudrEvidenceEditorPanel/);
 });
 
 test('TrustComponentsPanel still renders read-only (calculator-grounded per ADR 0002)', () => {

@@ -157,9 +157,16 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
         supplier={supplier}
         onSaved={(updated) => setSupplier(updated)}
       />
-      {supplier.eudrDdsEvidence && Object.keys(supplier.eudrDdsEvidence).length > 0 && (
-        <EudrPanel supplier={supplier} />
-      )}
+      {/* PR #133: Panel always renders so operators can ADD an EUDR
+          DDS evidence entry to a supplier with none on file. Same
+          pattern as PRs #129-#131 — the empty-state check moved
+          inside the panel. EUDR Article 8 due diligence requires
+          documented evidence; this surface is where operators
+          capture it. */}
+      <EudrPanel
+        supplier={supplier}
+        onSaved={(updated) => setSupplier(updated)}
+      />
       {supplier.trustScoreComponents && Object.keys(supplier.trustScoreComponents).length > 0 && (
         <TrustComponentsPanel supplier={supplier} />
       )}
@@ -1625,26 +1632,438 @@ function FactoryLocationField({
   );
 }
 
-function EudrPanel({ supplier }: { supplier: Supplier }) {
-  const json = useMemo(
-    () => JSON.stringify(supplier.eudrDdsEvidence || {}, null, 2),
-    [supplier.eudrDdsEvidence],
+// EudrPanel — read view of EUDR DDS evidence + key/value editor
+// (PR #133). First jsonb-OBJECT editor on the platform.
+//
+// EUDR Article 8 requires importers of relevant commodities (timber,
+// cattle, cocoa, coffee, palm oil, rubber, soy, derived products) to
+// hold a Due Diligence Statement (DDS) backed by documentary
+// evidence: country/geolocation of production, supplier-attested
+// non-deforestation declarations, audit reports, etc. This surface
+// is where operators capture that evidence trail. The shape is open
+// (each commodity + member-state combination collects different
+// fields), so we use a flat key/value editor rather than a fixed
+// form — adding the inflexible form-fields-per-commodity wiring
+// would be wrong before we know what auditors actually demand.
+//
+// Pattern follows PRs #129/#130/#131 (array editors) with the
+// expected adaptations for the OBJECT shape:
+//   - Each row is a (key, value) pair (instead of a multi-field
+//     object)
+//   - Keys must be unique within the object (validation flag)
+//   - draftsToEvidence flattens drafts to { [key]: value }
+//   - evidenceEqual is sort-by-key key/value pair comparison
+//   - PATCH sends the full materialised object (sparse PATCH on
+//     just eudrDdsEvidence)
+function EudrPanel({
+  supplier,
+  onSaved,
+}: {
+  supplier: Supplier;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const persistedEvidence = (supplier.eudrDdsEvidence || {}) as Record<string, unknown>;
+  const archived = Boolean(supplier.archivedAt);
+  const [editing, setEditing] = useState(false);
+
+  if (!editing) {
+    return (
+      <EudrEvidenceReadPanel
+        evidence={persistedEvidence}
+        archived={archived}
+        onEditClick={() => setEditing(true)}
+      />
+    );
+  }
+
+  return (
+    <EudrEvidenceEditorPanel
+      supplier={supplier}
+      initialEvidence={persistedEvidence}
+      onCancel={() => setEditing(false)}
+      onSaved={(updated) => {
+        onSaved(updated);
+        setEditing(false);
+      }}
+    />
   );
+}
+
+function EudrEvidenceReadPanel({
+  evidence,
+  archived,
+  onEditClick,
+}: {
+  evidence: Record<string, unknown>;
+  archived: boolean;
+  onEditClick: () => void;
+}) {
+  const entries = Object.entries(evidence);
+  const hasEntries = entries.length > 0;
+  // The existing read view's JSON-dump display is preserved for
+  // power users / auditors who want to inspect the raw structure.
+  const json = useMemo(() => JSON.stringify(evidence, null, 2), [evidence]);
+
   return (
     <section className="mb-10 border border-[var(--color-navy-line)]">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-xl">EUDR Due Diligence Statement evidence</h2>
+          <p className="font-mono text-[11px] text-white/45 mt-1">
+            Evidence trail for EU Deforestation Regulation Article 8 compliance.
+          </p>
+        </div>
+        {!archived && (
+          <button
+            type="button"
+            onClick={onEditClick}
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+      {hasEntries ? (
+        <>
+          <ul className="px-6 py-4 space-y-2">
+            {entries.map(([k, v]) => (
+              <li
+                key={k}
+                className="grid gap-3 md:grid-cols-[200px_1fr] items-start font-mono text-[12px]"
+              >
+                <span className="text-white/55 break-words">{k}</span>
+                <span className="text-white/85 break-words whitespace-pre-wrap">
+                  {typeof v === 'string' ? v : JSON.stringify(v)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <details className="m-6">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+              Raw JSON
+            </summary>
+            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+          </details>
+        </>
+      ) : (
+        <p className="px-6 py-5 font-mono text-xs text-white/45">
+          No EUDR evidence on file yet.{' '}
+          {!archived && 'Click Edit to add the first entry. (Required for EUDR Article 8 due diligence.)'}
+        </p>
+      )}
+    </section>
+  );
+}
+
+// Working type for the editor — each row is one (key, value) pair.
+// Carries a stable rowKey so React reconciliation survives reorders
+// and add/remove operations without losing focus.
+type EudrEvidenceDraft = {
+  rowKey: string;
+  key: string;
+  value: string;
+};
+
+let eudrRowKeyCounter = 0;
+function nextEudrRowKey(): string {
+  eudrRowKeyCounter += 1;
+  return `eudr-${eudrRowKeyCounter}`;
+}
+
+function emptyEudrEvidenceDraft(): EudrEvidenceDraft {
+  return { rowKey: nextEudrRowKey(), key: '', value: '' };
+}
+
+function evidenceToDrafts(evidence: Record<string, unknown>): EudrEvidenceDraft[] {
+  const out: EudrEvidenceDraft[] = [];
+  for (const [k, v] of Object.entries(evidence)) {
+    out.push({
+      rowKey: nextEudrRowKey(),
+      key: k,
+      // Stringify non-string values so the operator sees a render-
+      // able form. Auditors typically capture string fields here
+      // anyway (URLs, dates, attestations); structured values get
+      // JSON-stringified.
+      value: typeof v === 'string' ? v : JSON.stringify(v),
+    });
+  }
+  return out;
+}
+
+function draftsToEvidence(drafts: EudrEvidenceDraft[]): Record<string, string> {
+  // Materialise drafts into a flat object. Rows with empty key are
+  // dropped (treats "operator added a row and then cancelled out
+  // of it" as a no-op). Duplicate keys: last-write-wins at the
+  // materialiser, but a separate clientSideErrors check flags this
+  // so the operator can correct it before save.
+  //
+  // Values are kept as strings. An operator who needs structured
+  // values can JSON-encode them; the read view JSON.parses display
+  // back where possible.
+  const out: Record<string, string> = {};
+  for (const d of drafts) {
+    const k = d.key.trim();
+    if (!k) continue;
+    out[k] = d.value;
+  }
+  return out;
+}
+
+// Order-insensitive equality for jsonb objects — compare via
+// sorted-by-key key/value pairs. Same goal as PR #129's flagsEqual
+// and PR #130's auditCertsEqual: reorder-then-undo doesn't trigger
+// a PATCH or noise audit event.
+function evidenceEqual(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+): boolean {
+  const aKeys = Object.keys(a).sort();
+  const bKeys = Object.keys(b).sort();
+  if (aKeys.length !== bKeys.length) return false;
+  for (let i = 0; i < aKeys.length; i += 1) {
+    if (aKeys[i] !== bKeys[i]) return false;
+    const k = aKeys[i];
+    const av = a[k];
+    const bv = b[k];
+    // Compare via JSON.stringify so nested objects + numbers fall
+    // back to deep equality without pulling in a library.
+    if (JSON.stringify(av) !== JSON.stringify(bv)) return false;
+  }
+  return true;
+}
+
+// Valid EUDR DDS evidence key pattern. Auditors and downstream
+// importers (forwarders, customs brokers) often inspect these keys
+// directly, so we lock to a predictable subset: lowercase letters,
+// digits, dots, dashes, and underscores. No spaces, no Unicode —
+// keep them parseable across the EU compliance toolchain.
+const EUDR_KEY_PATTERN = /^[a-z0-9._-]+$/;
+
+function EudrEvidenceEditorPanel({
+  supplier,
+  initialEvidence,
+  onCancel,
+  onSaved,
+}: {
+  supplier: Supplier;
+  initialEvidence: Record<string, unknown>;
+  onCancel: () => void;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const [drafts, setDrafts] = useState<EudrEvidenceDraft[]>(() => {
+    const seeded = evidenceToDrafts(initialEvidence);
+    return seeded.length > 0 ? seeded : [emptyEudrEvidenceDraft()];
+  });
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function updateRow(rowKey: string, patch: Partial<EudrEvidenceDraft>) {
+    setDrafts((prev) =>
+      prev.map((d) => (d.rowKey === rowKey ? { ...d, ...patch } : d)),
+    );
+  }
+
+  function removeRow(rowKey: string) {
+    setDrafts((prev) => prev.filter((d) => d.rowKey !== rowKey));
+  }
+
+  function addRow() {
+    setDrafts((prev) => [...prev, emptyEudrEvidenceDraft()]);
+  }
+
+  function clientSideErrors(): string[] {
+    const out: string[] = [];
+    const seenKeys = new Map<string, number>();
+    drafts.forEach((d, i) => {
+      const rowNumber = i + 1;
+      const k = d.key.trim();
+      const v = d.value;
+      // A row carrying a value but no key is unusable — the (key,
+      // value) pair needs both halves to round-trip into the
+      // jsonb object.
+      if (!k && v.trim()) {
+        out.push(`Row ${rowNumber}: key is required when a value is present`);
+      }
+      if (k && !EUDR_KEY_PATTERN.test(k)) {
+        out.push(`Row ${rowNumber}: key "${k}" must use only lowercase letters, digits, dots, dashes, and underscores`);
+      }
+      if (k) {
+        const seenAt = seenKeys.get(k);
+        if (seenAt != null) {
+          out.push(`Rows ${seenAt} and ${rowNumber} both use key "${k}" — keys must be unique`);
+        } else {
+          seenKeys.set(k, rowNumber);
+        }
+      }
+    });
+    return out;
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors([]);
+
+    const localErrors = clientSideErrors();
+    if (localErrors.length) {
+      setErrors(localErrors);
+      setSaving(false);
+      return;
+    }
+
+    const materialised = draftsToEvidence(drafts);
+
+    if (evidenceEqual(materialised, initialEvidence)) {
+      setSaving(false);
+      onCancel();
+      return;
+    }
+
+    try {
+      const d = await apiPatch<{ ok: boolean; supplier: Supplier; unchanged: boolean }>(
+        `/suppliers/${encodeURIComponent(supplier.externalId)}`,
+        { eudrDdsEvidence: materialised },
+      );
+      onSaved(d.supplier);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.errors.length ? err.errors : [err.message]);
+      } else if (err instanceof AuthError) {
+        setErrors(['Sign in required to save EUDR evidence changes.']);
+      } else {
+        setErrors([err instanceof Error ? err.message : 'Could not save EUDR evidence changes.']);
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]"
+    >
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
-        <h2 className="font-serif text-xl">EUDR Due Diligence Statement evidence</h2>
-        <p className="font-mono text-[11px] text-white/45 mt-1">
-          Evidence trail for EU Deforestation Regulation Article 8 compliance.
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="font-serif text-xl">Edit EUDR DDS evidence</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+            {drafts.length} {drafts.length === 1 ? 'entry' : 'entries'}
+          </span>
+        </div>
+        <p className="font-mono text-[11px] text-white/45 mt-2">
+          Free-form key/value evidence. Common keys: country_of_production,
+          geolocation_coordinates, dds_pdf_url, last_audit_date.
         </p>
       </div>
-      <details className="m-6">
-        <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
-          eudrDdsEvidence
-        </summary>
-        <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
-      </details>
-    </section>
+
+      <div className="px-6 py-5 space-y-3">
+        {drafts.map((d, i) => (
+          <EudrEvidenceEditRow
+            key={d.rowKey}
+            index={i}
+            draft={d}
+            disabled={saving}
+            onChange={(patch) => updateRow(d.rowKey, patch)}
+            onRemove={() => removeRow(d.rowKey)}
+          />
+        ))}
+        <button
+          type="button"
+          onClick={addRow}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+        >
+          + Add evidence entry
+        </button>
+      </div>
+
+      {errors.length > 0 && (
+        <ul
+          className="border-t border-[var(--color-navy-line)] px-6 py-4 space-y-1"
+          role="alert"
+        >
+          {errors.map((e, i) => (
+            <li
+              key={i}
+              className="font-mono text-[12px]"
+              style={{ color: 'var(--color-critical)' }}
+            >
+              {e}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="border-t border-[var(--color-navy-line)] px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save evidence'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function EudrEvidenceEditRow({
+  index,
+  draft,
+  disabled,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  draft: EudrEvidenceDraft;
+  disabled: boolean;
+  onChange: (patch: Partial<EudrEvidenceDraft>) => void;
+  onRemove: () => void;
+}) {
+  const rowNumber = index + 1;
+  return (
+    <div className="grid gap-2 md:grid-cols-[1fr_2fr_auto] items-start">
+      <label className="block">
+        <span className="sr-only">Key for evidence row {rowNumber}</span>
+        <input
+          type="text"
+          value={draft.key}
+          onChange={(e) => onChange({ key: e.target.value })}
+          disabled={disabled}
+          placeholder="key"
+          maxLength={120}
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <label className="block">
+        <span className="sr-only">Value for evidence row {rowNumber}</span>
+        <input
+          type="text"
+          value={draft.value}
+          onChange={(e) => onChange({ value: e.target.value })}
+          disabled={disabled}
+          placeholder="value"
+          maxLength={500}
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <button
+        type="button"
+        onClick={onRemove}
+        disabled={disabled}
+        aria-label={`Remove EUDR evidence row ${rowNumber}`}
+        className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+      >
+        ×
+      </button>
+    </div>
   );
 }
 
