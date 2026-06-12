@@ -180,11 +180,33 @@ test('ADR 0020 documents the per-calculator primary-regulator gate (what flips e
       `Operational-note table missing primary-regulator gate row for "${calc}"`,
     );
   }
-  // The keyword for each gate's status: "pending integration"
-  // (or, for customs, "already wired").
-  const gateBlock = ADR_SRC.match(/Operational note:[\s\S]*?Until then/);
+  // Each gate row carries a status keyword. Pre-PR #132 every row
+  // said "Pending integration"; PR #132 shipped the customs gate
+  // so its row now reads "✅ [PR #132]". Either form is acceptable
+  // here as long as one of the recognised status tokens is present.
+  // Anchor the search on the operational-note heading and the next
+  // top-level paragraph after the table.
+  const gateBlock = ADR_SRC.match(/### Operational note[\s\S]*?(?=\n## |\n### |\n\[pr\d+\]:)/);
   assert.ok(gateBlock, 'Operational note section not located');
-  assert.match(gateBlock[0], /pending integration|already wired/i);
+  assert.match(gateBlock[0], /Pending integration|✅/i,
+    'expected at least one gate-status keyword (Pending integration or ✅) in the operational note');
+});
+
+test('Operational note marks customs-quote as the first gate that shipped (PR #132)', () => {
+  // PR #132 was the first calculator-scoped primary-regulator gate to
+  // land. The operational note's customs-quote row must reference
+  // PR #132 so an auditor reading the ADR can verify which calculator
+  // emits eligible:true verdicts in production today.
+  //
+  // Anchor inside the operational note section so we don't false-
+  // match against the Implementation summary header row (which also
+  // contains "customs-quote" as a column heading).
+  const noteSection = ADR_SRC.match(/### Operational note[\s\S]*?(?=\n## |\n### |\n\[pr\d+\]:)/);
+  assert.ok(noteSection, 'Operational note section not located');
+  const customsRow = noteSection[0].match(/\| customs-quote \|[^\n]+/);
+  assert.ok(customsRow, 'customs-quote row not located within operational note');
+  assert.match(customsRow[0], /PR #132|pr132/i,
+    `expected customs-quote row to reference PR #132; got: "${customsRow[0]}"`);
 });
 
 // ── Status line reflects the closure ─────────────────────────────────

@@ -107,6 +107,74 @@ test('buildTierAInput on a quote with liveRateMeta emits a primary_regulator sna
   assert.ok(primary.id.includes('8501'), `primary snapshot id should reference the HS code: got ${primary.id}`);
 });
 
+// ── PR #132: liveRateMeta drops the mirror snapshot ──────────────────
+
+test('buildTierAInput on a quote with liveRateMeta OMITS the rate-card mirror (PR #132 primary-source gate)', () => {
+  // The TA-2 check (every snapshot must be source_kind:'primary_
+  // regulator') fails as soon as ANY snapshot is a mirror. Before
+  // PR #132 the rate-card mirror was always emitted alongside the
+  // primary, blocking every eligible:true verdict in production.
+  //
+  // The fix: when liveRateMeta is present, the mirror snapshot is
+  // operationally redundant (the primary overrode it via
+  // mfnRateOverride in calculateQuoteAsync), so drop it. The
+  // snapshot list contains exactly ONE entry, source_kind:
+  // 'primary_regulator'.
+  const quote = sampleSyncQuote();
+  quote.duty.liveRateMeta = {
+    source: 'taric-live',
+    sourceLabel: 'EU TARIC live API',
+    asOf: '2026-06-08T11:00:00.000Z',
+    fromCache: false,
+    stale: false,
+    rate: 0.025,
+  };
+  const ta = customs.buildTierAInput(quote);
+  assert.equal(ta.snapshots.length, 1,
+    `expected exactly 1 snapshot when liveRateMeta is present (PR #132); got ${ta.snapshots.length}: ${JSON.stringify(ta.snapshots)}`);
+  assert.equal(ta.snapshots[0].source_kind, 'primary_regulator');
+  const mirror = ta.snapshots.find((s) => s.source_kind === 'mirror');
+  assert.equal(mirror, undefined, 'mirror snapshot must NOT appear alongside the primary_regulator snapshot');
+});
+
+test('buildTierAInput on a sync quote (no liveRateMeta) still emits the mirror snapshot honestly (no PR #132 regression)', () => {
+  // Conservative posture: when there's no primary, declare the
+  // mirror explicitly so TA-2 fails honestly. Don't paper over
+  // the mirror-only path by emitting an empty snapshots array
+  // (which would fail TA-1 instead — wrong failure reason).
+  const quote = sampleSyncQuote();
+  // Explicitly NO liveRateMeta on the duty block.
+  assert.equal(quote.duty && quote.duty.liveRateMeta, undefined);
+  const ta = customs.buildTierAInput(quote);
+  assert.equal(ta.snapshots.length, 1);
+  assert.equal(ta.snapshots[0].source_kind, 'mirror');
+});
+
+test('end-to-end: quote with liveRateMeta → buildTierAInput → evaluate() → eligible:true (no manual snapshot fix-up)', async () => {
+  // This is the contract PR #132 promises in production: a quote
+  // backed by a successful live TARIC call, evaluated within 30
+  // days of the snapshot, with TA-3 green-stamped, lands
+  // eligible:true WITHOUT any manual snapshot manipulation in the
+  // caller. Pre-PR #132 this test would have failed on TA-2 even
+  // with the green stamp.
+  kv._resetMemoryStore();
+  const nowNearSnapshot = Date.parse('2026-05-15T12:00:00.000Z');
+  await greenState.stampLastGreenAt('customs-quote', { nowMs: nowNearSnapshot });
+  const quote = sampleSyncQuote();
+  quote.duty.liveRateMeta = {
+    source: 'taric-live',
+    sourceLabel: 'EU TARIC live API',
+    asOf: '2026-05-14T00:00:00.000Z',
+    fromCache: false,
+    stale: false,
+    rate: 0.025,
+  };
+  const ta = customs.buildTierAInput(quote);
+  const verdict = await tierA.evaluate(ta, { nowMs: nowNearSnapshot });
+  assert.equal(verdict.eligible, true,
+    `expected eligible:true on the production code path; got: ${JSON.stringify(verdict)}`);
+});
+
 test('buildTierAInput on a failed quote returns a well-shaped (but empty-snapshots) input', () => {
   const ta = customs.buildTierAInput({ ok: false, errors: ['something'] });
   assert.equal(ta.calculatorName, 'customs-quote');

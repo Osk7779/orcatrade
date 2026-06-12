@@ -257,32 +257,37 @@ Each cell links to the PR that landed it.
 
 **5 calculators × 4 layers = 20 surfaces, all shipped.**
 
-### Operational note: today's verdicts all return `eligible: false`
+### Operational note: which calculators light up Tier-A today
 
-By design — none of the five calculators currently satisfy TA-2
-(primary-regulator source). Each uses a `PRICING_SNAPSHOT` that is
-a **mirror only** (OrcaTrade-curated benchmark survey or partner-
-forwarder/bank rate table), so every Tier-A determination today
-returns `{ eligible: false, failedReason: 'non-primary-source-TA2' }`.
+[PR #132][pr132] (2026-06-13) shipped the first primary-regulator
+gate — **customs-quote** now emits `eligible: true` verdicts in
+production when the wizard supplies an HS code that resolves through
+the live EU TARIC API. The remaining four calculators stay inert
+pending their own primary-regulator integrations.
 
-This is the **correct, conservative posture pre-E&O-binding** — the
-wedge surface is fully built but no customer-facing Tier-A badge
-actually appears in production today. When the primary-regulator
-sources land for each calculator, the entire downstream chain
-(composer → email → pill) lights up automatically:
+The fix in PR #132 was structural rather than connective: TARIC live-
+fetch had been wired into `calculateQuoteAsync` since the wedge
+opened (PR #89), but `buildTierAInput` was emitting BOTH the rate-
+card mirror AND the live primary-regulator snapshot. The TA-2 check
+fails as soon as ANY snapshot is non-primary, so the mirror was
+silently blocking every verdict. The mirror is now omitted when a
+primary regulator is present (the primary overrides the rate card's
+number anyway, so the mirror is operationally redundant).
 
-| Calculator | Primary-regulator gate |
-|------------|------------------------|
-| customs-quote | EU TARIC live API (live-fetch already wired; needs snapshot freshness ≤30 days at quote time) |
-| sourcing-quote | International trade indices (UN Comtrade / WTO) — pending integration |
-| routing-quote | Carrier-published rate indices (SCFI, WCI, FBX) — pending integration |
-| finance-quote | ECB FX rate table (replacing partner-bank `PRICING_SNAPSHOT.annualForwardPremiumPercent`) — pending integration |
-| warehouse-quote | EU Eurostat warehousing producer-price indices, or direct hub-published rate cards via API — pending integration |
+| Calculator | Primary-regulator gate | Status |
+|------------|------------------------|--------|
+| customs-quote | EU TARIC live API | ✅ [PR #132][pr132] |
+| sourcing-quote | International trade indices (UN Comtrade / WTO) | Pending integration |
+| routing-quote | Carrier-published rate indices (SCFI, WCI, FBX) | Pending integration |
+| finance-quote | ECB FX rate table (replacing partner-bank `PRICING_SNAPSHOT.annualForwardPremiumPercent`) | Pending integration |
+| warehouse-quote | EU Eurostat warehousing producer-price indices, or direct hub-published rate cards via API | Pending integration |
 
-Each gate lands as a separate, calculator-scoped PR. Until then,
-the wedge stays inert AND the forthcoming-guarantee wording stays
-in place across every surface.
+Each remaining gate lands as a separate, calculator-scoped PR. The
+forthcoming-guarantee wording stays in place across every surface
+until E&O insurance binds in Q1 2027 — Tier-A continues to be a
+transparency signal even where it now flips `eligible: true`.
 
+[pr132]: https://github.com/Osk7779/orcatrade/pull/132
 [pr87]: https://github.com/Osk7779/orcatrade/pull/87
 [pr89]: https://github.com/Osk7779/orcatrade/pull/89
 [pr91]: https://github.com/Osk7779/orcatrade/pull/91
