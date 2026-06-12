@@ -111,10 +111,18 @@ test('sanctions panel uses critical border tone only when flagged', () => {
 
 // ── Audit certs expiry ───────────────────────────────────────────────
 
-test('audit certs panel renders only when at least one cert exists', () => {
-  assert.match(
+test('audit certs panel renders unconditionally so empty suppliers can add the first cert', () => {
+  // PR #130 inverted this behaviour to match PR #129's SVHC pattern:
+  // the panel ALWAYS renders. Read mode shows "No audit certifications
+  // on file yet" + Edit button; edit mode lets the operator add the
+  // first cert. The presence-of-data check moved inside the panel.
+  //
+  // Drift guard against accidentally restoring the conditional,
+  // which would make adding certs impossible from the UI.
+  assert.match(DETAIL_SRC, /<AuditCertsPanel\s+supplier=\{supplier\}/);
+  assert.doesNotMatch(
     DETAIL_SRC,
-    /supplier\.auditCerts && supplier\.auditCerts\.length > 0/,
+    /supplier\.auditCerts && supplier\.auditCerts\.length > 0 && \(\s*<AuditCertsPanel/,
   );
 });
 

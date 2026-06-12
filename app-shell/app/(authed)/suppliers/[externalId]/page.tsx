@@ -17,6 +17,7 @@ import {
   AuthError,
   ApiError,
   SUPPLIER_LEGAL_FORMS,
+  type AuditCert,
   type Supplier,
   type SupplierSanctionsStatus,
 } from '@/lib/api';
@@ -137,9 +138,14 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
         supplier={supplier}
         onRescreened={(updated) => setSupplier(updated)}
       />
-      {supplier.auditCerts && supplier.auditCerts.length > 0 && (
-        <AuditCertsPanel supplier={supplier} />
-      )}
+      {/* PR #130: Panel always renders so operators can ADD an audit
+          cert to a supplier that doesn't yet have any. Same pattern
+          as PR #129's SVHC editor — the empty-state check moved
+          inside the panel. */}
+      <AuditCertsPanel
+        supplier={supplier}
+        onSaved={(updated) => setSupplier(updated)}
+      />
       {supplier.factoryLocations && supplier.factoryLocations.length > 0 && (
         <FactoryLocationsPanel supplier={supplier} />
       )}
@@ -614,42 +620,534 @@ function SanctionsPanel({
   );
 }
 
-function AuditCertsPanel({ supplier }: { supplier: Supplier }) {
-  const certs = supplier.auditCerts || [];
+// AuditCertsPanel — read view of declared audit certifications +
+// per-row editor (PR #130). Mirrors the ReachSvhcPanel pattern from
+// PR #129: read mode + edit mode toggle, stable rowKey, sparse-
+// flag materialisation, order-insensitive equality, sparse PATCH
+// body.
+//
+// Why a dedicated editor (not part of EditForm from PR #123):
+// supplier audit certs are an ARRAY-of-objects jsonb field — same
+// argument as SVHC. EditForm handles scalar identifying fields;
+// this editor handles the certification list with per-row inputs
+// for standard / issuer / cert number / issued / expires / evidence
+// URL.
+//
+// Validation mirrors lib/db/suppliers.js validateForUpdate's
+// auditCerts shape (must be an array — already enforced at the
+// type boundary). Per-row constraints layered on top here:
+//   - standard required (the certification body's name — the row
+//     can't audit without identifying what it certifies)
+//   - issuedAt + expiresAt (if both present): expires > issued
+//   - evidenceUrl (if present): well-formed URL
+function AuditCertsPanel({
+  supplier,
+  onSaved,
+}: {
+  supplier: Supplier;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const persistedCerts = supplier.auditCerts || [];
+  const archived = Boolean(supplier.archivedAt);
+  const [editing, setEditing] = useState(false);
+
+  if (!editing) {
+    return (
+      <AuditCertsReadPanel
+        certs={persistedCerts}
+        archived={archived}
+        onEditClick={() => setEditing(true)}
+      />
+    );
+  }
+
+  return (
+    <AuditCertsEditorPanel
+      supplier={supplier}
+      initialCerts={persistedCerts}
+      onCancel={() => setEditing(false)}
+      onSaved={(updated) => {
+        onSaved(updated);
+        setEditing(false);
+      }}
+    />
+  );
+}
+
+function AuditCertsReadPanel({
+  certs,
+  archived,
+  onEditClick,
+}: {
+  certs: AuditCert[];
+  archived: boolean;
+  onEditClick: () => void;
+}) {
+  const hasCerts = certs.length > 0;
   return (
     <section className="mb-10 border border-[var(--color-navy-line)]">
-      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between gap-3">
         <h2 className="font-serif text-xl">Audit certifications</h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
-          {certs.length} on file
+        <div className="flex items-center gap-3">
+          {hasCerts && (
+            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+              {certs.length} on file
+            </span>
+          )}
+          {!archived && (
+            <button
+              type="button"
+              onClick={onEditClick}
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+      </div>
+      {hasCerts ? (
+        <ul>
+          {certs.map((c, i) => (
+            <li
+              key={c.certNumber || `${c.standard}-${i}`}
+              className="px-6 py-4 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6"
+            >
+              <div>
+                <div className="font-serif text-[14px] text-white">
+                  {(c.standard || 'Unnamed').toUpperCase()}
+                </div>
+                <div className="font-mono text-[11px] text-white/55 mt-1">
+                  {c.issuer && `Issued by ${c.issuer}`}
+                  {c.certNumber && ` · #${c.certNumber}`}
+                  {c.issuedAt && ` · issued ${fmtDate(c.issuedAt)}`}
+                </div>
+              </div>
+              <span
+                className="font-mono text-[11px] uppercase tracking-[0.12em] px-2 py-1 border"
+                style={{
+                  borderColor: certExpiryTone(c.expiresAt),
+                  color: certExpiryTone(c.expiresAt),
+                }}
+              >
+                {certExpiryLabel(c.expiresAt)}
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="px-6 py-5 font-mono text-xs text-white/45">
+          No audit certifications on file yet.{' '}
+          {!archived && 'Click Edit to add the first entry.'}
+        </p>
+      )}
+    </section>
+  );
+}
+
+// Working type for the editor — looser than AuditCert so date
+// strings stay raw input. Carries a stable rowKey so React
+// reconciliation survives reorders + add/remove without losing
+// focus.
+type AuditCertDraft = {
+  rowKey: string;
+  standard: string;
+  issuer: string;
+  certNumber: string;
+  issuedAt: string;
+  expiresAt: string;
+  evidenceUrl: string;
+};
+
+let auditCertRowKeyCounter = 0;
+function nextAuditCertRowKey(): string {
+  auditCertRowKeyCounter += 1;
+  return `auditcert-${auditCertRowKeyCounter}`;
+}
+
+function emptyAuditCertDraft(): AuditCertDraft {
+  return {
+    rowKey: nextAuditCertRowKey(),
+    standard: '',
+    issuer: '',
+    certNumber: '',
+    issuedAt: '',
+    expiresAt: '',
+    evidenceUrl: '',
+  };
+}
+
+function auditCertToDraft(c: AuditCert): AuditCertDraft {
+  return {
+    rowKey: nextAuditCertRowKey(),
+    standard: typeof c.standard === 'string' ? c.standard : '',
+    issuer: typeof c.issuer === 'string' ? c.issuer : '',
+    certNumber: typeof c.certNumber === 'string' ? c.certNumber : '',
+    issuedAt: typeof c.issuedAt === 'string' ? c.issuedAt : '',
+    expiresAt: typeof c.expiresAt === 'string' ? c.expiresAt : '',
+    evidenceUrl: typeof c.evidenceUrl === 'string' ? c.evidenceUrl : '',
+  };
+}
+
+function draftToAuditCert(d: AuditCertDraft): AuditCert | null {
+  // Drop completely-empty rows. Same semantics as PR #129's SVHC
+  // editor — "operator added a row and then cancelled out of it"
+  // is treated as a no-op rather than a validation error.
+  const standard = d.standard.trim();
+  const issuer = d.issuer.trim();
+  const certNumber = d.certNumber.trim();
+  const issuedAt = d.issuedAt.trim();
+  const expiresAt = d.expiresAt.trim();
+  const evidenceUrl = d.evidenceUrl.trim();
+  if (!standard && !issuer && !certNumber && !issuedAt && !expiresAt && !evidenceUrl) {
+    return null;
+  }
+  const out: AuditCert = {};
+  if (standard) out.standard = standard;
+  if (issuer) out.issuer = issuer;
+  if (certNumber) out.certNumber = certNumber;
+  if (issuedAt) out.issuedAt = issuedAt;
+  if (expiresAt) out.expiresAt = expiresAt;
+  if (evidenceUrl) out.evidenceUrl = evidenceUrl;
+  return out;
+}
+
+// Order-insensitive equality — same logic as PR #129's flagsEqual.
+// Re-order-then-undo cycles exit without writing a noise audit
+// event.
+function auditCertsEqual(a: AuditCert[], b: AuditCert[]): boolean {
+  if (a.length !== b.length) return false;
+  const norm = (c: AuditCert) =>
+    [
+      c.standard ?? '',
+      c.issuer ?? '',
+      c.certNumber ?? '',
+      c.issuedAt ?? '',
+      c.expiresAt ?? '',
+      c.evidenceUrl ?? '',
+    ].join('|');
+  const aSet = a.map(norm).sort();
+  const bSet = b.map(norm).sort();
+  return aSet.every((v, i) => v === bSet[i]);
+}
+
+function isPlausibleDateInput(s: string): boolean {
+  // Accept YYYY-MM-DD (HTML date input native format) OR a value
+  // Date.parse can interpret. Keeps the bar low — date validity is
+  // re-checked server-side; we just want to catch obvious garbage
+  // before the PATCH fires.
+  if (!s) return false;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(s)) return true;
+  const t = Date.parse(s);
+  return Number.isFinite(t);
+}
+
+function AuditCertsEditorPanel({
+  supplier,
+  initialCerts,
+  onCancel,
+  onSaved,
+}: {
+  supplier: Supplier;
+  initialCerts: AuditCert[];
+  onCancel: () => void;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const [drafts, setDrafts] = useState<AuditCertDraft[]>(() =>
+    initialCerts.length > 0
+      ? initialCerts.map(auditCertToDraft)
+      : [emptyAuditCertDraft()],
+  );
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function updateRow(rowKey: string, patch: Partial<AuditCertDraft>) {
+    setDrafts((prev) =>
+      prev.map((d) => (d.rowKey === rowKey ? { ...d, ...patch } : d)),
+    );
+  }
+
+  function removeRow(rowKey: string) {
+    setDrafts((prev) => prev.filter((d) => d.rowKey !== rowKey));
+  }
+
+  function addRow() {
+    setDrafts((prev) => [...prev, emptyAuditCertDraft()]);
+  }
+
+  function clientSideErrors(materialised: AuditCert[]): string[] {
+    const out: string[] = [];
+    materialised.forEach((c, i) => {
+      const rowNumber = i + 1;
+      // The standard is the certification body's name — without
+      // it the row carries no audit value. Drop "row carries only
+      // a cert number with no standard" rather than silently
+      // accepting an un-auditable entry.
+      if (!c.standard) {
+        out.push(`Row ${rowNumber}: standard is required`);
+      }
+      // Date plausibility (skipping when absent — both dates are
+      // optional, but if you say a cert was issued, the date must
+      // be a date).
+      if (c.issuedAt && !isPlausibleDateInput(String(c.issuedAt))) {
+        out.push(`Row ${rowNumber}: issued date is not a valid date`);
+      }
+      if (c.expiresAt && !isPlausibleDateInput(String(c.expiresAt))) {
+        out.push(`Row ${rowNumber}: expiry date is not a valid date`);
+      }
+      // Temporal sanity: expiry must be after issuance (zero-day
+      // certs aren't a thing). Comparison runs on Date.parse'd
+      // milliseconds; the HTML5 date input already gives
+      // YYYY-MM-DD which parses cleanly.
+      if (c.issuedAt && c.expiresAt) {
+        const issued = Date.parse(String(c.issuedAt));
+        const expires = Date.parse(String(c.expiresAt));
+        if (Number.isFinite(issued) && Number.isFinite(expires) && expires <= issued) {
+          out.push(`Row ${rowNumber}: expiry date must be after the issued date`);
+        }
+      }
+      // Light URL sanity — must include a scheme so accidental
+      // "www.bsci…" pastes get flagged. Server may re-validate.
+      if (c.evidenceUrl) {
+        try {
+          new URL(String(c.evidenceUrl));
+        } catch (_) {
+          out.push(`Row ${rowNumber}: evidence URL must include a scheme (https://…)`);
+        }
+      }
+    });
+    return out;
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors([]);
+
+    const materialised = drafts
+      .map(draftToAuditCert)
+      .filter((c): c is AuditCert => c !== null);
+
+    const localErrors = clientSideErrors(materialised);
+    if (localErrors.length) {
+      setErrors(localErrors);
+      setSaving(false);
+      return;
+    }
+
+    if (auditCertsEqual(materialised, initialCerts)) {
+      setSaving(false);
+      onCancel();
+      return;
+    }
+
+    try {
+      const d = await apiPatch<{ ok: boolean; supplier: Supplier; unchanged: boolean }>(
+        `/suppliers/${encodeURIComponent(supplier.externalId)}`,
+        { auditCerts: materialised },
+      );
+      onSaved(d.supplier);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.errors.length ? err.errors : [err.message]);
+      } else if (err instanceof AuthError) {
+        setErrors(['Sign in required to save audit cert changes.']);
+      } else {
+        setErrors([err instanceof Error ? err.message : 'Could not save audit cert changes.']);
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]"
+    >
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
+        <h2 className="font-serif text-xl">Edit audit certifications</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          {drafts.length} {drafts.length === 1 ? 'row' : 'rows'}
         </span>
       </div>
-      <ul>
-        {certs.map((c, i) => (
-          <li key={c.certNumber || `${c.standard}-${i}`} className="px-6 py-4 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6">
-            <div>
-              <div className="font-serif text-[14px] text-white">
-                {(c.standard || 'Unnamed').toUpperCase()}
-              </div>
-              <div className="font-mono text-[11px] text-white/55 mt-1">
-                {c.issuer && `Issued by ${c.issuer}`}
-                {c.certNumber && ` · #${c.certNumber}`}
-                {c.issuedAt && ` · issued ${fmtDate(c.issuedAt)}`}
-              </div>
-            </div>
-            <span
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-2 py-1 border"
-              style={{
-                borderColor: certExpiryTone(c.expiresAt),
-                color: certExpiryTone(c.expiresAt),
-              }}
-            >
-              {certExpiryLabel(c.expiresAt)}
-            </span>
-          </li>
+
+      <div className="px-6 py-5 space-y-4">
+        {drafts.map((d, i) => (
+          <AuditCertEditRow
+            key={d.rowKey}
+            index={i}
+            draft={d}
+            disabled={saving}
+            onChange={(patch) => updateRow(d.rowKey, patch)}
+            onRemove={() => removeRow(d.rowKey)}
+          />
         ))}
-      </ul>
-    </section>
+        <button
+          type="button"
+          onClick={addRow}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+        >
+          + Add certification
+        </button>
+      </div>
+
+      {errors.length > 0 && (
+        <ul
+          className="border-t border-[var(--color-navy-line)] px-6 py-4 space-y-1"
+          role="alert"
+        >
+          {errors.map((e, i) => (
+            <li
+              key={i}
+              className="font-mono text-[12px]"
+              style={{ color: 'var(--color-critical)' }}
+            >
+              {e}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="border-t border-[var(--color-navy-line)] px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save certifications'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function AuditCertEditRow({
+  index,
+  draft,
+  disabled,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  draft: AuditCertDraft;
+  disabled: boolean;
+  onChange: (patch: Partial<AuditCertDraft>) => void;
+  onRemove: () => void;
+}) {
+  const rowNumber = index + 1;
+  return (
+    <div className="border border-[var(--color-navy-line)] px-3 py-3 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          Certification {rowNumber}
+        </span>
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={disabled}
+          aria-label={`Remove certification row ${rowNumber}`}
+          className="font-mono text-[11px] px-3 py-1 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+        >
+          ×
+        </button>
+      </div>
+      <div className="grid gap-3 md:grid-cols-2">
+        <AuditCertField
+          label="Standard"
+          required
+          value={draft.standard}
+          onChange={(v) => onChange({ standard: v })}
+          disabled={disabled}
+          placeholder="e.g. BSCI, SA8000, ISO 9001"
+          maxLength={64}
+        />
+        <AuditCertField
+          label="Issuer"
+          value={draft.issuer}
+          onChange={(v) => onChange({ issuer: v })}
+          disabled={disabled}
+          placeholder="e.g. amfori, SGS, Bureau Veritas"
+          maxLength={120}
+        />
+        <AuditCertField
+          label="Cert number"
+          value={draft.certNumber}
+          onChange={(v) => onChange({ certNumber: v })}
+          disabled={disabled}
+          placeholder="Reference number"
+          maxLength={64}
+        />
+        <AuditCertField
+          label="Evidence URL"
+          value={draft.evidenceUrl}
+          onChange={(v) => onChange({ evidenceUrl: v })}
+          disabled={disabled}
+          placeholder="https://…"
+          maxLength={300}
+        />
+        <AuditCertField
+          label="Issued"
+          type="date"
+          value={draft.issuedAt}
+          onChange={(v) => onChange({ issuedAt: v })}
+          disabled={disabled}
+        />
+        <AuditCertField
+          label="Expires"
+          type="date"
+          value={draft.expiresAt}
+          onChange={(v) => onChange({ expiresAt: v })}
+          disabled={disabled}
+        />
+      </div>
+    </div>
+  );
+}
+
+function AuditCertField({
+  label,
+  value,
+  onChange,
+  disabled,
+  required,
+  placeholder,
+  maxLength,
+  type,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  disabled: boolean;
+  required?: boolean;
+  placeholder?: string;
+  maxLength?: number;
+  type?: 'text' | 'date';
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        {label}
+        {required && <span className="ml-1 text-white/60">*</span>}
+      </span>
+      <input
+        type={type || 'text'}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        required={required}
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+      />
+    </label>
   );
 }
 
