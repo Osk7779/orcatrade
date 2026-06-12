@@ -144,10 +144,20 @@ test('certExpiryLabel formats expired / expiring-soon / valid distinctly', () =>
 
 // ── Factory + EUDR + trust-components conditional renders ─────────────
 
-test('factory locations panel renders only when at least one site exists', () => {
-  assert.match(
+test('factory locations panel renders unconditionally so empty suppliers can add the first site', () => {
+  // PR #131 inverted this behaviour to match PR #129's SVHC and PR
+  // #130's audit-certs pattern: the panel ALWAYS renders. Read mode
+  // shows "No factory locations on file yet" + Edit button; edit
+  // mode lets the operator add the first site. The presence-of-data
+  // check moved inside the panel.
+  //
+  // Drift guard against accidentally restoring the conditional,
+  // which would block the EUDR Article 9 supply-chain-mapping
+  // workflow.
+  assert.match(DETAIL_SRC, /<FactoryLocationsPanel\s+supplier=\{supplier\}/);
+  assert.doesNotMatch(
     DETAIL_SRC,
-    /supplier\.factoryLocations && supplier\.factoryLocations\.length > 0/,
+    /supplier\.factoryLocations && supplier\.factoryLocations\.length > 0 && \(\s*<FactoryLocationsPanel/,
   );
 });
 

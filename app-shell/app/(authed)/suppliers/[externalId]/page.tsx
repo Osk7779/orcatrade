@@ -18,6 +18,7 @@ import {
   ApiError,
   SUPPLIER_LEGAL_FORMS,
   type AuditCert,
+  type FactoryLocation,
   type Supplier,
   type SupplierSanctionsStatus,
 } from '@/lib/api';
@@ -146,9 +147,16 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
         supplier={supplier}
         onSaved={(updated) => setSupplier(updated)}
       />
-      {supplier.factoryLocations && supplier.factoryLocations.length > 0 && (
-        <FactoryLocationsPanel supplier={supplier} />
-      )}
+      {/* PR #131: Panel always renders so operators can ADD a factory
+          location to a supplier with none on file. Same pattern as
+          PR #129 (SVHC) and PR #130 (audit certs) — the empty-state
+          check moved inside the panel. EUDR Article 9 due diligence
+          requires supply-chain mapping; this surface is the
+          operator's place to record it. */}
+      <FactoryLocationsPanel
+        supplier={supplier}
+        onSaved={(updated) => setSupplier(updated)}
+      />
       {supplier.eudrDdsEvidence && Object.keys(supplier.eudrDdsEvidence).length > 0 && (
         <EudrPanel supplier={supplier} />
       )}
@@ -1151,32 +1159,469 @@ function AuditCertField({
   );
 }
 
-function FactoryLocationsPanel({ supplier }: { supplier: Supplier }) {
-  const locs = supplier.factoryLocations || [];
+// FactoryLocationsPanel — read view of declared factory sites + per-
+// row editor (PR #131). Mirrors the AuditCertsPanel pattern from PR
+// #130 and the ReachSvhcPanel pattern from PR #129: read mode + edit
+// mode toggle, stable rowKey, sparse-flag materialisation, order-
+// insensitive equality, sparse PATCH body.
+//
+// Why a dedicated editor (not part of EditForm from PR #123):
+// supplier factory locations are an ARRAY-of-objects jsonb field —
+// same argument as SVHC and audit certs. EditForm handles scalar
+// identifying fields; this editor handles the supply-chain mapping
+// with per-row inputs for countryCode / city / role / floorAreaSqm.
+//
+// EUDR Article 9 due diligence requires supply-chain mapping
+// (production country of origin for relevant commodities). This
+// surface is the operator's place to record it.
+//
+// Validation:
+//   - countryCode required + ISO-2 uppercase
+//   - floorAreaSqm (if present): non-negative finite number
+function FactoryLocationsPanel({
+  supplier,
+  onSaved,
+}: {
+  supplier: Supplier;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const persistedLocs = supplier.factoryLocations || [];
+  const archived = Boolean(supplier.archivedAt);
+  const [editing, setEditing] = useState(false);
+
+  if (!editing) {
+    return (
+      <FactoryLocationsReadPanel
+        locs={persistedLocs}
+        archived={archived}
+        onEditClick={() => setEditing(true)}
+      />
+    );
+  }
+
+  return (
+    <FactoryLocationsEditorPanel
+      supplier={supplier}
+      initialLocs={persistedLocs}
+      onCancel={() => setEditing(false)}
+      onSaved={(updated) => {
+        onSaved(updated);
+        setEditing(false);
+      }}
+    />
+  );
+}
+
+function FactoryLocationsReadPanel({
+  locs,
+  archived,
+  onEditClick,
+}: {
+  locs: FactoryLocation[];
+  archived: boolean;
+  onEditClick: () => void;
+}) {
+  const hasLocs = locs.length > 0;
   return (
     <section className="mb-10 border border-[var(--color-navy-line)]">
-      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between gap-3">
         <h2 className="font-serif text-xl">Factory locations</h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
-          {locs.length} site{locs.length === 1 ? '' : 's'}
+        <div className="flex items-center gap-3">
+          {hasLocs && (
+            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+              {locs.length} site{locs.length === 1 ? '' : 's'}
+            </span>
+          )}
+          {!archived && (
+            <button
+              type="button"
+              onClick={onEditClick}
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+            >
+              Edit
+            </button>
+          )}
+        </div>
+      </div>
+      {hasLocs ? (
+        <ul>
+          {locs.map((l, i) => (
+            <li
+              key={`${l.countryCode}-${l.city}-${i}`}
+              className="px-6 py-4 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6"
+            >
+              <div>
+                <div className="font-serif text-[14px] text-white">
+                  {l.city || '—'}
+                  {l.countryCode ? `, ${l.countryCode}` : ''}
+                </div>
+                <div className="font-mono text-[11px] text-white/55 mt-1">
+                  {l.role || '—'}
+                  {l.floorAreaSqm != null && ` · ${l.floorAreaSqm.toLocaleString('en-IE')} m²`}
+                </div>
+              </div>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="px-6 py-5 font-mono text-xs text-white/45">
+          No factory locations on file yet.{' '}
+          {!archived && 'Click Edit to add the first entry. (Required for EUDR Article 9 due diligence.)'}
+        </p>
+      )}
+    </section>
+  );
+}
+
+// Working type for the editor — looser than FactoryLocation so the
+// floorAreaSqm input can hold a raw string until save time. Carries
+// a stable rowKey so React reconciliation survives reorders + add/
+// remove without losing focus.
+type FactoryLocationDraft = {
+  rowKey: string;
+  countryCode: string;
+  city: string;
+  role: string;
+  floorAreaSqmRaw: string;
+};
+
+let factoryLocRowKeyCounter = 0;
+function nextFactoryLocRowKey(): string {
+  factoryLocRowKeyCounter += 1;
+  return `factoryloc-${factoryLocRowKeyCounter}`;
+}
+
+function emptyFactoryLocationDraft(): FactoryLocationDraft {
+  return {
+    rowKey: nextFactoryLocRowKey(),
+    countryCode: '',
+    city: '',
+    role: '',
+    floorAreaSqmRaw: '',
+  };
+}
+
+function factoryLocationToDraft(l: FactoryLocation): FactoryLocationDraft {
+  return {
+    rowKey: nextFactoryLocRowKey(),
+    countryCode: typeof l.countryCode === 'string' ? l.countryCode : '',
+    city: typeof l.city === 'string' ? l.city : '',
+    role: typeof l.role === 'string' ? l.role : '',
+    floorAreaSqmRaw:
+      typeof l.floorAreaSqm === 'number' && Number.isFinite(l.floorAreaSqm)
+        ? String(l.floorAreaSqm)
+        : '',
+  };
+}
+
+function draftToFactoryLocation(d: FactoryLocationDraft): FactoryLocation | null {
+  // Drop completely-empty rows. Same semantics as PR #129's SVHC
+  // editor and PR #130's audit-cert editor.
+  const countryCode = d.countryCode.trim().toUpperCase();
+  const city = d.city.trim();
+  const role = d.role.trim();
+  const areaRaw = d.floorAreaSqmRaw.trim();
+  if (!countryCode && !city && !role && !areaRaw) return null;
+  const out: FactoryLocation = {};
+  if (countryCode) out.countryCode = countryCode;
+  if (city) out.city = city;
+  if (role) out.role = role;
+  if (areaRaw !== '') {
+    const n = Number(areaRaw);
+    if (Number.isFinite(n)) out.floorAreaSqm = n;
+  }
+  return out;
+}
+
+// Order-insensitive equality — same logic as flagsEqual (PR #129) and
+// auditCertsEqual (PR #130). Re-order-then-undo exits without an
+// audit event.
+function factoryLocationsEqual(a: FactoryLocation[], b: FactoryLocation[]): boolean {
+  if (a.length !== b.length) return false;
+  const norm = (l: FactoryLocation) =>
+    [
+      l.countryCode ?? '',
+      l.city ?? '',
+      l.role ?? '',
+      l.floorAreaSqm ?? '',
+    ].join('|');
+  const aSet = a.map(norm).sort();
+  const bSet = b.map(norm).sort();
+  return aSet.every((v, i) => v === bSet[i]);
+}
+
+function FactoryLocationsEditorPanel({
+  supplier,
+  initialLocs,
+  onCancel,
+  onSaved,
+}: {
+  supplier: Supplier;
+  initialLocs: FactoryLocation[];
+  onCancel: () => void;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const [drafts, setDrafts] = useState<FactoryLocationDraft[]>(() =>
+    initialLocs.length > 0
+      ? initialLocs.map(factoryLocationToDraft)
+      : [emptyFactoryLocationDraft()],
+  );
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function updateRow(rowKey: string, patch: Partial<FactoryLocationDraft>) {
+    setDrafts((prev) =>
+      prev.map((d) => (d.rowKey === rowKey ? { ...d, ...patch } : d)),
+    );
+  }
+
+  function removeRow(rowKey: string) {
+    setDrafts((prev) => prev.filter((d) => d.rowKey !== rowKey));
+  }
+
+  function addRow() {
+    setDrafts((prev) => [...prev, emptyFactoryLocationDraft()]);
+  }
+
+  function clientSideErrors(materialised: FactoryLocation[]): string[] {
+    const out: string[] = [];
+    materialised.forEach((l, i) => {
+      const rowNumber = i + 1;
+      // Country code is required — without it the row carries no
+      // EUDR supply-chain-mapping value. Drop "row carries only a
+      // city or role with no country" rather than silently
+      // accepting an unmappable entry.
+      if (!l.countryCode) {
+        out.push(`Row ${rowNumber}: country code is required`);
+      } else if (!/^[A-Z]{2}$/.test(String(l.countryCode))) {
+        out.push(`Row ${rowNumber}: country code must be ISO-2 uppercase`);
+      }
+      if (l.floorAreaSqm != null) {
+        if (!Number.isFinite(l.floorAreaSqm) || l.floorAreaSqm < 0) {
+          out.push(`Row ${rowNumber}: floor area must be a non-negative number`);
+        }
+      }
+    });
+    return out;
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors([]);
+
+    const materialised = drafts
+      .map(draftToFactoryLocation)
+      .filter((l): l is FactoryLocation => l !== null);
+
+    const localErrors = clientSideErrors(materialised);
+    if (localErrors.length) {
+      setErrors(localErrors);
+      setSaving(false);
+      return;
+    }
+
+    if (factoryLocationsEqual(materialised, initialLocs)) {
+      setSaving(false);
+      onCancel();
+      return;
+    }
+
+    try {
+      const d = await apiPatch<{ ok: boolean; supplier: Supplier; unchanged: boolean }>(
+        `/suppliers/${encodeURIComponent(supplier.externalId)}`,
+        { factoryLocations: materialised },
+      );
+      onSaved(d.supplier);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.errors.length ? err.errors : [err.message]);
+      } else if (err instanceof AuthError) {
+        setErrors(['Sign in required to save factory location changes.']);
+      } else {
+        setErrors([err instanceof Error ? err.message : 'Could not save factory location changes.']);
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]"
+    >
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
+        <h2 className="font-serif text-xl">Edit factory locations</h2>
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          {drafts.length} {drafts.length === 1 ? 'site' : 'sites'}
         </span>
       </div>
-      <ul>
-        {locs.map((l, i) => (
-          <li key={`${l.countryCode}-${l.city}-${i}`} className="px-6 py-4 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6">
-            <div>
-              <div className="font-serif text-[14px] text-white">
-                {l.city || '—'}{l.countryCode ? `, ${l.countryCode}` : ''}
-              </div>
-              <div className="font-mono text-[11px] text-white/55 mt-1">
-                {l.role || '—'}
-                {l.floorAreaSqm != null && ` · ${l.floorAreaSqm.toLocaleString('en-IE')} m²`}
-              </div>
-            </div>
-          </li>
+
+      <div className="px-6 py-5 space-y-4">
+        {drafts.map((d, i) => (
+          <FactoryLocationEditRow
+            key={d.rowKey}
+            index={i}
+            draft={d}
+            disabled={saving}
+            onChange={(patch) => updateRow(d.rowKey, patch)}
+            onRemove={() => removeRow(d.rowKey)}
+          />
         ))}
-      </ul>
-    </section>
+        <button
+          type="button"
+          onClick={addRow}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+        >
+          + Add factory location
+        </button>
+      </div>
+
+      {errors.length > 0 && (
+        <ul
+          className="border-t border-[var(--color-navy-line)] px-6 py-4 space-y-1"
+          role="alert"
+        >
+          {errors.map((e, i) => (
+            <li
+              key={i}
+              className="font-mono text-[12px]"
+              style={{ color: 'var(--color-critical)' }}
+            >
+              {e}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="border-t border-[var(--color-navy-line)] px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save locations'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function FactoryLocationEditRow({
+  index,
+  draft,
+  disabled,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  draft: FactoryLocationDraft;
+  disabled: boolean;
+  onChange: (patch: Partial<FactoryLocationDraft>) => void;
+  onRemove: () => void;
+}) {
+  const rowNumber = index + 1;
+  return (
+    <div className="border border-[var(--color-navy-line)] px-3 py-3 space-y-3">
+      <div className="flex items-center justify-between gap-3">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          Site {rowNumber}
+        </span>
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={disabled}
+          aria-label={`Remove factory location row ${rowNumber}`}
+          className="font-mono text-[11px] px-3 py-1 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+        >
+          ×
+        </button>
+      </div>
+      <div className="grid gap-3 md:grid-cols-[120px_1fr_1fr_140px]">
+        <FactoryLocationField
+          label="Country"
+          required
+          value={draft.countryCode}
+          onChange={(v) => onChange({ countryCode: v.toUpperCase() })}
+          disabled={disabled}
+          placeholder="CN"
+          maxLength={2}
+        />
+        <FactoryLocationField
+          label="City"
+          value={draft.city}
+          onChange={(v) => onChange({ city: v })}
+          disabled={disabled}
+          placeholder="e.g. Shenzhen"
+          maxLength={120}
+        />
+        <FactoryLocationField
+          label="Role"
+          value={draft.role}
+          onChange={(v) => onChange({ role: v })}
+          disabled={disabled}
+          placeholder="e.g. assembly, finishing"
+          maxLength={120}
+        />
+        <FactoryLocationField
+          label="Floor (m²)"
+          value={draft.floorAreaSqmRaw}
+          onChange={(v) => onChange({ floorAreaSqmRaw: v })}
+          disabled={disabled}
+          placeholder="12000"
+          inputMode="decimal"
+        />
+      </div>
+    </div>
+  );
+}
+
+function FactoryLocationField({
+  label,
+  value,
+  onChange,
+  disabled,
+  required,
+  placeholder,
+  maxLength,
+  inputMode,
+}: {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  disabled: boolean;
+  required?: boolean;
+  placeholder?: string;
+  maxLength?: number;
+  inputMode?: 'text' | 'numeric' | 'decimal';
+}) {
+  return (
+    <label className="block">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        {label}
+        {required && <span className="ml-1 text-white/60">*</span>}
+      </span>
+      <input
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        disabled={disabled}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        inputMode={inputMode}
+        required={required}
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+      />
+    </label>
   );
 }
 

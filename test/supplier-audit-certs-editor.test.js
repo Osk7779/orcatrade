@@ -284,10 +284,12 @@ test('EditForm scalar fields still NOT touched by the audit-certs editor (PR #12
   assert.doesNotMatch(block, /auditCerts|certNumber|certExpiry/i);
 });
 
-test('FactoryLocationsPanel still renders read-only (deferred to next PR)', () => {
-  // Drift guard against an accidental editor wired onto the wrong
-  // panel. PR #130 ships only the audit-certs editor.
-  assert.match(SRC, /function FactoryLocationsPanel\(\{ supplier \}: \{ supplier: Supplier \}\)/);
+test('FactoryLocationsPanel is now editable (PR #131 shipped — drift guard against accidental rollback)', () => {
+  // PR #130 deferred this; PR #131 shipped it. Drift guard against
+  // a future refactor accidentally collapsing the editor back to a
+  // read-only panel.
+  assert.match(SRC, /function FactoryLocationsPanel\(\{\s*supplier,\s*onSaved,/);
+  assert.match(SRC, /function FactoryLocationsEditorPanel/);
 });
 
 test('EudrPanel still renders read-only (deferred)', () => {
