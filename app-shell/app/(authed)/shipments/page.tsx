@@ -21,8 +21,10 @@ import { Suspense, useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';
 import {
+  apiDelete,
   apiGet,
   apiPost,
+  ApiError,
   AuthError,
   SHIPMENT_STATUSES,
   type Shipment,
@@ -134,10 +136,31 @@ function ShipmentsView() {
       <ExceptionQueueCard items={queue} onAcknowledged={(updated) => {
         setQueue((prev) => prev.map((q) => (q.externalId === updated.externalId ? { ...q, ...updated } : q)));
       }} />
-      <ShipmentList shipments={shipments} />
+      <ShipmentList
+        shipments={shipments}
+        onArchived={(externalIds) => {
+          // Drop archived records from list state — same optimistic
+          // mutation as PR #135 (goods) and PR #136 (suppliers). The
+          // /api/shipments endpoint filters archived records by
+          // default, so a re-fetch would yield the same list.
+          //
+          // We also drop matching items from the exception queue:
+          // archiving a shipment that's currently in 'exception'
+          // status implicitly clears it from the queue.
+          const archivedSet = new Set(externalIds);
+          setShipments((prev) => prev.filter((s) => !archivedSet.has(s.externalId)));
+          setQueue((prev) => prev.filter((q) => !archivedSet.has(q.externalId)));
+        }}
+      />
     </div>
   );
 }
+
+type BulkArchiveState =
+  | { kind: 'idle' }
+  | { kind: 'confirming' }
+  | { kind: 'archiving' }
+  | { kind: 'error'; failures: Map<string, string> };
 
 function ExceptionQueueCard({
   items,
@@ -328,7 +351,13 @@ function readStatusFilter(raw: string | null): ShipmentStatus | null {
     : null;
 }
 
-function ShipmentList({ shipments }: { shipments: Shipment[] }) {
+function ShipmentList({
+  shipments,
+  onArchived,
+}: {
+  shipments: Shipment[];
+  onArchived: (externalIds: string[]) => void;
+}) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -365,6 +394,103 @@ function ShipmentList({ shipments }: { shipments: Shipment[] }) {
     const qs = params.toString();
     // replace, not push — filter changes shouldn't pollute history.
     router.replace(qs ? `${pathname}?${qs}` : pathname);
+  }
+
+  // ── Selection + bulk archive state ─────────────────────────────────
+  // Mirror of PR #135 (goods) + PR #136 (suppliers). The data layer
+  // lets you archive any non-already-archived shipment regardless of
+  // status (lib/db/shipments.js:archiveShipment), so there's no
+  // archive-eligibility constraint to encode here. Operators
+  // archiving an in-transit shipment get the two-stage confirm
+  // dialog as the natural friction against mistakes.
+
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(() => new Set());
+  const [archiveState, setArchiveState] = useState<BulkArchiveState>({ kind: 'idle' });
+
+  // Cleanup: drop selections that no longer match a visible row
+  // (status filter toggled, archive succeeded). Without this,
+  // archived externalIds linger and drift the "select all visible"
+  // math.
+  useEffect(() => {
+    const visibleIds = new Set(visibleShipments.map((s) => s.externalId));
+    setSelectedIds((prev) => {
+      let changed = false;
+      const next = new Set<string>();
+      for (const id of prev) {
+        if (visibleIds.has(id)) {
+          next.add(id);
+        } else {
+          changed = true;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, [visibleShipments]);
+
+  const headerState: 'none' | 'some' | 'all' = useMemo(() => {
+    if (selectedIds.size === 0) return 'none';
+    if (selectedIds.size === visibleShipments.length && visibleShipments.length > 0) return 'all';
+    return 'some';
+  }, [selectedIds.size, visibleShipments.length]);
+
+  function toggleRow(externalId: string) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(externalId)) {
+        next.delete(externalId);
+      } else {
+        next.add(externalId);
+      }
+      return next;
+    });
+  }
+
+  function toggleAll() {
+    setSelectedIds((prev) => {
+      if (prev.size === visibleShipments.length && visibleShipments.length > 0) {
+        return new Set();
+      }
+      return new Set(visibleShipments.map((s) => s.externalId));
+    });
+  }
+
+  function clearSelection() {
+    setSelectedIds(new Set());
+    setArchiveState({ kind: 'idle' });
+  }
+
+  // Serial DELETE — see PR #135 rationale (audit log readability +
+  // org rate-limit safety).
+  async function runBulkArchive() {
+    setArchiveState({ kind: 'archiving' });
+    const failures = new Map<string, string>();
+    const succeeded: string[] = [];
+
+    for (const externalId of selectedIds) {
+      try {
+        await apiDelete<{ ok: boolean; shipment: Shipment }>(
+          `/shipments/${encodeURIComponent(externalId)}`,
+        );
+        succeeded.push(externalId);
+      } catch (err) {
+        if (err instanceof ApiError) {
+          failures.set(externalId, err.errors[0] || err.message);
+        } else if (err instanceof AuthError) {
+          failures.set(externalId, 'Sign in required');
+        } else {
+          failures.set(externalId, err instanceof Error ? err.message : 'Archive failed');
+        }
+      }
+    }
+
+    if (succeeded.length > 0) {
+      onArchived(succeeded);
+    }
+    if (failures.size > 0) {
+      setArchiveState({ kind: 'error', failures });
+    } else {
+      clearSelection();
+    }
   }
 
   // Top-level empty state (org has no shipments at all). Distinct
@@ -413,6 +539,20 @@ function ShipmentList({ shipments }: { shipments: Shipment[] }) {
           </span>
         </div>
       </div>
+
+      {/* Selection toolbar — same shape as PR #135/#136 on goods +
+          suppliers. Visible when ≥1 row selected. */}
+      {selectedIds.size > 0 && (
+        <BulkArchiveToolbar
+          selectedCount={selectedIds.size}
+          archiveState={archiveState}
+          onArchiveClick={() => setArchiveState({ kind: 'confirming' })}
+          onConfirm={runBulkArchive}
+          onCancel={() => setArchiveState({ kind: 'idle' })}
+          onClear={clearSelection}
+        />
+      )}
+
       {visibleShipments.length === 0 ? (
         <p className="px-6 py-8 font-mono text-xs text-white/45">
           No shipments with status &ldquo;{statusLabel(activeFilter as ShipmentStatus)}&rdquo;.{' '}
@@ -428,6 +568,20 @@ function ShipmentList({ shipments }: { shipments: Shipment[] }) {
         <table className="w-full">
           <thead>
             <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+              <th className="px-4 py-3 font-normal w-[44px]">
+                <input
+                  type="checkbox"
+                  aria-label="Select all visible shipments"
+                  checked={headerState === 'all'}
+                  ref={(el) => {
+                    // Indeterminate is DOM-only; set via ref each
+                    // render. Same canonical pattern as PR #135/#136.
+                    if (el) el.indeterminate = headerState === 'some';
+                  }}
+                  onChange={toggleAll}
+                  className="h-4 w-4"
+                />
+              </th>
               <th className="px-6 py-3 font-normal">Label</th>
               <th className="px-2 py-3 font-normal">Status</th>
               <th className="px-2 py-3 font-normal">Route</th>
@@ -436,11 +590,25 @@ function ShipmentList({ shipments }: { shipments: Shipment[] }) {
             </tr>
           </thead>
           <tbody>
-            {visibleShipments.map((s) => (
+            {visibleShipments.map((s) => {
+              const isSelected = selectedIds.has(s.externalId);
+              const failure = archiveState.kind === 'error' ? archiveState.failures.get(s.externalId) : undefined;
+              return (
               <tr
                 key={s.externalId}
                 className="border-t border-[var(--color-navy-line)] hover:bg-[var(--color-navy-soft)]/30 transition-colors"
+                style={isSelected ? { backgroundColor: 'rgba(255,255,255,0.04)' } : undefined}
               >
+                <td className="px-4 py-4 w-[44px]">
+                  <input
+                    type="checkbox"
+                    aria-label={`Select ${s.label}`}
+                    checked={isSelected}
+                    onChange={() => toggleRow(s.externalId)}
+                    disabled={archiveState.kind === 'archiving'}
+                    className="h-4 w-4"
+                  />
+                </td>
                 <td className="px-6 py-4 font-serif text-[14px] text-white">
                   <Link href={`/shipments/${encodeURIComponent(s.externalId)}`} className="hover:underline">
                     {s.label}
@@ -460,12 +628,118 @@ function ShipmentList({ shipments }: { shipments: Shipment[] }) {
                 </td>
                 <td className="px-6 py-4 font-mono text-[11px] text-white/50">
                   {s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('en-IE') : '—'}
+                  {failure && (
+                    <div
+                      className="mt-1 font-mono text-[10px] text-right"
+                      style={{ color: 'var(--color-critical)' }}
+                    >
+                      {failure}
+                    </div>
+                  )}
                 </td>
               </tr>
-            ))}
+              );
+            })}
           </tbody>
         </table>
       )}
     </section>
+  );
+}
+
+// Selection toolbar — same shape as PR #135 (goods) + PR #136
+// (suppliers). Kept local for the third consecutive call site; the
+// drift-guard test pins the state-shape contract across all three
+// editors. A future PR can promote this to app-shell/components/
+// once we know the shared API needs no further per-entity
+// adaptations.
+function BulkArchiveToolbar({
+  selectedCount,
+  archiveState,
+  onArchiveClick,
+  onConfirm,
+  onCancel,
+  onClear,
+}: {
+  selectedCount: number;
+  archiveState: BulkArchiveState;
+  onArchiveClick: () => void;
+  onConfirm: () => void;
+  onCancel: () => void;
+  onClear: () => void;
+}) {
+  const archiving = archiveState.kind === 'archiving';
+  const confirming = archiveState.kind === 'confirming';
+  const hasErrors = archiveState.kind === 'error';
+
+  return (
+    <div className="border-b border-[var(--color-navy-line)] bg-[var(--color-navy-soft)]/20">
+      <div className="px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/85">
+          {selectedCount} selected
+        </span>
+        <div className="flex items-center gap-2">
+          {!confirming && (
+            <button
+              type="button"
+              onClick={onArchiveClick}
+              disabled={archiving}
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+              style={hasErrors ? { borderColor: 'var(--color-critical)', color: 'var(--color-critical)' } : undefined}
+            >
+              {archiving
+                ? 'Archiving…'
+                : hasErrors
+                  ? 'Retry archive'
+                  : `Archive ${selectedCount}`}
+            </button>
+          )}
+          {confirming && (
+            <>
+              <span className="font-mono text-[11px] text-white/75">
+                Archive {selectedCount}? This is irreversible.
+              </span>
+              <button
+                type="button"
+                onClick={onConfirm}
+                className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5"
+                style={{
+                  backgroundColor: 'var(--color-critical)',
+                  color: 'var(--color-ink)',
+                }}
+              >
+                Confirm
+              </button>
+              <button
+                type="button"
+                onClick={onCancel}
+                className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white"
+              >
+                Cancel
+              </button>
+            </>
+          )}
+          {!confirming && (
+            <button
+              type="button"
+              onClick={onClear}
+              disabled={archiving}
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/25 text-white/65 hover:text-white disabled:opacity-50"
+            >
+              Clear
+            </button>
+          )}
+        </div>
+      </div>
+      {hasErrors && (
+        <div
+          role="alert"
+          className="px-6 pb-3 font-mono text-[11px]"
+          style={{ color: 'var(--color-critical)' }}
+        >
+          {archiveState.failures.size} of {selectedCount} failed. See per-row errors below.
+        </div>
+      )}
+    </div>
   );
 }
