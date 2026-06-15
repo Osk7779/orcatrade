@@ -17,6 +17,13 @@
 // union in lib/api.ts — no per-page wiring beyond passing the new
 // entityKind prop.
 //
+// PR #151 added batching for runs of consecutive same-actor same-type
+// events. A maintenance run that updates 8 goods records in 2 minutes
+// would otherwise spam 8 identical rows; the batch collapses them to
+// one summary row with an expandable per-event list. Conservative
+// thresholds (MIN_BATCH_SIZE=3, MAX_BATCH_GAP_MS=1h, same actor +
+// same type) so the timeline never hides genuine diversity.
+//
 // PR #134 added a client-side event-type filter. Pattern mirrors PR
 // #125's URL-state status filter on the shipments list, but kept
 // local-only here because:
@@ -188,6 +195,78 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
   },
 };
 
+// ── PR #151: batching consecutive same-actor same-type events ─────────
+//
+// MIN_BATCH_SIZE: a single run-of-2 reads fine on its own; collapsing
+// it adds an interaction step (expand to see) for negligible gain.
+// 3 is the smallest run where the row-spam starts to bury other
+// events in the timeline.
+//
+// MAX_BATCH_GAP_MS: 1 hour. A maintenance script that touches many
+// records typically completes inside a few minutes; a span longer
+// than an hour means separate operator sessions and should render
+// as separate timeline entries.
+export const MIN_BATCH_SIZE = 3;
+export const MAX_BATCH_GAP_MS = 60 * 60 * 1000;
+
+export type BatchedRow =
+  | { kind: 'single'; event: AuditTimelineEvent }
+  | {
+      kind: 'batch';
+      type: AuditTimelineEventType;
+      actorEmailHash: string | null | undefined;
+      events: AuditTimelineEvent[]; // preserved in input order
+      from: string;
+      to: string;
+    };
+
+export function groupConsecutiveEvents(events: AuditTimelineEvent[]): BatchedRow[] {
+  if (events.length === 0) return [];
+
+  const out: BatchedRow[] = [];
+  let run: AuditTimelineEvent[] = [events[0]];
+
+  function flush(run: AuditTimelineEvent[]) {
+    if (run.length >= MIN_BATCH_SIZE) {
+      // Use the run's chronological extremes as from/to. The list
+      // order may be ascending or descending; sort the two endpoint
+      // timestamps so "from" is always earlier than "to" in the UI.
+      const firstAt = run[0].at;
+      const lastAt = run[run.length - 1].at;
+      const fromAt = Date.parse(firstAt) <= Date.parse(lastAt) ? firstAt : lastAt;
+      const toAt = fromAt === firstAt ? lastAt : firstAt;
+      out.push({
+        kind: 'batch',
+        type: run[0].type,
+        actorEmailHash: run[0].actorEmailHash || null,
+        events: run.slice(),
+        from: fromAt,
+        to: toAt,
+      });
+    } else {
+      for (const e of run) {
+        out.push({ kind: 'single', event: e });
+      }
+    }
+  }
+
+  for (let i = 1; i < events.length; i += 1) {
+    const prev = run[run.length - 1];
+    const cur = events[i];
+    const sameType = cur.type === prev.type;
+    const sameActor = (cur.actorEmailHash || null) === (prev.actorEmailHash || null);
+    const within = Math.abs(Date.parse(cur.at) - Date.parse(prev.at)) <= MAX_BATCH_GAP_MS;
+    if (sameType && sameActor && within) {
+      run.push(cur);
+    } else {
+      flush(run);
+      run = [cur];
+    }
+  }
+  flush(run);
+  return out;
+}
+
 type LoadState = 'loading' | 'auth' | 'error' | 'empty' | 'ready';
 
 export function TransitionHistory({
@@ -251,6 +330,15 @@ export function TransitionHistory({
     if (!filterType) return list;
     return list.filter((e) => e.type === filterType);
   }, [list, filterType]);
+
+  // PR #151: group consecutive same-type same-actor events into
+  // batched rows. Applied AFTER the type filter so a filter-by-type
+  // view still surfaces every individual event (the batch would be
+  // mostly redundant when every event has the same type already).
+  const rendered = useMemo<BatchedRow[]>(() => {
+    if (filterType) return visible.map((e) => ({ kind: 'single', event: e }));
+    return groupConsecutiveEvents(visible);
+  }, [visible, filterType]);
 
   // Only show the filter dropdown when there are ≥2 distinct types —
   // a single-type timeline has nothing to filter.
@@ -324,18 +412,90 @@ export function TransitionHistory({
           </p>
         ) : (
           <ol className="px-6 py-5 space-y-5">
-            {visible.map((e, i) => (
-              <TimelineRow
-                key={`${e.type}-${e.at}-${i}`}
-                event={e}
-                headline={cfg.headline(e)}
-                tone={cfg.tone(e.type)}
-              />
-            ))}
+            {rendered.map((row, i) => {
+              if (row.kind === 'single') {
+                const e = row.event;
+                return (
+                  <TimelineRow
+                    key={`${e.type}-${e.at}-${i}`}
+                    event={e}
+                    headline={cfg.headline(e)}
+                    tone={cfg.tone(e.type)}
+                  />
+                );
+              }
+              return (
+                <BatchedTimelineRow
+                  key={`batch-${row.type}-${row.from}-${i}`}
+                  batch={row}
+                  cfg={cfg}
+                />
+              );
+            })}
           </ol>
         )
       )}
     </section>
+  );
+}
+
+// PR #151: collapsed row for a run of consecutive same-type same-
+// actor events. Header reads "N updates by actor abc12345 between T1
+// and T2"; the operator expands to see each event in full.
+function BatchedTimelineRow({
+  batch,
+  cfg,
+}: {
+  batch: Extract<BatchedRow, { kind: 'batch' }>;
+  cfg: (typeof LOOKUP_BY_KIND)[EntityKind];
+}) {
+  const tone = cfg.tone(batch.type);
+  const typeLabel = cfg.typeLabel(batch.type);
+  const actorChip = batch.actorEmailHash
+    ? `actor ${batch.actorEmailHash.slice(0, 8)}`
+    : 'system';
+  const sameInstant = batch.from === batch.to;
+
+  return (
+    <li className="grid grid-cols-[auto_1fr] gap-4">
+      <div
+        aria-hidden
+        className="mt-1.5 h-2 w-2 rounded-full"
+        style={{ backgroundColor: tone }}
+      />
+      <div>
+        <div className="font-serif text-[14px] text-white">
+          {batch.events.length} × {typeLabel}{' '}
+          <span className="font-mono text-[12px] text-white/55">
+            ({actorChip})
+          </span>
+        </div>
+        <div className="font-mono text-[11px] text-white/50 mt-1">
+          {sameInstant ? (
+            <>at {fmtDateTime(batch.from)}</>
+          ) : (
+            <>
+              {fmtDateTime(batch.from)} → {fmtDateTime(batch.to)}
+            </>
+          )}
+        </div>
+        <details className="mt-2 border border-[var(--color-navy-line)] inline-block">
+          <summary className="cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-white/55 hover:text-white">
+            Show {batch.events.length} events
+          </summary>
+          <ol className="px-3 py-2 space-y-3">
+            {batch.events.map((e, i) => (
+              <TimelineRow
+                key={`${e.type}-${e.at}-${i}`}
+                event={e}
+                headline={cfg.headline(e)}
+                tone={tone}
+              />
+            ))}
+          </ol>
+        </details>
+      </div>
+    </li>
   );
 }
 
