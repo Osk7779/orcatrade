@@ -733,6 +733,48 @@ export interface ComplianceProbes {
   reach: ComplianceProbeResult | null;
 }
 
+// Compact compliance summary used by the ops queue cards (sprint 6
+// ch 1) so the team can triage by exposure at a glance. Drift-guarded
+// against the ComplianceProbes shape — if a regime probe is missing it
+// just doesn't appear in the badges.
+export type ComplianceBadgeTone = 'in-scope' | 'verify' | 'out-of-scope';
+
+export interface ComplianceBadge {
+  regime: 'cbam' | 'eudr' | 'reach';
+  short: 'CBAM' | 'EUDR' | 'REACH';
+  tone: ComplianceBadgeTone;
+}
+
+/**
+ * Derive the compact badge list for the ops queue from a landed
+ * quote's complianceProbes block. Out-of-scope regimes are suppressed
+ * from the badges (they're not what the team is triaging by); the
+ * detail page still shows them via the full CompliancePanel.
+ *
+ * Pure function — exposed for direct testing against the
+ * ComplianceProbes shape.
+ */
+export function deriveComplianceBadges(
+  probes: ComplianceProbes | null | undefined,
+): ComplianceBadge[] {
+  if (!probes) return [];
+  const badges: ComplianceBadge[] = [];
+  const rows: Array<{ regime: 'cbam' | 'eudr' | 'reach'; short: ComplianceBadge['short']; probe: ComplianceProbeResult | null }> = [
+    { regime: 'cbam', short: 'CBAM', probe: probes.cbam },
+    { regime: 'eudr', short: 'EUDR', probe: probes.eudr },
+    { regime: 'reach', short: 'REACH', probe: probes.reach },
+  ];
+  for (const { regime, short, probe } of rows) {
+    if (!probe) continue;
+    let tone: ComplianceBadgeTone;
+    if (probe.applies === true) tone = 'in-scope';
+    else if (probe.applies === 'maybe') tone = 'verify';
+    else continue; // out-of-scope: suppress from queue badges
+    badges.push({ regime, short, tone });
+  }
+  return badges;
+}
+
 // Full landed-cost quote. components stack to totalLandedCents (which
 // already includes cargo value as the base).
 export interface LandedQuote {

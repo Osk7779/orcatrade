@@ -25,6 +25,9 @@ import {
   apiPost,
   ApiError,
   AuthError,
+  deriveComplianceBadges,
+  type ComplianceBadge,
+  type ComplianceBadgeTone,
   type ImportRequest,
 } from '@/lib/api';
 
@@ -214,6 +217,9 @@ function QueueView() {
                       )}
                     </div>
                   )}
+                  <ComplianceBadgeRow
+                    badges={deriveComplianceBadges(r.landedQuote?.complianceProbes ?? null)}
+                  />
                   <div className="font-serif italic text-[11px] text-[var(--color-ivory-mute)] pt-1">
                     Waiting {ageLabel(r.updatedAt)}
                   </div>
@@ -258,5 +264,48 @@ function QueueView() {
         <code className="font-mono not-italic text-[11px]">processing</code> so the orchestrator can re-run after the inputs are corrected.
       </footer>
     </section>
+  );
+}
+
+function badgeToneStyle(tone: ComplianceBadgeTone): {
+  color: string;
+  borderColor: string;
+  background: string;
+} {
+  // in-scope: warning (the team needs to do extra work — CBAM filing etc.)
+  // verify: ivory-mute (informational — REACH applies in principle, verify against SDS)
+  if (tone === 'in-scope') {
+    return {
+      color: 'var(--color-warning)',
+      borderColor: 'var(--color-warning)',
+      background: 'rgba(245,158,11,0.08)',
+    };
+  }
+  return {
+    color: 'var(--color-ivory-mute)',
+    borderColor: 'var(--color-navy-line)',
+    background: 'transparent',
+  };
+}
+
+function ComplianceBadgeRow({ badges }: { badges: ComplianceBadge[] }) {
+  if (badges.length === 0) return null;
+  return (
+    <div className="flex flex-wrap gap-1.5 pt-1">
+      {badges.map(({ regime, short, tone }) => {
+        const style = badgeToneStyle(tone);
+        return (
+          <span
+            key={regime}
+            className="inline-flex items-center px-1.5 py-0.5 font-mono text-[9.5px] tracking-[0.12em] uppercase border"
+            style={style}
+            title={`${short} ${tone === 'in-scope' ? 'in scope — team action required' : 'verify — review the detail view'}`}
+          >
+            {short}
+            {tone === 'verify' && <span aria-hidden className="ml-1">?</span>}
+          </span>
+        );
+      })}
+    </div>
   );
 }
