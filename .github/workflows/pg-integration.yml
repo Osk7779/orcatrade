@@ -1,0 +1,91 @@
+name: pg-integration
+
+# Runs the live-Postgres integration suite that the unit tests can't
+# cover: actual INSERT/UPDATE round-trips, partial-unique-index
+# conflicts, CHECK constraint violations, state-machine UPDATE atomicity.
+#
+# The unit tests under test/*.test.js validate the data layer's
+# validation + 503-fallthrough contracts; the integration suite under
+# test/integration/*.test.js exercises the real schema against an
+# ephemeral PG 15 service.
+#
+# Locally these tests skip cleanly when DATABASE_URL is unset, so
+# `npm test` stays hermetic.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: pg-integration-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  pg-integration:
+    name: live-PG round-trips
+    runs-on: ubuntu-latest
+
+    # Ephemeral Postgres service. The job's job-level `services` block
+    # spins it up before the steps run; the container is torn down on
+    # job exit. No data persists between runs.
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: orcatrade_ci
+          POSTGRES_PASSWORD: orcatrade_ci_local
+          POSTGRES_DB: orcatrade_ci
+        ports:
+          - 5432:5432
+        # Health check ensures the workflow waits until PG is accepting
+        # connections before running the migration step.
+        options: >-
+          --health-cmd "pg_isready -U orcatrade_ci"
+          --health-interval 5s
+          --health-timeout 3s
+          --health-retries 10
+
+    env:
+      # Connection URL pointing at the service container. UNPOOLED ==
+      # DATABASE_URL here — there's no pooler in front, just the
+      # service container.
+      DATABASE_URL: postgresql://orcatrade_ci:orcatrade_ci_local@localhost:5432/orcatrade_ci
+      DATABASE_URL_UNPOOLED: postgresql://orcatrade_ci:orcatrade_ci_local@localhost:5432/orcatrade_ci
+      ORCATRADE_AUTH_SECRET: ci-pg-integration-secret-do-not-use-in-prod
+      ORCATRADE_DISABLE_LIVE_TARIC: '1'
+      ORCATRADE_INTEGRATION_TESTS: '1'
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Setup Node 22
+        uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+
+      - name: Wait for Postgres to be ready
+        run: |
+          for i in {1..30}; do
+            if pg_isready -h localhost -U orcatrade_ci > /dev/null 2>&1; then
+              echo "Postgres ready after ${i} attempts"
+              exit 0
+            fi
+            sleep 1
+          done
+          echo "Postgres failed to become ready" >&2
+          exit 1
+
+      - name: Apply schema migrations
+        run: node scripts/db-migrate.js
+
+      - name: Run integration suite
+        # Run only the test/integration/ subtree so this job stays
+        # fast and focused. The main `npm test` still runs in the
+        # `tests` workflow. Use a glob — `node --test test/integration/`
+        # treats the bare path as a module spec and module-resolves it.
+        run: node --test 'test/integration/*.test.js'

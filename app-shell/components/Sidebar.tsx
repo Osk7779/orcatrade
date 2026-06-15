@@ -24,6 +24,9 @@ const SECTIONS: { heading: string; items: NavItem[] }[] = [
     heading: 'Trade',
     items: [
       { label: 'Plans', href: '/plans', inApp: true },
+      { label: 'Goods', href: '/goods', inApp: true },
+      { label: 'Suppliers', href: '/suppliers', inApp: true },
+      { label: 'Shipments', href: '/shipments', inApp: true },
       { label: 'Portfolios', href: '/portfolios', inApp: true },
       { label: 'Documents', href: '/documents', inApp: true },
       { label: 'Drafts', href: '/drafts', inApp: true },

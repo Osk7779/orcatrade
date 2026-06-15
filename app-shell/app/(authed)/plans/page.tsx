@@ -1,8 +1,37 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { apiGet, AuthError, type SavedPlan } from '@/lib/api';
+
+// PR #150: client-side filter for the saved-plan list. Matches against
+// label, product category, HS code, origin + destination country, and
+// the plan id — the same fields rendered in each list row. Token-based
+// (whitespace-split) so multi-word queries like "apparel CN DE" filter
+// down to the intersection. Case-insensitive.
+//
+// Why client-side: the /plans endpoint returns the user's full list
+// (today's typical surface area is well under 1,000 records per user),
+// each row is small (~1 KB), and pre-filtering server-side would
+// either require a search index we don't have or a LIKE-over-many-
+// columns query that wouldn't beat in-memory matching at this scale.
+// When the list crosses ~5k records we'll swap this for a server-
+// side search endpoint.
+function planMatchesQuery(p: SavedPlan, tokens: string[]): boolean {
+  if (tokens.length === 0) return true;
+  const inp = p.inputs || {};
+  const haystack = [
+    p.label || '',
+    p.id || '',
+    inp.productCategory || '',
+    inp.hsCode || '',
+    inp.originCountry || '',
+    inp.destinationCountry || '',
+  ]
+    .join(' ')
+    .toLowerCase();
+  return tokens.every((t) => haystack.includes(t));
+}
 
 function eur(n?: number | null) {
   if (n == null || !Number.isFinite(n)) return '—';
@@ -46,12 +75,22 @@ function ReproBadge({ p }: { p: SavedPlan }) {
 export default function PlansPage() {
   const [state, setState] = useState<'loading' | 'auth' | 'error' | 'ready'>('loading');
   const [plans, setPlans] = useState<SavedPlan[]>([]);
+  const [query, setQuery] = useState('');
 
   useEffect(() => {
     apiGet<{ ok: boolean; plans: SavedPlan[] }>('/plans')
       .then((d) => { setPlans(d.plans || []); setState('ready'); })
       .catch((e) => setState(e instanceof AuthError ? 'auth' : 'error'));
   }, []);
+
+  const tokens = useMemo(
+    () => query.trim().toLowerCase().split(/\s+/).filter(Boolean),
+    [query],
+  );
+  const filteredPlans = useMemo(
+    () => plans.filter((p) => planMatchesQuery(p, tokens)),
+    [plans, tokens],
+  );
 
   if (state === 'loading') return <p className="text-white/50 text-sm">Loading your plans…</p>;
   if (state === 'auth') {
@@ -78,8 +117,34 @@ export default function PlansPage() {
           <a href="/start/" className="text-[var(--color-accent)] underline">Build your first plan →</a>
         </div>
       ) : (
+        <>
+          {/* PR #150: client-side search. Filters by label, category,
+              HS code, origin / destination country, and plan id. */}
+          <div className="mb-4 flex items-center justify-between gap-3">
+            <label className="flex-1 max-w-md">
+              <span className="sr-only">Filter saved plans</span>
+              <input
+                type="search"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Filter by label, category, HS code, country…"
+                aria-label="Filter saved plans"
+                className="block w-full bg-[var(--color-ink)] border border-[var(--color-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/35 focus:outline-none focus:border-white/45"
+              />
+            </label>
+            {query.trim() !== '' && (
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45 shrink-0">
+                {filteredPlans.length} of {plans.length}
+              </span>
+            )}
+          </div>
+          {filteredPlans.length === 0 ? (
+            <div className="border border-dashed border-[var(--color-line)] px-6 py-8 text-center font-mono text-xs text-white/55">
+              No plans match “{query.trim()}”. Try fewer or different keywords.
+            </div>
+          ) : (
         <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)]">
-          {plans.map((p) => {
+          {filteredPlans.map((p) => {
             const landed = p.current?.perShipmentLandedTotal ?? p.snapshot?.perShipmentLandedTotal;
             const inp = p.inputs || {};
             return (
@@ -104,6 +169,8 @@ export default function PlansPage() {
             );
           })}
         </div>
+          )}
+        </>
       )}
 
       <p className="text-white/40 text-xs mt-6">

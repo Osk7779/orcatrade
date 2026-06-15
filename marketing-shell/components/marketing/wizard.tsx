@@ -66,11 +66,44 @@ const STEP_LABELS = [
 
 type Status = 'idle' | 'submitting' | 'success' | 'error';
 
+// Subset of the /api/start response shape the success view reads.
+// Matches lib/handlers/start.js composePlanWithRoadmap output. We
+// intentionally type ONLY the fields we render so a future schema
+// addition doesn't force a type churn here.
+type TierAVerdict = {
+  eligible: boolean;
+  failedReason?: string;
+  evaluatedAtIso?: string;
+};
+type GoodsMasterInheritance = {
+  matched: boolean;
+  sku: string;
+  displayName?: string;
+  inheritedFields: string[];
+};
+type StartResponse = {
+  ok: boolean;
+  plan?: {
+    customs?: { tier_a?: TierAVerdict | null };
+    sourcing?: { tier_a?: TierAVerdict | null };
+    routing?: { tier_a?: TierAVerdict | null };
+    finance?: { tier_a?: TierAVerdict | null };
+    // warehouse has TWO branches at runtime: { skipped: true, reason } when
+    // monthlyOrders < 100, or { ok, recommendation, recommendedHub, hubs,
+    // tier_a } otherwise. The optional chain on plan.warehouse?.tier_a
+    // narrows cleanly across both: skipped → undefined; populated →
+    // verdict-or-null.
+    warehouse?: { tier_a?: TierAVerdict | null };
+    goodsMasterInheritance?: GoodsMasterInheritance | null;
+  };
+};
+
 export function Wizard() {
   const [step, setStep] = useState(1);
   const [data, setData] = useState<FormData>(INITIAL);
   const [status, setStatus] = useState<Status>('idle');
   const [errorMessage, setErrorMessage] = useState<string>('');
+  const [planResponse, setPlanResponse] = useState<StartResponse | null>(null);
 
   const setField = <K extends keyof FormData>(key: K, value: FormData[K]) => {
     setData((p) => ({ ...p, [key]: value }));
@@ -126,13 +159,16 @@ export function Wizard() {
         body: JSON.stringify(payload),
         credentials: 'same-origin',
       });
-      const json = await res.json().catch(() => null);
+      const json: StartResponse | null = await res.json().catch(() => null);
       if (!res.ok) {
-        const detail =
-          (json && (json.error || (json.errors && json.errors.join(', ')))) ||
+        const errBag = (json as unknown) as { error?: string; errors?: string[] } | null;
+        const detail: string =
+          errBag?.error ||
+          (errBag?.errors ? errBag.errors.join(', ') : '') ||
           `Plan endpoint returned ${res.status}`;
         throw new Error(detail);
       }
+      setPlanResponse(json);
       setStatus('success');
     } catch (err) {
       setStatus('error');
@@ -141,7 +177,7 @@ export function Wizard() {
   };
 
   if (status === 'success') {
-    return <PlanResult data={data} />;
+    return <PlanResult data={data} planResponse={planResponse} />;
   }
 
   return (
@@ -625,9 +661,15 @@ function Navigation({
   );
 }
 
-function PlanResult({ data }: { data: FormData }) {
+function PlanResult({ data, planResponse }: { data: FormData; planResponse: StartResponse | null }) {
   const customsValue = Number(data.customsValueEur);
   const validCustomsValue = Number.isFinite(customsValue) && customsValue > 0;
+  const tierA = planResponse?.plan?.customs?.tier_a ?? null;
+  const sourcingTierA = planResponse?.plan?.sourcing?.tier_a ?? null;
+  const routingTierA = planResponse?.plan?.routing?.tier_a ?? null;
+  const financeTierA = planResponse?.plan?.finance?.tier_a ?? null;
+  const warehouseTierA = planResponse?.plan?.warehouse?.tier_a ?? null;
+  const inheritance = planResponse?.plan?.goodsMasterInheritance ?? null;
   return (
     <section className="relative isolate overflow-hidden border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-28">
       {/* Soft aurora wash on completion — the page should feel like
@@ -675,6 +717,118 @@ function PlanResult({ data }: { data: FormData }) {
           Expect it in your inbox within a minute. A founder will follow up
           within one business day with the human read.
         </p>
+
+        {/*
+          Plan signal pills. The Tier-A pill renders only when this
+          quote's customs calculation qualified for the ADR-0020
+          eligibility gate. Wording mirrors the email template (PR #92):
+          we describe what eligibility MEANS and call out the
+          underwriter-grade accuracy guarantee as forthcoming (Q1 2027,
+          subject to E&O binding) — never claiming an active guarantee.
+          A drift-guard test pins both rules.
+        */}
+        {(tierA?.eligible === true || sourcingTierA?.eligible === true || routingTierA?.eligible === true || financeTierA?.eligible === true || warehouseTierA?.eligible === true || inheritance) && (
+          <div className="mt-10 flex flex-wrap items-center gap-3">
+            {tierA?.eligible === true && (
+              <span
+                role="status"
+                aria-label="Tier-A · underwriter-grade duty calculation"
+                className="inline-flex items-center gap-2 border border-[var(--color-ivory)]/30 bg-[var(--color-navy-soft)]/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-ivory)]"
+                title="This duty calculation cited primary-regulator sources (EU TARIC live rates) snapshotted within the last 30 days, was produced by our regression-tested customs calculator, and carried no manual overrides. Our liability-bearing accuracy guarantee for Tier-A calculations launches Q1 2027 (E&O insurance, subject to binding). Until then, Tier-A is a transparency signal you can audit, not a financial guarantee."
+              >
+                <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-positive,_#10B981)]" />
+                Tier-A · duty
+              </span>
+            )}
+            {/*
+              Sourcing pill. Renders only when plan.sourcing.tier_a.eligible
+              === true. Wording mirrors the email block from PR #111 — same
+              forthcoming-guarantee discipline, sourcing-specific subject.
+              A drift-guard test pins both rules in lockstep with the
+              customs pill from PR #98.
+            */}
+            {sourcingTierA?.eligible === true && (
+              <span
+                role="status"
+                aria-label="Tier-A · underwriter-grade sourcing comparison"
+                className="inline-flex items-center gap-2 border border-[var(--color-ivory)]/30 bg-[var(--color-navy-soft)]/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-ivory)]"
+                title="This sourcing recommendation cited primary-regulator sources (international trade indices) snapshotted within the last 30 days, was produced by our regression-tested sourcing calculator, and carried no manual overrides. Our liability-bearing accuracy guarantee for Tier-A calculations launches Q1 2027 (E&O insurance, subject to binding). Until then, Tier-A is a transparency signal you can audit, not a financial guarantee."
+              >
+                <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-positive,_#10B981)]" />
+                Tier-A · sourcing
+              </span>
+            )}
+            {/*
+              Routing pill (PR #115). Renders only when plan.routing.
+              tier_a.eligible === true. Same wording discipline as
+              customs / sourcing pills — forthcoming-guarantee, no
+              active-guarantee claims, calculator-specific subject
+              ("freight quote"). A drift-guard test pins all three.
+            */}
+            {routingTierA?.eligible === true && (
+              <span
+                role="status"
+                aria-label="Tier-A · underwriter-grade freight quote"
+                className="inline-flex items-center gap-2 border border-[var(--color-ivory)]/30 bg-[var(--color-navy-soft)]/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-ivory)]"
+                title="This routing recommendation cited primary-regulator sources (carrier-published rate indices) snapshotted within the last 30 days, was produced by our regression-tested routing calculator, and carried no manual overrides. Our liability-bearing accuracy guarantee for Tier-A calculations launches Q1 2027 (E&O insurance, subject to binding). Until then, Tier-A is a transparency signal you can audit, not a financial guarantee."
+              >
+                <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-positive,_#10B981)]" />
+                Tier-A · routing
+              </span>
+            )}
+            {/*
+              Finance pill (this PR). Renders only when plan.finance.
+              tier_a.eligible === true. Same wording discipline as
+              customs / sourcing / routing pills — forthcoming-guarantee,
+              no active-guarantee claims, calculator-specific subject
+              ("financing recommendation"). A drift-guard test pins
+              all four.
+            */}
+            {financeTierA?.eligible === true && (
+              <span
+                role="status"
+                aria-label="Tier-A · underwriter-grade financing recommendation"
+                className="inline-flex items-center gap-2 border border-[var(--color-ivory)]/30 bg-[var(--color-navy-soft)]/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-ivory)]"
+                title="This financing recommendation cited primary-regulator sources (central-bank rate tables) snapshotted within the last 30 days, was produced by our regression-tested finance calculator, and carried no manual overrides. Our liability-bearing accuracy guarantee for Tier-A calculations launches Q1 2027 (E&O insurance, subject to binding). Until then, Tier-A is a transparency signal you can audit, not a financial guarantee."
+              >
+                <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-positive,_#10B981)]" />
+                Tier-A · finance
+              </span>
+            )}
+            {/*
+              Warehouse pill (this PR). Renders only when plan.warehouse.
+              tier_a.eligible === true — and only on the populated
+              branch of plan.warehouse (skipped state has no tier_a
+              key, so the optional chain narrows to undefined). Same
+              wording discipline as the four predecessor pills —
+              forthcoming-guarantee, no active-guarantee claims,
+              calculator-specific subject ("warehouse quote"). A
+              drift-guard test pins all five.
+            */}
+            {warehouseTierA?.eligible === true && (
+              <span
+                role="status"
+                aria-label="Tier-A · underwriter-grade warehouse quote"
+                className="inline-flex items-center gap-2 border border-[var(--color-ivory)]/30 bg-[var(--color-navy-soft)]/40 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-ivory)]"
+                title="This warehouse recommendation cited primary-regulator sources (EU Eurostat warehousing producer-price indices) snapshotted within the last 30 days, was produced by our regression-tested warehouse calculator, and carried no manual overrides. Our liability-bearing accuracy guarantee for Tier-A calculations launches Q1 2027 (E&O insurance, subject to binding). Until then, Tier-A is a transparency signal you can audit, not a financial guarantee."
+              >
+                <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-positive,_#10B981)]" />
+                Tier-A · warehouse
+              </span>
+            )}
+            {inheritance && inheritance.matched && (
+              <span
+                role="status"
+                aria-label={`Inherited from your goods master: ${inheritance.sku}`}
+                className="inline-flex items-center gap-2 border border-[var(--color-navy-line)] bg-[var(--color-navy-soft)]/30 px-3 py-1.5 font-mono text-[11px] uppercase tracking-[0.12em] text-[var(--color-ivory-dim)]"
+                title={`HS code and origin inherited from your saved goods master record. SKU: ${inheritance.sku}${inheritance.displayName ? ` · ${inheritance.displayName}` : ''}. Inherited fields: ${inheritance.inheritedFields.join(', ') || 'none'}.`}
+              >
+                <span aria-hidden className="inline-block h-1.5 w-1.5 rounded-full bg-[var(--color-ivory-dim)]/60" />
+                From your goods master · {inheritance.sku}
+              </span>
+            )}
+          </div>
+        )}
 
         <div className="mt-12 grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3">
           <Summary

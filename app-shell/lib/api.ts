@@ -9,6 +9,22 @@ export class AuthError extends Error {
   }
 }
 
+// Thrown when the API rejects a mutation with a 4xx and the response
+// body carries a structured error bag. Used by the edit-mode forms
+// to surface server-side validation errors inline (e.g. "hsCode must
+// be 6-10 digits" coming back from goods.updateGoods). The handler
+// shape is { error: string, errors?: string[] }; we capture both.
+export class ApiError extends Error {
+  status: number;
+  errors: string[];
+  constructor(status: number, summary: string, errors: string[]) {
+    super(summary);
+    this.name = 'ApiError';
+    this.status = status;
+    this.errors = errors;
+  }
+}
+
 export async function apiGet<T>(path: string): Promise<T> {
   const res = await fetch(`/api${path}`, {
     credentials: 'same-origin',
@@ -27,6 +43,18 @@ export async function apiPost<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   });
   if (res.status === 401) throw new AuthError();
+  // 4xx: read the structured body and surface as ApiError — same
+  // contract as apiPatch (PR #122). Callers that need only a binary
+  // ok/error don't need to catch ApiError specifically (the message
+  // is still useful), but flows that render per-field errors (e.g.
+  // supplier re-screen, future POST forms) get them via err.errors.
+  if (res.status >= 400 && res.status < 500) {
+    let bag: { error?: string; errors?: string[] } = {};
+    try { bag = await res.json(); } catch (_) { /* body wasn't JSON */ }
+    const summary = bag.error || `API ${path} failed: HTTP ${res.status}`;
+    const errors = Array.isArray(bag.errors) ? bag.errors.map(String) : (bag.error ? [bag.error] : []);
+    throw new ApiError(res.status, summary, errors);
+  }
   if (!res.ok) throw new Error(`API ${path} failed: HTTP ${res.status}`);
   return res.json() as Promise<T>;
 }
@@ -38,6 +66,33 @@ export async function apiDelete<T>(path: string): Promise<T> {
     headers: { Accept: 'application/json' },
   });
   if (res.status === 401) throw new AuthError();
+  if (!res.ok) throw new Error(`API ${path} failed: HTTP ${res.status}`);
+  return res.json() as Promise<T>;
+}
+
+// PATCH wrapper used by the inline edit-mode forms. Unlike apiPost,
+// we surface 4xx response bodies as ApiError so the caller can render
+// the per-field validation errors the handler returned (e.g. goods
+// updateGoods's "hsCode must be 6-10 digits"). Non-4xx failures still
+// throw a generic Error so callers don't have to special-case them.
+export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`/api${path}`, {
+    method: 'PATCH',
+    credentials: 'same-origin',
+    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    body: JSON.stringify(body),
+  });
+  if (res.status === 401) throw new AuthError();
+  if (res.status >= 400 && res.status < 500) {
+    // 4xx: try to read the structured body. The handler returns
+    // { error, errors? } for validation; some endpoints just return
+    // { error }. We always surface BOTH.
+    let bag: { error?: string; errors?: string[] } = {};
+    try { bag = await res.json(); } catch (_) { /* body wasn't JSON */ }
+    const summary = bag.error || `API ${path} failed: HTTP ${res.status}`;
+    const errors = Array.isArray(bag.errors) ? bag.errors.map(String) : (bag.error ? [bag.error] : []);
+    throw new ApiError(res.status, summary, errors);
+  }
   if (!res.ok) throw new Error(`API ${path} failed: HTTP ${res.status}`);
   return res.json() as Promise<T>;
 }
@@ -243,4 +298,286 @@ export interface DraftWithHtml {
   draft: Draft;
   html: string;
   idempotent?: boolean;
+}
+
+// /api/shipments — system-of-record operational entity (L1.3 of the
+// strategic plan §4.1.2). Mirrors the data layer in lib/db/shipments.js
+// but typed to only the fields the dashboard reads (camelCase).
+export type ShipmentStatus =
+  | 'planned'
+  | 'booked'
+  | 'in_transit'
+  | 'cleared'
+  | 'delivered'
+  | 'exception'
+  | 'cancelled';
+
+// Iterable closed taxonomy for the dashboard list filter dropdown.
+// Drift-guarded against the ShipmentStatus union AND against
+// SHIPMENT_VALID_TRANSITIONS' key set so all three stay in lockstep.
+// Order matches the state-machine progression so the filter dropdown
+// reads as a natural pipeline: planned → booked → in_transit →
+// cleared → delivered, then the off-path states (exception, cancelled).
+export const SHIPMENT_STATUSES: ReadonlyArray<ShipmentStatus> = Object.freeze([
+  'planned',
+  'booked',
+  'in_transit',
+  'cleared',
+  'delivered',
+  'exception',
+  'cancelled',
+]) as ReadonlyArray<ShipmentStatus>;
+
+export interface ShipmentDocument {
+  docType?: string;
+  name?: string;
+  externalId?: string;
+  url?: string;
+  attachedAt?: string;
+  draftRef?: string;
+}
+
+export interface ShipmentExceptionState {
+  reason?: string;
+  openedAt?: string;
+  previousStatus?: ShipmentStatus;
+  acknowledgedAt?: string;
+  acknowledgedBy?: string;
+  acknowledgmentNote?: string;
+  [k: string]: unknown;
+}
+
+export interface Shipment {
+  externalId: string;
+  label: string;
+  status: ShipmentStatus;
+  originCountry?: string | null;
+  destinationCountry?: string | null;
+  customsValueCents?: number | null;
+  weightKg?: number | null;
+  containerCount?: number | null;
+  goodsExternalId?: string | null;
+  supplierExternalId?: string | null;
+  plannedDepartureDate?: string | null;
+  plannedArrivalDate?: string | null;
+  carrier?: string | null;
+  bookingRef?: string | null;
+  blNumber?: string | null;
+  actualDepartureDate?: string | null;
+  eta?: string | null;
+  lastKnownLocation?: string | null;
+  clearedAt?: string | null;
+  declarationRef?: string | null;
+  dutyPaidCents?: number | null;
+  vatPaidCents?: number | null;
+  brokeragePaidCents?: number | null;
+  deliveredAt?: string | null;
+  exceptionState?: ShipmentExceptionState;
+  documentVault?: ShipmentDocument[];
+  inputsSnapshot?: Record<string, unknown> | null;
+  quoteSnapshot?: Record<string, unknown> | null;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+}
+
+// /api/shipments/<id>/history — per-shipment audit timeline.
+// Returns events that name the shipment (entityType='shipment_master',
+// entityId=<externalId>) filtered to the customer-visible event types
+// the timeline UI renders.
+
+export type ShipmentTimelineEventType =
+  | 'shipment_master_created'
+  | 'shipment_master_updated'
+  | 'shipment_master_status_transition'
+  | 'shipment_master_exception_acknowledged'
+  | 'shipment_master_archived';
+
+export interface ShipmentTimelineEvent {
+  type: ShipmentTimelineEventType;
+  at: string;
+  actorEmailHash?: string;
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+  detail?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+// Goods master timeline event types — fed by /api/goods/<id>/history.
+// Backed by lib/db/goods.js's audit-log emissions (one event per
+// mutation per ADR 0005). Same shape as the shipment timeline event,
+// different .type values.
+export type GoodsTimelineEventType =
+  | 'goods_master_created'
+  | 'goods_master_updated'
+  | 'goods_master_archived';
+
+export interface GoodsTimelineEvent {
+  type: GoodsTimelineEventType;
+  at: string;
+  actorEmailHash?: string;
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+  detail?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+// Supplier master timeline event types — fed by
+// /api/suppliers/<id>/history. Same shape, supplier-prefixed types.
+export type SupplierTimelineEventType =
+  | 'supplier_master_created'
+  | 'supplier_master_updated'
+  | 'supplier_master_rescreened'
+  | 'supplier_master_archived';
+
+export interface SupplierTimelineEvent {
+  type: SupplierTimelineEventType;
+  at: string;
+  actorEmailHash?: string;
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+  detail?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+// Union for the polymorphic TransitionHistory component. Each
+// entity-kind variant carries its own type-union and renders its own
+// headline/tone via the per-entity-kind lookup table in the component.
+export type AuditTimelineEvent =
+  | ShipmentTimelineEvent
+  | GoodsTimelineEvent
+  | SupplierTimelineEvent;
+
+export type AuditTimelineEventType =
+  | ShipmentTimelineEventType
+  | GoodsTimelineEventType
+  | SupplierTimelineEventType;
+
+// /api/suppliers — Supplier master entity (L1.2 of the strategic plan).
+// Typed to fields the dashboard list + detail views read.
+
+export type SupplierSanctionsStatus = 'clear' | 'potential_match' | 'match' | 'pending';
+
+export interface AuditCert {
+  standard?: string;
+  issuer?: string;
+  certNumber?: string;
+  issuedAt?: string;
+  expiresAt?: string;
+  evidenceUrl?: string;
+  [k: string]: unknown;
+}
+
+export interface FactoryLocation {
+  countryCode?: string;
+  city?: string;
+  role?: string;
+  floorAreaSqm?: number;
+  [k: string]: unknown;
+}
+
+// Closed taxonomy for the supplier legalForm dropdown — mirror of
+// LEGAL_FORMS in lib/db/suppliers.js. A drift-guard test asserts both
+// arrays stay in lockstep (each direction). Order matches the
+// backend's frozen array.
+export const SUPPLIER_LEGAL_FORMS: ReadonlyArray<string> = Object.freeze([
+  'llc', 'gmbh', 'sp_z_o_o', 'ltd', 'sa', 'kft', 'sarl', 'srl', 'sas',
+  'inc', 'corp', 'oy', 'ab', 'as', 'bv', 'nv', 'plc', 'cooperative', 'other',
+]) as ReadonlyArray<string>;
+
+// Iterable closed taxonomy for the suppliers list-page sanctions
+// filter (PR #127). Mirror of SANCTIONS_STATUSES in
+// lib/db/suppliers.js + the SupplierSanctionsStatus union above.
+// Order matches the operational severity: clear → pending →
+// potential_match → match so the dropdown reads naturally from
+// "safe to proceed" through "escalate".
+//
+// 'not_screened' is intentionally NOT in this list — it's a
+// pseudo-status meaning "sanctionsLastStatus is null" (the supplier
+// has never been screened). The list-page filter handles that
+// branch as a separate dropdown option since it's the absence-of-
+// status rather than a value.
+export const SUPPLIER_SANCTIONS_STATUSES: ReadonlyArray<SupplierSanctionsStatus> = Object.freeze([
+  'clear',
+  'pending',
+  'potential_match',
+  'match',
+]) as ReadonlyArray<SupplierSanctionsStatus>;
+
+export interface Supplier {
+  externalId: string;
+  entityName: string;
+  legalForm?: string | null;
+  hqCountry: string;
+  registrationNumber?: string | null;
+  registrationAuthority?: string | null;
+  website?: string | null;
+  factoryLocations?: FactoryLocation[];
+  sanctionsLastScreenedAt?: string | null;
+  sanctionsLastStatus?: SupplierSanctionsStatus | null;
+  sanctionsLastMatchSummary?: Record<string, unknown>;
+  auditCerts?: AuditCert[];
+  lastOnSiteAuditDate?: string | null;
+  eudrDdsEvidence?: Record<string, unknown>;
+  trustScore?: number | null;
+  trustScoreComputedAt?: string | null;
+  trustScoreComponents?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+}
+
+// /api/goods — Goods master entity (L1.1 of the strategic plan).
+// Typed to the fields the dashboard list + detail views read.
+
+export interface ReachSvhcFlag {
+  cas?: string;
+  name?: string;
+  threshold_pct?: number;
+  [k: string]: unknown;
+}
+
+export interface Goods {
+  externalId: string;
+  sku: string;
+  displayName: string;
+  hsCode: string;
+  originCountry?: string | null;
+  typicalUnitValueCents?: number | null;
+  cbamInScope: boolean;
+  reachSvhcFlags?: ReachSvhcFlag[];
+  restrictedSubstances?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+}
+
+// Canonical state-transition table. Mirrors lib/db/shipments.js
+// VALID_TRANSITIONS exactly — a drift-guard test pins both sides.
+// Used by the detail page to render only the legal next-state buttons
+// from the shipment's current status.
+export const SHIPMENT_VALID_TRANSITIONS: Readonly<Record<ShipmentStatus, ReadonlyArray<ShipmentStatus>>> = Object.freeze({
+  planned: Object.freeze(['booked', 'exception', 'cancelled']),
+  booked: Object.freeze(['in_transit', 'exception', 'cancelled']),
+  in_transit: Object.freeze(['cleared', 'exception', 'cancelled']),
+  cleared: Object.freeze(['delivered', 'exception']),
+  delivered: Object.freeze(['exception']),
+  exception: Object.freeze(['planned', 'booked', 'in_transit', 'cleared', 'delivered', 'cancelled']),
+  cancelled: Object.freeze([]),
+}) as Readonly<Record<ShipmentStatus, ReadonlyArray<ShipmentStatus>>>;
+
+// Returned by GET /api/shipments/exceptions. Carries the full Shipment
+// plus a computed _queue block with SLA fields.
+export interface ExceptionQueueItem extends Shipment {
+  _queue: {
+    ageHours: number | null;
+    acknowledged: boolean;
+    acknowledgedAt: string | null;
+    acknowledgedBy: string | null;
+    slaBreached: boolean;
+    slaThresholdHours: number;
+  };
+  exceptionState?: Record<string, unknown>;
 }
