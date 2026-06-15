@@ -8,6 +8,10 @@ import {
   type Overview,
   type ImportRequest,
   type ImportRequestStatus,
+  type ActivityEvent,
+  activityEventHref,
+  activityEventSummary,
+  activityKind,
 } from '@/lib/api';
 
 function eur(n?: number) {
@@ -97,6 +101,8 @@ export default function DashboardPage() {
       />
 
       <ImportsWidget />
+
+      <ActivityWidget />
 
       {next && <NextDeadline next={next} />}
 
@@ -549,6 +555,178 @@ function ImportsWidget() {
               </Link>
             );
           })}
+        </div>
+      )}
+    </Section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Activity feed (sprint 14)
+ * ──────────────────────────────────────────────────────────────────── */
+
+// Humanise a timestamp into "just now / 3 min ago / 2h ago / 4d ago".
+// Deterministic — purely client-side, no LLM. Cap at 7d (anything older
+// shows the absolute date). Updates only on the polling tick, so the
+// values are stable within a 30s window.
+function activityAgeLabel(iso: string): string {
+  if (!iso) return '—';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '—';
+  const seconds = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (seconds < 45) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days <= 7) return `${days}d ago`;
+  return new Date(ts).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' });
+}
+
+const ACTIVITY_KIND_LABELS: Record<ReturnType<typeof activityKind>, string> = {
+  import: 'IMPORT',
+  shipment: 'SHIPMENT',
+  goods: 'PRODUCT',
+  supplier: 'SUPPLIER',
+  document: 'DOCUMENT',
+  team: 'TEAM',
+};
+
+function ActivityWidget() {
+  type ListState = 'loading' | 'auth' | 'error' | 'empty' | 'ready';
+  const [state, setState] = useState<ListState>('loading');
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+
+  // Polling cadence — 30s feels live in a demo without overwhelming KV.
+  // On a real production load we'd switch to Supabase Realtime / SSE;
+  // polling is the right scaffolding to ship today.
+  const POLL_MS = 30_000;
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    function load(initial: boolean) {
+      apiGet<{ ok: boolean; events: ActivityEvent[] }>('/activity?limit=20')
+        .then((d) => {
+          if (cancelled) return;
+          const list = Array.isArray(d.events) ? d.events : [];
+          setEvents(list);
+          setState(list.length === 0 ? 'empty' : 'ready');
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          if (initial) {
+            if (err instanceof AuthError) setState('auth');
+            else setState('error');
+          }
+          // A transient poll-time error MUST NOT flip a healthy widget
+          // into the error state — leave the last-known events on
+          // screen so a momentary KV blip doesn't visibly degrade the
+          // dashboard.
+        })
+        .finally(() => {
+          if (cancelled) return;
+          timer = setTimeout(() => load(false), POLL_MS);
+        });
+    }
+
+    load(true);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+
+  // Hide silently on auth / error so the dashboard never breaks
+  // because /api/activity is in a degraded state.
+  if (state === 'auth' || state === 'error') return null;
+
+  return (
+    <Section>
+      <SectionHeading>Recent activity</SectionHeading>
+
+      {state === 'loading' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-8"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <p className="text-[var(--color-ivory-mute)] text-sm">Loading…</p>
+        </div>
+      )}
+
+      {state === 'empty' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-10 text-center"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No activity yet.</p>
+          <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
+            Activity in your org — new imports, shipment updates, supplier registrations — will show up here as it happens.
+          </p>
+        </div>
+      )}
+
+      {state === 'ready' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] overflow-hidden"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          {events.slice(0, 10).map((e, i) => {
+            const href = activityEventHref(e);
+            const kind = activityKind(e);
+            const kindLabel = ACTIVITY_KIND_LABELS[kind];
+            const summary = activityEventSummary(e);
+            const age = activityAgeLabel(e.at);
+            const body = (
+              <>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className="text-[10px] font-semibold tracking-[0.08em] uppercase shrink-0 px-2 py-0.5"
+                    style={{
+                      color: 'var(--color-aqua)',
+                      borderColor: 'var(--color-aqua)',
+                      borderWidth: 1,
+                      borderRadius: 'var(--radius-badge)',
+                      background: 'rgba(34, 211, 238, 0.06)',
+                    }}
+                  >
+                    {kindLabel}
+                  </span>
+                  <span className="text-[14px] text-[var(--color-ivory)] truncate font-medium">
+                    {summary}
+                  </span>
+                </div>
+                <span className="text-[12px] font-mono text-[var(--color-ivory-mute)] shrink-0">
+                  {age}
+                </span>
+              </>
+            );
+
+            const rowClass = `flex items-center justify-between gap-4 px-6 py-3.5 ${
+              i > 0 ? 'border-t border-white/[0.04]' : ''
+            }`;
+
+            return href ? (
+              <Link
+                key={`${e.type}-${e.at}-${i}`}
+                href={href}
+                className={`${rowClass} hover:bg-white/[0.025] transition-colors duration-200 group`}
+              >
+                {body}
+              </Link>
+            ) : (
+              <div key={`${e.type}-${e.at}-${i}`} className={rowClass}>
+                {body}
+              </div>
+            );
+          })}
+          {events.length > 10 && (
+            <div className="px-6 py-3 text-[11.5px] text-[var(--color-ivory-mute)] border-t border-white/[0.04]">
+              Showing the 10 most recent of {events.length}. Older activity stays in your audit log.
+            </div>
+          )}
         </div>
       )}
     </Section>

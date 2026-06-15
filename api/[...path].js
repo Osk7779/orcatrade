@@ -54,6 +54,13 @@ const handlers = {
   // POST /api/imports/<externalId>/{process,review,decide,cancel} +
   // GET /api/imports/<externalId>/history.
   imports: require('../lib/handlers/imports'),
+  // Org-scoped activity feed (sprint 14). GET /api/activity?limit=20
+  // → newest-first stream of org-wide lifecycle events (goods + suppliers
+  // + shipments + import-requests + documents + org-membership). Powers
+  // the live dashboard activity widget. Personal-security events
+  // (auth_*, mfa_*, password_*) are deliberately excluded — they live
+  // in /account/security only.
+  activity: require('../lib/handlers/activity'),
   // Auth (magic-link). Sub-actions resolved inside the handler from the
   // second URL segment: request / verify / me / logout.
   auth: require('../lib/handlers/auth'),

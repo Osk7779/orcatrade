@@ -984,3 +984,131 @@ export interface ImportRequestTimelineEvent {
   detail?: Record<string, unknown> | null;
   [k: string]: unknown;
 }
+
+// ── Org-wide activity feed (sprint 14) ───────────────────────────────
+// Fed by GET /api/activity (org-scoped). The event-type allowlist on
+// the server (lib/events.js ORG_ACTIVITY_TYPES) excludes personal-
+// security events (auth_*, mfa_*, password_*) so this stream only ever
+// surfaces shared org activity — visible to every teammate.
+
+export type ActivityEventType =
+  | ShipmentTimelineEventType
+  | GoodsTimelineEventType
+  | SupplierTimelineEventType
+  | ImportRequestTimelineEventType
+  | 'document_drafted'
+  | 'document_approved'
+  | 'document_rejected'
+  | 'org_member_invited'
+  | 'org_member_removed'
+  | 'org_member_role_changed';
+
+export interface ActivityEvent {
+  type: ActivityEventType;
+  at: string;
+  actorEmailHash?: string;
+  entityType?: string;
+  entityId?: string;
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+  detail?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
+
+// Derives an in-app target for an activity event. Used by the dashboard
+// widget to make each row a clickable link to the entity detail page.
+// Returns null if the event has no in-app target (membership events
+// land on /team for now). Co-located with the type so a future event
+// type addition stays in lockstep with the routing.
+export function activityEventHref(e: ActivityEvent): string | null {
+  if (!e || !e.entityType || !e.entityId) return null;
+  switch (e.entityType) {
+    case 'import_request': return `/imports/${e.entityId}`;
+    case 'goods_master': return `/goods/${e.entityId}`;
+    case 'supplier_master': return `/suppliers/${e.entityId}`;
+    case 'shipment_master': return `/shipments/${e.entityId}`;
+    default: return null;
+  }
+}
+
+// One-line headline for an activity row. Deterministic — the activity
+// widget shows up to ~20 rows on the dashboard and we don't want to
+// pay for an LLM call per row. Falls back to a generic "<type>" when
+// the event shape is unfamiliar (so a future allowlist addition
+// renders something reasonable until a richer formatter ships).
+export function activityEventSummary(e: ActivityEvent): string {
+  const entityRef =
+    e.entityId
+      ? `${e.entityId}`
+      : (e.entityType ? `${e.entityType}` : 'item');
+  switch (e.type) {
+    case 'import_request_created':
+      return `New import request submitted (${entityRef})`;
+    case 'import_request_updated':
+      return `Import request ${entityRef} updated`;
+    case 'import_request_status_transition': {
+      const toStatus = (e.after as Record<string, unknown> | undefined)?.status;
+      return toStatus
+        ? `Import request ${entityRef} → ${String(toStatus)}`
+        : `Import request ${entityRef} status changed`;
+    }
+    case 'import_request_archived':
+      return `Import request ${entityRef} archived`;
+    case 'goods_master_created':
+      return `New product registered (${entityRef})`;
+    case 'goods_master_updated':
+      return `Product ${entityRef} updated`;
+    case 'goods_master_archived':
+      return `Product ${entityRef} archived`;
+    case 'supplier_master_created':
+      return `New supplier registered (${entityRef})`;
+    case 'supplier_master_updated':
+      return `Supplier ${entityRef} updated`;
+    case 'supplier_master_rescreened':
+      return `Supplier ${entityRef} re-screened against sanctions`;
+    case 'supplier_master_archived':
+      return `Supplier ${entityRef} archived`;
+    case 'shipment_master_created':
+      return `Shipment ${entityRef} booked`;
+    case 'shipment_master_updated':
+      return `Shipment ${entityRef} updated`;
+    case 'shipment_master_status_transition': {
+      const toStatus = (e.after as Record<string, unknown> | undefined)?.status;
+      return toStatus
+        ? `Shipment ${entityRef} → ${String(toStatus)}`
+        : `Shipment ${entityRef} status changed`;
+    }
+    case 'shipment_master_exception_acknowledged':
+      return `Shipment ${entityRef} exception acknowledged`;
+    case 'shipment_master_archived':
+      return `Shipment ${entityRef} archived`;
+    case 'document_drafted':
+      return `Document drafted`;
+    case 'document_approved':
+      return `Document approved`;
+    case 'document_rejected':
+      return `Document rejected`;
+    case 'org_member_invited':
+      return `Teammate invited`;
+    case 'org_member_removed':
+      return `Teammate removed`;
+    case 'org_member_role_changed':
+      return `Teammate role changed`;
+    default:
+      return String(e.type);
+  }
+}
+
+// Best-effort kind tag for visual styling — one of a small palette so
+// the widget can colour-code rows without proliferating switch
+// statements at the render site.
+export type ActivityKind = 'import' | 'shipment' | 'goods' | 'supplier' | 'document' | 'team';
+
+export function activityKind(e: ActivityEvent): ActivityKind {
+  if (e.type.startsWith('import_request')) return 'import';
+  if (e.type.startsWith('shipment_master')) return 'shipment';
+  if (e.type.startsWith('goods_master')) return 'goods';
+  if (e.type.startsWith('supplier_master')) return 'supplier';
+  if (e.type.startsWith('document_')) return 'document';
+  return 'team';
+}
