@@ -52,7 +52,7 @@ import {
   type AuditTimelineEventType,
 } from '@/lib/api';
 
-export type EntityKind = 'shipment' | 'goods' | 'supplier';
+export type EntityKind = 'shipment' | 'goods' | 'supplier' | 'import_request';
 
 function fmtDateTime(d: string) {
   try { return new Date(d).toLocaleString('en-IE'); } catch { return d; }
@@ -189,6 +189,61 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'supplier_master_updated': return 'Updated';
         case 'supplier_master_rescreened': return 'Re-screened';
         case 'supplier_master_archived': return 'Archived';
+        default: return String(t);
+      }
+    },
+  },
+  // Sprint 7 — fourth entity kind. Import requests fire a small set of
+  // events; the load-bearing one is `import_request_status_transition`,
+  // which carries `before.status` → `after.status` in the standard
+  // shape so the timeline reads as "Status submitted → processing", etc.
+  import_request: {
+    urlPath: 'imports',
+    headline: (e) => {
+      switch (e.type) {
+        case 'import_request_created':
+          return 'Request created · status submitted';
+        case 'import_request_status_transition': {
+          const from = (e.before as { status?: string } | undefined)?.status;
+          const to = (e.after as { status?: string } | undefined)?.status;
+          // The transition detail block sometimes carries a `subtype`
+          // that names the artefact attached at this transition —
+          // 'shortlist_and_quote_attached', 'team_reviewed',
+          // 'customer_decided'. Surface it in the headline so the
+          // timeline reads as a story: not just "processing →
+          // awaiting_review" but "shortlist + quote attached".
+          const subtype = (e.detail as { subtype?: string } | undefined)?.subtype;
+          const subtypeLabel: Record<string, string> = {
+            shortlist_and_quote_attached: 'shortlist + quote attached',
+            team_reviewed: 'team reviewed',
+            customer_decided: 'customer decided',
+          };
+          const subLabel = subtype && subtypeLabel[subtype];
+          if (from && to && subLabel) return `${from.replace(/_/g, ' ')} → ${to.replace(/_/g, ' ')} · ${subLabel}`;
+          if (from && to) return `Status ${from.replace(/_/g, ' ')} → ${to.replace(/_/g, ' ')}`;
+          if (to) return `Status → ${to.replace(/_/g, ' ')}`;
+          return 'Status transition';
+        }
+        case 'import_request_updated':
+          return 'Request updated';
+        case 'import_request_archived':
+          return 'Request archived';
+        default:
+          return String(e.type);
+      }
+    },
+    tone: (t) => {
+      if (t === 'import_request_archived') return 'var(--color-ivory-mute)';
+      if (t === 'import_request_status_transition') return 'var(--color-aqua)';
+      if (t === 'import_request_updated') return 'var(--color-positive)';
+      return 'var(--color-ivory)';
+    },
+    typeLabel: (t) => {
+      switch (t) {
+        case 'import_request_created': return 'Created';
+        case 'import_request_updated': return 'Updated';
+        case 'import_request_status_transition': return 'State transition';
+        case 'import_request_archived': return 'Archived';
         default: return String(t);
       }
     },

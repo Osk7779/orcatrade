@@ -30,6 +30,7 @@ import {
   type ComplianceProbes,
   type ComplianceProbeResult,
 } from '@/lib/api';
+import { TransitionHistory } from '@/components/TransitionHistory';
 
 type LoadState = 'loading' | 'auth' | 'error' | 'ready';
 
@@ -253,6 +254,15 @@ export default function ImportRequestDetailPage() {
       {request.factoryShortlist && request.factoryShortlist.length > 0 && (
         <ShortlistPanel shortlist={request.factoryShortlist} />
       )}
+
+      {/* Audit timeline — sprint 7. Reuses the polymorphic component
+          that powers the shipment / goods / supplier detail pages. */}
+      <section className="space-y-4">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+          Activity
+        </h2>
+        <TransitionHistory entityKind="import_request" externalId={request.externalId} />
+      </section>
 
       {/* Audit trail link / footer */}
       <footer className="border-t border-white/[0.06] pt-5 text-[var(--color-ivory-mute)] text-[12.5px] font-serif italic">

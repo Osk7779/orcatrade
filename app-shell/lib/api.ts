@@ -443,15 +443,22 @@ export interface SupplierTimelineEvent {
 // Union for the polymorphic TransitionHistory component. Each
 // entity-kind variant carries its own type-union and renders its own
 // headline/tone via the per-entity-kind lookup table in the component.
+//
+// Sprint 7: import_request joins shipment / goods / supplier as the
+// fourth entity kind the timeline polymorphism handles. (Defined far
+// below the others; import_request types live near the rest of the
+// ImportRequest interface block.)
 export type AuditTimelineEvent =
   | ShipmentTimelineEvent
   | GoodsTimelineEvent
-  | SupplierTimelineEvent;
+  | SupplierTimelineEvent
+  | ImportRequestTimelineEvent;
 
 export type AuditTimelineEventType =
   | ShipmentTimelineEventType
   | GoodsTimelineEventType
-  | SupplierTimelineEventType;
+  | SupplierTimelineEventType
+  | ImportRequestTimelineEventType;
 
 // /api/suppliers — Supplier master entity (L1.2 of the strategic plan).
 // Typed to fields the dashboard list + detail views read.

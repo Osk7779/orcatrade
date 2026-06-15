@@ -9,7 +9,7 @@ import { useEffect, useState } from 'react';
 // menu. Active link gets an ivory left-rail accent + ivory text, hover
 // uses the navy-soft surface.
 
-type NavItem = { label: string; href: string; inApp?: boolean };
+type NavItem = { label: string; href: string; inApp?: boolean; opsOnly?: boolean };
 
 const SECTIONS: { heading: string; items: NavItem[] }[] = [
   {
@@ -22,7 +22,11 @@ const SECTIONS: { heading: string; items: NavItem[] }[] = [
     items: [
       { label: 'New request', href: '/imports/new', inApp: true },
       { label: 'My requests', href: '/imports', inApp: true },
-      { label: 'Review queue', href: '/imports/queue', inApp: true },
+      // Review queue is gated client-side via /api/account/role.isOpsRole
+      // and rendered conditionally below. The backend (sprint 6) also
+      // 403s POST /api/imports/<id>/review for non-ops roles, so the
+      // gate is defence-in-depth, not cosmetic.
+      { label: 'Review queue', href: '/imports/queue', inApp: true, opsOnly: true },
     ],
   },
   {
@@ -65,6 +69,10 @@ const SECTIONS: { heading: string; items: NavItem[] }[] = [
 export function Sidebar() {
   const pathname = usePathname() || '';
   const [openAlerts, setOpenAlerts] = useState<number | null>(null);
+  // Sprint 7 ch 2: role-gated visibility for ops-only nav items.
+  // While the fetch is in flight, treat the user as non-ops (safe
+  // default — hide the queue link until we know they can use it).
+  const [isOpsRole, setIsOpsRole] = useState<boolean>(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -72,6 +80,10 @@ export function Sidebar() {
       .then((r) => (r.ok ? r.json() : null))
       .then((d) => { if (!cancelled && d && typeof d.openCount === 'number') setOpenAlerts(d.openCount); })
       .catch(() => { /* silent */ });
+    fetch('/api/account/role', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d && typeof d.isOpsRole === 'boolean') setIsOpsRole(d.isOpsRole); })
+      .catch(() => { /* silent — safe default keeps queue hidden */ });
     return () => { cancelled = true; };
   }, []);
 
@@ -100,7 +112,9 @@ export function Sidebar() {
                 {section.heading}
               </span>
             </div>
-            {section.items.map((item) => {
+            {section.items
+              .filter((item) => !item.opsOnly || isOpsRole)
+              .map((item) => {
               const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
               const isAlerts = item.href === '/alerts';
               const badge = isAlerts && openAlerts && openAlerts > 0 ? (
