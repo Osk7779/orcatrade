@@ -266,3 +266,255 @@ test('runOrchestrator rejects garbage inputs before touching Postgres', async ()
   assert.equal(r2.ok, false);
   assert.equal(r2.code, 'bad_input');
 });
+
+// ── HS-code classification integration (sprint 2 chunk 1, ADR 0016) ─
+
+test('buildLandedQuote without hsClassification omits the hsClassification methodology block', () => {
+  const quote = orch.buildLandedQuote({
+    hsCode: '999999',
+    originCountry: 'CN',
+    destinationCountry: 'DE',
+    customsValueEur: 10_000,
+    targetQuantity: 1000,
+    productCategory: 'homeware',
+    urgencyWeeks: 8,
+  });
+  assert.equal(quote.methodology.hsClassification, null);
+});
+
+test('buildLandedQuote with high-confidence hsClassification surfaces metadata + leaves tier B-eligible', () => {
+  const hsClassification = {
+    suggestion: { hs6: '392410', label: 'Tableware and kitchenware of plastics', chapter: 39 },
+    confidence: 0.92,
+    confidenceTier: 'high',
+    verifyUrl: 'https://www.trade-tariff.service.gov.uk/headings/3924',
+    dutyEstimate: { rate: 0.065, source: 'uk-trade-tariff', sourceLabel: 'UK Trade Tariff (live)' },
+  };
+  const quote = orch.buildLandedQuote({
+    hsCode: '392410',
+    originCountry: 'CN',
+    destinationCountry: 'DE',
+    customsValueEur: 10_000,
+    targetQuantity: 1000,
+    productCategory: 'homeware',
+    urgencyWeeks: 8,
+    hsClassification,
+  });
+  assert.ok(quote.methodology.hsClassification, 'methodology must carry hsClassification');
+  assert.equal(quote.methodology.hsClassification.hs6, '392410');
+  assert.equal(quote.methodology.hsClassification.label, 'Tableware and kitchenware of plastics');
+  assert.equal(quote.methodology.hsClassification.confidenceTier, 'high');
+  assert.equal(quote.methodology.hsClassification.confidence, 0.92);
+  assert.equal(quote.methodology.hsClassification.verifyUrl, 'https://www.trade-tariff.service.gov.uk/headings/3924');
+  assert.equal(quote.methodology.hsClassification.dutyEstimate.rate, 0.065);
+  // No HS-tier warning should fire.
+  assert.equal(
+    quote.confidenceNotes.some((n) => /HS classification/i.test(n)),
+    false,
+    'high-confidence HS classification must not emit an HS warning',
+  );
+});
+
+test('buildLandedQuote with LOW-confidence HS classification surfaces a warning and drops to Tier C', () => {
+  const hsClassification = {
+    suggestion: { hs6: '999999', label: 'Unknown', chapter: 99 },
+    confidence: 0.2,
+    confidenceTier: 'low',
+    verifyUrl: null,
+    dutyEstimate: null,
+  };
+  const quote = orch.buildLandedQuote({
+    hsCode: '999999',
+    originCountry: 'CN',
+    destinationCountry: 'DE',
+    customsValueEur: 10_000,
+    targetQuantity: 1000,
+    productCategory: 'homeware',
+    urgencyWeeks: 8,
+    hsClassification,
+  });
+  assert.ok(
+    quote.confidenceNotes.some((n) => /HS classification confidence is LOW/.test(n)),
+    'LOW-tier HS classification must surface a confidenceNotes warning',
+  );
+  assert.equal(quote.confidenceTier, 'C', 'LOW HS classification must drop the quote to Tier C');
+});
+
+test('buildLandedQuote with NONE-confidence HS classification surfaces a stronger warning', () => {
+  const hsClassification = {
+    suggestion: null,
+    confidence: 0,
+    confidenceTier: 'none',
+    verifyUrl: null,
+    dutyEstimate: null,
+  };
+  const quote = orch.buildLandedQuote({
+    hsCode: '999999',
+    originCountry: 'CN',
+    destinationCountry: 'DE',
+    customsValueEur: 10_000,
+    targetQuantity: 1000,
+    productCategory: 'homeware',
+    urgencyWeeks: 8,
+    hsClassification,
+  });
+  assert.ok(
+    quote.confidenceNotes.some((n) => /HS classification could not be determined/.test(n)),
+    'NONE-tier HS classification must surface a "must set manually" warning',
+  );
+  assert.equal(quote.confidenceTier, 'C');
+  // The suggestion can be null when the lookup found nothing — methodology
+  // must still surface the (null) suggestion + confidenceTier honestly.
+  assert.equal(quote.methodology.hsClassification.hs6, null);
+  assert.equal(quote.methodology.hsClassification.confidenceTier, 'none');
+});
+
+test('buildLandedQuote methodology version is bumped to v1.1 once the HS classifier lands', () => {
+  const quote = orch.buildLandedQuote({
+    hsCode: '999999',
+    originCountry: 'CN',
+    destinationCountry: 'DE',
+    customsValueEur: 10_000,
+    targetQuantity: 1000,
+    productCategory: 'homeware',
+    urgencyWeeks: 8,
+  });
+  assert.equal(quote.methodology.version, 'v1.1');
+});
+
+// ── Shipment materialisation (sprint 2 chunk 2) ─────────────────────
+
+const APPROVED_REQUEST_FIXTURE = Object.freeze({
+  externalId: 'ir_abc123',
+  label: 'Q3 silicone mats',
+  status: 'customer_approved',
+  productDescription: '3,000 silicone kitchen mats food-grade',
+  hsCodeGuess: '392410',
+  targetQuantity: 3000,
+  targetQuantityUnit: 'pieces',
+  targetUnitPriceCents: 1300,
+  originCountry: 'CN',
+  destinationCountry: 'DE',
+  targetDeliveryDate: '2026-09-15',
+  certificationRequirements: ['CE', 'REACH'],
+  landedQuote: {
+    cargoValueCents: 2_500_000,
+    totalLandedCents: 3_200_000,
+    orcatradeFeeCents: 200_000,
+    orcatradeFeePct: 8,
+    methodology: {
+      version: 'v1.1',
+      weightKgEstimated: 1800,
+      volumeCbmEstimated: 10.8,
+    },
+  },
+  factoryShortlist: [
+    { rank: 1, country: 'VN', candidates: [{ name: 'Vendor A' }] },
+    { rank: 2, country: 'CN', candidates: [{ name: 'Vendor B' }] },
+    { _meta: { version: 'v1.0' } },
+  ],
+  linkedShipmentExternalId: null,
+});
+
+test('buildShipmentSeedFromRequest maps customer intent + quote onto the shipment shape', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE,
+    actorEmailHash: 'aabbccdd11223344',
+    orgId: 42,
+  });
+  assert.equal(seed.orgId, 42);
+  assert.equal(seed.createdByEmailHash, 'aabbccdd11223344');
+  assert.match(seed.label, /Q3 silicone mats.*ir_abc123/);
+  assert.equal(seed.destinationCountry, 'DE');
+  assert.equal(seed.customsValueCents, 2_500_000);
+  assert.equal(seed.weightKg, 1800);
+  assert.equal(seed.plannedArrivalDate, '2026-09-15');
+  // Quote + inputs snapshot for reproducibility.
+  assert.equal(seed.quoteSnapshot, APPROVED_REQUEST_FIXTURE.landedQuote);
+  assert.equal(seed.inputsSnapshot.sourceRequestExternalId, 'ir_abc123');
+  assert.equal(seed.inputsSnapshot.productDescription, '3,000 silicone kitchen mats food-grade');
+  assert.equal(seed.inputsSnapshot.targetQuantity, 3000);
+  // Forensic metadata for the audit timeline.
+  assert.equal(seed.metadata.materialisedFromImportRequest, 'ir_abc123');
+  assert.equal(seed.metadata.orcatradeFeePct, 8);
+  assert.equal(seed.metadata.orcatradeFeeCents, 200_000);
+  assert.equal(seed.metadata.materialiserVersion, 'v1.0');
+});
+
+test('buildShipmentSeedFromRequest uses rank-1 shortlist country as the shipment origin', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  // rank-1 in the fixture is VN, even though customer's stated origin is CN.
+  // The materialiser trusts the calculator-picked top country.
+  assert.equal(seed.originCountry, 'VN');
+});
+
+test('buildShipmentSeedFromRequest falls back to the customer-stated origin when no shortlist exists', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: { ...APPROVED_REQUEST_FIXTURE, factoryShortlist: [] },
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.originCountry, 'CN');
+});
+
+test('buildShipmentSeedFromRequest defaults to CN when neither shortlist nor customer-stated origin', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: { ...APPROVED_REQUEST_FIXTURE, factoryShortlist: [], originCountry: null },
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.originCountry, 'CN');
+});
+
+test('buildShipmentSeedFromRequest skips _meta entries when picking rank-1 country', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: {
+      ...APPROVED_REQUEST_FIXTURE,
+      factoryShortlist: [
+        { _meta: { rank: 1, country: 'SHOULD-NOT-WIN' } },
+        { rank: 1, country: 'IN' },
+      ],
+    },
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.originCountry, 'IN');
+});
+
+test('buildShipmentSeedFromRequest omits plannedArrivalDate when targetDeliveryDate is unset', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: { ...APPROVED_REQUEST_FIXTURE, targetDeliveryDate: null },
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.plannedArrivalDate, undefined);
+});
+
+test('buildShipmentSeedFromRequest tolerates a request with no landed quote', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: { ...APPROVED_REQUEST_FIXTURE, landedQuote: null },
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.customsValueCents, null);
+  assert.equal(seed.weightKg, null);
+  assert.equal(seed.quoteSnapshot.cargoValueCents, undefined);
+});
+
+test('materialiseApprovedRequest rejects garbage inputs before touching Postgres', async () => {
+  const r1 = await orch.materialiseApprovedRequest({});
+  assert.equal(r1.ok, false);
+  assert.equal(r1.code, 'bad_input');
+
+  const r2 = await orch.materialiseApprovedRequest({ orgId: 'x', externalId: 'ir_x', actorEmailHash: 'h' });
+  assert.equal(r2.ok, false);
+  assert.equal(r2.code, 'bad_input');
+
+  const r3 = await orch.materialiseApprovedRequest({ orgId: 1, externalId: '', actorEmailHash: 'h' });
+  assert.equal(r3.ok, false);
+  assert.equal(r3.code, 'bad_input');
+});
