@@ -27,6 +27,8 @@ import {
   type FactoryShortlistBlock,
   type LandedQuote,
   type LandedQuoteComponent,
+  type ComplianceProbes,
+  type ComplianceProbeResult,
 } from '@/lib/api';
 
 type LoadState = 'loading' | 'auth' | 'error' | 'ready';
@@ -466,11 +468,99 @@ function QuotePanel({ quote, expires }: { quote: LandedQuote; expires?: string |
         </div>
       )}
 
+      {quote.complianceProbes && (
+        <CompliancePanel probes={quote.complianceProbes} />
+      )}
+
       {expires && (
         <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]">
           Quote valid until {new Date(expires).toLocaleDateString('en-IE')}
         </p>
       )}
+    </section>
+  );
+}
+
+function regimeTone(applies: ComplianceProbeResult['applies']): string {
+  // 'true' → live obligation (warning amber)
+  // 'maybe' → verify, but not load-bearing (neutral ivory-mute)
+  // 'false' → not in scope (positive green)
+  if (applies === true) return 'var(--color-warning)';
+  if (applies === 'maybe') return 'var(--color-ivory-mute)';
+  return 'var(--color-positive)';
+}
+
+function regimeLabel(applies: ComplianceProbeResult['applies']): string {
+  if (applies === true) return 'In scope';
+  if (applies === 'maybe') return 'Verify';
+  return 'Out of scope';
+}
+
+function CompliancePanel({ probes }: { probes: ComplianceProbes }) {
+  const rows: { regime: string; label: string; probe: ComplianceProbeResult | null }[] = [
+    { regime: 'cbam', label: 'CBAM · carbon border adjustment', probe: probes.cbam },
+    { regime: 'eudr', label: 'EUDR · deforestation regulation', probe: probes.eudr },
+    { regime: 'reach', label: 'REACH · chemicals', probe: probes.reach },
+  ];
+  return (
+    <section className="space-y-3 border-t border-[var(--color-navy-line)] pt-5">
+      <div className="flex items-baseline justify-between gap-3">
+        <h3 className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+          EU compliance · applicability
+        </h3>
+        <span className="font-serif italic text-[11px] text-[var(--color-ivory-mute)]/80">
+          Calculator-grounded probes · {probes.productCategory}
+        </span>
+      </div>
+      <div className="space-y-2">
+        {rows.map(({ regime, label, probe }) => {
+          if (!probe) return null;
+          const tone = regimeTone(probe.applies);
+          return (
+            <div
+              key={regime}
+              className="border border-[var(--color-navy-line)] px-4 py-3 grid grid-cols-[auto_1fr_auto] gap-4 items-start"
+            >
+              <span
+                aria-hidden
+                className="inline-block w-2 h-2 mt-1.5"
+                style={{ background: tone }}
+              />
+              <div className="space-y-1 min-w-0">
+                <div className="flex items-baseline gap-3 flex-wrap">
+                  <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--color-ivory)]">
+                    {label}
+                  </span>
+                  <span
+                    className="font-mono text-[10px] tracking-[0.12em] uppercase"
+                    style={{ color: tone }}
+                  >
+                    {regimeLabel(probe.applies)}
+                  </span>
+                </div>
+                {probe.reason && (
+                  <p className="text-[13px] text-[var(--color-ivory-dim)] leading-snug">
+                    {probe.reason}
+                  </p>
+                )}
+                {probe.citation && (
+                  <p className="font-serif italic text-[11px] text-[var(--color-ivory-mute)]">
+                    {probe.citation}
+                  </p>
+                )}
+              </div>
+              {probe.confidence && (
+                <span
+                  className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]"
+                  title="probe confidence — green = high, amber = verify"
+                >
+                  {probe.confidence}
+                </span>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </section>
   );
 }

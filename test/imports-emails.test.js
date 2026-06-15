@@ -202,3 +202,121 @@ test('all three send entry points return { ok: false } shape on guard-rail rejec
     assert.equal(typeof r.reason, 'string');
   }
 });
+
+// ── Sprint 5 ch 2: per-org ops recipient resolution ──────────────────
+
+test('OPS_NOTIFICATION_ROLES covers owner + admin (and nothing softer)', () => {
+  // Drift-guard: read-mostly roles (analyst, finance, compliance_officer,
+  // viewer, legacy member) must NOT receive ops queue alerts in v1.
+  assert.ok(importsEmails.OPS_NOTIFICATION_ROLES.has('owner'));
+  assert.ok(importsEmails.OPS_NOTIFICATION_ROLES.has('admin'));
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('analyst'), false);
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('finance'), false);
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('compliance_officer'), false);
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('viewer'), false);
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('member'), false);
+});
+
+test('resolveOpsRecipients with no orgIdNumeric falls back to the env inbox', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  process.env.ORCATRADE_OPS_INBOX = 'ops@orcatrade.pl';
+  try {
+    const r = await importsEmails.resolveOpsRecipients(null);
+    assert.equal(r.source, 'env-inbox');
+    assert.equal(r.fallbackReason, 'no-org-id');
+    assert.deepEqual(r.recipients, ['ops@orcatrade.pl']);
+    assert.equal(r.ok, true);
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+    else delete process.env.ORCATRADE_OPS_INBOX;
+  }
+});
+
+test('resolveOpsRecipients with no orgIdNumeric and no env returns ok:false', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    const r = await importsEmails.resolveOpsRecipients(undefined);
+    assert.equal(r.ok, false);
+    assert.deepEqual(r.recipients, []);
+    assert.equal(r.source, 'env-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('resolveOpsRecipients rejects non-integer orgIdNumeric and falls back', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  process.env.ORCATRADE_OPS_INBOX = 'ops@orcatrade.pl';
+  try {
+    for (const bad of ['x', null, undefined, 0, -1, 1.5, NaN]) {
+      const r = await importsEmails.resolveOpsRecipients(/** @type {any} */ (bad));
+      assert.equal(r.source, 'env-inbox', `bad input ${String(bad)} should fall back`);
+    }
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+    else delete process.env.ORCATRADE_OPS_INBOX;
+  }
+});
+
+test('resolveOpsRecipients falls back when Postgres is unconfigured', async () => {
+  const priorDb = process.env.DATABASE_URL;
+  const priorEnv = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.DATABASE_URL;
+  process.env.ORCATRADE_OPS_INBOX = 'fallback@orcatrade.pl';
+  try {
+    const r = await importsEmails.resolveOpsRecipients(42);
+    // Depending on the client's memoised state, the fallbackReason will
+    // be either 'postgres-unconfigured' or 'external-id-not-found'; both
+    // are valid fallback paths.
+    assert.equal(r.source, 'env-inbox');
+    assert.deepEqual(r.recipients, ['fallback@orcatrade.pl']);
+  } finally {
+    if (priorDb !== undefined) process.env.DATABASE_URL = priorDb;
+    if (priorEnv !== undefined) process.env.ORCATRADE_OPS_INBOX = priorEnv;
+    else delete process.env.ORCATRADE_OPS_INBOX;
+  }
+});
+
+test('sendNewInQueueEmail still works with no orgIdNumeric (falls back via resolveOpsRecipients)', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    // No env and no orgIdNumeric → no recipients → no-inbox path.
+    const r = await importsEmails.sendNewInQueueEmail({ request: REQUEST_FIXTURE });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, 'no-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('sendNewInQueueEmail accepts orgIdNumeric without throwing on garbage input', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    // @ts-ignore — explicit bad input test
+    const r = await importsEmails.sendNewInQueueEmail({ request: REQUEST_FIXTURE, orgIdNumeric: 'not-a-number' });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, 'no-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('sendCustomerApprovedEmail accepts orgIdNumeric without throwing on garbage input', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    // @ts-ignore — explicit bad input test
+    const r = await importsEmails.sendCustomerApprovedEmail({
+      request: REQUEST_FIXTURE,
+      shipment: null,
+      orgIdNumeric: 'not-a-number',
+    });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, 'no-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});

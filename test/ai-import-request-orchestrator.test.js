@@ -898,3 +898,106 @@ test('buildGoodsSeedFromRequest compliance probe carries the citation for tracea
   assert.match(seed.metadata.complianceProbes.cbam.citation, /Regulation \(EU\) 2023\/956/);
   assert.equal(seed.metadata.complianceProbes.cbam.categoryKey, 'aluminium');
 });
+
+// ── Sprint 5 ch 1: buildLandedQuoteComplianceBlock ───────────────────
+
+test('buildLandedQuoteComplianceBlock has version + productCategory + three regime slots', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'homeware',
+    productDescription: 'silicone kitchen mats',
+    originCountry: 'CN',
+    hsCode: '392410',
+  });
+  const block = orch.buildLandedQuoteComplianceBlock({ probes, productCategory: 'homeware' });
+  assert.equal(block.version, 'v1.0');
+  assert.equal(block.productCategory, 'homeware');
+  assert.ok('cbam' in block);
+  assert.ok('eudr' in block);
+  assert.ok('reach' in block);
+});
+
+test('buildLandedQuoteComplianceBlock CBAM block carries applies + reason + categoryKey + citation + confidence', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'machinery',
+    productDescription: 'aluminium extrusion profiles industrial-grade',
+    originCountry: 'CN',
+    hsCode: '760410',
+  });
+  const block = orch.buildLandedQuoteComplianceBlock({ probes, productCategory: 'machinery' });
+  assert.ok(block.cbam);
+  assert.equal(block.cbam.applies, true);
+  assert.equal(block.cbam.categoryKey, 'aluminium');
+  assert.equal(typeof block.cbam.reason, 'string');
+  assert.match(block.cbam.citation, /Regulation \(EU\) 2023\/956/);
+  assert.equal(typeof block.cbam.confidence, 'string');
+});
+
+test('buildLandedQuoteComplianceBlock CBAM block has applies=false for intra-EU origin', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'machinery',
+    productDescription: 'aluminium extrusion',
+    originCountry: 'DE',
+    hsCode: '760410',
+  });
+  const block = orch.buildLandedQuoteComplianceBlock({ probes, productCategory: 'machinery' });
+  assert.equal(block.cbam.applies, false);
+});
+
+test('buildLandedQuoteComplianceBlock REACH applies field is tri-state (boolean | string)', () => {
+  // Non-cosmetic, non-textile, non-electronics product → REACH probe
+  // returns applies='maybe' because REACH applies in principle.
+  const probes = orch.runComplianceProbes({
+    productCategory: 'homeware',
+    productDescription: 'silicone kitchen mats food-grade',
+    originCountry: 'CN',
+    hsCode: '392410',
+  });
+  const block = orch.buildLandedQuoteComplianceBlock({ probes, productCategory: 'homeware' });
+  assert.ok(block.reach);
+  const reachApplies = block.reach.applies;
+  // Either boolean (true/false) or string ('maybe'). The TS type
+  // ComplianceProbeResult["applies"] is boolean | 'maybe'.
+  assert.ok(
+    reachApplies === true || reachApplies === false || reachApplies === 'maybe',
+    `REACH applies must be tri-state, got ${JSON.stringify(reachApplies)}`,
+  );
+});
+
+test('buildLandedQuoteComplianceBlock tolerates a null/undefined probe result', () => {
+  const block = orch.buildLandedQuoteComplianceBlock({
+    probes: { cbam: null, eudr: null, reach: null },
+    productCategory: 'homeware',
+  });
+  assert.equal(block.cbam, null);
+  assert.equal(block.eudr, null);
+  assert.equal(block.reach, null);
+});
+
+test('buildLandedQuoteComplianceBlock tolerates missing probes wholesale (passes null/undefined)', () => {
+  // Defensive: a probe orchestration failure must not propagate as a
+  // throw — buildLandedQuoteComplianceBlock must always return a
+  // well-formed block.
+  const block = orch.buildLandedQuoteComplianceBlock({
+    probes: null,
+    productCategory: 'homeware',
+  });
+  assert.equal(block.version, 'v1.0');
+  assert.equal(block.productCategory, 'homeware');
+  assert.equal(block.cbam, null);
+  assert.equal(block.eudr, null);
+  assert.equal(block.reach, null);
+});
+
+test('buildLandedQuoteComplianceBlock EUDR block has commodityKey field (mapped from probe categoryKey)', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'furniture',
+    productDescription: 'wooden dining tables solid oak',
+    originCountry: 'VN',
+    hsCode: '940360',
+  });
+  const block = orch.buildLandedQuoteComplianceBlock({ probes, productCategory: 'furniture' });
+  assert.ok(block.eudr);
+  // commodityKey may be string or null depending on the probe — but the
+  // FIELD must exist (vs being undefined) so the TS type stays satisfied.
+  assert.ok('commodityKey' in block.eudr);
+});

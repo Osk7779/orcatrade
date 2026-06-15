@@ -706,6 +706,33 @@ export interface LandedQuoteProse {
   generatedAt: string;
 }
 
+// EU compliance probe result for a single regime. Calculator-grounded
+// — `applies` is the determinator's verdict; `reason` is the
+// regulation-cited rationale; `citation` points to the binding
+// regulation article. REACH `applies` is tri-state ('maybe' | true |
+// false) because REACH applies in principle to any imported article;
+// the probe distinguishes "high-relevance category match" from "no
+// signal — verify against SDS / SVHC list."
+export interface ComplianceProbeResult {
+  applies: boolean | 'maybe';
+  reason?: string;
+  citation?: string;
+  confidence?: 'green' | 'amber' | 'red' | string;
+  categoryKey?: string | null;
+  commodityKey?: string | null;
+}
+
+// Whole compliance-probe block embedded in landed_quote by the
+// orchestrator at quote time, so the customer sees applicability
+// before approval.
+export interface ComplianceProbes {
+  version: string;
+  productCategory: string;
+  cbam: ComplianceProbeResult | null;
+  eudr: ComplianceProbeResult | null;
+  reach: ComplianceProbeResult | null;
+}
+
 // Full landed-cost quote. components stack to totalLandedCents (which
 // already includes cargo value as the base).
 export interface LandedQuote {
@@ -718,6 +745,7 @@ export interface LandedQuote {
   confidenceTier: 'A' | 'B' | 'C';
   confidenceNotes: string[];
   prose?: LandedQuoteProse | null;
+  complianceProbes?: ComplianceProbes | null;
   methodology: {
     version?: string;
     fobToLandedRatio?: number;
