@@ -167,6 +167,16 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
         supplier={supplier}
         onSaved={(updated) => setSupplier(updated)}
       />
+      {/* PR #147: Panel always renders so operators can ADD a metadata
+          entry to a supplier with none on file. Same key/value editor
+          pattern as PR #133's EUDR DDS evidence editor; the field is
+          freeform operator-side context (internal notes, integration
+          handles, custom tags) and has no regulatory requirement —
+          the empty-state copy reflects that. */}
+      <SupplierMetadataPanel
+        supplier={supplier}
+        onSaved={(updated) => setSupplier(updated)}
+      />
       {supplier.trustScoreComponents && Object.keys(supplier.trustScoreComponents).length > 0 && (
         <TrustComponentsPanel supplier={supplier} />
       )}
@@ -238,7 +248,8 @@ function Header({
 //   trustScore + trustScoreComponents + trustScoreComputedAt
 //     → calculator-grounded per ADR 0002, never hand-edited
 //   factoryLocations / auditCerts / eudrDdsEvidence / metadata
-//     → jsonb fields, need structured editors (deferred, same as goods)
+//     → jsonb fields, each owns its own panel below (PR #130 / #131 /
+//       #133 / #147). Not touched from EditForm.
 //   primaryContactEmailHash → PII, separate add-contact flow.
 function EditForm({
   supplier,
@@ -2059,6 +2070,404 @@ function EudrEvidenceEditRow({
         onClick={onRemove}
         disabled={disabled}
         aria-label={`Remove EUDR evidence row ${rowNumber}`}
+        className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+// SupplierMetadataPanel — read view + key/value editor for the
+// freeform supplier.metadata jsonb object (PR #147). Second jsonb-
+// OBJECT editor on the platform.
+//
+// Unlike PR #133's EUDR panel, metadata is operator-side context
+// (internal notes, integration handles, CRM cross-references, custom
+// tags) — not a regulator-bearing surface. The shape is identical
+// (Record<string, unknown>) but the UX copy reflects the lower stakes:
+// no Article-8 framing, no "compliance gap" empty state, no audit-
+// trail badge on the read view.
+//
+// Implementation mirrors EudrPanel exactly — same draft type shape,
+// same key validation alphabet, same evidenceEqual no-op short-circuit,
+// same sparse PATCH posture. Drift guards in
+// test/supplier-metadata-editor.test.js pin both shapes side by side
+// so neither editor's invariants can silently regress.
+function SupplierMetadataPanel({
+  supplier,
+  onSaved,
+}: {
+  supplier: Supplier;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const persistedMetadata = (supplier.metadata || {}) as Record<string, unknown>;
+  const archived = Boolean(supplier.archivedAt);
+  const [editing, setEditing] = useState(false);
+
+  if (!editing) {
+    return (
+      <SupplierMetadataReadPanel
+        metadata={persistedMetadata}
+        archived={archived}
+        onEditClick={() => setEditing(true)}
+      />
+    );
+  }
+
+  return (
+    <SupplierMetadataEditorPanel
+      supplier={supplier}
+      initialMetadata={persistedMetadata}
+      onCancel={() => setEditing(false)}
+      onSaved={(updated) => {
+        onSaved(updated);
+        setEditing(false);
+      }}
+    />
+  );
+}
+
+function SupplierMetadataReadPanel({
+  metadata,
+  archived,
+  onEditClick,
+}: {
+  metadata: Record<string, unknown>;
+  archived: boolean;
+  onEditClick: () => void;
+}) {
+  const entries = Object.entries(metadata);
+  const hasEntries = entries.length > 0;
+  const json = useMemo(() => JSON.stringify(metadata, null, 2), [metadata]);
+
+  return (
+    <section className="mb-10 border border-[var(--color-navy-line)]">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-xl">Operator metadata</h2>
+          <p className="font-mono text-[11px] text-white/45 mt-1">
+            Freeform key/value notes — internal references, integration handles, custom tags.
+          </p>
+        </div>
+        {!archived && (
+          <button
+            type="button"
+            onClick={onEditClick}
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+      {hasEntries ? (
+        <>
+          <ul className="px-6 py-4 space-y-2">
+            {entries.map(([k, v]) => (
+              <li
+                key={k}
+                className="grid gap-3 md:grid-cols-[200px_1fr] items-start font-mono text-[12px]"
+              >
+                <span className="text-white/55 break-words">{k}</span>
+                <span className="text-white/85 break-words whitespace-pre-wrap">
+                  {typeof v === 'string' ? v : JSON.stringify(v)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <details className="m-6">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+              Raw JSON
+            </summary>
+            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+          </details>
+        </>
+      ) : (
+        <p className="px-6 py-5 font-mono text-xs text-white/45">
+          No metadata recorded.{' '}
+          {!archived && 'Click Edit to add the first entry.'}
+        </p>
+      )}
+    </section>
+  );
+}
+
+type SupplierMetadataDraft = {
+  rowKey: string;
+  key: string;
+  value: string;
+};
+
+let supplierMetadataRowKeyCounter = 0;
+function nextSupplierMetadataRowKey(): string {
+  supplierMetadataRowKeyCounter += 1;
+  return `supplier-metadata-${supplierMetadataRowKeyCounter}`;
+}
+
+function emptySupplierMetadataDraft(): SupplierMetadataDraft {
+  return { rowKey: nextSupplierMetadataRowKey(), key: '', value: '' };
+}
+
+function metadataToDrafts(metadata: Record<string, unknown>): SupplierMetadataDraft[] {
+  const out: SupplierMetadataDraft[] = [];
+  for (const [k, v] of Object.entries(metadata)) {
+    out.push({
+      rowKey: nextSupplierMetadataRowKey(),
+      key: k,
+      value: typeof v === 'string' ? v : JSON.stringify(v),
+    });
+  }
+  return out;
+}
+
+function draftsToMetadata(drafts: SupplierMetadataDraft[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const d of drafts) {
+    const k = d.key.trim();
+    if (!k) continue;
+    out[k] = d.value;
+  }
+  return out;
+}
+
+function metadataEqual(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+): boolean {
+  const aKeys = Object.keys(a).sort();
+  const bKeys = Object.keys(b).sort();
+  if (aKeys.length !== bKeys.length) return false;
+  for (let i = 0; i < aKeys.length; i += 1) {
+    if (aKeys[i] !== bKeys[i]) return false;
+    const k = aKeys[i];
+    const av = a[k];
+    const bv = b[k];
+    if (JSON.stringify(av) !== JSON.stringify(bv)) return false;
+  }
+  return true;
+}
+
+// Same alphabet as EUDR (PR #133) — keeps metadata keys parseable
+// across downstream integrations and avoids surprising operators with
+// editor-specific rules.
+const SUPPLIER_METADATA_KEY_PATTERN = /^[a-z0-9._-]+$/;
+
+function SupplierMetadataEditorPanel({
+  supplier,
+  initialMetadata,
+  onCancel,
+  onSaved,
+}: {
+  supplier: Supplier;
+  initialMetadata: Record<string, unknown>;
+  onCancel: () => void;
+  onSaved: (updated: Supplier) => void;
+}) {
+  const [drafts, setDrafts] = useState<SupplierMetadataDraft[]>(() => {
+    const seeded = metadataToDrafts(initialMetadata);
+    return seeded.length > 0 ? seeded : [emptySupplierMetadataDraft()];
+  });
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function updateRow(rowKey: string, patch: Partial<SupplierMetadataDraft>) {
+    setDrafts((prev) =>
+      prev.map((d) => (d.rowKey === rowKey ? { ...d, ...patch } : d)),
+    );
+  }
+
+  function removeRow(rowKey: string) {
+    setDrafts((prev) => prev.filter((d) => d.rowKey !== rowKey));
+  }
+
+  function addRow() {
+    setDrafts((prev) => [...prev, emptySupplierMetadataDraft()]);
+  }
+
+  function clientSideErrors(): string[] {
+    const out: string[] = [];
+    const seenKeys = new Map<string, number>();
+    drafts.forEach((d, i) => {
+      const rowNumber = i + 1;
+      const k = d.key.trim();
+      const v = d.value;
+      if (!k && v.trim()) {
+        out.push(`Row ${rowNumber}: key is required when a value is present`);
+      }
+      if (k && !SUPPLIER_METADATA_KEY_PATTERN.test(k)) {
+        out.push(`Row ${rowNumber}: key "${k}" must use only lowercase letters, digits, dots, dashes, and underscores`);
+      }
+      if (k) {
+        const seenAt = seenKeys.get(k);
+        if (seenAt != null) {
+          out.push(`Rows ${seenAt} and ${rowNumber} both use key "${k}" — keys must be unique`);
+        } else {
+          seenKeys.set(k, rowNumber);
+        }
+      }
+    });
+    return out;
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors([]);
+
+    const localErrors = clientSideErrors();
+    if (localErrors.length) {
+      setErrors(localErrors);
+      setSaving(false);
+      return;
+    }
+
+    const materialised = draftsToMetadata(drafts);
+
+    if (metadataEqual(materialised, initialMetadata)) {
+      setSaving(false);
+      onCancel();
+      return;
+    }
+
+    try {
+      const d = await apiPatch<{ ok: boolean; supplier: Supplier; unchanged: boolean }>(
+        `/suppliers/${encodeURIComponent(supplier.externalId)}`,
+        { metadata: materialised },
+      );
+      onSaved(d.supplier);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.errors.length ? err.errors : [err.message]);
+      } else if (err instanceof AuthError) {
+        setErrors(['Sign in required to save metadata changes.']);
+      } else {
+        setErrors([err instanceof Error ? err.message : 'Could not save metadata changes.']);
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]"
+    >
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="font-serif text-xl">Edit operator metadata</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+            {drafts.length} {drafts.length === 1 ? 'entry' : 'entries'}
+          </span>
+        </div>
+        <p className="font-mono text-[11px] text-white/45 mt-2">
+          Freeform key/value. Common keys: crm_account_id, internal_owner, integration_handle.
+        </p>
+      </div>
+
+      <div className="px-6 py-5 space-y-3">
+        {drafts.map((d, i) => (
+          <SupplierMetadataEditRow
+            key={d.rowKey}
+            index={i}
+            draft={d}
+            disabled={saving}
+            onChange={(patch) => updateRow(d.rowKey, patch)}
+            onRemove={() => removeRow(d.rowKey)}
+          />
+        ))}
+        <button
+          type="button"
+          onClick={addRow}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+        >
+          + Add metadata entry
+        </button>
+      </div>
+
+      {errors.length > 0 && (
+        <ul
+          className="border-t border-[var(--color-navy-line)] px-6 py-4 space-y-1"
+          role="alert"
+        >
+          {errors.map((e, i) => (
+            <li
+              key={i}
+              className="font-mono text-[12px]"
+              style={{ color: 'var(--color-critical)' }}
+            >
+              {e}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="border-t border-[var(--color-navy-line)] px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save metadata'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function SupplierMetadataEditRow({
+  index,
+  draft,
+  disabled,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  draft: SupplierMetadataDraft;
+  disabled: boolean;
+  onChange: (patch: Partial<SupplierMetadataDraft>) => void;
+  onRemove: () => void;
+}) {
+  const rowNumber = index + 1;
+  return (
+    <div className="grid gap-2 md:grid-cols-[1fr_2fr_auto] items-start">
+      <label className="block">
+        <span className="sr-only">Key for metadata row {rowNumber}</span>
+        <input
+          type="text"
+          value={draft.key}
+          onChange={(e) => onChange({ key: e.target.value })}
+          disabled={disabled}
+          placeholder="key"
+          maxLength={120}
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <label className="block">
+        <span className="sr-only">Value for metadata row {rowNumber}</span>
+        <input
+          type="text"
+          value={draft.value}
+          onChange={(e) => onChange({ value: e.target.value })}
+          disabled={disabled}
+          placeholder="value"
+          maxLength={500}
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <button
+        type="button"
+        onClick={onRemove}
+        disabled={disabled}
+        aria-label={`Remove metadata row ${rowNumber}`}
         className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
       >
         ×
