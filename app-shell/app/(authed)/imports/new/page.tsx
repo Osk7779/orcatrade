@@ -180,24 +180,45 @@ export default function NewImportRequestPage() {
   }
 
   return (
-    <section className="space-y-10 max-w-3xl">
-      <header className="space-y-3">
-        <div className="flex items-baseline gap-3">
-          <Link href="/imports" className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)]">
-            ← Imports
-          </Link>
+    <section className="space-y-16 max-w-3xl pb-16">
+      {/* Hero — Connectis-inspired: bold Inter display, aqua glow accent,
+          generous vertical air. Tagline (subtitle) retains a touch of
+          serif italic as OrcaTrade's editorial signature. */}
+      <header className="relative pt-4">
+        <div
+          aria-hidden
+          className="absolute -top-8 -left-8 w-64 h-64 pointer-events-none rounded-full"
+          style={{
+            background: 'radial-gradient(closest-side, var(--color-aqua-glow), transparent)',
+            filter: 'blur(8px)',
+          }}
+        />
+        <div className="relative space-y-6">
+          <div className="flex items-center gap-2 text-[12px] tracking-[0.06em] text-[var(--color-ivory-mute)]">
+            <Link
+              href="/imports"
+              className="hover:text-[var(--color-aqua)] transition-colors"
+            >
+              Imports
+            </Link>
+            <span aria-hidden>›</span>
+            <span className="text-[var(--color-ivory-dim)]">New request</span>
+          </div>
+          <h1 className="font-sans text-[clamp(2.5rem,5vw,3.75rem)] font-bold text-[var(--color-ivory)] tracking-[-0.025em] leading-[1.05]">
+            Tell us what you want{' '}
+            <span className="text-[var(--color-aqua)]">from Asia.</span>
+          </h1>
+          <p className="text-[var(--color-ivory-dim)] text-[17px] leading-relaxed max-w-2xl">
+            We will surface a factory shortlist and a fully landed-cost quote — duty, VAT, freight, finance, OrcaTrade fee — within a few minutes.
+            You can edit, cancel, or approve from the detail view.
+          </p>
+          <p className="font-serif italic text-[14px] text-[var(--color-ivory-mute)]/80 max-w-2xl">
+            One number. One accountable party. One pallet at your warehouse.
+          </p>
         </div>
-        <h1 className="font-serif text-4xl text-[var(--color-ivory)] tracking-[-0.02em]">
-          New import request
-        </h1>
-        <p className="text-[var(--color-ivory-mute)] text-[15px] leading-relaxed">
-          Describe what you want from Asia. We will surface a 2-3 factory shortlist and a fully
-          landed-cost quote — duty, VAT, freight, finance, OrcaTrade fee — within a few minutes.
-          You can edit, cancel, or approve from the detail view.
-        </p>
       </header>
 
-      <form onSubmit={handleSubmit} className="space-y-10">
+      <form onSubmit={handleSubmit} className="space-y-12">
         {/* ── What ────────────────────────────────────────────── */}
         <Section heading="What you want to import" caption="The freer the description, the better the AI can shortlist factories.">
           <Field label="Short label (optional)" hint="A name only you see — e.g. ‘Q3 silicone mats launch’.">
@@ -323,11 +344,12 @@ export default function NewImportRequestPage() {
                   key={c}
                   type="button"
                   onClick={() => toggleCertification(c)}
-                  className={`px-3 py-1.5 font-mono text-[11px] tracking-[0.12em] uppercase border transition-colors ${
+                  className={`px-4 py-2 text-[13px] font-medium transition-all duration-200 ${
                     on
-                      ? 'border-[var(--color-ivory)] text-[var(--color-ivory)] bg-[var(--color-navy-soft)]/60'
-                      : 'border-[var(--color-navy-line)] text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)] hover:border-[var(--color-ivory-mute)]'
+                      ? 'bg-[var(--color-aqua)] text-[var(--color-navy)] shadow-[0_2px_12px_rgba(34,211,238,0.35)]'
+                      : 'border border-white/10 text-[var(--color-ivory-dim)] hover:border-[var(--color-aqua)]/50 hover:text-[var(--color-ivory)] hover:bg-white/[0.03]'
                   }`}
+                  style={{ borderRadius: 'var(--radius-badge)' }}
                 >
                   {c}
                 </button>
@@ -338,11 +360,14 @@ export default function NewImportRequestPage() {
 
         {/* Errors */}
         {errors.length > 0 && (
-          <div className="border border-[var(--color-critical)]/35 bg-[var(--color-critical)]/10 p-4 space-y-1">
-            <p className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--color-critical)]">
+          <div
+            className="border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/8 p-5 space-y-2"
+            style={{ borderRadius: 'var(--radius-card)' }}
+          >
+            <p className="text-[13px] font-semibold text-[var(--color-critical)]">
               Could not submit
             </p>
-            <ul className="text-[var(--color-ivory-mute)] text-sm list-disc pl-5">
+            <ul className="text-[var(--color-ivory-dim)] text-[14px] list-disc pl-5 space-y-0.5">
               {errors.map((err, idx) => (
                 <li key={idx}>{err}</li>
               ))}
@@ -350,20 +375,29 @@ export default function NewImportRequestPage() {
           </div>
         )}
 
-        {/* Submit */}
-        <div className="flex items-center gap-4 pt-2">
+        {/* Submit — aqua CTA with soft glow shadow */}
+        <div className="flex items-center gap-6 pt-4">
           <button
             type="submit"
             disabled={submitting || form.productDescription.trim().length < 10}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-ivory)] text-[var(--color-navy)] font-mono text-[12px] tracking-[0.12em] uppercase hover:bg-[var(--color-ivory-dim)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            className="group inline-flex items-center gap-3 px-8 py-4 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[15px] font-semibold disabled:opacity-40 disabled:cursor-not-allowed transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px disabled:translate-y-0"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: 'var(--shadow-cta)',
+            }}
           >
-            {phase === 'idle' && (<>Submit request <span aria-hidden>→</span></>)}
+            {phase === 'idle' && (
+              <>
+                Submit request
+                <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+              </>
+            )}
             {phase === 'creating' && 'Creating request…'}
             {phase === 'processing' && 'Generating shortlist + quote…'}
           </button>
           <Link
             href="/imports"
-            className="font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)]"
+            className="text-[14px] text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)] transition-colors"
           >
             Cancel
           </Link>
@@ -373,20 +407,34 @@ export default function NewImportRequestPage() {
       <style jsx>{`
         :global(.form-input) {
           width: 100%;
-          padding: 0.625rem 0.875rem;
-          background: rgba(0, 0, 0, 0.25);
-          border: 1px solid var(--color-navy-line);
+          padding: 0.75rem 1rem;
+          background: rgba(255, 255, 255, 0.025);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: var(--radius-input);
           color: var(--color-ivory);
-          font-size: 14px;
-          line-height: 1.4;
+          font-size: 15px;
+          line-height: 1.5;
+          transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+        }
+        :global(.form-input:hover) {
+          border-color: rgba(255, 255, 255, 0.16);
+          background: rgba(255, 255, 255, 0.04);
         }
         :global(.form-input:focus) {
           outline: none;
-          border-color: var(--color-ivory-mute);
-          background: rgba(0, 0, 0, 0.35);
+          border-color: var(--color-aqua);
+          background: rgba(255, 255, 255, 0.04);
+          box-shadow: 0 0 0 4px var(--color-aqua-soft);
         }
         :global(.form-input::placeholder) {
-          color: rgba(255, 255, 255, 0.25);
+          color: rgba(255, 255, 255, 0.3);
+        }
+        :global(select.form-input) {
+          appearance: none;
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='rgba(255,255,255,0.5)' d='M6 8.5L1.5 4l1-1L6 6.5 9.5 3l1 1z'/></svg>");
+          background-repeat: no-repeat;
+          background-position: right 0.875rem center;
+          padding-right: 2.25rem;
         }
       `}</style>
     </section>
@@ -403,10 +451,20 @@ function Section({
   children: React.ReactNode;
 }) {
   return (
-    <section className="border-t border-[var(--color-navy-line)] pt-6 space-y-5">
-      <div className="space-y-1">
-        <h2 className="font-serif text-xl text-[var(--color-ivory)]">{heading}</h2>
-        <p className="font-serif italic text-[var(--color-ivory-mute)] text-[13px]">{caption}</p>
+    <section
+      className="relative p-7 md:p-8 space-y-6 bg-[var(--surface-card)] backdrop-blur-[2px] border border-white/5 transition-shadow duration-300 hover:shadow-[var(--shadow-card-hover)]"
+      style={{
+        borderRadius: 'var(--radius-card)',
+        boxShadow: 'var(--shadow-card)',
+      }}
+    >
+      <div className="space-y-2">
+        <h2 className="text-[22px] font-semibold text-[var(--color-ivory)] tracking-[-0.01em]">
+          {heading}
+        </h2>
+        <p className="text-[14px] text-[var(--color-ivory-mute)] leading-relaxed">
+          {caption}
+        </p>
       </div>
       {children}
     </section>
@@ -425,14 +483,18 @@ function Field({
   children: React.ReactNode;
 }) {
   return (
-    <label className="block space-y-1.5">
-      <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)]">
+    <label className="block space-y-2">
+      <span className="text-[13px] font-medium text-[var(--color-ivory-dim)]">
         {label}
-        {required && <span className="ml-1 text-[var(--color-critical)]/80">*</span>}
+        {required && (
+          <span className="ml-1 text-[var(--color-aqua)]" aria-hidden>
+            ·
+          </span>
+        )}
       </span>
       {children}
       {hint && (
-        <span className="block font-serif italic text-[12px] text-[var(--color-ivory-mute)]/70">
+        <span className="block text-[12.5px] text-[var(--color-ivory-mute)] leading-snug">
           {hint}
         </span>
       )}
