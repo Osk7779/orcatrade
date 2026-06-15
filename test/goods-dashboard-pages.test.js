@@ -95,10 +95,15 @@ test('REACH SVHC panel renders unconditionally so empty goods can add the first 
   );
 });
 
-test('restricted-substances panel renders only when the object has at least one key', () => {
-  assert.match(
+test('restricted-substances panel renders unconditionally (PR #148 editor lift)', () => {
+  // Originally pinned to render only when the object had at least one
+  // key. PR #148 ships the editor and lifts the empty-state check
+  // inside the panel so operators can ADD the first jurisdiction
+  // note. Inverted drift guard.
+  assert.match(DETAIL_SRC, /<RestrictedSubstancesPanel\s+goods=\{goods\}/);
+  assert.doesNotMatch(
     DETAIL_SRC,
-    /goods\.restrictedSubstances && Object\.keys\(goods\.restrictedSubstances\)\.length > 0/,
+    /goods\.restrictedSubstances && Object\.keys\(goods\.restrictedSubstances\)\.length > 0 && \(\s*<RestrictedSubstancesPanel/,
   );
 });
 
@@ -119,11 +124,15 @@ test('REACH SVHC panel uses the warning brand colour (not a critical red)', () =
   assert.doesNotMatch(block, /var\(--color-critical\)/);
 });
 
-test('restricted-substances panel uses a <details> element (collapsible, no JS state)', () => {
-  const panelMatch = DETAIL_SRC.match(/function RestrictedSubstancesPanel[\s\S]*?^\}/m);
-  assert.ok(panelMatch);
-  assert.match(panelMatch[0], /<details/);
-  assert.match(panelMatch[0], /<summary/);
+test('restricted-substances read panel still exposes a raw-JSON <details> view (operator audit trail)', () => {
+  // PR #148 keeps the raw-JSON details/summary block inside the
+  // ReadPanel so power users + auditors can still inspect the stored
+  // structure. The collapsible posture (no JS state) is preserved.
+  const readPanel = DETAIL_SRC.match(/function RestrictedSubstancesReadPanel\([\s\S]*?(?=\nfunction )/);
+  assert.ok(readPanel, 'RestrictedSubstancesReadPanel not located');
+  assert.match(readPanel[0], /<details/);
+  assert.match(readPanel[0], /<summary/);
+  assert.match(readPanel[0], /Raw JSON/);
 });
 
 // ── Types live in the shared lib (no inline duplication) ──────────────

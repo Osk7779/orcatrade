@@ -214,12 +214,13 @@ test('SvhcEditRow inputs + remove button disabled while saving', () => {
   // #126). Prevents "operator changed a row while the request was
   // in flight" desync between local state and persisted state.
   //
-  // disabled={disabled} only ever appears in SvhcEditRow on this
-  // page (other forms use disabled={saving} directly). Counting
-  // across the whole source is the cleanest assertion.
+  // disabled={disabled} appears in SvhcEditRow (PR #129 — 4 bindings)
+  // and RestrictedSubstancesEditRow (PR #148 — 3 bindings: key,
+  // value, remove). Total 7 across the page; tighter counts pinned
+  // in the per-editor drift-guard tests.
   const matches = SRC.match(/disabled=\{disabled\}/g) || [];
-  assert.equal(matches.length, 4,
-    `Expected exactly 4 disabled={disabled} bindings (name/cas/threshold inputs + remove button), got ${matches.length}`);
+  assert.ok(matches.length >= 7,
+    `Expected ≥7 disabled={disabled} bindings (PR #129 + PR #148), got ${matches.length}`);
 });
 
 test('Add SVHC + Save + Cancel buttons all carry disabled={saving}', () => {
@@ -266,9 +267,11 @@ test('EditForm scalar fields still NOT touched by the SVHC editor (PR #122 bound
   assert.doesNotMatch(block, /reachSvhcFlags|svhc|SVHC/i);
 });
 
-test('RestrictedSubstancesPanel still renders read-only (deferred — not editable in this PR)', () => {
-  // PR #129 ships only the SVHC editor. The other jsonb field
-  // (restrictedSubstances) remains read-only — drift guard against
-  // an accidental editor surface added to the wrong panel.
-  assert.match(SRC, /function RestrictedSubstancesPanel\(\{ goods \}: \{ goods: Goods \}\)/);
+test('RestrictedSubstancesPanel ships its own editor (PR #148) and is wired into the page', () => {
+  // PR #129 originally pinned this panel as read-only; PR #148 ships
+  // its key/value editor. Inverted drift guard (matches the PR #133
+  // treatment in the supplier-* editor tests) — protects against an
+  // accidental rollback to the read-only stub.
+  assert.match(SRC, /function RestrictedSubstancesPanel\(\{\s*goods,\s*onSaved,\s*\}: \{\s*goods: Goods;\s*onSaved: \(updated: Goods\) => void;\s*\}\)/);
+  assert.match(SRC, /<RestrictedSubstancesPanel[\s\S]*?onSaved=\{\(updated\) => setGoods\(updated\)\}/);
 });

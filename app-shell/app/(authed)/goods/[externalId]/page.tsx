@@ -103,9 +103,16 @@ export default function GoodsDetailPage({ params }: { params: Promise<{ external
         goods={goods}
         onSaved={(updated) => setGoods(updated)}
       />
-      {goods.restrictedSubstances && Object.keys(goods.restrictedSubstances).length > 0 && (
-        <RestrictedSubstancesPanel goods={goods} />
-      )}
+      {/* PR #148: Panel always renders so operators can ADD a
+          restricted-substance entry to a goods record that doesn't
+          yet have any. Same key/value editor pattern as PR #133 (EUDR)
+          and PR #147 (supplier.metadata). Restricted substances feed
+          customs declarations + UKCA / CE marking docs, so the read-
+          mode empty state surfaces the per-jurisdiction coverage gap. */}
+      <RestrictedSubstancesPanel
+        goods={goods}
+        onSaved={(updated) => setGoods(updated)}
+      />
       <RelatedShipments filter={{ kind: 'goods', externalId: goods.externalId }} />
       <TransitionHistory externalId={goods.externalId} entityKind="goods" />
     </div>
@@ -159,11 +166,11 @@ function Header({
 
 // EditForm — inline edit mode for the scalar fields of a goods master
 // record (displayName, hsCode, originCountry, typicalUnitValueCents,
-// cbamInScope). Complex jsonb fields (reachSvhcFlags,
-// restrictedSubstances, metadata) are intentionally NOT editable here
-// — they need structured editors that aren't worth the surface area
-// in this PR; the data layer accepts them via PATCH already, so a
-// follow-up can add them without touching this form.
+// cbamInScope). The complex jsonb fields each own their own panel:
+//   reachSvhcFlags          → ReachSvhcPanel (PR #129)
+//   restrictedSubstances    → RestrictedSubstancesPanel (PR #148)
+//   metadata                → GoodsMetadataPanel (PR #149)
+// Not touched from EditForm.
 //
 // Validation strategy: client-side validates the shapes that
 // lib/db/goods.js's validateForUpdate enforces (HS code 6-10 digits,
@@ -852,23 +859,396 @@ function SvhcEditRow({
   );
 }
 
-function RestrictedSubstancesPanel({ goods }: { goods: Goods }) {
-  const subs = goods.restrictedSubstances || {};
+// RestrictedSubstancesPanel — read view + key/value editor for the
+// goods.restrictedSubstances jsonb object (PR #148). Third jsonb-OBJECT
+// editor on the platform after PR #133 (EUDR) and PR #147 (supplier
+// metadata).
+//
+// Restricted substances are per-jurisdiction notes (UK_REACH, EU_RoHS,
+// CA_Prop65, etc.) that feed customs declarations + UKCA/CE marking
+// documentation. The shape is open — auditors collect different fields
+// per jurisdiction — so a flat key/value editor fits better than a
+// fixed schema. Same draft + materialisation + validation pattern as
+// PRs #133 / #147.
+function RestrictedSubstancesPanel({
+  goods,
+  onSaved,
+}: {
+  goods: Goods;
+  onSaved: (updated: Goods) => void;
+}) {
+  const persistedSubs = (goods.restrictedSubstances || {}) as Record<string, unknown>;
+  const archived = Boolean(goods.archivedAt);
+  const [editing, setEditing] = useState(false);
+
+  if (!editing) {
+    return (
+      <RestrictedSubstancesReadPanel
+        subs={persistedSubs}
+        archived={archived}
+        onEditClick={() => setEditing(true)}
+      />
+    );
+  }
+
+  return (
+    <RestrictedSubstancesEditorPanel
+      goods={goods}
+      initialSubs={persistedSubs}
+      onCancel={() => setEditing(false)}
+      onSaved={(updated) => {
+        onSaved(updated);
+        setEditing(false);
+      }}
+    />
+  );
+}
+
+function RestrictedSubstancesReadPanel({
+  subs,
+  archived,
+  onEditClick,
+}: {
+  subs: Record<string, unknown>;
+  archived: boolean;
+  onEditClick: () => void;
+}) {
+  const entries = Object.entries(subs);
+  const hasEntries = entries.length > 0;
   const json = useMemo(() => JSON.stringify(subs, null, 2), [subs]);
+
   return (
     <section className="mb-10 border border-[var(--color-navy-line)]">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-xl">Restricted substances</h2>
+          <p className="font-mono text-[11px] text-white/45 mt-1">
+            Per-jurisdiction notes. Feeds customs declarations + UKCA / CE marking documentation.
+          </p>
+        </div>
+        {!archived && (
+          <button
+            type="button"
+            onClick={onEditClick}
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+      {hasEntries ? (
+        <>
+          <ul className="px-6 py-4 space-y-2">
+            {entries.map(([k, v]) => (
+              <li
+                key={k}
+                className="grid gap-3 md:grid-cols-[200px_1fr] items-start font-mono text-[12px]"
+              >
+                <span className="text-white/55 break-words">{k}</span>
+                <span className="text-white/85 break-words whitespace-pre-wrap">
+                  {typeof v === 'string' ? v : JSON.stringify(v)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <details className="m-6">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+              Raw JSON
+            </summary>
+            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+          </details>
+        </>
+      ) : (
+        <p className="px-6 py-5 font-mono text-xs text-white/45">
+          No restricted-substance notes on file.{' '}
+          {!archived && 'Click Edit to add the first jurisdiction. (Required for any goods bearing UKCA / CE marks or shipping to REACH / RoHS jurisdictions.)'}
+        </p>
+      )}
+    </section>
+  );
+}
+
+type RestrictedSubstancesDraft = {
+  rowKey: string;
+  key: string;
+  value: string;
+};
+
+let restrictedSubstancesRowKeyCounter = 0;
+function nextRestrictedSubstancesRowKey(): string {
+  restrictedSubstancesRowKeyCounter += 1;
+  return `restricted-substances-${restrictedSubstancesRowKeyCounter}`;
+}
+
+function emptyRestrictedSubstancesDraft(): RestrictedSubstancesDraft {
+  return { rowKey: nextRestrictedSubstancesRowKey(), key: '', value: '' };
+}
+
+function substancesToDrafts(subs: Record<string, unknown>): RestrictedSubstancesDraft[] {
+  const out: RestrictedSubstancesDraft[] = [];
+  for (const [k, v] of Object.entries(subs)) {
+    out.push({
+      rowKey: nextRestrictedSubstancesRowKey(),
+      key: k,
+      value: typeof v === 'string' ? v : JSON.stringify(v),
+    });
+  }
+  return out;
+}
+
+function draftsToSubstances(drafts: RestrictedSubstancesDraft[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const d of drafts) {
+    const k = d.key.trim();
+    if (!k) continue;
+    out[k] = d.value;
+  }
+  return out;
+}
+
+function substancesEqual(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+): boolean {
+  const aKeys = Object.keys(a).sort();
+  const bKeys = Object.keys(b).sort();
+  if (aKeys.length !== bKeys.length) return false;
+  for (let i = 0; i < aKeys.length; i += 1) {
+    if (aKeys[i] !== bKeys[i]) return false;
+    const k = aKeys[i];
+    const av = a[k];
+    const bv = b[k];
+    if (JSON.stringify(av) !== JSON.stringify(bv)) return false;
+  }
+  return true;
+}
+
+// Wider key alphabet than EUDR (PR #133) / supplier-metadata (PR #147):
+// jurisdiction codes are typically uppercase (UK_REACH, EU_RoHS,
+// CA_Prop65). Allow uppercase + lowercase + digits + dots + dashes +
+// underscores. Spaces and Unicode still rejected for round-trippability.
+const RESTRICTED_SUBSTANCES_KEY_PATTERN = /^[A-Za-z0-9._-]+$/;
+
+function RestrictedSubstancesEditorPanel({
+  goods,
+  initialSubs,
+  onCancel,
+  onSaved,
+}: {
+  goods: Goods;
+  initialSubs: Record<string, unknown>;
+  onCancel: () => void;
+  onSaved: (updated: Goods) => void;
+}) {
+  const [drafts, setDrafts] = useState<RestrictedSubstancesDraft[]>(() => {
+    const seeded = substancesToDrafts(initialSubs);
+    return seeded.length > 0 ? seeded : [emptyRestrictedSubstancesDraft()];
+  });
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function updateRow(rowKey: string, patch: Partial<RestrictedSubstancesDraft>) {
+    setDrafts((prev) =>
+      prev.map((d) => (d.rowKey === rowKey ? { ...d, ...patch } : d)),
+    );
+  }
+
+  function removeRow(rowKey: string) {
+    setDrafts((prev) => prev.filter((d) => d.rowKey !== rowKey));
+  }
+
+  function addRow() {
+    setDrafts((prev) => [...prev, emptyRestrictedSubstancesDraft()]);
+  }
+
+  function clientSideErrors(): string[] {
+    const out: string[] = [];
+    const seenKeys = new Map<string, number>();
+    drafts.forEach((d, i) => {
+      const rowNumber = i + 1;
+      const k = d.key.trim();
+      const v = d.value;
+      if (!k && v.trim()) {
+        out.push(`Row ${rowNumber}: jurisdiction is required when a note is present`);
+      }
+      if (k && !RESTRICTED_SUBSTANCES_KEY_PATTERN.test(k)) {
+        out.push(`Row ${rowNumber}: jurisdiction "${k}" must use only letters, digits, dots, dashes, and underscores`);
+      }
+      if (k) {
+        const seenAt = seenKeys.get(k);
+        if (seenAt != null) {
+          out.push(`Rows ${seenAt} and ${rowNumber} both use jurisdiction "${k}" — jurisdictions must be unique`);
+        } else {
+          seenKeys.set(k, rowNumber);
+        }
+      }
+    });
+    return out;
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors([]);
+
+    const localErrors = clientSideErrors();
+    if (localErrors.length) {
+      setErrors(localErrors);
+      setSaving(false);
+      return;
+    }
+
+    const materialised = draftsToSubstances(drafts);
+
+    if (substancesEqual(materialised, initialSubs)) {
+      setSaving(false);
+      onCancel();
+      return;
+    }
+
+    try {
+      const d = await apiPatch<{ ok: boolean; goods: Goods; unchanged: boolean }>(
+        `/goods/${encodeURIComponent(goods.externalId)}`,
+        { restrictedSubstances: materialised },
+      );
+      onSaved(d.goods);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.errors.length ? err.errors : [err.message]);
+      } else if (err instanceof AuthError) {
+        setErrors(['Sign in required to save restricted-substance changes.']);
+      } else {
+        setErrors([err instanceof Error ? err.message : 'Could not save restricted-substance changes.']);
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]"
+    >
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
-        <h2 className="font-serif text-xl">Restricted substances</h2>
-        <p className="font-mono text-[11px] text-white/45 mt-1">
-          Per-jurisdiction notes captured at goods-master creation.
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="font-serif text-xl">Edit restricted substances</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+            {drafts.length} {drafts.length === 1 ? 'jurisdiction' : 'jurisdictions'}
+          </span>
+        </div>
+        <p className="font-mono text-[11px] text-white/45 mt-2">
+          Jurisdiction code (e.g. UK_REACH, EU_RoHS, CA_Prop65) → notes / status / cross-reference.
         </p>
       </div>
-      <details className="m-6">
-        <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
-          restrictedSubstances
-        </summary>
-        <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
-      </details>
-    </section>
+
+      <div className="px-6 py-5 space-y-3">
+        {drafts.map((d, i) => (
+          <RestrictedSubstancesEditRow
+            key={d.rowKey}
+            index={i}
+            draft={d}
+            disabled={saving}
+            onChange={(patch) => updateRow(d.rowKey, patch)}
+            onRemove={() => removeRow(d.rowKey)}
+          />
+        ))}
+        <button
+          type="button"
+          onClick={addRow}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+        >
+          + Add jurisdiction
+        </button>
+      </div>
+
+      {errors.length > 0 && (
+        <ul
+          className="border-t border-[var(--color-navy-line)] px-6 py-4 space-y-1"
+          role="alert"
+        >
+          {errors.map((e, i) => (
+            <li
+              key={i}
+              className="font-mono text-[12px]"
+              style={{ color: 'var(--color-critical)' }}
+            >
+              {e}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="border-t border-[var(--color-navy-line)] px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save restricted substances'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function RestrictedSubstancesEditRow({
+  index,
+  draft,
+  disabled,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  draft: RestrictedSubstancesDraft;
+  disabled: boolean;
+  onChange: (patch: Partial<RestrictedSubstancesDraft>) => void;
+  onRemove: () => void;
+}) {
+  const rowNumber = index + 1;
+  return (
+    <div className="grid gap-2 md:grid-cols-[1fr_2fr_auto] items-start">
+      <label className="block">
+        <span className="sr-only">Jurisdiction code for restricted-substance row {rowNumber}</span>
+        <input
+          type="text"
+          value={draft.key}
+          onChange={(e) => onChange({ key: e.target.value })}
+          disabled={disabled}
+          placeholder="jurisdiction"
+          maxLength={120}
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <label className="block">
+        <span className="sr-only">Notes for restricted-substance row {rowNumber}</span>
+        <input
+          type="text"
+          value={draft.value}
+          onChange={(e) => onChange({ value: e.target.value })}
+          disabled={disabled}
+          placeholder="notes / status / cross-reference"
+          maxLength={500}
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <button
+        type="button"
+        onClick={onRemove}
+        disabled={disabled}
+        aria-label={`Remove restricted-substance row ${rowNumber}`}
+        className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+      >
+        ×
+      </button>
+    </div>
   );
 }
