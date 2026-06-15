@@ -337,19 +337,30 @@ export default function ImportRequestDetailPage() {
       )}
 
       {/* Audit trail link / footer */}
-      <footer className="border-t border-white/[0.06] pt-5 text-[var(--color-ivory-mute)] text-[12.5px] font-serif italic">
-        Created {new Date(request.createdAt).toLocaleString('en-IE')} · last updated {new Date(request.updatedAt).toLocaleString('en-IE')}
-        {request.linkedShipmentExternalId && (
-          <>
-            {' '}· materialised as{' '}
-            <Link
-              href={`/shipments/${request.linkedShipmentExternalId}`}
-              className="text-[var(--color-aqua)] hover:underline not-italic font-sans font-medium"
-            >
-              shipment {request.linkedShipmentExternalId}
-            </Link>
-          </>
-        )}
+      <footer className="border-t border-white/[0.06] pt-5 flex items-baseline justify-between gap-4 flex-wrap text-[var(--color-ivory-mute)] text-[12.5px]">
+        <div className="font-serif italic">
+          Created {new Date(request.createdAt).toLocaleString('en-IE')} · last updated {new Date(request.updatedAt).toLocaleString('en-IE')}
+          {request.linkedShipmentExternalId && (
+            <>
+              {' '}· materialised as{' '}
+              <Link
+                href={`/shipments/${request.linkedShipmentExternalId}`}
+                className="text-[var(--color-aqua)] hover:underline not-italic font-sans font-medium"
+              >
+                shipment {request.linkedShipmentExternalId}
+              </Link>
+            </>
+          )}
+        </div>
+        {/* Sprint 13 ch 2 — duplicate this request. Common workflow for
+            repeat orders: same product, same factory, different
+            quantity. Pre-fills /imports/new from query param. */}
+        <Link
+          href={`/imports/new?duplicate=${encodeURIComponent(request.externalId)}`}
+          className="inline-flex items-center gap-1.5 text-[var(--color-aqua)] hover:underline not-italic font-sans font-medium text-[12.5px]"
+        >
+          Duplicate this request →
+        </Link>
       </footer>
     </article>
   );

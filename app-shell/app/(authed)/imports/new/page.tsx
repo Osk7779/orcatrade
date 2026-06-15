@@ -17,10 +17,11 @@
 // we navigate to the detail page anyway so the customer (and team) can
 // see the failure state and re-run from there.
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import {
+  apiGet,
   apiPost,
   ApiError,
   AuthError,
@@ -98,12 +99,84 @@ const EMPTY_FORM: FormState = {
   certifications: [],
 };
 
+// Sprint 13 ch 2 — duplicate-from-request helper. Maps a persisted
+// ImportRequest onto the new-request FormState. Used by the
+// `?duplicate=ir_xxx` query-param flow on /imports/new. Pure
+// function — drift-guarded by a test that reads this file and
+// asserts every load-bearing intent field gets carried across.
+//
+// Fields deliberately RESET (not carried):
+//   • targetDeliveryDate — likely stale (a duplicate is for a NEW
+//     order, not a re-run of the original)
+//   • label — re-derived as "<original> (copy)" so the duplicate
+//     row is visually distinct from its source
+//
+// All other intent fields (productDescription, HS guess, quantity,
+// unit price, origin, destination, certifications) carry over as-is.
+export function buildFormFromRequest(request: ImportRequest): FormState {
+  const unit = (request.targetQuantityUnit || 'pieces') as ImportRequestQuantityUnit;
+  return {
+    label: request.label ? `${request.label} (copy)` : '',
+    productDescription: request.productDescription || '',
+    hsCodeGuess: request.hsCodeGuess || '',
+    targetQuantity: request.targetQuantity ? String(request.targetQuantity) : '',
+    targetQuantityUnit: unit,
+    targetUnitPriceEur: Number.isFinite(Number(request.targetUnitPriceCents))
+      ? (Number(request.targetUnitPriceCents) / 100).toFixed(2)
+      : '',
+    originCountry: request.originCountry || 'CN',
+    destinationCountry: request.destinationCountry || 'DE',
+    targetDeliveryDate: '',
+    certifications: Array.isArray(request.certificationRequirements)
+      ? request.certificationRequirements.slice()
+      : [],
+  };
+}
+
 export default function NewImportRequestPage() {
+  return (
+    <Suspense fallback={<p className="text-[var(--color-ivory-mute)] text-sm">Loading…</p>}>
+      <NewImportRequestForm />
+    </Suspense>
+  );
+}
+
+function NewImportRequestForm() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const duplicateFrom = searchParams.get('duplicate');
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'creating' | 'processing'>('idle');
   const [errors, setErrors] = useState<string[]>([]);
+  // Sprint 13 ch 2: track whether the form was hydrated from a
+  // duplicate source so we can show a banner. Loading/error states
+  // for the source-fetch are handled cleanly — a failed fetch leaves
+  // the form empty (user types fresh).
+  const [duplicateLoading, setDuplicateLoading] = useState<boolean>(!!duplicateFrom);
+  const [duplicateSource, setDuplicateSource] = useState<ImportRequest | null>(null);
+
+  useEffect(() => {
+    if (!duplicateFrom) return;
+    let cancelled = false;
+    apiGet<{ ok: boolean; importRequest: ImportRequest }>(`/imports/${encodeURIComponent(duplicateFrom)}`)
+      .then((d) => {
+        if (cancelled || !d || !d.importRequest) return;
+        const next = buildFormFromRequest(d.importRequest);
+        setForm(next);
+        setDuplicateSource(d.importRequest);
+        setDuplicateLoading(false);
+      })
+      .catch(() => {
+        // Silent fallback — fetch failed (request deleted, different
+        // org, or auth). User just starts with an empty form.
+        if (cancelled) return;
+        setDuplicateLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [duplicateFrom]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -217,6 +290,34 @@ export default function NewImportRequestPage() {
           </p>
         </div>
       </header>
+
+      {/* Sprint 13 ch 2 — duplicate-source banner. Surfaces when the
+          user landed here via "Duplicate this request →" so they know
+          the form was pre-filled and can clear it if they prefer to
+          start fresh. */}
+      {duplicateFrom && (
+        <div
+          className="bg-[var(--color-aqua-soft)] border border-[var(--color-aqua)]/25 p-4 flex items-center justify-between gap-4 flex-wrap"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <div className="text-[13px] text-[var(--color-ivory-dim)] leading-snug">
+            {duplicateLoading
+              ? (<>Duplicating from <span className="font-mono">{duplicateFrom}</span> — pre-filling…</>)
+              : duplicateSource
+              ? (<>Pre-filled from your earlier request <Link href={`/imports/${duplicateFrom}`} className="text-[var(--color-aqua)] font-medium hover:underline font-mono">{duplicateFrom}</Link>. Edit anything below, then submit a fresh request.</>)
+              : (<>Could not load <span className="font-mono">{duplicateFrom}</span> — start fresh below.</>)}
+          </div>
+          {duplicateSource && (
+            <button
+              type="button"
+              onClick={() => { setForm(EMPTY_FORM); setDuplicateSource(null); }}
+              className="text-[12px] font-medium text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] transition-colors shrink-0"
+            >
+              Clear and start fresh
+            </button>
+          )}
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-12">
         {/* ── What ────────────────────────────────────────────── */}
