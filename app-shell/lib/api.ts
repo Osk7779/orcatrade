@@ -694,6 +694,18 @@ export interface LandedQuoteComponent {
   note?: string | null;
 }
 
+// AI-generated prose summary embedded into a landed quote by the
+// orchestrator (lib/ai/quote-prose.js). Opus writes 180-220 words of
+// natural language explaining the quote, NEVER inventing numbers —
+// every figure traces verbatim to a component in `components`. Renders
+// above the structured table on /imports/[externalId] when present.
+export interface LandedQuoteProse {
+  summary: string;
+  model: string;
+  promptVersion: string;
+  generatedAt: string;
+}
+
 // Full landed-cost quote. components stack to totalLandedCents (which
 // already includes cargo value as the base).
 export interface LandedQuote {
@@ -705,6 +717,7 @@ export interface LandedQuote {
   currency: 'EUR';
   confidenceTier: 'A' | 'B' | 'C';
   confidenceNotes: string[];
+  prose?: LandedQuoteProse | null;
   methodology: {
     version?: string;
     fobToLandedRatio?: number;
@@ -714,6 +727,16 @@ export interface LandedQuote {
     customsCalculatorOk?: boolean;
     routingCalculatorOk?: boolean;
     financeCalculatorOk?: boolean;
+    hsClassification?: {
+      hs6?: string | null;
+      label?: string | null;
+      chapter?: number | null;
+      confidenceTier?: string;
+      confidence?: number | null;
+      verifyUrl?: string | null;
+      dutyEstimate?: unknown;
+      source?: string;
+    } | null;
   };
   customsCalculatorRaw?: unknown;
   routingCalculatorRaw?: unknown;

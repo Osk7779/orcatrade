@@ -438,7 +438,7 @@ test('buildShipmentSeedFromRequest maps customer intent + quote onto the shipmen
   assert.equal(seed.metadata.materialisedFromImportRequest, 'ir_abc123');
   assert.equal(seed.metadata.orcatradeFeePct, 8);
   assert.equal(seed.metadata.orcatradeFeeCents, 200_000);
-  assert.equal(seed.metadata.materialiserVersion, 'v1.0');
+  assert.equal(seed.metadata.materialiserVersion, 'v1.1');
 });
 
 test('buildShipmentSeedFromRequest uses rank-1 shortlist country as the shipment origin', () => {
@@ -517,4 +517,249 @@ test('materialiseApprovedRequest rejects garbage inputs before touching Postgres
   const r3 = await orch.materialiseApprovedRequest({ orgId: 1, externalId: '', actorEmailHash: 'h' });
   assert.equal(r3.ok, false);
   assert.equal(r3.code, 'bad_input');
+});
+
+// ── Sprint 3 chunk 1: Goods + Supplier seed builders ─────────────────
+
+const APPROVED_REQUEST_FIXTURE_WITH_HS = Object.freeze({
+  ...APPROVED_REQUEST_FIXTURE,
+  landedQuote: {
+    ...APPROVED_REQUEST_FIXTURE.landedQuote,
+    methodology: {
+      ...APPROVED_REQUEST_FIXTURE.landedQuote.methodology,
+      hsClassification: {
+        hs6: '392410',
+        label: 'Tableware and kitchenware of plastics',
+        chapter: 39,
+        confidenceTier: 'high',
+      },
+    },
+  },
+});
+
+test('buildGoodsSeedFromRequest carries customer HS guess when supplied', () => {
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE_WITH_HS,
+    actorEmailHash: 'h',
+    orgId: 42,
+  });
+  assert.equal(seed.hsCode, '392410'); // customer guess wins
+  assert.equal(seed.metadata.hsSource, 'customer_guess');
+});
+
+test('buildGoodsSeedFromRequest falls back to the AI HS classification when customer omits the guess', () => {
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: { ...APPROVED_REQUEST_FIXTURE_WITH_HS, hsCodeGuess: null },
+    actorEmailHash: 'h',
+    orgId: 42,
+  });
+  assert.equal(seed.hsCode, '392410');
+  assert.equal(seed.metadata.hsSource, 'ai_lookup');
+  assert.equal(seed.metadata.hsConfidenceTier, 'high');
+});
+
+test('buildGoodsSeedFromRequest falls back to the 999999 sentinel when no HS source has anything', () => {
+  const noHs = {
+    ...APPROVED_REQUEST_FIXTURE_WITH_HS,
+    hsCodeGuess: null,
+    landedQuote: { ...APPROVED_REQUEST_FIXTURE_WITH_HS.landedQuote, methodology: {} },
+  };
+  const seed = orch.buildGoodsSeedFromRequest({ request: noHs, actorEmailHash: 'h', orgId: 1 });
+  assert.equal(seed.hsCode, '999999');
+  assert.equal(seed.metadata.hsSource, 'sentinel');
+});
+
+test('buildGoodsSeedFromRequest derives a traceable, stable SKU from the request external_id', () => {
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE_WITH_HS,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  // ir_abc123 → IR-ABC123
+  assert.equal(seed.sku, 'IR-ABC123');
+});
+
+test('buildGoodsSeedFromRequest sets typicalUnitValueCents from request when present', () => {
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE_WITH_HS,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.typicalUnitValueCents, 1300);
+});
+
+test('buildGoodsSeedFromRequest leaves cbamInScope=false in v1 (sprint 4 wires compliance probe)', () => {
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE_WITH_HS,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.cbamInScope, false);
+});
+
+test('buildGoodsSeedFromRequest uses pickChosenCountry for origin (rank-1 wins over customer guess)', () => {
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE_WITH_HS,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  // fixture's rank-1 is VN even though customer said CN
+  assert.equal(seed.originCountry, 'VN');
+});
+
+test('buildGoodsSeedFromRequest carries the certification requirements into metadata', () => {
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE_WITH_HS,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.deepEqual(seed.metadata.certificationRequirements, ['CE', 'REACH']);
+});
+
+test('buildSupplierSeedFromRequest uses the top candidate name when one exists', () => {
+  const seed = orch.buildSupplierSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.entityName, 'Vendor A');
+  assert.equal(seed.metadata.placeholder, false);
+});
+
+test('buildSupplierSeedFromRequest falls back to "Vendor TBD · COUNTRY" when no candidate exists', () => {
+  const noCandidates = {
+    ...APPROVED_REQUEST_FIXTURE,
+    factoryShortlist: [
+      { rank: 1, country: 'VN', candidates: [] },
+      { _meta: { version: 'v1.0' } },
+    ],
+  };
+  const seed = orch.buildSupplierSeedFromRequest({
+    request: noCandidates,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.entityName, 'Vendor TBD · VN');
+  assert.equal(seed.metadata.placeholder, true);
+});
+
+test('buildSupplierSeedFromRequest hqCountry mirrors pickChosenCountry (rank-1)', () => {
+  const seed = orch.buildSupplierSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.hqCountry, 'VN');
+});
+
+test('buildSupplierSeedFromRequest builds a factoryLocations entry when candidate has a city', () => {
+  const withCity = {
+    ...APPROVED_REQUEST_FIXTURE,
+    factoryShortlist: [
+      { rank: 1, country: 'VN', candidates: [{ name: 'Vendor A', city: 'Ho Chi Minh City' }] },
+    ],
+  };
+  const seed = orch.buildSupplierSeedFromRequest({
+    request: withCity,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.factoryLocations.length, 1);
+  assert.equal(seed.factoryLocations[0].countryCode, 'VN');
+  assert.equal(seed.factoryLocations[0].city, 'Ho Chi Minh City');
+  assert.equal(seed.factoryLocations[0].role, 'manufacturer');
+});
+
+test('buildSupplierSeedFromRequest factoryLocations stays empty when candidate has no city', () => {
+  const seed = orch.buildSupplierSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.deepEqual(seed.factoryLocations, []);
+});
+
+test('buildSupplierSeedFromRequest carries verificationStatus from the AI candidate', () => {
+  const verified = {
+    ...APPROVED_REQUEST_FIXTURE,
+    factoryShortlist: [
+      { rank: 1, country: 'VN', candidates: [{ name: 'Vendor A', verificationStatus: 'team_verified' }] },
+    ],
+  };
+  const seed = orch.buildSupplierSeedFromRequest({
+    request: verified,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.metadata.verificationStatus, 'team_verified');
+});
+
+test('buildSupplierSeedFromRequest verificationStatus is "no_candidate" when no candidate exists', () => {
+  const empty = {
+    ...APPROVED_REQUEST_FIXTURE,
+    factoryShortlist: [{ rank: 1, country: 'VN', candidates: [] }],
+  };
+  const seed = orch.buildSupplierSeedFromRequest({
+    request: empty,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.metadata.verificationStatus, 'no_candidate');
+});
+
+test('buildShipmentSeedFromRequest now carries goodsExternalId + supplierExternalId when passed in', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE,
+    actorEmailHash: 'h',
+    orgId: 1,
+    goodsExternalId: 'gd_aabbccdd',
+    supplierExternalId: 'sp_eeff0011',
+  });
+  assert.equal(seed.goodsExternalId, 'gd_aabbccdd');
+  assert.equal(seed.supplierExternalId, 'sp_eeff0011');
+  assert.equal(seed.metadata.linkedGoodsExternalId, 'gd_aabbccdd');
+  assert.equal(seed.metadata.linkedSupplierExternalId, 'sp_eeff0011');
+});
+
+test('buildShipmentSeedFromRequest leaves goodsExternalId + supplierExternalId null when omitted', () => {
+  const seed = orch.buildShipmentSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.goodsExternalId, null);
+  assert.equal(seed.supplierExternalId, null);
+});
+
+test('pickChosenCountry helper falls through shortlist → customer → CN default cleanly', () => {
+  assert.equal(orch.pickChosenCountry({}), 'CN');
+  assert.equal(orch.pickChosenCountry({ originCountry: 'in' }), 'IN'); // uppercases
+  assert.equal(
+    orch.pickChosenCountry({
+      originCountry: 'CN',
+      factoryShortlist: [{ rank: 1, country: 'VN' }],
+    }),
+    'VN', // rank-1 wins
+  );
+  assert.equal(
+    orch.pickChosenCountry({
+      factoryShortlist: [{ _meta: { country: 'XX' } }, { rank: 1, country: 'BD' }],
+    }),
+    'BD', // _meta skipped
+  );
+});
+
+test('pickTopCandidate returns null when no shortlist or no candidates', () => {
+  assert.equal(orch.pickTopCandidate({}), null);
+  assert.equal(orch.pickTopCandidate({ factoryShortlist: [] }), null);
+  assert.equal(
+    orch.pickTopCandidate({ factoryShortlist: [{ rank: 1, country: 'VN', candidates: [] }] }),
+    null,
+  );
+});
+
+test('pickTopCandidate returns the first rank-1 candidate when one exists', () => {
+  const candidate = orch.pickTopCandidate(APPROVED_REQUEST_FIXTURE);
+  assert.ok(candidate);
+  assert.equal(candidate.name, 'Vendor A');
 });
