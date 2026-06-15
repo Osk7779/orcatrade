@@ -283,18 +283,22 @@ same pattern.
 | customs-quote | EU TARIC live API | ✅ [PR #132][pr132] |
 | sourcing-quote | UN Comtrade trade-flow data | ✅ [PR #139][pr139] |
 | finance-quote | ECB Statistical Data Warehouse FX reference rates | ✅ [PR #141][pr141] |
-| routing-quote | Carrier-published rate indices (SCFI, WCI, FBX) | Pending integration |
+| routing-quote | EU Eurostat water-transport-services PPI (NACE H50) | ✅ [PR #145][pr145] |
 | warehouse-quote | EU Eurostat warehousing-services PPI (NACE H52) | ✅ [PR #143][pr143] |
 
-Each remaining gate lands as a separate, calculator-scoped PR. The
-forthcoming-guarantee wording stays in place across every surface
-until E&O insurance binds in Q1 2027 — Tier-A continues to be a
-transparency signal even where it now flips `eligible: true`.
+**All five calculator-scoped primary-regulator gates now ship at the
+calculator layer.** The customer-facing `/api/start` wiring follows
+in paired PRs (#140 sourcing, #142 finance, #144 warehouse, #146
+routing — #132 already shipped customs). The forthcoming-guarantee
+wording stays in place across every surface until E&O insurance binds
+in Q1 2027 — Tier-A continues to be a transparency signal even where
+it now flips `eligible: true`.
 
 [pr132]: https://github.com/Osk7779/orcatrade/pull/132
 [pr139]: https://github.com/Osk7779/orcatrade/pull/139
 [pr141]: https://github.com/Osk7779/orcatrade/pull/141
 [pr143]: https://github.com/Osk7779/orcatrade/pull/143
+[pr145]: https://github.com/Osk7779/orcatrade/pull/145
 [pr87]: https://github.com/Osk7779/orcatrade/pull/87
 [pr89]: https://github.com/Osk7779/orcatrade/pull/89
 [pr91]: https://github.com/Osk7779/orcatrade/pull/91

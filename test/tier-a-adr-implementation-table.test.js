@@ -239,6 +239,30 @@ test('Operational note marks warehouse-quote as the fourth gate that shipped (PR
   assert.match(warehouseRow[0], /PR #143|pr143/i);
 });
 
+test('Operational note marks routing-quote as the fifth (final) gate that shipped (PR #145)', () => {
+  // PR #145 shipped the fifth and final calculator-scoped primary-
+  // regulator gate. Eurostat water-transport-services PPI (NACE H50)
+  // backs the routing/mode recommendation.
+  const noteSection = ADR_SRC.match(/### Operational note[\s\S]*?(?=\n## |\n### |\n\[pr\d+\]:)/);
+  assert.ok(noteSection, 'Operational note section not located');
+  const routingRow = noteSection[0].match(/\| routing-quote \|[^\n]+/);
+  assert.ok(routingRow, 'routing-quote row not located within operational note');
+  assert.match(routingRow[0], /PR #145|pr145/i);
+});
+
+test('Operational note records that all five calculator-scoped primary-regulator gates ship', () => {
+  // Post-PR #145, the wedge is structurally complete at the
+  // calculator layer. The narrative must reflect that — "Pending
+  // integration" rows are gone and the closing paragraph announces
+  // the closure.
+  const noteSection = ADR_SRC.match(/### Operational note[\s\S]*?(?=\n## |\n### |\n\[pr\d+\]:)/);
+  assert.ok(noteSection, 'Operational note section not located');
+  assert.doesNotMatch(noteSection[0], /Pending integration/i,
+    'no row in the operational-note table should still read "Pending integration"');
+  assert.match(ADR_SRC, /All five calculator-scoped primary-regulator gates/i,
+    'closing paragraph must announce that all five gates ship at the calculator layer');
+});
+
 // ── Status line reflects the closure ─────────────────────────────────
 
 test('ADR 0020 Status line references the shipped wedge (not "to be implemented")', () => {
