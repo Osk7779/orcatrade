@@ -101,6 +101,53 @@ test('TA-1: a snapshot with an unparseable as_of_iso fails', async () => {
   assert.equal(v.failedReason, tierA.REASONS.STALE_SNAPSHOT);
 });
 
+test('TA-1: a snapshot with freshness_days override is accepted past the default 30-day window', async () => {
+  // PR #144: quarterly Eurostat sources structurally publish on a
+  // ~75-day lag — a calculator that knows this declares freshness_days
+  // on the snapshot itself. 90 days old + freshness_days:120 should
+  // pass; 90 days old without the override (default 30) still fails.
+  const ninetyDaysOld = {
+    id: 'eurostat-warehousing-ppi:EU27_2020@2025-Q4',
+    source_kind: 'primary_regulator',
+    as_of_iso: new Date(NOW_MS - 90 * ONE_DAY).toISOString(),
+    freshness_days: 120,
+  };
+  const vOk = await tierA.evaluate(
+    passingInput({ snapshots: [ninetyDaysOld] }),
+    { nowMs: NOW_MS, readLastGreenAt: fakeGreenReader() },
+  );
+  assert.equal(vOk.eligible, true, 'expected eligible:true with freshness_days override');
+
+  // Same snapshot WITHOUT the override fails TA-1.
+  const noOverride = { ...ninetyDaysOld, freshness_days: undefined };
+  const vFail = await tierA.evaluate(
+    passingInput({ snapshots: [noOverride] }),
+    { nowMs: NOW_MS, readLastGreenAt: fakeGreenReader() },
+  );
+  assert.equal(vFail.eligible, false);
+  assert.equal(vFail.failedReason, tierA.REASONS.STALE_SNAPSHOT);
+  assert.equal(vFail.detail.maxAgeDays, tierA.SNAPSHOT_MAX_AGE_DAYS);
+});
+
+test('TA-1: freshness_days override still rejects a snapshot older than the declared window', async () => {
+  // Honesty discipline — the override doesn't whitewash genuine
+  // staleness. 200 days old with freshness_days:120 still fails.
+  const wayTooOld = {
+    id: 'eurostat-warehousing-ppi:EU27_2020@2024-Q4',
+    source_kind: 'primary_regulator',
+    as_of_iso: new Date(NOW_MS - 200 * ONE_DAY).toISOString(),
+    freshness_days: 120,
+  };
+  const v = await tierA.evaluate(
+    passingInput({ snapshots: [wayTooOld] }),
+    { nowMs: NOW_MS, readLastGreenAt: fakeGreenReader() },
+  );
+  assert.equal(v.eligible, false);
+  assert.equal(v.failedReason, tierA.REASONS.STALE_SNAPSHOT);
+  assert.equal(v.detail.maxAgeDays, 120,
+    'reported maxAgeDays must be the declared freshness_days, not the global default');
+});
+
 // ── TA-2: primary-regulator source ────────────────────────────────────
 
 test('TA-2: a snapshot from a mirror source fails with NON_PRIMARY_SOURCE', async () => {
