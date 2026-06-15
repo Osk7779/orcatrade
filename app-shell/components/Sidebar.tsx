@@ -76,33 +76,27 @@ export function Sidebar() {
   }, []);
 
   return (
-    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-[var(--color-navy-line)] min-h-screen sticky top-0 max-h-screen overflow-y-auto">
-      {/* Brand wordmark — matches marketing-shell Header */}
-      <Link href="/dashboard" className="block px-7 py-7 border-b border-[var(--color-navy-line)] group">
+    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-white/[0.06] min-h-screen sticky top-0 max-h-screen overflow-y-auto">
+      {/* Brand wordmark */}
+      <Link
+        href="/dashboard"
+        className="block px-6 py-6 border-b border-white/[0.06] group"
+      >
         <div className="flex items-baseline gap-2">
-          <span
-            className="font-serif text-[1.55rem] tracking-[-0.022em] text-[var(--color-ivory)] leading-none"
-            style={{ fontVariationSettings: "'SOFT' 28, 'opsz' 144", fontWeight: 600 }}
-          >
+          <span className="text-[1.45rem] font-bold tracking-[-0.025em] text-[var(--color-ivory)] leading-none">
             OrcaTrade
           </span>
-          <span className="font-serif italic text-[1rem] text-[var(--color-ivory-mute)] leading-none">
-            Operations
-          </span>
         </div>
-        <span className="block mt-2 font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
-          The cockpit
+        <span className="block mt-1.5 text-[12px] text-[var(--color-aqua)] tracking-[0.01em]">
+          Operations
         </span>
       </Link>
 
-      <nav className="flex-1 flex flex-col gap-7 px-5 py-6">
+      <nav className="flex-1 flex flex-col gap-6 px-3 py-6">
         {SECTIONS.map((section) => (
-          <div key={section.heading} className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 px-3 mb-1.5">
-              <span aria-hidden className="font-serif text-[11px] text-[var(--color-ivory-mute)]/55">
-                ❦
-              </span>
-              <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[var(--color-ivory-mute)]">
+          <div key={section.heading} className="flex flex-col gap-0.5">
+            <div className="px-3 mb-1.5">
+              <span className="text-[10.5px] font-semibold tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]/80">
                 {section.heading}
               </span>
             </div>
@@ -111,7 +105,8 @@ export function Sidebar() {
               const isAlerts = item.href === '/alerts';
               const badge = isAlerts && openAlerts && openAlerts > 0 ? (
                 <span
-                  className="ml-auto font-mono text-[10px] px-1.5 py-0.5 bg-[var(--color-critical)]/15 text-[var(--color-critical)] border border-[var(--color-critical)]/35"
+                  className="ml-auto text-[10px] font-semibold px-1.5 py-0.5 bg-[var(--color-critical)]/15 text-[var(--color-critical)] border border-[var(--color-critical)]/35"
+                  style={{ borderRadius: '999px' }}
                   title={`${openAlerts} open monitoring alert${openAlerts === 1 ? '' : 's'}`}
                 >
                   {openAlerts > 99 ? '99+' : openAlerts}
@@ -119,17 +114,18 @@ export function Sidebar() {
               ) : null;
 
               const baseCls =
-                'group/item relative flex items-center gap-2 px-3 py-2 text-[13.5px] transition-colors duration-300';
+                'group/item relative flex items-center gap-2 px-3 py-2 text-[13.5px] transition-all duration-200';
               const stateCls = isActive
-                ? 'text-[var(--color-ivory)] bg-[var(--color-navy-soft)]/60'
-                : 'text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]/40';
+                ? 'text-[var(--color-ivory)] bg-[var(--color-aqua-soft)] font-medium'
+                : 'text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:bg-white/[0.025]';
 
               const inner = (
                 <>
                   {isActive && (
                     <span
                       aria-hidden
-                      className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[2px] bg-[var(--color-ivory)]"
+                      className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[2px] bg-[var(--color-aqua)]"
+                      style={{ borderRadius: '2px' }}
                     />
                   )}
                   <span className="truncate">{item.label}</span>
@@ -138,11 +134,21 @@ export function Sidebar() {
               );
 
               return item.inApp ? (
-                <Link key={item.href} href={item.href} className={`${baseCls} ${stateCls}`}>
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={`${baseCls} ${stateCls}`}
+                  style={{ borderRadius: '8px' }}
+                >
                   {inner}
                 </Link>
               ) : (
-                <a key={item.href} href={item.href} className={`${baseCls} ${stateCls}`}>
+                <a
+                  key={item.href}
+                  href={item.href}
+                  className={`${baseCls} ${stateCls}`}
+                  style={{ borderRadius: '8px' }}
+                >
                   {inner}
                 </a>
               );
@@ -152,14 +158,14 @@ export function Sidebar() {
       </nav>
 
       {/* Footer colophon */}
-      <div className="px-7 py-5 border-t border-[var(--color-navy-line)]">
+      <div className="px-6 py-5 border-t border-white/[0.06] space-y-2">
         <a
           href="/account/"
-          className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)] transition-colors"
+          className="text-[12px] text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] transition-colors"
         >
           Sign out ↗
         </a>
-        <div className="mt-2 font-serif italic text-[12px] text-[var(--color-ivory-mute)]/70">
+        <div className="font-serif italic text-[11.5px] text-[var(--color-ivory-mute)]/60">
           OrcaTrade Group · MMXXVI
         </div>
       </div>

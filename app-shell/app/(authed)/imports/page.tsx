@@ -103,33 +103,49 @@ function ImportsView() {
   if (state === 'auth') {
     return (
       <section className="space-y-4">
-        <h1 className="font-serif text-3xl text-[var(--color-ivory)]">Imports</h1>
+        <h1 className="text-3xl font-bold text-[var(--color-ivory)]">Imports</h1>
         <p className="text-[var(--color-ivory-mute)] text-sm">
-          Please <a href="/account/" className="underline hover:text-[var(--color-ivory)]">sign in</a> to see your import requests.
+          Please <a href="/account/" className="text-[var(--color-aqua)] hover:underline">sign in</a> to see your import requests.
         </p>
       </section>
     );
   }
 
   return (
-    <section className="space-y-10">
-      {/* Editorial header */}
-      <header className="space-y-3">
-        <div className="flex items-baseline gap-3">
-          <span className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">L1.0 · Operator wedge</span>
-        </div>
-        <h1 className="font-serif text-4xl text-[var(--color-ivory)] tracking-[-0.02em]">Your import requests</h1>
-        <p className="text-[var(--color-ivory-mute)] text-[15px] max-w-2xl leading-relaxed">
-          Tell us what you want from Asia. We build a factory shortlist and a fully landed-cost
-          quote — duty, VAT, freight, finance, fees — one number, one accountable party.
-        </p>
-        <div className="pt-2">
+    <section className="space-y-12 pb-16">
+      {/* Hero — Inter-bold display with aqua accent, aligned to /imports/new */}
+      <header className="relative pt-4">
+        <div
+          aria-hidden
+          className="absolute -top-8 -right-8 w-64 h-64 pointer-events-none rounded-full"
+          style={{
+            background: 'radial-gradient(closest-side, var(--color-aqua-glow), transparent)',
+            filter: 'blur(8px)',
+          }}
+        />
+        <div className="relative flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+          <div className="space-y-4 max-w-2xl">
+            <span className="inline-block text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+              L1.0 · Operator wedge
+            </span>
+            <h1 className="text-[clamp(2.25rem,4.5vw,3.25rem)] font-bold text-[var(--color-ivory)] tracking-[-0.025em] leading-[1.05]">
+              Your import requests.
+            </h1>
+            <p className="text-[var(--color-ivory-dim)] text-[16px] leading-relaxed">
+              Tell us what you want from Asia. We build a factory shortlist and a fully landed-cost
+              quote — duty, VAT, freight, finance, fees — one number, one accountable party.
+            </p>
+          </div>
           <Link
             href="/imports/new"
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-ivory)] text-[var(--color-navy)] font-mono text-[12px] tracking-[0.12em] uppercase hover:bg-[var(--color-ivory-dim)] transition-colors"
+            className="group inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[14px] font-semibold whitespace-nowrap transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: 'var(--shadow-cta)',
+            }}
           >
             New import request
-            <span aria-hidden>→</span>
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
           </Link>
         </div>
       </header>
@@ -156,23 +172,32 @@ function ImportsView() {
       {/* Table or empty state */}
       {state === 'loading' && <p className="text-[var(--color-ivory-mute)] text-sm">Loading…</p>}
       {state === 'error' && (
-        <div className="border border-[var(--color-critical)]/35 bg-[var(--color-critical)]/10 p-4">
-          <p className="font-mono text-[12px] tracking-[0.1em] uppercase text-[var(--color-critical)]">Could not load requests</p>
-          <p className="text-[var(--color-ivory-mute)] text-sm mt-1">{errorMsg}</p>
+        <div
+          className="border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/8 p-5"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <p className="text-[13px] font-semibold text-[var(--color-critical)]">Could not load requests</p>
+          <p className="text-[var(--color-ivory-dim)] text-[14px] mt-1">{errorMsg}</p>
         </div>
       )}
       {state === 'ready' && requests.length === 0 && (
-        <div className="border border-[var(--color-navy-line)] p-10 text-center">
-          <p className="font-serif italic text-[var(--color-ivory-mute)] text-lg">No import requests yet.</p>
-          <p className="text-[var(--color-ivory-mute)] text-sm mt-2">
-            Start with <Link className="underline hover:text-[var(--color-ivory)]" href="/imports/new">a new request</Link> — we will surface a shortlist + landed-cost quote within a few minutes.
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-12 text-center"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No import requests yet.</p>
+          <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3">
+            Start with <Link className="text-[var(--color-aqua)] hover:underline" href="/imports/new">a new request</Link> — we will surface a shortlist + landed-cost quote within a few minutes.
           </p>
         </div>
       )}
       {state === 'ready' && requests.length > 0 && (
-        <div className="border border-[var(--color-navy-line)] overflow-hidden">
-          <table className="w-full text-left text-[13.5px]">
-            <thead className="bg-[var(--color-navy-soft)]/40 text-[var(--color-ivory-mute)]">
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] overflow-hidden"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <table className="w-full text-left text-[14px]">
+            <thead className="bg-white/[0.02] text-[var(--color-ivory-mute)]">
               <tr>
                 <Th>Label</Th>
                 <Th>Product</Th>
@@ -186,16 +211,16 @@ function ImportsView() {
               {requests.map((r) => (
                 <tr
                   key={r.externalId}
-                  className="border-t border-[var(--color-navy-line)] hover:bg-[var(--color-navy-soft)]/30 transition-colors"
+                  className="border-t border-white/[0.04] hover:bg-white/[0.025] transition-colors"
                 >
                   <Td>
                     <Link
                       href={`/imports/${r.externalId}`}
-                      className="text-[var(--color-ivory)] hover:underline"
+                      className="text-[var(--color-ivory)] font-medium hover:text-[var(--color-aqua)] transition-colors"
                     >
                       {r.label}
                     </Link>
-                    <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]/70 mt-1">
+                    <div className="text-[11px] text-[var(--color-ivory-mute)]/70 mt-1 font-mono">
                       {r.externalId}
                     </div>
                   </Td>
@@ -203,30 +228,30 @@ function ImportsView() {
                     <span className="text-[var(--color-ivory-dim)] line-clamp-2">{r.productDescription}</span>
                   </Td>
                   <Td>
-                    <span className="font-mono text-[12px] text-[var(--color-ivory-dim)]">
+                    <span className="font-mono text-[12.5px] text-[var(--color-ivory-dim)]">
                       {(r.originCountry || '?')} → {r.destinationCountry}
                     </span>
                   </Td>
                   <Td>
                     <span
-                      className="inline-flex items-center gap-1.5 font-mono text-[11px] tracking-[0.1em] uppercase"
+                      className="inline-flex items-center gap-1.5 text-[12px] font-medium"
                       style={{ color: statusTone(r.status) }}
                     >
                       <span
                         aria-hidden
                         className="inline-block w-1.5 h-1.5"
-                        style={{ background: statusTone(r.status) }}
+                        style={{ background: statusTone(r.status), borderRadius: '999px' }}
                       />
                       {statusLabel(r.status)}
                     </span>
                   </Td>
                   <Td align="right">
-                    <span className="font-mono text-[13px] text-[var(--color-ivory)]">
+                    <span className="text-[14px] text-[var(--color-ivory)] font-semibold tabular-nums">
                       {eurFromCents(r.landedQuote?.totalLandedCents ?? null)}
                     </span>
                   </Td>
                   <Td align="right">
-                    <span className="font-mono text-[11px] tracking-[0.05em] text-[var(--color-ivory-mute)]">
+                    <span className="text-[12px] text-[var(--color-ivory-mute)] tabular-nums">
                       {ageLabel(r.updatedAt)}
                     </span>
                   </Td>
@@ -237,11 +262,11 @@ function ImportsView() {
         </div>
       )}
 
-      {/* Footer note — explicit about the v1 state */}
-      <footer className="border-t border-[var(--color-navy-line)] pt-6 text-[var(--color-ivory-mute)] text-[12px] font-serif italic max-w-2xl leading-relaxed">
+      {/* Footer note */}
+      <footer className="border-t border-white/[0.06] pt-6 text-[var(--color-ivory-mute)] text-[12.5px] font-serif italic max-w-2xl leading-relaxed">
         v1 of the Operator wedge ships the customer-intent + AI-shortlist + calculator-grounded
         quote flow. Fulfilment (factory comms, customs filing, freight booking, finance) is run
-        by the OrcaTrade team behind the curtain until partner integrations land in sprint 2.
+        by the OrcaTrade team behind the curtain until partner integrations land in a later sprint.
       </footer>
     </section>
   );
@@ -264,21 +289,24 @@ function FilterChip({
     <button
       type="button"
       onClick={onClick}
-      className={`group relative px-3 py-1.5 font-mono text-[11px] tracking-[0.12em] uppercase border transition-colors ${
+      className={`group relative px-4 py-1.5 text-[12.5px] font-medium border transition-all duration-200 ${
         active
-          ? 'border-[var(--color-ivory)] text-[var(--color-ivory)] bg-[var(--color-navy-soft)]/60'
-          : 'border-[var(--color-navy-line)] text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)] hover:border-[var(--color-ivory-mute)]'
+          ? 'border-[var(--color-aqua)] text-[var(--color-navy)] bg-[var(--color-aqua)] shadow-[0_2px_12px_rgba(34,211,238,0.3)]'
+          : 'border-white/[0.08] text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:border-[var(--color-aqua)]/50 hover:bg-white/[0.025]'
       }`}
+      style={{ borderRadius: 'var(--radius-badge)' }}
     >
-      {tone && (
+      {tone && !active && (
         <span
           aria-hidden
           className="inline-block w-1.5 h-1.5 mr-2 align-middle"
-          style={{ background: tone }}
+          style={{ background: tone, borderRadius: '999px' }}
         />
       )}
       {label}
-      <span className="ml-2 text-[var(--color-ivory-mute)]/80">{count}</span>
+      <span className={`ml-2 tabular-nums ${active ? 'text-[var(--color-navy)]/70' : 'text-[var(--color-ivory-mute)]/70'}`}>
+        {count}
+      </span>
     </button>
   );
 }
@@ -286,7 +314,7 @@ function FilterChip({
 function Th({ children, align }: { children: React.ReactNode; align?: 'right' | 'left' }) {
   return (
     <th
-      className={`px-4 py-3 font-mono text-[10px] tracking-[0.14em] uppercase ${
+      className={`px-5 py-3.5 text-[11px] font-semibold tracking-[0.06em] uppercase ${
         align === 'right' ? 'text-right' : ''
       }`}
     >
@@ -297,6 +325,6 @@ function Th({ children, align }: { children: React.ReactNode; align?: 'right' | 
 
 function Td({ children, align }: { children: React.ReactNode; align?: 'right' | 'left' }) {
   return (
-    <td className={`px-4 py-3 align-top ${align === 'right' ? 'text-right' : ''}`}>{children}</td>
+    <td className={`px-5 py-4 align-top ${align === 'right' ? 'text-right' : ''}`}>{children}</td>
   );
 }

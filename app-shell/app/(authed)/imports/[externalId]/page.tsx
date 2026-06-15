@@ -156,28 +156,46 @@ export default function ImportRequestDetailPage() {
     request.status === 'failed';
 
   return (
-    <article className="space-y-12">
-      {/* Header */}
-      <header className="space-y-4">
-        <Link href="/imports" className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)]">
-          ← All imports
-        </Link>
-        <div className="flex items-start justify-between gap-6">
-          <div className="space-y-2">
-            <h1 className="font-serif text-4xl text-[var(--color-ivory)] tracking-[-0.02em]">
+    <article className="space-y-14 pb-16">
+      {/* Hero header */}
+      <header className="relative pt-4">
+        <div
+          aria-hidden
+          className="absolute -top-8 -right-8 w-72 h-72 pointer-events-none rounded-full"
+          style={{
+            background: 'radial-gradient(closest-side, var(--color-aqua-glow), transparent)',
+            filter: 'blur(8px)',
+          }}
+        />
+        <div className="relative space-y-5">
+          <div className="flex items-center gap-2 text-[12px] text-[var(--color-ivory-mute)]">
+            <Link href="/imports" className="hover:text-[var(--color-aqua)] transition-colors">
+              Imports
+            </Link>
+            <span aria-hidden>›</span>
+            <span className="font-mono text-[var(--color-ivory-dim)]">{request.externalId}</span>
+          </div>
+          <div className="flex items-start justify-between gap-6 flex-wrap">
+            <h1 className="text-[clamp(2.25rem,4.5vw,3.25rem)] font-bold text-[var(--color-ivory)] tracking-[-0.025em] leading-[1.05] max-w-3xl">
               {request.label}
             </h1>
-            <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)]">
-              {request.externalId}
-            </p>
+            <span
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-[12px] font-medium border"
+              style={{
+                color: tone,
+                borderColor: tone,
+                background: `${tone}10`,
+                borderRadius: 'var(--radius-badge)',
+              }}
+            >
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5"
+                style={{ background: tone, borderRadius: '999px' }}
+              />
+              {statusLabel(request.status)}
+            </span>
           </div>
-          <span
-            className="inline-flex items-center gap-2 px-3 py-1.5 font-mono text-[11px] tracking-[0.12em] uppercase border"
-            style={{ color: tone, borderColor: tone }}
-          >
-            <span aria-hidden className="inline-block w-1.5 h-1.5" style={{ background: tone }} />
-            {statusLabel(request.status)}
-          </span>
         </div>
       </header>
 
@@ -237,12 +255,15 @@ export default function ImportRequestDetailPage() {
       )}
 
       {/* Audit trail link / footer */}
-      <footer className="border-t border-[var(--color-navy-line)] pt-4 text-[var(--color-ivory-mute)] text-[12px] font-serif italic">
+      <footer className="border-t border-white/[0.06] pt-5 text-[var(--color-ivory-mute)] text-[12.5px] font-serif italic">
         Created {new Date(request.createdAt).toLocaleString('en-IE')} · last updated {new Date(request.updatedAt).toLocaleString('en-IE')}
         {request.linkedShipmentExternalId && (
           <>
             {' '}· materialised as{' '}
-            <Link href={`/shipments/${request.linkedShipmentExternalId}`} className="underline hover:text-[var(--color-ivory)]">
+            <Link
+              href={`/shipments/${request.linkedShipmentExternalId}`}
+              className="text-[var(--color-aqua)] hover:underline not-italic font-sans font-medium"
+            >
               shipment {request.linkedShipmentExternalId}
             </Link>
           </>
@@ -331,10 +352,13 @@ function ActionZone({
   );
 
   return (
-    <div className="space-y-3">
+    <div
+      className="bg-[var(--surface-elevated)] border border-[var(--color-aqua)]/15 p-6 space-y-4"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
       <div className="flex flex-wrap gap-3">{buttons}</div>
       {actionError && (
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-critical)]">
+        <p className="text-[13px] font-medium text-[var(--color-critical)]">
           {actionError}
         </p>
       )}
@@ -344,40 +368,43 @@ function ActionZone({
 
 function IntentPanel({ request }: { request: ImportRequest }) {
   return (
-    <section className="space-y-4">
-      <h2 className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
         What you asked for
       </h2>
-      <p className="text-[var(--color-ivory)] text-[15px] leading-relaxed whitespace-pre-wrap">
+      <p className="text-[var(--color-ivory)] text-[15.5px] leading-relaxed whitespace-pre-wrap">
         {request.productDescription}
       </p>
-      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 pt-4 border-t border-[var(--color-navy-line)] text-[13px]">
+      <dl className="grid grid-cols-2 gap-x-6 gap-y-3 pt-5 border-t border-white/[0.06] text-[13.5px]">
         <DefRow label="Route">
-          <span className="font-mono">{request.originCountry || '?'} → {request.destinationCountry}</span>
+          <span className="font-mono text-[var(--color-ivory-dim)]">{request.originCountry || '?'} → {request.destinationCountry}</span>
         </DefRow>
         <DefRow label="Quantity">
           {request.targetQuantity
-            ? <span className="font-mono">{request.targetQuantity.toLocaleString('en-IE')} {request.targetQuantityUnit?.replace(/_/g, ' ')}</span>
+            ? <span className="font-mono text-[var(--color-ivory-dim)]">{request.targetQuantity.toLocaleString('en-IE')} {request.targetQuantityUnit?.replace(/_/g, ' ')}</span>
             : <span className="text-[var(--color-ivory-mute)]">—</span>}
         </DefRow>
         <DefRow label="Target unit price">
           {request.targetUnitPriceCents != null
-            ? <span className="font-mono">{eurFromCents(request.targetUnitPriceCents)}</span>
+            ? <span className="font-mono text-[var(--color-ivory-dim)]">{eurFromCents(request.targetUnitPriceCents)}</span>
             : <span className="text-[var(--color-ivory-mute)]">—</span>}
         </DefRow>
         <DefRow label="Target delivery">
           {request.targetDeliveryDate
-            ? <span className="font-mono">{request.targetDeliveryDate}</span>
+            ? <span className="font-mono text-[var(--color-ivory-dim)]">{request.targetDeliveryDate}</span>
             : <span className="text-[var(--color-ivory-mute)]">—</span>}
         </DefRow>
         <DefRow label="HS guess">
           {request.hsCodeGuess
-            ? <span className="font-mono">{request.hsCodeGuess}</span>
+            ? <span className="font-mono text-[var(--color-ivory-dim)]">{request.hsCodeGuess}</span>
             : <span className="text-[var(--color-ivory-mute)]">—</span>}
         </DefRow>
         <DefRow label="Certifications">
           {request.certificationRequirements && request.certificationRequirements.length > 0
-            ? <span className="font-mono text-[12px]">{request.certificationRequirements.join(' · ')}</span>
+            ? <span className="text-[12.5px] text-[var(--color-ivory-dim)]">{request.certificationRequirements.join(' · ')}</span>
             : <span className="text-[var(--color-ivory-mute)]">—</span>}
         </DefRow>
       </dl>
@@ -392,35 +419,44 @@ function PendingPanel({ status }: { status: ImportRequestStatus }) {
     : status === 'failed' ? 'The orchestrator failed — see the failure panel above, then re-run.'
     : 'The shortlist and quote will appear here.';
   return (
-    <section className="border border-[var(--color-navy-line)] p-8 space-y-2">
-      <h2 className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] p-7 space-y-3"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
         Landed-cost quote
       </h2>
-      <p className="text-[var(--color-ivory-mute)] text-sm">{msg}</p>
+      <p className="text-[var(--color-ivory-dim)] text-[14px]">{msg}</p>
     </section>
   );
 }
 
 function QuotePanel({ quote, expires }: { quote: LandedQuote; expires?: string | null }) {
   return (
-    <section className="space-y-4">
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] p-7 space-y-6"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
       <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
           Landed-cost quote
         </h2>
-        <span className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)]">
+        <span className="text-[11px] font-medium text-[var(--color-ivory-mute)]">
           {tierLabel(quote.confidenceTier)}
         </span>
       </div>
 
       {/* AI-generated prose summary, shown above the structured table */}
       {quote.prose && quote.prose.summary && (
-        <div className="border border-[var(--color-ivory-mute)]/30 bg-[var(--color-navy-soft)]/30 p-5 space-y-2">
-          <div className="flex items-baseline justify-between gap-3">
-            <span className="font-mono text-[9.5px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+        <div
+          className="border border-[var(--color-aqua)]/20 bg-[var(--color-aqua-soft)] p-5 space-y-3"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <div className="flex items-baseline justify-between gap-3 flex-wrap">
+            <span className="text-[10.5px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
               In plain English
             </span>
-            <span className="font-serif italic text-[11px] text-[var(--color-ivory-mute)]/80">
+            <span className="font-serif italic text-[11.5px] text-[var(--color-ivory-mute)]/80">
               Generated by {quote.prose.model.split('-').slice(0, 2).join(' ')} ·{' '}
               {new Date(quote.prose.generatedAt).toLocaleDateString('en-IE')}
             </span>
@@ -436,34 +472,39 @@ function QuotePanel({ quote, expires }: { quote: LandedQuote; expires?: string |
         </div>
       )}
 
-      <div className="border border-[var(--color-navy-line)]">
-        <table className="w-full text-[13.5px]">
+      <div
+        className="border border-white/[0.06] overflow-hidden"
+        style={{ borderRadius: 'var(--radius-card)' }}
+      >
+        <table className="w-full text-[14px]">
           <tbody>
-            <tr className="border-b border-[var(--color-navy-line)]">
-              <td className="px-4 py-3 text-[var(--color-ivory-mute)]">Cargo value</td>
-              <td className="px-4 py-3 text-right font-mono text-[var(--color-ivory)]">{eurFromCents(quote.cargoValueCents)}</td>
+            <tr className="border-b border-white/[0.06]">
+              <td className="px-5 py-3.5 text-[var(--color-ivory-mute)]">Cargo value</td>
+              <td className="px-5 py-3.5 text-right font-mono text-[var(--color-ivory)] tabular-nums">{eurFromCents(quote.cargoValueCents)}</td>
             </tr>
             {quote.components.map((c: LandedQuoteComponent, idx: number) => (
-              <tr key={idx} className="border-b border-[var(--color-navy-line)]/60 last:border-b-0">
-                <td className="px-4 py-3 align-top">
+              <tr key={idx} className="border-b border-white/[0.04] last:border-b-0">
+                <td className="px-5 py-3.5 align-top">
                   <div className="text-[var(--color-ivory-dim)]">{c.label}</div>
                   {c.note && (
-                    <div className="font-serif italic text-[11.5px] text-[var(--color-ivory-mute)] mt-0.5">{c.note}</div>
+                    <div className="font-serif italic text-[12px] text-[var(--color-ivory-mute)] mt-0.5">{c.note}</div>
                   )}
                 </td>
-                <td className="px-4 py-3 align-top text-right font-mono text-[var(--color-ivory)]">{eurFromCents(c.eurCents)}</td>
+                <td className="px-5 py-3.5 align-top text-right font-mono text-[var(--color-ivory)] tabular-nums">{eurFromCents(c.eurCents)}</td>
               </tr>
             ))}
-            <tr className="border-t-2 border-[var(--color-ivory)]/40 bg-[var(--color-navy-soft)]/30">
-              <td className="px-4 py-4 font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--color-ivory)]">Total landed</td>
-              <td className="px-4 py-4 text-right font-serif text-2xl text-[var(--color-ivory)]">{eurFromCents(quote.totalLandedCents)}</td>
+            <tr className="border-t-2 border-[var(--color-aqua)]/30 bg-[var(--color-aqua-soft)]">
+              <td className="px-5 py-4 text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">Total landed</td>
+              <td className="px-5 py-4 text-right text-[28px] font-bold text-[var(--color-ivory)] tracking-[-0.015em] tabular-nums">
+                {eurFromCents(quote.totalLandedCents)}
+              </td>
             </tr>
           </tbody>
         </table>
       </div>
 
       {quote.confidenceNotes && quote.confidenceNotes.length > 0 && (
-        <div className="text-[12px] font-serif italic text-[var(--color-ivory-mute)] space-y-1">
+        <div className="text-[12.5px] font-serif italic text-[var(--color-ivory-mute)] space-y-1">
           {quote.confidenceNotes.map((n: string, i: number) => <p key={i}>· {n}</p>)}
         </div>
       )}
@@ -473,8 +514,8 @@ function QuotePanel({ quote, expires }: { quote: LandedQuote; expires?: string |
       )}
 
       {expires && (
-        <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]">
-          Quote valid until {new Date(expires).toLocaleDateString('en-IE')}
+        <p className="text-[11.5px] text-[var(--color-ivory-mute)]">
+          Quote valid until <span className="text-[var(--color-ivory-dim)] font-medium">{new Date(expires).toLocaleDateString('en-IE')}</span>
         </p>
       )}
     </section>
@@ -503,36 +544,37 @@ function CompliancePanel({ probes }: { probes: ComplianceProbes }) {
     { regime: 'reach', label: 'REACH · chemicals', probe: probes.reach },
   ];
   return (
-    <section className="space-y-3 border-t border-[var(--color-navy-line)] pt-5">
-      <div className="flex items-baseline justify-between gap-3">
-        <h3 className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+    <section className="space-y-4 border-t border-white/[0.06] pt-6">
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <h3 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
           EU compliance · applicability
         </h3>
-        <span className="font-serif italic text-[11px] text-[var(--color-ivory-mute)]/80">
+        <span className="font-serif italic text-[12px] text-[var(--color-ivory-mute)]/80">
           Calculator-grounded probes · {probes.productCategory}
         </span>
       </div>
-      <div className="space-y-2">
+      <div className="space-y-2.5">
         {rows.map(({ regime, label, probe }) => {
           if (!probe) return null;
           const tone = regimeTone(probe.applies);
           return (
             <div
               key={regime}
-              className="border border-[var(--color-navy-line)] px-4 py-3 grid grid-cols-[auto_1fr_auto] gap-4 items-start"
+              className="border border-white/[0.06] bg-white/[0.015] px-5 py-3.5 grid grid-cols-[auto_1fr_auto] gap-4 items-start"
+              style={{ borderRadius: 'var(--radius-card)' }}
             >
               <span
                 aria-hidden
                 className="inline-block w-2 h-2 mt-1.5"
-                style={{ background: tone }}
+                style={{ background: tone, borderRadius: '999px' }}
               />
               <div className="space-y-1 min-w-0">
                 <div className="flex items-baseline gap-3 flex-wrap">
-                  <span className="font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--color-ivory)]">
+                  <span className="text-[13px] font-semibold text-[var(--color-ivory)]">
                     {label}
                   </span>
                   <span
-                    className="font-mono text-[10px] tracking-[0.12em] uppercase"
+                    className="text-[11px] font-medium uppercase tracking-[0.06em]"
                     style={{ color: tone }}
                   >
                     {regimeLabel(probe.applies)}
@@ -544,14 +586,15 @@ function CompliancePanel({ probes }: { probes: ComplianceProbes }) {
                   </p>
                 )}
                 {probe.citation && (
-                  <p className="font-serif italic text-[11px] text-[var(--color-ivory-mute)]">
+                  <p className="font-serif italic text-[11.5px] text-[var(--color-ivory-mute)]">
                     {probe.citation}
                   </p>
                 )}
               </div>
               {probe.confidence && (
                 <span
-                  className="font-mono text-[10px] tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]"
+                  className="text-[10.5px] font-medium uppercase tracking-[0.06em] text-[var(--color-ivory-mute)] px-2 py-0.5 border border-white/[0.06] bg-white/[0.02]"
+                  style={{ borderRadius: 'var(--radius-badge)' }}
                   title="probe confidence — green = high, amber = verify"
                 >
                   {probe.confidence}
@@ -571,55 +614,70 @@ function ShortlistPanel({ shortlist }: { shortlist: FactoryShortlistBlock[] }) {
   if (blocks.length === 0) return null;
   return (
     <section className="space-y-5">
-      <div className="flex items-baseline justify-between gap-3">
-        <h2 className="font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
           Factory shortlist
         </h2>
-        <span className="font-serif italic text-[12px] text-[var(--color-ivory-mute)]">
+        <span className="font-serif italic text-[12.5px] text-[var(--color-ivory-mute)]">
           Awaiting team verification — samples drawn from the OrcaTrade portfolio.
         </span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-        {blocks.map((b, idx) => (
-          <div
-            key={idx}
-            className="border border-[var(--color-navy-line)] p-5 space-y-3"
-          >
-            <div className="flex items-baseline justify-between">
-              <span className="font-mono text-[11px] tracking-[0.16em] uppercase text-[var(--color-ivory)]">
-                #{b.rank ?? idx + 1} · {b.country}
-              </span>
-              {b.fobIndex != null && (
-                <span className="font-mono text-[11px] text-[var(--color-ivory-mute)]">FOB ×{b.fobIndex.toFixed(2)}</span>
+        {blocks.map((b, idx) => {
+          const isTopPick = (b.rank ?? idx + 1) === 1;
+          return (
+            <div
+              key={idx}
+              className={`bg-[var(--surface-card)] p-6 space-y-3 transition-all duration-200 hover:shadow-[var(--shadow-card-hover)] ${
+                isTopPick
+                  ? 'border border-[var(--color-aqua)]/30 ring-1 ring-[var(--color-aqua)]/20'
+                  : 'border border-white/[0.06]'
+              }`}
+              style={{
+                borderRadius: 'var(--radius-card)',
+                boxShadow: 'var(--shadow-card)',
+              }}
+            >
+              <div className="flex items-baseline justify-between">
+                <span className={`text-[13px] font-semibold ${isTopPick ? 'text-[var(--color-aqua)]' : 'text-[var(--color-ivory)]'}`}>
+                  #{b.rank ?? idx + 1} · {b.country}
+                </span>
+                {b.fobIndex != null && (
+                  <span className="font-mono text-[11.5px] text-[var(--color-ivory-mute)] tabular-nums">FOB ×{b.fobIndex.toFixed(2)}</span>
+                )}
+              </div>
+              {b.countryRationale && (
+                <p className="text-[var(--color-ivory-dim)] text-[13px] leading-relaxed">{b.countryRationale}</p>
+              )}
+              <div className="grid grid-cols-2 gap-2 pt-3 border-t border-white/[0.06] text-[11.5px] text-[var(--color-ivory-mute)]">
+                {b.leadTimeWeeks != null && <div>Lead time: <span className="text-[var(--color-ivory-dim)]">~{b.leadTimeWeeks} wk</span></div>}
+                {b.qualityRisk && <div>Quality: <span className="text-[var(--color-ivory-dim)]">{b.qualityRisk}</span></div>}
+                {b.ipRisk && <div>IP risk: <span className="text-[var(--color-ivory-dim)]">{b.ipRisk}</span></div>}
+                <div>Candidates: <span className="text-[var(--color-ivory-dim)]">{b.candidateCount ?? 0}</span></div>
+              </div>
+              {b.candidates && b.candidates.length > 0 && (
+                <ul className="space-y-1.5 pt-3 border-t border-white/[0.06]">
+                  {b.candidates.slice(0, 4).map((c, ci) => (
+                    <li key={ci} className="text-[13px] text-[var(--color-ivory-dim)] flex items-baseline gap-2">
+                      <span
+                        aria-hidden
+                        className="inline-block w-1 h-1 mt-1.5"
+                        style={{ background: 'var(--color-aqua)', borderRadius: '999px' }}
+                      />
+                      <span className="flex-1">
+                        {c.name || 'Sample supplier'}
+                        {c.city && <span className="text-[var(--color-ivory-mute)]"> · {c.city}</span>}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
               )}
             </div>
-            {b.countryRationale && (
-              <p className="text-[var(--color-ivory-dim)] text-[13px] leading-relaxed">{b.countryRationale}</p>
-            )}
-            <div className="grid grid-cols-2 gap-2 pt-2 border-t border-[var(--color-navy-line)] text-[11px] font-mono text-[var(--color-ivory-mute)]">
-              {b.leadTimeWeeks != null && <div>Lead time: <span className="text-[var(--color-ivory-dim)]">~{b.leadTimeWeeks} wk</span></div>}
-              {b.qualityRisk && <div>Quality: <span className="text-[var(--color-ivory-dim)]">{b.qualityRisk}</span></div>}
-              {b.ipRisk && <div>IP risk: <span className="text-[var(--color-ivory-dim)]">{b.ipRisk}</span></div>}
-              <div>Candidates: <span className="text-[var(--color-ivory-dim)]">{b.candidateCount ?? 0}</span></div>
-            </div>
-            {b.candidates && b.candidates.length > 0 && (
-              <ul className="space-y-1 pt-2 border-t border-[var(--color-navy-line)]">
-                {b.candidates.slice(0, 4).map((c, ci) => (
-                  <li key={ci} className="text-[13px] text-[var(--color-ivory-dim)] flex items-baseline gap-2">
-                    <span aria-hidden className="inline-block w-1 h-1 bg-[var(--color-ivory-mute)]/60 mt-1.5" />
-                    <span className="flex-1">
-                      {c.name || 'Sample supplier'}
-                      {c.city && <span className="text-[var(--color-ivory-mute)]"> · {c.city}</span>}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        ))}
+          );
+        })}
       </div>
       {meta && (
-        <p className="font-serif italic text-[12px] text-[var(--color-ivory-mute)] pt-2 border-t border-[var(--color-navy-line)]">
+        <p className="font-serif italic text-[12.5px] text-[var(--color-ivory-mute)] pt-3 border-t border-white/[0.06]">
           Methodology: {meta.classifier} (v{meta.version?.replace(/^v/, '') || '1.0'}) classified the request with {meta.classifierHits ?? 0} keyword hits; countries evaluated: {meta.countriesEvaluated?.join(', ') || '—'}; supplier source: {meta.sampleSource}.
         </p>
       )}
@@ -629,12 +687,15 @@ function ShortlistPanel({ shortlist }: { shortlist: FactoryShortlistBlock[] }) {
 
 function FailurePanel({ state }: { state: { code?: string; reason?: string; occurredAt?: string; recoverable?: boolean } }) {
   return (
-    <div className="border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/10 p-5 space-y-2">
-      <p className="font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--color-critical)]">
+    <div
+      className="border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/8 p-6 space-y-2"
+      style={{ borderRadius: 'var(--radius-card)' }}
+    >
+      <p className="text-[13px] font-semibold text-[var(--color-critical)]">
         Orchestrator failed{state.code ? ` · ${state.code}` : ''}
       </p>
-      {state.reason && <p className="text-[var(--color-ivory-dim)] text-[14px]">{state.reason}</p>}
-      <p className="font-mono text-[11px] tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]">
+      {state.reason && <p className="text-[var(--color-ivory-dim)] text-[14px] leading-relaxed">{state.reason}</p>}
+      <p className="text-[12px] font-medium text-[var(--color-ivory-mute)]">
         {state.recoverable ? 'Recoverable — re-run the orchestrator above.' : 'Not recoverable — start a new request.'}
       </p>
     </div>
@@ -642,10 +703,13 @@ function FailurePanel({ state }: { state: { code?: string; reason?: string; occu
 }
 
 function Banner({ tone, children }: { tone: 'positive' | 'neutral'; children: React.ReactNode }) {
-  const borderColor = tone === 'positive' ? 'var(--color-positive)' : 'var(--color-ivory-mute)';
-  const bg = tone === 'positive' ? 'rgba(16,185,129,0.08)' : 'rgba(255,255,255,0.03)';
+  const borderColor = tone === 'positive' ? 'var(--color-positive)' : 'var(--color-aqua)';
+  const bg = tone === 'positive' ? 'rgba(16,185,129,0.08)' : 'var(--color-aqua-soft)';
   return (
-    <div className="p-4 border" style={{ borderColor, background: bg }}>
+    <div
+      className="p-5 border"
+      style={{ borderColor: `${borderColor}30`, background: bg, borderRadius: 'var(--radius-card)' }}
+    >
       <p className="text-[var(--color-ivory-dim)] text-[14px] leading-relaxed">{children}</p>
     </div>
   );
@@ -654,7 +718,7 @@ function Banner({ tone, children }: { tone: 'positive' | 'neutral'; children: Re
 function DefRow({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <>
-      <dt className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)] self-center">{label}</dt>
+      <dt className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] self-center">{label}</dt>
       <dd>{children}</dd>
     </>
   );
@@ -666,7 +730,11 @@ function PrimaryButton({ onClick, disabled, children }: { onClick: () => void; d
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-ivory)] text-[var(--color-navy)] font-mono text-[11.5px] tracking-[0.12em] uppercase hover:bg-[var(--color-ivory-dim)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[14px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0"
+      style={{
+        borderRadius: 'var(--radius-button)',
+        boxShadow: disabled ? 'none' : 'var(--shadow-cta)',
+      }}
     >
       {children}
     </button>
@@ -679,7 +747,8 @@ function SecondaryButton({ onClick, disabled, children }: { onClick: () => void;
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="inline-flex items-center gap-2 px-5 py-2.5 border border-[var(--color-navy-line)] text-[var(--color-ivory-dim)] font-mono text-[11.5px] tracking-[0.12em] uppercase hover:text-[var(--color-ivory)] hover:border-[var(--color-ivory-mute)] disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+      className="inline-flex items-center gap-2 px-6 py-3 border border-white/[0.12] text-[var(--color-ivory-dim)] text-[14px] font-medium transition-all duration-200 hover:text-[var(--color-ivory)] hover:border-white/[0.25] hover:bg-white/[0.025] disabled:opacity-40 disabled:cursor-not-allowed"
+      style={{ borderRadius: 'var(--radius-button)' }}
     >
       {children}
     </button>
