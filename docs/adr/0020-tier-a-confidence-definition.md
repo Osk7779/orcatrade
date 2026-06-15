@@ -282,8 +282,8 @@ same pattern.
 |------------|------------------------|--------|
 | customs-quote | EU TARIC live API | ✅ [PR #132][pr132] |
 | sourcing-quote | UN Comtrade trade-flow data | ✅ [PR #139][pr139] |
+| finance-quote | ECB Statistical Data Warehouse FX reference rates | ✅ [PR #141][pr141] |
 | routing-quote | Carrier-published rate indices (SCFI, WCI, FBX) | Pending integration |
-| finance-quote | ECB FX rate table (replacing partner-bank `PRICING_SNAPSHOT.annualForwardPremiumPercent`) | Pending integration |
 | warehouse-quote | EU Eurostat warehousing producer-price indices, or direct hub-published rate cards via API | Pending integration |
 
 Each remaining gate lands as a separate, calculator-scoped PR. The
@@ -293,6 +293,7 @@ transparency signal even where it now flips `eligible: true`.
 
 [pr132]: https://github.com/Osk7779/orcatrade/pull/132
 [pr139]: https://github.com/Osk7779/orcatrade/pull/139
+[pr141]: https://github.com/Osk7779/orcatrade/pull/141
 [pr87]: https://github.com/Osk7779/orcatrade/pull/87
 [pr89]: https://github.com/Osk7779/orcatrade/pull/89
 [pr91]: https://github.com/Osk7779/orcatrade/pull/91

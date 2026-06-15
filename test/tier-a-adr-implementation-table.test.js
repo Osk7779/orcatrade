@@ -210,17 +210,22 @@ test('Operational note marks customs-quote as the first gate that shipped (PR #1
 });
 
 test('Operational note marks sourcing-quote as the second gate that shipped (PR #139)', () => {
-  // PR #139 shipped the second calculator-scoped primary-regulator
-  // gate. UN Comtrade trade-flow data backs the sourcing
-  // recommendation; the operational note's sourcing-quote row
-  // references PR #139 so an auditor reading the ADR sees both
-  // shipped gates at a glance.
   const noteSection = ADR_SRC.match(/### Operational note[\s\S]*?(?=\n## |\n### |\n\[pr\d+\]:)/);
   assert.ok(noteSection, 'Operational note section not located');
   const sourcingRow = noteSection[0].match(/\| sourcing-quote \|[^\n]+/);
   assert.ok(sourcingRow, 'sourcing-quote row not located within operational note');
-  assert.match(sourcingRow[0], /PR #139|pr139/i,
-    `expected sourcing-quote row to reference PR #139; got: "${sourcingRow[0]}"`);
+  assert.match(sourcingRow[0], /PR #139|pr139/i);
+});
+
+test('Operational note marks finance-quote as the third gate that shipped (PR #141)', () => {
+  // PR #141 shipped the third calculator-scoped primary-regulator
+  // gate. ECB Statistical Data Warehouse FX reference rates back
+  // the finance recommendation.
+  const noteSection = ADR_SRC.match(/### Operational note[\s\S]*?(?=\n## |\n### |\n\[pr\d+\]:)/);
+  assert.ok(noteSection, 'Operational note section not located');
+  const financeRow = noteSection[0].match(/\| finance-quote \|[^\n]+/);
+  assert.ok(financeRow, 'finance-quote row not located within operational note');
+  assert.match(financeRow[0], /PR #141|pr141/i);
 });
 
 // ── Status line reflects the closure ─────────────────────────────────
