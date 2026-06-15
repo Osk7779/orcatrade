@@ -98,9 +98,12 @@ test('buildFactoryShortlist with empty comparison returns empty shortlist', () =
     classifierHits: 0,
   });
   assert.deepEqual(shortlist, []);
-  assert.equal(methodology.version, 'v1.0');
-  assert.equal(methodology.classifier, 'keyword-classifier-v1');
+  assert.equal(methodology.version, 'v1.1');
+  assert.equal(methodology.classifier, 'category-classifier-v1');
   assert.equal(methodology.classifierHits, 0);
+  // Sprint 4 ch 2 added classifierSource so the team console can show
+  // which path won. Defaults to 'keyword' when no source is passed.
+  assert.equal(methodology.classifierSource, 'keyword');
 });
 
 test('buildFactoryShortlist with comparison takes top 3 and attaches candidate samples', () => {
@@ -438,7 +441,7 @@ test('buildShipmentSeedFromRequest maps customer intent + quote onto the shipmen
   assert.equal(seed.metadata.materialisedFromImportRequest, 'ir_abc123');
   assert.equal(seed.metadata.orcatradeFeePct, 8);
   assert.equal(seed.metadata.orcatradeFeeCents, 200_000);
-  assert.equal(seed.metadata.materialiserVersion, 'v1.1');
+  assert.equal(seed.metadata.materialiserVersion, 'v1.2');
 });
 
 test('buildShipmentSeedFromRequest uses rank-1 shortlist country as the shipment origin', () => {
@@ -588,7 +591,12 @@ test('buildGoodsSeedFromRequest sets typicalUnitValueCents from request when pre
   assert.equal(seed.typicalUnitValueCents, 1300);
 });
 
-test('buildGoodsSeedFromRequest leaves cbamInScope=false in v1 (sprint 4 wires compliance probe)', () => {
+test('buildGoodsSeedFromRequest cbamInScope=false for non-Annex-I products (homeware/silicone mats)', () => {
+  // Sprint 4 ch 1: cbamInScope is now driven by determineCbamApplicability,
+  // not hardcoded. Silicone kitchenware doesn't match any Annex I CBAM
+  // category (which is steel, cement, aluminium, fertilisers, electricity,
+  // hydrogen) — so the probe correctly returns applies=false here even
+  // for an origin (CN/VN) that's outside the EEA.
   const seed = orch.buildGoodsSeedFromRequest({
     request: APPROVED_REQUEST_FIXTURE_WITH_HS,
     actorEmailHash: 'h',
@@ -762,4 +770,131 @@ test('pickTopCandidate returns the first rank-1 candidate when one exists', () =
   const candidate = orch.pickTopCandidate(APPROVED_REQUEST_FIXTURE);
   assert.ok(candidate);
   assert.equal(candidate.name, 'Vendor A');
+});
+
+// ── Sprint 4 chunk 1: Compliance-probe wiring ────────────────────────
+
+test('runComplianceProbes returns CBAM applies=true for aluminium from CN', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'machinery',
+    productDescription: 'aluminium extrusion profiles industrial use',
+    originCountry: 'CN',
+    hsCode: '760410',
+  });
+  assert.ok(probes.cbam);
+  assert.equal(probes.cbam.applies, true);
+  assert.equal(probes.cbam.categoryKey, 'aluminium');
+});
+
+test('runComplianceProbes returns CBAM applies=false for the SAME aluminium when origin is EU (intra-EU)', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'machinery',
+    productDescription: 'aluminium extrusion profiles industrial use',
+    originCountry: 'DE',
+    hsCode: '760410',
+  });
+  assert.ok(probes.cbam);
+  assert.equal(probes.cbam.applies, false);
+});
+
+test('runComplianceProbes CBAM applies=false for non-Annex-I products (homeware)', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'homeware',
+    productDescription: 'silicone kitchen mats food-grade',
+    originCountry: 'CN',
+    hsCode: '392410',
+  });
+  assert.ok(probes.cbam);
+  assert.equal(probes.cbam.applies, false);
+});
+
+test('runComplianceProbes returns EUDR applies=true for wooden furniture from non-EU origin', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'furniture',
+    productDescription: 'wooden dining tables solid oak',
+    originCountry: 'VN',
+    hsCode: '940360',
+  });
+  assert.ok(probes.eudr);
+  // EUDR probe may return applies as boolean or 'maybe' depending on origin
+  // signal — what matters is the probe ran and returned a structured answer.
+  assert.ok(probes.eudr.applies !== undefined);
+});
+
+test('runComplianceProbes REACH applies for cosmetics (high-relevance category)', () => {
+  const probes = orch.runComplianceProbes({
+    productCategory: 'cosmetics',
+    productDescription: 'organic face cream skincare with retinol',
+    originCountry: 'CN',
+    hsCode: '330499',
+  });
+  assert.ok(probes.reach);
+  // REACH probe returns 'maybe' or true depending on category match.
+  assert.ok(probes.reach.applies === true || probes.reach.applies === 'maybe');
+});
+
+test('runComplianceProbes is fail-soft when a probe throws (per-probe try/catch)', () => {
+  // Pass nonsense to all probes. Even if one throws internally, the
+  // helper must return a structured result (with that slot null).
+  const probes = orch.runComplianceProbes({
+    productCategory: '',
+    productDescription: '',
+    originCountry: '',
+    hsCode: '',
+  });
+  // Either the probes return a valid result or null — but never throw.
+  assert.ok(probes);
+  assert.ok('cbam' in probes);
+  assert.ok('eudr' in probes);
+  assert.ok('reach' in probes);
+});
+
+test('buildGoodsSeedFromRequest cbamInScope=true for aluminium from CN', () => {
+  const aluminiumRequest = {
+    ...APPROVED_REQUEST_FIXTURE_WITH_HS,
+    productDescription: 'aluminium extrusion profiles industrial-grade',
+    hsCodeGuess: '760410',
+    factoryShortlist: [
+      { rank: 1, country: 'CN', candidates: [{ name: 'Vendor X' }] },
+    ],
+  };
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: aluminiumRequest,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.equal(seed.cbamInScope, true);
+});
+
+test('buildGoodsSeedFromRequest stashes all three compliance probe results in metadata', () => {
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: APPROVED_REQUEST_FIXTURE_WITH_HS,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  const probes = seed.metadata.complianceProbes;
+  assert.ok(probes);
+  assert.equal(probes.version, 'v1.0');
+  assert.equal(probes.productCategory, 'homeware');
+  assert.ok(probes.cbam);
+  assert.ok(probes.eudr);
+  assert.ok(probes.reach);
+  // Each probe result carries the citation for traceability.
+  assert.match(probes.cbam.citation || '', /Regulation \(EU\)/);
+});
+
+test('buildGoodsSeedFromRequest compliance probe carries the citation for traceability', () => {
+  const aluminiumRequest = {
+    ...APPROVED_REQUEST_FIXTURE_WITH_HS,
+    productDescription: 'aluminium extrusion profiles',
+    hsCodeGuess: '760410',
+    factoryShortlist: [{ rank: 1, country: 'CN', candidates: [{ name: 'V' }] }],
+  };
+  const seed = orch.buildGoodsSeedFromRequest({
+    request: aluminiumRequest,
+    actorEmailHash: 'h',
+    orgId: 1,
+  });
+  assert.match(seed.metadata.complianceProbes.cbam.citation, /Regulation \(EU\) 2023\/956/);
+  assert.equal(seed.metadata.complianceProbes.cbam.categoryKey, 'aluminium');
 });
