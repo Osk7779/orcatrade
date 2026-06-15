@@ -44,6 +44,16 @@ const handlers = {
   // GET/PATCH/DELETE /api/shipments/<externalId> +
   // POST /api/shipments/<externalId>/transition for state changes.
   shipments: require('../lib/handlers/shipments'),
+  // Import Request — L1.0 of docs/strategic-plan-2026-2031.md §4.1.2.
+  // The customer-intent primitive that PRECEDES Goods + Supplier +
+  // Shipment. The Operator wedge of the billion-dollar direction:
+  // customer describes what they want from Asia; AI generates a
+  // factory shortlist + landed-cost quote; team reviews (ADR 0015);
+  // customer approves; downstream Shipment materialises.
+  // GET/POST /api/imports + GET/DELETE /api/imports/<externalId> +
+  // POST /api/imports/<externalId>/{process,review,decide,cancel} +
+  // GET /api/imports/<externalId>/history.
+  imports: require('../lib/handlers/imports'),
   // Auth (magic-link). Sub-actions resolved inside the handler from the
   // second URL segment: request / verify / me / logout.
   auth: require('../lib/handlers/auth'),
