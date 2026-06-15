@@ -262,22 +262,26 @@ Each cell links to the PR that landed it.
 [PR #132][pr132] (2026-06-13) shipped the first primary-regulator
 gate — **customs-quote** now emits `eligible: true` verdicts in
 production when the wizard supplies an HS code that resolves through
-the live EU TARIC API. The remaining four calculators stay inert
-pending their own primary-regulator integrations.
+the live EU TARIC API.
 
-The fix in PR #132 was structural rather than connective: TARIC live-
-fetch had been wired into `calculateQuoteAsync` since the wedge
-opened (PR #89), but `buildTierAInput` was emitting BOTH the rate-
-card mirror AND the live primary-regulator snapshot. The TA-2 check
-fails as soon as ANY snapshot is non-primary, so the mirror was
-silently blocking every verdict. The mirror is now omitted when a
-primary regulator is present (the primary overrides the rate card's
-number anyway, so the mirror is operationally redundant).
+[PR #139][pr139] (2026-06-15) shipped the second — **sourcing-quote**
+now emits `eligible: true` when backed by a UN Comtrade trade-flow
+snapshot. The Comtrade client (`lib/intelligence/comtrade-client.js`)
+fetches top-EU-exporter rankings per HS6 code with 30-day fresh /
+90-day stale caching. The integration into `/api/start` follows in a
+subsequent PR; today the path is exercised by
+`sourcing.recommendCountryAsync({ hsCode })` callers.
+
+The PR #132 + #139 fixes share the same shape: drop the rate-card
+mirror snapshot when a primary-regulator snapshot is present. The
+TA-2 check fails as soon as ANY snapshot is non-primary, so emitting
+both blocks the verdict flip. Future per-calculator gates follow this
+same pattern.
 
 | Calculator | Primary-regulator gate | Status |
 |------------|------------------------|--------|
 | customs-quote | EU TARIC live API | ✅ [PR #132][pr132] |
-| sourcing-quote | International trade indices (UN Comtrade / WTO) | Pending integration |
+| sourcing-quote | UN Comtrade trade-flow data | ✅ [PR #139][pr139] |
 | routing-quote | Carrier-published rate indices (SCFI, WCI, FBX) | Pending integration |
 | finance-quote | ECB FX rate table (replacing partner-bank `PRICING_SNAPSHOT.annualForwardPremiumPercent`) | Pending integration |
 | warehouse-quote | EU Eurostat warehousing producer-price indices, or direct hub-published rate cards via API | Pending integration |
@@ -288,6 +292,7 @@ until E&O insurance binds in Q1 2027 — Tier-A continues to be a
 transparency signal even where it now flips `eligible: true`.
 
 [pr132]: https://github.com/Osk7779/orcatrade/pull/132
+[pr139]: https://github.com/Osk7779/orcatrade/pull/139
 [pr87]: https://github.com/Osk7779/orcatrade/pull/87
 [pr89]: https://github.com/Osk7779/orcatrade/pull/89
 [pr91]: https://github.com/Osk7779/orcatrade/pull/91
