@@ -113,6 +113,16 @@ export default function GoodsDetailPage({ params }: { params: Promise<{ external
         goods={goods}
         onSaved={(updated) => setGoods(updated)}
       />
+      {/* PR #149: Panel always renders so operators can ADD a metadata
+          entry to a goods record with none on file. Same key/value
+          editor pattern as PR #147 (supplier.metadata) — freeform
+          operator-side context (internal SKU references, integration
+          handles, custom tags), no regulatory weight. Closes the
+          deferred-jsonb list from PR #133. */}
+      <GoodsMetadataPanel
+        goods={goods}
+        onSaved={(updated) => setGoods(updated)}
+      />
       <RelatedShipments filter={{ kind: 'goods', externalId: goods.externalId }} />
       <TransitionHistory externalId={goods.externalId} entityKind="goods" />
     </div>
@@ -1245,6 +1255,399 @@ function RestrictedSubstancesEditRow({
         onClick={onRemove}
         disabled={disabled}
         aria-label={`Remove restricted-substance row ${rowNumber}`}
+        className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+      >
+        ×
+      </button>
+    </div>
+  );
+}
+
+// GoodsMetadataPanel — read view + key/value editor for the freeform
+// goods.metadata jsonb object (PR #149). Fourth jsonb-OBJECT editor on
+// the platform, closing the deferred-jsonb list from PR #133.
+//
+// Like supplier.metadata (PR #147), goods.metadata is operator-side
+// context (internal SKU references, integration handles, custom tags,
+// merchandising notes) — NOT regulator-bearing. Shape and editor
+// posture mirror PR #147 exactly; only the entity (goods vs supplier)
+// and the example keys in the helper copy differ.
+function GoodsMetadataPanel({
+  goods,
+  onSaved,
+}: {
+  goods: Goods;
+  onSaved: (updated: Goods) => void;
+}) {
+  const persistedMetadata = (goods.metadata || {}) as Record<string, unknown>;
+  const archived = Boolean(goods.archivedAt);
+  const [editing, setEditing] = useState(false);
+
+  if (!editing) {
+    return (
+      <GoodsMetadataReadPanel
+        metadata={persistedMetadata}
+        archived={archived}
+        onEditClick={() => setEditing(true)}
+      />
+    );
+  }
+
+  return (
+    <GoodsMetadataEditorPanel
+      goods={goods}
+      initialMetadata={persistedMetadata}
+      onCancel={() => setEditing(false)}
+      onSaved={(updated) => {
+        onSaved(updated);
+        setEditing(false);
+      }}
+    />
+  );
+}
+
+function GoodsMetadataReadPanel({
+  metadata,
+  archived,
+  onEditClick,
+}: {
+  metadata: Record<string, unknown>;
+  archived: boolean;
+  onEditClick: () => void;
+}) {
+  const entries = Object.entries(metadata);
+  const hasEntries = entries.length > 0;
+  const json = useMemo(() => JSON.stringify(metadata, null, 2), [metadata]);
+
+  return (
+    <section className="mb-10 border border-[var(--color-navy-line)]">
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-start justify-between gap-3">
+        <div>
+          <h2 className="font-serif text-xl">Operator metadata</h2>
+          <p className="font-mono text-[11px] text-white/45 mt-1">
+            Freeform key/value notes — internal SKU references, integration handles, custom tags.
+          </p>
+        </div>
+        {!archived && (
+          <button
+            type="button"
+            onClick={onEditClick}
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+      {hasEntries ? (
+        <>
+          <ul className="px-6 py-4 space-y-2">
+            {entries.map(([k, v]) => (
+              <li
+                key={k}
+                className="grid gap-3 md:grid-cols-[200px_1fr] items-start font-mono text-[12px]"
+              >
+                <span className="text-white/55 break-words">{k}</span>
+                <span className="text-white/85 break-words whitespace-pre-wrap">
+                  {typeof v === 'string' ? v : JSON.stringify(v)}
+                </span>
+              </li>
+            ))}
+          </ul>
+          <details className="m-6">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+              Raw JSON
+            </summary>
+            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+          </details>
+        </>
+      ) : (
+        <p className="px-6 py-5 font-mono text-xs text-white/45">
+          No metadata recorded.{' '}
+          {!archived && 'Click Edit to add the first entry.'}
+        </p>
+      )}
+    </section>
+  );
+}
+
+type GoodsMetadataDraft = {
+  rowKey: string;
+  key: string;
+  value: string;
+};
+
+let goodsMetadataRowKeyCounter = 0;
+function nextGoodsMetadataRowKey(): string {
+  goodsMetadataRowKeyCounter += 1;
+  return `goods-metadata-${goodsMetadataRowKeyCounter}`;
+}
+
+function emptyGoodsMetadataDraft(): GoodsMetadataDraft {
+  return { rowKey: nextGoodsMetadataRowKey(), key: '', value: '' };
+}
+
+function goodsMetadataToDrafts(metadata: Record<string, unknown>): GoodsMetadataDraft[] {
+  const out: GoodsMetadataDraft[] = [];
+  for (const [k, v] of Object.entries(metadata)) {
+    out.push({
+      rowKey: nextGoodsMetadataRowKey(),
+      key: k,
+      value: typeof v === 'string' ? v : JSON.stringify(v),
+    });
+  }
+  return out;
+}
+
+function draftsToGoodsMetadata(drafts: GoodsMetadataDraft[]): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const d of drafts) {
+    const k = d.key.trim();
+    if (!k) continue;
+    out[k] = d.value;
+  }
+  return out;
+}
+
+function goodsMetadataEqual(
+  a: Record<string, unknown>,
+  b: Record<string, unknown>,
+): boolean {
+  const aKeys = Object.keys(a).sort();
+  const bKeys = Object.keys(b).sort();
+  if (aKeys.length !== bKeys.length) return false;
+  for (let i = 0; i < aKeys.length; i += 1) {
+    if (aKeys[i] !== bKeys[i]) return false;
+    const k = aKeys[i];
+    const av = a[k];
+    const bv = b[k];
+    if (JSON.stringify(av) !== JSON.stringify(bv)) return false;
+  }
+  return true;
+}
+
+// Same lowercase alphabet as EUDR (PR #133) + supplier-metadata
+// (PR #147). Restricted-substances (PR #148) is the exception — its
+// jurisdiction codes are uppercase by convention. Operator metadata
+// keys are application-level identifiers, so the consistent lowercase
+// alphabet is correct here.
+const GOODS_METADATA_KEY_PATTERN = /^[a-z0-9._-]+$/;
+
+function GoodsMetadataEditorPanel({
+  goods,
+  initialMetadata,
+  onCancel,
+  onSaved,
+}: {
+  goods: Goods;
+  initialMetadata: Record<string, unknown>;
+  onCancel: () => void;
+  onSaved: (updated: Goods) => void;
+}) {
+  const [drafts, setDrafts] = useState<GoodsMetadataDraft[]>(() => {
+    const seeded = goodsMetadataToDrafts(initialMetadata);
+    return seeded.length > 0 ? seeded : [emptyGoodsMetadataDraft()];
+  });
+  const [errors, setErrors] = useState<string[]>([]);
+  const [saving, setSaving] = useState(false);
+
+  function updateRow(rowKey: string, patch: Partial<GoodsMetadataDraft>) {
+    setDrafts((prev) =>
+      prev.map((d) => (d.rowKey === rowKey ? { ...d, ...patch } : d)),
+    );
+  }
+
+  function removeRow(rowKey: string) {
+    setDrafts((prev) => prev.filter((d) => d.rowKey !== rowKey));
+  }
+
+  function addRow() {
+    setDrafts((prev) => [...prev, emptyGoodsMetadataDraft()]);
+  }
+
+  function clientSideErrors(): string[] {
+    const out: string[] = [];
+    const seenKeys = new Map<string, number>();
+    drafts.forEach((d, i) => {
+      const rowNumber = i + 1;
+      const k = d.key.trim();
+      const v = d.value;
+      if (!k && v.trim()) {
+        out.push(`Row ${rowNumber}: key is required when a value is present`);
+      }
+      if (k && !GOODS_METADATA_KEY_PATTERN.test(k)) {
+        out.push(`Row ${rowNumber}: key "${k}" must use only lowercase letters, digits, dots, dashes, and underscores`);
+      }
+      if (k) {
+        const seenAt = seenKeys.get(k);
+        if (seenAt != null) {
+          out.push(`Rows ${seenAt} and ${rowNumber} both use key "${k}" — keys must be unique`);
+        } else {
+          seenKeys.set(k, rowNumber);
+        }
+      }
+    });
+    return out;
+  }
+
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setErrors([]);
+
+    const localErrors = clientSideErrors();
+    if (localErrors.length) {
+      setErrors(localErrors);
+      setSaving(false);
+      return;
+    }
+
+    const materialised = draftsToGoodsMetadata(drafts);
+
+    if (goodsMetadataEqual(materialised, initialMetadata)) {
+      setSaving(false);
+      onCancel();
+      return;
+    }
+
+    try {
+      const d = await apiPatch<{ ok: boolean; goods: Goods; unchanged: boolean }>(
+        `/goods/${encodeURIComponent(goods.externalId)}`,
+        { metadata: materialised },
+      );
+      onSaved(d.goods);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrors(err.errors.length ? err.errors : [err.message]);
+      } else if (err instanceof AuthError) {
+        setErrors(['Sign in required to save metadata changes.']);
+      } else {
+        setErrors([err instanceof Error ? err.message : 'Could not save metadata changes.']);
+      }
+      setSaving(false);
+    }
+  }
+
+  return (
+    <form
+      onSubmit={submit}
+      className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]"
+    >
+      <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
+        <div className="flex items-start justify-between gap-3">
+          <h2 className="font-serif text-xl">Edit operator metadata</h2>
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+            {drafts.length} {drafts.length === 1 ? 'entry' : 'entries'}
+          </span>
+        </div>
+        <p className="font-mono text-[11px] text-white/45 mt-2">
+          Freeform key/value. Common keys: internal_sku, erp_id, supplier_part_no, merch_tag.
+        </p>
+      </div>
+
+      <div className="px-6 py-5 space-y-3">
+        {drafts.map((d, i) => (
+          <GoodsMetadataEditRow
+            key={d.rowKey}
+            index={i}
+            draft={d}
+            disabled={saving}
+            onChange={(patch) => updateRow(d.rowKey, patch)}
+            onRemove={() => removeRow(d.rowKey)}
+          />
+        ))}
+        <button
+          type="button"
+          onClick={addRow}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+        >
+          + Add metadata entry
+        </button>
+      </div>
+
+      {errors.length > 0 && (
+        <ul
+          className="border-t border-[var(--color-navy-line)] px-6 py-4 space-y-1"
+          role="alert"
+        >
+          {errors.map((e, i) => (
+            <li
+              key={i}
+              className="font-mono text-[12px]"
+              style={{ color: 'var(--color-critical)' }}
+            >
+              {e}
+            </li>
+          ))}
+        </ul>
+      )}
+
+      <div className="border-t border-[var(--color-navy-line)] px-6 py-4 flex items-center justify-end gap-3">
+        <button
+          type="button"
+          onClick={onCancel}
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+        >
+          Cancel
+        </button>
+        <button
+          type="submit"
+          disabled={saving}
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+        >
+          {saving ? 'Saving…' : 'Save metadata'}
+        </button>
+      </div>
+    </form>
+  );
+}
+
+function GoodsMetadataEditRow({
+  index,
+  draft,
+  disabled,
+  onChange,
+  onRemove,
+}: {
+  index: number;
+  draft: GoodsMetadataDraft;
+  disabled: boolean;
+  onChange: (patch: Partial<GoodsMetadataDraft>) => void;
+  onRemove: () => void;
+}) {
+  const rowNumber = index + 1;
+  return (
+    <div className="grid gap-2 md:grid-cols-[1fr_2fr_auto] items-start">
+      <label className="block">
+        <span className="sr-only">Key for metadata row {rowNumber}</span>
+        <input
+          type="text"
+          value={draft.key}
+          onChange={(e) => onChange({ key: e.target.value })}
+          disabled={disabled}
+          placeholder="key"
+          maxLength={120}
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <label className="block">
+        <span className="sr-only">Value for metadata row {rowNumber}</span>
+        <input
+          type="text"
+          value={draft.value}
+          onChange={(e) => onChange({ value: e.target.value })}
+          disabled={disabled}
+          placeholder="value"
+          maxLength={500}
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        />
+      </label>
+      <button
+        type="button"
+        onClick={onRemove}
+        disabled={disabled}
+        aria-label={`Remove metadata row ${rowNumber}`}
         className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
       >
         ×
