@@ -304,6 +304,38 @@ export default function ImportRequestDetailPage() {
         <TransitionHistory entityKind="import_request" externalId={request.externalId} />
       </section>
 
+      {/* Compliance dossier download — sprint 12 ch 2b. Renders only
+          when a baseline landed quote exists (otherwise the dossier
+          would be mostly empty). Direct browser download via <a>
+          download — the endpoint sets Content-Disposition: attachment. */}
+      {request.landedQuote && (
+        <section
+          className="bg-[var(--surface-card)] border border-white/[0.06] p-6 flex items-center justify-between gap-4 flex-wrap"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <div className="min-w-0">
+            <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)] mb-2">
+              Hand to your broker
+            </h2>
+            <p className="text-[14px] text-[var(--color-ivory-dim)] leading-relaxed max-w-xl">
+              A calculator-grounded compliance dossier: HS classification, CBAM/EUDR/REACH applicability with regulation citations, landed-cost breakdown, disclaimers. Print, attach to your filing.
+            </p>
+          </div>
+          <a
+            href={`/api/imports/${request.externalId}/dossier`}
+            download={`orcatrade-compliance-${request.externalId}.pdf`}
+            className="group inline-flex items-center gap-2 px-5 py-3 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13.5px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px whitespace-nowrap shrink-0"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: 'var(--shadow-cta)',
+            }}
+          >
+            Download dossier (PDF)
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">↓</span>
+          </a>
+        </section>
+      )}
+
       {/* Audit trail link / footer */}
       <footer className="border-t border-white/[0.06] pt-5 text-[var(--color-ivory-mute)] text-[12.5px] font-serif italic">
         Created {new Date(request.createdAt).toLocaleString('en-IE')} · last updated {new Date(request.updatedAt).toLocaleString('en-IE')}

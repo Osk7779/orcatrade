@@ -2,7 +2,13 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { apiGet, AuthError, type Overview } from '@/lib/api';
+import {
+  apiGet,
+  AuthError,
+  type Overview,
+  type ImportRequest,
+  type ImportRequestStatus,
+} from '@/lib/api';
 
 function eur(n?: number) {
   if (n == null || !Number.isFinite(n)) return '—';
@@ -89,6 +95,8 @@ export default function DashboardPage() {
         portfolioCount={portfolioCount}
         complianceCount={complianceCount}
       />
+
+      <ImportsWidget />
 
       {next && <NextDeadline next={next} />}
 
@@ -369,6 +377,180 @@ function NextDeadline({ next }: { next: NonNullable<Overview['compliance']>['nex
           </Link>
         </div>
       </div>
+    </Section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Imports widget — sprint 12 ch 1
+ *
+ *  Fetches the customer's recent import requests via /api/imports?mine=1
+ *  and renders them inline on the dashboard so they don't need to
+ *  click through to /imports to see operational status.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function importStatusTone(s: ImportRequestStatus): string {
+  if (s === 'failed' || s === 'cancelled' || s === 'customer_rejected') return 'var(--color-critical)';
+  if (s === 'customer_approved') return 'var(--color-positive)';
+  if (s === 'awaiting_review' || s === 'processing') return 'var(--color-warning)';
+  if (s === 'quoted') return 'var(--color-aqua)';
+  return 'var(--color-ivory-mute)';
+}
+
+function importStatusLabel(s: ImportRequestStatus): string {
+  return s.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
+}
+
+function importAgeLabel(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime();
+  if (!Number.isFinite(ms) || ms < 0) return '—';
+  const days = Math.floor(ms / 86_400_000);
+  if (days >= 1) return `${days}d ago`;
+  const hours = Math.floor(ms / 3_600_000);
+  if (hours >= 1) return `${hours}h ago`;
+  const mins = Math.floor(ms / 60_000);
+  return mins >= 1 ? `${mins}m ago` : 'just now';
+}
+
+function ImportsWidget() {
+  type ListState = 'loading' | 'auth' | 'error' | 'empty' | 'ready';
+  const [state, setState] = useState<ListState>('loading');
+  const [items, setItems] = useState<ImportRequest[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>('/imports?mine=1&limit=5')
+      .then((d) => {
+        if (cancelled) return;
+        const list = Array.isArray(d.importRequests) ? d.importRequests : [];
+        setItems(list);
+        setState(list.length === 0 ? 'empty' : 'ready');
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        // /api/imports requires Postgres (sprint 1). On a fresh deploy
+        // without the schema migration applied the endpoint returns
+        // 503; on auth failure 401. Neither should break the dashboard
+        // — silently hide the widget. The customer sees their other
+        // widgets and we don't fall back to a noisy error.
+        if (err instanceof AuthError) setState('auth');
+        else setState('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Hide entirely on auth / error so the dashboard never breaks because
+  // /api/imports is in a degraded state (e.g. schema-012 not yet applied).
+  if (state === 'auth' || state === 'error') return null;
+
+  return (
+    <Section>
+      <SectionHeading
+        action={
+          <Link
+            href="/imports"
+            className="group inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
+          >
+            See all imports
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+          </Link>
+        }
+      >
+        Your imports
+      </SectionHeading>
+
+      {state === 'loading' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-8"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <p className="text-[var(--color-ivory-mute)] text-sm">Loading…</p>
+        </div>
+      )}
+
+      {state === 'empty' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-10 text-center"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No imports yet.</p>
+          <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
+            Tell us what you want from Asia and we will build a factory shortlist + landed-cost quote.
+          </p>
+          <Link
+            href="/imports/new"
+            className="group inline-flex items-center gap-2 mt-6 px-5 py-2.5 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13.5px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: 'var(--shadow-cta)',
+            }}
+          >
+            New import request
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+          </Link>
+        </div>
+      )}
+
+      {state === 'ready' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] overflow-hidden"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          {items.map((r, i) => {
+            const tone = importStatusTone(r.status);
+            const landed = r.landedQuote && Number.isFinite(r.landedQuote.totalLandedCents)
+              ? '€' + Math.round(r.landedQuote.totalLandedCents / 100).toLocaleString('en-IE')
+              : null;
+            return (
+              <Link
+                key={r.externalId}
+                href={`/imports/${r.externalId}`}
+                className={`group flex items-start justify-between gap-4 px-6 py-4 hover:bg-white/[0.025] transition-colors duration-200 ${
+                  i > 0 ? 'border-t border-white/[0.04]' : ''
+                }`}
+              >
+                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <span className="text-[15px] font-medium text-[var(--color-ivory)] truncate group-hover:text-[var(--color-aqua)] transition-colors">
+                      {r.label}
+                    </span>
+                    <span className="font-mono text-[11px] tracking-[0.04em] text-[var(--color-ivory-mute)]/70">
+                      {r.externalId}
+                    </span>
+                  </div>
+                  <span className="text-[13px] text-[var(--color-ivory-dim)] line-clamp-1">
+                    {r.productDescription}
+                  </span>
+                  <div className="flex items-center gap-3 text-[11.5px] text-[var(--color-ivory-mute)]">
+                    <span className="inline-flex items-center gap-1.5" style={{ color: tone }}>
+                      <span
+                        aria-hidden
+                        className="inline-block w-1.5 h-1.5"
+                        style={{ background: tone, borderRadius: '999px' }}
+                      />
+                      {importStatusLabel(r.status)}
+                    </span>
+                    <span>·</span>
+                    <span>{importAgeLabel(r.updatedAt)}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  {landed && (
+                    <span className="font-mono text-[14px] tabular-nums font-medium text-[var(--color-ivory)]">
+                      {landed}
+                    </span>
+                  )}
+                  <span aria-hidden className="text-[14px] text-[var(--color-ivory-mute)] transition-transform duration-200 group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
     </Section>
   );
 }
