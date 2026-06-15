@@ -472,3 +472,116 @@ test('sendShipmentStatusUpdateEmail never throws on garbage input (fail-soft)', 
     if (!r.ok) assert.equal(typeof r.reason, 'string');
   }
 });
+
+// ── Sprint 11 ch 2: HTML email templates ─────────────────────────────
+
+test('every compose* returns html alongside subject + text', () => {
+  // Drift-guard: every customer-facing email must produce all three
+  // (subject, text, html). Missing html → Resend sends plain text only
+  // and the brand chrome doesn't render. Pin each entry point.
+  const quoteReady = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  const newInQueue = importsEmails.composeNewInQueue(REQUEST_FIXTURE);
+  const approved = importsEmails.composeCustomerApproved(REQUEST_FIXTURE, null);
+  const shipmentBooked = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'booked', 'ir_abc123');
+  const shipmentInTransit = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'in_transit', 'ir_abc123');
+  const shipmentCleared = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'cleared', 'ir_abc123');
+  const shipmentDelivered = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'delivered', 'ir_abc123');
+  const shipmentException = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'exception', 'ir_abc123');
+  const shipmentCancelled = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'cancelled', 'ir_abc123');
+
+  for (const composed of [quoteReady, newInQueue, approved, shipmentBooked, shipmentInTransit, shipmentCleared, shipmentDelivered, shipmentException, shipmentCancelled]) {
+    assert.ok(composed, 'compose* must return a payload');
+    assert.equal(typeof composed.subject, 'string');
+    assert.equal(typeof composed.text, 'string');
+    assert.equal(typeof composed.html, 'string');
+    assert.ok(composed.html.length > 0, 'html must be non-empty');
+  }
+});
+
+test('html chrome carries the OrcaTrade brand mark + aqua top stripe', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(composed.html, /<!DOCTYPE html>/i);
+  assert.match(composed.html, /OrcaTrade/);
+  assert.match(composed.html, /Operations/);
+  // Aqua brand accent (Tailwind cyan-400 / #22d3ee) on the top stripe
+  // + the CTA button. Pin both.
+  assert.match(composed.html, /#22d3ee/i);
+});
+
+test('html chrome carries the standard footer (OrcaTrade Group Ltd · London · Warsaw · Hong Kong)', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(composed.html, /OrcaTrade Group Ltd/);
+  assert.match(composed.html, /London/);
+  assert.match(composed.html, /Warsaw/);
+  assert.match(composed.html, /Hong Kong/);
+});
+
+test('html chrome uses inline styles only — no <style> blocks (most clients strip them)', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  // Gmail (web), Yahoo Mail, Outlook.com all strip <style> blocks.
+  // Inline styles via the `style=""` attribute are the universal
+  // baseline. A drift to <style> blocks would silently regress to
+  // unstyled fallback for most recipients.
+  assert.equal(composed.html.includes('<style'), false);
+});
+
+test('html chrome max-width is 600px (mobile-friendly + desktop client-friendly)', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(composed.html, /max-width:600px/);
+});
+
+test('html quote-ready carries the structured key values (label, externalId, product)', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(composed.html, new RegExp(REQUEST_FIXTURE.label));
+  assert.match(composed.html, /ir_abc123/);
+  assert.match(composed.html, /silicone kitchen mats/);
+});
+
+test('html quote-ready carries the landed-cost big number formatted with euros', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  // 3,200,000 cents → €32,000 (matches eurFromCents formatting)
+  assert.match(composed.html, /€32,000/);
+});
+
+test('html quote-ready carries the customer return URL as a CTA', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  const url = importsEmails.customerRequestUrl(REQUEST_FIXTURE.externalId);
+  assert.match(composed.html, new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});
+
+test('html escapes user-supplied strings (XSS-safe label/description)', () => {
+  // A customer label or product description with HTML chars must not
+  // break the email layout — esc() is the choke point.
+  const naughty = {
+    ...REQUEST_FIXTURE,
+    label: 'Q3 <script>alert("xss")</script>',
+    productDescription: 'A & B > C "quoted"',
+  };
+  const composed = importsEmails.composeQuoteReady(naughty);
+  assert.equal(composed.html.includes('<script>alert("xss")</script>'), false);
+  assert.match(composed.html, /&lt;script&gt;/);
+  assert.match(composed.html, /&amp;/);
+  assert.match(composed.html, /&quot;/);
+});
+
+test('html shipment-exception template surfaces the reason in a warning box', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'exception', 'ir_abc123');
+  assert.ok(composed);
+  // The warning box uses an amber background (#fef3c7) — pin it so
+  // future refactors don't accidentally drop the visual urgency.
+  assert.match(composed.html, /#fef3c7/i);
+  assert.match(composed.html, /Container delayed at Rotterdam/);
+});
+
+test('text and html tracks deliver the same key facts (subject parity)', () => {
+  // Drift-guard: the html and text tracks should agree on the key
+  // bits — same subject, both reference the deep-link URL, both
+  // identify the request/shipment. Detail formatting can differ
+  // but the load-bearing info must be in both.
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  const url = importsEmails.customerRequestUrl(REQUEST_FIXTURE.externalId);
+  assert.ok(composed.text.includes(url));
+  assert.ok(composed.html.includes(url));
+  assert.ok(composed.text.includes(REQUEST_FIXTURE.externalId));
+  assert.ok(composed.html.includes(REQUEST_FIXTURE.externalId));
+});

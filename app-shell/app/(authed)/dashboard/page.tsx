@@ -104,25 +104,25 @@ export default function DashboardPage() {
  * ──────────────────────────────────────────────────────────────────── */
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
+  // Sprint 11: Connectis-aligned eyebrow. Aqua semibold caption,
+  // no decorative leading line — matches the imports surface.
   return (
-    <div className="flex items-center gap-3">
-      <span className="h-px w-8 bg-[var(--color-ivory-dim)]/40" />
-      <span className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
-        {children}
-      </span>
-    </div>
+    <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+      {children}
+    </span>
   );
 }
 
 function Headline({ children, size = 'lg' }: { children: React.ReactNode; size?: 'lg' | 'md' }) {
+  // Sprint 11: bold Inter display matching the imports hero. Inline
+  // serif italic still reads as serif (font-serif on the inner span).
   const cls =
     size === 'lg'
-      ? 'text-[clamp(2.6rem,4.2vw+0.4rem,3.8rem)] leading-[1.05]'
+      ? 'text-[clamp(2.25rem,4.5vw,3.25rem)] leading-[1.05]'
       : 'text-[clamp(1.6rem,2.4vw+0.4rem,2.2rem)] leading-[1.1]';
   return (
     <h1
-      className={`font-serif ${cls} tracking-[-0.022em] text-[var(--color-ivory)] mt-5`}
-      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
+      className={`${cls} font-bold tracking-[-0.025em] text-[var(--color-ivory)] mt-4`}
     >
       {children}
     </h1>
@@ -134,12 +134,10 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
 }
 
 function SectionHeading({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
+  // Sprint 11: Inter semibold instead of Fraunces serif.
   return (
-    <div className="flex items-end justify-between gap-6 mb-7">
-      <h2
-        className="font-serif text-[1.6rem] tracking-[-0.018em] text-[var(--color-ivory)] leading-tight"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
-      >
+    <div className="flex items-end justify-between gap-6 mb-5">
+      <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-[var(--color-ivory)]">
         {children}
       </h2>
       {action}
@@ -171,26 +169,38 @@ function Hero({
 
   return (
     <Section>
-      <Eyebrow>The cockpit · {new Date().toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'short' })}</Eyebrow>
-      <Headline>
-        {greeting()}{email ? ', ' : '.'}
-        {email && (
-          <span className="font-serif italic text-[var(--color-ivory-mute)]">
-            {email.split('@')[0]}.
-          </span>
-        )}
-      </Headline>
-      <p className="mt-6 max-w-[60ch] text-[15.5px] leading-[1.78] text-[var(--color-ivory-dim)]">
+      <div className="relative">
+        <div
+          aria-hidden
+          className="absolute -top-8 -right-8 w-64 h-64 pointer-events-none rounded-full"
+          style={{
+            background: 'radial-gradient(closest-side, var(--color-aqua-glow), transparent)',
+            filter: 'blur(8px)',
+          }}
+        />
+        <div className="relative space-y-1">
+          <Eyebrow>The cockpit · {new Date().toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'short' })}</Eyebrow>
+          <Headline>
+            {greeting()}{email ? ', ' : '.'}
+            {email && (
+              <span className="font-serif italic text-[var(--color-ivory-mute)]">
+                {email.split('@')[0]}.
+              </span>
+            )}
+          </Headline>
+        </div>
+      </div>
+      <p className="mt-5 max-w-[60ch] text-[16px] leading-relaxed text-[var(--color-ivory-dim)]">
         {summary.length
-          ? `${summary.join(' · ')}. ${totalRouted > 0 ? `${eur(totalRouted)} of landed cost across your most recent plans.` : 'Everything you’ve modelled, in one place.'}`
-          : 'Everything you’ve modelled, in one place. Build a plan to populate this view.'}
+          ? `${summary.join(' · ')}. ${totalRouted > 0 ? `${eur(totalRouted)} of landed cost across your most recent plans.` : 'Everything you have modelled, in one place.'}`
+          : 'Everything you have modelled, in one place. Build a plan to populate this view.'}
       </p>
-      <div className="mt-8 flex items-center gap-3 font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)]">
+      <div className="mt-7 flex items-center gap-3 text-[12px] text-[var(--color-ivory-mute)]">
         <span className="relative flex h-2 w-2 items-center justify-center">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-positive)] opacity-60" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-positive)]" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-aqua)] opacity-60" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-aqua)]" />
         </span>
-        <span>Calculator-grounded · live · last refresh just now</span>
+        <span className="font-serif italic">Calculator-grounded · live · last refresh just now</span>
       </div>
     </Section>
   );
@@ -209,8 +219,10 @@ function Bento({
   portfolioCount: number;
   complianceCount: number;
 }) {
+  // Sprint 11: rounded soft-shadow cards in a true grid (gap, not
+  // 1px pseudo-border). Matches the imports surface card rhythm.
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Stat
         label="Saved plans"
         value={planCount}
@@ -254,24 +266,27 @@ function Stat({
   return (
     <Link
       href={href}
-      className="group relative isolate flex flex-col gap-3 bg-[var(--color-ink)] p-8 hover:bg-[var(--color-navy-soft)] transition-colors duration-500"
+      className="group relative isolate flex flex-col gap-3 bg-[var(--surface-card)] border border-white/[0.06] p-7 transition-all duration-300 hover:border-[var(--color-aqua)]/30 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-px"
+      style={{
+        borderRadius: 'var(--radius-card)',
+        boxShadow: 'var(--shadow-card)',
+      }}
     >
-      <span aria-hidden className="absolute top-0 left-0 h-[2px] w-0 bg-[var(--color-ivory)] transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-      <div className="font-mono text-[10.5px] tracking-[0.16em] uppercase text-[var(--color-ivory-mute)]">
+      <div className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]">
         {label}
       </div>
       <div
-        className="font-serif text-[clamp(3rem,4vw+0.4rem,3.8rem)] leading-none tracking-[-0.028em]"
-        style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 600, color: accent }}
+        className="text-[clamp(3rem,4vw+0.4rem,3.8rem)] font-bold leading-none tabular-nums tracking-[-0.02em]"
+        style={{ color: accent }}
       >
         {value}
       </div>
       <div className="font-serif italic text-[13px] text-[var(--color-ivory-mute)]">
         {hint}
       </div>
-      <span className="inline-flex items-center gap-1.5 mt-auto font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--color-ivory-dim)] group-hover:text-[var(--color-ivory)] transition-colors duration-300">
+      <span className="inline-flex items-center gap-1.5 mt-auto text-[12px] font-medium text-[var(--color-ivory-dim)] group-hover:text-[var(--color-aqua)] transition-colors duration-200">
         View
-        <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+        <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
       </span>
     </Link>
   );
@@ -286,35 +301,40 @@ function NextDeadline({ next }: { next: NonNullable<Overview['compliance']>['nex
   const tone = urgencyTone(next.daysUntil);
   return (
     <Section>
-      <div className="relative isolate overflow-hidden border border-[var(--color-navy-line)] bg-[var(--color-navy-soft)]/45 p-10 md:p-14">
-        {/* Aurora wash */}
+      <div
+        className="relative isolate overflow-hidden border border-white/[0.06] bg-[var(--surface-card)] p-8 md:p-12"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        {/* Aurora wash — tone-coded so the overdue / this-week states
+            read at a glance even before the chip is read. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10"
           style={{
-            background: `radial-gradient(60% 80% at 0% 0%, ${tone.color}22, transparent 60%), radial-gradient(40% 60% at 100% 100%, rgba(96,165,250,0.08), transparent 60%)`,
+            background: `radial-gradient(60% 80% at 0% 0%, ${tone.color}1f, transparent 60%), radial-gradient(40% 60% at 100% 100%, var(--color-aqua-glow), transparent 60%)`,
           }}
         />
-        <div className="flex items-center gap-3">
-          <span aria-hidden className="h-px w-8 bg-[var(--color-ivory-dim)]/40" />
-          <span className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
             Next deadline
           </span>
           <span
-            className="font-mono text-[10.5px] tracking-[0.12em] uppercase ml-auto px-2.5 py-1 border"
-            style={{ color: tone.color, borderColor: tone.color + '55' }}
+            className="text-[11px] font-medium uppercase ml-auto px-3 py-1 border"
+            style={{
+              color: tone.color,
+              borderColor: tone.color + '66',
+              background: tone.color + '10',
+              borderRadius: 'var(--radius-badge)',
+            }}
           >
             {tone.label}
           </span>
         </div>
-        <h3
-          className="mt-8 font-serif text-[clamp(1.9rem,3vw+0.4rem,2.8rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)] max-w-[28ch]"
-          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
-        >
+        <h3 className="mt-6 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)] max-w-[28ch]">
           {String(next.regime || '').toUpperCase()}
-          <span className="font-serif italic text-[var(--color-ivory-mute)]"> — {next.title}</span>
+          <span className="font-serif italic font-normal text-[var(--color-ivory-mute)]"> — {next.title}</span>
         </h3>
-        <div className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+        <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2">
           <div className="font-mono text-[14px] tracking-tight text-[var(--color-ivory)]">
             Due {next.dueDate}
           </div>
@@ -328,17 +348,22 @@ function NextDeadline({ next }: { next: NonNullable<Overview['compliance']>['nex
             </div>
           )}
         </div>
-        <div className="mt-10 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href="/calendar"
-            className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] hover:bg-white transition-colors duration-300"
+            className="group inline-flex items-center gap-2 px-6 py-3 text-[13.5px] font-semibold bg-[var(--color-aqua)] text-[var(--color-navy)] transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: 'var(--shadow-cta)',
+            }}
           >
             Open the calendar
-            <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
           </Link>
           <Link
             href="/chat"
-            className="inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-6 py-3 text-[12.5px] font-medium text-[var(--color-ivory)] hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] transition-all duration-300"
+            className="inline-flex items-center gap-2 border border-white/[0.12] px-6 py-3 text-[13.5px] font-medium text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:border-white/[0.25] hover:bg-white/[0.025] transition-all duration-200"
+            style={{ borderRadius: 'var(--radius-button)' }}
           >
             Ask the agent
           </Link>
@@ -359,45 +384,47 @@ function RecentPlans({ plans }: { plans: NonNullable<NonNullable<Overview['plans
         action={
           <Link
             href="/plans"
-            className="group inline-flex items-center gap-2 text-[12.5px] font-medium text-[var(--color-ivory)]"
+            className="group inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
           >
-            <span className="relative">
-              See all plans
-              <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--color-ivory)]/70 transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-            </span>
-            <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+            See all plans
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
           </Link>
         }
       >
         Recent plans
       </SectionHeading>
-      <div className="border border-[var(--color-navy-line)] divide-y divide-[var(--color-navy-line)]">
-        {plans.map((p) => (
+      <div
+        className="border border-white/[0.06] bg-[var(--surface-card)] overflow-hidden"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        {plans.map((p, i) => (
           <Link
             key={p.id}
             href="/plans"
-            className="group flex items-center justify-between gap-4 px-6 py-5 hover:bg-[var(--color-navy-soft)]/45 transition-colors duration-300"
+            className={`group flex items-center justify-between gap-4 px-6 py-4 hover:bg-white/[0.025] transition-colors duration-200 ${
+              i > 0 ? 'border-t border-white/[0.04]' : ''
+            }`}
           >
             <div className="flex items-center gap-4 min-w-0">
-              <span aria-hidden className="font-serif text-[20px] text-[var(--color-ivory-mute)]/55 leading-none">
+              <span aria-hidden className="text-[14px] text-[var(--color-aqua)]/60 leading-none">
                 ▸
               </span>
-              <div className="flex flex-col gap-1 min-w-0">
-                <span className="font-serif text-[16.5px] text-[var(--color-ivory)] truncate">
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-[15px] font-medium text-[var(--color-ivory)] truncate group-hover:text-[var(--color-aqua)] transition-colors">
                   {p.label || p.route || p.id}
                 </span>
                 {p.route && p.label && (
-                  <span className="font-mono text-[11px] tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] truncate">
+                  <span className="font-mono text-[11px] tracking-[0.05em] text-[var(--color-ivory-mute)] truncate">
                     {p.route}
                   </span>
                 )}
               </div>
             </div>
             <div className="flex items-baseline gap-4 shrink-0">
-              <span className="font-mono text-[15px] tabular-nums text-[var(--color-ivory)]">
+              <span className="font-mono text-[14px] tabular-nums font-medium text-[var(--color-ivory)]">
                 {eur(p.landedEur)}
               </span>
-              <span aria-hidden className="font-mono text-[14px] text-[var(--color-ivory-mute)] transition-transform duration-500 group-hover:translate-x-0.5">
+              <span aria-hidden className="text-[14px] text-[var(--color-ivory-mute)] transition-transform duration-200 group-hover:translate-x-0.5">
                 →
               </span>
             </div>
@@ -437,29 +464,29 @@ function QuickActions() {
   return (
     <Section>
       <SectionHeading>Quick actions</SectionHeading>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {ACTIONS.map((a) => (
           <Link
             key={a.href}
             href={a.href}
-            className="group relative isolate flex flex-col gap-3 bg-[var(--color-ink)] p-7 hover:bg-[var(--color-navy-soft)] transition-colors duration-500"
+            className="group relative isolate flex flex-col gap-3 bg-[var(--surface-card)] border border-white/[0.06] p-7 transition-all duration-300 hover:border-[var(--color-aqua)]/30 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-px"
+            style={{
+              borderRadius: 'var(--radius-card)',
+              boxShadow: 'var(--shadow-card)',
+            }}
           >
-            <span aria-hidden className="absolute top-0 left-0 h-[2px] w-0 bg-[var(--color-ivory)] transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-            <div className="font-mono text-[10.5px] tracking-[0.16em] uppercase text-[var(--color-ivory-mute)]">
+            <div className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
               {a.eyebrow}
             </div>
-            <h3
-              className="font-serif text-[1.35rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
-            >
+            <h3 className="text-[20px] font-semibold leading-tight tracking-[-0.01em] text-[var(--color-ivory)]">
               {a.title}
             </h3>
-            <p className="font-serif italic text-[14px] leading-[1.5] text-[var(--color-ivory-dim)]">
+            <p className="text-[14px] leading-relaxed text-[var(--color-ivory-dim)]">
               {a.desc}
             </p>
-            <span className="inline-flex items-center gap-1.5 mt-auto pt-3 font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--color-ivory-dim)] group-hover:text-[var(--color-ivory)] transition-colors duration-300">
+            <span className="inline-flex items-center gap-1.5 mt-auto pt-3 text-[12px] font-medium text-[var(--color-ivory-dim)] group-hover:text-[var(--color-aqua)] transition-colors duration-200">
               Open
-              <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+              <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
             </span>
           </Link>
         ))}
