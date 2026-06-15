@@ -13,6 +13,19 @@ type NavItem = { label: string; href: string; inApp?: boolean };
 
 const SECTIONS: { heading: string; items: NavItem[] }[] = [
   {
+    // Imports — L1.0 of the strategic plan. The customer-intent
+    // primitive that drives the Operator wedge (managed-import-as-a-
+    // service take-rate). Sits above Workspace because it's the
+    // front door of the new product surface: customers come here
+    // first, the rest of the sidebar carries the system-of-record.
+    heading: 'Imports',
+    items: [
+      { label: 'New request', href: '/imports/new', inApp: true },
+      { label: 'My requests', href: '/imports', inApp: true },
+      { label: 'Review queue', href: '/imports/queue', inApp: true },
+    ],
+  },
+  {
     heading: 'Workspace',
     items: [
       { label: 'Dashboard', href: '/dashboard', inApp: true },

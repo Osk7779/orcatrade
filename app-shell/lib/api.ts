@@ -581,3 +581,215 @@ export interface ExceptionQueueItem extends Shipment {
   };
   exceptionState?: Record<string, unknown>;
 }
+
+// /api/imports — Import Request entity (L1.0 of the strategic plan,
+// §4.1.2). The customer-intent primitive that precedes Goods + Supplier
+// + Shipment and drives the Operator wedge (managed-import-as-a-service
+// take-rate). Mirrors lib/db/import-requests.js exactly; a drift-guard
+// test pins both sides.
+
+export type ImportRequestStatus =
+  | 'submitted'
+  | 'processing'
+  | 'awaiting_review'
+  | 'quoted'
+  | 'customer_approved'
+  | 'customer_rejected'
+  | 'expired'
+  | 'cancelled'
+  | 'failed';
+
+// Iterable closed taxonomy for filter dropdowns. Order matches the
+// state-machine progression so dropdowns read as a natural pipeline.
+export const IMPORT_REQUEST_STATUSES: ReadonlyArray<ImportRequestStatus> = Object.freeze([
+  'submitted',
+  'processing',
+  'awaiting_review',
+  'quoted',
+  'customer_approved',
+  'customer_rejected',
+  'expired',
+  'cancelled',
+  'failed',
+]) as ReadonlyArray<ImportRequestStatus>;
+
+// Canonical transition table. Mirrors lib/db/import-requests.js
+// VALID_TRANSITIONS exactly — a drift-guard test pins both sides. Used
+// by the ops queue to render only the legal next-state buttons.
+export const IMPORT_REQUEST_VALID_TRANSITIONS: Readonly<
+  Record<ImportRequestStatus, ReadonlyArray<ImportRequestStatus>>
+> = Object.freeze({
+  submitted: Object.freeze(['processing', 'cancelled', 'failed']),
+  processing: Object.freeze(['awaiting_review', 'failed', 'cancelled']),
+  awaiting_review: Object.freeze(['quoted', 'cancelled', 'failed', 'processing']),
+  quoted: Object.freeze(['customer_approved', 'customer_rejected', 'expired', 'cancelled']),
+  customer_approved: Object.freeze([]),
+  customer_rejected: Object.freeze([]),
+  expired: Object.freeze([]),
+  cancelled: Object.freeze([]),
+  failed: Object.freeze([]),
+}) as Readonly<Record<ImportRequestStatus, ReadonlyArray<ImportRequestStatus>>>;
+
+export type ImportRequestQuantityUnit =
+  | 'pieces'
+  | 'kg'
+  | 'pallets'
+  | 'units'
+  | 'cartons'
+  | 'tonnes'
+  | 'litres'
+  | 'cubic_metres';
+
+export const IMPORT_REQUEST_QUANTITY_UNITS: ReadonlyArray<ImportRequestQuantityUnit> = Object.freeze([
+  'pieces', 'units', 'cartons', 'pallets', 'kg', 'tonnes', 'litres', 'cubic_metres',
+]) as ReadonlyArray<ImportRequestQuantityUnit>;
+
+// One entry in the AI-generated factory shortlist. v1's verification
+// status is always 'unverified_ai_sample' because the shortlist comes
+// from sourcing-quote.shortlistSuppliers (anonymised samples) until the
+// verified factory graph (Layer 2 of the billion-dollar direction)
+// replaces it.
+export interface FactoryCandidate {
+  name?: string;
+  city?: string;
+  region?: string;
+  specialty?: string;
+  verificationStatus?: 'unverified_ai_sample' | 'team_verified' | 'pending_verification';
+  verificationNote?: string;
+  recommendation?: 'top_pick' | 'alternative';
+  [k: string]: unknown;
+}
+
+// One ranked country block in the shortlist payload. Each country
+// carries its calculator-derived comparison data + its candidate list.
+export interface FactoryShortlistBlock {
+  rank?: number;
+  country?: string;
+  countryRationale?: string | null;
+  fobIndex?: number | null;
+  leadTimeWeeks?: number | null;
+  qualityRisk?: string | null;
+  ipRisk?: string | null;
+  candidates?: FactoryCandidate[];
+  candidateCount?: number;
+  // Methodology / metadata sometimes rides as the trailing array
+  // element with this shape — older entries may carry it as a sibling
+  // field on rank-1.
+  _meta?: {
+    version?: string;
+    classifier?: string;
+    classifierHits?: number;
+    countriesEvaluated?: string[];
+    sampleSource?: string;
+  };
+}
+
+// Single line item in the landed-cost quote. Each value is integer
+// cents in EUR (ADR 0004 boundary discipline).
+export interface LandedQuoteComponent {
+  component: string;
+  label: string;
+  eurCents: number;
+  source: string;
+  note?: string | null;
+}
+
+// Full landed-cost quote. components stack to totalLandedCents (which
+// already includes cargo value as the base).
+export interface LandedQuote {
+  components: LandedQuoteComponent[];
+  cargoValueCents: number;
+  totalLandedCents: number;
+  orcatradeFeeCents: number;
+  orcatradeFeePct: number;
+  currency: 'EUR';
+  confidenceTier: 'A' | 'B' | 'C';
+  confidenceNotes: string[];
+  methodology: {
+    version?: string;
+    fobToLandedRatio?: number;
+    weightKgEstimated?: number;
+    volumeCbmEstimated?: number;
+    urgencyDays?: number;
+    customsCalculatorOk?: boolean;
+    routingCalculatorOk?: boolean;
+    financeCalculatorOk?: boolean;
+  };
+  customsCalculatorRaw?: unknown;
+  routingCalculatorRaw?: unknown;
+  financeCalculatorRaw?: unknown;
+}
+
+export interface ImportRequestTeamReviewState {
+  decision?: 'approved' | 'sent_back' | 'rejected';
+  reviewedByEmailHash?: string;
+  reviewedAt?: string;
+  edits?: Array<Record<string, unknown>>;
+  notes?: string;
+}
+
+export interface ImportRequestCustomerDecisionState {
+  decision?: 'approved' | 'rejected';
+  decidedByEmailHash?: string;
+  decidedAt?: string;
+  notes?: string;
+}
+
+export interface ImportRequestFailureState {
+  code?: string;
+  reason?: string;
+  occurredAt?: string;
+  recoverable?: boolean;
+}
+
+export interface ImportRequest {
+  externalId: string;
+  orgId?: number;
+  createdByEmailHash?: string;
+  label: string;
+  status: ImportRequestStatus;
+  productDescription: string;
+  hsCodeGuess?: string | null;
+  targetQuantity?: number | null;
+  targetQuantityUnit?: ImportRequestQuantityUnit | null;
+  targetUnitPriceCents?: number | null;
+  originCountry?: string | null;
+  destinationCountry: string;
+  targetDeliveryDate?: string | null;
+  certificationRequirements?: string[];
+  intentMetadata?: Record<string, unknown>;
+  factoryShortlist?: FactoryShortlistBlock[];
+  shortlistGeneratedAt?: string | null;
+  landedQuote?: LandedQuote | null;
+  quoteGeneratedAt?: string | null;
+  quoteExpiresAt?: string | null;
+  aiRunIds?: string[];
+  teamReviewState?: ImportRequestTeamReviewState;
+  customerDecisionState?: ImportRequestCustomerDecisionState;
+  failureState?: ImportRequestFailureState;
+  linkedShipmentExternalId?: string | null;
+  linkedGoodsExternalId?: string | null;
+  linkedSupplierExternalId?: string | null;
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  archivedAt?: string | null;
+}
+
+// Audit-timeline event types for /api/imports/<id>/history. Same shape
+// as the other entity timeline events; entity-prefix is import_request.
+export type ImportRequestTimelineEventType =
+  | 'import_request_created'
+  | 'import_request_updated'
+  | 'import_request_status_transition'
+  | 'import_request_archived';
+
+export interface ImportRequestTimelineEvent {
+  type: ImportRequestTimelineEventType;
+  at: string;
+  actorEmailHash?: string;
+  before?: Record<string, unknown>;
+  after?: Record<string, unknown>;
+  detail?: Record<string, unknown> | null;
+  [k: string]: unknown;
+}
