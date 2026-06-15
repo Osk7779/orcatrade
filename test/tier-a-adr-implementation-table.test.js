@@ -228,6 +228,17 @@ test('Operational note marks finance-quote as the third gate that shipped (PR #1
   assert.match(financeRow[0], /PR #141|pr141/i);
 });
 
+test('Operational note marks warehouse-quote as the fourth gate that shipped (PR #143)', () => {
+  // PR #143 shipped the fourth calculator-scoped primary-regulator
+  // gate. Eurostat warehousing-services PPI (NACE H52) backs the
+  // warehouse hub-comparison.
+  const noteSection = ADR_SRC.match(/### Operational note[\s\S]*?(?=\n## |\n### |\n\[pr\d+\]:)/);
+  assert.ok(noteSection, 'Operational note section not located');
+  const warehouseRow = noteSection[0].match(/\| warehouse-quote \|[^\n]+/);
+  assert.ok(warehouseRow, 'warehouse-quote row not located within operational note');
+  assert.match(warehouseRow[0], /PR #143|pr143/i);
+});
+
 // ── Status line reflects the closure ─────────────────────────────────
 
 test('ADR 0020 Status line references the shipped wedge (not "to be implemented")', () => {

@@ -284,7 +284,7 @@ same pattern.
 | sourcing-quote | UN Comtrade trade-flow data | ✅ [PR #139][pr139] |
 | finance-quote | ECB Statistical Data Warehouse FX reference rates | ✅ [PR #141][pr141] |
 | routing-quote | Carrier-published rate indices (SCFI, WCI, FBX) | Pending integration |
-| warehouse-quote | EU Eurostat warehousing producer-price indices, or direct hub-published rate cards via API | Pending integration |
+| warehouse-quote | EU Eurostat warehousing-services PPI (NACE H52) | ✅ [PR #143][pr143] |
 
 Each remaining gate lands as a separate, calculator-scoped PR. The
 forthcoming-guarantee wording stays in place across every surface
@@ -294,6 +294,7 @@ transparency signal even where it now flips `eligible: true`.
 [pr132]: https://github.com/Osk7779/orcatrade/pull/132
 [pr139]: https://github.com/Osk7779/orcatrade/pull/139
 [pr141]: https://github.com/Osk7779/orcatrade/pull/141
+[pr143]: https://github.com/Osk7779/orcatrade/pull/143
 [pr87]: https://github.com/Osk7779/orcatrade/pull/87
 [pr89]: https://github.com/Osk7779/orcatrade/pull/89
 [pr91]: https://github.com/Osk7779/orcatrade/pull/91
