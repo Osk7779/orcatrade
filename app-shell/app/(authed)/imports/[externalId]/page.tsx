@@ -29,6 +29,8 @@ import {
   type LandedQuoteComponent,
   type ComplianceProbes,
   type ComplianceProbeResult,
+  type Shipment,
+  type ShipmentStatus,
 } from '@/lib/api';
 import { TransitionHistory } from '@/components/TransitionHistory';
 
@@ -253,6 +255,14 @@ export default function ImportRequestDetailPage() {
       {/* Factory shortlist */}
       {request.factoryShortlist && request.factoryShortlist.length > 0 && (
         <ShortlistPanel shortlist={request.factoryShortlist} />
+      )}
+
+      {/* Linked shipment — sprint 8. Renders only after the customer
+          approves and the materialiser spawns the downstream Shipment.
+          Loads soft — a missing shipment (race / archived) hides the
+          panel rather than erroring. */}
+      {request.linkedShipmentExternalId && (
+        <LinkedShipmentPanel externalId={request.linkedShipmentExternalId} />
       )}
 
       {/* Audit timeline — sprint 7. Reuses the polymorphic component
@@ -709,6 +719,206 @@ function FailurePanel({ state }: { state: { code?: string; reason?: string; occu
         {state.recoverable ? 'Recoverable — re-run the orchestrator above.' : 'Not recoverable — start a new request.'}
       </p>
     </div>
+  );
+}
+
+// ── Sprint 8: linked-shipment status panel ──────────────────────────
+//
+// Shipment status tones — match the dot/colour treatment used for the
+// import_request status pill in the page hero. planned/booked are
+// neutral-warning (waiting on an action); in_transit is warning
+// (cargo in motion, requires monitoring); cleared/delivered are
+// positive (good progress); exception/cancelled are critical.
+
+function shipmentStatusTone(s: ShipmentStatus): string {
+  if (s === 'exception' || s === 'cancelled') return 'var(--color-critical)';
+  if (s === 'delivered') return 'var(--color-positive)';
+  if (s === 'cleared') return 'var(--color-aqua)';
+  if (s === 'in_transit' || s === 'booked') return 'var(--color-warning)';
+  return 'var(--color-ivory-mute)';
+}
+
+function shipmentStatusLabel(s: ShipmentStatus): string {
+  return s.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
+}
+
+function eurFromCentsInline(cents?: number | null): string {
+  if (cents == null || !Number.isFinite(cents)) return '—';
+  return '€' + (Math.round(cents) / 100).toLocaleString('en-IE', {
+    minimumFractionDigits: 2, maximumFractionDigits: 2,
+  });
+}
+
+type LinkedShipmentLoadState = 'loading' | 'auth' | 'not-found' | 'error' | 'ready';
+
+function LinkedShipmentPanel({ externalId }: { externalId: string }) {
+  const [state, setState] = useState<LinkedShipmentLoadState>('loading');
+  const [shipment, setShipment] = useState<Shipment | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  useEffect(() => {
+    let cancelled = false;
+    apiGet<{ ok: boolean; shipment: Shipment }>(`/shipments/${externalId}`)
+      .then((d) => {
+        if (cancelled) return;
+        setShipment(d.shipment);
+        setState('ready');
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        if (err instanceof AuthError) setState('auth');
+        else if (err instanceof Error && /HTTP 404/.test(err.message)) setState('not-found');
+        else {
+          setErrorMsg(err instanceof Error ? err.message : 'Could not load shipment');
+          setState('error');
+        }
+      });
+    return () => { cancelled = true; };
+  }, [externalId]);
+
+  // The not-found branch hides the panel entirely. After approval
+  // there's a brief window where the customer's detail page polls
+  // before the materialiser has fully linked + indexed the shipment;
+  // rather than flash a "not found" message we just hide and let the
+  // next render catch the row.
+  if (state === 'auth' || state === 'not-found') return null;
+
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+          Your shipment
+        </h2>
+        <Link
+          href={`/shipments/${externalId}`}
+          className="text-[12.5px] text-[var(--color-aqua)] hover:underline font-medium"
+        >
+          Open full timeline →
+        </Link>
+      </div>
+
+      {state === 'loading' && (
+        <p className="text-[var(--color-ivory-mute)] text-sm">Loading shipment…</p>
+      )}
+      {state === 'error' && (
+        <p className="text-[13px] text-[var(--color-critical)]">{errorMsg}</p>
+      )}
+      {state === 'ready' && shipment && (
+        <div className="space-y-5">
+          {/* Status + label */}
+          <div className="flex items-start justify-between gap-4 flex-wrap">
+            <div className="space-y-1 min-w-0">
+              <div className="font-mono text-[11.5px] tracking-[0.05em] text-[var(--color-ivory-mute)]">
+                {shipment.externalId}
+              </div>
+              <div className="text-[18px] font-semibold text-[var(--color-ivory)] tracking-[-0.01em] truncate">
+                {shipment.label}
+              </div>
+            </div>
+            <span
+              className="inline-flex items-center gap-2 px-3 py-1.5 text-[12px] font-medium border"
+              style={{
+                color: shipmentStatusTone(shipment.status),
+                borderColor: shipmentStatusTone(shipment.status),
+                background: `${shipmentStatusTone(shipment.status)}10`,
+                borderRadius: 'var(--radius-badge)',
+              }}
+            >
+              <span
+                aria-hidden
+                className="inline-block w-1.5 h-1.5"
+                style={{ background: shipmentStatusTone(shipment.status), borderRadius: '999px' }}
+              />
+              {shipmentStatusLabel(shipment.status)}
+            </span>
+          </div>
+
+          {/* Operational facts */}
+          <dl className="grid grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-3 pt-4 border-t border-white/[0.06] text-[13.5px]">
+            <DefRow label="Route">
+              <span className="font-mono text-[var(--color-ivory-dim)]">
+                {shipment.originCountry || '?'} → {shipment.destinationCountry || '?'}
+              </span>
+            </DefRow>
+            <DefRow label="Cargo value">
+              <span className="font-mono text-[var(--color-ivory-dim)] tabular-nums">
+                {eurFromCentsInline(shipment.customsValueCents)}
+              </span>
+            </DefRow>
+            {shipment.plannedDepartureDate && (
+              <DefRow label="Plan · departs">
+                <span className="font-mono text-[var(--color-ivory-dim)]">{shipment.plannedDepartureDate}</span>
+              </DefRow>
+            )}
+            {shipment.plannedArrivalDate && (
+              <DefRow label="Plan · arrives">
+                <span className="font-mono text-[var(--color-ivory-dim)]">{shipment.plannedArrivalDate}</span>
+              </DefRow>
+            )}
+            {shipment.carrier && (
+              <DefRow label="Carrier">
+                <span className="text-[var(--color-ivory-dim)]">{shipment.carrier}</span>
+              </DefRow>
+            )}
+            {shipment.bookingRef && (
+              <DefRow label="Booking">
+                <span className="font-mono text-[var(--color-ivory-dim)]">{shipment.bookingRef}</span>
+              </DefRow>
+            )}
+            {shipment.blNumber && (
+              <DefRow label="B/L">
+                <span className="font-mono text-[var(--color-ivory-dim)]">{shipment.blNumber}</span>
+              </DefRow>
+            )}
+            {shipment.eta && (
+              <DefRow label="ETA">
+                <span className="font-mono text-[var(--color-aqua)]">{shipment.eta}</span>
+              </DefRow>
+            )}
+            {shipment.lastKnownLocation && (
+              <DefRow label="Last seen">
+                <span className="text-[var(--color-ivory-dim)]">{shipment.lastKnownLocation}</span>
+              </DefRow>
+            )}
+            {shipment.dutyPaidCents != null && (
+              <DefRow label="Duty paid">
+                <span className="font-mono text-[var(--color-ivory-dim)] tabular-nums">{eurFromCentsInline(shipment.dutyPaidCents)}</span>
+              </DefRow>
+            )}
+            {shipment.vatPaidCents != null && (
+              <DefRow label="VAT paid">
+                <span className="font-mono text-[var(--color-ivory-dim)] tabular-nums">{eurFromCentsInline(shipment.vatPaidCents)}</span>
+              </DefRow>
+            )}
+            {shipment.deliveredAt && (
+              <DefRow label="Delivered">
+                <span className="font-mono text-[var(--color-positive)]">
+                  {new Date(shipment.deliveredAt).toLocaleDateString('en-IE')}
+                </span>
+              </DefRow>
+            )}
+          </dl>
+
+          {/* Exception banner (loud, but inline so the rest of the
+              card still reads). Only renders when exception_state has
+              been written. */}
+          {shipment.status === 'exception' && shipment.exceptionState && shipment.exceptionState.reason && (
+            <div
+              className="border border-[var(--color-critical)]/40 bg-[var(--color-critical)]/8 p-4"
+              style={{ borderRadius: 'var(--radius-card)' }}
+            >
+              <p className="text-[12px] font-semibold text-[var(--color-critical)]">Exception</p>
+              <p className="text-[13.5px] text-[var(--color-ivory-dim)] mt-1">
+                {String(shipment.exceptionState.reason)}
+              </p>
+            </div>
+          )}
+        </div>
+      )}
+    </section>
   );
 }
 

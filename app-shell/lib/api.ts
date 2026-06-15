@@ -782,6 +782,67 @@ export function deriveComplianceBadges(
   return badges;
 }
 
+// Sprint 8 ch 2: compliance-driven filter for /imports/queue triage.
+// Lets the team see CBAM-in-scope items first (heaviest paperwork),
+// or strip down to verify-only and no-probe items when triaging
+// volume. Pure function — pinned by drift-guard tests against
+// ComplianceBadgeTone + the regime taxonomy on ComplianceBadge.
+export type ComplianceQueueFilter =
+  | 'all'
+  | 'cbam-in-scope'
+  | 'eudr-in-scope'
+  | 'reach-in-scope'
+  | 'verify'
+  | 'no-probes';
+
+export const COMPLIANCE_QUEUE_FILTERS: ReadonlyArray<ComplianceQueueFilter> = Object.freeze([
+  'all', 'cbam-in-scope', 'eudr-in-scope', 'reach-in-scope', 'verify', 'no-probes',
+]) as ReadonlyArray<ComplianceQueueFilter>;
+
+/**
+ * Does this request's badge list satisfy the given filter? Used by
+ * /imports/queue to slice the awaiting-review list by compliance
+ * complexity.
+ *
+ *   all            → every request passes (default).
+ *   cbam-in-scope  → at least one CBAM badge with tone='in-scope'.
+ *   eudr-in-scope  → at least one EUDR badge with tone='in-scope'.
+ *   reach-in-scope → at least one REACH badge with tone='in-scope'.
+ *   verify         → at least one badge with tone='verify'. Filters in
+ *                    "needs human read" items regardless of regime.
+ *   no-probes      → badge list is empty. Lets ops drain the
+ *                    no-compliance-action items quickly.
+ *
+ * Pure function — exposed for direct testing.
+ */
+export function matchesComplianceFilter(
+  badges: ComplianceBadge[],
+  filter: ComplianceQueueFilter,
+): boolean {
+  if (filter === 'all') return true;
+  if (filter === 'no-probes') return badges.length === 0;
+  if (filter === 'verify') return badges.some((b) => b.tone === 'verify');
+  if (filter === 'cbam-in-scope') return badges.some((b) => b.regime === 'cbam' && b.tone === 'in-scope');
+  if (filter === 'eudr-in-scope') return badges.some((b) => b.regime === 'eudr' && b.tone === 'in-scope');
+  if (filter === 'reach-in-scope') return badges.some((b) => b.regime === 'reach' && b.tone === 'in-scope');
+  return false;
+}
+
+/**
+ * Pretty label for the filter chip UI.
+ */
+export function complianceFilterLabel(filter: ComplianceQueueFilter): string {
+  switch (filter) {
+    case 'all': return 'All';
+    case 'cbam-in-scope': return 'CBAM';
+    case 'eudr-in-scope': return 'EUDR';
+    case 'reach-in-scope': return 'REACH';
+    case 'verify': return 'Verify';
+    case 'no-probes': return 'No probes';
+    default: return String(filter);
+  }
+}
+
 // Full landed-cost quote. components stack to totalLandedCents (which
 // already includes cargo value as the base).
 export interface LandedQuote {

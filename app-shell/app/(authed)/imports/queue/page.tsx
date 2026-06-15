@@ -26,8 +26,12 @@ import {
   ApiError,
   AuthError,
   deriveComplianceBadges,
+  matchesComplianceFilter,
+  complianceFilterLabel,
+  COMPLIANCE_QUEUE_FILTERS,
   type ComplianceBadge,
   type ComplianceBadgeTone,
+  type ComplianceQueueFilter,
   type ImportRequest,
 } from '@/lib/api';
 
@@ -65,6 +69,10 @@ function QueueView() {
   const [errorMsg, setErrorMsg] = useState('');
   const [actionPending, setActionPending] = useState<string | null>(null);
   const [actionError, setActionError] = useState('');
+  // Sprint 8 ch 2: compliance-driven triage filter. Local state — not
+  // URL-backed, because the queue is a working surface and operators
+  // change filters constantly. Persist via URL when team sizes grow.
+  const [complianceFilter, setComplianceFilter] = useState<ComplianceQueueFilter>('all');
 
   const load = useCallback(() => {
     setState('loading');
@@ -102,6 +110,19 @@ function QueueView() {
       cancelled = true;
     };
   }, []);
+
+  // Sprint 8 ch 2 — derive the filter chip counts and the visible
+  // list. Computing in one pass avoids re-running deriveComplianceBadges
+  // three times (once for count, once for filter, once for render).
+  const decorated = items.map((r) => ({
+    request: r,
+    badges: deriveComplianceBadges(r.landedQuote?.complianceProbes ?? null),
+  }));
+  const counts = COMPLIANCE_QUEUE_FILTERS.reduce<Record<ComplianceQueueFilter, number>>((acc, f) => {
+    acc[f] = decorated.filter((d) => matchesComplianceFilter(d.badges, f)).length;
+    return acc;
+  }, {} as Record<ComplianceQueueFilter, number>);
+  const filtered = decorated.filter((d) => matchesComplianceFilter(d.badges, complianceFilter));
 
   async function review(externalId: string, decision: 'approved' | 'sent_back' | 'rejected') {
     setActionPending(externalId + ':' + decision);
@@ -163,6 +184,35 @@ function QueueView() {
         </div>
       )}
 
+      {/* Compliance triage filter — sprint 8 ch 2 */}
+      {state === 'ready' && items.length > 0 && (
+        <nav className="flex flex-wrap gap-2" aria-label="Filter queue by compliance exposure">
+          {COMPLIANCE_QUEUE_FILTERS.map((f) => {
+            const n = counts[f];
+            const active = complianceFilter === f;
+            if (n === 0 && !active && f !== 'all') return null;
+            return (
+              <button
+                key={f}
+                type="button"
+                onClick={() => setComplianceFilter(f)}
+                className={`group relative px-4 py-1.5 text-[12.5px] font-medium border transition-all duration-200 ${
+                  active
+                    ? 'border-[var(--color-aqua)] text-[var(--color-navy)] bg-[var(--color-aqua)] shadow-[0_2px_12px_rgba(34,211,238,0.3)]'
+                    : 'border-white/[0.08] text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:border-[var(--color-aqua)]/50 hover:bg-white/[0.025]'
+                }`}
+                style={{ borderRadius: 'var(--radius-badge)' }}
+              >
+                {complianceFilterLabel(f)}
+                <span className={`ml-2 tabular-nums ${active ? 'text-[var(--color-navy)]/70' : 'text-[var(--color-ivory-mute)]/70'}`}>
+                  {n}
+                </span>
+              </button>
+            );
+          })}
+        </nav>
+      )}
+
       {state === 'loading' && <p className="text-[var(--color-ivory-mute)] text-sm">Loading queue…</p>}
       {state === 'error' && (
         <div
@@ -184,9 +234,26 @@ function QueueView() {
           </p>
         </div>
       )}
-      {state === 'ready' && items.length > 0 && (
+      {state === 'ready' && items.length > 0 && filtered.length === 0 && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-10 text-center"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <p className="text-[var(--color-ivory-dim)] text-[14.5px]">
+            No requests match the <span className="text-[var(--color-aqua)] font-semibold">{complianceFilterLabel(complianceFilter)}</span> filter.
+          </p>
+          <button
+            type="button"
+            onClick={() => setComplianceFilter('all')}
+            className="mt-3 text-[12.5px] text-[var(--color-aqua)] hover:underline font-medium"
+          >
+            Show all {items.length}
+          </button>
+        </div>
+      )}
+      {state === 'ready' && filtered.length > 0 && (
         <ul className="space-y-4">
-          {items.map((r) => (
+          {filtered.map(({ request: r }) => (
             <li
               key={r.externalId}
               className="bg-[var(--surface-card)] border border-white/[0.06] hover:border-[var(--color-aqua)]/30 transition-all duration-200 hover:shadow-[var(--shadow-card-hover)]"
