@@ -31,6 +31,7 @@ import {
   type ComplianceProbeResult,
   type Shipment,
   type ShipmentStatus,
+  SHIPMENT_VALID_TRANSITIONS,
 } from '@/lib/api';
 import { TransitionHistory } from '@/components/TransitionHistory';
 
@@ -70,6 +71,19 @@ export default function ImportRequestDetailPage() {
   const [errorMsg, setErrorMsg] = useState('');
   const [actionPending, setActionPending] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string>('');
+  // Sprint 9: gate the LinkedShipmentPanel's transition control on
+  // the user's role. Cheap second fetch (same endpoint the Sidebar
+  // hits); future polish can lift to a shared context.
+  const [isOpsRole, setIsOpsRole] = useState<boolean>(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch('/api/account/role', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => { if (!cancelled && d && typeof d.isOpsRole === 'boolean') setIsOpsRole(d.isOpsRole); })
+      .catch(() => { /* silent — safe default keeps the control hidden */ });
+    return () => { cancelled = true; };
+  }, []);
 
   const reload = useCallback(() => {
     setState('loading');
@@ -262,7 +276,10 @@ export default function ImportRequestDetailPage() {
           Loads soft — a missing shipment (race / archived) hides the
           panel rather than erroring. */}
       {request.linkedShipmentExternalId && (
-        <LinkedShipmentPanel externalId={request.linkedShipmentExternalId} />
+        <LinkedShipmentPanel
+          externalId={request.linkedShipmentExternalId}
+          isOpsRole={isOpsRole}
+        />
       )}
 
       {/* Audit timeline — sprint 7. Reuses the polymorphic component
@@ -751,19 +768,33 @@ function eurFromCentsInline(cents?: number | null): string {
 
 type LinkedShipmentLoadState = 'loading' | 'auth' | 'not-found' | 'error' | 'ready';
 
-function LinkedShipmentPanel({ externalId }: { externalId: string }) {
+function LinkedShipmentPanel({
+  externalId,
+  isOpsRole = false,
+}: {
+  externalId: string;
+  isOpsRole?: boolean;
+}) {
   const [state, setState] = useState<LinkedShipmentLoadState>('loading');
   const [shipment, setShipment] = useState<Shipment | null>(null);
   const [errorMsg, setErrorMsg] = useState('');
+  // Sprint 9 ch 1 — ops-only transition control state.
+  const [transitionPending, setTransitionPending] = useState<ShipmentStatus | null>(null);
+  const [transitionError, setTransitionError] = useState<string>('');
+
+  const fetchShipment = useCallback(() => {
+    return apiGet<{ ok: boolean; shipment: Shipment }>(`/shipments/${externalId}`)
+      .then((d) => {
+        setShipment(d.shipment);
+        setState('ready');
+        return d.shipment;
+      });
+  }, [externalId]);
 
   useEffect(() => {
     let cancelled = false;
-    apiGet<{ ok: boolean; shipment: Shipment }>(`/shipments/${externalId}`)
-      .then((d) => {
-        if (cancelled) return;
-        setShipment(d.shipment);
-        setState('ready');
-      })
+    fetchShipment()
+      .then(() => { /* state already set */ })
       .catch((err) => {
         if (cancelled) return;
         if (err instanceof AuthError) setState('auth');
@@ -774,7 +805,24 @@ function LinkedShipmentPanel({ externalId }: { externalId: string }) {
         }
       });
     return () => { cancelled = true; };
-  }, [externalId]);
+  }, [externalId, fetchShipment]);
+
+  async function transitionTo(toStatus: ShipmentStatus) {
+    setTransitionPending(toStatus);
+    setTransitionError('');
+    try {
+      await apiPost(`/shipments/${externalId}/transition`, { toStatus });
+      await fetchShipment();
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setTransitionError(err.errors.length ? err.errors.join('; ') : err.message);
+      } else {
+        setTransitionError(err instanceof Error ? err.message : 'Transition failed');
+      }
+    } finally {
+      setTransitionPending(null);
+    }
+  }
 
   // The not-found branch hides the panel entirely. After approval
   // there's a brief window where the customer's detail page polls
@@ -916,9 +964,97 @@ function LinkedShipmentPanel({ externalId }: { externalId: string }) {
               </p>
             </div>
           )}
+
+          {/* Ops-only transition control — sprint 9 ch 1. Hidden for
+              customers; gated client-side via isOpsRole + server-side
+              by the shipments handler's auth gate. */}
+          {isOpsRole && (
+            <ShipmentTransitionControl
+              shipment={shipment}
+              transitionPending={transitionPending}
+              transitionError={transitionError}
+              onTransition={transitionTo}
+            />
+          )}
         </div>
       )}
     </section>
+  );
+}
+
+function ShipmentTransitionControl({
+  shipment,
+  transitionPending,
+  transitionError,
+  onTransition,
+}: {
+  shipment: Shipment;
+  transitionPending: ShipmentStatus | null;
+  transitionError: string;
+  onTransition: (toStatus: ShipmentStatus) => void;
+}) {
+  const legalNext = SHIPMENT_VALID_TRANSITIONS[shipment.status] || [];
+  if (legalNext.length === 0) {
+    // Terminal state (cancelled). Show nothing — no transitions
+    // available — rather than a dead-end empty button row.
+    return null;
+  }
+
+  // Happy-path destination is the first non-exception, non-cancelled
+  // next state for the current row. Highlighted as the primary CTA;
+  // the other legal edges render as smaller secondary buttons.
+  const happyPath = legalNext.find((s) => s !== 'exception' && s !== 'cancelled') || null;
+  const secondary = legalNext.filter((s) => s !== happyPath);
+
+  return (
+    <div className="pt-5 border-t border-white/[0.06] space-y-3">
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+          Advance status · ops
+        </span>
+        <span className="font-serif italic text-[11.5px] text-[var(--color-ivory-mute)]/80">
+          Customer is notified by email on every transition.
+        </span>
+      </div>
+      <div className="flex flex-wrap gap-2.5 items-center">
+        {happyPath && (
+          <button
+            type="button"
+            onClick={() => onTransition(happyPath)}
+            disabled={transitionPending !== null}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: transitionPending ? 'none' : 'var(--shadow-cta)',
+            }}
+          >
+            {transitionPending === happyPath ? 'Advancing…' : `Mark as ${shipmentStatusLabel(happyPath).toLowerCase()} →`}
+          </button>
+        )}
+        {secondary.map((s) => {
+          const isCritical = s === 'exception' || s === 'cancelled';
+          return (
+            <button
+              key={s}
+              type="button"
+              onClick={() => onTransition(s)}
+              disabled={transitionPending !== null}
+              className={`inline-flex items-center gap-1.5 px-4 py-2 border text-[12.5px] font-medium transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed ${
+                isCritical
+                  ? 'border-[var(--color-critical)]/40 text-[var(--color-critical)] hover:border-[var(--color-critical)] hover:bg-[var(--color-critical)]/8'
+                  : 'border-white/[0.12] text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:border-white/[0.25] hover:bg-white/[0.025]'
+              }`}
+              style={{ borderRadius: 'var(--radius-button)' }}
+            >
+              {transitionPending === s ? 'Working…' : shipmentStatusLabel(s)}
+            </button>
+          );
+        })}
+      </div>
+      {transitionError && (
+        <p className="text-[12.5px] font-medium text-[var(--color-critical)]">{transitionError}</p>
+      )}
+    </div>
   );
 }
 

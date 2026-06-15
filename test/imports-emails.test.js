@@ -320,3 +320,155 @@ test('sendCustomerApprovedEmail accepts orgIdNumeric without throwing on garbage
     if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
   }
 });
+
+// ── Sprint 9 ch 2: shipment status-update emails ─────────────────────
+
+const SHIPMENT_FIXTURE = Object.freeze({
+  externalId: 'sh_deadbeef00112233',
+  label: 'Q3 silicone mats (from ir_abc123)',
+  originCountry: 'CN',
+  destinationCountry: 'DE',
+  plannedDepartureDate: '2026-09-01',
+  plannedArrivalDate: '2026-10-15',
+  carrier: 'Maersk',
+  blNumber: 'MAEU1234567',
+  eta: '2026-10-12',
+  declarationRef: 'CDS-2026-09876',
+  dutyPaidCents: 162_500,
+  vatPaidCents: 500_000,
+  deliveredAt: '2026-10-16T09:30:00Z',
+  exceptionState: { reason: 'Container delayed at Rotterdam — vessel storm rerouting' },
+  metadata: { materialisedFromImportRequest: 'ir_abc123' },
+});
+
+test('SHIPMENT_NOTIFIABLE_STATUSES covers the customer-visible status changes', () => {
+  // 'planned' is deliberately excluded (it's the materialiser-spawned
+  // initial state — the customer just got the customer_approved email).
+  for (const s of ['booked', 'in_transit', 'cleared', 'delivered', 'exception', 'cancelled']) {
+    assert.ok(
+      importsEmails.SHIPMENT_NOTIFIABLE_STATUSES.has(s),
+      `${s} must be in the notifiable set`,
+    );
+  }
+  assert.equal(
+    importsEmails.SHIPMENT_NOTIFIABLE_STATUSES.has('planned'), false,
+    'planned must NOT trigger an email (initial state, redundant with customer_approved)',
+  );
+});
+
+test('customerShipmentReturnUrl points to /app/imports/<source-request-id> (not /app/shipments/...)', () => {
+  // Customers came from /app/imports/<id> and approved there — return
+  // them to the same surface so they see the LinkedShipmentPanel +
+  // timeline in their familiar context.
+  const url = importsEmails.customerShipmentReturnUrl('ir_abc123');
+  assert.match(url, /\/app\/imports\/ir_abc123$/);
+  assert.equal(url.includes('/shipments/'), false);
+});
+
+test('composeShipmentStatusUpdate(booked) carries label, route, planned dates, and return URL', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'booked', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /booked/);
+  assert.match(composed.subject, /Q3 silicone mats/);
+  assert.match(composed.text, /CN → DE/);
+  assert.match(composed.text, /2026-09-01/);
+  assert.match(composed.text, /2026-10-15/);
+  assert.match(composed.text, /\/app\/imports\/ir_abc123/);
+});
+
+test('composeShipmentStatusUpdate(in_transit) carries ETA + carrier + B/L', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'in_transit', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /on the way/);
+  assert.match(composed.text, /ETA: 2026-10-12/);
+  assert.match(composed.text, /Carrier:\s+Maersk/);
+  assert.match(composed.text, /MAEU1234567/);
+});
+
+test('composeShipmentStatusUpdate(cleared) carries duty + VAT + declaration ref', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'cleared', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /cleared customs/);
+  assert.match(composed.text, /Duty paid: €1,625/);
+  assert.match(composed.text, /VAT paid:\s+€5,000/);
+  assert.match(composed.text, /CDS-2026-09876/);
+});
+
+test('composeShipmentStatusUpdate(delivered) carries the delivery date', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'delivered', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /delivered/);
+  // Date locale formatting is slightly platform-dependent; just match
+  // the year + month bits which are stable across locales.
+  assert.match(composed.text, /(2026|16\/10|10\/16)/);
+});
+
+test('composeShipmentStatusUpdate(exception) is marked [Action needed] and surfaces the reason', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'exception', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /^\[Action needed\]/);
+  assert.match(composed.text, /Reason: Container delayed at Rotterdam/);
+});
+
+test('composeShipmentStatusUpdate(cancelled) suggests replying for investigation', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'cancelled', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /cancelled/);
+  assert.match(composed.text, /reply to this email/i);
+});
+
+test('composeShipmentStatusUpdate returns null for non-notifiable statuses (planned)', () => {
+  assert.equal(importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'planned', 'ir_abc123'), null);
+});
+
+test('composeShipmentStatusUpdate returns null for unknown statuses', () => {
+  assert.equal(importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'submitted', 'ir_abc123'), null);
+  assert.equal(importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'sausage', 'ir_abc123'), null);
+});
+
+test('sendShipmentStatusUpdateEmail short-circuits cleanly when shipment lacks a source import_request', async () => {
+  // Shipments created directly via /api/shipments POST have no
+  // materialisedFromImportRequest in metadata — the helper must
+  // not throw + must surface a 'no-source-request' reason.
+  const directShipment = { ...SHIPMENT_FIXTURE, metadata: {} };
+  const r = await importsEmails.sendShipmentStatusUpdateEmail({
+    shipment: directShipment,
+    toStatus: 'in_transit',
+  });
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'no-source-request');
+});
+
+test('sendShipmentStatusUpdateEmail short-circuits for non-notifiable statuses', async () => {
+  const r = await importsEmails.sendShipmentStatusUpdateEmail({
+    shipment: SHIPMENT_FIXTURE,
+    toStatus: 'planned',
+  });
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'non-notifiable-status');
+});
+
+test('sendShipmentStatusUpdateEmail short-circuits when no customer contact is on file for the source request', async () => {
+  // The customer-contact KV record is created when the import_request
+  // is POSTed (sprint 2 ch 3); a synthetic source-request id that
+  // was never created will have no record. Helper returns reason='no-contact'.
+  const noContactShipment = {
+    ...SHIPMENT_FIXTURE,
+    metadata: { materialisedFromImportRequest: 'ir_never_stored_' + Math.floor(Math.random() * 1e9) },
+  };
+  const r = await importsEmails.sendShipmentStatusUpdateEmail({
+    shipment: noContactShipment,
+    toStatus: 'in_transit',
+  });
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'no-contact');
+});
+
+test('sendShipmentStatusUpdateEmail never throws on garbage input (fail-soft)', async () => {
+  for (const bad of [{}, { shipment: null }, { shipment: { externalId: 'sh_x' } }, { shipment: SHIPMENT_FIXTURE }]) {
+    const r = await importsEmails.sendShipmentStatusUpdateEmail(bad);
+    assert.equal(typeof r, 'object');
+    assert.ok('ok' in r);
+    if (!r.ok) assert.equal(typeof r.reason, 'string');
+  }
+});
