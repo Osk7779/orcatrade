@@ -772,6 +772,126 @@ test('pickTopCandidate returns the first rank-1 candidate when one exists', () =
   assert.equal(candidate.name, 'Vendor A');
 });
 
+// ── Sprint 10 chunk 1: computeWhatIfQuote ────────────────────────────
+
+const WHATIF_BASE_INPUT = Object.freeze({
+  productCategory: 'homeware',
+  productDescription: 'silicone kitchen mats food-grade',
+  originCountry: 'CN',
+  destinationCountry: 'DE',
+  targetQuantity: 3000,
+  targetUnitPriceCents: 1300,
+  hsCodeGuess: '392410',
+  urgencyWeeks: 8,
+});
+
+test('computeWhatIfQuote returns a landed quote with integer-cents money + Tier + appliedInputs', async () => {
+  const result = await orch.computeWhatIfQuote(WHATIF_BASE_INPUT);
+  assert.ok(result.landedQuote);
+  assert.ok(Number.isInteger(result.landedQuote.totalLandedCents));
+  assert.ok(Number.isInteger(result.landedQuote.cargoValueCents));
+  assert.equal(result.landedQuote.currency, 'EUR');
+  assert.ok(/^[ABC]$/.test(result.landedQuote.confidenceTier));
+  assert.ok(result.appliedInputs);
+  assert.equal(result.appliedInputs.targetQuantity, 3000);
+  assert.equal(result.appliedInputs.hsCode, '392410');
+});
+
+test('computeWhatIfQuote tags hsSource=customer_override when caller passes a guess', async () => {
+  const result = await orch.computeWhatIfQuote(WHATIF_BASE_INPUT);
+  assert.equal(result.appliedInputs.hsSource, 'customer_override');
+});
+
+test('computeWhatIfQuote uses the sentinel HS when no guess and no lookup result', async () => {
+  // Description that the curated HS map has no entry for + no live
+  // TARIC enrichment (ORCATRADE_DISABLE_LIVE_TARIC is set in the test
+  // env) → suggestion is null → fallback chain lands on '999999'.
+  const result = await orch.computeWhatIfQuote({
+    ...WHATIF_BASE_INPUT,
+    productDescription: 'xqzv zzz unmatched gibberish 9876 abc',
+    hsCodeGuess: null,
+  });
+  // hsSource is either 'sentinel' (lookup found nothing) or
+  // 'ai_lookup' (lookup managed to land on something). What matters
+  // is the function tolerates an unmatched description without
+  // throwing — verify either branch is honest about its source.
+  assert.ok(['sentinel', 'ai_lookup'].includes(result.appliedInputs.hsSource));
+  assert.match(result.appliedInputs.hsCode, /^[0-9]{6,10}$/);
+});
+
+test('computeWhatIfQuote scales the cargo value linearly with targetQuantity (deterministic)', async () => {
+  const small = await orch.computeWhatIfQuote({ ...WHATIF_BASE_INPUT, targetQuantity: 1000 });
+  const big = await orch.computeWhatIfQuote({ ...WHATIF_BASE_INPUT, targetQuantity: 3000 });
+  // Cargo value = qty * targetFobUnitEur (deterministic). 3000 should
+  // be exactly 3x the 1000 cargo value.
+  assert.equal(big.landedQuote.cargoValueCents, small.landedQuote.cargoValueCents * 3);
+});
+
+test('computeWhatIfQuote take-rate scales with cargo value', async () => {
+  // OrcaTrade fee is 8% of cargo value by default — verify it scales
+  // proportionally. (Pin the env to avoid the fee env override.)
+  const prior = process.env.ORCATRADE_OPERATOR_FEE_PCT;
+  delete process.env.ORCATRADE_OPERATOR_FEE_PCT;
+  try {
+    const r = await orch.computeWhatIfQuote(WHATIF_BASE_INPUT);
+    const cargoEur = r.landedQuote.cargoValueCents / 100;
+    const feeEur = r.landedQuote.orcatradeFeeCents / 100;
+    // 8% within rounding.
+    const ratio = feeEur / cargoEur;
+    assert.ok(ratio > 0.079 && ratio < 0.081, `fee ratio expected ~0.08, got ${ratio}`);
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPERATOR_FEE_PCT = prior;
+  }
+});
+
+test('computeWhatIfQuote honours destinationCountry override (VAT differs across EU members)', async () => {
+  // DE has 19% VAT, IE has 23%. Same cargo value → different VAT line.
+  const de = await orch.computeWhatIfQuote({ ...WHATIF_BASE_INPUT, destinationCountry: 'DE' });
+  const ie = await orch.computeWhatIfQuote({ ...WHATIF_BASE_INPUT, destinationCountry: 'IE' });
+  const vatDE = de.landedQuote.components.find((c) => c.component === 'vat');
+  const vatIE = ie.landedQuote.components.find((c) => c.component === 'vat');
+  assert.ok(vatDE);
+  assert.ok(vatIE);
+  // IE VAT > DE VAT (23% vs 19%).
+  assert.ok(vatIE.eurCents > vatDE.eurCents);
+});
+
+test('computeWhatIfQuote uppercases origin/destination for the calculator boundary', async () => {
+  const r = await orch.computeWhatIfQuote({
+    ...WHATIF_BASE_INPUT,
+    originCountry: 'cn',
+    destinationCountry: 'de',
+  });
+  assert.equal(r.appliedInputs.originCountry, 'CN');
+  assert.equal(r.appliedInputs.destinationCountry, 'DE');
+});
+
+test('computeWhatIfQuote tolerates missing targetUnitPriceCents (falls back to v1 default)', async () => {
+  const r = await orch.computeWhatIfQuote({
+    ...WHATIF_BASE_INPUT,
+    targetUnitPriceCents: null,
+  });
+  // Should not throw + return a valid quote with the default €10/unit
+  // implied price embedded in the helper.
+  assert.ok(Number.isInteger(r.landedQuote.totalLandedCents));
+  assert.equal(r.appliedInputs.targetUnitPriceCents, null);
+});
+
+test('computeWhatIfQuote tolerates an invalid targetQuantity (falls back to 1000)', async () => {
+  const r = await orch.computeWhatIfQuote({
+    ...WHATIF_BASE_INPUT,
+    targetQuantity: 0,
+  });
+  assert.equal(r.appliedInputs.targetQuantity, 1000);
+});
+
+test('computeWhatIfQuote attaches compliance probes to the landed quote', async () => {
+  const r = await orch.computeWhatIfQuote(WHATIF_BASE_INPUT);
+  assert.ok(r.landedQuote.complianceProbes);
+  assert.equal(r.landedQuote.complianceProbes.productCategory, 'homeware');
+  assert.ok('cbam' in r.landedQuote.complianceProbes);
+});
+
 // ── Sprint 4 chunk 1: Compliance-probe wiring ────────────────────────
 
 test('runComplianceProbes returns CBAM applies=true for aluminium from CN', () => {

@@ -32,6 +32,8 @@ import {
   type Shipment,
   type ShipmentStatus,
   SHIPMENT_VALID_TRANSITIONS,
+  type WhatIfResponse,
+  type WhatIfDelta,
 } from '@/lib/api';
 import { TransitionHistory } from '@/components/TransitionHistory';
 
@@ -265,6 +267,17 @@ export default function ImportRequestDetailPage() {
           ? <QuotePanel quote={request.landedQuote} expires={request.quoteExpiresAt} />
           : <PendingPanel status={request.status} />}
       </div>
+
+      {/* What-if sensitivity — sprint 10. Shows once a baseline
+          landed quote exists. Stateless preview against the
+          calculator path; the persisted request never changes. */}
+      {request.landedQuote && (
+        <WhatIfPanel
+          externalId={request.externalId}
+          baselineLandedQuote={request.landedQuote}
+          baselineRequest={request}
+        />
+      )}
 
       {/* Factory shortlist */}
       {request.factoryShortlist && request.factoryShortlist.length > 0 && (
@@ -735,6 +748,341 @@ function FailurePanel({ state }: { state: { code?: string; reason?: string; occu
       <p className="text-[12px] font-medium text-[var(--color-ivory-mute)]">
         {state.recoverable ? 'Recoverable — re-run the orchestrator above.' : 'Not recoverable — start a new request.'}
       </p>
+    </div>
+  );
+}
+
+// ── Sprint 10: what-if sensitivity panel ────────────────────────────
+//
+// Stateless preview against the calculator path — customer tweaks
+// inputs, sees a fresh landed-cost total + delta vs baseline, original
+// request stays untouched. Sprint 10 is the first product moment where
+// the customer can play with the quote without resubmitting.
+
+const ASIA_ORIGIN_OPTIONS = [
+  { code: 'CN', name: 'China' },
+  { code: 'VN', name: 'Vietnam' },
+  { code: 'IN', name: 'India' },
+  { code: 'BD', name: 'Bangladesh' },
+  { code: 'TR', name: 'Türkiye' },
+  { code: 'ID', name: 'Indonesia' },
+  { code: 'TH', name: 'Thailand' },
+  { code: 'MY', name: 'Malaysia' },
+];
+
+function eurBigFromCents(cents?: number | null): string {
+  if (cents == null || !Number.isFinite(cents)) return '—';
+  return '€' + Math.round(cents / 100).toLocaleString('en-IE');
+}
+
+function eurSignedFromCents(cents: number): string {
+  const sign = cents >= 0 ? '+' : '−';
+  return sign + '€' + Math.abs(Math.round(cents / 100)).toLocaleString('en-IE');
+}
+
+function pctSigned(pct: number | null): string {
+  if (pct == null || !Number.isFinite(pct)) return '';
+  const sign = pct >= 0 ? '+' : '−';
+  return `${sign}${Math.abs(pct).toFixed(1)}%`;
+}
+
+type WhatIfFormState = {
+  targetQuantity: string;
+  targetUnitPriceEur: string;
+  originCountry: string;
+  hsCodeGuess: string;
+};
+
+function WhatIfPanel({
+  externalId,
+  baselineLandedQuote,
+  baselineRequest,
+}: {
+  externalId: string;
+  baselineLandedQuote: LandedQuote;
+  baselineRequest: ImportRequest;
+}) {
+  const [form, setForm] = useState<WhatIfFormState>({
+    targetQuantity: baselineRequest.targetQuantity ? String(baselineRequest.targetQuantity) : '',
+    targetUnitPriceEur: baselineRequest.targetUnitPriceCents
+      ? (baselineRequest.targetUnitPriceCents / 100).toFixed(2)
+      : '',
+    originCountry: baselineRequest.originCountry || 'CN',
+    hsCodeGuess: baselineRequest.hsCodeGuess || '',
+  });
+  const [submitting, setSubmitting] = useState(false);
+  const [result, setResult] = useState<WhatIfResponse | null>(null);
+  const [errorMsg, setErrorMsg] = useState('');
+
+  function update<K extends keyof WhatIfFormState>(key: K, value: WhatIfFormState[K]) {
+    setForm((f) => ({ ...f, [key]: value }));
+  }
+
+  async function recalculate(e?: React.FormEvent) {
+    if (e) e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
+    setErrorMsg('');
+    try {
+      const payload: Record<string, unknown> = {};
+      if (form.targetQuantity) payload.targetQuantity = Math.round(Number(form.targetQuantity));
+      if (form.targetUnitPriceEur) payload.targetUnitPriceCents = Math.round(Number(form.targetUnitPriceEur) * 100);
+      if (form.originCountry) payload.originCountry = form.originCountry;
+      if (form.hsCodeGuess) payload.hsCodeGuess = form.hsCodeGuess;
+      const data = await apiPost<WhatIfResponse>(`/imports/${externalId}/whatif`, payload);
+      setResult(data);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        setErrorMsg(err.errors.length ? err.errors.join('; ') : err.message);
+      } else if (err instanceof AuthError) {
+        setErrorMsg('Please sign in.');
+      } else {
+        setErrorMsg(err instanceof Error ? err.message : 'Recalculation failed');
+      }
+    } finally {
+      setSubmitting(false);
+    }
+  }
+
+  function resetToBaseline() {
+    setForm({
+      targetQuantity: baselineRequest.targetQuantity ? String(baselineRequest.targetQuantity) : '',
+      targetUnitPriceEur: baselineRequest.targetUnitPriceCents
+        ? (baselineRequest.targetUnitPriceCents / 100).toFixed(2)
+        : '',
+      originCountry: baselineRequest.originCountry || 'CN',
+      hsCodeGuess: baselineRequest.hsCodeGuess || '',
+    });
+    setResult(null);
+    setErrorMsg('');
+  }
+
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-[var(--color-aqua)]/15 p-7 space-y-6"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div>
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+            Try a different scenario
+          </h2>
+          <p className="font-serif italic text-[12.5px] text-[var(--color-ivory-mute)] mt-1">
+            Tweak any input. The original quote stays unchanged — this is a preview.
+          </p>
+        </div>
+        {result && (
+          <button
+            type="button"
+            onClick={resetToBaseline}
+            className="text-[12.5px] text-[var(--color-aqua)] hover:underline font-medium"
+          >
+            Reset to baseline
+          </button>
+        )}
+      </div>
+
+      <form onSubmit={recalculate} className="space-y-5">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <WhatIfField label="Quantity">
+            <input
+              type="number"
+              min={1}
+              value={form.targetQuantity}
+              onChange={(e) => update('targetQuantity', e.target.value)}
+              className="whatif-input"
+              placeholder={baselineRequest.targetQuantity ? String(baselineRequest.targetQuantity) : '3000'}
+            />
+          </WhatIfField>
+          <WhatIfField label="Target landed unit price (EUR)">
+            <input
+              type="number"
+              step="0.01"
+              min={0}
+              value={form.targetUnitPriceEur}
+              onChange={(e) => update('targetUnitPriceEur', e.target.value)}
+              className="whatif-input"
+              placeholder={baselineRequest.targetUnitPriceCents
+                ? (baselineRequest.targetUnitPriceCents / 100).toFixed(2)
+                : '13.00'}
+            />
+          </WhatIfField>
+          <WhatIfField label="Origin">
+            <select
+              value={form.originCountry}
+              onChange={(e) => update('originCountry', e.target.value)}
+              className="whatif-input"
+            >
+              {ASIA_ORIGIN_OPTIONS.map((c) => (
+                <option key={c.code} value={c.code}>{c.name} ({c.code})</option>
+              ))}
+            </select>
+          </WhatIfField>
+          <WhatIfField label="HS code (6-10 digits)">
+            <input
+              type="text"
+              value={form.hsCodeGuess}
+              onChange={(e) => update('hsCodeGuess', e.target.value.replace(/[^0-9]/g, ''))}
+              maxLength={10}
+              className="whatif-input font-mono"
+              placeholder={baselineRequest.hsCodeGuess || '392410'}
+            />
+          </WhatIfField>
+        </div>
+
+        {errorMsg && (
+          <p className="text-[12.5px] text-[var(--color-critical)] font-medium">{errorMsg}</p>
+        )}
+
+        <div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[14px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px disabled:opacity-40 disabled:cursor-not-allowed disabled:translate-y-0"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: submitting ? 'none' : 'var(--shadow-cta)',
+            }}
+          >
+            {submitting ? 'Recalculating…' : 'Recalculate landed cost →'}
+          </button>
+        </div>
+      </form>
+
+      {result && result.whatIfQuote && (
+        <WhatIfResult
+          result={result}
+          baselineLandedQuote={baselineLandedQuote}
+        />
+      )}
+
+      <style jsx>{`
+        :global(.whatif-input) {
+          width: 100%;
+          padding: 0.6rem 0.875rem;
+          background: rgba(255, 255, 255, 0.025);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+          border-radius: var(--radius-input);
+          color: var(--color-ivory);
+          font-size: 14px;
+          line-height: 1.4;
+          transition: border-color 200ms ease, background 200ms ease, box-shadow 200ms ease;
+        }
+        :global(.whatif-input:hover) {
+          border-color: rgba(255, 255, 255, 0.16);
+          background: rgba(255, 255, 255, 0.04);
+        }
+        :global(.whatif-input:focus) {
+          outline: none;
+          border-color: var(--color-aqua);
+          background: rgba(255, 255, 255, 0.04);
+          box-shadow: 0 0 0 4px var(--color-aqua-soft);
+        }
+        :global(.whatif-input::placeholder) {
+          color: rgba(255, 255, 255, 0.3);
+        }
+        :global(select.whatif-input) {
+          appearance: none;
+          background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'><path fill='rgba(255,255,255,0.5)' d='M6 8.5L1.5 4l1-1L6 6.5 9.5 3l1 1z'/></svg>");
+          background-repeat: no-repeat;
+          background-position: right 0.875rem center;
+          padding-right: 2.25rem;
+        }
+      `}</style>
+    </section>
+  );
+}
+
+function WhatIfField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block space-y-2">
+      <span className="text-[12.5px] font-medium text-[var(--color-ivory-dim)]">{label}</span>
+      {children}
+    </label>
+  );
+}
+
+function WhatIfResult({
+  result,
+  baselineLandedQuote,
+}: {
+  result: WhatIfResponse;
+  baselineLandedQuote: LandedQuote;
+}) {
+  const whatIf = result.whatIfQuote;
+  const delta = result.delta;
+  const cheaper = delta && delta.totalLandedCents.deltaCents < 0;
+
+  return (
+    <div
+      className="border border-[var(--color-aqua)]/30 bg-[var(--color-aqua-soft)] p-6 space-y-4"
+      style={{ borderRadius: 'var(--radius-card)' }}
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+          Hypothetical landed cost
+        </span>
+        <span className="font-mono text-[10.5px] tracking-[0.04em] text-[var(--color-ivory-mute)]">
+          HS {result.appliedInputs.hsCode} · {result.appliedInputs.hsSource.replace(/_/g, ' ')}
+        </span>
+      </div>
+
+      <div className="flex items-baseline justify-between gap-6 flex-wrap">
+        <div className="space-y-1">
+          <div className="text-[34px] font-bold text-[var(--color-ivory)] tracking-[-0.02em] tabular-nums">
+            {eurBigFromCents(whatIf.totalLandedCents)}
+          </div>
+          {delta && (
+            <div className="text-[13px] text-[var(--color-ivory-dim)]">
+              vs <span className="font-mono">{eurBigFromCents(baselineLandedQuote.totalLandedCents)}</span> baseline ·{' '}
+              <span
+                className="font-semibold"
+                style={{ color: cheaper ? 'var(--color-positive)' : 'var(--color-warning)' }}
+              >
+                {eurSignedFromCents(delta.totalLandedCents.deltaCents)} ({pctSigned(delta.totalLandedCents.deltaPct)})
+              </span>
+            </div>
+          )}
+        </div>
+        <span
+          className="inline-flex items-center px-3 py-1 text-[11px] font-medium border"
+          style={{
+            color: 'var(--color-aqua)',
+            borderColor: 'var(--color-aqua)',
+            background: 'rgba(34,211,238,0.06)',
+            borderRadius: 'var(--radius-badge)',
+          }}
+        >
+          Tier {whatIf.confidenceTier}
+        </span>
+      </div>
+
+      {/* Compact components table */}
+      <div
+        className="border border-white/[0.06] overflow-hidden"
+        style={{ borderRadius: 'var(--radius-card)' }}
+      >
+        <table className="w-full text-[13px]">
+          <tbody>
+            <tr className="border-b border-white/[0.06]">
+              <td className="px-4 py-2.5 text-[var(--color-ivory-mute)]">Cargo value</td>
+              <td className="px-4 py-2.5 text-right font-mono text-[var(--color-ivory)] tabular-nums">{eurBigFromCents(whatIf.cargoValueCents)}</td>
+            </tr>
+            {whatIf.components.map((c, idx) => (
+              <tr key={idx} className="border-b border-white/[0.04] last:border-b-0">
+                <td className="px-4 py-2.5 text-[var(--color-ivory-dim)]">{c.label}</td>
+                <td className="px-4 py-2.5 text-right font-mono text-[var(--color-ivory)] tabular-nums">{eurBigFromCents(c.eurCents)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {whatIf.confidenceNotes && whatIf.confidenceNotes.length > 0 && (
+        <div className="text-[12px] font-serif italic text-[var(--color-ivory-mute)] space-y-1">
+          {whatIf.confidenceNotes.map((n, i) => <p key={i}>· {n}</p>)}
+        </div>
+      )}
     </div>
   );
 }

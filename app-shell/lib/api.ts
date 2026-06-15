@@ -937,6 +937,36 @@ export interface ImportRequest {
   archivedAt?: string | null;
 }
 
+// /api/imports/<id>/whatif — sprint 10. Returns a stateless preview
+// of the landed-cost quote with override fields applied to the
+// persisted intent. No persistence, no audit log, no LLM prose —
+// pure calculator path. The customer can tweak inputs as many
+// times as they like without changing the original request.
+export interface WhatIfDelta {
+  totalLandedCents: { from: number; to: number; deltaCents: number; deltaPct: number | null };
+  cargoValueCents: { from: number; to: number; deltaCents: number };
+  orcatradeFeeCents: { from: number; to: number; deltaCents: number };
+}
+
+export interface WhatIfAppliedInputs {
+  productCategory: string;
+  originCountry: string;
+  destinationCountry: string;
+  targetQuantity: number;
+  targetUnitPriceCents: number | null;
+  hsCode: string;
+  hsSource: 'customer_override' | 'ai_lookup' | 'sentinel';
+  urgencyWeeks: number;
+}
+
+export interface WhatIfResponse {
+  ok: boolean;
+  whatIfQuote: LandedQuote;
+  baselineQuote: LandedQuote | null;
+  appliedInputs: WhatIfAppliedInputs;
+  delta: WhatIfDelta | null;
+}
+
 // Audit-timeline event types for /api/imports/<id>/history. Same shape
 // as the other entity timeline events; entity-prefix is import_request.
 export type ImportRequestTimelineEventType =
