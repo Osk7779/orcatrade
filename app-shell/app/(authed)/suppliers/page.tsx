@@ -35,6 +35,7 @@ import {
   type Supplier,
   type SupplierSanctionsStatus,
 } from '@/lib/api';
+import { BulkArchiveToolbar, type BulkArchiveState } from '@/components/BulkArchiveToolbar';
 
 function sanctionsTone(s?: SupplierSanctionsStatus | null): string {
   if (s === 'match' || s === 'potential_match') return 'var(--color-critical)';
@@ -133,11 +134,8 @@ function SuppliersListView() {
   );
 }
 
-type BulkArchiveState =
-  | { kind: 'idle' }
-  | { kind: 'confirming' }
-  | { kind: 'archiving' }
-  | { kind: 'error'; failures: Map<string, string> };
+// BulkArchiveState + BulkArchiveToolbar promoted to a shared
+// component in PR #138 — see @/components/BulkArchiveToolbar.
 
 function SuppliersList({
   suppliers,
@@ -444,99 +442,5 @@ function SuppliersList({
   );
 }
 
-// Selection toolbar — same shape as PR #135's goods toolbar. Kept
-// local rather than extracted to a shared module because the bulk-
-// archive flow ships per-entity (goods PR #135, suppliers this PR,
-// shipments next) and the toolbar copy/state-machine contract is
-// stable per call site. If a fourth entity gets the same toolbar a
-// future PR can promote it to app-shell/components/.
-function BulkArchiveToolbar({
-  selectedCount,
-  archiveState,
-  onArchiveClick,
-  onConfirm,
-  onCancel,
-  onClear,
-}: {
-  selectedCount: number;
-  archiveState: BulkArchiveState;
-  onArchiveClick: () => void;
-  onConfirm: () => void;
-  onCancel: () => void;
-  onClear: () => void;
-}) {
-  const archiving = archiveState.kind === 'archiving';
-  const confirming = archiveState.kind === 'confirming';
-  const hasErrors = archiveState.kind === 'error';
-
-  return (
-    <div className="border-b border-[var(--color-navy-line)] bg-[var(--color-navy-soft)]/20">
-      <div className="px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/85">
-          {selectedCount} selected
-        </span>
-        <div className="flex items-center gap-2">
-          {!confirming && (
-            <button
-              type="button"
-              onClick={onArchiveClick}
-              disabled={archiving}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
-              style={hasErrors ? { borderColor: 'var(--color-critical)', color: 'var(--color-critical)' } : undefined}
-            >
-              {archiving
-                ? 'Archiving…'
-                : hasErrors
-                  ? 'Retry archive'
-                  : `Archive ${selectedCount}`}
-            </button>
-          )}
-          {confirming && (
-            <>
-              <span className="font-mono text-[11px] text-white/75">
-                Archive {selectedCount}? This is irreversible.
-              </span>
-              <button
-                type="button"
-                onClick={onConfirm}
-                className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5"
-                style={{
-                  backgroundColor: 'var(--color-critical)',
-                  color: 'var(--color-ink)',
-                }}
-              >
-                Confirm
-              </button>
-              <button
-                type="button"
-                onClick={onCancel}
-                className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white"
-              >
-                Cancel
-              </button>
-            </>
-          )}
-          {!confirming && (
-            <button
-              type="button"
-              onClick={onClear}
-              disabled={archiving}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/25 text-white/65 hover:text-white disabled:opacity-50"
-            >
-              Clear
-            </button>
-          )}
-        </div>
-      </div>
-      {hasErrors && (
-        <div
-          role="alert"
-          className="px-6 pb-3 font-mono text-[11px]"
-          style={{ color: 'var(--color-critical)' }}
-        >
-          {archiveState.failures.size} of {selectedCount} failed. See per-row errors below.
-        </div>
-      )}
-    </div>
-  );
-}
+// BulkArchiveToolbar moved to @/components/BulkArchiveToolbar in
+// PR #138.

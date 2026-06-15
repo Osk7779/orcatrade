@@ -98,10 +98,18 @@ test('Header checkbox uses ref to set indeterminate (DOM-only property)', () => 
 
 // ── Bulk-archive state machine ───────────────────────────────────────
 
-test('BulkArchiveState is a discriminated union ({idle,confirming,archiving,error})', () => {
-  // Closed taxonomy via TS discriminated union. The error variant
-  // carries a per-row failures Map; the others have no payload.
-  assert.match(SRC, /type BulkArchiveState =\s*\|\s*\{ kind: 'idle' \}\s*\|\s*\{ kind: 'confirming' \}\s*\|\s*\{ kind: 'archiving' \}\s*\|\s*\{ kind: 'error'; failures: Map<string, string> \};/);
+test('BulkArchiveState is imported from the shared @/components/BulkArchiveToolbar (PR #138)', () => {
+  // PR #138 promoted the BulkArchiveToolbar component (and its
+  // BulkArchiveState union) from three byte-identical inline copies
+  // on the goods, suppliers, and shipments pages to a single shared
+  // module. The page no longer carries a local type definition.
+  assert.match(
+    SRC,
+    /import \{ BulkArchiveToolbar, type BulkArchiveState \} from '@\/components\/BulkArchiveToolbar';/,
+  );
+  // And the local type alias is gone — drift guard against
+  // re-introducing it.
+  assert.doesNotMatch(SRC, /type BulkArchiveState =\s*\|\s*\{ kind: 'idle' \}/);
 });
 
 test('Two-stage destructive action: first click → confirming, second click → archiving', () => {
@@ -178,26 +186,9 @@ test('Selection toolbar renders only when ≥1 row selected (no clutter when no 
   assert.match(SRC, /\{selectedIds\.size > 0 && \(\s*<BulkArchiveToolbar/);
 });
 
-test('Toolbar button label adapts to archiveState (Archive N / Archiving… / Retry archive)', () => {
-  // Operator UX: the button label tells you what's happening.
-  // Drift guard pins the three-state label.
-  assert.match(SRC, /archiving\s*\?\s*'Archiving…'\s*:\s*hasErrors\s*\?\s*'Retry archive'\s*:\s*`Archive \$\{selectedCount\}`/);
-});
-
-test('Confirm banner copy spells out the irreversibility ("This is irreversible.")', () => {
-  // Two-stage flow must clearly state the destructive nature.
-  // Drift guard against silently softening the copy.
-  assert.match(SRC, /Archive \{selectedCount\}\? This is irreversible\./);
-});
-
-test('Confirm button is critical-coloured (destructive-action visual cue)', () => {
-  // The Confirm button stands out visually as destructive — same
-  // brand-variable colour the EUDR/audit-cert validation errors use.
-  assert.match(
-    SRC,
-    /onConfirm[\s\S]*?backgroundColor: 'var\(--color-critical\)'/,
-  );
-});
+// Toolbar copy + button label + Confirm colour + role="alert" summary
+// moved to test/bulk-archive-toolbar.test.js (PR #138) — the toolbar
+// is no longer per-page.
 
 test('Per-row error message renders inline beside the failed row', () => {
   // Operators triaging failures need to see which row failed AND
@@ -208,14 +199,8 @@ test('Per-row error message renders inline beside the failed row', () => {
   assert.match(SRC, /color: 'var\(--color-critical\)'/);
 });
 
-test('Toolbar carries a role="alert" summary when there are failures', () => {
-  // ARIA alert ensures screen readers surface the failure count
-  // immediately after the DELETE pass completes. The text is JSX
-  // expressions, not template-literal interpolation, so the regex
-  // matches `{archiveState.failures.size}` form.
-  assert.match(SRC, /role="alert"/);
-  assert.match(SRC, /\{archiveState\.failures\.size\} of \{selectedCount\} failed/);
-});
+// role="alert" toolbar summary moved to test/bulk-archive-toolbar.test.js
+// (PR #138) — the toolbar is no longer per-page.
 
 // ── Accessibility ────────────────────────────────────────────────────
 

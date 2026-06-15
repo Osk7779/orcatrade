@@ -69,8 +69,14 @@ test('Header checkbox uses ref to set indeterminate', () => {
 
 // ── Bulk-archive state machine ───────────────────────────────────────
 
-test('BulkArchiveState is the same discriminated union as PR #135', () => {
-  assert.match(SRC, /type BulkArchiveState =\s*\|\s*\{ kind: 'idle' \}\s*\|\s*\{ kind: 'confirming' \}\s*\|\s*\{ kind: 'archiving' \}\s*\|\s*\{ kind: 'error'; failures: Map<string, string> \};/);
+test('BulkArchiveState is imported from the shared @/components/BulkArchiveToolbar (PR #138)', () => {
+  // PR #138 promoted the toolbar + state union to a shared module.
+  // The page no longer carries a local copy.
+  assert.match(
+    SRC,
+    /import \{ BulkArchiveToolbar, type BulkArchiveState \} from '@\/components\/BulkArchiveToolbar';/,
+  );
+  assert.doesNotMatch(SRC, /type BulkArchiveState =\s*\|\s*\{ kind: 'idle' \}/);
 });
 
 test('Two-stage destructive action: first click → confirming, second click → archiving', () => {
@@ -134,20 +140,9 @@ test('Selection toolbar renders only when ≥1 row selected', () => {
   assert.match(SRC, /\{selectedIds\.size > 0 && \(\s*<BulkArchiveToolbar/);
 });
 
-test('Toolbar button label adapts to archiveState (3-way pin)', () => {
-  assert.match(SRC, /archiving\s*\?\s*'Archiving…'\s*:\s*hasErrors\s*\?\s*'Retry archive'\s*:\s*`Archive \$\{selectedCount\}`/);
-});
-
-test('Confirm banner copy spells out the irreversibility', () => {
-  assert.match(SRC, /Archive \{selectedCount\}\? This is irreversible\./);
-});
-
-test('Confirm button is critical-coloured (destructive-action visual cue)', () => {
-  assert.match(
-    SRC,
-    /onConfirm[\s\S]*?backgroundColor: 'var\(--color-critical\)'/,
-  );
-});
+// Toolbar copy + button label + Confirm colour + role="alert" summary
+// moved to test/bulk-archive-toolbar.test.js (PR #138) — the toolbar
+// is no longer per-page.
 
 test('Per-row error message renders inline beside the failed row', () => {
   assert.match(SRC, /const failure = archiveState\.kind === 'error' \? archiveState\.failures\.get\(s\.externalId\) : undefined/);
@@ -155,10 +150,8 @@ test('Per-row error message renders inline beside the failed row', () => {
   assert.match(SRC, /color: 'var\(--color-critical\)'/);
 });
 
-test('Toolbar carries a role="alert" summary when there are failures', () => {
-  assert.match(SRC, /role="alert"/);
-  assert.match(SRC, /\{archiveState\.failures\.size\} of \{selectedCount\} failed/);
-});
+// role="alert" toolbar summary moved to test/bulk-archive-toolbar.test.js
+// (PR #138).
 
 // ── Accessibility ────────────────────────────────────────────────────
 
@@ -175,27 +168,21 @@ test('Per-row checkbox aria-label references the entity name', () => {
 
 // ── Cross-PR pattern consistency ─────────────────────────────────────
 
-test('Suppliers bulk-archive uses the same state-machine shape as PR #135 goods', () => {
-  // Drift guard: if a future refactor diverges the supplier state
-  // machine from the goods one (extra states, renamed kinds), the
-  // shipments PR will be harder to land. Pin BOTH editors' state
-  // shape at the source level.
-  const goodsSrc = fs.readFileSync(
-    path.join(ROOT, 'app-shell', 'app', '(authed)', 'goods', 'page.tsx'),
-    'utf8',
-  );
-  // Both files must carry the same BulkArchiveState union.
-  const goodsUnion = goodsSrc.match(/type BulkArchiveState =[\s\S]*?\};/);
-  const supplierUnion = SRC.match(/type BulkArchiveState =[\s\S]*?\};/);
-  assert.ok(goodsUnion && supplierUnion);
-  // Normalise whitespace so trivial formatting differences don't
-  // false-fail the cross-stack check.
-  const norm = (s) => s.replace(/\s+/g, ' ').trim();
-  assert.equal(
-    norm(goodsUnion[0]),
-    norm(supplierUnion[0]),
-    'BulkArchiveState union must stay identical across the goods + suppliers bulk-archive editors',
-  );
+test('Goods + suppliers + shipments all import BulkArchiveToolbar from the shared module (PR #138)', () => {
+  // Replaces the previous cross-PR drift guard on inlined union
+  // shape. Now that PR #138 promoted the toolbar to a shared module,
+  // the drift guard is "all three pages import from the same
+  // module" — a stronger contract than byte-equality of inlined
+  // copies.
+  const importLine = /import \{ BulkArchiveToolbar, type BulkArchiveState \} from '@\/components\/BulkArchiveToolbar';/;
+  for (const page of ['goods', 'suppliers', 'shipments']) {
+    const pageSrc = fs.readFileSync(
+      path.join(ROOT, 'app-shell', 'app', '(authed)', page, 'page.tsx'),
+      'utf8',
+    );
+    assert.match(pageSrc, importLine,
+      `${page}/page.tsx must import BulkArchiveToolbar from the shared module`);
+  }
 });
 
 // ── Regression guards on PR #122/#123/#127 invariants ───────────────
