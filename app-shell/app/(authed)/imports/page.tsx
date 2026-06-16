@@ -83,6 +83,16 @@ function ImportsView() {
   // pattern). Trimmed at the server, capped at 200 chars on the way
   // in. Empty query string acts as "no search."
   const urlQ = (sp.get('q') || '').slice(0, 200);
+  // Sprint 29 — supplier-pick cohort. The Top Picked Countries card
+  // on /imports/insights links here with ?supplierPick=<ISO-2>.
+  // Validated client-side too: a forged URL with garbage falls back
+  // to null cleanly (the data layer would 400 a bad ISO-2 anyway).
+  const supplierPickRaw = sp.get('supplierPick');
+  const supplierPick: string | null = (
+    typeof supplierPickRaw === 'string' && /^[A-Z]{2}$/.test(supplierPickRaw.toUpperCase())
+      ? supplierPickRaw.toUpperCase()
+      : null
+  );
 
   const [state, setState] = useState<LoadState>('loading');
   const [requests, setRequests] = useState<ImportRequest[]>([]);
@@ -104,6 +114,7 @@ function ImportsView() {
       const params = new URLSearchParams();
       if (filterStatus) params.set('status', filterStatus);
       if (cohortReason) params.set('declineReason', cohortReason);
+      if (supplierPick) params.set('supplierPick', supplierPick);
       if (searchInput.trim()) params.set('q', searchInput.trim().slice(0, 200));
       const qs = params.toString();
       router.replace(qs ? `/imports?${qs}` : '/imports');
@@ -125,10 +136,13 @@ function ImportsView() {
     // Cohort drill-down is an ops view of org-wide requests; the
     // customer view stays scoped to their own. Same RBAC at the
     // handler — only ops can hit the /insights surface that
-    // links here.
-    if (!cohortReason) params.set('mine', '1');
+    // links here. Sprint 29 — same posture for supplierPick: when
+    // present, drop mine=1 so ops sees the org-wide cohort.
+    const inCohortMode = Boolean(cohortReason || supplierPick);
+    if (!inCohortMode) params.set('mine', '1');
     if (filterStatus) params.set('status', filterStatus);
     if (cohortReason) params.set('declineReason', cohortReason);
+    if (supplierPick) params.set('supplierPick', supplierPick);
     if (urlQ) params.set('q', urlQ);
     apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(`/imports?${params.toString()}`)
       .then((d) => {
@@ -147,7 +161,7 @@ function ImportsView() {
     return () => {
       cancelled = true;
     };
-  }, [filterStatus, cohortReason, urlQ]);
+  }, [filterStatus, cohortReason, supplierPick, urlQ]);
 
   const counts = useMemo(() => {
     const map: Partial<Record<ImportRequestStatus, number>> = {};
@@ -204,6 +218,32 @@ function ImportsView() {
           </Link>
         </div>
       </header>
+
+      {/* Sprint 29 — supplier-pick cohort banner. Renders when the page
+          was reached from /imports/insights via a clickable Top Picked
+          Countries row. Mirrors sprint 23's cohort header pattern. */}
+      {supplierPick && (
+        <div
+          className="bg-[var(--color-aqua-soft)] border border-[var(--color-aqua)]/30 p-5 flex items-start justify-between gap-4 flex-wrap"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <div className="space-y-1.5 max-w-2xl">
+            <span className="inline-block text-[10.5px] font-semibold tracking-[0.08em] uppercase text-[var(--color-aqua)]">
+              Cohort · picked country {supplierPick}
+            </span>
+            <p className="text-[14px] text-[var(--color-ivory)] leading-relaxed">
+              Every request in your org{filterStatus ? ` at status ${statusLabel(filterStatus).toLowerCase()}` : ''} where the team materialised a pick for <span className="font-mono">{supplierPick}</span>. Use this view to learn from past corridors — the dominant rationale category tells you what drove the choice last time.
+            </p>
+          </div>
+          <Link
+            href="/imports/insights"
+            className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline shrink-0"
+          >
+            <span aria-hidden className="rotate-180 inline-block">→</span>
+            Back to insights
+          </Link>
+        </div>
+      )}
 
       {/* Sprint 23 — cohort drill-down banner. Renders when the page
           was reached from /imports/insights via a clickable decline-
@@ -281,6 +321,7 @@ function ImportsView() {
           onClick={() => {
             const params = new URLSearchParams();
             if (cohortReason) params.set('declineReason', cohortReason);
+            if (supplierPick) params.set('supplierPick', supplierPick);
             if (urlQ) params.set('q', urlQ);
             const qs = params.toString();
             router.push(qs ? `/imports?${qs}` : '/imports');
@@ -299,6 +340,7 @@ function ImportsView() {
                 const params = new URLSearchParams();
                 params.set('status', s);
                 if (cohortReason) params.set('declineReason', cohortReason);
+                if (supplierPick) params.set('supplierPick', supplierPick);
                 if (urlQ) params.set('q', urlQ);
                 router.push(`/imports?${params.toString()}`);
               }}
@@ -339,6 +381,20 @@ function ImportsView() {
                 >
                   clear the search
                 </button>
+                .
+              </p>
+            </>
+          ) : /* Sprint 29 — empty supplier-pick cohort (no requests
+              ever materialised for that country). */
+          supplierPick ? (
+            <>
+              <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No picks for {supplierPick} in this cohort.</p>
+              <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
+                Either no requests materialised with this country picked
+                {filterStatus ? ` at status ${statusLabel(filterStatus).toLowerCase()}` : ''}, or the picks fell outside the displayed window.{' '}
+                <Link className="text-[var(--color-aqua)] hover:underline" href="/imports/insights">
+                  Back to insights
+                </Link>
                 .
               </p>
             </>

@@ -151,10 +151,15 @@ test('/imports list page reads + validates ?declineReason against DECLINE_REASON
 test('/imports list page DROPS mine=1 when in cohort mode (ops sees org-wide)', () => {
   // The customer-facing /imports is scoped to mine=1. The cohort
   // drill-down (reachable only from /insights, ops-only) shows
-  // EVERY request in the org with the reason. Pin the
-  // conditional so a refactor that always sets mine=1 surfaces
-  // here.
-  assert.match(LIST_TSX, /if \(!cohortReason\) params\.set\(['"]mine['"], ['"]1['"]\)/);
+  // EVERY request in the org with the reason. Pin the conditional
+  // so a refactor that always sets mine=1 surfaces here.
+  // Sprint 29 generalised the gate to a shared `inCohortMode` flag
+  // (covering both declineReason + supplierPick). Pin the abstract
+  // shape so future cohort additions don't break this guard.
+  assert.match(LIST_TSX, /params\.set\(['"]mine['"], ['"]1['"]\)/);
+  // The drop is guarded by either cohortReason directly OR the
+  // shared inCohortMode predicate.
+  assert.match(LIST_TSX, /(!cohortReason|!inCohortMode)/);
 });
 
 test('/imports list page renders the cohort header with a "Back to insights" link', () => {

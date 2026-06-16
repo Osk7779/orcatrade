@@ -976,12 +976,30 @@ export interface OpsInsightsRevisionCohort {
   progressionRate: number | null;
 }
 
+// Sprint 29 — top picked countries cohort. Closes the sprint-28
+// learning loop: per-request "your team picked Vietnam 4 times"
+// badge becomes org-wide narrative "we picked Vietnam 12 times this
+// quarter, mostly for lead-time reasons." Top 6 by count, server-
+// sorted descending, dominantRationale derived server-side so the
+// UI doesn't re-do the work.
+export interface OpsInsightsTopPickedCountry {
+  country: string;
+  count: number;
+  lastPickedAt: string | null;
+  dominantRationale: string | null;
+  rationaleCategoryMix: Record<string, number>;
+}
+
 export interface OpsInsights {
   funnelByStatus: Partial<Record<ImportRequestStatus, number>>;
   totalInWindow: number;
   declineReasons: Partial<Record<DeclineReason, number>>;
   totalDeclined: number;
   revisionCohort: OpsInsightsRevisionCohort;
+  // Sprint 29 — cohort #4. Empty array when no picks landed in the
+  // window; the UI renders a coaching empty state in that case.
+  topPickedCountries: OpsInsightsTopPickedCountry[];
+  totalPicked: number;
 }
 
 export interface OpsInsightsResponse {

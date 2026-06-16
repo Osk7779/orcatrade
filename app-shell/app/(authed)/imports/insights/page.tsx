@@ -38,6 +38,7 @@ import {
   type ImportRequestStatus,
   type OpsInsights,
   type OpsInsightsResponse,
+  type OpsInsightsTopPickedCountry,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -128,6 +129,7 @@ export default function InsightsPage() {
       <RevisionCohort data={data.revisionCohort} />
       <Funnel data={data} />
       <DeclineBreakdown data={data} />
+      <TopPickedCountries data={data} />
     </div>
   );
 }
@@ -470,3 +472,132 @@ function DeclineRow({
 // taxonomy (so a status added to the schema without surfacing in funnel
 // grouping fails the drift-guard).
 void IMPORT_REQUEST_STATUSES;
+
+/* ────────────────────────────────────────────────────────────────────
+ *  TopPickedCountries — sprint 29
+ *  The fourth cohort card. Closes the sprint-28 learning loop: per-
+ *  request "Picked Vietnam 4×" badge becomes an org-wide narrative
+ *  ("12 picks for Vietnam this quarter, mostly for lead-time
+ *  reasons"). Each row drills down to the org-wide list of requests
+ *  with that pick via /imports?supplierPick=<ISO-2>, composing with
+ *  sprint 23's cohort pattern.
+ * ──────────────────────────────────────────────────────────────────── */
+
+const PICK_RATIONALE_LABELS: Record<string, string> = {
+  cost: 'cost',
+  lead_time: 'lead time',
+  compliance: 'compliance fit',
+  past_relationship: 'past relationship',
+  capacity: 'capacity',
+  other: 'other',
+};
+
+function pickAgeLabel(iso: string | null): string {
+  if (!iso) return '';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '';
+  const days = Math.max(0, Math.floor((Date.now() - ts) / 86_400_000));
+  if (days < 1) return 'today';
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}wk ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
+function TopPickedCountries({ data }: { data: OpsInsights }) {
+  const list = Array.isArray(data.topPickedCountries) ? data.topPickedCountries : [];
+  const total = Number(data.totalPicked || 0);
+  if (list.length === 0) {
+    return (
+      <section className="space-y-4">
+        <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-[var(--color-ivory)]">
+          Top picked countries
+        </h2>
+        <div
+          className="bg-[var(--surface-card)] border border-white/[0.06] p-6"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <p className="text-[var(--color-ivory-mute)] text-[14px] italic">
+            No materialised picks in this window. As customers approve and the team materialises requests, the platform records which country was picked + the dominant rationale category. Those picks then surface here AND as a "your team picked this 4×" badge on future shortlists for the same HS prefix.
+          </p>
+        </div>
+      </section>
+    );
+  }
+  const maxN = Math.max(1, ...list.map((x) => x.count));
+  return (
+    <section className="space-y-4">
+      <div className="flex items-end justify-between gap-3 flex-wrap">
+        <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-[var(--color-ivory)]">
+          Top picked countries
+        </h2>
+        <span className="text-[12.5px] font-mono text-[var(--color-ivory-mute)]">
+          {total} pick{total === 1 ? '' : 's'} total
+        </span>
+      </div>
+      <div
+        className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-3.5"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        {list.map((row) => (
+          <PickedCountryRow key={row.country} row={row} total={total} maxN={maxN} />
+        ))}
+      </div>
+    </section>
+  );
+}
+
+function PickedCountryRow({
+  row,
+  total,
+  maxN,
+}: {
+  row: OpsInsightsTopPickedCountry;
+  total: number;
+  maxN: number;
+}) {
+  const pct = total > 0 ? Math.round((row.count / total) * 100) : 0;
+  const barPct = Math.max(2, Math.round((row.count / maxN) * 100));
+  const dominantLabel = row.dominantRationale
+    ? PICK_RATIONALE_LABELS[row.dominantRationale] || row.dominantRationale
+    : null;
+  const ageLabel = pickAgeLabel(row.lastPickedAt);
+  return (
+    <Link
+      href={`/imports?supplierPick=${encodeURIComponent(row.country)}`}
+      className="group block space-y-1.5 -mx-2 px-2 py-1.5 rounded transition-colors duration-150 hover:bg-white/[0.025]"
+      title={`Drill into the ${row.count} request${row.count === 1 ? '' : 's'} picked for ${row.country}${dominantLabel ? ` — mostly ${dominantLabel}` : ''}`}
+    >
+      <div className="flex items-baseline justify-between gap-3">
+        <div className="flex items-baseline gap-3 flex-wrap min-w-0">
+          <span className="text-[13.5px] font-medium text-[var(--color-ivory)] font-mono">
+            {row.country}
+          </span>
+          {dominantLabel && (
+            <span className="text-[11.5px] text-[var(--color-ivory-mute)]">
+              mostly <span className="text-[var(--color-aqua)]">{dominantLabel}</span>
+              {ageLabel && (
+                <span className="text-[var(--color-ivory-mute)]">{' · last '}{ageLabel}</span>
+              )}
+            </span>
+          )}
+        </div>
+        <span className="text-[13px] font-mono text-[var(--color-ivory-mute)] shrink-0">
+          {row.count.toLocaleString('en-IE')}
+          {total > 0 && (
+            <span className="ml-2 text-[11.5px]">({pct}%)</span>
+          )}
+        </span>
+      </div>
+      <div className="h-2 bg-white/[0.05] overflow-hidden" style={{ borderRadius: 4 }}>
+        <div
+          className="h-full transition-all duration-300"
+          style={{
+            width: `${barPct}%`,
+            background: 'var(--color-aqua)',
+            borderRadius: 4,
+          }}
+        />
+      </div>
+    </Link>
+  );
+}

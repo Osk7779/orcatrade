@@ -127,8 +127,12 @@ test('/imports list page status chips PRESERVE the active search query', () => {
 
 test('/imports list page useEffect re-fires when urlQ changes', () => {
   // The data useEffect dep array must include urlQ; without it the
-  // debounce push wouldn't trigger a refetch.
-  assert.match(LIST_TSX, /\[filterStatus, cohortReason, urlQ\]/);
+  // debounce push wouldn't trigger a refetch. Sprint 29 added
+  // supplierPick to the same dep array; pin the urlQ inclusion
+  // abstractly so a future addition (e.g. ?dateRange) doesn't
+  // break this guard.
+  const block = LIST_TSX.match(/\[filterStatus,\s*cohortReason[^\]]*urlQ[^\]]*\]/);
+  assert.ok(block, 'useEffect dep array must include filterStatus + cohortReason + urlQ');
 });
 
 test('/imports list page shows a search-specific empty state ("No matches for X")', () => {
