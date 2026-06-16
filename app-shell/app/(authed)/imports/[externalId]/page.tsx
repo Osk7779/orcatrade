@@ -14,7 +14,7 @@
 //   any state       → POST /<id>/process to (re)run orchestrator when
 //                     status === 'submitted' or 'failed' (with recoverable: true)
 
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import {
@@ -40,6 +40,11 @@ import {
   REVISABLE_DECLINE_REASONS,
   type ImportRequestMessage,
   IMPORT_REQUEST_MESSAGE_BODY_MAX,
+  type ComplianceRegime,
+  type EvidenceAttachment,
+  COMPLIANCE_REGIMES,
+  EVIDENCE_LABEL_MAX,
+  EVIDENCE_NOTES_MAX,
 } from '@/lib/api';
 import { TransitionHistory } from '@/components/TransitionHistory';
 
@@ -352,6 +357,16 @@ export default function ImportRequestDetailPage() {
           isOpsRole={isOpsRole}
         />
       )}
+
+      {/* Sprint 27 — compliance evidence attachments. Sits above the
+          thread because the decline-with-reason path commonly asks
+          for evidence ("attach your EUDR DDS, then revise"); having
+          the affordance prominent shortens that loop. Always
+          rendered — empty state coaches the user. */}
+      <EvidencePanel
+        request={request}
+        onAttached={(updated) => setRequest(updated)}
+      />
 
       {/* Sprint 18 — customer ↔ ops messaging thread. Always rendered
           (even when empty) because the compose box is the affordance
@@ -1986,5 +2001,282 @@ function MessageBubble({ message }: { message: ImportRequestMessage }) {
         </div>
       </div>
     </li>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  EvidencePanel — sprint 27
+ *  Compliance evidence attached to the request. v1 stores cloud-share
+ *  URLs (SharePoint / GDrive / DropBox / signed S3) grouped by regime.
+ *  Inline add form expands in place — no modal — so the customer
+ *  stays in flow when responding to a documentation_missing decline.
+ * ──────────────────────────────────────────────────────────────────── */
+
+const REGIME_LABELS: Record<ComplianceRegime, string> = {
+  CBAM: 'CBAM',
+  EUDR: 'EUDR',
+  REACH: 'REACH',
+  origin: 'Origin / preference',
+  other: 'Other',
+};
+
+function evidenceAgeLabel(iso: string): string {
+  if (!iso) return '—';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '—';
+  const seconds = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (seconds < 45) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days <= 7) return `${days}d ago`;
+  return new Date(ts).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' });
+}
+
+function safeHostFromUrl(rawUrl: string): string | null {
+  // Defensive: never trust the stored URL to be a syntactically valid
+  // URL. A malformed entry would crash `new URL()`; we render the raw
+  // string in that case rather than blow up the panel.
+  try {
+    return new URL(rawUrl).host;
+  } catch {
+    return null;
+  }
+}
+
+function EvidencePanel({
+  request,
+  onAttached,
+}: {
+  request: ImportRequest;
+  onAttached: (updated: ImportRequest) => void;
+}) {
+  const attachments: EvidenceAttachment[] = Array.isArray(request.evidenceAttachments)
+    ? request.evidenceAttachments
+    : [];
+  const [addOpen, setAddOpen] = useState(false);
+  const [regime, setRegime] = useState<ComplianceRegime>('CBAM');
+  const [label, setLabel] = useState('');
+  const [url, setUrl] = useState('');
+  const [notes, setNotes] = useState('');
+  const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState('');
+
+  // Pre-group attachments by regime so the render is a single pass.
+  const grouped = useMemo(() => {
+    const out: Partial<Record<ComplianceRegime, EvidenceAttachment[]>> = {};
+    for (const a of attachments) {
+      const k = (COMPLIANCE_REGIMES as ReadonlyArray<string>).includes(a.regime)
+        ? a.regime
+        : ('other' as ComplianceRegime);
+      if (!out[k]) out[k] = [];
+      (out[k] as EvidenceAttachment[]).push(a);
+    }
+    return out;
+  }, [attachments]);
+
+  function reset() {
+    setRegime('CBAM');
+    setLabel('');
+    setUrl('');
+    setNotes('');
+    setPostError('');
+  }
+
+  async function submit() {
+    if (posting) return;
+    setPostError('');
+    setPosting(true);
+    try {
+      const result = await apiPost<{ ok: boolean; importRequest: ImportRequest; attachment: EvidenceAttachment }>(
+        `/imports/${request.externalId}/evidence`,
+        { regime, label: label.trim(), url: url.trim(), notes: notes.trim() || undefined },
+      );
+      if (result && result.importRequest) {
+        onAttached(result.importRequest);
+        setAddOpen(false);
+        reset();
+      }
+    } catch (err) {
+      if (err instanceof AuthError) setPostError('Sign in to attach evidence.');
+      else if (err instanceof ApiError) setPostError(err.errors.length ? err.errors[0] : err.message);
+      else setPostError(err instanceof Error ? err.message : 'Failed to attach evidence');
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  const canSubmit = Boolean(
+    label.trim() &&
+    /^https:\/\/[^\s]+$/i.test(url.trim()) &&
+    label.trim().length <= EVIDENCE_LABEL_MAX &&
+    notes.length <= EVIDENCE_NOTES_MAX,
+  );
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+          Compliance evidence
+        </h2>
+        <button
+          type="button"
+          onClick={() => {
+            if (addOpen) reset();
+            setAddOpen(!addOpen);
+          }}
+          className="text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
+        >
+          {addOpen ? 'Cancel' : '+ Add evidence'}
+        </button>
+      </div>
+
+      <div
+        className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-5"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        {attachments.length === 0 && !addOpen && (
+          <p className="text-[var(--color-ivory-mute)] text-[13.5px] italic leading-relaxed">
+            No evidence attached yet. Use <span className="text-[var(--color-ivory)] font-medium">+ Add evidence</span> to attach a cloud-share link (SharePoint, Google Drive, DropBox, signed S3) tagged by regulatory regime. The dossier picks these up automatically.
+          </p>
+        )}
+
+        {attachments.length > 0 && (
+          <ul className="space-y-5">
+            {(COMPLIANCE_REGIMES as ReadonlyArray<ComplianceRegime>).map((r) => {
+              const list = grouped[r];
+              if (!list || list.length === 0) return null;
+              return (
+                <li key={r} className="space-y-2.5">
+                  <div className="flex items-baseline gap-2">
+                    <span
+                      className="inline-flex items-center px-2 py-0.5 text-[10.5px] font-semibold tracking-[0.06em] uppercase border"
+                      style={{
+                        color: 'var(--color-aqua)',
+                        borderColor: 'var(--color-aqua)',
+                        background: 'rgba(34, 211, 238, 0.06)',
+                        borderRadius: 'var(--radius-badge)',
+                      }}
+                    >
+                      {REGIME_LABELS[r]}
+                    </span>
+                    <span className="text-[11.5px] text-[var(--color-ivory-mute)]">
+                      {list.length} attachment{list.length === 1 ? '' : 's'}
+                    </span>
+                  </div>
+                  <ul className="space-y-1.5">
+                    {list.map((a) => (
+                      <li key={a.id} className="flex flex-col gap-0.5">
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <a
+                            href={a.url}
+                            target="_blank"
+                            rel="noopener noreferrer nofollow"
+                            className="text-[14px] font-medium text-[var(--color-ivory)] hover:text-[var(--color-aqua)] transition-colors"
+                          >
+                            {a.label}
+                          </a>
+                          {safeHostFromUrl(a.url) && (
+                            <span className="font-mono text-[11px] text-[var(--color-ivory-mute)]">
+                              {safeHostFromUrl(a.url)}
+                            </span>
+                          )}
+                          <span className="font-mono text-[11px] text-[var(--color-ivory-mute)]">
+                            {evidenceAgeLabel(a.uploadedAt)}
+                          </span>
+                        </div>
+                        {a.notes && (
+                          <p className="text-[12.5px] text-[var(--color-ivory-mute)] leading-relaxed">
+                            {a.notes}
+                          </p>
+                        )}
+                      </li>
+                    ))}
+                  </ul>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+
+        {/* Inline add form. Expands in place so the customer stays in
+            flow when responding to a documentation_missing decline. */}
+        {addOpen && (
+          <div className="border-t border-white/[0.06] pt-5 space-y-3.5">
+            <div className="grid grid-cols-1 md:grid-cols-[140px_1fr] gap-3">
+              <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] self-center">
+                Regime
+              </label>
+              <select
+                value={regime}
+                onChange={(e) => setRegime(e.target.value as ComplianceRegime)}
+                className="bg-[var(--surface-elevated)] border border-white/10 text-[var(--color-ivory)] text-[14px] px-3 py-2 rounded focus:border-[var(--color-aqua)] focus:outline-none"
+              >
+                {COMPLIANCE_REGIMES.map((r) => (
+                  <option key={r} value={r}>{REGIME_LABELS[r]}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] mb-1.5">
+                Label
+              </label>
+              <input
+                type="text"
+                value={label}
+                onChange={(e) => setLabel(e.target.value.slice(0, EVIDENCE_LABEL_MAX))}
+                placeholder="e.g. EUDR DDS — coffee batch Q3 2026"
+                className="w-full bg-[var(--surface-elevated)] border border-white/10 text-[var(--color-ivory)] text-[14px] px-3 py-2 rounded focus:border-[var(--color-aqua)] focus:outline-none"
+              />
+              <p className="text-[11px] text-[var(--color-ivory-mute)] mt-1">{label.length} / {EVIDENCE_LABEL_MAX}</p>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] mb-1.5">
+                Cloud-share URL (https://)
+              </label>
+              <input
+                type="url"
+                value={url}
+                onChange={(e) => setUrl(e.target.value)}
+                placeholder="https://drive.google.com/file/d/..."
+                className="w-full bg-[var(--surface-elevated)] border border-white/10 text-[var(--color-ivory)] text-[14px] px-3 py-2 rounded focus:border-[var(--color-aqua)] focus:outline-none font-mono"
+              />
+              <p className="text-[11px] text-[var(--color-ivory-mute)] mt-1">
+                Make sure the link is viewable by your OrcaTrade ops team. We store the link, not the file.
+              </p>
+            </div>
+            <div>
+              <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] mb-1.5">
+                Notes (optional)
+              </label>
+              <textarea
+                value={notes}
+                onChange={(e) => setNotes(e.target.value.slice(0, EVIDENCE_NOTES_MAX))}
+                placeholder="Context the broker should know (issue date, batch ID, supplier scope…)"
+                rows={2}
+                className="w-full bg-[var(--surface-elevated)] border border-white/10 text-[var(--color-ivory)] text-[13.5px] px-3 py-2 rounded focus:border-[var(--color-aqua)] focus:outline-none resize-y"
+              />
+              <p className="text-[11px] text-[var(--color-ivory-mute)] mt-1">{notes.length} / {EVIDENCE_NOTES_MAX}</p>
+            </div>
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              {postError ? (
+                <p className="text-[12.5px] font-medium text-[var(--color-critical)]">{postError}</p>
+              ) : <span />}
+              <button
+                type="button"
+                onClick={submit}
+                disabled={posting || !canSubmit}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13.5px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] disabled:opacity-40 disabled:cursor-not-allowed"
+                style={{ borderRadius: 'var(--radius-button)' }}
+              >
+                {posting ? 'Attaching…' : 'Attach evidence'}
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </section>
   );
 }

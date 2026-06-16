@@ -1030,6 +1030,10 @@ export interface ImportRequest {
   // { id, role, body, byEmailHash, at }. Customer + ops messages
   // intermix; the UI styles them by role.
   messages?: ImportRequestMessage[];
+  // Sprint 27 — compliance evidence attachments (cloud-share URLs
+  // tagged by regulatory regime). Append-only at the API surface;
+  // supersession is a separate event.
+  evidenceAttachments?: EvidenceAttachment[];
   // Sprint 21 — per-user read state on the thread. Keyed by actor's
   // email_hash; value is { lastReadAt, lastReadMessageId }. The
   // value is opaque to the UI — unread count is computed by the
@@ -1070,6 +1074,37 @@ export interface ImportRequestMessage {
   body: string;
   byEmailHash: string;
   at: string;
+}
+
+// ── Compliance evidence (sprint 27) ──────────────────────────────────
+// Append-only entries stored in import_requests.evidence_attachments
+// (JSONB). v1 stores cloud-share URLs (SharePoint, GDrive, DropBox,
+// signed S3 URLs) rather than uploaded files — what enterprises use
+// for compliance docs today. The regime tag groups the UI by
+// regulatory regime so a customs broker scanning the dossier can
+// jump straight to the EUDR evidence.
+
+export type ComplianceRegime = 'CBAM' | 'EUDR' | 'REACH' | 'origin' | 'other';
+
+export const COMPLIANCE_REGIMES: ReadonlyArray<ComplianceRegime> = Object.freeze([
+  'CBAM',
+  'EUDR',
+  'REACH',
+  'origin',
+  'other',
+]) as ReadonlyArray<ComplianceRegime>;
+
+export const EVIDENCE_LABEL_MAX = 200;
+export const EVIDENCE_NOTES_MAX = 1000;
+
+export interface EvidenceAttachment {
+  id: string;
+  regime: ComplianceRegime;
+  label: string;
+  url: string;
+  uploadedByEmailHash: string;
+  uploadedAt: string;
+  notes?: string;
 }
 
 // ── Onboarding example library (sprint 22) ───────────────────────────
@@ -1216,7 +1251,8 @@ export type ImportRequestTimelineEventType =
   | 'import_request_updated'
   | 'import_request_status_transition'
   | 'import_request_archived'
-  | 'import_request_message_posted';
+  | 'import_request_message_posted'
+  | 'import_request_evidence_attached';
 
 export interface ImportRequestTimelineEvent {
   type: ImportRequestTimelineEventType;
@@ -1304,6 +1340,15 @@ export function activityEventSummary(e: ActivityEvent): string {
       const role = (e.detail as Record<string, unknown> | undefined)?.role;
       const who = role === 'ops' ? 'Team' : role === 'system' ? 'System' : 'Customer';
       return `${who} posted on import request ${entityRef}`;
+    }
+    case 'import_request_evidence_attached': {
+      // Detail carries { evidenceId, regime, urlHost, hasNotes }.
+      // Surface the regime so the activity feed reads "EUDR evidence
+      // attached" — the most informative one-liner without exposing
+      // the URL host.
+      const regime = (e.detail as Record<string, unknown> | undefined)?.regime;
+      const tag = typeof regime === 'string' && regime ? regime : 'Compliance';
+      return `${tag} evidence attached to import request ${entityRef}`;
     }
     case 'goods_master_created':
       return `New product registered (${entityRef})`;

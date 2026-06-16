@@ -238,6 +238,16 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
           const len = Number.isFinite(d.length) ? ` · ${d.length} chars` : '';
           return `${who} posted on thread${len}`;
         }
+        case 'import_request_evidence_attached': {
+          // Sprint 27 — compliance evidence attached. Detail carries
+          // { evidenceId, regime, urlHost, hasNotes }; surface the
+          // regime + host so the timeline reads "EUDR evidence ·
+          // drive.google.com" without leaking the full URL.
+          const d = (e.detail as { regime?: string; urlHost?: string } | undefined) || {};
+          const tag = typeof d.regime === 'string' && d.regime ? d.regime : 'Compliance';
+          const host = typeof d.urlHost === 'string' && d.urlHost ? ` · ${d.urlHost}` : '';
+          return `${tag} evidence attached${host}`;
+        }
         default:
           return String(e.type);
       }
@@ -247,6 +257,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
       if (t === 'import_request_status_transition') return 'var(--color-aqua)';
       if (t === 'import_request_updated') return 'var(--color-positive)';
       if (t === 'import_request_message_posted') return 'var(--color-aqua)';
+      if (t === 'import_request_evidence_attached') return 'var(--color-positive)';
       return 'var(--color-ivory)';
     },
     typeLabel: (t) => {
@@ -256,6 +267,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'import_request_status_transition': return 'State transition';
         case 'import_request_archived': return 'Archived';
         case 'import_request_message_posted': return 'Thread';
+        case 'import_request_evidence_attached': return 'Evidence';
         default: return String(t);
       }
     },
