@@ -691,6 +691,15 @@ export interface FactoryShortlistBlock {
   ipRisk?: string | null;
   candidates?: FactoryCandidate[];
   candidateCount?: number;
+  // Sprint 28 — learning signal. Set when the org has picked this
+  // country (for the same HS prefix 6) in the last 90 days. Powers
+  // the "Picked N times" badge on the shortlist UI. null when no
+  // past picks exist.
+  pastPickSignal?: {
+    count: number;
+    lastPickedAt: string;
+    rationaleCategoryMix: Record<string, number>;
+  } | null;
   // Methodology / metadata sometimes rides as the trailing array
   // element with this shape — older entries may carry it as a sibling
   // field on rank-1.
@@ -700,6 +709,7 @@ export interface FactoryShortlistBlock {
     classifierHits?: number;
     countriesEvaluated?: string[];
     sampleSource?: string;
+    pastPickSource?: string | null;
   };
 }
 
@@ -1252,7 +1262,8 @@ export type ImportRequestTimelineEventType =
   | 'import_request_status_transition'
   | 'import_request_archived'
   | 'import_request_message_posted'
-  | 'import_request_evidence_attached';
+  | 'import_request_evidence_attached'
+  | 'import_request_supplier_picked';
 
 export interface ImportRequestTimelineEvent {
   type: ImportRequestTimelineEventType;
@@ -1349,6 +1360,15 @@ export function activityEventSummary(e: ActivityEvent): string {
       const regime = (e.detail as Record<string, unknown> | undefined)?.regime;
       const tag = typeof regime === 'string' && regime ? regime : 'Compliance';
       return `${tag} evidence attached to import request ${entityRef}`;
+    }
+    case 'import_request_supplier_picked': {
+      // Sprint 28 — supplier-country pick. Detail carries country +
+      // hsPrefix6 + rationaleCategory; the dashboard feed reads
+      // "Picked CN for ir_xxx" so ops sees the learning signal land
+      // in real time.
+      const country = (e.detail as Record<string, unknown> | undefined)?.country;
+      const tag = typeof country === 'string' && country ? country : 'Supplier';
+      return `Picked ${tag} for import request ${entityRef}`;
     }
     case 'goods_master_created':
       return `New product registered (${entityRef})`;

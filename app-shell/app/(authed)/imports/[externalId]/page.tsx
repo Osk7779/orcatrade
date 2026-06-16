@@ -1057,6 +1057,15 @@ function ShortlistPanel({ shortlist }: { shortlist: FactoryShortlistBlock[] }) {
                   <span className="font-mono text-[11.5px] text-[var(--color-ivory-mute)] tabular-nums">FOB ×{b.fobIndex.toFixed(2)}</span>
                 )}
               </div>
+              {/* Sprint 28 — historical pick signal. Surfaces only when
+                  the org has previously picked this country for the same
+                  HS prefix in the last 90 days. NOT a re-ranking input
+                  (the shortlist is still ranked by the deterministic
+                  sourcing-quote scoring) — just a "your team's pattern
+                  agrees" or "this is a new corridor" signal for ops. */}
+              {b.pastPickSignal && b.pastPickSignal.count > 0 && (
+                <PastPickBadge signal={b.pastPickSignal} />
+              )}
               {b.countryRationale && (
                 <p className="text-[var(--color-ivory-dim)] text-[13px] leading-relaxed">{b.countryRationale}</p>
               )}
@@ -2278,5 +2287,77 @@ function EvidencePanel({
         )}
       </div>
     </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  PastPickBadge — sprint 28
+ *  Surfaces the historical learning signal on a shortlist entry.
+ *  The platform records every materialised supplier-country pick;
+ *  this component renders the 90-day per-country count as an
+ *  unobtrusive aqua chip so ops sees "your team picked Vietnam 4
+ *  times for similar requests" inline with the rest of the entry.
+ *
+ *  Intentionally a SIGNAL not a re-ranking input — the shortlist is
+ *  ordered by the calculator (sourcing-quote scoring); we don't
+ *  silently re-rank based on history because picks could be
+ *  coincidental.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function pastPickAgeLabel(iso: string): string {
+  if (!iso) return '';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '';
+  const days = Math.max(0, Math.floor((Date.now() - ts) / 86_400_000));
+  if (days < 1) return 'today';
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}wk ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
+const PAST_PICK_RATIONALE_LABELS: Record<string, string> = {
+  cost: 'cost',
+  lead_time: 'lead time',
+  compliance: 'compliance fit',
+  past_relationship: 'past relationship',
+  capacity: 'capacity',
+  other: 'other',
+};
+
+function PastPickBadge({
+  signal,
+}: {
+  signal: { count: number; lastPickedAt: string; rationaleCategoryMix: Record<string, number> };
+}) {
+  const ageLabel = pastPickAgeLabel(signal.lastPickedAt);
+  // Identify the top rationale category for the tooltip title — what
+  // was the dominant reason ops picked this country before?
+  let topCategory: string | null = null;
+  let topCount = 0;
+  for (const [cat, n] of Object.entries(signal.rationaleCategoryMix || {})) {
+    if (n > topCount) { topCount = n; topCategory = cat; }
+  }
+  const title = topCategory
+    ? `Mostly ${PAST_PICK_RATIONALE_LABELS[topCategory] || topCategory} — last pick ${ageLabel || 'recently'}`
+    : `Picked ${signal.count} time${signal.count === 1 ? '' : 's'} in the last 90 days`;
+  return (
+    <div
+      className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10.5px] font-semibold tracking-[0.04em] uppercase border"
+      style={{
+        color: 'var(--color-aqua)',
+        borderColor: 'var(--color-aqua)',
+        background: 'rgba(34, 211, 238, 0.06)',
+        borderRadius: 'var(--radius-badge)',
+      }}
+      title={title}
+    >
+      <span aria-hidden>⟳</span>
+      Picked {signal.count}× in 90d
+      {ageLabel && (
+        <span className="text-[var(--color-aqua-dim)] font-normal" style={{ marginLeft: 4 }}>
+          · last {ageLabel}
+        </span>
+      )}
+    </div>
   );
 }

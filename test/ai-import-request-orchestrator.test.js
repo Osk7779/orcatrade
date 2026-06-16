@@ -98,7 +98,10 @@ test('buildFactoryShortlist with empty comparison returns empty shortlist', () =
     classifierHits: 0,
   });
   assert.deepEqual(shortlist, []);
-  assert.equal(methodology.version, 'v1.1');
+  // Sprint 28 bumped to v1.2 when pastPicksByCountry was added to the
+  // shape. Older tests pinned v1.1; the version bump signals the
+  // pastPickSignal field is now part of every shortlist entry.
+  assert.equal(methodology.version, 'v1.2');
   assert.equal(methodology.classifier, 'category-classifier-v1');
   assert.equal(methodology.classifierHits, 0);
   // Sprint 4 ch 2 added classifierSource so the team console can show

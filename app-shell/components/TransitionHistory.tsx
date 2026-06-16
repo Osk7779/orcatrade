@@ -248,6 +248,20 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
           const host = typeof d.urlHost === 'string' && d.urlHost ? ` · ${d.urlHost}` : '';
           return `${tag} evidence attached${host}`;
         }
+        case 'import_request_supplier_picked': {
+          // Sprint 28 — supplier-country pick at materialise time.
+          // Detail carries { country, hsPrefix6, rationaleCategory };
+          // surface country + rationale category for the timeline
+          // "Picked CN · cost" — the rationale dimension is the
+          // actionable bit (cost vs lead-time vs compliance shaped
+          // the call).
+          const d = (e.detail as { country?: string; rationaleCategory?: string } | undefined) || {};
+          const country = typeof d.country === 'string' && d.country ? d.country : 'Supplier';
+          const cat = typeof d.rationaleCategory === 'string' && d.rationaleCategory
+            ? ` · ${d.rationaleCategory.replace(/_/g, ' ')}`
+            : '';
+          return `Picked ${country}${cat}`;
+        }
         default:
           return String(e.type);
       }
@@ -258,6 +272,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
       if (t === 'import_request_updated') return 'var(--color-positive)';
       if (t === 'import_request_message_posted') return 'var(--color-aqua)';
       if (t === 'import_request_evidence_attached') return 'var(--color-positive)';
+      if (t === 'import_request_supplier_picked') return 'var(--color-aqua)';
       return 'var(--color-ivory)';
     },
     typeLabel: (t) => {
@@ -268,6 +283,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'import_request_archived': return 'Archived';
         case 'import_request_message_posted': return 'Thread';
         case 'import_request_evidence_attached': return 'Evidence';
+        case 'import_request_supplier_picked': return 'Pick';
         default: return String(t);
       }
     },
