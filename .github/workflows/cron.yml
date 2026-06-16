@@ -72,6 +72,14 @@ on:
     # anchor snapshot so the snapshot's chain head reflects yesterday's
     # state cleanly.
     - cron: '30 2 * * *'
+    # Monday 09:30 UTC — weekly Ops Insights digest (Sprint 26). Per-
+    # org fan-out: enumerates every org via KV, computes the 7-day
+    # cohort (funnel + decline reasons + revision recovery) via the
+    # sprint-17 aggregateOpsInsights, and emails ops admins. Per-
+    # recipient pref-gated via importInsightsDigestEmails. Slot
+    # after the existing weekly-user-digest (09:00 Mon) so the
+    # two workloads stagger cleanly.
+    - cron: '30 9 * * 1'
   workflow_dispatch:
     inputs:
       job:
@@ -93,6 +101,7 @@ on:
           - db-migrate
           - audit-anchor-snapshot
           - import-request-quote-expiry
+          - import-request-insights-digest
 
 jobs:
   dispatch:
@@ -127,6 +136,8 @@ jobs:
             echo "job=audit-anchor-snapshot" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "30 2 * * *" ]; then
             echo "job=import-request-quote-expiry" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 9 * * 1" ]; then
+            echo "job=import-request-insights-digest" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi

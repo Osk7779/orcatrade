@@ -353,6 +353,9 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // Sprint 19 adds import-request-quote-expiry — daily 02:30 UTC sweep
   // of 'quoted' import requests whose quote_expires_at has passed, with
   // a system message posted on each row's thread.
+  // Sprint 26 adds import-request-insights-digest — weekly Monday
+  // 09:30 UTC fan-out of the sprint-17 cohort signal to ops admins,
+  // per-recipient pref-gated via importInsightsDigestEmails.
   const ids = Object.keys(cronHandler.JOBS).sort();
   assert.deepEqual(ids, [
     'audit-anchor-snapshot',
@@ -360,6 +363,7 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'compliance-deadline-reminders',
     'db-migrate',
     'founder-digest',
+    'import-request-insights-digest',
     'import-request-quote-expiry',
     'monitoring-scan',
     'plan-revision-emails',

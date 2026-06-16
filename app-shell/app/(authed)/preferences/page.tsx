@@ -30,6 +30,7 @@ const TOGGLE_GROUPS: ToggleGroup[] = [
       { key: 'importQueueIntakeEmails', label: 'New requests in queue', desc: 'When a customer submits a new request and the orchestrator surfaces a quote awaiting team review.' },
       { key: 'importCustomerDecisionEmails', label: 'Customer decisions', desc: 'When a customer approves or rejects a quote your team sent them.' },
       { key: 'importMessageEmails', label: 'Customer messages on threads', desc: 'When a customer posts a question or follow-up on a request thread.' },
+      { key: 'importInsightsDigestEmails', label: 'Weekly insights digest', desc: 'Monday morning summary: funnel by status, top decline reasons, and revision recovery for the last 7 days. Calculator-grounded — same numbers as the live cockpit.' },
     ],
   },
   {
