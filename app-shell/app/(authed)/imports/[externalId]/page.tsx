@@ -45,6 +45,10 @@ import {
   COMPLIANCE_REGIMES,
   EVIDENCE_LABEL_MAX,
   EVIDENCE_NOTES_MAX,
+  type CustomerRating,
+  RATING_MIN,
+  RATING_MAX,
+  RATING_COMMENT_MAX,
 } from '@/lib/api';
 import { TransitionHistory } from '@/components/TransitionHistory';
 
@@ -355,6 +359,17 @@ export default function ImportRequestDetailPage() {
         <LinkedShipmentPanel
           externalId={request.linkedShipmentExternalId}
           isOpsRole={isOpsRole}
+        />
+      )}
+
+      {/* Sprint 30 — customer rating. Renders ONLY when the request
+          is in customer_approved (the rating is about the approved
+          experience). The panel handles both states: prompt + form
+          when not yet rated, score + comment readout when rated. */}
+      {request.status === 'customer_approved' && (
+        <CustomerRatingPanel
+          request={request}
+          onRated={(updated) => setRequest(updated)}
         />
       )}
 
@@ -2359,5 +2374,248 @@ function PastPickBadge({
         </span>
       )}
     </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  CustomerRatingPanel — sprint 30
+ *  After the customer approves, the platform records 1-5 star rating
+ *  + optional comment. Renders ONE of two states:
+ *    • Already rated → readout (stars + comment + age)
+ *    • Not yet rated → prompt + 5-star input + optional comment
+ *  Last-write-wins on supersession; the "edit my rating" affordance
+ *  surfaces below the readout so a customer who initially rated 3
+ *  before delivery can bump to 5 once the goods land.
+ *
+ *  Calculator-grounded posture: no LLM in this path. The rating is
+ *  a customer-authored signal; the platform records it verbatim.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function ratingAgeLabel(iso: string): string {
+  if (!iso) return '';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '';
+  const days = Math.max(0, Math.floor((Date.now() - ts) / 86_400_000));
+  if (days < 1) return 'today';
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}wk ago`;
+  return `${Math.floor(days / 30)}mo ago`;
+}
+
+function StarRow({ score, max = RATING_MAX }: { score: number; max?: number }) {
+  return (
+    <span aria-label={`${score} out of ${max} stars`} className="inline-flex items-center gap-0.5">
+      {Array.from({ length: max }, (_, i) => {
+        const filled = i < score;
+        return (
+          <span
+            key={i}
+            aria-hidden
+            className={`text-[18px] leading-none ${
+              filled ? 'text-[var(--color-warning)]' : 'text-[var(--color-ivory-mute)]/40'
+            }`}
+          >
+            {filled ? '★' : '☆'}
+          </span>
+        );
+      })}
+    </span>
+  );
+}
+
+function CustomerRatingPanel({
+  request,
+  onRated,
+}: {
+  request: ImportRequest;
+  onRated: (updated: ImportRequest) => void;
+}) {
+  const existing: CustomerRating | null = request.customerRating ?? null;
+  // Edit mode: false on a fresh request, true if existing rating
+  // (then "Edit my rating" opens the form pre-filled).
+  const [editing, setEditing] = useState(!existing);
+  const [score, setScore] = useState<number>(existing?.score ?? 0);
+  const [hover, setHover] = useState<number>(0);
+  const [comment, setComment] = useState<string>(existing?.comment ?? '');
+  const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState('');
+
+  // Sync local state with incoming request on supersession from a
+  // sibling tab / refetch.
+  useEffect(() => {
+    if (existing) {
+      setScore(existing.score);
+      setComment(existing.comment ?? '');
+      setEditing(false);
+    } else {
+      setEditing(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existing?.ratedAt, existing?.score]);
+
+  const canSubmit = Number.isInteger(score) && score >= RATING_MIN && score <= RATING_MAX
+    && comment.length <= RATING_COMMENT_MAX;
+
+  async function submit() {
+    if (posting || !canSubmit) return;
+    setPostError('');
+    setPosting(true);
+    try {
+      const payload: Record<string, unknown> = { score };
+      const trimmed = comment.trim();
+      if (trimmed) payload.comment = trimmed;
+      const result = await apiPost<{ ok: boolean; importRequest: ImportRequest; rating: CustomerRating }>(
+        `/imports/${request.externalId}/rating`,
+        payload,
+      );
+      if (result && result.importRequest) {
+        onRated(result.importRequest);
+        setEditing(false);
+      }
+    } catch (err) {
+      if (err instanceof AuthError) setPostError('Sign in to submit a rating.');
+      else if (err instanceof ApiError) setPostError(err.errors.length ? err.errors[0] : err.message);
+      else setPostError(err instanceof Error ? err.message : 'Failed to submit rating');
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  // ── Already rated readout ───────────────────────────────────
+  if (existing && !editing) {
+    return (
+      <section className="space-y-4">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+          Your rating
+        </h2>
+        <div
+          className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-4"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <StarRow score={existing.score} />
+            <span className="text-[13px] font-mono text-[var(--color-ivory-mute)]">
+              {existing.score} / {RATING_MAX}
+            </span>
+            <span className="text-[12.5px] text-[var(--color-ivory-mute)]">
+              · {ratingAgeLabel(existing.ratedAt)}
+            </span>
+          </div>
+          {existing.comment && (
+            <p className="text-[14px] text-[var(--color-ivory-dim)] leading-relaxed whitespace-pre-wrap">
+              {existing.comment}
+            </p>
+          )}
+          <div className="pt-1">
+            <button
+              type="button"
+              onClick={() => setEditing(true)}
+              className="text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
+            >
+              Edit my rating →
+            </button>
+          </div>
+        </div>
+      </section>
+    );
+  }
+
+  // ── Prompt + form ───────────────────────────────────────────
+  const eyebrow = existing ? 'Edit your rating' : 'How did we do?';
+  const blurb = existing
+    ? 'Update your rating below. The most recent rating wins; the audit log preserves the history.'
+    : 'Rate the end-to-end experience: supplier shortlist, landed-cost accuracy, broker handoff. We use ratings to learn from every approval.';
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+        {eyebrow}
+      </h2>
+      <div
+        className="bg-[var(--surface-card)] border border-[var(--color-aqua)]/30 p-6 space-y-5"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        <p className="text-[14px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+          {blurb}
+        </p>
+        {/* 5-star picker with hover preview. */}
+        <div className="flex items-center gap-1">
+          {Array.from({ length: RATING_MAX }, (_, i) => {
+            const value = i + 1;
+            const active = (hover || score) >= value;
+            return (
+              <button
+                key={value}
+                type="button"
+                aria-label={`${value} star${value === 1 ? '' : 's'}`}
+                aria-pressed={score >= value}
+                onMouseEnter={() => setHover(value)}
+                onMouseLeave={() => setHover(0)}
+                onClick={() => setScore(value)}
+                className="text-[28px] leading-none p-1 transition-transform duration-150 hover:scale-110"
+                style={{
+                  color: active ? 'var(--color-warning)' : 'var(--color-ivory-mute)',
+                  opacity: active ? 1 : 0.55,
+                }}
+              >
+                {active ? '★' : '☆'}
+              </button>
+            );
+          })}
+          {score > 0 && (
+            <span className="ml-3 text-[13px] font-mono text-[var(--color-ivory-mute)]">
+              {score} / {RATING_MAX}
+            </span>
+          )}
+        </div>
+        <div>
+          <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] mb-1.5">
+            Comment (optional)
+          </label>
+          <textarea
+            value={comment}
+            onChange={(e) => setComment(e.target.value.slice(0, RATING_COMMENT_MAX))}
+            placeholder="What worked well, what could have been better. We read every comment."
+            rows={3}
+            className="w-full bg-[var(--surface-elevated)] border border-white/10 text-[var(--color-ivory)] text-[14px] px-3 py-2 rounded focus:border-[var(--color-aqua)] focus:outline-none resize-y leading-relaxed"
+          />
+          <p className="text-[11px] text-[var(--color-ivory-mute)] mt-1">
+            {comment.length} / {RATING_COMMENT_MAX}
+          </p>
+        </div>
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          {postError ? (
+            <p className="text-[12.5px] font-medium text-[var(--color-critical)]">{postError}</p>
+          ) : (
+            <span />
+          )}
+          <div className="flex items-center gap-3">
+            {existing && (
+              <button
+                type="button"
+                onClick={() => {
+                  setEditing(false);
+                  setScore(existing.score);
+                  setComment(existing.comment ?? '');
+                }}
+                disabled={posting}
+                className="text-[12.5px] font-medium text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+            )}
+            <button
+              type="button"
+              onClick={submit}
+              disabled={posting || !canSubmit}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13.5px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            >
+              {posting ? 'Sending…' : existing ? 'Update rating' : 'Submit rating'}
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
   );
 }

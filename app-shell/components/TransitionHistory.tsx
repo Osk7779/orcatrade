@@ -262,6 +262,19 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
             : '';
           return `Picked ${country}${cat}`;
         }
+        case 'import_request_rated': {
+          // Sprint 30 — customer rating. Detail carries { score,
+          // hasComment, isSupersession }; surface the star glyph +
+          // a "revised rating" tag on supersession so the timeline
+          // distinguishes first-rating from follow-up.
+          const d = (e.detail as { score?: number; isSupersession?: boolean } | undefined) || {};
+          const score = Number(d.score);
+          const stars = Number.isInteger(score) && score >= 1 && score <= 5
+            ? '★'.repeat(score) + '☆'.repeat(5 - score)
+            : '★';
+          const tag = d.isSupersession ? ' · revised' : '';
+          return `${stars}${tag}`;
+        }
         default:
           return String(e.type);
       }
@@ -273,6 +286,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
       if (t === 'import_request_message_posted') return 'var(--color-aqua)';
       if (t === 'import_request_evidence_attached') return 'var(--color-positive)';
       if (t === 'import_request_supplier_picked') return 'var(--color-aqua)';
+      if (t === 'import_request_rated') return 'var(--color-positive)';
       return 'var(--color-ivory)';
     },
     typeLabel: (t) => {
@@ -284,6 +298,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'import_request_message_posted': return 'Thread';
         case 'import_request_evidence_attached': return 'Evidence';
         case 'import_request_supplier_picked': return 'Pick';
+        case 'import_request_rated': return 'Rating';
         default: return String(t);
       }
     },

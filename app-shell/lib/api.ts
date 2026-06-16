@@ -1062,6 +1062,9 @@ export interface ImportRequest {
   // tagged by regulatory regime). Append-only at the API surface;
   // supersession is a separate event.
   evidenceAttachments?: EvidenceAttachment[];
+  // Sprint 30 — customer rating (1-5 + optional comment). Recorded
+  // post-approval; last-write-wins on supersession.
+  customerRating?: CustomerRating | null;
   // Sprint 21 — per-user read state on the thread. Keyed by actor's
   // email_hash; value is { lastReadAt, lastReadMessageId }. The
   // value is opaque to the UI — unread count is computed by the
@@ -1102,6 +1105,23 @@ export interface ImportRequestMessage {
   body: string;
   byEmailHash: string;
   at: string;
+}
+
+// ── Customer rating (sprint 30) ──────────────────────────────────────
+// Recorded once per import request after the customer approves the
+// quote and the team materialises the triad. Last-write-wins on
+// supersession; the audit chain preserves every event so the prior
+// rating is recoverable.
+
+export const RATING_MIN = 1;
+export const RATING_MAX = 5;
+export const RATING_COMMENT_MAX = 2000;
+
+export interface CustomerRating {
+  score: number;
+  comment: string;
+  ratedByEmailHash: string;
+  ratedAt: string;
 }
 
 // ── Compliance evidence (sprint 27) ──────────────────────────────────
@@ -1281,7 +1301,8 @@ export type ImportRequestTimelineEventType =
   | 'import_request_archived'
   | 'import_request_message_posted'
   | 'import_request_evidence_attached'
-  | 'import_request_supplier_picked';
+  | 'import_request_supplier_picked'
+  | 'import_request_rated';
 
 export interface ImportRequestTimelineEvent {
   type: ImportRequestTimelineEventType;
@@ -1387,6 +1408,18 @@ export function activityEventSummary(e: ActivityEvent): string {
       const country = (e.detail as Record<string, unknown> | undefined)?.country;
       const tag = typeof country === 'string' && country ? country : 'Supplier';
       return `Picked ${tag} for import request ${entityRef}`;
+    }
+    case 'import_request_rated': {
+      // Sprint 30 — customer rating. Detail carries { score,
+      // hasComment, isSupersession }; the feed surfaces a star-rating
+      // glyph + the score ("★★★★★ rating on ir_xxx"). A low-score
+      // entry gives ops a follow-up signal; high scores reinforce
+      // the corridor for sprint-28 picks learning.
+      const score = Number((e.detail as Record<string, unknown> | undefined)?.score);
+      const stars = Number.isInteger(score) && score >= 1 && score <= 5
+        ? '★'.repeat(score) + '☆'.repeat(5 - score)
+        : '★';
+      return `${stars} rating on import request ${entityRef}`;
     }
     case 'goods_master_created':
       return `New product registered (${entityRef})`;
