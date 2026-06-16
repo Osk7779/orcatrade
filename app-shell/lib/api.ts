@@ -157,10 +157,21 @@ export interface Reproduction {
 
 // GET/POST /api/account/preferences
 export interface Prefs {
+  // Legacy keys (pre-sprint-24).
   planRevisionEmails?: boolean;
   weeklyDigestEmails?: boolean;
   complianceDeadlineEmails?: boolean;
   monitoringAlerts?: boolean;
+  // Sprint 24 — operator-wedge email categories. Mirror of PREF_KEYS
+  // in lib/notification-prefs.js. Default behaviour is opt-out
+  // (server treats absence as true); the UI surfaces each toggle so
+  // the user can mute specific categories without affecting others.
+  importQuoteReadyEmails?: boolean;
+  importDeclineEmails?: boolean;
+  importShipmentStatusEmails?: boolean;
+  importMessageEmails?: boolean;
+  importQueueIntakeEmails?: boolean;
+  importCustomerDecisionEmails?: boolean;
   locale?: string;
   updatedAt?: string;
 }
