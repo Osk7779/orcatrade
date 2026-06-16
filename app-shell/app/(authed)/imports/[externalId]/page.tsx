@@ -130,6 +130,36 @@ export default function ImportRequestDetailPage() {
     };
   }, [externalId]);
 
+  // Sprint 21 — auto-mark messages read when the detail page lands
+  // with unread messages. Fires after the request hydrates (so we
+  // know the unread count) and after a short delay so a customer
+  // bouncing between pages doesn't accidentally mark a thread read
+  // they didn't actually see. POST is fail-soft — a 404/500 leaves
+  // the badge in place rather than fabricating a read receipt.
+  useEffect(() => {
+    if (!request) return;
+    const unread = request.unreadMessageCount ?? 0;
+    if (unread === 0) return;
+    const timer = setTimeout(() => {
+      apiPost<{ ok: boolean; importRequest: ImportRequest; unreadCount: number }>(
+        `/imports/${request.externalId}/messages/read`,
+        {},
+      )
+        .then((d) => {
+          if (d && d.importRequest) setRequest(d.importRequest);
+        })
+        .catch(() => {
+          /* fail-soft — leave badge in place so user can retry */
+        });
+    }, 1200);
+    return () => clearTimeout(timer);
+    // We INTENTIONALLY include only externalId + the unread-count
+    // snapshot in the dep array. Re-running on every request change
+    // (e.g. after posting a new message) would mark the user's own
+    // message as read, which is correct but adds a useless POST.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [request?.externalId, request?.unreadMessageCount]);
+
   async function act(label: string, fn: () => Promise<void>) {
     setActionPending(label);
     setActionError('');
@@ -1834,11 +1864,31 @@ function MessageThread({
     }
   }
 
+  const unread = request.unreadMessageCount ?? 0;
   return (
     <section className="space-y-4">
-      <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
-        Thread
-      </h2>
+      <div className="flex items-center gap-3">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+          Thread
+        </h2>
+        {/* Sprint 21 — unread badge. Renders BEFORE the auto-mark
+            fires (1.2s after page hydrate) so the user actually sees
+            the count for a moment before it clears. After the auto-
+            mark POST, the badge disappears. */}
+        {unread > 0 && (
+          <span
+            className="inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[10.5px] font-semibold tracking-tight"
+            style={{
+              background: 'var(--color-aqua)',
+              color: 'var(--color-navy)',
+              borderRadius: 9999,
+            }}
+            aria-label={`${unread} unread message${unread === 1 ? '' : 's'}`}
+          >
+            {unread}
+          </span>
+        )}
+      </div>
 
       <div
         className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-5"

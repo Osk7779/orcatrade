@@ -1018,6 +1018,17 @@ export interface ImportRequest {
   // { id, role, body, byEmailHash, at }. Customer + ops messages
   // intermix; the UI styles them by role.
   messages?: ImportRequestMessage[];
+  // Sprint 21 — per-user read state on the thread. Keyed by actor's
+  // email_hash; value is { lastReadAt, lastReadMessageId }. The
+  // value is opaque to the UI — unread count is computed by the
+  // server and surfaced as unreadMessageCount below.
+  messageReadState?: Record<string, { lastReadAt?: string; lastReadMessageId?: string | null }>;
+  // Sprint 21 — server-computed unread count for the calling user.
+  // Augmented onto every list + get response so the UI can render
+  // badges without pulling messages[] for every entry on a list
+  // endpoint that should stay light. Counts messages newer than
+  // the user's lastReadAt that the user didn't post themselves.
+  unreadMessageCount?: number;
   metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;

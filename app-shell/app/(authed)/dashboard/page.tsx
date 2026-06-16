@@ -525,6 +525,22 @@ function ImportsWidget() {
                     <span className="font-mono text-[11px] tracking-[0.04em] text-[var(--color-ivory-mute)]/70">
                       {r.externalId}
                     </span>
+                    {/* Sprint 21 — unread-message badge. Renders inline
+                        with the request label so the customer notices
+                        their thread has activity without opening it. */}
+                    {(r.unreadMessageCount ?? 0) > 0 && (
+                      <span
+                        className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-semibold tracking-tight self-center"
+                        style={{
+                          background: 'var(--color-aqua)',
+                          color: 'var(--color-navy)',
+                          borderRadius: 9999,
+                        }}
+                        aria-label={`${r.unreadMessageCount} unread`}
+                      >
+                        {r.unreadMessageCount}
+                      </span>
+                    )}
                   </div>
                   <span className="text-[13px] text-[var(--color-ivory-dim)] line-clamp-1">
                     {r.productDescription}

@@ -439,6 +439,23 @@ function QueueView() {
                     <span className="font-mono text-[11px] text-[var(--color-ivory-mute)]/70">
                       {r.externalId}
                     </span>
+                    {/* Sprint 21 — unread-message badge surfaces threads
+                        with fresh customer activity so ops triages
+                        them first. */}
+                    {(r.unreadMessageCount ?? 0) > 0 && (
+                      <span
+                        className="inline-flex items-center justify-center min-w-[20px] h-[20px] px-1.5 text-[11px] font-semibold tracking-tight self-center"
+                        style={{
+                          background: 'var(--color-aqua)',
+                          color: 'var(--color-navy)',
+                          borderRadius: 9999,
+                        }}
+                        aria-label={`${r.unreadMessageCount} unread customer message${r.unreadMessageCount === 1 ? '' : 's'}`}
+                        title="Unread customer messages"
+                      >
+                        {r.unreadMessageCount}
+                      </span>
+                    )}
                   </div>
                   <p className="text-[var(--color-ivory-dim)] text-[14px] line-clamp-2 max-w-xl leading-relaxed">
                     {r.productDescription}
