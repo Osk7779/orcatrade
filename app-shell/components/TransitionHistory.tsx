@@ -228,6 +228,16 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
           return 'Request updated';
         case 'import_request_archived':
           return 'Request archived';
+        case 'import_request_message_posted': {
+          // Sprint 18 — message on the thread. Detail carries
+          // { messageId, role, length }; surface the role so the
+          // timeline reads "Customer posted (47 chars)" /
+          // "Team posted (212 chars)" — never the body itself.
+          const d = (e.detail as { role?: string; length?: number } | undefined) || {};
+          const who = d.role === 'ops' ? 'Team' : d.role === 'system' ? 'System' : 'Customer';
+          const len = Number.isFinite(d.length) ? ` · ${d.length} chars` : '';
+          return `${who} posted on thread${len}`;
+        }
         default:
           return String(e.type);
       }
@@ -236,6 +246,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
       if (t === 'import_request_archived') return 'var(--color-ivory-mute)';
       if (t === 'import_request_status_transition') return 'var(--color-aqua)';
       if (t === 'import_request_updated') return 'var(--color-positive)';
+      if (t === 'import_request_message_posted') return 'var(--color-aqua)';
       return 'var(--color-ivory)';
     },
     typeLabel: (t) => {
@@ -244,6 +255,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'import_request_updated': return 'Updated';
         case 'import_request_status_transition': return 'State transition';
         case 'import_request_archived': return 'Archived';
+        case 'import_request_message_posted': return 'Thread';
         default: return String(t);
       }
     },

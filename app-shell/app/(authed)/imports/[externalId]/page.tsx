@@ -38,6 +38,8 @@ import {
   DECLINE_REASONS,
   DECLINE_REASON_LABELS,
   REVISABLE_DECLINE_REASONS,
+  type ImportRequestMessage,
+  IMPORT_REQUEST_MESSAGE_BODY_MAX,
 } from '@/lib/api';
 import { TransitionHistory } from '@/components/TransitionHistory';
 
@@ -320,6 +322,21 @@ export default function ImportRequestDetailPage() {
           isOpsRole={isOpsRole}
         />
       )}
+
+      {/* Sprint 18 — customer ↔ ops messaging thread. Always rendered
+          (even when empty) because the compose box is the affordance
+          for starting the conversation. Optimistic append on POST so
+          the message shows immediately; if the server rejects, we
+          revert + surface the error inline. */}
+      <MessageThread
+        request={request}
+        onMessagePosted={(updated) => {
+          // The POST returns the full updated request shape; bubble it
+          // up so the lineage panels (timeline, decline state, etc.)
+          // stay in lockstep with the new message array.
+          setRequest(updated);
+        }}
+      />
 
       {/* Audit timeline — sprint 7. Reuses the polymorphic component
           that powers the shipment / goods / supplier detail pages. */}
@@ -1708,5 +1725,169 @@ function SecondaryButton({ onClick, disabled, children }: { onClick: () => void;
     >
       {children}
     </button>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  MessageThread — sprint 18
+ *  Customer ↔ ops thread inline on the request detail. Polymorphic on
+ *  role: customer bubbles align left + ivory, ops bubbles align right
+ *  + aqua-tinted, system entries centred + muted. Compose box at the
+ *  bottom posts to /api/imports/<id>/messages and rebases the request
+ *  on the returned payload.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function messageAgeLabel(iso: string): string {
+  if (!iso) return '—';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '—';
+  const seconds = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (seconds < 45) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days <= 7) return `${days}d ago`;
+  return new Date(ts).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' });
+}
+
+function MessageThread({
+  request,
+  onMessagePosted,
+}: {
+  request: ImportRequest;
+  onMessagePosted: (updated: ImportRequest) => void;
+}) {
+  const messages: ImportRequestMessage[] = Array.isArray(request.messages) ? request.messages : [];
+  const [body, setBody] = useState('');
+  const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState('');
+
+  async function submit() {
+    const trimmed = body.trim();
+    if (!trimmed || posting) return;
+    setPosting(true);
+    setPostError('');
+    try {
+      const result = await apiPost<{ ok: boolean; importRequest: ImportRequest; message: ImportRequestMessage }>(
+        `/imports/${request.externalId}/messages`,
+        { body: trimmed },
+      );
+      if (result && result.importRequest) {
+        onMessagePosted(result.importRequest);
+        setBody('');
+      }
+    } catch (err) {
+      if (err instanceof AuthError) setPostError('Sign in to post a message.');
+      else if (err instanceof ApiError) setPostError(err.errors.length ? err.errors[0] : err.message);
+      else setPostError(err instanceof Error ? err.message : 'Failed to post message');
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+        Thread
+      </h2>
+
+      <div
+        className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-5"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        {messages.length === 0 ? (
+          <p className="text-[var(--color-ivory-mute)] text-[13.5px] italic leading-relaxed">
+            No messages yet. Use the box below to ask the team a question or share extra context — anyone with access to this request sees the thread.
+          </p>
+        ) : (
+          <ul className="space-y-4">
+            {messages.map((m) => (
+              <MessageBubble key={m.id} message={m} />
+            ))}
+          </ul>
+        )}
+
+        {/* Compose box. Posts on Cmd/Ctrl+Enter; Enter alone inserts a
+            newline so multi-line questions are easy to type. */}
+        <div className="border-t border-white/[0.06] pt-5 space-y-3">
+          <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            New message
+          </label>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value.slice(0, IMPORT_REQUEST_MESSAGE_BODY_MAX))}
+            onKeyDown={(e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                submit();
+              }
+            }}
+            placeholder="Ask a question, share a spec sheet link, or follow up on a decline reason."
+            rows={3}
+            className="w-full bg-[var(--surface-elevated)] border border-white/10 text-[var(--color-ivory)] text-[14px] px-3 py-2.5 rounded focus:border-[var(--color-aqua)] focus:outline-none resize-y leading-relaxed"
+          />
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono">
+              {body.length} / {IMPORT_REQUEST_MESSAGE_BODY_MAX} · Cmd/Ctrl+Enter to send
+            </p>
+            <button
+              type="button"
+              onClick={submit}
+              disabled={posting || !body.trim()}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13.5px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            >
+              {posting ? 'Posting…' : 'Send message'}
+            </button>
+          </div>
+          {postError && (
+            <p className="text-[13px] font-medium text-[var(--color-critical)]">{postError}</p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function MessageBubble({ message }: { message: ImportRequestMessage }) {
+  if (message.role === 'system') {
+    return (
+      <li className="text-center">
+        <p className="text-[11.5px] font-medium tracking-[0.04em] uppercase text-[var(--color-ivory-mute)]">
+          {message.body}
+        </p>
+        <p className="text-[10.5px] font-mono text-[var(--color-ivory-mute)] mt-0.5">
+          {messageAgeLabel(message.at)}
+        </p>
+      </li>
+    );
+  }
+  const isOps = message.role === 'ops';
+  return (
+    <li className={`flex ${isOps ? 'justify-end' : 'justify-start'}`}>
+      <div className="max-w-[80%] space-y-1">
+        <p
+          className={`text-[10.5px] font-semibold tracking-[0.06em] uppercase ${
+            isOps ? 'text-right text-[var(--color-aqua)]' : 'text-left text-[var(--color-ivory-mute)]'
+          }`}
+        >
+          {isOps ? 'OrcaTrade team' : 'Customer'} · {messageAgeLabel(message.at)}
+        </p>
+        <div
+          className={`px-4 py-3 text-[14px] leading-relaxed whitespace-pre-wrap ${
+            isOps ? 'text-[var(--color-navy)]' : 'text-[var(--color-ivory)]'
+          }`}
+          style={{
+            background: isOps ? 'var(--color-aqua-soft)' : 'var(--surface-elevated)',
+            border: isOps ? '1px solid var(--color-aqua)' : '1px solid rgba(255,255,255,0.06)',
+            borderRadius: 'var(--radius-card)',
+          }}
+        >
+          {message.body}
+        </div>
+      </div>
+    </li>
   );
 }

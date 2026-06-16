@@ -1014,10 +1014,39 @@ export interface ImportRequest {
   // ?revise=<externalId> on /imports/new. Points back to the prior
   // (rejected or cancelled) request the customer is responding to.
   revisedFromExternalId?: string | null;
+  // Sprint 18 — per-request messaging thread. Append-only array of
+  // { id, role, body, byEmailHash, at }. Customer + ops messages
+  // intermix; the UI styles them by role.
+  messages?: ImportRequestMessage[];
   metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
   archivedAt?: string | null;
+}
+
+// ── Per-request messaging thread (sprint 18) ─────────────────────────
+// Append-only entries stored in import_requests.messages (JSONB).
+// Role drives the UI styling (customer on the left, ops on the right,
+// system centred). byEmailHash is the actor hash; raw email never
+// stored (ADR 0008). Activity feed picks up message posts via the
+// 'import_request_message_posted' event type.
+
+export type ImportRequestMessageRole = 'customer' | 'ops' | 'system';
+
+export const IMPORT_REQUEST_MESSAGE_ROLES: ReadonlyArray<ImportRequestMessageRole> = Object.freeze([
+  'customer',
+  'ops',
+  'system',
+]) as ReadonlyArray<ImportRequestMessageRole>;
+
+export const IMPORT_REQUEST_MESSAGE_BODY_MAX = 4000;
+
+export interface ImportRequestMessage {
+  id: string;
+  role: ImportRequestMessageRole;
+  body: string;
+  byEmailHash: string;
+  at: string;
 }
 
 // /api/imports/<id>/whatif — sprint 10. Returns a stateless preview
@@ -1056,7 +1085,8 @@ export type ImportRequestTimelineEventType =
   | 'import_request_created'
   | 'import_request_updated'
   | 'import_request_status_transition'
-  | 'import_request_archived';
+  | 'import_request_archived'
+  | 'import_request_message_posted';
 
 export interface ImportRequestTimelineEvent {
   type: ImportRequestTimelineEventType;
@@ -1137,6 +1167,14 @@ export function activityEventSummary(e: ActivityEvent): string {
     }
     case 'import_request_archived':
       return `Import request ${entityRef} archived`;
+    case 'import_request_message_posted': {
+      // Detail carries { messageId, role, length } — surface the role
+      // so the feed reads "Customer posted on ir_xxx" vs "Ops posted
+      // on ir_xxx" without exposing the message body.
+      const role = (e.detail as Record<string, unknown> | undefined)?.role;
+      const who = role === 'ops' ? 'Team' : role === 'system' ? 'System' : 'Customer';
+      return `${who} posted on import request ${entityRef}`;
+    }
     case 'goods_master_created':
       return `New product registered (${entityRef})`;
     case 'goods_master_updated':
