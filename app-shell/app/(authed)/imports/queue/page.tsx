@@ -76,6 +76,14 @@ function QueueView() {
   // URL-backed, because the queue is a working surface and operators
   // change filters constantly. Persist via URL when team sizes grow.
   const [complianceFilter, setComplianceFilter] = useState<ComplianceQueueFilter>('all');
+  // Sprint 25 — free-text search on the queue. Same posture as the
+  // compliance filter: local state, no URL backing — ops uses this
+  // as a working surface, not a bookmark. Two pieces of state so the
+  // input stays responsive while the network request is debounced:
+  //   • searchInput — the live input value (every keystroke)
+  //   • appliedQ    — committed value, debounced; drives the fetch
+  const [searchInput, setSearchInput] = useState('');
+  const [appliedQ, setAppliedQ] = useState('');
   // Sprint 20 — bulk-select state. Tracking by externalId in a Set
   // keeps O(1) toggle + "is selected" checks; the filter chip + the
   // bulk action bar derive from it. Resets on every successful bulk
@@ -92,9 +100,29 @@ function QueueView() {
   // the UI disable the send button before the user clicks.
   const BULK_CAP = 50;
 
+  // Sprint 25 — debounce the search input. 300ms idle window matches
+  // the /imports list page so muscle-memory carries between surfaces.
+  useEffect(() => {
+    if (searchInput === appliedQ) return;
+    const timer = setTimeout(() => setAppliedQ(searchInput), 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
+  // Sprint 25 — helper to build the fetch URL with the active search.
+  // Both load() (on-demand refresh after a review action) and the
+  // initial useEffect call this; without the helper they would
+  // duplicate the URL construction.
+  const buildFetchUrl = useCallback(() => {
+    const params = new URLSearchParams({ status: 'awaiting_review' });
+    const trimmed = appliedQ.trim();
+    if (trimmed) params.set('q', trimmed.slice(0, 200));
+    return `/imports?${params.toString()}`;
+  }, [appliedQ]);
+
   const load = useCallback(() => {
     setState('loading');
-    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>('/imports?status=awaiting_review')
+    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(buildFetchUrl())
       .then((d) => {
         setItems(Array.isArray(d.importRequests) ? d.importRequests : []);
         setState('ready');
@@ -106,11 +134,11 @@ function QueueView() {
           setState('error');
         }
       });
-  }, []);
+  }, [buildFetchUrl]);
 
   useEffect(() => {
     let cancelled = false;
-    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>('/imports?status=awaiting_review')
+    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(buildFetchUrl())
       .then((d) => {
         if (cancelled) return;
         setItems(Array.isArray(d.importRequests) ? d.importRequests : []);
@@ -127,7 +155,11 @@ function QueueView() {
     return () => {
       cancelled = true;
     };
-  }, []);
+    // Sprint 25 — re-fetch when appliedQ changes (via the debounced
+    // searchInput → appliedQ effect above). buildFetchUrl is stable
+    // for the same appliedQ, so referencing it in the dep array is
+    // the cleanest signal.
+  }, [buildFetchUrl]);
 
   // Sprint 8 ch 2 — derive the filter chip counts and the visible
   // list. Computing in one pass avoids re-running deriveComplianceBadges
@@ -288,6 +320,38 @@ function QueueView() {
         </div>
       )}
 
+      {/* Sprint 25 — search input on the queue. Same shape as the
+          /imports list page (debounced 300ms, ⌕ icon, × clear) so
+          muscle memory carries between surfaces. Local state only
+          — the queue is a working surface; bookmarks don't matter. */}
+      <div className="relative">
+        <input
+          type="search"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value.slice(0, 200))}
+          placeholder="Search the queue by label, product, or request ID…"
+          aria-label="Search the review queue"
+          className="w-full bg-[var(--surface-card)] border border-white/[0.08] text-[var(--color-ivory)] placeholder:text-[var(--color-ivory-mute)] text-[14px] pl-11 pr-4 py-3 focus:border-[var(--color-aqua)] focus:outline-none transition-colors"
+          style={{ borderRadius: 'var(--radius-button)' }}
+        />
+        <span
+          aria-hidden
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-ivory-mute)] text-[14px]"
+        >
+          ⌕
+        </span>
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => setSearchInput('')}
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] text-[14px] px-2 py-0.5 transition-colors"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
       {/* Compliance triage filter — sprint 8 ch 2 */}
       {state === 'ready' && items.length > 0 && (
         <nav className="flex flex-wrap gap-2" aria-label="Filter queue by compliance exposure">
@@ -355,10 +419,32 @@ function QueueView() {
           className="border border-white/[0.06] bg-[var(--surface-card)] p-12 text-center"
           style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
         >
-          <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">Queue is empty.</p>
-          <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3">
-            Nothing currently awaits team review. New submissions will appear here as the orchestrator finishes them.
-          </p>
+          {/* Sprint 25 — distinct copy when the search returned 0 vs
+              when the queue is genuinely empty. Without it, ops typing
+              an unmatched query reads "Queue is empty" and assumes
+              there's nothing to review. */}
+          {appliedQ ? (
+            <>
+              <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No queue items match "{appliedQ}".</p>
+              <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3">
+                <button
+                  type="button"
+                  onClick={() => setSearchInput('')}
+                  className="text-[var(--color-aqua)] hover:underline font-medium"
+                >
+                  Clear the search
+                </button>{' '}
+                to see every awaiting-review request.
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">Queue is empty.</p>
+              <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3">
+                Nothing currently awaits team review. New submissions will appear here as the orchestrator finishes them.
+              </p>
+            </>
+          )}
         </div>
       )}
       {state === 'ready' && items.length > 0 && filtered.length === 0 && (

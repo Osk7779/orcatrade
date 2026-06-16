@@ -78,10 +78,46 @@ function ImportsView() {
       ? (declineReasonRaw as DeclineReason)
       : null
   );
+  // Sprint 25 — free-text search. URL-backed via ?q= so a copy-pasted
+  // link reproduces the same view (matches the status + cohort
+  // pattern). Trimmed at the server, capped at 200 chars on the way
+  // in. Empty query string acts as "no search."
+  const urlQ = (sp.get('q') || '').slice(0, 200);
 
   const [state, setState] = useState<LoadState>('loading');
   const [requests, setRequests] = useState<ImportRequest[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
+  // Sprint 25 — local input mirror. Two-way binding URL ↔ input;
+  // typing updates `searchInput` immediately for responsiveness,
+  // then a 300ms debounce commits to the URL which triggers the
+  // refetch. Letting the URL drive the network request keeps the
+  // page reproducible from a shared link.
+  const [searchInput, setSearchInput] = useState(urlQ);
+
+  // Sprint 25 — debounce: push to URL 300ms after the last keystroke.
+  // ms-to-fire is local; the URL push is what re-fires the data
+  // useEffect (which reads urlQ). Idle window long enough to avoid
+  // a request per keystroke, short enough that the page feels live.
+  useEffect(() => {
+    if (searchInput === urlQ) return;
+    const timer = setTimeout(() => {
+      const params = new URLSearchParams();
+      if (filterStatus) params.set('status', filterStatus);
+      if (cohortReason) params.set('declineReason', cohortReason);
+      if (searchInput.trim()) params.set('q', searchInput.trim().slice(0, 200));
+      const qs = params.toString();
+      router.replace(qs ? `/imports?${qs}` : '/imports');
+    }, 300);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchInput]);
+
+  // Keep input in sync when the URL changes from outside (e.g. clicking
+  // a status chip that preserves a cohort or back-button navigation).
+  useEffect(() => {
+    setSearchInput(urlQ);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [urlQ]);
 
   useEffect(() => {
     let cancelled = false;
@@ -93,6 +129,7 @@ function ImportsView() {
     if (!cohortReason) params.set('mine', '1');
     if (filterStatus) params.set('status', filterStatus);
     if (cohortReason) params.set('declineReason', cohortReason);
+    if (urlQ) params.set('q', urlQ);
     apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(`/imports?${params.toString()}`)
       .then((d) => {
         if (cancelled) return;
@@ -110,7 +147,7 @@ function ImportsView() {
     return () => {
       cancelled = true;
     };
-  }, [filterStatus, cohortReason]);
+  }, [filterStatus, cohortReason, urlQ]);
 
   const counts = useMemo(() => {
     const map: Partial<Record<ImportRequestStatus, number>> = {};
@@ -199,15 +236,55 @@ function ImportsView() {
         </div>
       )}
 
+      {/* Sprint 25 — search input. Wide pill input above the filter
+          chips so it's the first interaction surface; debounced 300ms
+          before pushing to the URL. URL ↔ input two-way; back-button
+          + shareable links Just Work. */}
+      <div className="relative">
+        <input
+          type="search"
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value.slice(0, 200))}
+          placeholder="Search by label, product description, or request ID…"
+          aria-label="Search your import requests"
+          className="w-full bg-[var(--surface-card)] border border-white/[0.08] text-[var(--color-ivory)] placeholder:text-[var(--color-ivory-mute)] text-[14px] pl-11 pr-4 py-3 focus:border-[var(--color-aqua)] focus:outline-none transition-colors"
+          style={{ borderRadius: 'var(--radius-button)' }}
+        />
+        <span
+          aria-hidden
+          className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--color-ivory-mute)] text-[14px]"
+        >
+          ⌕
+        </span>
+        {searchInput && (
+          <button
+            type="button"
+            onClick={() => setSearchInput('')}
+            aria-label="Clear search"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] text-[14px] px-2 py-0.5 transition-colors"
+          >
+            ×
+          </button>
+        )}
+      </div>
+
       {/* Status filter. Sprint 23: preserve the cohort drill-down on
           chip clicks so ops can narrow a cohort by status without
-          losing the cohort identity. */}
+          losing the cohort identity. Sprint 25: same preservation
+          for the active search query so a chip click inside a search
+          doesn't drop it. */}
       <nav className="flex flex-wrap gap-2" aria-label="Filter by status">
         <FilterChip
           label="All"
           active={!filterStatus}
           count={requests.length}
-          onClick={() => router.push(cohortReason ? `/imports?declineReason=${encodeURIComponent(cohortReason)}` : '/imports')}
+          onClick={() => {
+            const params = new URLSearchParams();
+            if (cohortReason) params.set('declineReason', cohortReason);
+            if (urlQ) params.set('q', urlQ);
+            const qs = params.toString();
+            router.push(qs ? `/imports?${qs}` : '/imports');
+          }}
         />
         {IMPORT_REQUEST_STATUSES.map((s) => {
           const n = counts[s] || 0;
@@ -222,6 +299,7 @@ function ImportsView() {
                 const params = new URLSearchParams();
                 params.set('status', s);
                 if (cohortReason) params.set('declineReason', cohortReason);
+                if (urlQ) params.set('q', urlQ);
                 router.push(`/imports?${params.toString()}`);
               }}
               tone={statusTone(s)}
@@ -246,9 +324,27 @@ function ImportsView() {
           className="border border-white/[0.06] bg-[var(--surface-card)] p-12 text-center"
           style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
         >
-          {/* Sprint 23 — different empty-state copy when ops is
-              drilling into a cohort that turned out empty. */}
-          {cohortReason ? (
+          {/* Sprint 25 — search-empty state takes precedence over
+              cohort + default copy. A user who typed in the search
+              box should see "no matches" not "submit a new request". */}
+          {urlQ ? (
+            <>
+              <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No matches for "{urlQ}".</p>
+              <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
+                Try a different keyword, drop the filter, or{' '}
+                <button
+                  type="button"
+                  onClick={() => setSearchInput('')}
+                  className="text-[var(--color-aqua)] hover:underline font-medium"
+                >
+                  clear the search
+                </button>
+                .
+              </p>
+            </>
+          ) : /* Sprint 23 — different empty-state copy when ops is
+              drilling into a cohort that turned out empty. */
+          cohortReason ? (
             <>
               <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No requests in this cohort.</p>
               <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">

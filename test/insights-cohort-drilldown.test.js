@@ -194,6 +194,9 @@ test('/imports empty state diverges in cohort mode (no "submit a new request" pr
 test('/imports cohort mode useEffect re-fires when cohortReason changes', () => {
   // The useEffect dep array must include cohortReason — otherwise
   // navigating between cohorts (e.g. "Price target unrealistic" →
-  // "Compliance blocker") wouldn't refetch.
-  assert.match(LIST_TSX, /\[filterStatus, cohortReason\]/);
+  // "Compliance blocker") wouldn't refetch. Sprint 25 added urlQ to
+  // the same dep array; pin the cohortReason inclusion abstractly
+  // so a future addition (e.g. ?dateRange) doesn't break this guard.
+  const block = LIST_TSX.match(/\[filterStatus,\s*cohortReason[^\]]*\]/);
+  assert.ok(block, 'useEffect dep array must include filterStatus + cohortReason');
 });
