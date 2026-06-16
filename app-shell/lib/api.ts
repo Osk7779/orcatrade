@@ -1060,6 +1060,113 @@ export interface ImportRequestMessage {
   at: string;
 }
 
+// ── Onboarding example library (sprint 22) ───────────────────────────
+// Curated, calculator-grounded sample requests a first-time customer
+// can click "Use this example" on. Each example is a hand-picked
+// (HS code, origin, destination, certification mix) tuple that we
+// know the orchestrator handles cleanly + produces a realistic quote.
+//
+// Stored client-side ONLY — these are pure-UI affordances that submit
+// through the existing /imports create endpoint with no special path.
+// The server never knows the request came from an example.
+//
+// Why hand-curated rather than synthesised:
+//   • Trust signal: "here are real categories we actually source"
+//   • Calculator-grounding: each (HS, origin) pair is one we've
+//     verified produces a sensible quote (no edge cases in MFN
+//     duty / VAT)
+//   • Variety: covers compliance scenarios (CBAM exposure, EUDR
+//     exposure, REACH non-exposure) so a customer can pick an
+//     example matching their actual concern
+//
+// Adding an example: append to ONBOARDING_EXAMPLES. The id stays
+// stable (it becomes a query-param value in the /imports/new URL,
+// so renaming would break any in-the-wild links).
+
+export interface OnboardingExample {
+  id: string;
+  title: string;
+  pitch: string;
+  // Hint for the chip displayed on the example card — names a
+  // compliance regime so the customer can scan for "the one with my
+  // concern."
+  highlight: 'CBAM-exposed' | 'EUDR-exposed' | 'consumer-CE-marked' | 'apparel-quota';
+  // The full FormState shape the example pre-fills. Mirrors the
+  // /imports/new form keys so the prefill helper is a 1:1 spread.
+  intent: {
+    label: string;
+    productDescription: string;
+    hsCodeGuess: string;
+    targetQuantity: number;
+    targetQuantityUnit: ImportRequestQuantityUnit;
+    targetUnitPriceCents: number;
+    originCountry: string;
+    destinationCountry: string;
+    certifications: string[];
+  };
+}
+
+export const ONBOARDING_EXAMPLES: ReadonlyArray<OnboardingExample> = Object.freeze([
+  {
+    id: 'led-grow-lights',
+    title: 'LED grow lights · CN → DE',
+    pitch: '500 pieces, 300W full-spectrum, CE + RoHS certified. A typical consumer-electronics import where the duty + VAT math drives the landed cost.',
+    highlight: 'consumer-CE-marked',
+    intent: {
+      label: 'LED grow lights · 500 pieces',
+      productDescription: '300W full-spectrum LED grow lights with passive cooling. For indoor greenhouse + vertical-farming applications. Need CE + RoHS marks on every unit.',
+      hsCodeGuess: '853941',
+      targetQuantity: 500,
+      targetQuantityUnit: 'pieces',
+      targetUnitPriceCents: 13000,
+      originCountry: 'CN',
+      destinationCountry: 'DE',
+      certifications: ['CE', 'RoHS'],
+    },
+  },
+  {
+    id: 'aluminium-extrusions',
+    title: 'Aluminium extrusions · CN → DE',
+    pitch: '20 tonnes of structural extrusions. CBAM-exposed — the carbon levy adds materially to the landed cost and the dossier shows the embedded-emissions math.',
+    highlight: 'CBAM-exposed',
+    intent: {
+      label: 'Aluminium extrusions · 20t',
+      productDescription: 'Structural aluminium extrusions (6063 alloy), unalloyed bars and rods. For architectural framing systems.',
+      hsCodeGuess: '760421',
+      targetQuantity: 20,
+      targetQuantityUnit: 'tonnes',
+      targetUnitPriceCents: 280000,
+      originCountry: 'CN',
+      destinationCountry: 'DE',
+      certifications: [],
+    },
+  },
+  {
+    id: 'apparel-knit',
+    title: 'Knit apparel · BD → DE',
+    pitch: '3,000 cotton T-shirts from Bangladesh. EU-Bangladesh EBA tariff preference applies — duty is zero with the right certificate of origin.',
+    highlight: 'apparel-quota',
+    intent: {
+      label: 'Cotton T-shirts · 3,000 pieces',
+      productDescription: 'Knitted cotton T-shirts, men\'s + women\'s mix, single-jersey 180gsm, plain dye. OEKO-TEX requested for retail compliance.',
+      hsCodeGuess: '610910',
+      targetQuantity: 3000,
+      targetQuantityUnit: 'pieces',
+      targetUnitPriceCents: 350,
+      originCountry: 'BD',
+      destinationCountry: 'DE',
+      certifications: ['OEKO-TEX'],
+    },
+  },
+]) as ReadonlyArray<OnboardingExample>;
+
+// Look up an example by id. Returns undefined if not found — the
+// /imports/new page falls back to the empty form silently so a stale
+// bookmark doesn't render an error.
+export function getOnboardingExampleById(id: string): OnboardingExample | undefined {
+  return ONBOARDING_EXAMPLES.find((e) => e.id === id);
+}
+
 // /api/imports/<id>/whatif — sprint 10. Returns a stateless preview
 // of the landed-cost quote with override fields applied to the
 // persisted intent. No persistence, no audit log, no LLM prose —

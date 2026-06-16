@@ -94,6 +94,14 @@ export default function DashboardPage() {
         totalRouted={totalRouted}
       />
 
+      {/* Sprint 22 — onboarding checklist for first-time customers.
+          Renders ONLY when the user has zero import requests. The
+          ImportsWidget below detects this via the same /imports?mine=1
+          endpoint, so the checklist auto-hides the moment the customer
+          submits their first request and the next dashboard load
+          brings back items. */}
+      <OnboardingChecklist />
+
       <Bento
         planCount={planCount}
         portfolioCount={portfolioCount}
@@ -416,6 +424,111 @@ function importAgeLabel(iso: string): string {
   if (hours >= 1) return `${hours}h ago`;
   const mins = Math.floor(ms / 60_000);
   return mins >= 1 ? `${mins}m ago` : 'just now';
+}
+
+// Sprint 22 — onboarding checklist for first-time customers. Renders
+// the 3-step path from "submit your first request" → "we generate a
+// quote" → "approve to move to fulfillment" so a brand-new user
+// understands the platform shape before they click anything. Auto-
+// hides as soon as the user has at least one import request — the
+// query that powers ImportsWidget is the same signal.
+function OnboardingChecklist() {
+  type ListState = 'loading' | 'show' | 'hide';
+  const [state, setState] = useState<ListState>('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+    // Use the same endpoint as ImportsWidget so a fresh deploy
+    // (DATABASE_URL not yet wired, schema not migrated) results in
+    // ImportsWidget being hidden + the checklist staying hidden too
+    // — the dashboard never breaks if /api/imports is degraded.
+    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>('/imports?mine=1&limit=1')
+      .then((d) => {
+        if (cancelled) return;
+        const has = Array.isArray(d.importRequests) && d.importRequests.length > 0;
+        setState(has ? 'hide' : 'show');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Same fail-soft posture as ImportsWidget — a 401/503/etc.
+        // hides the checklist rather than breaking the page.
+        setState('hide');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (state !== 'show') return null;
+
+  return (
+    <Section>
+      <SectionHeading>Get started in 3 steps</SectionHeading>
+      <div
+        className="bg-[var(--surface-card)] border border-[var(--color-aqua)]/30 p-7 grid grid-cols-1 md:grid-cols-3 gap-5"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        <OnboardingStep
+          n={1}
+          title="Submit your first request"
+          body="Tell us what you want to import. The freer the description, the better the AI shortlists factories."
+          cta={{ label: 'New import request', href: '/imports/new' }}
+        />
+        <OnboardingStep
+          n={2}
+          title="We generate a quote in seconds"
+          body="Calculator-grounded landed-cost breakdown + supplier shortlist + compliance verdicts. The team reviews before you see it."
+        />
+        <OnboardingStep
+          n={3}
+          title="Approve to move to fulfillment"
+          body="On approval we materialise the goods + supplier + shipment records and the operations team takes it from there."
+        />
+      </div>
+    </Section>
+  );
+}
+
+function OnboardingStep({
+  n,
+  title,
+  body,
+  cta,
+}: {
+  n: number;
+  title: string;
+  body: string;
+  cta?: { label: string; href: string };
+}) {
+  return (
+    <div className="space-y-3">
+      <span
+        className="inline-flex items-center justify-center w-7 h-7 text-[12.5px] font-bold font-mono"
+        style={{
+          background: 'var(--color-aqua)',
+          color: 'var(--color-navy)',
+          borderRadius: 'var(--radius-badge)',
+        }}
+      >
+        {n}
+      </span>
+      <h3 className="text-[15.5px] font-semibold text-[var(--color-ivory)] tracking-[-0.01em]">
+        {title}
+      </h3>
+      <p className="text-[13.5px] text-[var(--color-ivory-dim)] leading-relaxed">
+        {body}
+      </p>
+      {cta && (
+        <Link
+          href={cta.href}
+          className="group inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--color-aqua)] hover:underline"
+        >
+          {cta.label}
+          <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+        </Link>
+      )}
+    </div>
+  );
 }
 
 function ImportsWidget() {
