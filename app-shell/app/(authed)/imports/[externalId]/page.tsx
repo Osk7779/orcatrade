@@ -833,11 +833,58 @@ function QuotePanel({ quote, expires }: { quote: LandedQuote; expires?: string |
       )}
 
       {expires && (
-        <p className="text-[11.5px] text-[var(--color-ivory-mute)]">
-          Quote valid until <span className="text-[var(--color-ivory-dim)] font-medium">{new Date(expires).toLocaleDateString('en-IE')}</span>
-        </p>
+        <QuoteExpiryRow expires={expires} />
       )}
     </section>
+  );
+}
+
+// Sprint 19 — countdown surfacing the imminent auto-expiry. When the
+// expiry is < 24h away the badge flips to warning amber + the copy
+// shifts to "expires soon" so the customer feels the urgency without
+// us having to send a pre-expiry email. After the timestamp passes,
+// the nightly cron transitions the row → 'expired' and the QuotePanel
+// stops rendering; this UI is for the still-quoted window.
+function QuoteExpiryRow({ expires }: { expires: string }) {
+  const ts = Date.parse(expires);
+  if (!Number.isFinite(ts)) {
+    return (
+      <p className="text-[11.5px] text-[var(--color-ivory-mute)]">
+        Quote validity unknown.
+      </p>
+    );
+  }
+  const msRemaining = ts - Date.now();
+  const hoursRemaining = Math.floor(msRemaining / 3_600_000);
+  const daysRemaining = Math.floor(hoursRemaining / 24);
+  const dateStr = new Date(ts).toLocaleDateString('en-IE');
+
+  let tone: 'neutral' | 'warning' | 'critical' = 'neutral';
+  let label: string;
+  if (msRemaining < 0) {
+    tone = 'critical';
+    label = `Expired on ${dateStr} · awaiting auto-expiry sweep`;
+  } else if (hoursRemaining < 24) {
+    tone = 'warning';
+    label = `Expires in ${Math.max(1, hoursRemaining)}h · ${dateStr}`;
+  } else if (daysRemaining <= 3) {
+    tone = 'warning';
+    label = `Expires in ${daysRemaining}d · ${dateStr}`;
+  } else {
+    label = `Quote valid until ${dateStr} · ${daysRemaining}d remaining`;
+  }
+  const toneColor =
+    tone === 'critical' ? 'var(--color-critical)'
+    : tone === 'warning' ? 'var(--color-warning)'
+    : 'var(--color-ivory-mute)';
+  return (
+    <p
+      className="text-[11.5px] font-medium"
+      style={{ color: toneColor }}
+    >
+      <span aria-hidden className="mr-1.5">{tone === 'neutral' ? '·' : tone === 'warning' ? '⏱' : '⚠'}</span>
+      {label}
+    </p>
   );
 }
 

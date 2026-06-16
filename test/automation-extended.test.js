@@ -350,6 +350,9 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // Apex III2 follow-on adds audit-anchor-snapshot — daily 02:00 UTC
   // capture of the events.js chain head into a rolling history so the
   // public /api/audit-anchor/history endpoint reflects a real time-series.
+  // Sprint 19 adds import-request-quote-expiry — daily 02:30 UTC sweep
+  // of 'quoted' import requests whose quote_expires_at has passed, with
+  // a system message posted on each row's thread.
   const ids = Object.keys(cronHandler.JOBS).sort();
   assert.deepEqual(ids, [
     'audit-anchor-snapshot',
@@ -357,6 +360,7 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'compliance-deadline-reminders',
     'db-migrate',
     'founder-digest',
+    'import-request-quote-expiry',
     'monitoring-scan',
     'plan-revision-emails',
     'portfolio-revision-emails',

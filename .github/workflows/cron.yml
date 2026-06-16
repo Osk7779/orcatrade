@@ -64,6 +64,14 @@ on:
     # re-fire safe. Runs before TARIC warm + calibration drift so a
     # quiet-night anchor lands before morning activity perturbs it.
     - cron: '0 2 * * *'
+    # Daily 02:30 UTC — import-request quote-expiry sweep (Sprint 19).
+    # Transitions every 'quoted' import request whose quote_expires_at
+    # has passed to 'expired'. Posts a system message on the thread so
+    # the customer sees the reason if they revisit. Idempotent (already-
+    # expired rows fall out of the WHERE clause). Runs after the audit
+    # anchor snapshot so the snapshot's chain head reflects yesterday's
+    # state cleanly.
+    - cron: '30 2 * * *'
   workflow_dispatch:
     inputs:
       job:
@@ -84,6 +92,7 @@ on:
           - rag-reindex
           - db-migrate
           - audit-anchor-snapshot
+          - import-request-quote-expiry
 
 jobs:
   dispatch:
@@ -116,6 +125,8 @@ jobs:
             echo "job=monitoring-scan" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 2 * * *" ]; then
             echo "job=audit-anchor-snapshot" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 2 * * *" ]; then
+            echo "job=import-request-quote-expiry" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi
