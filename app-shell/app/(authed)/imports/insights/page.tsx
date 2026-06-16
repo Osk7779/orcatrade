@@ -393,6 +393,7 @@ function DeclineBreakdown({ data }: { data: OpsInsights }) {
         {sorted.map(({ reason, n }) => (
           <DeclineRow
             key={reason}
+            reason={reason as DeclineReason}
             label={DECLINE_REASON_LABELS[reason as DeclineReason]}
             n={n}
             total={data.totalDeclined}
@@ -406,12 +407,14 @@ function DeclineBreakdown({ data }: { data: OpsInsights }) {
 }
 
 function DeclineRow({
+  reason,
   label,
   n,
   total,
   maxN,
   tone,
 }: {
+  reason: DeclineReason;
   label: string;
   n: number;
   total: number;
@@ -420,8 +423,11 @@ function DeclineRow({
 }) {
   const pct = total > 0 ? Math.round((n / total) * 100) : 0;
   const barPct = n > 0 ? Math.max(2, Math.round((n / maxN) * 100)) : 0;
-  return (
-    <div className={`space-y-1.5 ${tone === 'empty' ? 'opacity-50' : ''}`}>
+  // Sprint 23 — only present rows are clickable. The empty rows
+  // exist to teach the closed taxonomy ("here's every reason we
+  // track") and have no cohort to drill into.
+  const body = (
+    <>
       <div className="flex items-baseline justify-between gap-3">
         <span className="text-[13.5px] font-medium text-[var(--color-ivory)]">
           {label}
@@ -443,7 +449,19 @@ function DeclineRow({
           }}
         />
       </div>
-    </div>
+    </>
+  );
+  if (tone === 'empty') {
+    return <div className="space-y-1.5 opacity-50">{body}</div>;
+  }
+  return (
+    <Link
+      href={`/imports?status=cancelled&declineReason=${encodeURIComponent(reason)}`}
+      className="group block space-y-1.5 -mx-2 px-2 py-1.5 rounded transition-colors duration-150 hover:bg-white/[0.025]"
+      title={`Drill into the ${n} request${n === 1 ? '' : 's'} declined with reason "${label}"`}
+    >
+      {body}
+    </Link>
   );
 }
 

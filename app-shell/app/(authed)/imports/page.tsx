@@ -20,6 +20,9 @@ import {
   IMPORT_REQUEST_STATUSES,
   type ImportRequest,
   type ImportRequestStatus,
+  type DeclineReason,
+  DECLINE_REASONS,
+  DECLINE_REASON_LABELS,
 } from '@/lib/api';
 
 type LoadState = 'loading' | 'auth' | 'error' | 'ready';
@@ -65,6 +68,16 @@ function ImportsView() {
   const router = useRouter();
   const sp = useSearchParams();
   const filterStatus = sp.get('status') as ImportRequestStatus | null;
+  // Sprint 23 — cohort drill-down from /imports/insights. When set,
+  // the page renders the org-wide cohort (NOT scoped to mine=1) +
+  // surfaces a cohort header. Validated against DECLINE_REASONS so
+  // a forged URL falls back to null cleanly.
+  const declineReasonRaw = sp.get('declineReason');
+  const cohortReason: DeclineReason | null = (
+    declineReasonRaw && (DECLINE_REASONS as ReadonlyArray<string>).includes(declineReasonRaw)
+      ? (declineReasonRaw as DeclineReason)
+      : null
+  );
 
   const [state, setState] = useState<LoadState>('loading');
   const [requests, setRequests] = useState<ImportRequest[]>([]);
@@ -73,8 +86,13 @@ function ImportsView() {
   useEffect(() => {
     let cancelled = false;
     const params = new URLSearchParams();
-    params.set('mine', '1');
+    // Cohort drill-down is an ops view of org-wide requests; the
+    // customer view stays scoped to their own. Same RBAC at the
+    // handler — only ops can hit the /insights surface that
+    // links here.
+    if (!cohortReason) params.set('mine', '1');
     if (filterStatus) params.set('status', filterStatus);
+    if (cohortReason) params.set('declineReason', cohortReason);
     apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(`/imports?${params.toString()}`)
       .then((d) => {
         if (cancelled) return;
@@ -92,7 +110,7 @@ function ImportsView() {
     return () => {
       cancelled = true;
     };
-  }, [filterStatus]);
+  }, [filterStatus, cohortReason]);
 
   const counts = useMemo(() => {
     const map: Partial<Record<ImportRequestStatus, number>> = {};
@@ -150,9 +168,47 @@ function ImportsView() {
         </div>
       </header>
 
-      {/* Status filter */}
+      {/* Sprint 23 — cohort drill-down banner. Renders when the page
+          was reached from /imports/insights via a clickable decline-
+          reason bar. Shows the cohort's identity + a "Back to insights"
+          escape hatch so ops doesn't have to use the browser history. */}
+      {cohortReason && (
+        <div
+          className="bg-[var(--color-aqua-soft)] border border-[var(--color-aqua)]/30 p-5 flex items-start justify-between gap-4 flex-wrap"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <div className="space-y-1.5 max-w-2xl">
+            <span className="inline-block text-[10.5px] font-semibold tracking-[0.08em] uppercase text-[var(--color-aqua)]">
+              Cohort · {DECLINE_REASON_LABELS[cohortReason]}
+            </span>
+            <p className="text-[14px] text-[var(--color-ivory)] leading-relaxed">
+              Every request in your org{filterStatus ? ` at status ${statusLabel(filterStatus).toLowerCase()}` : ''} that the team declined with this reason. Triage with bulk actions on{' '}
+              <Link href="/imports/queue" className="text-[var(--color-aqua)] hover:underline font-medium">
+                the queue
+              </Link>{' '}
+              if any of these need revisiting.
+            </p>
+          </div>
+          <Link
+            href="/imports/insights"
+            className="inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline shrink-0"
+          >
+            <span aria-hidden className="rotate-180 inline-block">→</span>
+            Back to insights
+          </Link>
+        </div>
+      )}
+
+      {/* Status filter. Sprint 23: preserve the cohort drill-down on
+          chip clicks so ops can narrow a cohort by status without
+          losing the cohort identity. */}
       <nav className="flex flex-wrap gap-2" aria-label="Filter by status">
-        <FilterChip label="All" active={!filterStatus} count={requests.length} onClick={() => router.push('/imports')} />
+        <FilterChip
+          label="All"
+          active={!filterStatus}
+          count={requests.length}
+          onClick={() => router.push(cohortReason ? `/imports?declineReason=${encodeURIComponent(cohortReason)}` : '/imports')}
+        />
         {IMPORT_REQUEST_STATUSES.map((s) => {
           const n = counts[s] || 0;
           if (n === 0 && filterStatus !== s) return null;
@@ -162,7 +218,12 @@ function ImportsView() {
               label={statusLabel(s)}
               count={n}
               active={filterStatus === s}
-              onClick={() => router.push(`/imports?status=${s}`)}
+              onClick={() => {
+                const params = new URLSearchParams();
+                params.set('status', s);
+                if (cohortReason) params.set('declineReason', cohortReason);
+                router.push(`/imports?${params.toString()}`);
+              }}
               tone={statusTone(s)}
             />
           );
@@ -185,10 +246,30 @@ function ImportsView() {
           className="border border-white/[0.06] bg-[var(--surface-card)] p-12 text-center"
           style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
         >
-          <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No import requests yet.</p>
-          <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3">
-            Start with <Link className="text-[var(--color-aqua)] hover:underline" href="/imports/new">a new request</Link> — we will surface a shortlist + landed-cost quote within a few minutes.
-          </p>
+          {/* Sprint 23 — different empty-state copy when ops is
+              drilling into a cohort that turned out empty. */}
+          {cohortReason ? (
+            <>
+              <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No requests in this cohort.</p>
+              <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
+                No declines with reason{' '}
+                <span className="text-[var(--color-ivory)] font-semibold">{DECLINE_REASON_LABELS[cohortReason]}</span>
+                {filterStatus ? ` and status ${statusLabel(filterStatus).toLowerCase()}` : ''} in this org{' '}
+                — that's actually good news.{' '}
+                <Link className="text-[var(--color-aqua)] hover:underline" href="/imports/insights">
+                  Back to insights
+                </Link>
+                .
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No import requests yet.</p>
+              <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3">
+                Start with <Link className="text-[var(--color-aqua)] hover:underline" href="/imports/new">a new request</Link> — we will surface a shortlist + landed-cost quote within a few minutes.
+              </p>
+            </>
+          )}
         </div>
       )}
       {state === 'ready' && requests.length > 0 && (
