@@ -34,6 +34,10 @@ import {
   SHIPMENT_VALID_TRANSITIONS,
   type WhatIfResponse,
   type WhatIfDelta,
+  type DeclineReason,
+  DECLINE_REASONS,
+  DECLINE_REASON_LABELS,
+  REVISABLE_DECLINE_REASONS,
 } from '@/lib/api';
 import { TransitionHistory } from '@/components/TransitionHistory';
 
@@ -218,6 +222,14 @@ export default function ImportRequestDetailPage() {
         </div>
       </header>
 
+      {/* Sprint 16 — declined-with-reason panel. Renders only when
+          status='cancelled' AND teamReviewState carries a structured
+          decline reason. Surfaces the reason + ops note + Revise CTA
+          for revisable reasons. */}
+      {request.status === 'cancelled' && request.teamReviewState?.declineReason && (
+        <DeclinedReasonPanel request={request} />
+      )}
+
       {/* Action zone */}
       <ActionZone
         request={request}
@@ -251,6 +263,20 @@ export default function ImportRequestDetailPage() {
         onTeamSendBack={() =>
           act('team-sending-back', async () => {
             await apiPost(`/imports/${request.externalId}/review`, { decision: 'sent_back', notes: 'Re-run with refined inputs' });
+          })
+        }
+        // Sprint 16 — structured-decline action. Ops picks one of the
+        // DECLINE_REASONS values + an optional free-text note; the
+        // data-layer validates the reason, sets revisable on the
+        // payload, and the customer receives a templated email with
+        // the right CTA.
+        onTeamDecline={(reason, notes) =>
+          act('team-declining', async () => {
+            await apiPost(`/imports/${request.externalId}/review`, {
+              decision: 'rejected',
+              declineReason: reason,
+              notes,
+            });
           })
         }
       />
@@ -378,6 +404,20 @@ export default function ImportRequestDetailPage() {
               </Link>
             </>
           )}
+          {/* Sprint 16 — revision lineage. Surface the back-pointer to
+              the request this row was revised FROM so the customer +
+              ops can navigate the chain. */}
+          {request.revisedFromExternalId && (
+            <>
+              {' '}· revised from{' '}
+              <Link
+                href={`/imports/${request.revisedFromExternalId}`}
+                className="text-[var(--color-aqua)] hover:underline not-italic font-sans font-medium font-mono"
+              >
+                {request.revisedFromExternalId}
+              </Link>
+            </>
+          )}
         </div>
         {/* Sprint 13 ch 2 — duplicate this request. Common workflow for
             repeat orders: same product, same factory, different
@@ -403,6 +443,7 @@ function ActionZone({
   onCancel,
   onTeamApprove,
   onTeamSendBack,
+  onTeamDecline,
 }: {
   request: ImportRequest;
   actionPending: string | null;
@@ -413,8 +454,13 @@ function ActionZone({
   onCancel: () => void;
   onTeamApprove: () => void;
   onTeamSendBack: () => void;
+  onTeamDecline: (reason: DeclineReason, notes: string) => void;
 }) {
   const s = request.status;
+  const [declineOpen, setDeclineOpen] = useState(false);
+  const [declineReason, setDeclineReason] = useState<DeclineReason>('price_target_unrealistic');
+  const [declineNotes, setDeclineNotes] = useState('');
+
   if (s === 'customer_approved') {
     return (
       <Banner tone="positive">
@@ -422,12 +468,27 @@ function ActionZone({
       </Banner>
     );
   }
-  if (s === 'customer_rejected' || s === 'cancelled' || s === 'expired') {
+  // Sprint 16 — when the team declined with a structured reason, the
+  // customer sees a richer panel (DeclinedReasonPanel) rendered above.
+  // The plain "closed" banner stays for the other terminal states.
+  if (s === 'customer_rejected' || s === 'expired') {
     return (
       <Banner tone="neutral">
         This request is closed. Start a <Link href="/imports/new" className="underline">new request</Link> if you want to revise inputs and try again.
       </Banner>
     );
+  }
+  if (s === 'cancelled' && !request.teamReviewState?.declineReason) {
+    return (
+      <Banner tone="neutral">
+        This request is closed. Start a <Link href="/imports/new" className="underline">new request</Link> if you want to revise inputs and try again.
+      </Banner>
+    );
+  }
+  if (s === 'cancelled' && request.teamReviewState?.declineReason) {
+    // The DeclinedReasonPanel rendered above already gives the user
+    // the right next-step CTA; suppress the action zone.
+    return null;
   }
   const buttons: React.ReactNode[] = [];
   if (s === 'submitted') {
@@ -444,6 +505,14 @@ function ActionZone({
       </PrimaryButton>,
       <SecondaryButton key="team-back" onClick={onTeamSendBack} disabled={!!actionPending}>
         Send back to processing
+      </SecondaryButton>,
+      // Sprint 16 — structured decline. Opens an inline reason picker.
+      <SecondaryButton
+        key="team-decline"
+        onClick={() => setDeclineOpen((v) => !v)}
+        disabled={!!actionPending}
+      >
+        {declineOpen ? 'Cancel decline' : 'Decline with reason'}
       </SecondaryButton>,
     );
   }
@@ -477,12 +546,125 @@ function ActionZone({
       style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
     >
       <div className="flex flex-wrap gap-3">{buttons}</div>
+      {/* Sprint 16 — inline decline-with-reason form. Renders only
+          when ops clicks "Decline with reason" on an awaiting_review
+          request. Reason picker is a constrained select bound to
+          DECLINE_REASONS so the data-layer never sees an unknown
+          enum value. */}
+      {declineOpen && s === 'awaiting_review' && (
+        <div
+          className="border-t border-white/[0.08] pt-4 mt-2 space-y-4"
+        >
+          <div>
+            <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] mb-2">
+              Reason
+            </label>
+            <select
+              value={declineReason}
+              onChange={(e) => setDeclineReason(e.target.value as DeclineReason)}
+              className="w-full bg-[var(--surface-card)] border border-white/10 text-[var(--color-ivory)] text-[14px] px-3 py-2 rounded focus:border-[var(--color-aqua)] focus:outline-none"
+            >
+              {DECLINE_REASONS.map((r) => (
+                <option key={r} value={r}>{DECLINE_REASON_LABELS[r]}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] mb-2">
+              Note for the customer (optional)
+            </label>
+            <textarea
+              value={declineNotes}
+              onChange={(e) => setDeclineNotes(e.target.value.slice(0, 4000))}
+              placeholder="Tell the customer what specifically to change. Shown in the rejection email."
+              rows={3}
+              className="w-full bg-[var(--surface-card)] border border-white/10 text-[var(--color-ivory)] text-[13.5px] px-3 py-2 rounded focus:border-[var(--color-aqua)] focus:outline-none resize-y"
+            />
+            <p className="text-[11px] text-[var(--color-ivory-mute)] mt-1">{declineNotes.length} / 4000</p>
+          </div>
+          <div className="flex flex-wrap gap-3">
+            <PrimaryButton
+              onClick={() => {
+                onTeamDecline(declineReason, declineNotes);
+                setDeclineOpen(false);
+                setDeclineNotes('');
+              }}
+              disabled={!!actionPending}
+            >
+              {actionPending === 'team-declining' ? 'Declining…' : 'Send decline + email customer'}
+            </PrimaryButton>
+            <SecondaryButton
+              onClick={() => { setDeclineOpen(false); setDeclineNotes(''); }}
+              disabled={!!actionPending}
+            >
+              Cancel
+            </SecondaryButton>
+          </div>
+        </div>
+      )}
       {actionError && (
         <p className="text-[13px] font-medium text-[var(--color-critical)]">
           {actionError}
         </p>
       )}
     </div>
+  );
+}
+
+// Sprint 16 — customer-facing decline panel. Renders when a request
+// status='cancelled' AND teamReviewState carries a structured decline
+// reason. Surfaces the reason headline + the ops note + a "Revise this
+// request" CTA for revisable reasons. The plain "closed" Banner stays
+// for non-structured cancellations (customer-initiated cancel, expired
+// quote, etc).
+function DeclinedReasonPanel({ request }: { request: ImportRequest }) {
+  const trs = request.teamReviewState;
+  if (!trs || !trs.declineReason) return null;
+  const reason = trs.declineReason;
+  const label = DECLINE_REASON_LABELS[reason] || 'Other';
+  const isRevisable = REVISABLE_DECLINE_REASONS.includes(reason);
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-[var(--color-warning)]/35 p-6 space-y-4"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="flex items-center justify-between gap-4 flex-wrap">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-warning)]">
+          Declined · revise to try again
+        </h2>
+        <span
+          className="text-[10px] font-semibold tracking-[0.06em] uppercase px-2 py-0.5 border border-[var(--color-warning)] text-[var(--color-warning)]"
+          style={{ borderRadius: 'var(--radius-badge)', background: 'rgba(245,158,11,0.08)' }}
+        >
+          {label}
+        </span>
+      </div>
+      {trs.notes && (
+        <div>
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] mb-1.5">
+            Team note
+          </p>
+          <p className="text-[14.5px] text-[var(--color-ivory)] leading-relaxed whitespace-pre-wrap">
+            {trs.notes}
+          </p>
+        </div>
+      )}
+      {isRevisable && (
+        <div className="pt-2">
+          <Link
+            href={`/imports/new?revise=${encodeURIComponent(request.externalId)}`}
+            className="group inline-flex items-center gap-2 px-5 py-3 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13.5px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px"
+            style={{ borderRadius: 'var(--radius-button)', boxShadow: 'var(--shadow-cta)' }}
+          >
+            Revise this request
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+          </Link>
+          <p className="text-[12.5px] text-[var(--color-ivory-mute)] mt-3 leading-relaxed max-w-xl">
+            Your intent will be pre-filled on the revision form — just adjust the line that needs to change. We will re-quote.
+          </p>
+        </div>
+      )}
+    </section>
   );
 }
 

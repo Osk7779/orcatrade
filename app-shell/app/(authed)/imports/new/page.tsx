@@ -99,24 +99,37 @@ const EMPTY_FORM: FormState = {
   certifications: [],
 };
 
-// Sprint 13 ch 2 — duplicate-from-request helper. Maps a persisted
-// ImportRequest onto the new-request FormState. Used by the
-// `?duplicate=ir_xxx` query-param flow on /imports/new. Pure
-// function — drift-guarded by a test that reads this file and
-// asserts every load-bearing intent field gets carried across.
+// Sprint 13 ch 2 (+ Sprint 16 reuse) — prefill helper. Maps a
+// persisted ImportRequest onto the new-request FormState. Used by
+// BOTH flows on /imports/new:
+//   • `?duplicate=ir_xxx` — customer wants another order like the prior
+//     one (sprint 13). Label suffix: " (copy)".
+//   • `?revise=ir_xxx`   — customer is responding to a structured
+//     decline reason (sprint 16). Label suffix: " (revised)".
+//
+// The two suffixes are different so the new row reads correctly on
+// the dashboard widget + the list view ("My LED order (revised)"
+// is a different intent than "My LED order (copy)").
+//
+// Pure function — drift-guarded by tests that read this file and
+// assert every load-bearing intent field is carried across.
 //
 // Fields deliberately RESET (not carried):
-//   • targetDeliveryDate — likely stale (a duplicate is for a NEW
-//     order, not a re-run of the original)
-//   • label — re-derived as "<original> (copy)" so the duplicate
-//     row is visually distinct from its source
+//   • targetDeliveryDate — likely stale (a duplicate/revision is for a
+//     NEW order, not a re-run of the original)
+//   • label — re-derived per the suffix above so the new row is
+//     visually distinct from its source on the list view
 //
 // All other intent fields (productDescription, HS guess, quantity,
 // unit price, origin, destination, certifications) carry over as-is.
-export function buildFormFromRequest(request: ImportRequest): FormState {
+export function buildFormFromRequest(
+  request: ImportRequest,
+  mode: 'duplicate' | 'revise' = 'duplicate',
+): FormState {
   const unit = (request.targetQuantityUnit || 'pieces') as ImportRequestQuantityUnit;
+  const suffix = mode === 'revise' ? '(revised)' : '(copy)';
   return {
-    label: request.label ? `${request.label} (copy)` : '',
+    label: request.label ? `${request.label} ${suffix}` : '',
     productDescription: request.productDescription || '',
     hsCodeGuess: request.hsCodeGuess || '',
     targetQuantity: request.targetQuantity ? String(request.targetQuantity) : '',
@@ -144,39 +157,47 @@ export default function NewImportRequestPage() {
 function NewImportRequestForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  // Sprint 13: `?duplicate=ir_xxx` — customer wants another like that.
+  // Sprint 16: `?revise=ir_xxx`   — customer is responding to a
+  //   structured decline. Only one is honoured per page load; revise
+  //   wins if both are present (the more specific intent).
+  const reviseFrom = searchParams.get('revise');
   const duplicateFrom = searchParams.get('duplicate');
+  const mode: 'duplicate' | 'revise' | null = reviseFrom
+    ? 'revise'
+    : duplicateFrom
+      ? 'duplicate'
+      : null;
+  const prefillFrom = reviseFrom || duplicateFrom;
   const [form, setForm] = useState<FormState>(EMPTY_FORM);
   const [submitting, setSubmitting] = useState(false);
   const [phase, setPhase] = useState<'idle' | 'creating' | 'processing'>('idle');
   const [errors, setErrors] = useState<string[]>([]);
-  // Sprint 13 ch 2: track whether the form was hydrated from a
-  // duplicate source so we can show a banner. Loading/error states
-  // for the source-fetch are handled cleanly — a failed fetch leaves
-  // the form empty (user types fresh).
-  const [duplicateLoading, setDuplicateLoading] = useState<boolean>(!!duplicateFrom);
-  const [duplicateSource, setDuplicateSource] = useState<ImportRequest | null>(null);
+  // Track whether the form was hydrated from a source request so we
+  // can render the right banner. A failed source-fetch leaves the
+  // form empty (user types fresh) — better than a noisy error.
+  const [prefillLoading, setPrefillLoading] = useState<boolean>(!!prefillFrom);
+  const [prefillSource, setPrefillSource] = useState<ImportRequest | null>(null);
 
   useEffect(() => {
-    if (!duplicateFrom) return;
+    if (!prefillFrom || !mode) return;
     let cancelled = false;
-    apiGet<{ ok: boolean; importRequest: ImportRequest }>(`/imports/${encodeURIComponent(duplicateFrom)}`)
+    apiGet<{ ok: boolean; importRequest: ImportRequest }>(`/imports/${encodeURIComponent(prefillFrom)}`)
       .then((d) => {
         if (cancelled || !d || !d.importRequest) return;
-        const next = buildFormFromRequest(d.importRequest);
+        const next = buildFormFromRequest(d.importRequest, mode);
         setForm(next);
-        setDuplicateSource(d.importRequest);
-        setDuplicateLoading(false);
+        setPrefillSource(d.importRequest);
+        setPrefillLoading(false);
       })
       .catch(() => {
-        // Silent fallback — fetch failed (request deleted, different
-        // org, or auth). User just starts with an empty form.
         if (cancelled) return;
-        setDuplicateLoading(false);
+        setPrefillLoading(false);
       });
     return () => {
       cancelled = true;
     };
-  }, [duplicateFrom]);
+  }, [prefillFrom, mode]);
 
   function update<K extends keyof FormState>(key: K, value: FormState[K]) {
     setForm((f) => ({ ...f, [key]: value }));
@@ -218,6 +239,14 @@ function NewImportRequestForm() {
       }
       if (form.targetDeliveryDate) createPayload.targetDeliveryDate = form.targetDeliveryDate;
       if (form.certifications.length) createPayload.certificationRequirements = form.certifications;
+
+      // Sprint 16 — carry the revision lineage on submit. The data
+      // layer verifies same-org existence before insert (a cross-org
+      // reference would be rejected with a 400). Only set on the
+      // revise flow; ?duplicate intentionally creates an unlinked row.
+      if (mode === 'revise' && reviseFrom) {
+        createPayload.revisedFromExternalId = reviseFrom;
+      }
 
       const created = await apiPost<{ ok: boolean; importRequest: ImportRequest }>(
         '/imports',
@@ -291,26 +320,55 @@ function NewImportRequestForm() {
         </div>
       </header>
 
-      {/* Sprint 13 ch 2 — duplicate-source banner. Surfaces when the
-          user landed here via "Duplicate this request →" so they know
-          the form was pre-filled and can clear it if they prefer to
-          start fresh. */}
-      {duplicateFrom && (
+      {/* Sprint 13 ch 2 + Sprint 16 — prefill-source banner. Surfaces
+          when the user landed here via "Duplicate this request →" or
+          via the "Revise this request" link in a structured-decline
+          email. Banner copy diverges per mode so the user knows what
+          they're responding to. */}
+      {prefillFrom && mode && (
         <div
           className="bg-[var(--color-aqua-soft)] border border-[var(--color-aqua)]/25 p-4 flex items-center justify-between gap-4 flex-wrap"
           style={{ borderRadius: 'var(--radius-card)' }}
         >
           <div className="text-[13px] text-[var(--color-ivory-dim)] leading-snug">
-            {duplicateLoading
-              ? (<>Duplicating from <span className="font-mono">{duplicateFrom}</span> — pre-filling…</>)
-              : duplicateSource
-              ? (<>Pre-filled from your earlier request <Link href={`/imports/${duplicateFrom}`} className="text-[var(--color-aqua)] font-medium hover:underline font-mono">{duplicateFrom}</Link>. Edit anything below, then submit a fresh request.</>)
-              : (<>Could not load <span className="font-mono">{duplicateFrom}</span> — start fresh below.</>)}
+            {prefillLoading ? (
+              mode === 'revise'
+                ? (<>Revising <span className="font-mono">{prefillFrom}</span> — pre-filling…</>)
+                : (<>Duplicating from <span className="font-mono">{prefillFrom}</span> — pre-filling…</>)
+            ) : prefillSource ? (
+              mode === 'revise'
+                ? (
+                    <>
+                      Revising your earlier request{' '}
+                      <Link
+                        href={`/imports/${prefillFrom}`}
+                        className="text-[var(--color-aqua)] font-medium hover:underline font-mono"
+                      >
+                        {prefillFrom}
+                      </Link>
+                      . Make the change the team flagged, then resubmit — we will re-quote.
+                    </>
+                  )
+                : (
+                    <>
+                      Pre-filled from your earlier request{' '}
+                      <Link
+                        href={`/imports/${prefillFrom}`}
+                        className="text-[var(--color-aqua)] font-medium hover:underline font-mono"
+                      >
+                        {prefillFrom}
+                      </Link>
+                      . Edit anything below, then submit a fresh request.
+                    </>
+                  )
+            ) : (
+              <>Could not load <span className="font-mono">{prefillFrom}</span> — start fresh below.</>
+            )}
           </div>
-          {duplicateSource && (
+          {prefillSource && (
             <button
               type="button"
-              onClick={() => { setForm(EMPTY_FORM); setDuplicateSource(null); }}
+              onClick={() => { setForm(EMPTY_FORM); setPrefillSource(null); }}
               className="text-[12px] font-medium text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] transition-colors shrink-0"
             >
               Clear and start fresh

@@ -130,7 +130,12 @@ test('NewImportRequestForm fetches the source request via apiGet on mount', () =
   // applies. If a future PR changes the endpoint convention the
   // fetch would 404 and the duplicate flow would silently leave
   // the form empty — pin the URL pattern.
-  assert.match(NEW_FORM_TSX, /apiGet[\s\S]*?\/imports\/.*duplicateFrom/);
+  //
+  // Sprint 16 reuse: the fetch variable was renamed from duplicateFrom
+  // to prefillFrom so the same hook covers both ?duplicate and
+  // ?revise. Pin the abstract pattern (apiGet → /imports/<some-var>)
+  // rather than the specific variable name.
+  assert.match(NEW_FORM_TSX, /apiGet[\s\S]*?\/imports\/\$\{encodeURIComponent\((duplicateFrom|prefillFrom)\)\}/);
 });
 
 test('NewImportRequestForm is wrapped in Suspense (useSearchParams under Next.js 15)', () => {

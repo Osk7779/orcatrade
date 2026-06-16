@@ -881,12 +881,58 @@ export interface LandedQuote {
   financeCalculatorRaw?: unknown;
 }
 
+// Sprint 16 — structured decline reasons. Single source of truth lives
+// in lib/db/import-requests.js DECLINE_REASONS; this TS mirror is
+// drift-guarded by test/decline-reasons-drift.test.js.
+export type DeclineReason =
+  | 'price_target_unrealistic'
+  | 'compliance_blocker'
+  | 'origin_restriction'
+  | 'out_of_scope'
+  | 'documentation_missing'
+  | 'other';
+
+export const DECLINE_REASONS: ReadonlyArray<DeclineReason> = Object.freeze([
+  'price_target_unrealistic',
+  'compliance_blocker',
+  'origin_restriction',
+  'out_of_scope',
+  'documentation_missing',
+  'other',
+]) as ReadonlyArray<DeclineReason>;
+
+// Which decline reasons offer a "Revise this request" CTA. Mirror of
+// REVISABLE_DECLINE_REASONS in the data layer.
+export const REVISABLE_DECLINE_REASONS: ReadonlyArray<DeclineReason> = Object.freeze([
+  'price_target_unrealistic',
+  'compliance_blocker',
+  'origin_restriction',
+  'documentation_missing',
+  'other',
+]) as ReadonlyArray<DeclineReason>;
+
+// Human-readable label per reason — used by the ops decline form +
+// the customer-side lineage panel. Headlines + nudges live in
+// lib/imports-emails.js DECLINE_REASON_COPY (the customer-facing
+// version is longer).
+export const DECLINE_REASON_LABELS: Readonly<Record<DeclineReason, string>> = Object.freeze({
+  price_target_unrealistic: 'Price target unrealistic',
+  compliance_blocker: 'Compliance blocker',
+  origin_restriction: 'Origin restriction',
+  out_of_scope: 'Out of scope',
+  documentation_missing: 'Documentation missing',
+  other: 'Other',
+}) as Readonly<Record<DeclineReason, string>>;
+
 export interface ImportRequestTeamReviewState {
   decision?: 'approved' | 'sent_back' | 'rejected';
   reviewedByEmailHash?: string;
   reviewedAt?: string;
   edits?: Array<Record<string, unknown>>;
   notes?: string;
+  // Sprint 16 — set when decision='rejected'.
+  declineReason?: DeclineReason;
+  revisable?: boolean;
 }
 
 export interface ImportRequestCustomerDecisionState {
@@ -931,6 +977,10 @@ export interface ImportRequest {
   linkedShipmentExternalId?: string | null;
   linkedGoodsExternalId?: string | null;
   linkedSupplierExternalId?: string | null;
+  // Sprint 16 — revision lineage. Set when this row was created via
+  // ?revise=<externalId> on /imports/new. Points back to the prior
+  // (rejected or cancelled) request the customer is responding to.
+  revisedFromExternalId?: string | null;
   metadata?: Record<string, unknown>;
   createdAt: string;
   updatedAt: string;
