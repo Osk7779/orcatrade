@@ -935,6 +935,39 @@ export interface ImportRequestTeamReviewState {
   revisable?: boolean;
 }
 
+// ── Ops Insights (sprint 17) ─────────────────────────────────────────
+// Returned by GET /api/imports/insights?windowDays=N. Three cohorts:
+// the funnel (counts per status), the decline-reason breakdown (which
+// rejection reasons dominated the window), and the revision conversion
+// (the headline closed-loop number — of recoverable declines, how many
+// became revisions that made it back into the pipeline). Every count
+// is computed in SQL on the data layer; the page renders deterministic
+// numbers (ADR 0002 — no LLM in this read path).
+
+export interface OpsInsightsRevisionCohort {
+  recoverableDeclined: number;
+  revisions: number;
+  revisionsProgressed: number;
+  // Server-side percentages so the UI never divides by zero.
+  // null when the denominator is 0 (rendered as em-dash).
+  revisionRate: number | null;
+  progressionRate: number | null;
+}
+
+export interface OpsInsights {
+  funnelByStatus: Partial<Record<ImportRequestStatus, number>>;
+  totalInWindow: number;
+  declineReasons: Partial<Record<DeclineReason, number>>;
+  totalDeclined: number;
+  revisionCohort: OpsInsightsRevisionCohort;
+}
+
+export interface OpsInsightsResponse {
+  ok: boolean;
+  windowDays: number;
+  insights: OpsInsights;
+}
+
 export interface ImportRequestCustomerDecisionState {
   decision?: 'approved' | 'rejected';
   decidedByEmailHash?: string;

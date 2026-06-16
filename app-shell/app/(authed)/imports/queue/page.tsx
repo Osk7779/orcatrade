@@ -172,6 +172,18 @@ function QueueView() {
             AI-generated shortlists and landed-cost quotes waiting for team eyes before they reach the customer.
             ADR 0015 human gate — every customer-facing artefact crosses this desk.
           </p>
+          {/* Sprint 17 — nav link to the Ops Insights surface so ops can
+              jump between "what's on my desk now" and "how is the queue
+              performing over time". */}
+          <div className="pt-2">
+            <Link
+              href="/imports/insights"
+              className="group inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
+            >
+              See ops insights
+              <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+            </Link>
+          </div>
         </div>
       </header>
 
