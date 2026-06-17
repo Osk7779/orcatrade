@@ -990,6 +990,23 @@ export interface OpsInsightsTopPickedCountry {
   rationaleCategoryMix: Record<string, number>;
 }
 
+// Sprint 31 — rating health cohort. Closes the sprint-30 loop:
+// per-request CustomerRating becomes an org-wide health surface.
+// averageScore is rounded server-side to one decimal place;
+// ratedPercentage is the rated count over customer_approved
+// denominator (so the "rated 75%" copy is window-honest, not skewed
+// by unapproved or stale requests). scoreDistribution is fixed-
+// length [1★, 2★, 3★, 4★, 5★] so the UI can iterate without
+// sparsity guards.
+export interface OpsInsightsRatingCohort {
+  averageScore: number | null;
+  totalRated: number;
+  totalApproved: number;
+  ratedPercentage: number | null;
+  scoreDistribution: [number, number, number, number, number];
+  lowScoreCount: number;
+}
+
 export interface OpsInsights {
   funnelByStatus: Partial<Record<ImportRequestStatus, number>>;
   totalInWindow: number;
@@ -1000,6 +1017,9 @@ export interface OpsInsights {
   // window; the UI renders a coaching empty state in that case.
   topPickedCountries: OpsInsightsTopPickedCountry[];
   totalPicked: number;
+  // Sprint 31 — cohort #5. Always present; the UI handles the
+  // no-ratings case via averageScore === null.
+  ratingCohort: OpsInsightsRatingCohort;
 }
 
 export interface OpsInsightsResponse {

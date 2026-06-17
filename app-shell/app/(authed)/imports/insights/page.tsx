@@ -39,6 +39,7 @@ import {
   type OpsInsights,
   type OpsInsightsResponse,
   type OpsInsightsTopPickedCountry,
+  type OpsInsightsRatingCohort,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -130,6 +131,7 @@ export default function InsightsPage() {
       <Funnel data={data} />
       <DeclineBreakdown data={data} />
       <TopPickedCountries data={data} />
+      <RatingHealth data={data.ratingCohort} />
     </div>
   );
 }
@@ -599,5 +601,151 @@ function PickedCountryRow({
         />
       </div>
     </Link>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  RatingHealth — sprint 31
+ *  Cohort #5. Surfaces the org-wide customer-rating signal in the
+ *  window: average score, rated-of-approved percentage, distribution
+ *  histogram across the 5 star buckets, and the "needs follow-up"
+ *  callout when 1-2★ ratings landed (those customers deserve
+ *  proactive outreach).
+ * ──────────────────────────────────────────────────────────────────── */
+
+function RatingHealth({ data }: { data: OpsInsightsRatingCohort }) {
+  // No ratings yet in window → coaching empty state. Distinct from
+  // "no approvals yet" — if the org has approved requests but
+  // nobody rated, the empty state nudges ops to chase ratings.
+  if (data.totalRated === 0) {
+    return (
+      <section className="space-y-4">
+        <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-[var(--color-ivory)]">
+          Rating health
+        </h2>
+        <div
+          className="bg-[var(--surface-card)] border border-white/[0.06] p-6"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <p className="text-[var(--color-ivory-mute)] text-[14px] italic">
+            {data.totalApproved > 0
+              ? `${data.totalApproved} approval${data.totalApproved === 1 ? '' : 's'} in this window, none rated yet. Customers can rate the end-to-end experience from their request detail page — a gentle chase email after delivery typically lifts rated-percentage above 40%.`
+              : 'No customer-approved requests in this window. As approvals land, customers can rate the end-to-end experience and the cohort lights up here with average score, distribution, and a "needs follow-up" callout for low-star ratings.'}
+          </p>
+        </div>
+      </section>
+    );
+  }
+
+  // The distribution histogram: max value (across the 5 buckets)
+  // anchors the bar widths so a 30-rating run with [0, 2, 5, 13, 10]
+  // renders as readable bars rather than every bar at near-zero.
+  const maxBucket = Math.max(1, ...data.scoreDistribution);
+  const avgTone: 'positive' | 'neutral' | 'warning' = (() => {
+    if (data.averageScore == null) return 'neutral';
+    if (data.averageScore >= 4.5) return 'positive';
+    if (data.averageScore < 3.5) return 'warning';
+    return 'neutral';
+  })();
+  const avgColor =
+    avgTone === 'positive' ? 'var(--color-positive)' :
+    avgTone === 'warning' ? 'var(--color-warning)' :
+    'var(--color-ivory)';
+
+  return (
+    <section className="space-y-4">
+      <div className="flex items-end justify-between gap-3 flex-wrap">
+        <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-[var(--color-ivory)]">
+          Rating health
+        </h2>
+        <span className="text-[12.5px] font-mono text-[var(--color-ivory-mute)]">
+          {data.totalRated} rated · {data.totalApproved} approved
+          {data.ratedPercentage != null && (
+            <span className="ml-1">({data.ratedPercentage}%)</span>
+          )}
+        </span>
+      </div>
+      <div
+        className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-5"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        {/* Headline: average score (big number) + total rated. */}
+        <div className="flex items-baseline gap-4 flex-wrap">
+          <div className="space-y-0.5">
+            <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+              Average
+            </p>
+            <p
+              className="text-[34px] font-bold tracking-[-0.02em] font-mono leading-none"
+              style={{ color: avgColor }}
+            >
+              {data.averageScore != null ? data.averageScore.toFixed(1) : '—'}
+              <span className="text-[16px] font-medium text-[var(--color-ivory-mute)] ml-1">
+                / 5
+              </span>
+            </p>
+          </div>
+          {data.lowScoreCount > 0 && (
+            <div
+              className="px-3 py-2 border self-end"
+              style={{
+                color: 'var(--color-warning)',
+                borderColor: 'var(--color-warning)',
+                background: 'rgba(245, 158, 11, 0.08)',
+                borderRadius: 'var(--radius-badge)',
+              }}
+            >
+              <span className="text-[11.5px] font-semibold tracking-[0.06em] uppercase">
+                {data.lowScoreCount} need{data.lowScoreCount === 1 ? 's' : ''} follow-up
+              </span>
+              <span className="block text-[11px] text-[var(--color-ivory-mute)] mt-0.5">
+                1-2★ ratings — reach out to those customers
+              </span>
+            </div>
+          )}
+        </div>
+
+        {/* Distribution histogram, top-down 5★ → 1★ so the
+            best-experience buckets read first. */}
+        <div className="space-y-2.5 pt-1 border-t border-white/[0.06]">
+          {[5, 4, 3, 2, 1].map((star) => {
+            const count = data.scoreDistribution[star - 1];
+            const barPct = count > 0 ? Math.max(3, Math.round((count / maxBucket) * 100)) : 0;
+            const isLow = star <= 2;
+            return (
+              <div key={star} className="space-y-1">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span
+                    className="font-mono text-[12.5px] tabular-nums"
+                    style={{ color: isLow ? 'var(--color-warning)' : 'var(--color-ivory-dim)' }}
+                  >
+                    {'★'.repeat(star)}
+                    <span className="text-[var(--color-ivory-mute)]/40">{'☆'.repeat(5 - star)}</span>
+                  </span>
+                  <span className="text-[12.5px] font-mono text-[var(--color-ivory-mute)]">
+                    {count}
+                    {data.totalRated > 0 && count > 0 && (
+                      <span className="ml-2 text-[11px]">
+                        ({Math.round((count / data.totalRated) * 100)}%)
+                      </span>
+                    )}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-white/[0.05] overflow-hidden" style={{ borderRadius: 4 }}>
+                  <div
+                    className="h-full transition-all duration-300"
+                    style={{
+                      width: `${barPct}%`,
+                      background: isLow ? 'var(--color-warning)' : 'var(--color-aqua)',
+                      borderRadius: 4,
+                    }}
+                  />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </section>
   );
 }
