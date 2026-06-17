@@ -383,6 +383,7 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'regime-change-check',
     'sanctions-refresh',
     'taric-warm',
+    'webhook-retry-flush',
     'weekly-user-digest',
   ]) {
     assert.ok(ids.includes(required), `JOBS map missing required entry: ${required}`);
