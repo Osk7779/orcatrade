@@ -29,6 +29,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   apiGet,
+  apiPatch,
   ApiError,
   AuthError,
   DECLINE_REASONS,
@@ -42,6 +43,7 @@ import {
   type OpsInsightsRatingCohort,
   type OpsInsightsStalledQueue,
   type OpsInsightsDeclineSpikeCohort,
+  type OperatorConfigResponse,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -129,6 +131,12 @@ export default function InsightsPage() {
   return (
     <div className="max-w-5xl space-y-12 pb-16">
       <Hero windowDays={windowDays} setWindowDays={setWindowDays} totalInWindow={data.totalInWindow} />
+      {/* Sprint 42 — per-org operator config. Collapsed by default
+          (cockpit isn't a settings page); expands to a tight inline
+          form. Sits between Hero + proactive band so the user who
+          notices "0 stalled never fires" can dial the threshold
+          without leaving the page. */}
+      <OperatorConfigPanel currentStallThreshold={data.stalledQueue.thresholdDays} />
       {/* Sprint 38 — stalled-request watch. Renders ONLY when count
           > 0 so the cockpit isn't dominated by an empty card on a
           healthy day. Sits BELOW the hero + ABOVE the retrospective
@@ -469,6 +477,111 @@ function DeclineSpikeCard({ data }: { data: OpsInsightsDeclineSpikeCohort }) {
         Drill into the breakdown below — same numbers, narrower angle.
       </p>
     </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Operator config (sprint 42) — the first per-org policy knob.
+ *  Collapsed by default — the cockpit isn't a settings page. Expands
+ *  to a tight inline form with one number input + Save. Validation
+ *  matches the server (integer [1, 90]); a failed PATCH surfaces the
+ *  server's error message inline.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function OperatorConfigPanel({ currentStallThreshold }: { currentStallThreshold: number }) {
+  // currentStallThreshold is the EFFECTIVE value the SQL just used —
+  // pulled from data.stalledQueue.thresholdDays so the panel is
+  // always in sync with the cockpit it sits inside.
+  const [pending, setPending] = useState<number>(currentStallThreshold);
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [savedFlash, setSavedFlash] = useState(false);
+
+  const dirty = Number(pending) !== Number(currentStallThreshold);
+
+  async function onSave() {
+    setSaving(true);
+    setError(null);
+    try {
+      await apiPatch<OperatorConfigResponse>('/api/operator-config', {
+        stallThresholdDays: Number(pending),
+      });
+      setSavedFlash(true);
+      // Page reload picks up the new threshold across all panels
+      // without prop-drilling — the cohort, the email composer
+      // text in the StalledQueueCard, and this panel all re-read
+      // from data.stalledQueue.thresholdDays.
+      setTimeout(() => { window.location.reload(); }, 600);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setSaving(false);
+    }
+  }
+
+  return (
+    <details
+      className="bg-[var(--surface-card)] border border-white/[0.06] px-7 py-4"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <summary
+        className="cursor-pointer text-[13px] text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] flex items-center justify-between gap-3 list-none"
+        // Native marker hidden; we render our own caret via flex.
+      >
+        <span>
+          <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)] pr-3">
+            Settings
+          </span>
+          Stall threshold:{' '}
+          <span className="font-mono text-[var(--color-ivory)]">
+            {currentStallThreshold} day{currentStallThreshold === 1 ? '' : 's'}
+          </span>
+        </span>
+        <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
+      </summary>
+      <div className="pt-5 pb-2 space-y-4 max-w-xl">
+        <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+          The "no activity in awaiting_review for {'>'} N days" gate that drives the stalled-queue
+          cohort + the daily stall alert. Default is 7 days; tighten for a stricter SLA.
+        </p>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label htmlFor="stallThresholdDays" className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+            Days
+          </label>
+          <input
+            id="stallThresholdDays"
+            type="number"
+            min={1}
+            max={90}
+            step={1}
+            value={pending}
+            onChange={(e) => setPending(Number(e.target.value))}
+            disabled={saving}
+            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          />
+          <button
+            type="button"
+            onClick={onSave}
+            disabled={!dirty || saving}
+            className="text-[12.5px] font-semibold px-4 py-1.5 bg-[var(--color-aqua)] text-[var(--color-navy)] disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          >
+            {saving ? 'Saving…' : 'Save'}
+          </button>
+          {savedFlash && (
+            <span className="text-[12px] text-[var(--color-aqua)]">Saved — reloading…</span>
+          )}
+        </div>
+        {error && (
+          <p className="text-[12px] text-[var(--color-warning)]">{error}</p>
+        )}
+        <p className="text-[11px] text-[var(--color-ivory-mute)] italic">
+          Range 1–90 days. Changes are audit-logged and apply to the next dashboard read + the next
+          daily alert.
+        </p>
+      </div>
+    </details>
   );
 }
 

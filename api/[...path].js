@@ -147,6 +147,11 @@ const handlers = {
   // view count + audits + returns ok/revoked so a bookmarked /start/
   // URL stops working once the owner hits Revoke.
   'share-check': require('../lib/handlers/share-check'),
+  // Sprint 42 — per-org operator config (v1: stallThresholdDays).
+  // GET returns the effective config (defaults + org overrides);
+  // PATCH writes a validated partial. Ops-only (requireOpsRole
+  // inside the handler).
+  'operator-config': require('../lib/handlers/operator-config'),
   // Sprint wizard-step-funnel-v1 — the wizard fires fire-and-forget
   // POSTs as the user clicks Next/Back/Submit so we can compute the
   // 6-step funnel ("how many users reached step 4?") without external

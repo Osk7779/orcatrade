@@ -1059,6 +1059,26 @@ export interface OpsInsightsDeclineSpike {
   ratio: number | null;
 }
 
+// Sprint 42 — per-org operator config (v1: stallThresholdDays).
+// Mirrors lib/operator-config.js DEFAULT_OPERATOR_CONFIG shape;
+// every knob lives at the top level. As new knobs land, both this
+// interface AND the inline UI form below extend.
+export interface OperatorConfig {
+  stallThresholdDays: number;
+}
+
+// Per-knob source — 'default' = using platform default,
+// 'custom' = org has set its own value. The UI uses this to
+// render a "Reset" affordance only when the knob is customised.
+export type OperatorConfigSource = Record<keyof OperatorConfig, 'default' | 'custom'>;
+
+export interface OperatorConfigResponse {
+  ok: boolean;
+  config: OperatorConfig;
+  source: OperatorConfigSource;
+  defaults: OperatorConfig;
+}
+
 // Sprint 40 — cohort #7. The second proactive signal. spikes is
 // sorted biggest-spike-first with null-ratio (first-time reasons)
 // at the top. currentDays / baselineDays / minCount / rateMultiplier

@@ -62,7 +62,11 @@ test('aggregateOpsInsights includes a stalledQueue block in the response', () =>
   assert.match(body, /stalledQueue:/);
   // The block must surface thresholdDays + count + items per the TS
   // mirror; drift-guard pins each field name.
-  assert.match(body, /thresholdDays: STALL_THRESHOLD_DAYS/);
+  // Sprint 42 — the surfaced threshold became dynamic (effective
+  // value after per-org config + the [1, 90] defensive re-bound).
+  // The shape pin stays — the field is present and pulls from the
+  // resolved variable rather than the static constant.
+  assert.match(body, /thresholdDays: (?:STALL_THRESHOLD_DAYS|effectiveStallThreshold)/);
   assert.match(body, /count: stalledCount/);
   assert.match(body, /items: stalledItems/);
 });
@@ -106,8 +110,13 @@ test('Stalled-list SQL is sorted oldest-first AND limited to STALLED_QUEUE_CAP',
   const sql = listQuery[1];
   assert.match(sql, /ORDER BY updated_at ASC/);
   assert.match(sql, /LIMIT \$3/);
-  // The LIMIT param binds to STALLED_QUEUE_CAP.
-  assert.match(body, /\[orgId, String\(STALL_THRESHOLD_DAYS\), STALLED_QUEUE_CAP\]/);
+  // The LIMIT param binds to STALLED_QUEUE_CAP. Sprint 42 — the
+  // threshold bind became the effective-after-config variable, so
+  // either name is acceptable for the threshold slot.
+  assert.match(
+    body,
+    /\[orgId, String\((?:STALL_THRESHOLD_DAYS|effectiveStallThreshold)\), STALLED_QUEUE_CAP\]/,
+  );
 });
 
 test('Stalled-count is org-wide (NOT capped by STALLED_QUEUE_CAP)', () => {
