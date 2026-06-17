@@ -54,6 +54,8 @@ import {
   type WebhookCreateResponse,
   type WebhookEventTypesResponse,
   type WebhookTestResponse,
+  type WebhookDeliveryLogEntry,
+  type WebhookDeliveriesResponse,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -898,6 +900,11 @@ function WebhooksPanel() {
   const [creatingEvents, setCreatingEvents] = useState<string[]>([]);
   /** @type {Record<string, string>} */
   const [testResults, setTestResults] = useState<Record<string, string>>({});
+  // Sprint 49 — per-subscription recent-delivery history. Keyed by
+  // subscription id; expanded entry holds the fetched log entries
+  // (newest-first), or null while loading.
+  const [deliveries, setDeliveries] = useState<Record<string, WebhookDeliveryLogEntry[] | null>>({});
+  const [openDeliveries, setOpenDeliveries] = useState<Record<string, boolean>>({});
 
   async function refresh() {
     setLoading(true);
@@ -955,6 +962,25 @@ function WebhooksPanel() {
       setError(msg);
     } finally {
       setBusy(false);
+    }
+  }
+
+  async function toggleDeliveries(id: string) {
+    const isOpen = !!openDeliveries[id];
+    setOpenDeliveries((prev) => ({ ...prev, [id]: !isOpen }));
+    if (isOpen) return; // closing — no fetch
+    if (deliveries[id]) return; // already cached
+    setDeliveries((prev) => ({ ...prev, [id]: null }));
+    try {
+      const data = await apiGet<WebhookDeliveriesResponse>(
+        `/api/webhooks/${encodeURIComponent(id)}/deliveries?limit=25`,
+      );
+      setDeliveries((prev) => ({ ...prev, [id]: data.deliveries }));
+    } catch (e) {
+      // Surface inline — don't poison the panel-wide error state.
+      const msg = e instanceof Error ? e.message : String(e);
+      setDeliveries((prev) => ({ ...prev, [id]: [] }));
+      setTestResults((prev) => ({ ...prev, [id]: `✗ ${msg}` }));
     }
   }
 
@@ -1152,6 +1178,14 @@ function WebhooksPanel() {
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
+                        onClick={() => toggleDeliveries(s.id)}
+                        className="text-[12px] px-3 py-1.5 border border-white/15 text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:border-[var(--color-aqua)]"
+                        style={{ borderRadius: 'var(--radius-button)' }}
+                      >
+                        {openDeliveries[s.id] ? 'Hide deliveries' : 'Deliveries'}
+                      </button>
+                      <button
+                        type="button"
                         onClick={() => onTest(s.id)}
                         disabled={busy}
                         className="text-[12px] px-3 py-1.5 border border-white/15 text-[var(--color-ivory)] hover:border-[var(--color-aqua)] disabled:opacity-40"
@@ -1184,6 +1218,47 @@ function WebhooksPanel() {
                     <p className="text-[11px] text-[var(--color-ivory-mute)]">
                       {testResults[s.id] || `Last: ${s.lastDeliveryStatus}`}
                     </p>
+                  )}
+                  {openDeliveries[s.id] && (
+                    <div className="pt-2 pl-3 border-l border-white/[0.06] space-y-1.5">
+                      <p className="text-[10.5px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+                        Recent deliveries (last 7 days)
+                      </p>
+                      {deliveries[s.id] === null && (
+                        <p className="text-[11.5px] text-[var(--color-ivory-mute)]">Loading…</p>
+                      )}
+                      {deliveries[s.id] !== null && deliveries[s.id]?.length === 0 && (
+                        <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+                          No deliveries yet — fire a Test or wait for a lifecycle event.
+                        </p>
+                      )}
+                      {deliveries[s.id] !== null && (deliveries[s.id]?.length || 0) > 0 && (
+                        <ul className="space-y-1">
+                          {deliveries[s.id]?.map((d) => (
+                            <li key={d.deliveryId} className="text-[11.5px] flex items-baseline gap-2 font-mono">
+                              <span
+                                aria-label={d.ok ? 'success' : 'failure'}
+                                className={d.ok ? 'text-[var(--color-aqua)]' : 'text-[var(--color-warning)]'}
+                              >
+                                {d.ok ? '✓' : '✗'}
+                              </span>
+                              <span className="text-[var(--color-ivory-dim)]">
+                                {new Date(d.deliveredAt).toLocaleString('en-IE')}
+                              </span>
+                              <span className="text-[var(--color-ivory)]">{d.eventType}</span>
+                              <span className="text-[var(--color-ivory-mute)]">
+                                {d.timedOut
+                                  ? `timeout`
+                                  : d.error
+                                    ? d.error
+                                    : `${d.status}`}
+                              </span>
+                              <span className="text-[var(--color-ivory-mute)]">· {d.durationMs}ms</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
                   )}
                 </li>
               ))}

@@ -1109,6 +1109,26 @@ export interface WebhookTestResponse {
   delivery: WebhookTestDelivery;
 }
 
+// Sprint 49 — per-delivery log entry. Same shape the server writes
+// to KV via recordDeliveryLog. status === 0 for network failures
+// (the AbortController timeout sets timedOut=true alongside).
+export interface WebhookDeliveryLogEntry {
+  deliveryId: string;
+  subscriptionId: string;
+  eventType: string;
+  deliveredAt: string;
+  ok: boolean;
+  status: number;
+  error: string | null;
+  timedOut: boolean;
+  durationMs: number;
+}
+
+export interface WebhookDeliveriesResponse {
+  ok: boolean;
+  deliveries: WebhookDeliveryLogEntry[];
+}
+
 // Sprint 44 — per-org API keys (v1: read-only).
 //
 // The raw `key` field is ONLY present on the create response —
