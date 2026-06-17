@@ -1059,6 +1059,56 @@ export interface OpsInsightsDeclineSpike {
   ratio: number | null;
 }
 
+// Sprint 47 — outbound webhook subscriptions (v1: management +
+// test delivery).
+//
+// The `secret` field is present ONLY on the create response — it's
+// the one-time signing-material reveal. List + delete responses
+// NEVER include it. The receiver verifies HMAC-SHA256 against this
+// secret over the raw POST body.
+export interface WebhookSubscription {
+  id: string;
+  orgIdNumeric: number;
+  label: string;
+  url: string;
+  eventTypes: string[];
+  createdAt: string;
+  active: boolean;
+  lastDeliveryAt: string | null;
+  lastDeliveryStatus: string | null;
+  // `secret` is intentionally optional — present ONLY on the
+  // create response, absent on list responses (strip discipline).
+  secret?: string;
+}
+
+export interface WebhookListResponse {
+  ok: boolean;
+  webhooks: WebhookSubscription[];
+}
+
+export interface WebhookCreateResponse {
+  ok: boolean;
+  subscription: WebhookSubscription;  // carries the `secret`
+}
+
+export interface WebhookEventTypesResponse {
+  ok: boolean;
+  eventTypes: string[];
+}
+
+export interface WebhookTestDelivery {
+  ok: boolean;
+  status: number;
+  durationMs: number;
+  error: string | null;
+  timedOut: boolean;
+}
+
+export interface WebhookTestResponse {
+  ok: boolean;
+  delivery: WebhookTestDelivery;
+}
+
 // Sprint 44 — per-org API keys (v1: read-only).
 //
 // The raw `key` field is ONLY present on the create response —

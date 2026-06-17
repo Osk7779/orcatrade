@@ -157,6 +157,11 @@ const handlers = {
   // Admin-only. Bearer-token lookup path is in lib/api-keys.js;
   // wiring into specific GET endpoints is a follow-up sprint.
   'api-keys': require('../lib/handlers/api-keys'),
+  // Sprint 47 — outbound webhook subscription management + test
+  // delivery. GET lists (secrets stripped), POST creates (secret
+  // returned ONCE), DELETE removes, POST /<id>/test fires a signed
+  // test payload to the URL. Admin-only.
+  webhooks: require('../lib/handlers/webhooks'),
   // Sprint wizard-step-funnel-v1 — the wizard fires fire-and-forget
   // POSTs as the user clicks Next/Back/Submit so we can compute the
   // 6-step funnel ("how many users reached step 4?") without external

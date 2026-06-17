@@ -49,6 +49,11 @@ import {
   type ApiKey,
   type ApiKeyListResponse,
   type ApiKeyCreateResponse,
+  type WebhookSubscription,
+  type WebhookListResponse,
+  type WebhookCreateResponse,
+  type WebhookEventTypesResponse,
+  type WebhookTestResponse,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -152,6 +157,11 @@ export default function InsightsPage() {
           org. Read-only keys for v1; the bearer middleware wires
           into GET endpoints in a future sprint. */}
       <ApiKeysPanel />
+      {/* Sprint 47 — outbound webhook subscription management +
+          test delivery. The push-side counterpart to API keys
+          (which are the pull side). Both are admin-only settings;
+          clustered as a band. */}
+      <WebhooksPanel />
       {/* Sprint 38 — stalled-request watch. Renders ONLY when count
           > 0 so the cockpit isn't dominated by an empty card on a
           healthy day. Sits BELOW the hero + ABOVE the retrospective
@@ -853,6 +863,328 @@ function ApiKeysPanel() {
                   >
                     Revoke
                   </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {error && (
+          <p className="text-[12px] text-[var(--color-warning)]">{error}</p>
+        )}
+      </div>
+    </details>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Webhooks panel (sprint 47) — outbound subscription management.
+ *  Push counterpart to API keys (pull side). Create: secret returned
+ *  ONCE — reveal-once flow. Per-row Test button fires a signed
+ *  payload to the URL + surfaces the response status. SSRF guard is
+ *  server-side (lib/webhooks.js validateUrl); the form mirrors
+ *  https-only via the HTML pattern.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function WebhooksPanel() {
+  const [subs, setSubs] = useState<WebhookSubscription[] | null>(null);
+  const [eventTypes, setEventTypes] = useState<string[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [revealedSecret, setRevealedSecret] = useState<{ label: string; secret: string } | null>(null);
+  const [creatingLabel, setCreatingLabel] = useState('');
+  const [creatingUrl, setCreatingUrl] = useState('');
+  const [creatingEvents, setCreatingEvents] = useState<string[]>([]);
+  /** @type {Record<string, string>} */
+  const [testResults, setTestResults] = useState<Record<string, string>>({});
+
+  async function refresh() {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiGet<WebhookListResponse>('/api/webhooks');
+      setSubs(data.webhooks);
+      if (eventTypes === null) {
+        const ev = await apiGet<WebhookEventTypesResponse>('/api/webhooks/event-types');
+        setEventTypes(ev.eventTypes);
+      }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setSubs([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function onCreate() {
+    if (!creatingLabel.trim() || !creatingUrl.trim() || creatingEvents.length === 0) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const data = await apiPost<WebhookCreateResponse>('/api/webhooks', {
+        label: creatingLabel.trim(),
+        url: creatingUrl.trim(),
+        eventTypes: creatingEvents,
+      });
+      if (data.subscription.secret) {
+        setRevealedSecret({ label: data.subscription.label, secret: data.subscription.secret });
+      }
+      setCreatingLabel('');
+      setCreatingUrl('');
+      setCreatingEvents([]);
+      await refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onDelete(id: string) {
+    if (!confirm('Delete this webhook subscription? Any events queued for delivery will be dropped.')) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await apiDelete(`/api/webhooks/${encodeURIComponent(id)}`);
+      await refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onTest(id: string) {
+    setBusy(true);
+    setError(null);
+    setTestResults((prev) => ({ ...prev, [id]: 'Sending…' }));
+    try {
+      const data = await apiPost<WebhookTestResponse>(`/api/webhooks/${encodeURIComponent(id)}/test`, {});
+      const d = data.delivery;
+      const label = d.ok
+        ? `✓ ${d.status} · ${d.durationMs}ms`
+        : d.timedOut
+          ? '✗ timeout (>10s)'
+          : `✗ ${d.error || `HTTP ${d.status}`}`;
+      setTestResults((prev) => ({ ...prev, [id]: label }));
+      await refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setTestResults((prev) => ({ ...prev, [id]: `✗ ${msg}` }));
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function copyToClipboard(text: string) {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => { /* swallow */ });
+    }
+  }
+
+  function toggleEvent(type: string) {
+    setCreatingEvents((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type],
+    );
+  }
+
+  return (
+    <details
+      className="bg-[var(--surface-card)] border border-white/[0.06] px-7 py-4"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      onToggle={(e) => {
+        if ((e.target as HTMLDetailsElement).open && subs === null && !loading) {
+          refresh();
+        }
+      }}
+    >
+      <summary className="cursor-pointer text-[13px] text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] flex items-center justify-between gap-3 list-none">
+        <span>
+          <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)] pr-3">
+            Webhooks
+          </span>
+          <span className="font-mono text-[var(--color-ivory)]">
+            {subs === null ? '—' : `${subs.length} active`}
+          </span>
+        </span>
+        <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
+      </summary>
+      <div className="pt-5 pb-2 space-y-5 max-w-2xl">
+        <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+          Push notifications to your HTTPS endpoint when lifecycle events fire. Each delivery is
+          signed with HMAC-SHA256 — verify the{' '}
+          <span className="font-mono text-[var(--color-ivory)]">X-OrcaTrade-Signature</span>{' '}
+          header against your subscription secret.
+        </p>
+
+        {revealedSecret && (
+          <div
+            className="border border-[var(--color-aqua)]/40 bg-[var(--color-navy)] p-4 space-y-2"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-[var(--color-aqua)]">
+                Signing secret for: {revealedSecret.label}
+              </p>
+              <button
+                type="button"
+                onClick={() => setRevealedSecret(null)}
+                className="text-[11px] text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)]"
+              >
+                Dismiss
+              </button>
+            </div>
+            <p className="text-[12px] text-[var(--color-warning)]">
+              ⚠ Save this somewhere safe — it will NOT be shown again.
+            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <code className="font-mono text-[12.5px] text-[var(--color-ivory)] bg-black/40 px-3 py-2 break-all flex-1">
+                {revealedSecret.secret}
+              </code>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(revealedSecret.secret)}
+                className="text-[12px] px-3 py-1.5 border border-white/15 text-[var(--color-ivory)] hover:border-[var(--color-aqua)]"
+                style={{ borderRadius: 'var(--radius-button)' }}
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Create form */}
+        <div className="space-y-3">
+          <p className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+            Create a subscription
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <input
+              type="text"
+              placeholder="Label (e.g. ERP push)"
+              value={creatingLabel}
+              onChange={(e) => setCreatingLabel(e.target.value)}
+              disabled={busy}
+              maxLength={120}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] px-3 py-1.5 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <input
+              type="url"
+              placeholder="https://your.endpoint/webhook"
+              value={creatingUrl}
+              pattern="https://.*"
+              onChange={(e) => setCreatingUrl(e.target.value)}
+              disabled={busy}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 text-[13px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+          </div>
+          {eventTypes && eventTypes.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[11.5px] text-[var(--color-ivory-mute)] uppercase tracking-wider">
+                Event types
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {eventTypes.map((t) => {
+                  const active = creatingEvents.includes(t);
+                  return (
+                    <button
+                      key={t}
+                      type="button"
+                      onClick={() => toggleEvent(t)}
+                      disabled={busy}
+                      className={`text-[11.5px] font-mono px-2.5 py-1 border transition-colors duration-150 ${
+                        active
+                          ? 'bg-[var(--color-aqua)] text-[var(--color-navy)] border-[var(--color-aqua)]'
+                          : 'border-white/15 text-[var(--color-ivory-dim)] hover:border-[var(--color-aqua)]'
+                      }`}
+                      style={{ borderRadius: 'var(--radius-button)' }}
+                    >
+                      {t}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={onCreate}
+              disabled={!creatingLabel.trim() || !creatingUrl.trim() || creatingEvents.length === 0 || busy}
+              className="text-[12.5px] font-semibold px-4 py-1.5 bg-[var(--color-aqua)] text-[var(--color-navy)] disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            >
+              {busy ? 'Creating…' : 'Create'}
+            </button>
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="space-y-2">
+          <p className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+            Active subscriptions
+          </p>
+          {loading && <p className="text-[12.5px] text-[var(--color-ivory-mute)]">Loading…</p>}
+          {subs !== null && subs.length === 0 && !loading && (
+            <p className="text-[12.5px] text-[var(--color-ivory-mute)] italic">
+              No subscriptions yet. Create one to start receiving events.
+            </p>
+          )}
+          {subs !== null && subs.length > 0 && (
+            <ul className="divide-y divide-white/[0.06]">
+              {subs.map((s) => (
+                <li key={s.id} className="py-3 space-y-1.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[14px] font-medium text-[var(--color-ivory)] truncate">
+                        {s.label}
+                      </p>
+                      <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono pt-0.5 truncate">
+                        {s.url}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => onTest(s.id)}
+                        disabled={busy}
+                        className="text-[12px] px-3 py-1.5 border border-white/15 text-[var(--color-ivory)] hover:border-[var(--color-aqua)] disabled:opacity-40"
+                        style={{ borderRadius: 'var(--radius-button)' }}
+                      >
+                        Test
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onDelete(s.id)}
+                        disabled={busy}
+                        className="text-[12px] px-3 py-1.5 border border-[var(--color-warning)]/40 text-[var(--color-warning)] hover:bg-[var(--color-warning)]/10 disabled:opacity-40"
+                        style={{ borderRadius: 'var(--radius-button)' }}
+                      >
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {s.eventTypes.map((t) => (
+                      <span
+                        key={t}
+                        className="text-[10.5px] font-mono px-1.5 py-0.5 bg-white/[0.04] text-[var(--color-ivory-mute)]"
+                      >
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                  {(testResults[s.id] || s.lastDeliveryStatus) && (
+                    <p className="text-[11px] text-[var(--color-ivory-mute)]">
+                      {testResults[s.id] || `Last: ${s.lastDeliveryStatus}`}
+                    </p>
+                  )}
                 </li>
               ))}
             </ul>
