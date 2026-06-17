@@ -699,6 +699,12 @@ export interface FactoryShortlistBlock {
     count: number;
     lastPickedAt: string;
     rationaleCategoryMix: Record<string, number>;
+    // Sprint 32 — cross-cohort correlation. avgRating is the
+    // rounded-to-1-decimal customer rating across THIS country's
+    // past picks; null when no rated picks exist (the customer
+    // hasn't rated yet; the count alone is the signal).
+    avgRating?: number | null;
+    ratedCount?: number;
   } | null;
   // Methodology / metadata sometimes rides as the trailing array
   // element with this shape — older entries may carry it as a sibling
@@ -988,6 +994,13 @@ export interface OpsInsightsTopPickedCountry {
   lastPickedAt: string | null;
   dominantRationale: string | null;
   rationaleCategoryMix: Record<string, number>;
+  // Sprint 32 — cross-cohort correlation. The "Vietnam picks averaged
+  // 4.6★" signal that turns the cohort from a count into a
+  // justification. null when no rated picks exist for this country
+  // yet — the UI surfaces "no ratings yet" rather than a misleading
+  // 0★.
+  avgRating: number | null;
+  ratedCount: number;
 }
 
 // Sprint 31 — rating health cohort. Closes the sprint-30 loop:

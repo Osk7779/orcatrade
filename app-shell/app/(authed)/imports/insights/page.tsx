@@ -563,11 +563,26 @@ function PickedCountryRow({
     ? PICK_RATIONALE_LABELS[row.dominantRationale] || row.dominantRationale
     : null;
   const ageLabel = pickAgeLabel(row.lastPickedAt);
+  // Sprint 32 — cross-cohort correlation. avgRating surfaces inline
+  // so a glance tells ops "the picks landed well" (≥ 4.5★ positive)
+  // or "investigate before recommending" (< 3.5★ warning). null
+  // means no ratings yet for this country's picks; the row stays
+  // neutral.
+  const avgRating = row.avgRating != null && Number.isFinite(row.avgRating) ? row.avgRating : null;
+  const ratedCount = row.ratedCount || 0;
+  const ratingTone =
+    avgRating == null ? 'var(--color-ivory-mute)' :
+    avgRating >= 4.5 ? 'var(--color-positive)' :
+    avgRating < 3.5 ? 'var(--color-warning)' :
+    'var(--color-ivory-dim)';
+  const title = avgRating != null
+    ? `Drill into the ${row.count} request${row.count === 1 ? '' : 's'} picked for ${row.country}${dominantLabel ? ` — mostly ${dominantLabel}` : ''} · avg ${avgRating.toFixed(1)}★ across ${ratedCount} rated`
+    : `Drill into the ${row.count} request${row.count === 1 ? '' : 's'} picked for ${row.country}${dominantLabel ? ` — mostly ${dominantLabel}` : ''}`;
   return (
     <Link
       href={`/imports?supplierPick=${encodeURIComponent(row.country)}`}
       className="group block space-y-1.5 -mx-2 px-2 py-1.5 rounded transition-colors duration-150 hover:bg-white/[0.025]"
-      title={`Drill into the ${row.count} request${row.count === 1 ? '' : 's'} picked for ${row.country}${dominantLabel ? ` — mostly ${dominantLabel}` : ''}`}
+      title={title}
     >
       <div className="flex items-baseline justify-between gap-3">
         <div className="flex items-baseline gap-3 flex-wrap min-w-0">
@@ -580,6 +595,19 @@ function PickedCountryRow({
               {ageLabel && (
                 <span className="text-[var(--color-ivory-mute)]">{' · last '}{ageLabel}</span>
               )}
+            </span>
+          )}
+          {/* Sprint 32 — inline avgRating chip. Tone-coloured by
+              quality threshold; shows "—" / no-chip when no ratings
+              yet so ops sees the gap. */}
+          {avgRating != null && (
+            <span
+              className="text-[11.5px] font-medium"
+              style={{ color: ratingTone }}
+              aria-label={`average rating ${avgRating.toFixed(1)} out of 5 across ${ratedCount} rated picks`}
+            >
+              {avgRating.toFixed(1)}★
+              <span className="text-[var(--color-ivory-mute)]"> · {ratedCount} rated</span>
             </span>
           )}
         </div>

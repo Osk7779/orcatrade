@@ -2342,7 +2342,13 @@ const PAST_PICK_RATIONALE_LABELS: Record<string, string> = {
 function PastPickBadge({
   signal,
 }: {
-  signal: { count: number; lastPickedAt: string; rationaleCategoryMix: Record<string, number> };
+  signal: {
+    count: number;
+    lastPickedAt: string;
+    rationaleCategoryMix: Record<string, number>;
+    avgRating?: number | null;
+    ratedCount?: number;
+  };
 }) {
   const ageLabel = pastPickAgeLabel(signal.lastPickedAt);
   // Identify the top rationale category for the tooltip title — what
@@ -2352,9 +2358,21 @@ function PastPickBadge({
   for (const [cat, n] of Object.entries(signal.rationaleCategoryMix || {})) {
     if (n > topCount) { topCount = n; topCategory = cat; }
   }
-  const title = topCategory
-    ? `Mostly ${PAST_PICK_RATIONALE_LABELS[topCategory] || topCategory} — last pick ${ageLabel || 'recently'}`
-    : `Picked ${signal.count} time${signal.count === 1 ? '' : 's'} in the last 90 days`;
+  // Sprint 32 — cross-cohort correlation. The avgRating turns the
+  // badge from descriptive ("you picked this 12 times") into
+  // justified ("you picked this 12 times AND it averaged 4.6★").
+  const avgRating = signal.avgRating != null && Number.isFinite(signal.avgRating) ? signal.avgRating : null;
+  const ratedCount = signal.ratedCount ?? 0;
+  const titleParts = [
+    topCategory
+      ? `Mostly ${PAST_PICK_RATIONALE_LABELS[topCategory] || topCategory}`
+      : `Picked ${signal.count} time${signal.count === 1 ? '' : 's'} in the last 90 days`,
+    ageLabel ? `last pick ${ageLabel}` : null,
+    avgRating != null
+      ? `avg ${avgRating.toFixed(1)}★ across ${ratedCount} rated`
+      : null,
+  ].filter(Boolean);
+  const title = titleParts.join(' · ');
   return (
     <div
       className="inline-flex items-center gap-1.5 px-2 py-0.5 text-[10.5px] font-semibold tracking-[0.04em] uppercase border"
@@ -2368,6 +2386,22 @@ function PastPickBadge({
     >
       <span aria-hidden>⟳</span>
       Picked {signal.count}× in 90d
+      {avgRating != null && (
+        <span
+          aria-label={`average rating ${avgRating.toFixed(1)} out of 5`}
+          className="font-normal"
+          style={{
+            marginLeft: 4,
+            color: avgRating >= 4.5
+              ? 'var(--color-positive)'
+              : avgRating < 3.5
+                ? 'var(--color-warning)'
+                : 'var(--color-aqua-dim)',
+          }}
+        >
+          · {avgRating.toFixed(1)}★
+        </span>
+      )}
       {ageLabel && (
         <span className="text-[var(--color-aqua-dim)] font-normal" style={{ marginLeft: 4 }}>
           · last {ageLabel}
