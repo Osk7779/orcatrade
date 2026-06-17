@@ -169,7 +169,7 @@ function Hero({
         <p className="text-[var(--color-ivory-dim)] text-[15.5px] leading-relaxed">
           {totalInWindow.toLocaleString('en-IE')} import request{totalInWindow === 1 ? '' : 's'} in the last {windowDays} days, with funnel pile-ups, decline-reason mix, and the revision-recovery rate that tells you whether ops decline copy is actually unblocking customers.
         </p>
-        <div className="flex gap-2 pt-2">
+        <div className="flex flex-wrap items-center gap-2 pt-2">
           {WINDOW_OPTIONS.map((opt) => {
             const active = opt.days === windowDays;
             return (
@@ -188,6 +188,19 @@ function Hero({
               </button>
             );
           })}
+          {/* Sprint 36 — org-wide audit CSV export. Sits next to the
+              window-size toggles because it's a peer ops-cockpit
+              control (same ops-only gate, same time-scoped surface).
+              Distinct from the sprint-35 per-request audit link on
+              the detail page: this one spans every request in the
+              org, identified by an "External ID" column. */}
+          <a
+            href="/api/imports/audit.csv"
+            className="ml-auto text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
+            title="Download the org's full audit log as CSV (every recorded action across every request, UTF-8, RFC-4180)"
+          >
+            Export org audit (CSV) ↓
+          </a>
         </div>
       </div>
     </header>
