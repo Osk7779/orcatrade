@@ -40,6 +40,7 @@ import {
   type OpsInsightsResponse,
   type OpsInsightsTopPickedCountry,
   type OpsInsightsRatingCohort,
+  type OpsInsightsStalledQueue,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -127,6 +128,14 @@ export default function InsightsPage() {
   return (
     <div className="max-w-5xl space-y-12 pb-16">
       <Hero windowDays={windowDays} setWindowDays={setWindowDays} totalInWindow={data.totalInWindow} />
+      {/* Sprint 38 — stalled-request watch. Renders ONLY when count
+          > 0 so the cockpit isn't dominated by an empty card on a
+          healthy day. Sits BELOW the hero + ABOVE the retrospective
+          cohorts because it's the only proactive signal — actionable
+          NOW, not "look at past data." */}
+      {data.stalledQueue.count > 0 && (
+        <StalledQueueCard data={data.stalledQueue} />
+      )}
       <RevisionCohort data={data.revisionCohort} />
       <Funnel data={data} />
       <DeclineBreakdown data={data} />
@@ -299,6 +308,85 @@ function MetricCard({
         </p>
       )}
     </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Stalled-queue watch (sprint 38) — the first PROACTIVE signal.
+ *  Every other cohort summarises past data; this one names the
+ *  requests that need attention NOW. Renders only when data.count > 0
+ *  (gated by the parent component) so a healthy day doesn't show
+ *  an empty card.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function StalledQueueCard({ data }: { data: OpsInsightsStalledQueue }) {
+  const truncated = data.count > data.items.length;
+  return (
+    <section
+      // Amber-tinged border instead of the neutral white/[0.06] used by
+      // the retrospective cohorts — the proactive watch is visually
+      // distinct because the user is meant to ACT on it, not read it.
+      className="bg-[var(--surface-card)] border border-[var(--color-warning)]/[0.35] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="space-y-1.5">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-warning)]">
+            Stalled queue · needs your attention
+          </h2>
+          <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+            Requests sitting in <span className="font-medium text-[var(--color-ivory)]">awaiting_review</span>{' '}
+            with no activity for &gt; {data.thresholdDays} days. Oldest first.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-warning)] font-mono leading-none">
+            {data.count.toLocaleString('en-IE')}
+          </p>
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] pt-1">
+            stalled
+          </p>
+        </div>
+      </div>
+
+      <ul className="divide-y divide-white/[0.06]">
+        {data.items.map((item) => (
+          <li key={item.externalId}>
+            <Link
+              href={`/imports/${item.externalId}`}
+              className="group flex items-center justify-between gap-4 py-3 hover:bg-white/[0.02] transition-colors duration-150 -mx-2 px-2"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-medium text-[var(--color-ivory)] truncate group-hover:text-[var(--color-aqua)]">
+                  {item.label || item.externalId}
+                </p>
+                <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono pt-0.5">
+                  {item.externalId}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-[15px] font-mono font-medium text-[var(--color-warning)]">
+                  {item.daysStalled.toFixed(1)}d
+                </p>
+                <p className="text-[10.5px] text-[var(--color-ivory-mute)] uppercase tracking-wider pt-0.5">
+                  stalled
+                </p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      {truncated && (
+        // Honesty footnote — the card shows top N (oldest first), but
+        // the headline count is org-wide. A user counting the rows
+        // would otherwise mistrust the headline.
+        <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic pt-1">
+          Showing the {data.items.length} oldest of {data.count} stalled. Refine the workflow
+          to bring the rest forward.
+        </p>
+      )}
+    </section>
   );
 }
 

@@ -1021,6 +1021,28 @@ export interface OpsInsightsRatingCohort {
   lowScoreCount: number;
 }
 
+// Sprint 38 — single stalled-request row. updatedAt is the last-touch
+// timestamp (status set / message posted / evidence attached); the
+// stall is computed against it server-side. daysStalled is rounded
+// to one decimal — UI doesn't re-round.
+export interface OpsInsightsStalledItem {
+  externalId: string;
+  label: string;
+  updatedAt: string;
+  daysStalled: number;
+}
+
+// Sprint 38 — cohort #6. The first proactive signal. count is the
+// org-wide total (not capped); items is the top N (STALLED_QUEUE_CAP
+// = 10 on the server) sorted oldest-first; thresholdDays surfaces
+// the stall threshold so the UI can render the exact value rather
+// than re-coding it.
+export interface OpsInsightsStalledQueue {
+  thresholdDays: number;
+  count: number;
+  items: OpsInsightsStalledItem[];
+}
+
 export interface OpsInsights {
   funnelByStatus: Partial<Record<ImportRequestStatus, number>>;
   totalInWindow: number;
@@ -1034,6 +1056,9 @@ export interface OpsInsights {
   // Sprint 31 — cohort #5. Always present; the UI handles the
   // no-ratings case via averageScore === null.
   ratingCohort: OpsInsightsRatingCohort;
+  // Sprint 38 — cohort #6. The proactive watch. Always present; the
+  // UI handles the no-stalls case via count === 0.
+  stalledQueue: OpsInsightsStalledQueue;
 }
 
 export interface OpsInsightsResponse {
