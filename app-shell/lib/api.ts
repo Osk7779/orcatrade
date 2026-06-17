@@ -1076,9 +1076,24 @@ export interface WebhookSubscription {
   active: boolean;
   lastDeliveryAt: string | null;
   lastDeliveryStatus: string | null;
+  // Sprint 51 — auto-disable bookkeeping. consecutiveAbandonments
+  // is the per-sub counter; resetAt is reset to 0 on every
+  // successful delivery. When the counter crosses
+  // AUTO_DISABLE_THRESHOLD (server-side constant = 5), active
+  // flips to false + autoDisabledAt + autoDisabledReason populate.
+  consecutiveAbandonments?: number;
+  autoDisabledAt?: string | null;
+  autoDisabledReason?: string | null;
+  reactivatedAt?: string | null;
   // `secret` is intentionally optional — present ONLY on the
   // create response, absent on list responses (strip discipline).
   secret?: string;
+}
+
+export interface WebhookReactivateResponse {
+  ok: boolean;
+  subscription: WebhookSubscription;
+  noOp?: boolean;
 }
 
 export interface WebhookListResponse {

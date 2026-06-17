@@ -56,6 +56,7 @@ import {
   type WebhookTestResponse,
   type WebhookDeliveryLogEntry,
   type WebhookDeliveriesResponse,
+  type WebhookReactivateResponse,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -950,6 +951,20 @@ function WebhooksPanel() {
     }
   }
 
+  async function onReactivate(id: string) {
+    setBusy(true);
+    setError(null);
+    try {
+      await apiPost<WebhookReactivateResponse>(`/api/webhooks/${encodeURIComponent(id)}/reactivate`, {});
+      await refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onDelete(id: string) {
     if (!confirm('Delete this webhook subscription? Any events queued for delivery will be dropped.')) return;
     setBusy(true);
@@ -1214,6 +1229,34 @@ function WebhooksPanel() {
                       </span>
                     ))}
                   </div>
+                  {/* Sprint 51 — auto-disable banner. Visible only
+                      when the server has flipped active=false +
+                      populated autoDisabledAt. The Reactivate button
+                      resets the counter + flips active back. */}
+                  {s.autoDisabledAt && (
+                    <div
+                      className="flex items-start justify-between gap-3 p-2.5 border border-[var(--color-warning)]/40 bg-[var(--color-warning)]/[0.06]"
+                      style={{ borderRadius: 'var(--radius-button)' }}
+                    >
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <p className="text-[11.5px] font-semibold uppercase tracking-wider text-[var(--color-warning)]">
+                          Auto-disabled
+                        </p>
+                        <p className="text-[11.5px] text-[var(--color-ivory-dim)]">
+                          {s.autoDisabledReason || 'Repeated delivery failures.'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => onReactivate(s.id)}
+                        disabled={busy}
+                        className="text-[12px] font-medium px-3 py-1.5 bg-[var(--color-aqua)] text-[var(--color-navy)] disabled:opacity-40"
+                        style={{ borderRadius: 'var(--radius-button)' }}
+                      >
+                        Reactivate
+                      </button>
+                    </div>
+                  )}
                   {(testResults[s.id] || s.lastDeliveryStatus) && (
                     <p className="text-[11px] text-[var(--color-ivory-mute)]">
                       {testResults[s.id] || `Last: ${s.lastDeliveryStatus}`}
