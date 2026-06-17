@@ -155,11 +155,16 @@ test('handleAuditCsv response carries CSV headers + UTF-8 BOM + CRLF', () => {
 });
 
 test('handleAuditCsv export filename includes the request external ID + date stamp', () => {
-  // Filename pattern: orcatrade-audit-<externalId>-YYYY-MM-DD.csv
-  // so a downloaded file is unambiguous on disk.
+  // Filename pattern: orcatrade-audit-<externalId>[-last-Nd]-YYYY-MM-DD.csv
+  // so a downloaded file is unambiguous on disk. Sprint 37 added an
+  // optional "-last-Nd" infix between externalId and the date, which
+  // is empty for the back-compat all-time export — the pin asserts
+  // the prefix shape without locking the now-optional infix.
   const block = HANDLER_SRC.match(/async function handleAuditCsv\([\s\S]*?\n\}/);
   assert.ok(block);
-  assert.match(block[0], /orcatrade-audit-\$\{externalId\}-/);
+  assert.match(block[0], /orcatrade-audit-\$\{externalId\}/);
+  // The date-stamp suffix (YYYY-MM-DD) still has to be present.
+  assert.match(block[0], /new Date\(\)\.toISOString\(\)\.slice\(0, 10\)/);
 });
 
 test('handleAuditCsv CSV body carries timestamp + type + actor + JSON detail per row', () => {

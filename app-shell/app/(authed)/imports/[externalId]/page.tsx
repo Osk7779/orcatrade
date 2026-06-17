@@ -409,15 +409,28 @@ export default function ImportRequestDetailPage() {
               timeline UI shows the 4 status-flow events (the
               narrative); the export is exhaustive (every recorded
               action). Auditors + customers downloading the trail
-              get the full ADR-0005 audit chain. */}
-          <a
-            href={`/api/imports/${request.externalId}/audit.csv`}
-            className="group inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--color-aqua)] hover:underline"
-            title="Download full audit log as CSV (every recorded action, UTF-8, RFC-4180)"
-          >
-            Export audit (CSV)
-            <span aria-hidden className="transition-transform duration-200 group-hover:translate-y-0.5">↓</span>
-          </a>
+              get the full ADR-0005 audit chain.
+              Sprint 37 — paired "all-time" + "last 90d" links.
+              Most quarterly compliance reviews want a window; the
+              all-time link stays the default for full handovers. */}
+          <div className="flex items-center gap-3">
+            <a
+              href={`/api/imports/${request.externalId}/audit.csv`}
+              className="group inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--color-aqua)] hover:underline"
+              title="Download full audit log as CSV (every recorded action, UTF-8, RFC-4180)"
+            >
+              Export audit (CSV)
+              <span aria-hidden className="transition-transform duration-200 group-hover:translate-y-0.5">↓</span>
+            </a>
+            <a
+              href={`/api/imports/${request.externalId}/audit.csv?days=90`}
+              className="group inline-flex items-center gap-1.5 text-[12px] text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] hover:underline"
+              title="Download last 90 days of audit log as CSV (windowed for quarterly reviews, UTF-8, RFC-4180)"
+            >
+              Last 90d
+              <span aria-hidden className="transition-transform duration-200 group-hover:translate-y-0.5">↓</span>
+            </a>
+          </div>
         </div>
         <TransitionHistory entityKind="import_request" externalId={request.externalId} />
       </section>

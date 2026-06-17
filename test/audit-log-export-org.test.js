@@ -144,12 +144,15 @@ test('handleOrgAuditCsv response carries CSV headers + UTF-8 BOM + CRLF', () => 
 });
 
 test('handleOrgAuditCsv filename uses the org-wide pattern (no externalId, date-stamped)', () => {
-  // Filename = orcatrade-audit-org-YYYY-MM-DD.csv. The "-org-" infix
-  // disambiguates from the sprint-35 per-request filename
-  // (orcatrade-audit-<externalId>-...).
+  // Filename = orcatrade-audit-org[-last-Nd]-YYYY-MM-DD.csv. The
+  // "-org-" infix disambiguates from the sprint-35 per-request file
+  // (orcatrade-audit-<externalId>-...). Sprint 37 adds an optional
+  // "-last-Nd" infix between "org" and the date — pin the prefix +
+  // the date-stamp shape independently.
   const block = HANDLER_SRC.match(/async function handleOrgAuditCsv\([\s\S]*?\n\}/);
   assert.ok(block);
-  assert.match(block[0], /orcatrade-audit-org-\$\{new Date\(\)\.toISOString\(\)\.slice\(0, 10\)\}\.csv/);
+  assert.match(block[0], /orcatrade-audit-org/);
+  assert.match(block[0], /new Date\(\)\.toISOString\(\)\.slice\(0, 10\)/);
 });
 
 test('handleOrgAuditCsv adds an "External ID" column (new vs sprint-35 per-request)', () => {
