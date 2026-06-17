@@ -1044,6 +1044,33 @@ export interface OpsInsightsStalledQueue {
   items: OpsInsightsStalledItem[];
 }
 
+// Sprint 40 — a single decline-reason spike. ratio is null when the
+// baseline window contains 0 occurrences of this reason (first-time
+// signal); otherwise it's the multiplier of current-rate over
+// baseline-rate, rounded to one decimal. Rates are per-day, rounded
+// to two decimals (matches the comparison the server made).
+export interface OpsInsightsDeclineSpike {
+  reason: string;
+  currentCount: number;
+  baselineCount: number;
+  currentRate: number;
+  baselineRate: number;
+  ratio: number | null;
+}
+
+// Sprint 40 — cohort #7. The second proactive signal. spikes is
+// sorted biggest-spike-first with null-ratio (first-time reasons)
+// at the top. currentDays / baselineDays / minCount / rateMultiplier
+// surface the comparison parameters so the UI can name what the
+// server measured.
+export interface OpsInsightsDeclineSpikeCohort {
+  currentDays: number;
+  baselineDays: number;
+  minCount: number;
+  rateMultiplier: number;
+  spikes: OpsInsightsDeclineSpike[];
+}
+
 export interface OpsInsights {
   funnelByStatus: Partial<Record<ImportRequestStatus, number>>;
   totalInWindow: number;
@@ -1060,6 +1087,9 @@ export interface OpsInsights {
   // Sprint 38 — cohort #6. The proactive watch. Always present; the
   // UI handles the no-stalls case via count === 0.
   stalledQueue: OpsInsightsStalledQueue;
+  // Sprint 40 — cohort #7. Decline-reason spike. Always present;
+  // the UI handles the no-spike case via spikes.length === 0.
+  declineSpike: OpsInsightsDeclineSpikeCohort;
 }
 
 export interface OpsInsightsResponse {

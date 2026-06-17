@@ -41,6 +41,7 @@ import {
   type OpsInsightsTopPickedCountry,
   type OpsInsightsRatingCohort,
   type OpsInsightsStalledQueue,
+  type OpsInsightsDeclineSpikeCohort,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -135,6 +136,15 @@ export default function InsightsPage() {
           NOW, not "look at past data." */}
       {data.stalledQueue.count > 0 && (
         <StalledQueueCard data={data.stalledQueue} />
+      )}
+      {/* Sprint 40 — decline-reason spike watch. Second proactive
+          signal: which decline reasons are accelerating vs the
+          30-day baseline. Renders ONLY when spikes.length > 0 so
+          healthy weeks (no acceleration) show no card. Sits
+          between the stall card + the retrospective stack — same
+          proactive band. */}
+      {data.declineSpike.spikes.length > 0 && (
+        <DeclineSpikeCard data={data.declineSpike} />
       )}
       <RevisionCohort data={data.revisionCohort} />
       <Funnel data={data} />
@@ -386,6 +396,78 @@ function StalledQueueCard({ data }: { data: OpsInsightsStalledQueue }) {
           to bring the rest forward.
         </p>
       )}
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Decline-reason spike (sprint 40) — the SECOND proactive signal.
+ *  Reads cohort #7. Names every decline reason whose 7-day rate is
+ *  ≥ 2× the 30-day baseline rate AND whose 7-day count is ≥ 3.
+ *  First-time reasons (no baseline) surface as a separate "new vs
+ *  baseline" badge instead of an "Nx" multiplier. Renders only when
+ *  spikes.length > 0 (gated by the parent component).
+ * ──────────────────────────────────────────────────────────────────── */
+
+function DeclineSpikeCard({ data }: { data: OpsInsightsDeclineSpikeCohort }) {
+  return (
+    <section
+      // Amber-tinged border matches the StalledQueueCard so the two
+      // proactive cards read as a band. Distinct from the neutral
+      // white/[0.06] used by the retrospective cohorts below.
+      className="bg-[var(--surface-card)] border border-[var(--color-warning)]/[0.35] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="space-y-1.5">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-warning)]">
+          Decline-reason spike · accelerating vs baseline
+        </h2>
+        <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+          Reasons whose last {data.currentDays}-day pace is{' '}
+          <span className="font-medium text-[var(--color-ivory)]">≥ {data.rateMultiplier}×</span>{' '}
+          the {data.baselineDays}-day baseline, with at least {data.minCount} in the current window.
+        </p>
+      </div>
+
+      <ul className="divide-y divide-white/[0.06]">
+        {data.spikes.map((spike) => {
+          const isNew = spike.ratio === null;
+          const label = DECLINE_REASON_LABELS[spike.reason as DeclineReason] || spike.reason;
+          return (
+            <li key={spike.reason} className="py-3 flex items-baseline justify-between gap-4">
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-medium text-[var(--color-ivory)]">
+                  {label}
+                </p>
+                <p className="text-[11.5px] text-[var(--color-ivory-mute)] pt-0.5">
+                  {spike.currentCount} in last {data.currentDays}d
+                  {isNew
+                    ? ' · no occurrence in the prior baseline'
+                    : ` · ${spike.baselineCount} in the ${data.baselineDays}d baseline`}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                {isNew ? (
+                  <p className="text-[15px] font-mono font-medium text-[var(--color-warning)]">
+                    NEW
+                  </p>
+                ) : (
+                  <p className="text-[15px] font-mono font-medium text-[var(--color-warning)]">
+                    {spike.ratio?.toFixed(1)}×
+                  </p>
+                )}
+                <p className="text-[10.5px] text-[var(--color-ivory-mute)] uppercase tracking-wider pt-0.5">
+                  {isNew ? 'first-time' : 'vs baseline'}
+                </p>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+
+      <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+        Drill into the breakdown below — same numbers, narrower angle.
+      </p>
     </section>
   );
 }
