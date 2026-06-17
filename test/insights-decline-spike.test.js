@@ -73,7 +73,11 @@ test('aggregateOpsInsights includes a declineSpike block in the response', () =>
   assert.match(body, /currentDays: DECLINE_SPIKE_CURRENT_DAYS/);
   assert.match(body, /baselineDays: DECLINE_SPIKE_BASELINE_DAYS/);
   assert.match(body, /minCount: DECLINE_SPIKE_MIN_COUNT/);
-  assert.match(body, /rateMultiplier: DECLINE_SPIKE_RATE_MULT/);
+  // Sprint 43 — surfaced field became dynamic (effective value after
+  // per-org config + the [1.5, 10] defensive re-bound). Either form
+  // satisfies the contract — the surfaced field exists, sourced from
+  // the same variable the classifier reads.
+  assert.match(body, /rateMultiplier: (?:DECLINE_SPIKE_RATE_MULT|effectiveSpikeMultiplier)/);
   assert.match(body, /spikes,/);
 });
 
@@ -115,7 +119,13 @@ test('Spike classifier enforces the rate-multiplier gate (catches genuine accele
   // Without the rate gate, a reason at the count floor would
   // surface even if it was already at that level last month.
   const body = DB_SRC.match(/async function aggregateOpsInsights\([\s\S]*?return failureFromDb/)[0];
-  assert.match(body, /if \(currentRate < DECLINE_SPIKE_RATE_MULT \* baselineRate\) continue/);
+  // Sprint 43 — gate now reads the effective (per-org-config) value
+  // instead of the static constant. Either name is acceptable for
+  // the rate-multiplier slot.
+  assert.match(
+    body,
+    /if \(currentRate < (?:DECLINE_SPIKE_RATE_MULT|effectiveSpikeMultiplier) \* baselineRate\) continue/,
+  );
 });
 
 test('Baseline-zero branch surfaces first-time reasons as ratio=null (NOT NaN, NOT silent skip)', () => {

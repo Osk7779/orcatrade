@@ -336,28 +336,51 @@ test('OperatorConfigPanel mounts BETWEEN Hero and the proactive band (StalledQue
 test('OperatorConfigPanel reads the EFFECTIVE threshold from data.stalledQueue.thresholdDays', () => {
   // The cockpit's source of truth — what the SQL just queried. The
   // panel reading from THIS field guarantees the displayed value
-  // matches the cohort the user sees alongside it.
-  assert.match(INSIGHTS_TSX, /<OperatorConfigPanel currentStallThreshold=\{data\.stalledQueue\.thresholdDays\}/);
+  // matches the cohort the user sees alongside it. Sprint 43 split
+  // the JSX prop list across multiple lines as a 2nd prop was
+  // added; the source-pin tolerates whitespace.
+  assert.match(
+    INSIGHTS_TSX,
+    /<OperatorConfigPanel[\s\S]{0,200}currentStallThreshold=\{data\.stalledQueue\.thresholdDays\}/,
+  );
 });
 
 test('OperatorConfigPanel PATCHes /api/operator-config on save', () => {
   // The save handler hits the new endpoint, NOT a guessed path. The
-  // request body carries the validated number.
+  // request body carries the validated number. Sprint 43 — payload
+  // shape moved from a literal `{ stallThresholdDays: ... }` to a
+  // dirty-fields-only patch object; the field assignment is what we
+  // pin now, in either old or new form.
   const block = INSIGHTS_TSX.match(/function OperatorConfigPanel\([\s\S]*?\n\}\n\n\/\* /);
   assert.ok(block, 'OperatorConfigPanel body not located');
   const body = block[0];
   assert.match(body, /apiPatch<OperatorConfigResponse>\(['"]\/api\/operator-config['"],/);
-  assert.match(body, /stallThresholdDays: Number\(pending\)/);
+  // The stall knob lands in the payload in one of the two acceptable
+  // forms — the sprint-42 literal `stallThresholdDays: Number(pending)`
+  // (object-literal key) or the sprint-43 dirty-field assignment
+  // `patch.stallThresholdDays = Number(pendingStall)`.
+  assert.ok(
+    /stallThresholdDays:\s*Number\(pending\)/.test(body)
+      || /patch\.stallThresholdDays\s*=\s*Number\(pendingStall\)/.test(body),
+    'stallThresholdDays payload assignment not found',
+  );
 });
 
 test('OperatorConfigPanel gates the Save button on dirty state (no save when value unchanged)', () => {
   // Without the dirty gate, clicking Save when nothing changed
-  // would fire a no-op PATCH + audit-log a noise event. Pin the
-  // dirty check.
+  // would fire a no-op PATCH + audit-log a noise event. Sprint 43
+  // split `dirty` into per-knob flags + an aggregate; both names
+  // are acceptable here.
   const block = INSIGHTS_TSX.match(/function OperatorConfigPanel\([\s\S]*?\n\}\n\n\/\* /);
   assert.ok(block);
   const body = block[0];
-  assert.match(body, /const dirty = Number\(pending\) !== Number\(currentStallThreshold\)/);
+  // Either the original single-knob check OR the sprint-43 per-knob
+  // dirty check + an aggregate `const dirty = dirtyStall || ...`.
+  assert.ok(
+    /const dirty = Number\(pending\) !== Number\(currentStallThreshold\)/.test(body)
+      || /const dirty = dirtyStall \|\| dirtySpike/.test(body),
+    'dirty-gate expression not found in either sprint-42 or sprint-43 form',
+  );
   assert.match(body, /disabled=\{!dirty \|\| saving\}/);
 });
 

@@ -1065,6 +1065,11 @@ export interface OpsInsightsDeclineSpike {
 // interface AND the inline UI form below extend.
 export interface OperatorConfig {
   stallThresholdDays: number;
+  // Sprint 43 — decline-spike sensitivity. The multiplier the
+  // sprint-40 classifier uses to decide "spiking vs noise."
+  // One-decimal float in [1.5, 10] — 2.0 default, 1.5 = strict,
+  // 10 = tolerant.
+  declineSpikeRateMultiplier: number;
 }
 
 // Per-knob source — 'default' = using platform default,

@@ -135,8 +135,13 @@ export default function InsightsPage() {
           (cockpit isn't a settings page); expands to a tight inline
           form. Sits between Hero + proactive band so the user who
           notices "0 stalled never fires" can dial the threshold
-          without leaving the page. */}
-      <OperatorConfigPanel currentStallThreshold={data.stalledQueue.thresholdDays} />
+          without leaving the page.
+          Sprint 43 — extended with the decline-spike multiplier
+          (cohort #7's sensitivity knob). */}
+      <OperatorConfigPanel
+        currentStallThreshold={data.stalledQueue.thresholdDays}
+        currentSpikeMultiplier={data.declineSpike.rateMultiplier}
+      />
       {/* Sprint 38 — stalled-request watch. Renders ONLY when count
           > 0 so the cockpit isn't dominated by an empty card on a
           healthy day. Sits BELOW the hero + ABOVE the retrospective
@@ -488,29 +493,39 @@ function DeclineSpikeCard({ data }: { data: OpsInsightsDeclineSpikeCohort }) {
  *  server's error message inline.
  * ──────────────────────────────────────────────────────────────────── */
 
-function OperatorConfigPanel({ currentStallThreshold }: { currentStallThreshold: number }) {
-  // currentStallThreshold is the EFFECTIVE value the SQL just used —
-  // pulled from data.stalledQueue.thresholdDays so the panel is
-  // always in sync with the cockpit it sits inside.
-  const [pending, setPending] = useState<number>(currentStallThreshold);
+function OperatorConfigPanel({
+  currentStallThreshold,
+  currentSpikeMultiplier,
+}: {
+  currentStallThreshold: number;
+  currentSpikeMultiplier: number;
+}) {
+  // Both currents are EFFECTIVE values the SQL just used — pulled
+  // from data.{stalledQueue,declineSpike} so the panel is always
+  // in sync with the cohorts alongside it.
+  const [pendingStall, setPendingStall] = useState<number>(currentStallThreshold);
+  const [pendingSpike, setPendingSpike] = useState<number>(currentSpikeMultiplier);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
 
-  const dirty = Number(pending) !== Number(currentStallThreshold);
+  const dirtyStall = Number(pendingStall) !== Number(currentStallThreshold);
+  const dirtySpike = Number(pendingSpike) !== Number(currentSpikeMultiplier);
+  const dirty = dirtyStall || dirtySpike;
 
   async function onSave() {
     setSaving(true);
     setError(null);
     try {
-      await apiPatch<OperatorConfigResponse>('/api/operator-config', {
-        stallThresholdDays: Number(pending),
-      });
+      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number }>} */
+      const patch: { stallThresholdDays?: number; declineSpikeRateMultiplier?: number } = {};
+      if (dirtyStall) patch.stallThresholdDays = Number(pendingStall);
+      if (dirtySpike) patch.declineSpikeRateMultiplier = Number(pendingSpike);
+      await apiPatch<OperatorConfigResponse>('/api/operator-config', patch);
       setSavedFlash(true);
-      // Page reload picks up the new threshold across all panels
-      // without prop-drilling — the cohort, the email composer
-      // text in the StalledQueueCard, and this panel all re-read
-      // from data.stalledQueue.thresholdDays.
+      // Page reload picks up the new config across all panels
+      // without prop-drilling — every cohort + composer + this
+      // panel re-reads from the aggregateOpsInsights response.
       setTimeout(() => { window.location.reload(); }, 600);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -526,40 +541,79 @@ function OperatorConfigPanel({ currentStallThreshold }: { currentStallThreshold:
     >
       <summary
         className="cursor-pointer text-[13px] text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] flex items-center justify-between gap-3 list-none"
-        // Native marker hidden; we render our own caret via flex.
       >
         <span>
           <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)] pr-3">
             Settings
           </span>
-          Stall threshold:{' '}
+          Stall:{' '}
           <span className="font-mono text-[var(--color-ivory)]">
-            {currentStallThreshold} day{currentStallThreshold === 1 ? '' : 's'}
+            {currentStallThreshold}d
+          </span>
+          {'  ·  '}
+          Spike:{' '}
+          <span className="font-mono text-[var(--color-ivory)]">
+            {currentSpikeMultiplier.toFixed(1)}×
           </span>
         </span>
         <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
       </summary>
-      <div className="pt-5 pb-2 space-y-4 max-w-xl">
-        <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
-          The "no activity in awaiting_review for {'>'} N days" gate that drives the stalled-queue
-          cohort + the daily stall alert. Default is 7 days; tighten for a stricter SLA.
-        </p>
-        <div className="flex items-center gap-3 flex-wrap">
-          <label htmlFor="stallThresholdDays" className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
-            Days
+      <div className="pt-5 pb-2 space-y-6 max-w-xl">
+        {/* Stall threshold */}
+        <div className="space-y-2">
+          <label
+            htmlFor="stallThresholdDays"
+            className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block"
+          >
+            Stall threshold (days)
           </label>
+          <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+            The "no activity in awaiting_review for {'>'} N days" gate that drives the stalled-queue
+            cohort + the daily stall alert. Default 7; tighten for a stricter SLA.
+          </p>
           <input
             id="stallThresholdDays"
             type="number"
             min={1}
             max={90}
             step={1}
-            value={pending}
-            onChange={(e) => setPending(Number(e.target.value))}
+            value={pendingStall}
+            onChange={(e) => setPendingStall(Number(e.target.value))}
             disabled={saving}
             className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
             style={{ borderRadius: 'var(--radius-button)' }}
           />
+          <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 1–90.</p>
+        </div>
+
+        {/* Sprint 43 — Decline-spike multiplier */}
+        <div className="space-y-2">
+          <label
+            htmlFor="declineSpikeRateMultiplier"
+            className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block"
+          >
+            Decline-spike sensitivity (multiplier)
+          </label>
+          <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+            The "current 7-day rate ≥ N× the 30-day baseline" gate that drives the decline-spike
+            cohort + the daily alert. Default 2.0; lower = more sensitive, higher = noise floor.
+          </p>
+          <input
+            id="declineSpikeRateMultiplier"
+            type="number"
+            min={1.5}
+            max={10}
+            step={0.1}
+            value={pendingSpike}
+            onChange={(e) => setPendingSpike(Number(e.target.value))}
+            disabled={saving}
+            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          />
+          <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 1.5–10, one decimal.</p>
+        </div>
+
+        <div className="flex items-center gap-3 pt-2">
           <button
             type="button"
             onClick={onSave}
@@ -577,8 +631,7 @@ function OperatorConfigPanel({ currentStallThreshold }: { currentStallThreshold:
           <p className="text-[12px] text-[var(--color-warning)]">{error}</p>
         )}
         <p className="text-[11px] text-[var(--color-ivory-mute)] italic">
-          Range 1–90 days. Changes are audit-logged and apply to the next dashboard read + the next
-          daily alert.
+          Changes are audit-logged and apply to the next dashboard read + the next daily alert.
         </p>
       </div>
     </details>
