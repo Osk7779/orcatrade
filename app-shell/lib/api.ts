@@ -173,6 +173,7 @@ export interface Prefs {
   importQueueIntakeEmails?: boolean;
   importCustomerDecisionEmails?: boolean;
   importInsightsDigestEmails?: boolean;
+  importLowRatingAlertEmails?: boolean;
   locale?: string;
   updatedAt?: string;
 }

@@ -74,11 +74,13 @@ test('PREF_KEYS includes importInsightsDigestEmails', () => {
   );
 });
 
-test('PREF_KEYS retains its 11-key shape after sprint 26 (4 legacy + 6 sprint-24 + 1 sprint-26)', () => {
-  assert.equal(
-    notificationPrefs.PREF_KEYS.length, 11,
-    `expected 11 PREF_KEYS, found ${notificationPrefs.PREF_KEYS.length}`,
-  );
+test('PREF_KEYS still INCLUDES the sprint-26 importInsightsDigestEmails key', () => {
+  // Sprint 26 originally pinned `length === 11`; sprint 33 added
+  // importLowRatingAlertEmails. The brittle length assertion has
+  // been replaced with an inclusion check so future sprints can
+  // add keys without breaking this guard. The new sprint owns its
+  // own length pin alongside its enum addition.
+  assert.ok(notificationPrefs.PREF_KEYS.includes('importInsightsDigestEmails'));
 });
 
 // ── composeOpsInsightsDigest ──────────────────────────────────────

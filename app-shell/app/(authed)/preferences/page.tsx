@@ -31,6 +31,7 @@ const TOGGLE_GROUPS: ToggleGroup[] = [
       { key: 'importCustomerDecisionEmails', label: 'Customer decisions', desc: 'When a customer approves or rejects a quote your team sent them.' },
       { key: 'importMessageEmails', label: 'Customer messages on threads', desc: 'When a customer posts a question or follow-up on a request thread.' },
       { key: 'importInsightsDigestEmails', label: 'Weekly insights digest', desc: 'Monday morning summary: funnel by status, top decline reasons, and revision recovery for the last 7 days. Calculator-grounded — same numbers as the live cockpit.' },
+      { key: 'importLowRatingAlertEmails', label: 'Low-rating alert (1-2★)', desc: 'Immediate alert when a customer rates a request 1 or 2 stars. Outreach within 24 hours; a 1-2★ rating left unanswered is the strongest churn signal we track.' },
     ],
   },
   {
