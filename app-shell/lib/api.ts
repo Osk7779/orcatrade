@@ -174,6 +174,7 @@ export interface Prefs {
   importCustomerDecisionEmails?: boolean;
   importInsightsDigestEmails?: boolean;
   importLowRatingAlertEmails?: boolean;
+  importStalledQueueAlertEmails?: boolean;
   locale?: string;
   updatedAt?: string;
 }

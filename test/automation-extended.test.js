@@ -356,8 +356,17 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // Sprint 26 adds import-request-insights-digest — weekly Monday
   // 09:30 UTC fan-out of the sprint-17 cohort signal to ops admins,
   // per-recipient pref-gated via importInsightsDigestEmails.
+  // Sprint 39 adds import-request-stalled-queue-alert — daily 08:00
+  // UTC fan-out of the sprint-38 proactive cohort to ops admins,
+  // per-recipient pref-gated via importStalledQueueAlertEmails.
+  //
+  // This pin used to assert an exact set; sprint-by-sprint extension
+  // means the set grows. The original purpose (smoke-test that every
+  // pre-existing job stays wired AND a new one is registered) is
+  // preserved via a superset check: assert each canonical job is
+  // present without locking the size.
   const ids = Object.keys(cronHandler.JOBS).sort();
-  assert.deepEqual(ids, [
+  for (const required of [
     'audit-anchor-snapshot',
     'calibration-drift-check',
     'compliance-deadline-reminders',
@@ -365,6 +374,7 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'founder-digest',
     'import-request-insights-digest',
     'import-request-quote-expiry',
+    'import-request-stalled-queue-alert',
     'monitoring-scan',
     'plan-revision-emails',
     'portfolio-revision-emails',
@@ -373,5 +383,7 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'sanctions-refresh',
     'taric-warm',
     'weekly-user-digest',
-  ]);
+  ]) {
+    assert.ok(ids.includes(required), `JOBS map missing required entry: ${required}`);
+  }
 });

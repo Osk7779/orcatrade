@@ -49,11 +49,15 @@ test('PREF_KEYS includes importLowRatingAlertEmails', () => {
   );
 });
 
-test('PREF_KEYS retains its 12-key shape after sprint 33', () => {
-  // 4 legacy + 6 sprint-24 + 1 sprint-26 + 1 sprint-33 = 12.
-  assert.equal(
-    notificationPrefs.PREF_KEYS.length, 12,
-    `expected 12 PREF_KEYS, found ${notificationPrefs.PREF_KEYS.length}`,
+test('PREF_KEYS grew to at least 12 by sprint 33 (4 legacy + 6 sprint-24 + 1 sprint-26 + 1 sprint-33)', () => {
+  // Lower-bound shape pin — sprint 39 added a 13th key
+  // (importStalledQueueAlertEmails) and future sprints may add more.
+  // The original-purpose check (presence of importLowRatingAlertEmails)
+  // is covered by the test above; this one just asserts the cumulative
+  // size hasn't shrunk silently.
+  assert.ok(
+    notificationPrefs.PREF_KEYS.length >= 12,
+    `expected PREF_KEYS.length >= 12, found ${notificationPrefs.PREF_KEYS.length}`,
   );
 });
 

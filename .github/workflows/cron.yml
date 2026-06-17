@@ -80,6 +80,16 @@ on:
     # after the existing weekly-user-digest (09:00 Mon) so the
     # two workloads stagger cleanly.
     - cron: '30 9 * * 1'
+    # Daily 08:00 UTC — stalled-queue alert (Sprint 39). Pairs with
+    # the sprint-38 proactive cohort: requests in awaiting_review
+    # with no activity > 7 days. UK morning slot (BST = 09:00) so
+    # ops gets the watch list with the start-of-day coffee, well
+    # before customers escalate. Pref-gated via
+    # importStalledQueueAlertEmails. Healthy orgs (count===0) skip
+    # silently — no "0 stalled" noise. Distinct slot from the daily
+    # taric-warm (04:15) + audit-anchor (02:00) + quote-expiry
+    # (02:30) so the four daily jobs stagger.
+    - cron: '0 8 * * *'
   workflow_dispatch:
     inputs:
       job:
@@ -102,6 +112,7 @@ on:
           - audit-anchor-snapshot
           - import-request-quote-expiry
           - import-request-insights-digest
+          - import-request-stalled-queue-alert
 
 jobs:
   dispatch:
@@ -138,6 +149,8 @@ jobs:
             echo "job=import-request-quote-expiry" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "30 9 * * 1" ]; then
             echo "job=import-request-insights-digest" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 8 * * *" ]; then
+            echo "job=import-request-stalled-queue-alert" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi
