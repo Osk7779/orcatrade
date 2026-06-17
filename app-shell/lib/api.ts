@@ -1059,6 +1059,38 @@ export interface OpsInsightsDeclineSpike {
   ratio: number | null;
 }
 
+// Sprint 44 — per-org API keys (v1: read-only).
+//
+// The raw `key` field is ONLY present on the create response —
+// it's the one-time reveal. List + revoke responses NEVER include
+// it. The `keyId` is the SHA-256 of the raw value, used as the URL
+// segment for DELETE.
+export interface ApiKey {
+  keyId: string;
+  label: string;
+  createdAt: string;
+  lastUsedAt: string | null;
+  redactedKey: string;
+  revoked: boolean;
+}
+
+export interface ApiKeyListResponse {
+  ok: boolean;
+  keys: ApiKey[];
+}
+
+export interface ApiKeyCreateResponse {
+  ok: boolean;
+  // Raw key — ONE-TIME REVEAL. After this response, the value is
+  // unrecoverable (stored hashed at rest). UI must echo to user
+  // + warn before they leave the page.
+  key: string;
+  keyId: string;
+  label: string;
+  createdAt: string;
+  redactedKey: string;
+}
+
 // Sprint 42 — per-org operator config (v1: stallThresholdDays).
 // Mirrors lib/operator-config.js DEFAULT_OPERATOR_CONFIG shape;
 // every knob lives at the top level. As new knobs land, both this

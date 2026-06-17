@@ -29,7 +29,9 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import {
   apiGet,
+  apiPost,
   apiPatch,
+  apiDelete,
   ApiError,
   AuthError,
   DECLINE_REASONS,
@@ -44,6 +46,9 @@ import {
   type OpsInsightsStalledQueue,
   type OpsInsightsDeclineSpikeCohort,
   type OperatorConfigResponse,
+  type ApiKey,
+  type ApiKeyListResponse,
+  type ApiKeyCreateResponse,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -142,6 +147,11 @@ export default function InsightsPage() {
         currentStallThreshold={data.stalledQueue.thresholdDays}
         currentSpikeMultiplier={data.declineSpike.rateMultiplier}
       />
+      {/* Sprint 44 — API key management. Sits next to the operator
+          config card because both are admin-only settings for the
+          org. Read-only keys for v1; the bearer middleware wires
+          into GET endpoints in a future sprint. */}
+      <ApiKeysPanel />
       {/* Sprint 38 — stalled-request watch. Renders ONLY when count
           > 0 so the cockpit isn't dominated by an empty card on a
           healthy day. Sits BELOW the hero + ABOVE the retrospective
@@ -633,6 +643,225 @@ function OperatorConfigPanel({
         <p className="text-[11px] text-[var(--color-ivory-mute)] italic">
           Changes are audit-logged and apply to the next dashboard read + the next daily alert.
         </p>
+      </div>
+    </details>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  API keys panel (sprint 44) — admin-only programmatic-access
+ *  management. Collapsed by default. Create flow shows the raw key
+ *  ONCE with a copy button + warning that it will be unrecoverable.
+ *  List shows redacted form + revoke. Both create + revoke fire
+ *  audit events on the server.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function ApiKeysPanel() {
+  const [keys, setKeys] = useState<ApiKey[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  // Reveal-once state. Cleared on dismiss; the user can never get
+  // it back from the server.
+  const [revealedKey, setRevealedKey] = useState<{ raw: string; label: string } | null>(null);
+  const [creatingLabel, setCreatingLabel] = useState('');
+  const [busy, setBusy] = useState(false);
+
+  async function refresh() {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiGet<ApiKeyListResponse>('/api/api-keys');
+      setKeys(data.keys);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setKeys([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function onCreate() {
+    if (!creatingLabel.trim()) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const data = await apiPost<ApiKeyCreateResponse>('/api/api-keys', {
+        label: creatingLabel.trim(),
+      });
+      setRevealedKey({ raw: data.key, label: data.label });
+      setCreatingLabel('');
+      await refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function onRevoke(keyId: string) {
+    if (!confirm('Revoke this API key? This cannot be undone — any client using it will start receiving 401.')) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      await apiDelete(`/api/api-keys/${encodeURIComponent(keyId)}`);
+      await refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  function copyToClipboard(text: string) {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text).catch(() => { /* swallow */ });
+    }
+  }
+
+  return (
+    <details
+      className="bg-[var(--surface-card)] border border-white/[0.06] px-7 py-4"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      onToggle={(e) => {
+        // Load on first expand so the closed-panel render is cheap.
+        if ((e.target as HTMLDetailsElement).open && keys === null && !loading) {
+          refresh();
+        }
+      }}
+    >
+      <summary className="cursor-pointer text-[13px] text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] flex items-center justify-between gap-3 list-none">
+        <span>
+          <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)] pr-3">
+            API keys
+          </span>
+          <span className="font-mono text-[var(--color-ivory)]">
+            {keys === null ? '—' : `${keys.length} active`}
+          </span>
+        </span>
+        <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
+      </summary>
+      <div className="pt-5 pb-2 space-y-5 max-w-2xl">
+        <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+          Bearer tokens for programmatic read access to your org's data. Pass{' '}
+          <span className="font-mono text-[var(--color-ivory)]">Authorization: Bearer ot_…</span>{' '}
+          to API endpoints. Each key is shown ONCE on creation; store it in your secrets manager.
+        </p>
+
+        {/* Reveal-once banner — shown after create until dismissed. */}
+        {revealedKey && (
+          <div
+            className="border border-[var(--color-aqua)]/40 bg-[var(--color-navy)] p-4 space-y-2"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-[12px] font-semibold uppercase tracking-wider text-[var(--color-aqua)]">
+                New key: {revealedKey.label}
+              </p>
+              <button
+                type="button"
+                onClick={() => setRevealedKey(null)}
+                className="text-[11px] text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)]"
+              >
+                Dismiss
+              </button>
+            </div>
+            <p className="text-[12px] text-[var(--color-warning)]">
+              ⚠ Save this somewhere safe — it will NOT be shown again.
+            </p>
+            <div className="flex items-center gap-2 flex-wrap">
+              <code className="font-mono text-[12.5px] text-[var(--color-ivory)] bg-black/40 px-3 py-2 break-all flex-1">
+                {revealedKey.raw}
+              </code>
+              <button
+                type="button"
+                onClick={() => copyToClipboard(revealedKey.raw)}
+                className="text-[12px] px-3 py-1.5 border border-white/15 text-[var(--color-ivory)] hover:border-[var(--color-aqua)]"
+                style={{ borderRadius: 'var(--radius-button)' }}
+              >
+                Copy
+              </button>
+            </div>
+          </div>
+        )}
+
+        {/* Create form */}
+        <div className="space-y-2">
+          <label htmlFor="newApiKeyLabel" className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block">
+            Create a key
+          </label>
+          <div className="flex items-center gap-3">
+            <input
+              id="newApiKeyLabel"
+              type="text"
+              placeholder="e.g. ERP read-sync"
+              value={creatingLabel}
+              onChange={(e) => setCreatingLabel(e.target.value)}
+              disabled={busy}
+              maxLength={120}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] px-3 py-1.5 flex-1 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <button
+              type="button"
+              onClick={onCreate}
+              disabled={!creatingLabel.trim() || busy}
+              className="text-[12.5px] font-semibold px-4 py-1.5 bg-[var(--color-aqua)] text-[var(--color-navy)] disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            >
+              {busy ? 'Creating…' : 'Create'}
+            </button>
+          </div>
+        </div>
+
+        {/* List */}
+        <div className="space-y-2">
+          <p className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+            Active keys
+          </p>
+          {loading && <p className="text-[12.5px] text-[var(--color-ivory-mute)]">Loading…</p>}
+          {keys !== null && keys.length === 0 && !loading && (
+            <p className="text-[12.5px] text-[var(--color-ivory-mute)] italic">
+              No active keys yet. Create one to get started.
+            </p>
+          )}
+          {keys !== null && keys.length > 0 && (
+            <ul className="divide-y divide-white/[0.06]">
+              {keys.map((k) => (
+                <li key={k.keyId} className="py-3 flex items-center justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="text-[14px] font-medium text-[var(--color-ivory)] truncate">
+                      {k.label}
+                    </p>
+                    <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono pt-0.5">
+                      {k.redactedKey}
+                      {k.lastUsedAt
+                        ? ` · last used ${new Date(k.lastUsedAt).toLocaleDateString('en-IE')}`
+                        : ' · never used'}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => onRevoke(k.keyId)}
+                    disabled={busy}
+                    className="text-[12px] px-3 py-1.5 border border-[var(--color-warning)]/40 text-[var(--color-warning)] hover:bg-[var(--color-warning)]/10 disabled:opacity-40"
+                    style={{ borderRadius: 'var(--radius-button)' }}
+                  >
+                    Revoke
+                  </button>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+
+        {error && (
+          <p className="text-[12px] text-[var(--color-warning)]">{error}</p>
+        )}
       </div>
     </details>
   );

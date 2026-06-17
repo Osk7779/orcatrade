@@ -152,6 +152,11 @@ const handlers = {
   // PATCH writes a validated partial. Ops-only (requireOpsRole
   // inside the handler).
   'operator-config': require('../lib/handlers/operator-config'),
+  // Sprint 44 — per-org API key management. GET lists redacted
+  // keys, POST creates (raw value returned ONCE), DELETE revokes.
+  // Admin-only. Bearer-token lookup path is in lib/api-keys.js;
+  // wiring into specific GET endpoints is a follow-up sprint.
+  'api-keys': require('../lib/handlers/api-keys'),
   // Sprint wizard-step-funnel-v1 — the wizard fires fire-and-forget
   // POSTs as the user clicks Next/Back/Submit so we can compute the
   // 6-step funnel ("how many users reached step 4?") without external
