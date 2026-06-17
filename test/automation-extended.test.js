@@ -375,6 +375,7 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'import-request-insights-digest',
     'import-request-quote-expiry',
     'import-request-stalled-queue-alert',
+    'import-request-decline-spike-alert',
     'monitoring-scan',
     'plan-revision-emails',
     'portfolio-revision-emails',
