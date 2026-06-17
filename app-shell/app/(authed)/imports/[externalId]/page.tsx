@@ -401,9 +401,24 @@ export default function ImportRequestDetailPage() {
       {/* Audit timeline — sprint 7. Reuses the polymorphic component
           that powers the shipment / goods / supplier detail pages. */}
       <section className="space-y-4">
-        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
-          Activity
-        </h2>
+        <div className="flex items-baseline justify-between gap-3 flex-wrap">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+            Activity
+          </h2>
+          {/* Sprint 35 — per-request audit log CSV export. The
+              timeline UI shows the 4 status-flow events (the
+              narrative); the export is exhaustive (every recorded
+              action). Auditors + customers downloading the trail
+              get the full ADR-0005 audit chain. */}
+          <a
+            href={`/api/imports/${request.externalId}/audit.csv`}
+            className="group inline-flex items-center gap-1.5 text-[12px] font-medium text-[var(--color-aqua)] hover:underline"
+            title="Download full audit log as CSV (every recorded action, UTF-8, RFC-4180)"
+          >
+            Export audit (CSV)
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-y-0.5">↓</span>
+          </a>
+        </div>
         <TransitionHistory entityKind="import_request" externalId={request.externalId} />
       </section>
 
