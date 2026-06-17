@@ -1059,6 +1059,43 @@ export interface OpsInsightsDeclineSpike {
   ratio: number | null;
 }
 
+// Sprint 52 — org-admin-facing cron observability.
+// Mirror of the server's lib/handlers/cron-status.js shape.
+// `health` is derived server-side from the per-job KV records;
+// 'ok' / 'error' / 'stale' / 'never' are the documented states.
+export type CronJobHealth = 'ok' | 'error' | 'stale' | 'never';
+
+export interface CronJobLastRun {
+  ranAt: string;
+  completedAt: string;
+  durationMs: number;
+  ok: boolean;
+  params?: unknown;
+  summary?: unknown;
+}
+
+export interface CronJobLastError {
+  ranAt: string;
+  completedAt: string;
+  durationMs: number;
+  ok: false;
+  error: string;
+}
+
+export interface CronJobStatus {
+  name: string;
+  health: CronJobHealth;
+  lastRun: CronJobLastRun | null;
+  lastError: CronJobLastError | null;
+}
+
+export interface CronStatusResponse {
+  ok: boolean;
+  asOf: string;
+  staleAfterMs: number;
+  jobs: CronJobStatus[];
+}
+
 // Sprint 47 — outbound webhook subscriptions (v1: management +
 // test delivery).
 //

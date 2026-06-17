@@ -57,6 +57,9 @@ import {
   type WebhookDeliveryLogEntry,
   type WebhookDeliveriesResponse,
   type WebhookReactivateResponse,
+  type CronJobStatus,
+  type CronJobHealth,
+  type CronStatusResponse,
 } from '@/lib/api';
 
 // Status grouping — collapses the 9-status taxonomy into 4 funnel
@@ -165,6 +168,10 @@ export default function InsightsPage() {
           (which are the pull side). Both are admin-only settings;
           clustered as a band. */}
       <WebhooksPanel />
+      {/* Sprint 52 — cron observability. Surfaces the platform's
+          scheduled-job health so admins can see at a glance which
+          backgrounds are firing. Lazy-loaded on expand. */}
+      <CronStatusPanel />
       {/* Sprint 38 — stalled-request watch. Renders ONLY when count
           > 0 so the cockpit isn't dominated by an empty card on a
           healthy day. Sits BELOW the hero + ABOVE the retrospective
@@ -1312,6 +1319,150 @@ function WebhooksPanel() {
         {error && (
           <p className="text-[12px] text-[var(--color-warning)]">{error}</p>
         )}
+      </div>
+    </details>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Cron status panel (sprint 52) — admin-facing observability of
+ *  scheduled background jobs. Reads /api/cron-status; renders a
+ *  health pill (ok / error / stale / never) + last run time per job.
+ *  Lazy-loaded on first expand.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function healthPillStyles(health: CronJobHealth) {
+  switch (health) {
+    case 'ok':
+      return 'bg-[var(--color-aqua)]/15 text-[var(--color-aqua)] border-[var(--color-aqua)]/30';
+    case 'error':
+      return 'bg-[var(--color-warning)]/15 text-[var(--color-warning)] border-[var(--color-warning)]/30';
+    case 'stale':
+      return 'bg-yellow-500/10 text-yellow-400 border-yellow-500/30';
+    default:
+      return 'bg-white/[0.04] text-[var(--color-ivory-mute)] border-white/15';
+  }
+}
+
+function healthLabel(health: CronJobHealth) {
+  switch (health) {
+    case 'ok': return 'OK';
+    case 'error': return 'ERROR';
+    case 'stale': return 'STALE';
+    default: return 'NEVER';
+  }
+}
+
+function CronStatusPanel() {
+  const [jobs, setJobs] = useState<CronJobStatus[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [asOf, setAsOf] = useState<string | null>(null);
+
+  async function refresh() {
+    setLoading(true);
+    setError(null);
+    try {
+      const data = await apiGet<CronStatusResponse>('/api/cron-status');
+      setJobs(data.jobs);
+      setAsOf(data.asOf);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setJobs([]);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  // Summary counts for the collapsed line — drives the "N OK · N
+  // errors · N stale" eyebrow.
+  const counts = jobs
+    ? jobs.reduce(
+        (acc, j) => {
+          acc[j.health] = (acc[j.health] || 0) + 1;
+          return acc;
+        },
+        {} as Record<string, number>,
+      )
+    : null;
+
+  return (
+    <details
+      className="bg-[var(--surface-card)] border border-white/[0.06] px-7 py-4"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      onToggle={(e) => {
+        if ((e.target as HTMLDetailsElement).open && jobs === null && !loading) {
+          refresh();
+        }
+      }}
+    >
+      <summary className="cursor-pointer text-[13px] text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] flex items-center justify-between gap-3 list-none">
+        <span>
+          <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)] pr-3">
+            Cron status
+          </span>
+          {counts === null ? (
+            <span className="font-mono text-[var(--color-ivory)]">—</span>
+          ) : (
+            <span className="font-mono text-[var(--color-ivory)]">
+              {counts.ok || 0} OK
+              {(counts.error || 0) > 0 && ` · ${counts.error} error`}
+              {(counts.stale || 0) > 0 && ` · ${counts.stale} stale`}
+            </span>
+          )}
+        </span>
+        <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
+      </summary>
+      <div className="pt-5 pb-2 space-y-4">
+        <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+          Health of the scheduled background jobs (digests, alerts, retries, expiry sweeps).
+          Reads the per-job last-run + last-error KV state every cron tick writes.
+          {asOf && <span className="text-[var(--color-ivory-mute)]"> · As of {new Date(asOf).toLocaleString('en-IE')}</span>}
+        </p>
+        {loading && <p className="text-[12.5px] text-[var(--color-ivory-mute)]">Loading…</p>}
+        {jobs !== null && jobs.length > 0 && (
+          <ul className="divide-y divide-white/[0.06]">
+            {jobs.map((j) => {
+              const pillClass = healthPillStyles(j.health);
+              const lastTs = j.lastError && (!j.lastRun || (j.lastError.ranAt >= (j.lastRun.ranAt || '')))
+                ? j.lastError.ranAt
+                : (j.lastRun?.completedAt || j.lastRun?.ranAt || null);
+              return (
+                <li key={j.name} className="py-3 flex items-baseline justify-between gap-3 flex-wrap">
+                  <div className="min-w-0 flex-1 space-y-0.5">
+                    <p className="text-[13.5px] font-mono text-[var(--color-ivory)] truncate">
+                      {j.name}
+                    </p>
+                    <p className="text-[11.5px] text-[var(--color-ivory-mute)]">
+                      {lastTs
+                        ? `Last: ${new Date(lastTs).toLocaleString('en-IE')}`
+                        : 'Never run since observability was wired'}
+                      {j.lastError && j.health === 'error' && (
+                        <> · <span className="text-[var(--color-warning)]">{j.lastError.error}</span></>
+                      )}
+                      {j.lastRun?.durationMs && (
+                        <span className="text-[var(--color-ivory-mute)]"> · {j.lastRun.durationMs}ms</span>
+                      )}
+                    </p>
+                  </div>
+                  <span
+                    className={`text-[10.5px] font-semibold tracking-wider uppercase px-2 py-0.5 border ${pillClass}`}
+                    style={{ borderRadius: 'var(--radius-button)' }}
+                  >
+                    {healthLabel(j.health)}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {jobs !== null && jobs.length === 0 && !loading && (
+          <p className="text-[12.5px] text-[var(--color-ivory-mute)] italic">
+            No jobs registered.
+          </p>
+        )}
+        {error && <p className="text-[12px] text-[var(--color-warning)]">{error}</p>}
       </div>
     </details>
   );

@@ -162,6 +162,12 @@ const handlers = {
   // returned ONCE), DELETE removes, POST /<id>/test fires a signed
   // test payload to the URL. Admin-only.
   webhooks: require('../lib/handlers/webhooks'),
+  // Sprint 52 — org-admin-facing cron observability. Distinct
+  // path from the platform-admin /api/cron/status: this one is
+  // session-authed at the org-admin level (admin/owner roles)
+  // so any admin can watch the cron jobs their workflow depends
+  // on. Same KV reads, no new state.
+  'cron-status': require('../lib/handlers/cron-status'),
   // Sprint wizard-step-funnel-v1 — the wizard fires fire-and-forget
   // POSTs as the user clicks Next/Back/Submit so we can compute the
   // 6-step funnel ("how many users reached step 4?") without external
