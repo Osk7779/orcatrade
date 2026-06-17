@@ -1251,6 +1251,28 @@ export interface OpsInsightsDeclineSpikeCohort {
   spikes: OpsInsightsDeclineSpike[];
 }
 
+// Sprint 53 — cohort #8. Third proactive signal. Quote-acceptance
+// rate drift vs prior baseline. Rates are 0..1 floats (server
+// rounded to 3 decimals); null when the denominator is 0 so the
+// UI can render "no baseline yet" instead of a misleading 0%.
+// `delta` is null when either rate is null. `isDegraded` fires
+// when currentRate < degradationThreshold × baselineRate AND
+// currentQuoted >= minCount.
+export interface OpsInsightsQuoteAcceptanceCohort {
+  currentDays: number;
+  baselineDays: number;
+  minCount: number;
+  degradationThreshold: number;
+  currentApproved: number;
+  currentQuoted: number;
+  currentRate: number | null;
+  baselineApproved: number;
+  baselineQuoted: number;
+  baselineRate: number | null;
+  delta: number | null;
+  isDegraded: boolean;
+}
+
 export interface OpsInsights {
   funnelByStatus: Partial<Record<ImportRequestStatus, number>>;
   totalInWindow: number;
@@ -1270,6 +1292,9 @@ export interface OpsInsights {
   // Sprint 40 — cohort #7. Decline-reason spike. Always present;
   // the UI handles the no-spike case via spikes.length === 0.
   declineSpike: OpsInsightsDeclineSpikeCohort;
+  // Sprint 53 — cohort #8. Quote-acceptance rate drift. Always
+  // present; the UI gates the card render on isDegraded.
+  quoteAcceptance: OpsInsightsQuoteAcceptanceCohort;
 }
 
 export interface OpsInsightsResponse {

@@ -45,6 +45,7 @@ import {
   type OpsInsightsRatingCohort,
   type OpsInsightsStalledQueue,
   type OpsInsightsDeclineSpikeCohort,
+  type OpsInsightsQuoteAcceptanceCohort,
   type OperatorConfigResponse,
   type ApiKey,
   type ApiKeyListResponse,
@@ -188,6 +189,14 @@ export default function InsightsPage() {
           proactive band. */}
       {data.declineSpike.spikes.length > 0 && (
         <DeclineSpikeCard data={data.declineSpike} />
+      )}
+      {/* Sprint 53 — quote-acceptance rate degradation watch. Third
+          proactive signal: of requests that exited `quoted` in the
+          last 30d, what % went to customer_approved? When current
+          rate drops below 75% of the 60-day baseline rate AND the
+          denominator is meaningful (>=5), we surface a card. */}
+      {data.quoteAcceptance.isDegraded && (
+        <QuoteAcceptanceCard data={data.quoteAcceptance} />
       )}
       <RevisionCohort data={data.revisionCohort} />
       <Funnel data={data} />
@@ -510,6 +519,89 @@ function DeclineSpikeCard({ data }: { data: OpsInsightsDeclineSpikeCohort }) {
 
       <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
         Drill into the breakdown below — same numbers, narrower angle.
+      </p>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Quote-acceptance rate degradation (sprint 53) — the THIRD
+ *  proactive signal. Renders only when isDegraded (gated by parent).
+ *  Of requests that EXITED `quoted` in the last 30d
+ *  (customer_approved / customer_rejected / expired), what % went to
+ *  customer_approved? When current rate drops below 75% of the
+ *  60-day baseline AND we have >= 5 decisions in the window, flag it.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function QuoteAcceptanceCard({ data }: { data: OpsInsightsQuoteAcceptanceCohort }) {
+  const currentPct = data.currentRate !== null
+    ? `${Math.round(data.currentRate * 100)}%`
+    : '—';
+  const baselinePct = data.baselineRate !== null
+    ? `${Math.round(data.baselineRate * 100)}%`
+    : '—';
+  // delta as percentage-points (e.g. -18pp). Negative values are
+  // the bad ones — we render with leading sign so the direction
+  // reads at a glance.
+  const deltaPp = data.delta !== null ? Math.round(data.delta * 100) : null;
+  const thresholdPct = Math.round(data.degradationThreshold * 100);
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-[var(--color-warning)]/[0.35] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="space-y-1.5">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-warning)]">
+          Quote-acceptance rate · degraded vs baseline
+        </h2>
+        <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+          Of requests that exited <span className="font-medium text-[var(--color-ivory)]">quoted</span>{' '}
+          in the last {data.currentDays} days, {currentPct} went to{' '}
+          <span className="font-medium text-[var(--color-ivory)]">customer_approved</span>{' '}
+          — vs {baselinePct} across the prior {data.baselineDays} days. Triggers when the rate
+          falls below {thresholdPct}% of the prior baseline AND there are at least {data.minCount}{' '}
+          decisions in the current window.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Current ({data.currentDays}d)
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-warning)] font-mono leading-none">
+            {currentPct}
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            {data.currentApproved} of {data.currentQuoted} decisions
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Baseline ({data.baselineDays}d prior)
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-ivory)] font-mono leading-none">
+            {baselinePct}
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            {data.baselineApproved} of {data.baselineQuoted} decisions
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Δ vs baseline
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-warning)] font-mono leading-none">
+            {deltaPp !== null ? `${deltaPp > 0 ? '+' : ''}${deltaPp}pp` : '—'}
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            percentage points
+          </p>
+        </div>
+      </div>
+
+      <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+        Open the decline-reason breakdown below to see what's driving the rejections.
       </p>
     </section>
   );
