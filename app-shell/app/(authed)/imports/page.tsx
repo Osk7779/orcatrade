@@ -350,6 +350,34 @@ function ImportsView() {
         })}
       </nav>
 
+      {/* Sprint 34 — Export CSV. Mirrors the current filtered view
+          (status, cohort, search, supplier-pick) so ops downloads
+          EXACTLY what's on screen. Capped server-side at 5000 rows;
+          UTF-8 BOM + RFC-4180 escaping so Excel + Numbers open it
+          cleanly without diacritic-mangling. Hidden when the list
+          is empty — nothing to export. */}
+      {state === 'ready' && requests.length > 0 && (
+        <div className="flex justify-end -mt-3">
+          <a
+            href={(() => {
+              const params = new URLSearchParams();
+              if (!cohortReason && !supplierPick) params.set('mine', '1');
+              if (filterStatus) params.set('status', filterStatus);
+              if (cohortReason) params.set('declineReason', cohortReason);
+              if (supplierPick) params.set('supplierPick', supplierPick);
+              if (urlQ) params.set('q', urlQ);
+              const qs = params.toString();
+              return qs ? `/api/imports/export.csv?${qs}` : '/api/imports/export.csv';
+            })()}
+            className="group inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
+            title="Download CSV of the current view (UTF-8, RFC-4180)"
+          >
+            Export CSV
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-y-0.5">↓</span>
+          </a>
+        </div>
+      )}
+
       {/* Table or empty state */}
       {state === 'loading' && <p className="text-[var(--color-ivory-mute)] text-sm">Loading…</p>}
       {state === 'error' && (
