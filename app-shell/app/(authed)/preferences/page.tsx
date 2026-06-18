@@ -34,6 +34,7 @@ const TOGGLE_GROUPS: ToggleGroup[] = [
       { key: 'importLowRatingAlertEmails', label: 'Low-rating alert (1-2★)', desc: 'Immediate alert when a customer rates a request 1 or 2 stars. Outreach within 24 hours; a 1-2★ rating left unanswered is the strongest churn signal we track.' },
       { key: 'importStalledQueueAlertEmails', label: 'Stalled-queue daily alert', desc: 'Daily morning watch list of requests sitting in awaiting_review with no activity for more than 7 days. Healthy days send no email; the cohort still surfaces on the live Ops Insights cockpit.' },
       { key: 'importDeclineSpikeAlertEmails', label: 'Decline-spike daily alert', desc: 'Daily morning watch for decline reasons whose 7-day pace is ≥ 2× the 30-day baseline (or first-time appearances). Catches supplier-compliance or regulatory-shift issues early. Healthy days send no email.' },
+      { key: 'importQuoteAcceptanceAlertEmails', label: 'Quote-acceptance weekly alert', desc: 'Wednesday morning watch when the 30-day quote-acceptance rate drops below 75% of the prior 60-day baseline. Slow-moving signal — weekly cadence avoids noise. Healthy weeks send no email.' },
     ],
   },
   {

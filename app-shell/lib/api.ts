@@ -176,6 +176,7 @@ export interface Prefs {
   importLowRatingAlertEmails?: boolean;
   importStalledQueueAlertEmails?: boolean;
   importDeclineSpikeAlertEmails?: boolean;
+  importQuoteAcceptanceAlertEmails?: boolean;
   locale?: string;
   updatedAt?: string;
 }

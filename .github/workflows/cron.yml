@@ -98,6 +98,15 @@ on:
     # via importDeclineSpikeAlertEmails. Healthy orgs
     # (spikes.length===0) skip silently.
     - cron: '30 8 * * *'
+    # Wednesday 09:00 UTC — quote-acceptance rate alert (Sprint 54).
+    # Pairs with the sprint-53 third proactive cohort: of requests
+    # that EXITED `quoted` in the last 30d, what % went to
+    # customer_approved vs the prior 60-day baseline. Slow signal —
+    # daily would be noise; weekly mid-week (Wed) lands between
+    # Monday's batch and Friday's wrap, giving ops time to act.
+    # Pref-gated via importQuoteAcceptanceAlertEmails. Healthy orgs
+    # (!isDegraded) skip silently.
+    - cron: '0 9 * * 3'
     # Every 5 minutes — webhook retry queue drain (Sprint 50).
     # Failed sprint-48 dispatches got queued with exponential
     # backoff (1m / 5m / 30m / 2h / 6h, max 5 attempts before
@@ -129,6 +138,7 @@ on:
           - import-request-insights-digest
           - import-request-stalled-queue-alert
           - import-request-decline-spike-alert
+          - import-request-quote-acceptance-alert
           - webhook-retry-flush
 
 jobs:
@@ -170,6 +180,8 @@ jobs:
             echo "job=import-request-stalled-queue-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "30 8 * * *" ]; then
             echo "job=import-request-decline-spike-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 9 * * 3" ]; then
+            echo "job=import-request-quote-acceptance-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "*/5 * * * *" ]; then
             echo "job=webhook-retry-flush" >> "$GITHUB_OUTPUT"
           else
