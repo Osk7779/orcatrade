@@ -40,6 +40,9 @@ import {
   REVISABLE_DECLINE_REASONS,
   type ImportRequestMessage,
   IMPORT_REQUEST_MESSAGE_BODY_MAX,
+  type ImportRequestInternalNote,
+  type ImportRequestInternalNoteResponse,
+  IMPORT_REQUEST_INTERNAL_NOTE_BODY_MAX,
   type ComplianceRegime,
   type EvidenceAttachment,
   COMPLIANCE_REGIMES,
@@ -397,6 +400,19 @@ export default function ImportRequestDetailPage() {
           setRequest(updated);
         }}
       />
+
+      {/* Sprint 55 — internal ops notes. Ops-only render — even
+          server-side, the GET endpoint redacts internalNotes to
+          [] for non-ops readers, so the client-side gate is the
+          second layer of defence (a customer who manually edits
+          isOpsRole in devtools would still see an empty array).
+          Drift-guard tests pin both layers. */}
+      {isOpsRole && (
+        <InternalNotesPanel
+          request={request}
+          onNotePosted={(updated) => setRequest(updated)}
+        />
+      )}
 
       {/* Audit timeline — sprint 7. Reuses the polymorphic component
           that powers the shipment / goods / supplier detail pages. */}
@@ -2004,6 +2020,131 @@ function MessageThread({
               style={{ borderRadius: 'var(--radius-button)' }}
             >
               {posting ? 'Posting…' : 'Send message'}
+            </button>
+          </div>
+          {postError && (
+            <p className="text-[13px] font-medium text-[var(--color-critical)]">{postError}</p>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Internal notes (sprint 55) — ops-only annotations. The CUSTOMER
+ *  never sees this panel even logged in (parent gates render on
+ *  isOpsRole + the server-side GET redacts internalNotes to [] for
+ *  non-ops). Visually distinct from MessageThread — muted amber
+ *  border + "INTERNAL" eyebrow so an ops user never confuses these
+ *  with customer-visible messages.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function InternalNotesPanel({
+  request,
+  onNotePosted,
+}: {
+  request: ImportRequest;
+  onNotePosted: (updated: ImportRequest) => void;
+}) {
+  const notes = request.internalNotes || [];
+  const [body, setBody] = useState('');
+  const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState<string | null>(null);
+
+  async function submit() {
+    const trimmed = body.trim();
+    if (!trimmed) return;
+    setPosting(true);
+    setPostError(null);
+    try {
+      const data = await apiPost<ImportRequestInternalNoteResponse>(
+        `/imports/${request.externalId}/notes`,
+        { body: trimmed },
+      );
+      if (data.importRequest) onNotePosted(data.importRequest);
+      setBody('');
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setPostError(msg);
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  return (
+    <section className="space-y-4">
+      <div
+        className="bg-[var(--surface-card)] border border-[var(--color-warning)]/[0.35] p-6 space-y-5"
+        style={{ borderRadius: 'var(--radius-card)' }}
+      >
+        <div className="flex items-baseline justify-between gap-3 flex-wrap">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-warning)]">
+            Internal notes · ops-only
+          </h2>
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--color-ivory-mute)]">
+            {notes.length} {notes.length === 1 ? 'note' : 'notes'}
+          </span>
+        </div>
+        <p className="text-[12.5px] text-[var(--color-ivory-dim)] leading-relaxed">
+          Annotations visible to admin/owner members only. The customer never sees these — even
+          when signed in and viewing their own request.
+        </p>
+
+        {notes.length === 0 && (
+          <p className="text-[12.5px] text-[var(--color-ivory-mute)] italic">
+            No internal notes yet. Add context for the next ops admin who picks this up.
+          </p>
+        )}
+
+        {notes.length > 0 && (
+          <ul className="space-y-3">
+            {notes.map((n) => (
+              <li
+                key={n.id}
+                className="border border-white/[0.06] bg-[var(--surface-elevated)] p-3 space-y-1"
+                style={{ borderRadius: 'var(--radius-button)' }}
+              >
+                <p className="text-[14px] text-[var(--color-ivory)] whitespace-pre-wrap leading-relaxed">
+                  {n.body}
+                </p>
+                <p className="text-[11px] text-[var(--color-ivory-mute)] font-mono">
+                  {n.byEmailHash.slice(0, 8)} · {new Date(n.at).toLocaleString('en-IE')}
+                </p>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <div className="border-t border-white/[0.06] pt-4 space-y-3">
+          <label className="block text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Add internal note
+          </label>
+          <textarea
+            value={body}
+            onChange={(e) => setBody(e.target.value.slice(0, IMPORT_REQUEST_INTERNAL_NOTE_BODY_MAX))}
+            onKeyDown={(e) => {
+              if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                e.preventDefault();
+                submit();
+              }
+            }}
+            placeholder="Context for the next ops admin — supplier history, decision rationale, follow-up plan."
+            rows={3}
+            className="w-full bg-[var(--surface-elevated)] border border-white/10 text-[var(--color-ivory)] text-[14px] px-3 py-2.5 rounded focus:border-[var(--color-warning)] focus:outline-none resize-y leading-relaxed"
+          />
+          <div className="flex items-center justify-between gap-3 flex-wrap">
+            <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono">
+              {body.length} / {IMPORT_REQUEST_INTERNAL_NOTE_BODY_MAX} · Cmd/Ctrl+Enter to save
+            </p>
+            <button
+              type="button"
+              onClick={submit}
+              disabled={posting || !body.trim()}
+              className="inline-flex items-center gap-2 px-5 py-2.5 bg-[var(--color-warning)] text-[var(--color-navy)] text-[13.5px] font-semibold transition-all duration-200 hover:opacity-90 disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            >
+              {posting ? 'Saving…' : 'Save internal note'}
             </button>
           </div>
           {postError && (

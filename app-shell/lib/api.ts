@@ -1354,6 +1354,11 @@ export interface ImportRequest {
   // { id, role, body, byEmailHash, at }. Customer + ops messages
   // intermix; the UI styles them by role.
   messages?: ImportRequestMessage[];
+  // Sprint 55 — internal ops annotations. Server REDACTS this to
+  // an empty array when the reader isn't ops; UI render gates on
+  // the user's resolved role as well. Optional so the field can
+  // be absent on legacy responses.
+  internalNotes?: ImportRequestInternalNote[];
   // Sprint 27 — compliance evidence attachments (cloud-share URLs
   // tagged by regulatory regime). Append-only at the API surface;
   // supersession is a separate event.
@@ -1401,6 +1406,25 @@ export interface ImportRequestMessage {
   body: string;
   byEmailHash: string;
   at: string;
+}
+
+// Sprint 55 — per-request internal ops note. Identical wire shape
+// to a message minus the role (notes are inherently ops-only —
+// the role is implicit). Server redacts the entire collection
+// from non-ops responses.
+export const IMPORT_REQUEST_INTERNAL_NOTE_BODY_MAX = 4000;
+
+export interface ImportRequestInternalNote {
+  id: string;
+  body: string;
+  byEmailHash: string;
+  at: string;
+}
+
+export interface ImportRequestInternalNoteResponse {
+  ok: boolean;
+  importRequest: ImportRequest;
+  note: ImportRequestInternalNote;
 }
 
 // ── Customer rating (sprint 30) ──────────────────────────────────────
@@ -1598,7 +1622,9 @@ export type ImportRequestTimelineEventType =
   | 'import_request_message_posted'
   | 'import_request_evidence_attached'
   | 'import_request_supplier_picked'
-  | 'import_request_rated';
+  | 'import_request_rated'
+  // Sprint 55 — internal ops note appended.
+  | 'import_request_internal_note_added';
 
 export interface ImportRequestTimelineEvent {
   type: ImportRequestTimelineEventType;
@@ -1716,6 +1742,13 @@ export function activityEventSummary(e: ActivityEvent): string {
         ? '★'.repeat(score) + '☆'.repeat(5 - score)
         : '★';
       return `${stars} rating on import request ${entityRef}`;
+    }
+    case 'import_request_internal_note_added': {
+      // Sprint 55 — internal ops note. The body itself is
+      // intentionally NOT in the audit chain detail (privacy
+      // posture mirrors sprint 18 messages); the feed surfaces
+      // a generic copy so other ops see context being added.
+      return `Internal note added on import request ${entityRef}`;
     }
     case 'goods_master_created':
       return `New product registered (${entityRef})`;

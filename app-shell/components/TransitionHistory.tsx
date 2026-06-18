@@ -275,6 +275,15 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
           const tag = d.isSupersession ? ' · revised' : '';
           return `${stars}${tag}`;
         }
+        case 'import_request_internal_note_added': {
+          // Sprint 55 — internal ops note. Detail carries
+          // { noteId, length }; surface a generic copy because
+          // the body itself is intentionally NOT in the audit
+          // chain (privacy posture mirrors sprint 18 messages).
+          // The note body lives in internal_notes and renders in
+          // the ops-only <InternalNotesPanel>.
+          return 'Internal note added';
+        }
         default:
           return String(e.type);
       }
@@ -287,6 +296,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
       if (t === 'import_request_evidence_attached') return 'var(--color-positive)';
       if (t === 'import_request_supplier_picked') return 'var(--color-aqua)';
       if (t === 'import_request_rated') return 'var(--color-positive)';
+      if (t === 'import_request_internal_note_added') return 'var(--color-warning)';
       return 'var(--color-ivory)';
     },
     typeLabel: (t) => {
@@ -299,6 +309,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'import_request_evidence_attached': return 'Evidence';
         case 'import_request_supplier_picked': return 'Pick';
         case 'import_request_rated': return 'Rating';
+        case 'import_request_internal_note_added': return 'Internal';
         default: return String(t);
       }
     },
