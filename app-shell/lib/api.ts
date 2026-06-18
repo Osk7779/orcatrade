@@ -1188,6 +1188,15 @@ export interface WebhookDeliveriesResponse {
 // it's the one-time reveal. List + revoke responses NEVER include
 // it. The `keyId` is the SHA-256 of the raw value, used as the URL
 // segment for DELETE.
+// Sprint 56 — per-key scope literal type. Empty scopes array on a
+// key means "no narrowing — admin-equivalent" (legacy sprint-44
+// behaviour). Non-empty narrows the bearer surface.
+export type ApiKeyScope =
+  | 'imports:read'
+  | 'insights:read'
+  | 'audit:read'
+  | 'exports:read';
+
 export interface ApiKey {
   keyId: string;
   label: string;
@@ -1195,6 +1204,9 @@ export interface ApiKey {
   lastUsedAt: string | null;
   redactedKey: string;
   revoked: boolean;
+  // Sprint 56 — scopes narrowing the bearer surface. Optional for
+  // back-compat with sprint-44 list responses pre-update.
+  scopes?: ApiKeyScope[];
 }
 
 export interface ApiKeyListResponse {
@@ -1212,6 +1224,18 @@ export interface ApiKeyCreateResponse {
   label: string;
   createdAt: string;
   redactedKey: string;
+  // Sprint 56 — echo scopes so the UI can render the chip
+  // without a list-refresh round-trip.
+  scopes?: ApiKeyScope[];
+}
+
+// Sprint 56 — GET /api/api-keys/scopes enumerates the curated
+// whitelist so the UI's create-form checkboxes don't hardcode
+// the list (drift-guard: a server-side add lands without a UI
+// PR).
+export interface ApiKeyScopesResponse {
+  ok: boolean;
+  scopes: ApiKeyScope[];
 }
 
 // Sprint 42 — per-org operator config (v1: stallThresholdDays).

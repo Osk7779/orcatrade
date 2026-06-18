@@ -48,8 +48,10 @@ import {
   type OpsInsightsQuoteAcceptanceCohort,
   type OperatorConfigResponse,
   type ApiKey,
+  type ApiKeyScope,
   type ApiKeyListResponse,
   type ApiKeyCreateResponse,
+  type ApiKeyScopesResponse,
   type WebhookSubscription,
   type WebhookListResponse,
   type WebhookCreateResponse,
@@ -777,6 +779,12 @@ function ApiKeysPanel() {
   const [revealedKey, setRevealedKey] = useState<{ raw: string; label: string } | null>(null);
   const [creatingLabel, setCreatingLabel] = useState('');
   const [busy, setBusy] = useState(false);
+  // Sprint 56 — scope-narrowing state. availableScopes is fetched
+  // from /api/api-keys/scopes so the UI doesn't hardcode the
+  // whitelist; selectedScopes is the user's pick at create time
+  // (empty = legacy admin-equivalent).
+  const [availableScopes, setAvailableScopes] = useState<ApiKeyScope[] | null>(null);
+  const [selectedScopes, setSelectedScopes] = useState<ApiKeyScope[]>([]);
 
   async function refresh() {
     setLoading(true);
@@ -784,6 +792,10 @@ function ApiKeysPanel() {
     try {
       const data = await apiGet<ApiKeyListResponse>('/api/api-keys');
       setKeys(data.keys);
+      if (availableScopes === null) {
+        const sc = await apiGet<ApiKeyScopesResponse>('/api/api-keys/scopes');
+        setAvailableScopes(sc.scopes);
+      }
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);
@@ -800,9 +812,14 @@ function ApiKeysPanel() {
     try {
       const data = await apiPost<ApiKeyCreateResponse>('/api/api-keys', {
         label: creatingLabel.trim(),
+        // Sprint 56 — pass the selected scopes. Empty array
+        // explicitly preserves the legacy unscoped (admin-
+        // equivalent) shape.
+        scopes: selectedScopes,
       });
       setRevealedKey({ raw: data.key, label: data.label });
       setCreatingLabel('');
+      setSelectedScopes([]);
       await refresh();
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
@@ -810,6 +827,12 @@ function ApiKeysPanel() {
     } finally {
       setBusy(false);
     }
+  }
+
+  function toggleScope(scope: ApiKeyScope) {
+    setSelectedScopes((prev) =>
+      prev.includes(scope) ? prev.filter((s) => s !== scope) : [...prev, scope],
+    );
   }
 
   async function onRevoke(keyId: string) {
@@ -902,7 +925,7 @@ function ApiKeysPanel() {
         )}
 
         {/* Create form */}
-        <div className="space-y-2">
+        <div className="space-y-3">
           <label htmlFor="newApiKeyLabel" className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block">
             Create a key
           </label>
@@ -928,6 +951,38 @@ function ApiKeysPanel() {
               {busy ? 'Creating…' : 'Create'}
             </button>
           </div>
+          {/* Sprint 56 — scope-narrowing checkboxes. Empty selection
+              means "no narrowing — admin-equivalent" so a user who
+              just wants a quick key doesn't have to touch this.
+              Checked scopes narrow the bearer surface accordingly. */}
+          {availableScopes && availableScopes.length > 0 && (
+            <div className="space-y-1.5">
+              <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+                Scopes (optional — leave empty for admin-equivalent)
+              </p>
+              <div className="flex flex-wrap gap-2">
+                {availableScopes.map((s) => {
+                  const active = selectedScopes.includes(s);
+                  return (
+                    <button
+                      key={s}
+                      type="button"
+                      onClick={() => toggleScope(s)}
+                      disabled={busy}
+                      className={`text-[11.5px] font-mono px-2.5 py-1 border transition-colors duration-150 ${
+                        active
+                          ? 'bg-[var(--color-aqua)] text-[var(--color-navy)] border-[var(--color-aqua)]'
+                          : 'border-white/15 text-[var(--color-ivory-dim)] hover:border-[var(--color-aqua)]'
+                      }`}
+                      style={{ borderRadius: 'var(--radius-button)' }}
+                    >
+                      {s}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* List */}
@@ -944,27 +999,47 @@ function ApiKeysPanel() {
           {keys !== null && keys.length > 0 && (
             <ul className="divide-y divide-white/[0.06]">
               {keys.map((k) => (
-                <li key={k.keyId} className="py-3 flex items-center justify-between gap-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="text-[14px] font-medium text-[var(--color-ivory)] truncate">
-                      {k.label}
-                    </p>
-                    <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono pt-0.5">
-                      {k.redactedKey}
-                      {k.lastUsedAt
-                        ? ` · last used ${new Date(k.lastUsedAt).toLocaleDateString('en-IE')}`
-                        : ' · never used'}
-                    </p>
+                <li key={k.keyId} className="py-3 space-y-1.5">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[14px] font-medium text-[var(--color-ivory)] truncate">
+                        {k.label}
+                      </p>
+                      <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono pt-0.5">
+                        {k.redactedKey}
+                        {k.lastUsedAt
+                          ? ` · last used ${new Date(k.lastUsedAt).toLocaleDateString('en-IE')}`
+                          : ' · never used'}
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => onRevoke(k.keyId)}
+                      disabled={busy}
+                      className="text-[12px] px-3 py-1.5 border border-[var(--color-warning)]/40 text-[var(--color-warning)] hover:bg-[var(--color-warning)]/10 disabled:opacity-40"
+                      style={{ borderRadius: 'var(--radius-button)' }}
+                    >
+                      Revoke
+                    </button>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => onRevoke(k.keyId)}
-                    disabled={busy}
-                    className="text-[12px] px-3 py-1.5 border border-[var(--color-warning)]/40 text-[var(--color-warning)] hover:bg-[var(--color-warning)]/10 disabled:opacity-40"
-                    style={{ borderRadius: 'var(--radius-button)' }}
-                  >
-                    Revoke
-                  </button>
+                  {/* Sprint 56 — scope chips. Empty array surfaces
+                      as the "all read access" chip so a user can see
+                      which keys are legacy unscoped vs narrowed. */}
+                  <div className="flex flex-wrap gap-1.5">
+                    {(!k.scopes || k.scopes.length === 0) && (
+                      <span className="text-[10.5px] font-mono px-1.5 py-0.5 bg-white/[0.04] text-[var(--color-ivory-mute)]">
+                        all read access
+                      </span>
+                    )}
+                    {k.scopes && k.scopes.map((s) => (
+                      <span
+                        key={s}
+                        className="text-[10.5px] font-mono px-1.5 py-0.5 bg-[var(--color-aqua)]/15 text-[var(--color-aqua)]"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
                 </li>
               ))}
             </ul>
