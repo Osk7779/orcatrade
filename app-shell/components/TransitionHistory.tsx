@@ -52,7 +52,7 @@ import {
   type AuditTimelineEventType,
 } from '@/lib/api';
 
-export type EntityKind = 'shipment' | 'goods' | 'supplier';
+export type EntityKind = 'shipment' | 'goods' | 'supplier' | 'import_request';
 
 function fmtDateTime(d: string) {
   try { return new Date(d).toLocaleString('en-IE'); } catch { return d; }
@@ -189,6 +189,127 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'supplier_master_updated': return 'Updated';
         case 'supplier_master_rescreened': return 'Re-screened';
         case 'supplier_master_archived': return 'Archived';
+        default: return String(t);
+      }
+    },
+  },
+  // Sprint 7 — fourth entity kind. Import requests fire a small set of
+  // events; the load-bearing one is `import_request_status_transition`,
+  // which carries `before.status` → `after.status` in the standard
+  // shape so the timeline reads as "Status submitted → processing", etc.
+  import_request: {
+    urlPath: 'imports',
+    headline: (e) => {
+      switch (e.type) {
+        case 'import_request_created':
+          return 'Request created · status submitted';
+        case 'import_request_status_transition': {
+          const from = (e.before as { status?: string } | undefined)?.status;
+          const to = (e.after as { status?: string } | undefined)?.status;
+          // The transition detail block sometimes carries a `subtype`
+          // that names the artefact attached at this transition —
+          // 'shortlist_and_quote_attached', 'team_reviewed',
+          // 'customer_decided'. Surface it in the headline so the
+          // timeline reads as a story: not just "processing →
+          // awaiting_review" but "shortlist + quote attached".
+          const subtype = (e.detail as { subtype?: string } | undefined)?.subtype;
+          const subtypeLabel: Record<string, string> = {
+            shortlist_and_quote_attached: 'shortlist + quote attached',
+            team_reviewed: 'team reviewed',
+            customer_decided: 'customer decided',
+          };
+          const subLabel = subtype && subtypeLabel[subtype];
+          if (from && to && subLabel) return `${from.replace(/_/g, ' ')} → ${to.replace(/_/g, ' ')} · ${subLabel}`;
+          if (from && to) return `Status ${from.replace(/_/g, ' ')} → ${to.replace(/_/g, ' ')}`;
+          if (to) return `Status → ${to.replace(/_/g, ' ')}`;
+          return 'Status transition';
+        }
+        case 'import_request_updated':
+          return 'Request updated';
+        case 'import_request_archived':
+          return 'Request archived';
+        case 'import_request_message_posted': {
+          // Sprint 18 — message on the thread. Detail carries
+          // { messageId, role, length }; surface the role so the
+          // timeline reads "Customer posted (47 chars)" /
+          // "Team posted (212 chars)" — never the body itself.
+          const d = (e.detail as { role?: string; length?: number } | undefined) || {};
+          const who = d.role === 'ops' ? 'Team' : d.role === 'system' ? 'System' : 'Customer';
+          const len = Number.isFinite(d.length) ? ` · ${d.length} chars` : '';
+          return `${who} posted on thread${len}`;
+        }
+        case 'import_request_evidence_attached': {
+          // Sprint 27 — compliance evidence attached. Detail carries
+          // { evidenceId, regime, urlHost, hasNotes }; surface the
+          // regime + host so the timeline reads "EUDR evidence ·
+          // drive.google.com" without leaking the full URL.
+          const d = (e.detail as { regime?: string; urlHost?: string } | undefined) || {};
+          const tag = typeof d.regime === 'string' && d.regime ? d.regime : 'Compliance';
+          const host = typeof d.urlHost === 'string' && d.urlHost ? ` · ${d.urlHost}` : '';
+          return `${tag} evidence attached${host}`;
+        }
+        case 'import_request_supplier_picked': {
+          // Sprint 28 — supplier-country pick at materialise time.
+          // Detail carries { country, hsPrefix6, rationaleCategory };
+          // surface country + rationale category for the timeline
+          // "Picked CN · cost" — the rationale dimension is the
+          // actionable bit (cost vs lead-time vs compliance shaped
+          // the call).
+          const d = (e.detail as { country?: string; rationaleCategory?: string } | undefined) || {};
+          const country = typeof d.country === 'string' && d.country ? d.country : 'Supplier';
+          const cat = typeof d.rationaleCategory === 'string' && d.rationaleCategory
+            ? ` · ${d.rationaleCategory.replace(/_/g, ' ')}`
+            : '';
+          return `Picked ${country}${cat}`;
+        }
+        case 'import_request_rated': {
+          // Sprint 30 — customer rating. Detail carries { score,
+          // hasComment, isSupersession }; surface the star glyph +
+          // a "revised rating" tag on supersession so the timeline
+          // distinguishes first-rating from follow-up.
+          const d = (e.detail as { score?: number; isSupersession?: boolean } | undefined) || {};
+          const score = Number(d.score);
+          const stars = Number.isInteger(score) && score >= 1 && score <= 5
+            ? '★'.repeat(score) + '☆'.repeat(5 - score)
+            : '★';
+          const tag = d.isSupersession ? ' · revised' : '';
+          return `${stars}${tag}`;
+        }
+        case 'import_request_internal_note_added': {
+          // Sprint 55 — internal ops note. Detail carries
+          // { noteId, length }; surface a generic copy because
+          // the body itself is intentionally NOT in the audit
+          // chain (privacy posture mirrors sprint 18 messages).
+          // The note body lives in internal_notes and renders in
+          // the ops-only <InternalNotesPanel>.
+          return 'Internal note added';
+        }
+        default:
+          return String(e.type);
+      }
+    },
+    tone: (t) => {
+      if (t === 'import_request_archived') return 'var(--color-ivory-mute)';
+      if (t === 'import_request_status_transition') return 'var(--color-aqua)';
+      if (t === 'import_request_updated') return 'var(--color-positive)';
+      if (t === 'import_request_message_posted') return 'var(--color-aqua)';
+      if (t === 'import_request_evidence_attached') return 'var(--color-positive)';
+      if (t === 'import_request_supplier_picked') return 'var(--color-aqua)';
+      if (t === 'import_request_rated') return 'var(--color-positive)';
+      if (t === 'import_request_internal_note_added') return 'var(--color-warning)';
+      return 'var(--color-ivory)';
+    },
+    typeLabel: (t) => {
+      switch (t) {
+        case 'import_request_created': return 'Created';
+        case 'import_request_updated': return 'Updated';
+        case 'import_request_status_transition': return 'State transition';
+        case 'import_request_archived': return 'Archived';
+        case 'import_request_message_posted': return 'Thread';
+        case 'import_request_evidence_attached': return 'Evidence';
+        case 'import_request_supplier_picked': return 'Pick';
+        case 'import_request_rated': return 'Rating';
+        case 'import_request_internal_note_added': return 'Internal';
         default: return String(t);
       }
     },

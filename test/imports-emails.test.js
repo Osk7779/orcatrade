@@ -1,0 +1,587 @@
+'use strict';
+
+// Import-Request email touchpoints — composition + dispatcher tests.
+// Send-path failures and KV writes use lightweight stubs because the
+// Resend + KV upstreams are not deterministic to exercise in unit
+// tests; integration testing happens via the post-deploy smoke suite.
+
+const test = require('node:test');
+const assert = require('node:assert/strict');
+const path = require('node:path');
+
+const ROOT = path.resolve(__dirname, '..');
+const importsEmails = require(path.join(ROOT, 'lib', 'imports-emails'));
+
+const REQUEST_FIXTURE = Object.freeze({
+  externalId: 'ir_abc123',
+  label: 'Q3 silicone mats',
+  productDescription: '3,000 silicone kitchen mats food-grade',
+  originCountry: 'CN',
+  destinationCountry: 'DE',
+  landedQuote: {
+    cargoValueCents: 2_500_000,
+    totalLandedCents: 3_200_000,
+    orcatradeFeeCents: 200_000,
+    orcatradeFeePct: 8,
+    confidenceTier: 'B',
+    confidenceNotes: [
+      'HS classification confidence is LOW — team review must verify before this quote ships to the customer.',
+    ],
+  },
+});
+
+// ── URL helpers (build under SITE_ORIGIN, default to .pl) ────────────
+
+test('customerRequestUrl points to the customer-facing detail page under /app', () => {
+  const url = importsEmails.customerRequestUrl('ir_x');
+  assert.match(url, /\/app\/imports\/ir_x$/);
+});
+
+test('opsQueueUrl points to /app/imports/queue', () => {
+  assert.match(importsEmails.opsQueueUrl(), /\/app\/imports\/queue$/);
+});
+
+test('opsRequestUrl mirrors customerRequestUrl (same single-page surface for team + customer in v1)', () => {
+  assert.equal(importsEmails.opsRequestUrl('ir_x'), importsEmails.customerRequestUrl('ir_x'));
+});
+
+test('URL helpers honour SITE_ORIGIN env override', () => {
+  const prior = process.env.SITE_ORIGIN;
+  process.env.SITE_ORIGIN = 'https://orcatradegroup.com';
+  try {
+    assert.equal(importsEmails.customerRequestUrl('ir_x'), 'https://orcatradegroup.com/app/imports/ir_x');
+    assert.equal(importsEmails.opsQueueUrl(), 'https://orcatradegroup.com/app/imports/queue');
+  } finally {
+    if (prior !== undefined) process.env.SITE_ORIGIN = prior;
+    else delete process.env.SITE_ORIGIN;
+  }
+});
+
+// ── ORCATRADE_OPS_INBOX parsing ─────────────────────────────────────
+
+test('getOpsInbox returns [] when ORCATRADE_OPS_INBOX is unset', () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    assert.deepEqual(importsEmails.getOpsInbox(), []);
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('getOpsInbox parses a comma-separated list, trims, and drops non-emails', () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  process.env.ORCATRADE_OPS_INBOX = ' ops@orcatrade.pl, leads@orcatrade.pl ,not-an-email,, founder@orcatrade.pl';
+  try {
+    assert.deepEqual(importsEmails.getOpsInbox(), [
+      'ops@orcatrade.pl', 'leads@orcatrade.pl', 'founder@orcatrade.pl',
+    ]);
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+    else delete process.env.ORCATRADE_OPS_INBOX;
+  }
+});
+
+// ── composeQuoteReady ────────────────────────────────────────────────
+
+test('composeQuoteReady subject + text carry label, total, confidence tier, and a deep link', () => {
+  const { subject, text } = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(subject, /Your import quote is ready/);
+  assert.match(subject, /Q3 silicone mats/);
+  assert.match(text, /Request: Q3 silicone mats\s+\(ir_abc123\)/);
+  assert.match(text, /Landed total: €32,000/);
+  assert.match(text, /confidence tier B/);
+  assert.match(text, /\/app\/imports\/ir_abc123/);
+});
+
+test('composeQuoteReady tolerates a missing landedQuote (fallback to —)', () => {
+  const { text } = importsEmails.composeQuoteReady({
+    externalId: 'ir_x', label: 'L', productDescription: 'P',
+  });
+  assert.match(text, /Landed total: —/);
+});
+
+// ── composeNewInQueue ────────────────────────────────────────────────
+
+test('composeNewInQueue subject is OPS-prefixed and includes total', () => {
+  const { subject } = importsEmails.composeNewInQueue(REQUEST_FIXTURE);
+  assert.match(subject, /^\[OPS\] New import request awaiting review/);
+  assert.match(subject, /Q3 silicone mats/);
+  assert.match(subject, /€32,000/);
+});
+
+test('composeNewInQueue text surfaces the route, warnings, and BOTH detail + queue links', () => {
+  const { text } = importsEmails.composeNewInQueue(REQUEST_FIXTURE);
+  assert.match(text, /Route:\s+CN → DE/);
+  assert.match(text, /Warnings \(1\):/);
+  assert.match(text, /HS classification confidence is LOW/);
+  assert.match(text, /\/app\/imports\/ir_abc123/);
+  assert.match(text, /\/app\/imports\/queue/);
+});
+
+test('composeNewInQueue text says "No calculator warnings" when confidenceNotes is empty', () => {
+  const noWarn = {
+    ...REQUEST_FIXTURE,
+    landedQuote: { ...REQUEST_FIXTURE.landedQuote, confidenceNotes: [] },
+  };
+  const { text } = importsEmails.composeNewInQueue(noWarn);
+  assert.match(text, /No calculator warnings\./);
+});
+
+// ── composeCustomerApproved ──────────────────────────────────────────
+
+test('composeCustomerApproved with a shipment surfaces the shipment id + status', () => {
+  const { subject, text } = importsEmails.composeCustomerApproved(REQUEST_FIXTURE, {
+    externalId: 'sh_deadbeef00112233', label: 'Q3 silicone mats (from ir_abc123)',
+  });
+  assert.match(subject, /\[OPS\] Customer approved/);
+  assert.match(subject, /fulfilment begins/);
+  assert.match(text, /Shipment row materialised:/);
+  assert.match(text, /sh_deadbeef00112233/);
+  assert.match(text, /status: planned/);
+});
+
+test('composeCustomerApproved without a shipment flags the manual-create branch', () => {
+  const { text } = importsEmails.composeCustomerApproved(REQUEST_FIXTURE, null);
+  assert.match(text, /⚠ Shipment row did NOT materialise automatically — manual create/);
+});
+
+// ── Send dispatchers — env-gated short-circuit paths ────────────────
+
+test('sendQuoteReadyEmail short-circuits when no customer contact is on file', async () => {
+  // KV may or may not be configured in the test env; either way, an
+  // externalId with no stored contact has no recipient.
+  const result = await importsEmails.sendQuoteReadyEmail({
+    request: { externalId: 'ir_never_stored_' + Math.floor(Math.random() * 1e9) },
+  });
+  assert.equal(result.ok, false);
+  assert.equal(result.reason, 'no-contact');
+});
+
+test('sendNewInQueueEmail short-circuits when ORCATRADE_OPS_INBOX is unset', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    const result = await importsEmails.sendNewInQueueEmail({ request: REQUEST_FIXTURE });
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, 'no-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('sendCustomerApprovedEmail short-circuits when ORCATRADE_OPS_INBOX is unset', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    const result = await importsEmails.sendCustomerApprovedEmail({
+      request: REQUEST_FIXTURE,
+      shipment: null,
+    });
+    assert.equal(result.ok, false);
+    assert.equal(result.reason, 'no-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('CONTACT_TTL_SECONDS is generous enough for slow-burn requests (≥ 30 days)', () => {
+  // 30 days = 2,592,000 seconds. Anything shorter risks the customer's
+  // email evaporating before the team reviews + the customer decides.
+  assert.ok(importsEmails.CONTACT_TTL_SECONDS >= 30 * 86_400);
+});
+
+test('all three send entry points return { ok: false } shape on guard-rail rejection', async () => {
+  for (const fn of [
+    importsEmails.sendQuoteReadyEmail,
+    importsEmails.sendNewInQueueEmail,
+    importsEmails.sendCustomerApprovedEmail,
+  ]) {
+    const r = await fn({});
+    assert.equal(r.ok, false);
+    assert.equal(typeof r.reason, 'string');
+  }
+});
+
+// ── Sprint 5 ch 2: per-org ops recipient resolution ──────────────────
+
+test('OPS_NOTIFICATION_ROLES covers owner + admin (and nothing softer)', () => {
+  // Drift-guard: read-mostly roles (analyst, finance, compliance_officer,
+  // viewer, legacy member) must NOT receive ops queue alerts in v1.
+  assert.ok(importsEmails.OPS_NOTIFICATION_ROLES.has('owner'));
+  assert.ok(importsEmails.OPS_NOTIFICATION_ROLES.has('admin'));
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('analyst'), false);
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('finance'), false);
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('compliance_officer'), false);
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('viewer'), false);
+  assert.equal(importsEmails.OPS_NOTIFICATION_ROLES.has('member'), false);
+});
+
+test('resolveOpsRecipients with no orgIdNumeric falls back to the env inbox', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  process.env.ORCATRADE_OPS_INBOX = 'ops@orcatrade.pl';
+  try {
+    const r = await importsEmails.resolveOpsRecipients(null);
+    assert.equal(r.source, 'env-inbox');
+    assert.equal(r.fallbackReason, 'no-org-id');
+    assert.deepEqual(r.recipients, ['ops@orcatrade.pl']);
+    assert.equal(r.ok, true);
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+    else delete process.env.ORCATRADE_OPS_INBOX;
+  }
+});
+
+test('resolveOpsRecipients with no orgIdNumeric and no env returns ok:false', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    const r = await importsEmails.resolveOpsRecipients(undefined);
+    assert.equal(r.ok, false);
+    assert.deepEqual(r.recipients, []);
+    assert.equal(r.source, 'env-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('resolveOpsRecipients rejects non-integer orgIdNumeric and falls back', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  process.env.ORCATRADE_OPS_INBOX = 'ops@orcatrade.pl';
+  try {
+    for (const bad of ['x', null, undefined, 0, -1, 1.5, NaN]) {
+      const r = await importsEmails.resolveOpsRecipients(/** @type {any} */ (bad));
+      assert.equal(r.source, 'env-inbox', `bad input ${String(bad)} should fall back`);
+    }
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+    else delete process.env.ORCATRADE_OPS_INBOX;
+  }
+});
+
+test('resolveOpsRecipients falls back when Postgres is unconfigured', async () => {
+  const priorDb = process.env.DATABASE_URL;
+  const priorEnv = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.DATABASE_URL;
+  process.env.ORCATRADE_OPS_INBOX = 'fallback@orcatrade.pl';
+  try {
+    const r = await importsEmails.resolveOpsRecipients(42);
+    // Depending on the client's memoised state, the fallbackReason will
+    // be either 'postgres-unconfigured' or 'external-id-not-found'; both
+    // are valid fallback paths.
+    assert.equal(r.source, 'env-inbox');
+    assert.deepEqual(r.recipients, ['fallback@orcatrade.pl']);
+  } finally {
+    if (priorDb !== undefined) process.env.DATABASE_URL = priorDb;
+    if (priorEnv !== undefined) process.env.ORCATRADE_OPS_INBOX = priorEnv;
+    else delete process.env.ORCATRADE_OPS_INBOX;
+  }
+});
+
+test('sendNewInQueueEmail still works with no orgIdNumeric (falls back via resolveOpsRecipients)', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    // No env and no orgIdNumeric → no recipients → no-inbox path.
+    const r = await importsEmails.sendNewInQueueEmail({ request: REQUEST_FIXTURE });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, 'no-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('sendNewInQueueEmail accepts orgIdNumeric without throwing on garbage input', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    // @ts-ignore — explicit bad input test
+    const r = await importsEmails.sendNewInQueueEmail({ request: REQUEST_FIXTURE, orgIdNumeric: 'not-a-number' });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, 'no-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+test('sendCustomerApprovedEmail accepts orgIdNumeric without throwing on garbage input', async () => {
+  const prior = process.env.ORCATRADE_OPS_INBOX;
+  delete process.env.ORCATRADE_OPS_INBOX;
+  try {
+    // @ts-ignore — explicit bad input test
+    const r = await importsEmails.sendCustomerApprovedEmail({
+      request: REQUEST_FIXTURE,
+      shipment: null,
+      orgIdNumeric: 'not-a-number',
+    });
+    assert.equal(r.ok, false);
+    assert.equal(r.reason, 'no-inbox');
+  } finally {
+    if (prior !== undefined) process.env.ORCATRADE_OPS_INBOX = prior;
+  }
+});
+
+// ── Sprint 9 ch 2: shipment status-update emails ─────────────────────
+
+const SHIPMENT_FIXTURE = Object.freeze({
+  externalId: 'sh_deadbeef00112233',
+  label: 'Q3 silicone mats (from ir_abc123)',
+  originCountry: 'CN',
+  destinationCountry: 'DE',
+  plannedDepartureDate: '2026-09-01',
+  plannedArrivalDate: '2026-10-15',
+  carrier: 'Maersk',
+  blNumber: 'MAEU1234567',
+  eta: '2026-10-12',
+  declarationRef: 'CDS-2026-09876',
+  dutyPaidCents: 162_500,
+  vatPaidCents: 500_000,
+  deliveredAt: '2026-10-16T09:30:00Z',
+  exceptionState: { reason: 'Container delayed at Rotterdam — vessel storm rerouting' },
+  metadata: { materialisedFromImportRequest: 'ir_abc123' },
+});
+
+test('SHIPMENT_NOTIFIABLE_STATUSES covers the customer-visible status changes', () => {
+  // 'planned' is deliberately excluded (it's the materialiser-spawned
+  // initial state — the customer just got the customer_approved email).
+  for (const s of ['booked', 'in_transit', 'cleared', 'delivered', 'exception', 'cancelled']) {
+    assert.ok(
+      importsEmails.SHIPMENT_NOTIFIABLE_STATUSES.has(s),
+      `${s} must be in the notifiable set`,
+    );
+  }
+  assert.equal(
+    importsEmails.SHIPMENT_NOTIFIABLE_STATUSES.has('planned'), false,
+    'planned must NOT trigger an email (initial state, redundant with customer_approved)',
+  );
+});
+
+test('customerShipmentReturnUrl points to /app/imports/<source-request-id> (not /app/shipments/...)', () => {
+  // Customers came from /app/imports/<id> and approved there — return
+  // them to the same surface so they see the LinkedShipmentPanel +
+  // timeline in their familiar context.
+  const url = importsEmails.customerShipmentReturnUrl('ir_abc123');
+  assert.match(url, /\/app\/imports\/ir_abc123$/);
+  assert.equal(url.includes('/shipments/'), false);
+});
+
+test('composeShipmentStatusUpdate(booked) carries label, route, planned dates, and return URL', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'booked', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /booked/);
+  assert.match(composed.subject, /Q3 silicone mats/);
+  assert.match(composed.text, /CN → DE/);
+  assert.match(composed.text, /2026-09-01/);
+  assert.match(composed.text, /2026-10-15/);
+  assert.match(composed.text, /\/app\/imports\/ir_abc123/);
+});
+
+test('composeShipmentStatusUpdate(in_transit) carries ETA + carrier + B/L', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'in_transit', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /on the way/);
+  assert.match(composed.text, /ETA: 2026-10-12/);
+  assert.match(composed.text, /Carrier:\s+Maersk/);
+  assert.match(composed.text, /MAEU1234567/);
+});
+
+test('composeShipmentStatusUpdate(cleared) carries duty + VAT + declaration ref', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'cleared', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /cleared customs/);
+  assert.match(composed.text, /Duty paid: €1,625/);
+  assert.match(composed.text, /VAT paid:\s+€5,000/);
+  assert.match(composed.text, /CDS-2026-09876/);
+});
+
+test('composeShipmentStatusUpdate(delivered) carries the delivery date', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'delivered', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /delivered/);
+  // Date locale formatting is slightly platform-dependent; just match
+  // the year + month bits which are stable across locales.
+  assert.match(composed.text, /(2026|16\/10|10\/16)/);
+});
+
+test('composeShipmentStatusUpdate(exception) is marked [Action needed] and surfaces the reason', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'exception', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /^\[Action needed\]/);
+  assert.match(composed.text, /Reason: Container delayed at Rotterdam/);
+});
+
+test('composeShipmentStatusUpdate(cancelled) suggests replying for investigation', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'cancelled', 'ir_abc123');
+  assert.ok(composed);
+  assert.match(composed.subject, /cancelled/);
+  assert.match(composed.text, /reply to this email/i);
+});
+
+test('composeShipmentStatusUpdate returns null for non-notifiable statuses (planned)', () => {
+  assert.equal(importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'planned', 'ir_abc123'), null);
+});
+
+test('composeShipmentStatusUpdate returns null for unknown statuses', () => {
+  assert.equal(importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'submitted', 'ir_abc123'), null);
+  assert.equal(importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'sausage', 'ir_abc123'), null);
+});
+
+test('sendShipmentStatusUpdateEmail short-circuits cleanly when shipment lacks a source import_request', async () => {
+  // Shipments created directly via /api/shipments POST have no
+  // materialisedFromImportRequest in metadata — the helper must
+  // not throw + must surface a 'no-source-request' reason.
+  const directShipment = { ...SHIPMENT_FIXTURE, metadata: {} };
+  const r = await importsEmails.sendShipmentStatusUpdateEmail({
+    shipment: directShipment,
+    toStatus: 'in_transit',
+  });
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'no-source-request');
+});
+
+test('sendShipmentStatusUpdateEmail short-circuits for non-notifiable statuses', async () => {
+  const r = await importsEmails.sendShipmentStatusUpdateEmail({
+    shipment: SHIPMENT_FIXTURE,
+    toStatus: 'planned',
+  });
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'non-notifiable-status');
+});
+
+test('sendShipmentStatusUpdateEmail short-circuits when no customer contact is on file for the source request', async () => {
+  // The customer-contact KV record is created when the import_request
+  // is POSTed (sprint 2 ch 3); a synthetic source-request id that
+  // was never created will have no record. Helper returns reason='no-contact'.
+  const noContactShipment = {
+    ...SHIPMENT_FIXTURE,
+    metadata: { materialisedFromImportRequest: 'ir_never_stored_' + Math.floor(Math.random() * 1e9) },
+  };
+  const r = await importsEmails.sendShipmentStatusUpdateEmail({
+    shipment: noContactShipment,
+    toStatus: 'in_transit',
+  });
+  assert.equal(r.ok, false);
+  assert.equal(r.reason, 'no-contact');
+});
+
+test('sendShipmentStatusUpdateEmail never throws on garbage input (fail-soft)', async () => {
+  for (const bad of [{}, { shipment: null }, { shipment: { externalId: 'sh_x' } }, { shipment: SHIPMENT_FIXTURE }]) {
+    const r = await importsEmails.sendShipmentStatusUpdateEmail(bad);
+    assert.equal(typeof r, 'object');
+    assert.ok('ok' in r);
+    if (!r.ok) assert.equal(typeof r.reason, 'string');
+  }
+});
+
+// ── Sprint 11 ch 2: HTML email templates ─────────────────────────────
+
+test('every compose* returns html alongside subject + text', () => {
+  // Drift-guard: every customer-facing email must produce all three
+  // (subject, text, html). Missing html → Resend sends plain text only
+  // and the brand chrome doesn't render. Pin each entry point.
+  const quoteReady = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  const newInQueue = importsEmails.composeNewInQueue(REQUEST_FIXTURE);
+  const approved = importsEmails.composeCustomerApproved(REQUEST_FIXTURE, null);
+  const shipmentBooked = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'booked', 'ir_abc123');
+  const shipmentInTransit = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'in_transit', 'ir_abc123');
+  const shipmentCleared = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'cleared', 'ir_abc123');
+  const shipmentDelivered = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'delivered', 'ir_abc123');
+  const shipmentException = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'exception', 'ir_abc123');
+  const shipmentCancelled = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'cancelled', 'ir_abc123');
+
+  for (const composed of [quoteReady, newInQueue, approved, shipmentBooked, shipmentInTransit, shipmentCleared, shipmentDelivered, shipmentException, shipmentCancelled]) {
+    assert.ok(composed, 'compose* must return a payload');
+    assert.equal(typeof composed.subject, 'string');
+    assert.equal(typeof composed.text, 'string');
+    assert.equal(typeof composed.html, 'string');
+    assert.ok(composed.html.length > 0, 'html must be non-empty');
+  }
+});
+
+test('html chrome carries the OrcaTrade brand mark + aqua top stripe', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(composed.html, /<!DOCTYPE html>/i);
+  assert.match(composed.html, /OrcaTrade/);
+  assert.match(composed.html, /Operations/);
+  // Aqua brand accent (Tailwind cyan-400 / #22d3ee) on the top stripe
+  // + the CTA button. Pin both.
+  assert.match(composed.html, /#22d3ee/i);
+});
+
+test('html chrome carries the standard footer (OrcaTrade Group Ltd · London · Warsaw · Hong Kong)', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(composed.html, /OrcaTrade Group Ltd/);
+  assert.match(composed.html, /London/);
+  assert.match(composed.html, /Warsaw/);
+  assert.match(composed.html, /Hong Kong/);
+});
+
+test('html chrome uses inline styles only — no <style> blocks (most clients strip them)', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  // Gmail (web), Yahoo Mail, Outlook.com all strip <style> blocks.
+  // Inline styles via the `style=""` attribute are the universal
+  // baseline. A drift to <style> blocks would silently regress to
+  // unstyled fallback for most recipients.
+  assert.equal(composed.html.includes('<style'), false);
+});
+
+test('html chrome max-width is 600px (mobile-friendly + desktop client-friendly)', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(composed.html, /max-width:600px/);
+});
+
+test('html quote-ready carries the structured key values (label, externalId, product)', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  assert.match(composed.html, new RegExp(REQUEST_FIXTURE.label));
+  assert.match(composed.html, /ir_abc123/);
+  assert.match(composed.html, /silicone kitchen mats/);
+});
+
+test('html quote-ready carries the landed-cost big number formatted with euros', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  // 3,200,000 cents → €32,000 (matches eurFromCents formatting)
+  assert.match(composed.html, /€32,000/);
+});
+
+test('html quote-ready carries the customer return URL as a CTA', () => {
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  const url = importsEmails.customerRequestUrl(REQUEST_FIXTURE.externalId);
+  assert.match(composed.html, new RegExp(url.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')));
+});
+
+test('html escapes user-supplied strings (XSS-safe label/description)', () => {
+  // A customer label or product description with HTML chars must not
+  // break the email layout — esc() is the choke point.
+  const naughty = {
+    ...REQUEST_FIXTURE,
+    label: 'Q3 <script>alert("xss")</script>',
+    productDescription: 'A & B > C "quoted"',
+  };
+  const composed = importsEmails.composeQuoteReady(naughty);
+  assert.equal(composed.html.includes('<script>alert("xss")</script>'), false);
+  assert.match(composed.html, /&lt;script&gt;/);
+  assert.match(composed.html, /&amp;/);
+  assert.match(composed.html, /&quot;/);
+});
+
+test('html shipment-exception template surfaces the reason in a warning box', () => {
+  const composed = importsEmails.composeShipmentStatusUpdate(SHIPMENT_FIXTURE, 'exception', 'ir_abc123');
+  assert.ok(composed);
+  // The warning box uses an amber background (#fef3c7) — pin it so
+  // future refactors don't accidentally drop the visual urgency.
+  assert.match(composed.html, /#fef3c7/i);
+  assert.match(composed.html, /Container delayed at Rotterdam/);
+});
+
+test('text and html tracks deliver the same key facts (subject parity)', () => {
+  // Drift-guard: the html and text tracks should agree on the key
+  // bits — same subject, both reference the deep-link URL, both
+  // identify the request/shipment. Detail formatting can differ
+  // but the load-bearing info must be in both.
+  const composed = importsEmails.composeQuoteReady(REQUEST_FIXTURE);
+  const url = importsEmails.customerRequestUrl(REQUEST_FIXTURE.externalId);
+  assert.ok(composed.text.includes(url));
+  assert.ok(composed.html.includes(url));
+  assert.ok(composed.text.includes(REQUEST_FIXTURE.externalId));
+  assert.ok(composed.html.includes(REQUEST_FIXTURE.externalId));
+});

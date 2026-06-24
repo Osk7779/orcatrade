@@ -64,6 +64,56 @@ on:
     # re-fire safe. Runs before TARIC warm + calibration drift so a
     # quiet-night anchor lands before morning activity perturbs it.
     - cron: '0 2 * * *'
+    # Daily 02:30 UTC — import-request quote-expiry sweep (Sprint 19).
+    # Transitions every 'quoted' import request whose quote_expires_at
+    # has passed to 'expired'. Posts a system message on the thread so
+    # the customer sees the reason if they revisit. Idempotent (already-
+    # expired rows fall out of the WHERE clause). Runs after the audit
+    # anchor snapshot so the snapshot's chain head reflects yesterday's
+    # state cleanly.
+    - cron: '30 2 * * *'
+    # Monday 09:30 UTC — weekly Ops Insights digest (Sprint 26). Per-
+    # org fan-out: enumerates every org via KV, computes the 7-day
+    # cohort (funnel + decline reasons + revision recovery) via the
+    # sprint-17 aggregateOpsInsights, and emails ops admins. Per-
+    # recipient pref-gated via importInsightsDigestEmails. Slot
+    # after the existing weekly-user-digest (09:00 Mon) so the
+    # two workloads stagger cleanly.
+    - cron: '30 9 * * 1'
+    # Daily 08:00 UTC — stalled-queue alert (Sprint 39). Pairs with
+    # the sprint-38 proactive cohort: requests in awaiting_review
+    # with no activity > 7 days. UK morning slot (BST = 09:00) so
+    # ops gets the watch list with the start-of-day coffee, well
+    # before customers escalate. Pref-gated via
+    # importStalledQueueAlertEmails. Healthy orgs (count===0) skip
+    # silently — no "0 stalled" noise. Distinct slot from the daily
+    # taric-warm (04:15) + audit-anchor (02:00) + quote-expiry
+    # (02:30) so the four daily jobs stagger.
+    - cron: '0 8 * * *'
+    # Daily 08:30 UTC — decline-spike alert (Sprint 41). Pairs with
+    # the sprint-40 second proactive cohort: decline reasons whose
+    # 7-day pace is ≥ 2× the 30-day baseline. 30 min after the
+    # stall alert so the two proactive alerts hit the same morning
+    # batch without piling onto one function instance. Pref-gated
+    # via importDeclineSpikeAlertEmails. Healthy orgs
+    # (spikes.length===0) skip silently.
+    - cron: '30 8 * * *'
+    # Wednesday 09:00 UTC — quote-acceptance rate alert (Sprint 54).
+    # Pairs with the sprint-53 third proactive cohort: of requests
+    # that EXITED `quoted` in the last 30d, what % went to
+    # customer_approved vs the prior 60-day baseline. Slow signal —
+    # daily would be noise; weekly mid-week (Wed) lands between
+    # Monday's batch and Friday's wrap, giving ops time to act.
+    # Pref-gated via importQuoteAcceptanceAlertEmails. Healthy orgs
+    # (!isDegraded) skip silently.
+    - cron: '0 9 * * 3'
+    # Every 5 minutes — webhook retry queue drain (Sprint 50).
+    # Failed sprint-48 dispatches got queued with exponential
+    # backoff (1m / 5m / 30m / 2h / 6h, max 5 attempts before
+    # abandonment). This drains due retries org-by-org. A 5-min
+    # tick aligns with the 60s shortest-backoff floor so the
+    # first retry fires within ~5min of original failure.
+    - cron: '*/5 * * * *'
   workflow_dispatch:
     inputs:
       job:
@@ -84,6 +134,12 @@ on:
           - rag-reindex
           - db-migrate
           - audit-anchor-snapshot
+          - import-request-quote-expiry
+          - import-request-insights-digest
+          - import-request-stalled-queue-alert
+          - import-request-decline-spike-alert
+          - import-request-quote-acceptance-alert
+          - webhook-retry-flush
 
 jobs:
   dispatch:
@@ -116,6 +172,18 @@ jobs:
             echo "job=monitoring-scan" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 2 * * *" ]; then
             echo "job=audit-anchor-snapshot" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 2 * * *" ]; then
+            echo "job=import-request-quote-expiry" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 9 * * 1" ]; then
+            echo "job=import-request-insights-digest" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 8 * * *" ]; then
+            echo "job=import-request-stalled-queue-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "30 8 * * *" ]; then
+            echo "job=import-request-decline-spike-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 9 * * 3" ]; then
+            echo "job=import-request-quote-acceptance-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "*/5 * * * *" ]; then
+            echo "job=webhook-retry-flush" >> "$GITHUB_OUTPUT"
           else
             echo "Unknown trigger" && exit 1
           fi
