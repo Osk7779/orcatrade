@@ -1298,6 +1298,24 @@ export interface OpsInsightsQuoteAcceptanceCohort {
   isDegraded: boolean;
 }
 
+// Sprint 57 — cohort #9. Fourth proactive signal. Supplier-
+// concentration risk: of all picks in the last `windowDays`, what
+// share went to a single dominant country? `topCountry` is null
+// when no picks landed in the window; `topCountryShare` is null
+// on a 0-denominator (server-side rounded to 3 decimals for
+// stability). `isConcentrated` fires when topCountryShare >=
+// threshold AND totalPicks >= minCount.
+export interface OpsInsightsSupplierConcentrationCohort {
+  windowDays: number;
+  minCount: number;
+  threshold: number;
+  totalPicks: number;
+  topCountry: string | null;
+  topCountryCount: number;
+  topCountryShare: number | null;
+  isConcentrated: boolean;
+}
+
 export interface OpsInsights {
   funnelByStatus: Partial<Record<ImportRequestStatus, number>>;
   totalInWindow: number;
@@ -1320,6 +1338,9 @@ export interface OpsInsights {
   // Sprint 53 — cohort #8. Quote-acceptance rate drift. Always
   // present; the UI gates the card render on isDegraded.
   quoteAcceptance: OpsInsightsQuoteAcceptanceCohort;
+  // Sprint 57 — cohort #9. Supplier-concentration risk. Always
+  // present; the UI gates the card render on isConcentrated.
+  supplierConcentration: OpsInsightsSupplierConcentrationCohort;
 }
 
 export interface OpsInsightsResponse {

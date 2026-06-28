@@ -46,6 +46,7 @@ import {
   type OpsInsightsStalledQueue,
   type OpsInsightsDeclineSpikeCohort,
   type OpsInsightsQuoteAcceptanceCohort,
+  type OpsInsightsSupplierConcentrationCohort,
   type OperatorConfigResponse,
   type ApiKey,
   type ApiKeyScope,
@@ -199,6 +200,15 @@ export default function InsightsPage() {
           denominator is meaningful (>=5), we surface a card. */}
       {data.quoteAcceptance.isDegraded && (
         <QuoteAcceptanceCard data={data.quoteAcceptance} />
+      )}
+      {/* Sprint 57 — supplier-concentration risk watch. Fourth
+          proactive signal: of all picks in the last 30d, what
+          share went to ONE dominant country? When the share
+          crosses 75% AND we have at least 5 picks, surface the
+          sourcing-risk signal so the team can diversify
+          proactively. */}
+      {data.supplierConcentration.isConcentrated && (
+        <SupplierConcentrationCard data={data.supplierConcentration} />
       )}
       <RevisionCohort data={data.revisionCohort} />
       <Funnel data={data} />
@@ -604,6 +614,84 @@ function QuoteAcceptanceCard({ data }: { data: OpsInsightsQuoteAcceptanceCohort 
 
       <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
         Open the decline-reason breakdown below to see what's driving the rejections.
+      </p>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Supplier-concentration risk (sprint 57) — the FOURTH proactive
+ *  signal. Renders only when isConcentrated (gated by parent). Of
+ *  all picks in the last 30d, what share went to ONE dominant
+ *  country? When the share crosses 75% AND there are at least 5
+ *  picks, surface the sourcing-risk signal so the team can
+ *  diversify before a tariff shift or sanctions list update takes
+ *  the whole pipeline offline.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function SupplierConcentrationCard({ data }: { data: OpsInsightsSupplierConcentrationCohort }) {
+  const sharePct = data.topCountryShare !== null
+    ? `${Math.round(data.topCountryShare * 100)}%`
+    : '—';
+  const thresholdPct = Math.round(data.threshold * 100);
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-[var(--color-warning)]/[0.35] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="space-y-1.5">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-warning)]">
+          Supplier concentration · sourcing-risk signal
+        </h2>
+        <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+          Of the {data.totalPicks} supplier picks in the last {data.windowDays} days,{' '}
+          <span className="font-medium text-[var(--color-ivory)]">{sharePct}</span> went to{' '}
+          <span className="font-medium text-[var(--color-ivory)]">{data.topCountry || '—'}</span>.
+          A tariff shift or sanctions update on that origin would take a large share of your
+          sourcing offline. Triggers when one country crosses {thresholdPct}% of picks AND
+          there are at least {data.minCount} picks to compare.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Top country
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-warning)] font-mono leading-none">
+            {data.topCountry || '—'}
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            {data.topCountryCount} of {data.totalPicks} picks
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Share
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-warning)] font-mono leading-none">
+            {sharePct}
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            threshold {thresholdPct}%
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Window
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-ivory)] font-mono leading-none">
+            {data.windowDays}d
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            {data.totalPicks} total picks
+          </p>
+        </div>
+      </div>
+
+      <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+        See the full country breakdown in the picks cohort below — diversifying to one of the
+        runner-up corridors is the actionable next step.
       </p>
     </section>
   );
