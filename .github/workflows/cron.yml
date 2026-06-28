@@ -107,6 +107,15 @@ on:
     # Pref-gated via importQuoteAcceptanceAlertEmails. Healthy orgs
     # (!isDegraded) skip silently.
     - cron: '0 9 * * 3'
+    # Thursday 09:00 UTC — supplier-concentration alert (Sprint 58).
+    # Pairs with the sprint-57 fourth proactive cohort: of all
+    # supplier picks in the last 30d, what share went to ONE
+    # dominant country? RISK signal — sits a day after the Wed
+    # quote-acceptance alert so ops absorbs the two slow signals
+    # in sequence without inbox overload. Pref-gated via
+    # importSupplierConcentrationAlertEmails. Healthy orgs
+    # (!isConcentrated) skip silently.
+    - cron: '0 9 * * 4'
     # Every 5 minutes — webhook retry queue drain (Sprint 50).
     # Failed sprint-48 dispatches got queued with exponential
     # backoff (1m / 5m / 30m / 2h / 6h, max 5 attempts before
@@ -139,6 +148,7 @@ on:
           - import-request-stalled-queue-alert
           - import-request-decline-spike-alert
           - import-request-quote-acceptance-alert
+          - import-request-supplier-concentration-alert
           - webhook-retry-flush
 
 jobs:
@@ -182,6 +192,8 @@ jobs:
             echo "job=import-request-decline-spike-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 9 * * 3" ]; then
             echo "job=import-request-quote-acceptance-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 9 * * 4" ]; then
+            echo "job=import-request-supplier-concentration-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "*/5 * * * *" ]; then
             echo "job=webhook-retry-flush" >> "$GITHUB_OUTPUT"
           else

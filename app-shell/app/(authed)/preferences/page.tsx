@@ -35,6 +35,7 @@ const TOGGLE_GROUPS: ToggleGroup[] = [
       { key: 'importStalledQueueAlertEmails', label: 'Stalled-queue daily alert', desc: 'Daily morning watch list of requests sitting in awaiting_review with no activity for more than 7 days. Healthy days send no email; the cohort still surfaces on the live Ops Insights cockpit.' },
       { key: 'importDeclineSpikeAlertEmails', label: 'Decline-spike daily alert', desc: 'Daily morning watch for decline reasons whose 7-day pace is ≥ 2× the 30-day baseline (or first-time appearances). Catches supplier-compliance or regulatory-shift issues early. Healthy days send no email.' },
       { key: 'importQuoteAcceptanceAlertEmails', label: 'Quote-acceptance weekly alert', desc: 'Wednesday morning watch when the 30-day quote-acceptance rate drops below 75% of the prior 60-day baseline. Slow-moving signal — weekly cadence avoids noise. Healthy weeks send no email.' },
+      { key: 'importSupplierConcentrationAlertEmails', label: 'Supplier-concentration weekly alert', desc: 'Thursday morning watch when ONE country crosses 75% of the last 30 days of supplier picks. Sourcing-risk signal: a tariff shift or sanctions update would take a large share of the pipeline offline. Healthy weeks send no email.' },
     ],
   },
   {
