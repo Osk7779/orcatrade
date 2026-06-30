@@ -36,6 +36,7 @@ const TOGGLE_GROUPS: ToggleGroup[] = [
       { key: 'importDeclineSpikeAlertEmails', label: 'Decline-spike daily alert', desc: 'Daily morning watch for decline reasons whose 7-day pace is ≥ 2× the 30-day baseline (or first-time appearances). Catches supplier-compliance or regulatory-shift issues early. Healthy days send no email.' },
       { key: 'importQuoteAcceptanceAlertEmails', label: 'Quote-acceptance weekly alert', desc: 'Wednesday morning watch when the 30-day quote-acceptance rate drops below 75% of the prior 60-day baseline. Slow-moving signal — weekly cadence avoids noise. Healthy weeks send no email.' },
       { key: 'importSupplierConcentrationAlertEmails', label: 'Supplier-concentration weekly alert', desc: 'Thursday morning watch when ONE country crosses 75% of the last 30 days of supplier picks. Sourcing-risk signal: a tariff shift or sanctions update would take a large share of the pipeline offline. Healthy weeks send no email.' },
+      { key: 'importRatingTrendAlertEmails', label: 'Rating-trend weekly alert', desc: 'Friday morning watch when the current 7-day avg customer rating drops at least 0.5 stars vs the prior 23-day baseline. End-of-week wrap on the slow-cook satisfaction signal. Healthy weeks send no email.' },
     ],
   },
   {

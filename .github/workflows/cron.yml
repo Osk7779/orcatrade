@@ -116,6 +116,15 @@ on:
     # importSupplierConcentrationAlertEmails. Healthy orgs
     # (!isConcentrated) skip silently.
     - cron: '0 9 * * 4'
+    # Friday 09:00 UTC — rating-trend alert (Sprint 63). Pairs
+    # with the sprint-62 fifth proactive cohort: is the current
+    # 7-day avg rating dropping vs the prior 23-day baseline by
+    # >= 0.5 stars? End-of-week wrap on the slow-cook customer-
+    # satisfaction signal so ops can plan investigation Mon AM
+    # with the week's data in hand. Pref-gated via
+    # importRatingTrendAlertEmails. Healthy weeks (!isDeclining)
+    # skip silently.
+    - cron: '0 9 * * 5'
     # Every 5 minutes — webhook retry queue drain (Sprint 50).
     # Failed sprint-48 dispatches got queued with exponential
     # backoff (1m / 5m / 30m / 2h / 6h, max 5 attempts before
@@ -149,6 +158,7 @@ on:
           - import-request-decline-spike-alert
           - import-request-quote-acceptance-alert
           - import-request-supplier-concentration-alert
+          - import-request-rating-trend-alert
           - webhook-retry-flush
 
 jobs:
@@ -194,6 +204,8 @@ jobs:
             echo "job=import-request-quote-acceptance-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 9 * * 4" ]; then
             echo "job=import-request-supplier-concentration-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "0 9 * * 5" ]; then
+            echo "job=import-request-rating-trend-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "*/5 * * * *" ]; then
             echo "job=webhook-retry-flush" >> "$GITHUB_OUTPUT"
           else

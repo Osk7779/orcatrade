@@ -178,6 +178,7 @@ export interface Prefs {
   importDeclineSpikeAlertEmails?: boolean;
   importQuoteAcceptanceAlertEmails?: boolean;
   importSupplierConcentrationAlertEmails?: boolean;
+  importRatingTrendAlertEmails?: boolean;
   locale?: string;
   updatedAt?: string;
 }
