@@ -71,7 +71,12 @@ test('aggregateOpsInsights includes a supplierConcentration block in the respons
   // what was measured.
   assert.match(body, /windowDays: SUPPLIER_CONCENTRATION_WINDOW_DAYS/);
   assert.match(body, /minCount: SUPPLIER_CONCENTRATION_MIN_COUNT/);
-  assert.match(body, /threshold: SUPPLIER_CONCENTRATION_THRESHOLD/);
+  // Sprint 60 — surfaced field became dynamic (effective value
+  // after per-org config + the [0.50, 0.95] defensive re-bound).
+  // Either form satisfies the contract — the surfaced field
+  // exists, sourced from the same variable the classifier
+  // reads.
+  assert.match(body, /threshold: (?:SUPPLIER_CONCENTRATION_THRESHOLD|effectiveConcentrationThreshold)/);
 });
 
 test('SQL projects supplier_pick->>country + count, GROUPing by country (matches sprint-29 pattern)', () => {
@@ -140,7 +145,13 @@ test('isConcentrated requires ALL of: total >= MIN_COUNT + share !== null + shar
   const body = DB_SRC.match(/async function aggregateOpsInsights\([\s\S]*?return failureFromDb/)[0];
   assert.match(body, /concentrationTotal >= SUPPLIER_CONCENTRATION_MIN_COUNT/);
   assert.match(body, /concentrationShare !== null/);
-  assert.match(body, /concentrationShare >= SUPPLIER_CONCENTRATION_THRESHOLD/);
+  // Sprint 60 — gate now reads the effective (per-org-config)
+  // value instead of the static constant. Either name is
+  // acceptable for the threshold slot.
+  assert.match(
+    body,
+    /concentrationShare >= (?:SUPPLIER_CONCENTRATION_THRESHOLD|effectiveConcentrationThreshold)/,
+  );
 });
 
 // ── TS mirror ──────────────────────────────────────────────────────

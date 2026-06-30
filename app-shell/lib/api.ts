@@ -1265,6 +1265,11 @@ export interface OperatorConfig {
   // One-decimal float in [1.5, 10] — 2.0 default, 1.5 = strict,
   // 10 = tolerant.
   declineSpikeRateMultiplier: number;
+  // Sprint 60 — supplier-concentration sensitivity. The share
+  // the sprint-57 classifier uses to flag dominant-supplier
+  // risk. Two-decimal float in [0.50, 0.95] — 0.75 default,
+  // 0.50 = strict, 0.85+ = tolerant.
+  supplierConcentrationThreshold: number;
 }
 
 // Per-knob source — 'default' = using platform default,

@@ -158,10 +158,13 @@ export default function InsightsPage() {
           notices "0 stalled never fires" can dial the threshold
           without leaving the page.
           Sprint 43 — extended with the decline-spike multiplier
-          (cohort #7's sensitivity knob). */}
+          (cohort #7's sensitivity knob).
+          Sprint 60 — extended with the supplier-concentration
+          threshold (cohort #9's sensitivity knob). */}
       <OperatorConfigPanel
         currentStallThreshold={data.stalledQueue.thresholdDays}
         currentSpikeMultiplier={data.declineSpike.rateMultiplier}
+        currentConcentrationThreshold={data.supplierConcentration.threshold}
       />
       {/* Sprint 44 — API key management. Sits next to the operator
           config card because both are admin-only settings for the
@@ -709,31 +712,40 @@ function SupplierConcentrationCard({ data }: { data: OpsInsightsSupplierConcentr
 function OperatorConfigPanel({
   currentStallThreshold,
   currentSpikeMultiplier,
+  currentConcentrationThreshold,
 }: {
   currentStallThreshold: number;
   currentSpikeMultiplier: number;
+  currentConcentrationThreshold: number;
 }) {
-  // Both currents are EFFECTIVE values the SQL just used — pulled
-  // from data.{stalledQueue,declineSpike} so the panel is always
-  // in sync with the cohorts alongside it.
+  // All currents are EFFECTIVE values the SQL just used — pulled
+  // from data.{stalledQueue,declineSpike,supplierConcentration}
+  // so the panel is always in sync with the cohorts alongside it.
   const [pendingStall, setPendingStall] = useState<number>(currentStallThreshold);
   const [pendingSpike, setPendingSpike] = useState<number>(currentSpikeMultiplier);
+  const [pendingConcentration, setPendingConcentration] = useState<number>(currentConcentrationThreshold);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
 
   const dirtyStall = Number(pendingStall) !== Number(currentStallThreshold);
   const dirtySpike = Number(pendingSpike) !== Number(currentSpikeMultiplier);
-  const dirty = dirtyStall || dirtySpike;
+  const dirtyConcentration = Number(pendingConcentration) !== Number(currentConcentrationThreshold);
+  const dirty = dirtyStall || dirtySpike || dirtyConcentration;
 
   async function onSave() {
     setSaving(true);
     setError(null);
     try {
-      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number }>} */
-      const patch: { stallThresholdDays?: number; declineSpikeRateMultiplier?: number } = {};
+      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number; supplierConcentrationThreshold: number }>} */
+      const patch: {
+        stallThresholdDays?: number;
+        declineSpikeRateMultiplier?: number;
+        supplierConcentrationThreshold?: number;
+      } = {};
       if (dirtyStall) patch.stallThresholdDays = Number(pendingStall);
       if (dirtySpike) patch.declineSpikeRateMultiplier = Number(pendingSpike);
+      if (dirtyConcentration) patch.supplierConcentrationThreshold = Number(pendingConcentration);
       await apiPatch<OperatorConfigResponse>('/api/operator-config', patch);
       setSavedFlash(true);
       // Page reload picks up the new config across all panels
@@ -767,6 +779,11 @@ function OperatorConfigPanel({
           Spike:{' '}
           <span className="font-mono text-[var(--color-ivory)]">
             {currentSpikeMultiplier.toFixed(1)}×
+          </span>
+          {'  ·  '}
+          Conc:{' '}
+          <span className="font-mono text-[var(--color-ivory)]">
+            {Math.round(currentConcentrationThreshold * 100)}%
           </span>
         </span>
         <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
@@ -824,6 +841,34 @@ function OperatorConfigPanel({
             style={{ borderRadius: 'var(--radius-button)' }}
           />
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 1.5–10, one decimal.</p>
+        </div>
+
+        {/* Sprint 60 — Supplier-concentration threshold */}
+        <div className="space-y-2">
+          <label
+            htmlFor="supplierConcentrationThreshold"
+            className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block"
+          >
+            Supplier-concentration sensitivity (share)
+          </label>
+          <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+            The "top country &ge; N% of last 30 days of picks" gate that drives the
+            supplier-concentration cohort + the weekly alert. Default 0.75 (75%); lower =
+            stricter (flags earlier), higher = only crushing dominance triggers.
+          </p>
+          <input
+            id="supplierConcentrationThreshold"
+            type="number"
+            min={0.5}
+            max={0.95}
+            step={0.05}
+            value={pendingConcentration}
+            onChange={(e) => setPendingConcentration(Number(e.target.value))}
+            disabled={saving}
+            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          />
+          <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 0.50–0.95, two decimals.</p>
         </div>
 
         <div className="flex items-center gap-3 pt-2">
