@@ -190,8 +190,13 @@ test('CRITICAL: handleGet REDACTS internalNotes to [] when caller is NOT ops', (
   assert.match(body, /const callerIsOps = isOpsRole\(role\) \|\| ctx\.isApiKey === true/);
   // The augmented object replaces internalNotes with [] for
   // non-ops readers — NOT undefined (which would let a confused
-  // client retain stale data).
-  assert.match(body, /internalNotes: callerIsOps \? r\.internalNotes : \[\]/);
+  // client retain stale data). Sprint 61 wrapped the ops branch
+  // in a soft-delete filter; either form satisfies the redaction
+  // contract — the gate (callerIsOps ? … : []) is what we pin.
+  assert.match(
+    body,
+    /internalNotes: callerIsOps[\s\S]{0,160}: \[\]/,
+  );
 });
 
 test('handleGet treats bearer-auth (sprint 45) as ops-equivalent for the redaction gate', () => {

@@ -1485,12 +1485,21 @@ export interface ImportRequestInternalNote {
   body: string;
   byEmailHash: string;
   at: string;
+  // Sprint 61 — edit + soft-delete bookkeeping. editedAt stamps
+  // on every successful edit (latest only — prior bodies live in
+  // the audit chain, not on the row). deletedAt stamps on soft-
+  // delete; the GET projection FILTERS these out so the UI never
+  // sees them.
+  editedAt?: string | null;
+  deletedAt?: string | null;
+  deletedByEmailHash?: string | null;
 }
 
 export interface ImportRequestInternalNoteResponse {
   ok: boolean;
   importRequest: ImportRequest;
   note: ImportRequestInternalNote;
+  noOp?: boolean;
 }
 
 // ── Customer rating (sprint 30) ──────────────────────────────────────
@@ -1690,7 +1699,10 @@ export type ImportRequestTimelineEventType =
   | 'import_request_supplier_picked'
   | 'import_request_rated'
   // Sprint 55 — internal ops note appended.
-  | 'import_request_internal_note_added';
+  | 'import_request_internal_note_added'
+  // Sprint 61 — internal ops note edit + soft-delete.
+  | 'import_request_internal_note_edited'
+  | 'import_request_internal_note_deleted';
 
 export interface ImportRequestTimelineEvent {
   type: ImportRequestTimelineEventType;
@@ -1815,6 +1827,20 @@ export function activityEventSummary(e: ActivityEvent): string {
       // posture mirrors sprint 18 messages); the feed surfaces
       // a generic copy so other ops see context being added.
       return `Internal note added on import request ${entityRef}`;
+    }
+    case 'import_request_internal_note_edited': {
+      // Sprint 61 — internal note edit. Surfaces so other ops
+      // know a note they may have read earlier has been
+      // revised. The body — old and new — is NOT in the chain;
+      // open the request to see the current copy.
+      return `Internal note edited on import request ${entityRef}`;
+    }
+    case 'import_request_internal_note_deleted': {
+      // Sprint 61 — internal note soft-delete. Surfaces so
+      // other ops know an in-flight note has been removed
+      // (the row stays in KV for audit reconstruction; the
+      // panel filters it out).
+      return `Internal note deleted on import request ${entityRef}`;
     }
     case 'goods_master_created':
       return `New product registered (${entityRef})`;

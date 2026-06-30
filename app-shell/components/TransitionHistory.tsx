@@ -284,6 +284,18 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
           // the ops-only <InternalNotesPanel>.
           return 'Internal note added';
         }
+        case 'import_request_internal_note_edited': {
+          // Sprint 61 — internal note edit. The new body lives
+          // on the row; the chain records only the noteId +
+          // new length.
+          return 'Internal note edited';
+        }
+        case 'import_request_internal_note_deleted': {
+          // Sprint 61 — internal note soft-delete. The row
+          // stays in KV (deletedAt stamp); the panel filters
+          // it out.
+          return 'Internal note deleted';
+        }
         default:
           return String(e.type);
       }
@@ -297,6 +309,8 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
       if (t === 'import_request_supplier_picked') return 'var(--color-aqua)';
       if (t === 'import_request_rated') return 'var(--color-positive)';
       if (t === 'import_request_internal_note_added') return 'var(--color-warning)';
+      if (t === 'import_request_internal_note_edited') return 'var(--color-warning)';
+      if (t === 'import_request_internal_note_deleted') return 'var(--color-ivory-mute)';
       return 'var(--color-ivory)';
     },
     typeLabel: (t) => {
@@ -310,6 +324,8 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'import_request_supplier_picked': return 'Pick';
         case 'import_request_rated': return 'Rating';
         case 'import_request_internal_note_added': return 'Internal';
+        case 'import_request_internal_note_edited': return 'Internal';
+        case 'import_request_internal_note_deleted': return 'Internal';
         default: return String(t);
       }
     },

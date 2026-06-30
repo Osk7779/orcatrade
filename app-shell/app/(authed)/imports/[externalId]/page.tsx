@@ -20,6 +20,8 @@ import Link from 'next/link';
 import {
   apiGet,
   apiPost,
+  apiPatch,
+  apiDelete,
   ApiError,
   AuthError,
   type ImportRequest,
@@ -95,12 +97,22 @@ export default function ImportRequestDetailPage() {
   // the user's role. Cheap second fetch (same endpoint the Sidebar
   // hits); future polish can lift to a shared context.
   const [isOpsRole, setIsOpsRole] = useState<boolean>(false);
+  // Sprint 61 — caller's emailHash for owner-check rendering on
+  // the internal notes panel (edit/delete buttons render only
+  // when the note's byEmailHash matches). Hashed form mirrors
+  // the server-side identity discipline; raw email never on the
+  // client.
+  const [currentEmailHash, setCurrentEmailHash] = useState<string>('');
 
   useEffect(() => {
     let cancelled = false;
     fetch('/api/account/role', { credentials: 'same-origin', headers: { Accept: 'application/json' } })
       .then((r) => (r.ok ? r.json() : null))
-      .then((d) => { if (!cancelled && d && typeof d.isOpsRole === 'boolean') setIsOpsRole(d.isOpsRole); })
+      .then((d) => {
+        if (cancelled || !d) return;
+        if (typeof d.isOpsRole === 'boolean') setIsOpsRole(d.isOpsRole);
+        if (typeof d.emailHash === 'string') setCurrentEmailHash(d.emailHash);
+      })
       .catch(() => { /* silent — safe default keeps the control hidden */ });
     return () => { cancelled = true; };
   }, []);
@@ -410,6 +422,7 @@ export default function ImportRequestDetailPage() {
       {isOpsRole && (
         <InternalNotesPanel
           request={request}
+          currentEmailHash={currentEmailHash}
           onNotePosted={(updated) => setRequest(updated)}
         />
       )}
@@ -2042,15 +2055,25 @@ function MessageThread({
 
 function InternalNotesPanel({
   request,
+  currentEmailHash,
   onNotePosted,
 }: {
   request: ImportRequest;
+  currentEmailHash: string;
   onNotePosted: (updated: ImportRequest) => void;
 }) {
   const notes = request.internalNotes || [];
   const [body, setBody] = useState('');
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState<string | null>(null);
+  // Sprint 61 — per-note edit state. Keyed by noteId; the value
+  // is the draft body the user is typing. null means "not
+  // editing." Inline edit replaces the body block with a
+  // textarea + Save / Cancel buttons.
+  const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<string>('');
+  const [editError, setEditError] = useState<string | null>(null);
+  const [editBusy, setEditBusy] = useState<boolean>(false);
 
   async function submit() {
     const trimmed = body.trim();
@@ -2069,6 +2092,57 @@ function InternalNotesPanel({
       setPostError(msg);
     } finally {
       setPosting(false);
+    }
+  }
+
+  function beginEdit(noteId: string, currentBody: string) {
+    setEditingNoteId(noteId);
+    setEditDraft(currentBody);
+    setEditError(null);
+  }
+
+  function cancelEdit() {
+    setEditingNoteId(null);
+    setEditDraft('');
+    setEditError(null);
+  }
+
+  async function saveEdit(noteId: string) {
+    const trimmed = editDraft.trim();
+    if (!trimmed) return;
+    setEditBusy(true);
+    setEditError(null);
+    try {
+      const data = await apiPatch<ImportRequestInternalNoteResponse>(
+        `/imports/${request.externalId}/notes/${encodeURIComponent(noteId)}`,
+        { body: trimmed },
+      );
+      if (data.importRequest) onNotePosted(data.importRequest);
+      cancelEdit();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setEditError(msg);
+    } finally {
+      setEditBusy(false);
+    }
+  }
+
+  async function softDelete(noteId: string) {
+    if (!confirm('Delete this internal note? It will be hidden from the panel; the audit chain preserves the deletion.')) {
+      return;
+    }
+    setEditBusy(true);
+    setEditError(null);
+    try {
+      const data = await apiDelete<ImportRequestInternalNoteResponse>(
+        `/imports/${request.externalId}/notes/${encodeURIComponent(noteId)}`,
+      );
+      if (data.importRequest) onNotePosted(data.importRequest);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setEditError(msg);
+    } finally {
+      setEditBusy(false);
     }
   }
 
@@ -2099,21 +2173,103 @@ function InternalNotesPanel({
 
         {notes.length > 0 && (
           <ul className="space-y-3">
-            {notes.map((n) => (
-              <li
-                key={n.id}
-                className="border border-white/[0.06] bg-[var(--surface-elevated)] p-3 space-y-1"
-                style={{ borderRadius: 'var(--radius-button)' }}
-              >
-                <p className="text-[14px] text-[var(--color-ivory)] whitespace-pre-wrap leading-relaxed">
-                  {n.body}
-                </p>
-                <p className="text-[11px] text-[var(--color-ivory-mute)] font-mono">
-                  {n.byEmailHash.slice(0, 8)} · {new Date(n.at).toLocaleString('en-IE')}
-                </p>
-              </li>
-            ))}
+            {notes.map((n) => {
+              const isOwner = !!currentEmailHash && n.byEmailHash === currentEmailHash;
+              const isEditing = editingNoteId === n.id;
+              return (
+                <li
+                  key={n.id}
+                  className="border border-white/[0.06] bg-[var(--surface-elevated)] p-3 space-y-2"
+                  style={{ borderRadius: 'var(--radius-button)' }}
+                >
+                  {isEditing ? (
+                    <div className="space-y-2">
+                      <textarea
+                        value={editDraft}
+                        onChange={(e) => setEditDraft(e.target.value.slice(0, IMPORT_REQUEST_INTERNAL_NOTE_BODY_MAX))}
+                        onKeyDown={(e) => {
+                          if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+                            e.preventDefault();
+                            saveEdit(n.id);
+                          }
+                          if (e.key === 'Escape') {
+                            e.preventDefault();
+                            cancelEdit();
+                          }
+                        }}
+                        rows={3}
+                        className="w-full bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] text-[14px] px-3 py-2 rounded focus:border-[var(--color-warning)] focus:outline-none resize-y leading-relaxed"
+                      />
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <button
+                          type="button"
+                          onClick={() => saveEdit(n.id)}
+                          disabled={editBusy || !editDraft.trim()}
+                          className="text-[12px] font-semibold px-3 py-1 bg-[var(--color-warning)] text-[var(--color-navy)] disabled:opacity-40"
+                          style={{ borderRadius: 'var(--radius-button)' }}
+                        >
+                          {editBusy ? 'Saving…' : 'Save edit'}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={cancelEdit}
+                          disabled={editBusy}
+                          className="text-[12px] px-3 py-1 border border-white/15 text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] disabled:opacity-40"
+                          style={{ borderRadius: 'var(--radius-button)' }}
+                        >
+                          Cancel
+                        </button>
+                        <span className="text-[11px] text-[var(--color-ivory-mute)] font-mono ml-auto">
+                          {editDraft.length} / {IMPORT_REQUEST_INTERNAL_NOTE_BODY_MAX}
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    <p className="text-[14px] text-[var(--color-ivory)] whitespace-pre-wrap leading-relaxed">
+                      {n.body}
+                    </p>
+                  )}
+                  <div className="flex items-center justify-between gap-3 flex-wrap">
+                    <p className="text-[11px] text-[var(--color-ivory-mute)] font-mono">
+                      {n.byEmailHash.slice(0, 8)} · {new Date(n.at).toLocaleString('en-IE')}
+                      {n.editedAt && (
+                        <span title={`Edited ${new Date(n.editedAt).toLocaleString('en-IE')}`}>
+                          {' · edited'}
+                        </span>
+                      )}
+                    </p>
+                    {/* Sprint 61 — owner-only edit + delete affordances.
+                        Rendered ONLY when the note's byEmailHash matches
+                        the caller's currentEmailHash. The data layer
+                        enforces the same gate (403 on mismatch); the UI
+                        gate is the second line of defence. */}
+                    {isOwner && !isEditing && (
+                      <div className="flex items-center gap-2">
+                        <button
+                          type="button"
+                          onClick={() => beginEdit(n.id, n.body)}
+                          className="text-[11px] text-[var(--color-ivory-dim)] hover:text-[var(--color-warning)] underline-offset-2 hover:underline"
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => softDelete(n.id)}
+                          disabled={editBusy}
+                          className="text-[11px] text-[var(--color-ivory-dim)] hover:text-[var(--color-critical)] underline-offset-2 hover:underline disabled:opacity-40"
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
+        )}
+        {editError && (
+          <p className="text-[12px] text-[var(--color-critical)]">{editError}</p>
         )}
 
         <div className="border-t border-white/[0.06] pt-4 space-y-3">
