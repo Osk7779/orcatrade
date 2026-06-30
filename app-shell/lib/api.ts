@@ -1124,6 +1124,10 @@ export interface WebhookSubscription {
   autoDisabledAt?: string | null;
   autoDisabledReason?: string | null;
   reactivatedAt?: string | null;
+  // Sprint 59 — signing-secret rotation timestamp. Stamped by
+  // POST /api/webhooks/<id>/rotate; the UI surfaces it to confirm
+  // when the receiver-side update needs to land.
+  secretRotatedAt?: string | null;
   // `secret` is intentionally optional — present ONLY on the
   // create response, absent on list responses (strip discipline).
   secret?: string;
@@ -1133,6 +1137,17 @@ export interface WebhookReactivateResponse {
   ok: boolean;
   subscription: WebhookSubscription;
   noOp?: boolean;
+}
+
+// Sprint 59 — signing-secret rotation. `secret` is the NEW raw
+// secret — returned ONCE on the response, never recoverable
+// afterward. Same posture as the sprint-47 create response.
+// `subscription` is the post-rotation projection WITH the secret
+// stripped (the top-level field is the one-time reveal).
+export interface WebhookSecretRotateResponse {
+  ok: boolean;
+  subscription: WebhookSubscription;
+  secret: string;
 }
 
 export interface WebhookListResponse {

@@ -61,6 +61,7 @@ import {
   type WebhookDeliveryLogEntry,
   type WebhookDeliveriesResponse,
   type WebhookReactivateResponse,
+  type WebhookSecretRotateResponse,
   type CronJobStatus,
   type CronJobHealth,
   type CronStatusResponse,
@@ -1213,6 +1214,31 @@ function WebhooksPanel() {
     }
   }
 
+  async function onRotate(id: string, label: string) {
+    if (!confirm(
+      `Rotate signing secret for "${label}"? Every delivery from this moment will be signed with the NEW secret. Your receiver must be updated to verify against it — old signatures will start failing immediately.`,
+    )) {
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const data = await apiPost<WebhookSecretRotateResponse>(
+        `/api/webhooks/${encodeURIComponent(id)}/rotate`,
+        {},
+      );
+      // Reuse the reveal-once banner — same one-time-secret
+      // posture as create.
+      setRevealedSecret({ label: data.subscription.label, secret: data.secret });
+      await refresh();
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+    } finally {
+      setBusy(false);
+    }
+  }
+
   async function onReactivate(id: string) {
     setBusy(true);
     setError(null);
@@ -1469,6 +1495,15 @@ function WebhooksPanel() {
                         style={{ borderRadius: 'var(--radius-button)' }}
                       >
                         Test
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => onRotate(s.id, s.label)}
+                        disabled={busy}
+                        className="text-[12px] px-3 py-1.5 border border-white/15 text-[var(--color-ivory)] hover:border-[var(--color-aqua)] disabled:opacity-40"
+                        style={{ borderRadius: 'var(--radius-button)' }}
+                      >
+                        Rotate
                       </button>
                       <button
                         type="button"
