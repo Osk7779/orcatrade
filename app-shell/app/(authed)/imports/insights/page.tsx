@@ -47,6 +47,7 @@ import {
   type OpsInsightsDeclineSpikeCohort,
   type OpsInsightsQuoteAcceptanceCohort,
   type OpsInsightsSupplierConcentrationCohort,
+  type OpsInsightsRatingTrendCohort,
   type OperatorConfigResponse,
   type ApiKey,
   type ApiKeyScope,
@@ -213,6 +214,15 @@ export default function InsightsPage() {
           proactively. */}
       {data.supplierConcentration.isConcentrated && (
         <SupplierConcentrationCard data={data.supplierConcentration} />
+      )}
+      {/* Sprint 62 — rating-trend drift watch. Fifth proactive
+          signal: is the current 7-day avg dropping vs the prior
+          23-day baseline by >= 0.5 stars? Catches process-
+          degradation that sprint-33 per-event alerts miss
+          (a streak of 3★ ratings — none low enough for sprint
+          33 — quietly drops the avg from 4.5 to 3.5). */}
+      {data.ratingTrend.isDeclining && (
+        <RatingTrendCard data={data.ratingTrend} />
       )}
       <RevisionCohort data={data.revisionCohort} />
       <Funnel data={data} />
@@ -696,6 +706,88 @@ function SupplierConcentrationCard({ data }: { data: OpsInsightsSupplierConcentr
       <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
         See the full country breakdown in the picks cohort below — diversifying to one of the
         runner-up corridors is the actionable next step.
+      </p>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Rating-trend drift (sprint 62) — the FIFTH proactive signal.
+ *  Renders only when isDeclining (gated by parent). Compares
+ *  current 7-day avg rating to prior 23-day baseline. Catches
+ *  process-degradation that sprint-33 per-event alerts miss —
+ *  a streak of 3★ ratings (none low enough for sprint 33)
+ *  quietly drops the avg from 4.5 to 3.5.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function RatingTrendCard({ data }: { data: OpsInsightsRatingTrendCohort }) {
+  const currentAvg = data.currentAvg !== null ? `${data.currentAvg.toFixed(1)}★` : '—';
+  const baselineAvg = data.baselineAvg !== null ? `${data.baselineAvg.toFixed(1)}★` : '—';
+  // Drop is positive in the cohort (baseline - current); render
+  // with leading "-" so the direction reads instantly. Null
+  // fallback for either side missing.
+  const deltaStars = data.delta !== null ? data.delta.toFixed(1) : null;
+  const dropThresholdStars = data.dropThreshold.toFixed(1);
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-[var(--color-warning)]/[0.35] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="space-y-1.5">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-warning)]">
+          Rating trend · drifting down vs baseline
+        </h2>
+        <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+          The last {data.currentDays}-day avg rating is{' '}
+          <span className="font-medium text-[var(--color-ivory)]">{currentAvg}</span>{' '}
+          (from {data.currentCount} ratings) — down from{' '}
+          <span className="font-medium text-[var(--color-ivory)]">{baselineAvg}</span>{' '}
+          across the prior {data.baselineDays} days ({data.baselineCount} ratings).
+          Triggers when the drop crosses {dropThresholdStars}★ AND there are at least{' '}
+          {data.minCount} ratings in the current window. Sprint-33 per-event alerts only fire on
+          1-2★; trend-drift catches the slow-cook.
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Current ({data.currentDays}d)
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-warning)] font-mono leading-none">
+            {currentAvg}
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            {data.currentCount} ratings
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Baseline ({data.baselineDays}d prior)
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-ivory)] font-mono leading-none">
+            {baselineAvg}
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            {data.baselineCount} ratings
+          </p>
+        </div>
+        <div className="space-y-1">
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
+            Δ vs baseline
+          </p>
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-warning)] font-mono leading-none">
+            {deltaStars !== null ? `-${deltaStars}★` : '—'}
+          </p>
+          <p className="text-[12px] text-[var(--color-ivory-mute)]">
+            stars below baseline
+          </p>
+        </div>
+      </div>
+
+      <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+        Open recent customer-approved requests to see comments — narrow the cause to a supplier
+        country, regime, or handoff before it shows up as a per-event 1-2★ next.
       </p>
     </section>
   );

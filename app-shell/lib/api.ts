@@ -1337,6 +1337,29 @@ export interface OpsInsightsSupplierConcentrationCohort {
   isConcentrated: boolean;
 }
 
+// Sprint 62 — cohort #10. Fifth proactive signal. Rating-trend
+// drift: is the current 7-day avg dropping vs the prior 23-day
+// baseline? Disjoint windows (current vs prior, NOT current vs
+// rolling-including-current). Averages are one-decimal floats
+// (matches sprint-31 rating cohort) + null when the denominator
+// is 0 so the UI can render "no baseline yet" rather than 0★.
+// `delta` is `baselineAvg - currentAvg` (positive when current
+// has dropped) + null when either side is null. `isDeclining`
+// fires when delta >= dropThreshold AND currentCount >=
+// minCount AND baselineAvg !== null.
+export interface OpsInsightsRatingTrendCohort {
+  currentDays: number;
+  baselineDays: number;
+  minCount: number;
+  dropThreshold: number;
+  currentCount: number;
+  currentAvg: number | null;
+  baselineCount: number;
+  baselineAvg: number | null;
+  delta: number | null;
+  isDeclining: boolean;
+}
+
 export interface OpsInsights {
   funnelByStatus: Partial<Record<ImportRequestStatus, number>>;
   totalInWindow: number;
@@ -1362,6 +1385,9 @@ export interface OpsInsights {
   // Sprint 57 — cohort #9. Supplier-concentration risk. Always
   // present; the UI gates the card render on isConcentrated.
   supplierConcentration: OpsInsightsSupplierConcentrationCohort;
+  // Sprint 62 — cohort #10. Rating-trend drift. Always present;
+  // the UI gates the card render on isDeclining.
+  ratingTrend: OpsInsightsRatingTrendCohort;
 }
 
 export interface OpsInsightsResponse {
