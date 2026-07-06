@@ -1293,6 +1293,11 @@ export interface OperatorConfigHistoryEntry {
   at: string | null;
   actorEmailHash: string | null;
   patched: Partial<OperatorConfig>;
+  // Sprint 66 — optional SAP-GTS-style change reason. Null for
+  // sprint-42..65 historical entries (predate the field) AND for
+  // PATCHes where the actor left the reason blank. Non-null values
+  // are already trimmed + capped at 200 chars server-side.
+  reason: string | null;
 }
 
 export interface OperatorConfigResponse {

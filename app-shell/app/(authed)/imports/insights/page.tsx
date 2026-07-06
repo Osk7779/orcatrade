@@ -825,6 +825,11 @@ function OperatorConfigPanel({
   const [pendingSpike, setPendingSpike] = useState<number>(currentSpikeMultiplier);
   const [pendingConcentration, setPendingConcentration] = useState<number>(currentConcentrationThreshold);
   const [pendingRatingDrop, setPendingRatingDrop] = useState<number>(currentRatingDropThreshold);
+  // Sprint 66 — SAP-GTS-style change reason. Optional single-line
+  // text that rides along on the PATCH and lands in the audit
+  // event's detail.reason. Trimmed + capped server-side; client
+  // enforces the same length in the input's maxLength.
+  const [pendingReason, setPendingReason] = useState<string>('');
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
@@ -863,17 +868,22 @@ function OperatorConfigPanel({
     setSaving(true);
     setError(null);
     try {
-      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number; supplierConcentrationThreshold: number; ratingTrendDropThreshold: number }>} */
+      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number; supplierConcentrationThreshold: number; ratingTrendDropThreshold: number; reason: string }>} */
       const patch: {
         stallThresholdDays?: number;
         declineSpikeRateMultiplier?: number;
         supplierConcentrationThreshold?: number;
         ratingTrendDropThreshold?: number;
+        // Sprint 66 — optional reason. Trimmed + capped server-side;
+        // omitted when the actor left the input empty.
+        reason?: string;
       } = {};
       if (dirtyStall) patch.stallThresholdDays = Number(pendingStall);
       if (dirtySpike) patch.declineSpikeRateMultiplier = Number(pendingSpike);
       if (dirtyConcentration) patch.supplierConcentrationThreshold = Number(pendingConcentration);
       if (dirtyRatingDrop) patch.ratingTrendDropThreshold = Number(pendingRatingDrop);
+      const trimmedReason = pendingReason.trim();
+      if (trimmedReason.length > 0) patch.reason = trimmedReason;
       await apiPatch<OperatorConfigResponse>('/api/operator-config', patch);
       setSavedFlash(true);
       // Page reload picks up the new config across all panels
@@ -1032,6 +1042,37 @@ function OperatorConfigPanel({
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 0.2–2.0, one decimal.</p>
         </div>
 
+        {/* Sprint 66 — SAP-GTS-style change reason (optional). Sits
+            above Save because it's a per-PATCH annotation, not a per-
+            knob one; a single reason travels with the batched change
+            regardless of which dial(s) moved. */}
+        <div className="space-y-2 pt-1">
+          <label
+            htmlFor="operatorConfigReason"
+            className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block"
+          >
+            Change reason (optional)
+          </label>
+          <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+            Why are you making this change? A short note lands in the
+            audit history so other admins can see the rationale.
+          </p>
+          <input
+            id="operatorConfigReason"
+            type="text"
+            maxLength={200}
+            value={pendingReason}
+            onChange={(e) => setPendingReason(e.target.value)}
+            disabled={saving}
+            placeholder="e.g. tightening stall to match new 3-day SLA"
+            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] px-3 py-1.5 w-full max-w-xl text-[13px] focus:border-[var(--color-aqua)] focus:outline-none"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          />
+          <p className="text-[11px] text-[var(--color-ivory-mute)] italic">
+            {pendingReason.length}/200 characters.
+          </p>
+        </div>
+
         <div className="flex items-center gap-3 pt-2">
           <button
             type="button"
@@ -1143,31 +1184,42 @@ function OperatorConfigHistoryList({
               key={`${entry.at ?? 'unknown'}-${idx}`}
               className="text-[11.5px] font-mono text-[var(--color-ivory-dim)] leading-snug"
             >
-              <span className="text-[var(--color-ivory-mute)]">
-                {formatHistoryTimestamp(entry.at)}
-              </span>
-              {' — '}
-              <span className={isYou ? 'text-[var(--color-aqua)]' : 'text-[var(--color-ivory)]'}>
-                {actorLabel}
-              </span>
-              {' set '}
-              {patchedKeys.length === 0 ? (
-                <span className="italic text-[var(--color-ivory-mute)]">no fields</span>
-              ) : (
-                patchedKeys.map((k, i) => {
-                  const raw = entry.patched[k];
-                  const val = typeof raw === 'number' ? formatKnobValue(k, raw) : '—';
-                  return (
-                    <span key={String(k)}>
-                      {i > 0 && ', '}
-                      <span className="text-[var(--color-ivory)]">
-                        {OPERATOR_CONFIG_KNOB_LABEL[k]}
+              <div>
+                <span className="text-[var(--color-ivory-mute)]">
+                  {formatHistoryTimestamp(entry.at)}
+                </span>
+                {' — '}
+                <span className={isYou ? 'text-[var(--color-aqua)]' : 'text-[var(--color-ivory)]'}>
+                  {actorLabel}
+                </span>
+                {' set '}
+                {patchedKeys.length === 0 ? (
+                  <span className="italic text-[var(--color-ivory-mute)]">no fields</span>
+                ) : (
+                  patchedKeys.map((k, i) => {
+                    const raw = entry.patched[k];
+                    const val = typeof raw === 'number' ? formatKnobValue(k, raw) : '—';
+                    return (
+                      <span key={String(k)}>
+                        {i > 0 && ', '}
+                        <span className="text-[var(--color-ivory)]">
+                          {OPERATOR_CONFIG_KNOB_LABEL[k]}
+                        </span>
+                        {'='}
+                        <span className="text-[var(--color-aqua)]">{val}</span>
                       </span>
-                      {'='}
-                      <span className="text-[var(--color-aqua)]">{val}</span>
-                    </span>
-                  );
-                })
+                    );
+                  })
+                )}
+              </div>
+              {/* Sprint 66 — reason line, only present when the
+                  actor provided one. Indented so the two-line
+                  entries read as a group. Sans-serif on purpose
+                  (the reason is prose, not tabular data). */}
+              {entry.reason && (
+                <div className="pl-4 pt-0.5 italic text-[11px] font-sans text-[var(--color-ivory-mute)]">
+                  “{entry.reason}”
+                </div>
               )}
             </li>
           );
