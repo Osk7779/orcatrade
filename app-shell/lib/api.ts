@@ -179,6 +179,10 @@ export interface Prefs {
   importQuoteAcceptanceAlertEmails?: boolean;
   importSupplierConcentrationAlertEmails?: boolean;
   importRatingTrendAlertEmails?: boolean;
+  // Sprint 70 — daily aging-quotes alert. Matches the sprint-69
+  // cohort #11 (customer-side proactive signal). Defaults ON like
+  // the rest — opt-out semantics.
+  importQuoteFollowUpAlertEmails?: boolean;
   locale?: string;
   updatedAt?: string;
 }
