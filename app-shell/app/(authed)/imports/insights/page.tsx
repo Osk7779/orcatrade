@@ -51,6 +51,7 @@ import {
   type OperatorConfig,
   type OperatorConfigResponse,
   type OperatorConfigHistoryEntry,
+  type OperatorConfigSource,
   type ApiKey,
   type ApiKeyScope,
   type ApiKeyListResponse,
@@ -799,6 +800,43 @@ function RatingTrendCard({ data }: { data: OpsInsightsRatingTrendCohort }) {
 }
 
 /* ────────────────────────────────────────────────────────────────────
+ *  Operator-config reset pill (sprint 67) — one-click "reset to
+ *  platform default" per knob. Renders NULL when source is still
+ *  loading OR the knob is already at the platform default; only
+ *  the customised knobs get the affordance. Hoisted above
+ *  OperatorConfigPanel so the sprint-64/65 body-extraction regex
+ *  ({\n\n\/\* } terminator) keeps its shape.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function OperatorConfigResetPill({
+  knob,
+  source,
+  busy,
+  isBusy,
+  onReset,
+}: {
+  knob: keyof OperatorConfig;
+  source: OperatorConfigSource | null;
+  busy: boolean;
+  isBusy: boolean;
+  onReset: (knob: keyof OperatorConfig) => void;
+}) {
+  if (!source || source[knob] !== 'custom') return null;
+  return (
+    <button
+      type="button"
+      onClick={() => onReset(knob)}
+      disabled={busy}
+      aria-label={`Reset ${knob} to platform default`}
+      className="text-[11px] text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] px-2 py-1 border border-white/[0.08] hover:border-[var(--color-aqua)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      style={{ borderRadius: 'var(--radius-button)' }}
+    >
+      {isBusy ? 'Resetting…' : '↻ Reset'}
+    </button>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
  *  Operator config (sprint 42) — the first per-org policy knob.
  *  Collapsed by default — the cockpit isn't a settings page. Expands
  *  to a tight inline form with one number input + Save. Validation
@@ -841,6 +879,13 @@ function OperatorConfigPanel({
   // and empty.
   const [history, setHistory] = useState<OperatorConfigHistoryEntry[] | null>(null);
   const [viewerEmailHash, setViewerEmailHash] = useState<string | null>(null);
+  // Sprint 67 — per-knob "custom vs default" source map. Drives
+  // the visibility of the Reset pill next to each input: pill
+  // shows ONLY when source[knob] === 'custom'. Null = still
+  // loading (hide all pills to avoid a flash of resettable
+  // state on a fresh mount).
+  const [source, setSource] = useState<OperatorConfigSource | null>(null);
+  const [resettingKnob, setResettingKnob] = useState<keyof OperatorConfig | null>(null);
 
   useEffect(() => {
     apiGet<OperatorConfigResponse>('/api/operator-config')
@@ -849,6 +894,7 @@ function OperatorConfigPanel({
         setViewerEmailHash(
           typeof data.viewerEmailHash === 'string' ? data.viewerEmailHash : null,
         );
+        setSource(data.source ?? null);
       })
       .catch(() => {
         // History is a nice-to-have; if the GET fails, leave the
@@ -863,6 +909,31 @@ function OperatorConfigPanel({
   const dirtyConcentration = Number(pendingConcentration) !== Number(currentConcentrationThreshold);
   const dirtyRatingDrop = Number(pendingRatingDrop) !== Number(currentRatingDropThreshold);
   const dirty = dirtyStall || dirtySpike || dirtyConcentration || dirtyRatingDrop;
+
+  // Sprint 67 — one-click "reset to platform default" per knob.
+  // Only ever fired from a pill that's visible when
+  // source[knob] === 'custom'; the server enforces the same
+  // known-knob allowlist independently.
+  async function onReset(knob: keyof OperatorConfig) {
+    setResettingKnob(knob);
+    setError(null);
+    try {
+      await apiPatch<OperatorConfigResponse>('/api/operator-config', {
+        reset: [knob],
+        // Sprint 66 auto-reason — the reset action carries its own
+        // rationale label in the audit trail so the history reads
+        // as "Reset to platform default" rather than an
+        // unexplained "reset stallThresholdDays".
+        reason: 'Reset to platform default',
+      });
+      setSavedFlash(true);
+      setTimeout(() => { window.location.reload(); }, 600);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setResettingKnob(null);
+    }
+  }
 
   async function onSave() {
     setSaving(true);
@@ -944,18 +1015,27 @@ function OperatorConfigPanel({
             The "no activity in awaiting_review for {'>'} N days" gate that drives the stalled-queue
             cohort + the daily stall alert. Default 7; tighten for a stricter SLA.
           </p>
-          <input
-            id="stallThresholdDays"
-            type="number"
-            min={1}
-            max={90}
-            step={1}
-            value={pendingStall}
-            onChange={(e) => setPendingStall(Number(e.target.value))}
-            disabled={saving}
-            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
-            style={{ borderRadius: 'var(--radius-button)' }}
-          />
+          <div className="flex items-center gap-3">
+            <input
+              id="stallThresholdDays"
+              type="number"
+              min={1}
+              max={90}
+              step={1}
+              value={pendingStall}
+              onChange={(e) => setPendingStall(Number(e.target.value))}
+              disabled={saving}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <OperatorConfigResetPill
+              knob="stallThresholdDays"
+              source={source}
+              busy={saving || resettingKnob !== null}
+              isBusy={resettingKnob === 'stallThresholdDays'}
+              onReset={onReset}
+            />
+          </div>
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 1–90.</p>
         </div>
 
@@ -971,18 +1051,27 @@ function OperatorConfigPanel({
             The "current 7-day rate ≥ N× the 30-day baseline" gate that drives the decline-spike
             cohort + the daily alert. Default 2.0; lower = more sensitive, higher = noise floor.
           </p>
-          <input
-            id="declineSpikeRateMultiplier"
-            type="number"
-            min={1.5}
-            max={10}
-            step={0.1}
-            value={pendingSpike}
-            onChange={(e) => setPendingSpike(Number(e.target.value))}
-            disabled={saving}
-            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
-            style={{ borderRadius: 'var(--radius-button)' }}
-          />
+          <div className="flex items-center gap-3">
+            <input
+              id="declineSpikeRateMultiplier"
+              type="number"
+              min={1.5}
+              max={10}
+              step={0.1}
+              value={pendingSpike}
+              onChange={(e) => setPendingSpike(Number(e.target.value))}
+              disabled={saving}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <OperatorConfigResetPill
+              knob="declineSpikeRateMultiplier"
+              source={source}
+              busy={saving || resettingKnob !== null}
+              isBusy={resettingKnob === 'declineSpikeRateMultiplier'}
+              onReset={onReset}
+            />
+          </div>
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 1.5–10, one decimal.</p>
         </div>
 
@@ -999,18 +1088,27 @@ function OperatorConfigPanel({
             supplier-concentration cohort + the weekly alert. Default 0.75 (75%); lower =
             stricter (flags earlier), higher = only crushing dominance triggers.
           </p>
-          <input
-            id="supplierConcentrationThreshold"
-            type="number"
-            min={0.5}
-            max={0.95}
-            step={0.05}
-            value={pendingConcentration}
-            onChange={(e) => setPendingConcentration(Number(e.target.value))}
-            disabled={saving}
-            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
-            style={{ borderRadius: 'var(--radius-button)' }}
-          />
+          <div className="flex items-center gap-3">
+            <input
+              id="supplierConcentrationThreshold"
+              type="number"
+              min={0.5}
+              max={0.95}
+              step={0.05}
+              value={pendingConcentration}
+              onChange={(e) => setPendingConcentration(Number(e.target.value))}
+              disabled={saving}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <OperatorConfigResetPill
+              knob="supplierConcentrationThreshold"
+              source={source}
+              busy={saving || resettingKnob !== null}
+              isBusy={resettingKnob === 'supplierConcentrationThreshold'}
+              onReset={onReset}
+            />
+          </div>
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 0.50–0.95, two decimals.</p>
         </div>
 
@@ -1027,18 +1125,27 @@ function OperatorConfigPanel({
             the weekly alert. Default 0.5★; lower = stricter (catches drift early), higher = only
             cliffs trigger.
           </p>
-          <input
-            id="ratingTrendDropThreshold"
-            type="number"
-            min={0.2}
-            max={2.0}
-            step={0.1}
-            value={pendingRatingDrop}
-            onChange={(e) => setPendingRatingDrop(Number(e.target.value))}
-            disabled={saving}
-            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
-            style={{ borderRadius: 'var(--radius-button)' }}
-          />
+          <div className="flex items-center gap-3">
+            <input
+              id="ratingTrendDropThreshold"
+              type="number"
+              min={0.2}
+              max={2.0}
+              step={0.1}
+              value={pendingRatingDrop}
+              onChange={(e) => setPendingRatingDrop(Number(e.target.value))}
+              disabled={saving}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <OperatorConfigResetPill
+              knob="ratingTrendDropThreshold"
+              source={source}
+              busy={saving || resettingKnob !== null}
+              isBusy={resettingKnob === 'ratingTrendDropThreshold'}
+              onReset={onReset}
+            />
+          </div>
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 0.2–2.0, one decimal.</p>
         </div>
 
@@ -1179,6 +1286,15 @@ function OperatorConfigHistoryList({
             ? 'You'
             : (entry.actorEmailHash ? `user:${entry.actorEmailHash.slice(0, 8)}` : 'unknown');
           const patchedKeys = Object.keys(entry.patched) as Array<keyof OperatorConfig>;
+          // Sprint 67 — reset keys travel alongside set keys.
+          // Filter to known-knob shape so an unknown legacy value
+          // maps safely through the label lookup.
+          const resetKeys = (entry.reset || []).filter(
+            (k): k is keyof OperatorConfig =>
+              Object.prototype.hasOwnProperty.call(OPERATOR_CONFIG_KNOB_LABEL, k),
+          );
+          const hasSet = patchedKeys.length > 0;
+          const hasReset = resetKeys.length > 0;
           return (
             <li
               key={`${entry.at ?? 'unknown'}-${idx}`}
@@ -1192,24 +1308,42 @@ function OperatorConfigHistoryList({
                 <span className={isYou ? 'text-[var(--color-aqua)]' : 'text-[var(--color-ivory)]'}>
                   {actorLabel}
                 </span>
-                {' set '}
-                {patchedKeys.length === 0 ? (
+                {' '}
+                {!hasSet && !hasReset && (
                   <span className="italic text-[var(--color-ivory-mute)]">no fields</span>
-                ) : (
-                  patchedKeys.map((k, i) => {
-                    const raw = entry.patched[k];
-                    const val = typeof raw === 'number' ? formatKnobValue(k, raw) : '—';
-                    return (
+                )}
+                {hasSet && (
+                  <>
+                    {'set '}
+                    {patchedKeys.map((k, i) => {
+                      const raw = entry.patched[k];
+                      const val = typeof raw === 'number' ? formatKnobValue(k, raw) : '—';
+                      return (
+                        <span key={String(k)}>
+                          {i > 0 && ', '}
+                          <span className="text-[var(--color-ivory)]">
+                            {OPERATOR_CONFIG_KNOB_LABEL[k]}
+                          </span>
+                          {'='}
+                          <span className="text-[var(--color-aqua)]">{val}</span>
+                        </span>
+                      );
+                    })}
+                  </>
+                )}
+                {hasSet && hasReset && '; '}
+                {hasReset && (
+                  <>
+                    <span className="text-[var(--color-warning)]">↻ reset </span>
+                    {resetKeys.map((k, i) => (
                       <span key={String(k)}>
                         {i > 0 && ', '}
                         <span className="text-[var(--color-ivory)]">
                           {OPERATOR_CONFIG_KNOB_LABEL[k]}
                         </span>
-                        {'='}
-                        <span className="text-[var(--color-aqua)]">{val}</span>
                       </span>
-                    );
-                  })
+                    ))}
+                  </>
                 )}
               </div>
               {/* Sprint 66 — reason line, only present when the

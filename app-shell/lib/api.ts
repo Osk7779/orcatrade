@@ -1298,6 +1298,13 @@ export interface OperatorConfigHistoryEntry {
   // PATCHes where the actor left the reason blank. Non-null values
   // are already trimmed + capped at 200 chars server-side.
   reason: string | null;
+  // Sprint 67 — reset-to-default knob names. Empty [] for
+  // sprint-42..66 legacy entries (predate the field) and for
+  // set-only PATCHes. Non-empty for reset-only or set+reset
+  // PATCHes. String[] rather than (keyof OperatorConfig)[] so
+  // the renderer is resilient to a legacy event carrying an
+  // unknown knob name (renderer falls back to the raw string).
+  reset: string[];
 }
 
 export interface OperatorConfigResponse {
