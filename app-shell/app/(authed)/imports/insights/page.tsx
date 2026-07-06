@@ -44,6 +44,7 @@ import {
   type OpsInsightsTopPickedCountry,
   type OpsInsightsRatingCohort,
   type OpsInsightsStalledQueue,
+  type OpsInsightsQuoteFollowUpCohort,
   type OpsInsightsDeclineSpikeCohort,
   type OpsInsightsQuoteAcceptanceCohort,
   type OpsInsightsSupplierConcentrationCohort,
@@ -195,6 +196,18 @@ export default function InsightsPage() {
           NOW, not "look at past data." */}
       {data.stalledQueue.count > 0 && (
         <StalledQueueCard data={data.stalledQueue} />
+      )}
+      {/* Sprint 69 — aging-quotes watch. Sixth proactive signal
+          (sibling to stalled-queue but on the CUSTOMER side of
+          the workflow). Renders ONLY when count > 0 so healthy
+          conversion pipelines show no card. Placed directly
+          below the sprint-38 card because the two are the
+          "individual-row" watches — both name specific
+          externalIds needing attention. The remaining proactive
+          cards (decline-spike, quote-acceptance, supplier-
+          concentration, rating-trend) are aggregate/statistical. */}
+      {data.quoteFollowUp.count > 0 && (
+        <QuoteFollowUpCard data={data.quoteFollowUp} />
       )}
       {/* Sprint 40 — decline-reason spike watch. Second proactive
           signal: which decline reasons are accelerating vs the
@@ -479,6 +492,81 @@ function StalledQueueCard({ data }: { data: OpsInsightsStalledQueue }) {
         <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic pt-1">
           Showing the {data.items.length} oldest of {data.count} stalled. Refine the workflow
           to bring the rest forward.
+        </p>
+      )}
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Quote follow-up watch (sprint 69) — the SIXTH proactive signal.
+ *  Sibling to sprint-38's stalled-queue but on the customer-decision
+ *  side: quotes waiting on customer_approved / customer_declined
+ *  past the follow-up threshold. Same amber-tinged treatment because
+ *  the user is meant to act (send a nudge / re-quote), not read.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function QuoteFollowUpCard({ data }: { data: OpsInsightsQuoteFollowUpCohort }) {
+  const truncated = data.count > data.items.length;
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-[var(--color-warning)]/[0.35] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      data-testid="quote-follow-up-card"
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="space-y-1.5">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-warning)]">
+            Aging quotes · customer follow-up
+          </h2>
+          <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+            Quotes sitting in <span className="font-medium text-[var(--color-ivory)]">quoted</span>{' '}
+            with no customer decision for &gt; {data.thresholdDays} days. Oldest first — nudge or
+            re-quote to unstick.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-warning)] font-mono leading-none">
+            {data.count.toLocaleString('en-IE')}
+          </p>
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] pt-1">
+            aging
+          </p>
+        </div>
+      </div>
+
+      <ul className="divide-y divide-white/[0.06]">
+        {data.items.map((item) => (
+          <li key={item.externalId}>
+            <Link
+              href={`/imports/${item.externalId}`}
+              className="group flex items-center justify-between gap-4 py-3 hover:bg-white/[0.02] transition-colors duration-150 -mx-2 px-2"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-medium text-[var(--color-ivory)] truncate group-hover:text-[var(--color-aqua)]">
+                  {item.label || item.externalId}
+                </p>
+                <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono pt-0.5">
+                  {item.externalId}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-[15px] font-mono font-medium text-[var(--color-warning)]">
+                  {item.daysPending.toFixed(1)}d
+                </p>
+                <p className="text-[10.5px] text-[var(--color-ivory-mute)] uppercase tracking-wider pt-0.5">
+                  pending
+                </p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      {truncated && (
+        <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic pt-1">
+          Showing the {data.items.length} oldest of {data.count} aging quotes. Chase the tail via
+          a batch follow-up cadence.
         </p>
       )}
     </section>

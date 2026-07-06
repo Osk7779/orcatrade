@@ -1048,6 +1048,30 @@ export interface OpsInsightsStalledQueue {
   items: OpsInsightsStalledItem[];
 }
 
+// Sprint 69 — single aging-quote row. Sibling shape to
+// OpsInsightsStalledItem (sprint 38) — same field semantics
+// applied to the customer-decision side of the workflow. The
+// distinct daysPending name (vs sprint 38's daysStalled)
+// distinguishes the cohorts at the TS level so a cross-import
+// on the wrong Item type is a compile error, not a runtime bug.
+export interface OpsInsightsAgingQuoteItem {
+  externalId: string;
+  label: string;
+  updatedAt: string;
+  daysPending: number;
+}
+
+// Sprint 69 — cohort #11. Sixth proactive signal. Aging quotes
+// waiting on customer_approved / customer_declined past
+// thresholdDays. count is org-wide (not capped); items is the
+// top N (QUOTE_FOLLOWUP_CAP = 10 on the server) sorted
+// oldest-first.
+export interface OpsInsightsQuoteFollowUpCohort {
+  thresholdDays: number;
+  count: number;
+  items: OpsInsightsAgingQuoteItem[];
+}
+
 // Sprint 40 — a single decline-reason spike. ratio is null when the
 // baseline window contains 0 occurrences of this reason (first-time
 // signal); otherwise it's the multiplier of current-rate over
@@ -1447,6 +1471,10 @@ export interface OpsInsights {
   // Sprint 62 — cohort #10. Rating-trend drift. Always present;
   // the UI gates the card render on isDeclining.
   ratingTrend: OpsInsightsRatingTrendCohort;
+  // Sprint 69 — cohort #11. Aging quotes waiting on customer
+  // decision. Always present; the UI gates the card render on
+  // count > 0 (same posture as sprint 38's stalled-queue card).
+  quoteFollowUp: OpsInsightsQuoteFollowUpCohort;
 }
 
 export interface OpsInsightsResponse {
