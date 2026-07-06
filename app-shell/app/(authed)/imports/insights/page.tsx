@@ -161,11 +161,14 @@ export default function InsightsPage() {
           Sprint 43 — extended with the decline-spike multiplier
           (cohort #7's sensitivity knob).
           Sprint 60 — extended with the supplier-concentration
-          threshold (cohort #9's sensitivity knob). */}
+          threshold (cohort #9's sensitivity knob).
+          Sprint 64 — extended with the rating-trend drop
+          threshold (cohort #10's sensitivity knob). */}
       <OperatorConfigPanel
         currentStallThreshold={data.stalledQueue.thresholdDays}
         currentSpikeMultiplier={data.declineSpike.rateMultiplier}
         currentConcentrationThreshold={data.supplierConcentration.threshold}
+        currentRatingDropThreshold={data.ratingTrend.dropThreshold}
       />
       {/* Sprint 44 — API key management. Sits next to the operator
           config card because both are admin-only settings for the
@@ -805,17 +808,21 @@ function OperatorConfigPanel({
   currentStallThreshold,
   currentSpikeMultiplier,
   currentConcentrationThreshold,
+  currentRatingDropThreshold,
 }: {
   currentStallThreshold: number;
   currentSpikeMultiplier: number;
   currentConcentrationThreshold: number;
+  currentRatingDropThreshold: number;
 }) {
   // All currents are EFFECTIVE values the SQL just used — pulled
-  // from data.{stalledQueue,declineSpike,supplierConcentration}
-  // so the panel is always in sync with the cohorts alongside it.
+  // from data.{stalledQueue,declineSpike,supplierConcentration,
+  // ratingTrend} so the panel is always in sync with the cohorts
+  // alongside it.
   const [pendingStall, setPendingStall] = useState<number>(currentStallThreshold);
   const [pendingSpike, setPendingSpike] = useState<number>(currentSpikeMultiplier);
   const [pendingConcentration, setPendingConcentration] = useState<number>(currentConcentrationThreshold);
+  const [pendingRatingDrop, setPendingRatingDrop] = useState<number>(currentRatingDropThreshold);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
@@ -823,21 +830,24 @@ function OperatorConfigPanel({
   const dirtyStall = Number(pendingStall) !== Number(currentStallThreshold);
   const dirtySpike = Number(pendingSpike) !== Number(currentSpikeMultiplier);
   const dirtyConcentration = Number(pendingConcentration) !== Number(currentConcentrationThreshold);
-  const dirty = dirtyStall || dirtySpike || dirtyConcentration;
+  const dirtyRatingDrop = Number(pendingRatingDrop) !== Number(currentRatingDropThreshold);
+  const dirty = dirtyStall || dirtySpike || dirtyConcentration || dirtyRatingDrop;
 
   async function onSave() {
     setSaving(true);
     setError(null);
     try {
-      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number; supplierConcentrationThreshold: number }>} */
+      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number; supplierConcentrationThreshold: number; ratingTrendDropThreshold: number }>} */
       const patch: {
         stallThresholdDays?: number;
         declineSpikeRateMultiplier?: number;
         supplierConcentrationThreshold?: number;
+        ratingTrendDropThreshold?: number;
       } = {};
       if (dirtyStall) patch.stallThresholdDays = Number(pendingStall);
       if (dirtySpike) patch.declineSpikeRateMultiplier = Number(pendingSpike);
       if (dirtyConcentration) patch.supplierConcentrationThreshold = Number(pendingConcentration);
+      if (dirtyRatingDrop) patch.ratingTrendDropThreshold = Number(pendingRatingDrop);
       await apiPatch<OperatorConfigResponse>('/api/operator-config', patch);
       setSavedFlash(true);
       // Page reload picks up the new config across all panels
@@ -876,6 +886,11 @@ function OperatorConfigPanel({
           Conc:{' '}
           <span className="font-mono text-[var(--color-ivory)]">
             {Math.round(currentConcentrationThreshold * 100)}%
+          </span>
+          {'  ·  '}
+          Drop:{' '}
+          <span className="font-mono text-[var(--color-ivory)]">
+            {currentRatingDropThreshold.toFixed(1)}★
           </span>
         </span>
         <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
@@ -961,6 +976,34 @@ function OperatorConfigPanel({
             style={{ borderRadius: 'var(--radius-button)' }}
           />
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 0.50–0.95, two decimals.</p>
+        </div>
+
+        {/* Sprint 64 — Rating-trend drop threshold */}
+        <div className="space-y-2">
+          <label
+            htmlFor="ratingTrendDropThreshold"
+            className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block"
+          >
+            Rating-trend drop sensitivity (stars)
+          </label>
+          <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+            The "baseline avg − current avg &ge; N★" gate that drives the rating-trend cohort +
+            the weekly alert. Default 0.5★; lower = stricter (catches drift early), higher = only
+            cliffs trigger.
+          </p>
+          <input
+            id="ratingTrendDropThreshold"
+            type="number"
+            min={0.2}
+            max={2.0}
+            step={0.1}
+            value={pendingRatingDrop}
+            onChange={(e) => setPendingRatingDrop(Number(e.target.value))}
+            disabled={saving}
+            className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          />
+          <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 0.2–2.0, one decimal.</p>
         </div>
 
         <div className="flex items-center gap-3 pt-2">

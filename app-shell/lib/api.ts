@@ -1271,6 +1271,11 @@ export interface OperatorConfig {
   // risk. Two-decimal float in [0.50, 0.95] — 0.75 default,
   // 0.50 = strict, 0.85+ = tolerant.
   supplierConcentrationThreshold: number;
+  // Sprint 64 — rating-trend drop sensitivity. The star-delta
+  // the sprint-62 classifier uses to flag rating drift. One-
+  // decimal float in [0.2, 2.0] — 0.5 default, 0.2 = strict
+  // (catches drift early), 1.0+ = tolerant (only cliffs).
+  ratingTrendDropThreshold: number;
 }
 
 // Per-knob source — 'default' = using platform default,

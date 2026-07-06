@@ -80,7 +80,10 @@ test('aggregateOpsInsights includes a ratingTrend block in the response', () => 
   assert.match(body, /currentDays: RATING_TREND_CURRENT_DAYS/);
   assert.match(body, /baselineDays: RATING_TREND_BASELINE_DAYS/);
   assert.match(body, /minCount: RATING_TREND_MIN_COUNT/);
-  assert.match(body, /dropThreshold: RATING_TREND_DROP_THRESHOLD/);
+  // Sprint 64 generalisation — per-org config threading substituted
+  // `effectiveRatingDropThreshold` for the constant at this call
+  // site; either shape is acceptable so long as the field surfaces.
+  assert.match(body, /dropThreshold: (RATING_TREND_DROP_THRESHOLD|effectiveRatingDropThreshold)/);
 });
 
 test('Both SQL queries filter customer_approved + non-null customer_rating (matches sprint-31)', () => {
@@ -160,7 +163,13 @@ test('isDeclining requires ALL of: count >= MIN + non-null baselineAvg + delta >
   assert.match(body, /ratingTrendCurrent\.count >= RATING_TREND_MIN_COUNT/);
   assert.match(body, /ratingTrendBaseline\.avg !== null/);
   assert.match(body, /ratingTrendCurrent\.avg !== null/);
-  assert.match(body, /\(ratingTrendBaseline\.avg - ratingTrendCurrent\.avg\) >= RATING_TREND_DROP_THRESHOLD/);
+  // Sprint 64 generalisation — per-org config threading replaced
+  // the constant with `effectiveRatingDropThreshold` at the
+  // classifier gate. Accept either shape.
+  assert.match(
+    body,
+    /\(ratingTrendBaseline\.avg - ratingTrendCurrent\.avg\) >= (RATING_TREND_DROP_THRESHOLD|effectiveRatingDropThreshold)/,
+  );
 });
 
 // ── TS mirror ──────────────────────────────────────────────────────
