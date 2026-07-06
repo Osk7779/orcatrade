@@ -48,7 +48,9 @@ import {
   type OpsInsightsQuoteAcceptanceCohort,
   type OpsInsightsSupplierConcentrationCohort,
   type OpsInsightsRatingTrendCohort,
+  type OperatorConfig,
   type OperatorConfigResponse,
+  type OperatorConfigHistoryEntry,
   type ApiKey,
   type ApiKeyScope,
   type ApiKeyListResponse,
@@ -826,6 +828,30 @@ function OperatorConfigPanel({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedFlash, setSavedFlash] = useState(false);
+  // Sprint 65 — read-only audit surface. Fetched on mount from the
+  // GET side of the same endpoint the PATCH goes to; the current
+  // values above are still driven by props (source of truth =
+  // aggregateOpsInsights) so the panel stays in sync with the
+  // cohorts alongside it. `null` = still loading; `[]` = loaded
+  // and empty.
+  const [history, setHistory] = useState<OperatorConfigHistoryEntry[] | null>(null);
+  const [viewerEmailHash, setViewerEmailHash] = useState<string | null>(null);
+
+  useEffect(() => {
+    apiGet<OperatorConfigResponse>('/api/operator-config')
+      .then((data) => {
+        setHistory(Array.isArray(data.history) ? data.history : []);
+        setViewerEmailHash(
+          typeof data.viewerEmailHash === 'string' ? data.viewerEmailHash : null,
+        );
+      })
+      .catch(() => {
+        // History is a nice-to-have; if the GET fails, leave the
+        // panel in "loaded but empty" so the user still sees the
+        // current knobs + Save.
+        setHistory([]);
+      });
+  }, []);
 
   const dirtyStall = Number(pendingStall) !== Number(currentStallThreshold);
   const dirtySpike = Number(pendingSpike) !== Number(currentSpikeMultiplier);
@@ -1026,8 +1052,128 @@ function OperatorConfigPanel({
         <p className="text-[11px] text-[var(--color-ivory-mute)] italic">
           Changes are audit-logged and apply to the next dashboard read + the next daily alert.
         </p>
+        {/* Sprint 65 — read-only audit surface. Renders the last N
+            config PATCHes for this org so admins can see who
+            twisted which knob and when. Empty on brand-new orgs. */}
+        <OperatorConfigHistoryList
+          history={history}
+          viewerEmailHash={viewerEmailHash}
+        />
       </div>
     </details>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Operator-config change history (sprint 65) — audit-surface below
+ *  the dial fields. Read-only. Newest-first, capped server-side at
+ *  10. Actor identity is a 16-char SHA-256 prefix; a match against
+ *  the viewer's own hash renders as "You" without exposing anyone
+ *  else's identity beyond the hash prefix.
+ * ──────────────────────────────────────────────────────────────────── */
+
+const OPERATOR_CONFIG_KNOB_LABEL: Record<keyof OperatorConfig, string> = {
+  stallThresholdDays: 'Stall threshold',
+  declineSpikeRateMultiplier: 'Decline-spike multiplier',
+  supplierConcentrationThreshold: 'Supplier-concentration threshold',
+  ratingTrendDropThreshold: 'Rating-drop threshold',
+};
+
+function formatKnobValue(key: keyof OperatorConfig, value: number): string {
+  if (key === 'stallThresholdDays') return `${value}d`;
+  if (key === 'declineSpikeRateMultiplier') return `${value.toFixed(1)}×`;
+  if (key === 'supplierConcentrationThreshold') return `${Math.round(value * 100)}%`;
+  if (key === 'ratingTrendDropThreshold') return `${value.toFixed(1)}★`;
+  return String(value);
+}
+
+function formatHistoryTimestamp(at: string | null): string {
+  if (!at) return '—';
+  const d = new Date(at);
+  if (Number.isNaN(d.getTime())) return '—';
+  // Short ISO — YYYY-MM-DD HH:mm UTC. The insights page is a
+  // team-facing surface across timezones; UTC removes ambiguity
+  // and matches the audit-log convention elsewhere.
+  const y = d.getUTCFullYear();
+  const mo = String(d.getUTCMonth() + 1).padStart(2, '0');
+  const da = String(d.getUTCDate()).padStart(2, '0');
+  const hh = String(d.getUTCHours()).padStart(2, '0');
+  const mm = String(d.getUTCMinutes()).padStart(2, '0');
+  return `${y}-${mo}-${da} ${hh}:${mm} UTC`;
+}
+
+function OperatorConfigHistoryList({
+  history,
+  viewerEmailHash,
+}: {
+  history: OperatorConfigHistoryEntry[] | null;
+  viewerEmailHash: string | null;
+}) {
+  if (history === null) {
+    return (
+      <p className="text-[11px] text-[var(--color-ivory-mute)] italic pt-2">
+        Loading recent changes…
+      </p>
+    );
+  }
+  if (history.length === 0) {
+    return (
+      <p className="text-[11px] text-[var(--color-ivory-mute)] italic pt-2">
+        No config changes yet — all knobs still at platform defaults.
+      </p>
+    );
+  }
+  return (
+    <div className="pt-3 space-y-1.5" data-testid="operator-config-history">
+      <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+        Recent changes
+      </p>
+      <ul className="space-y-1.5">
+        {history.map((entry, idx) => {
+          const isYou =
+            !!viewerEmailHash
+            && !!entry.actorEmailHash
+            && entry.actorEmailHash === viewerEmailHash;
+          const actorLabel = isYou
+            ? 'You'
+            : (entry.actorEmailHash ? `user:${entry.actorEmailHash.slice(0, 8)}` : 'unknown');
+          const patchedKeys = Object.keys(entry.patched) as Array<keyof OperatorConfig>;
+          return (
+            <li
+              key={`${entry.at ?? 'unknown'}-${idx}`}
+              className="text-[11.5px] font-mono text-[var(--color-ivory-dim)] leading-snug"
+            >
+              <span className="text-[var(--color-ivory-mute)]">
+                {formatHistoryTimestamp(entry.at)}
+              </span>
+              {' — '}
+              <span className={isYou ? 'text-[var(--color-aqua)]' : 'text-[var(--color-ivory)]'}>
+                {actorLabel}
+              </span>
+              {' set '}
+              {patchedKeys.length === 0 ? (
+                <span className="italic text-[var(--color-ivory-mute)]">no fields</span>
+              ) : (
+                patchedKeys.map((k, i) => {
+                  const raw = entry.patched[k];
+                  const val = typeof raw === 'number' ? formatKnobValue(k, raw) : '—';
+                  return (
+                    <span key={String(k)}>
+                      {i > 0 && ', '}
+                      <span className="text-[var(--color-ivory)]">
+                        {OPERATOR_CONFIG_KNOB_LABEL[k]}
+                      </span>
+                      {'='}
+                      <span className="text-[var(--color-aqua)]">{val}</span>
+                    </span>
+                  );
+                })
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    </div>
   );
 }
 

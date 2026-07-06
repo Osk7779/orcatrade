@@ -1283,11 +1283,31 @@ export interface OperatorConfig {
 // render a "Reset" affordance only when the knob is customised.
 export type OperatorConfigSource = Record<keyof OperatorConfig, 'default' | 'custom'>;
 
+// Sprint 65 — read-only audit trail entry for the operator-config
+// history panel. `patched` names only the knobs that changed in
+// that PATCH; the rest inherited the previous value. `at` is the
+// server-side ISO timestamp; `actorEmailHash` is the 16-char
+// SHA-256 prefix stored on the event (never the raw email, never
+// a name lookup — ADR-0008 pseudonymisation posture).
+export interface OperatorConfigHistoryEntry {
+  at: string | null;
+  actorEmailHash: string | null;
+  patched: Partial<OperatorConfig>;
+}
+
 export interface OperatorConfigResponse {
   ok: boolean;
   config: OperatorConfig;
   source: OperatorConfigSource;
   defaults: OperatorConfig;
+  // Sprint 65 — newest-first, capped at 10 server-side. Empty
+  // array on brand-new orgs (no PATCH history yet).
+  history: OperatorConfigHistoryEntry[];
+  // Sprint 65 — the current viewer's own emailHash so the UI can
+  // label "You" on entries this session authored. Never used to
+  // identify OTHER actors — cross-user identity resolution stops
+  // at the hash prefix.
+  viewerEmailHash: string | null;
 }
 
 // Sprint 40 — cohort #7. The second proactive signal. spikes is
