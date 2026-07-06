@@ -120,10 +120,13 @@ test('handlePatch audit event: patched=knobPatch + reason conditionally spread (
   const body = HANDLER_SRC.match(/async function handlePatch\([\s\S]*?\n\}/)[0];
   // patched carries the sanitised knob payload, NEVER the raw body.
   assert.match(body, /patched: knobPatch/);
-  // Conditional spread keeps the audit JSON minimal.
+  // Conditional spread keeps the audit JSON minimal. Sprint 68
+  // renamed the source-of-truth variable from `reasonResult.value`
+  // to `finalReason` (auto-reason folding for preset PATCHes);
+  // either form preserves the shape invariant.
   assert.match(
     body,
-    /\.\.\.\(reasonResult\.value !== null \? \{ reason: reasonResult\.value \} : \{\}\)/,
+    /\.\.\.\((reasonResult\.value|finalReason) !== null \? \{ reason: (reasonResult\.value|finalReason) \} : \{\}\)/,
   );
 });
 

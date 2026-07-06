@@ -52,6 +52,7 @@ import {
   type OperatorConfigResponse,
   type OperatorConfigHistoryEntry,
   type OperatorConfigSource,
+  type OperatorConfigPresetName,
   type ApiKey,
   type ApiKeyScope,
   type ApiKeyListResponse,
@@ -837,6 +838,86 @@ function OperatorConfigResetPill({
 }
 
 /* ────────────────────────────────────────────────────────────────────
+ *  Operator-config preset chips (sprint 68) — SAP-GTS-style policy
+ *  profiles. Three chips at the top of the expanded panel; the
+ *  active one is highlighted; clicking any other applies it. When
+ *  no preset matches (all four knobs at custom values), a fourth
+ *  "Custom" indicator renders (not clickable — server never
+ *  accepts { preset: 'custom' }). Hoisted above OperatorConfigPanel
+ *  so the sprint-64/65 body-extraction regex terminator stays valid.
+ * ──────────────────────────────────────────────────────────────────── */
+
+const OPERATOR_CONFIG_PRESET_LABEL: Record<OperatorConfigPresetName, string> = {
+  strict: 'Strict',
+  balanced: 'Balanced',
+  tolerant: 'Tolerant',
+};
+
+const OPERATOR_CONFIG_PRESET_DESCRIPTION: Record<OperatorConfigPresetName, string> = {
+  strict: 'Aggressive detection — tight SLAs, higher alert volume.',
+  balanced: 'Platform defaults — good starting point for most teams.',
+  tolerant: 'Only obvious cliffs trigger — quieter alerts.',
+};
+
+function OperatorConfigPresetChips({
+  presets,
+  currentPreset,
+  applyingPreset,
+  disabled,
+  onApplyPreset,
+}: {
+  presets: Record<OperatorConfigPresetName, OperatorConfig> | null;
+  currentPreset: OperatorConfigPresetName | 'custom' | null;
+  applyingPreset: OperatorConfigPresetName | null;
+  disabled: boolean;
+  onApplyPreset: (name: OperatorConfigPresetName) => void;
+}) {
+  if (!presets || currentPreset === null) return null;
+  const names: OperatorConfigPresetName[] = ['strict', 'balanced', 'tolerant'];
+  return (
+    <div className="space-y-2" data-testid="operator-config-preset-chips">
+      <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+        Policy profile
+      </p>
+      <div className="flex items-center gap-2 flex-wrap">
+        {names.map((name) => {
+          const isActive = currentPreset === name;
+          const isApplying = applyingPreset === name;
+          return (
+            <button
+              key={name}
+              type="button"
+              onClick={() => onApplyPreset(name)}
+              disabled={disabled || isActive}
+              aria-pressed={isActive}
+              title={OPERATOR_CONFIG_PRESET_DESCRIPTION[name]}
+              className={
+                'text-[12px] px-3 py-1.5 border transition-colors disabled:opacity-40 disabled:cursor-not-allowed '
+                + (isActive
+                  ? 'bg-[var(--color-aqua)] text-[var(--color-navy)] border-[var(--color-aqua)] font-semibold'
+                  : 'bg-transparent text-[var(--color-ivory-dim)] border-white/[0.15] hover:border-[var(--color-aqua)] hover:text-[var(--color-ivory)]')
+              }
+              style={{ borderRadius: 'var(--radius-button)' }}
+            >
+              {isApplying ? 'Applying…' : OPERATOR_CONFIG_PRESET_LABEL[name]}
+            </button>
+          );
+        })}
+        {currentPreset === 'custom' && (
+          <span
+            className="text-[12px] px-3 py-1.5 border border-dashed border-white/[0.15] text-[var(--color-ivory-mute)] italic"
+            style={{ borderRadius: 'var(--radius-button)' }}
+            data-testid="operator-config-preset-custom-indicator"
+          >
+            Custom
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
  *  Operator config (sprint 42) — the first per-org policy knob.
  *  Collapsed by default — the cockpit isn't a settings page. Expands
  *  to a tight inline form with one number input + Save. Validation
@@ -886,6 +967,13 @@ function OperatorConfigPanel({
   // state on a fresh mount).
   const [source, setSource] = useState<OperatorConfigSource | null>(null);
   const [resettingKnob, setResettingKnob] = useState<keyof OperatorConfig | null>(null);
+  // Sprint 68 — SAP-GTS-style preset chips. Presets are the
+  // canonical definitions from the server (single source of
+  // truth); currentPreset drives the highlighted-chip state
+  // + the collapsed-summary label. Null while loading.
+  const [presets, setPresets] = useState<Record<OperatorConfigPresetName, OperatorConfig> | null>(null);
+  const [currentPreset, setCurrentPreset] = useState<OperatorConfigPresetName | 'custom' | null>(null);
+  const [applyingPreset, setApplyingPreset] = useState<OperatorConfigPresetName | null>(null);
 
   useEffect(() => {
     apiGet<OperatorConfigResponse>('/api/operator-config')
@@ -895,6 +983,8 @@ function OperatorConfigPanel({
           typeof data.viewerEmailHash === 'string' ? data.viewerEmailHash : null,
         );
         setSource(data.source ?? null);
+        setPresets(data.presets ?? null);
+        setCurrentPreset(data.currentPreset ?? null);
       })
       .catch(() => {
         // History is a nice-to-have; if the GET fails, leave the
@@ -909,6 +999,26 @@ function OperatorConfigPanel({
   const dirtyConcentration = Number(pendingConcentration) !== Number(currentConcentrationThreshold);
   const dirtyRatingDrop = Number(pendingRatingDrop) !== Number(currentRatingDropThreshold);
   const dirty = dirtyStall || dirtySpike || dirtyConcentration || dirtyRatingDrop;
+
+  // Sprint 68 — one-click "apply preset" for the current org.
+  // Server-side expansion means the client can't drift preset
+  // values from the canonical definitions; a PATCH with
+  // `preset` and any other knob key 400s. Auto-reason is set
+  // server-side ("Applied preset: X") so the audit history
+  // reads cleanly even without a client-provided reason.
+  async function onApplyPreset(name: OperatorConfigPresetName) {
+    setApplyingPreset(name);
+    setError(null);
+    try {
+      await apiPatch<OperatorConfigResponse>('/api/operator-config', { preset: name });
+      setSavedFlash(true);
+      setTimeout(() => { window.location.reload(); }, 600);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setApplyingPreset(null);
+    }
+  }
 
   // Sprint 67 — one-click "reset to platform default" per knob.
   // Only ever fired from a pill that's visible when
@@ -1003,6 +1113,18 @@ function OperatorConfigPanel({
         <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
       </summary>
       <div className="pt-5 pb-2 space-y-6 max-w-xl">
+        {/* Sprint 68 — SAP-GTS-style policy preset chips. Renders
+            NULL when presets haven't loaded yet (avoids a flash
+            of no-active-preset state). Server-side expansion
+            means a chip click PATCHes { preset: name } and the
+            four knobs snap to the canonical values. */}
+        <OperatorConfigPresetChips
+          presets={presets}
+          currentPreset={currentPreset}
+          applyingPreset={applyingPreset}
+          disabled={saving || resettingKnob !== null || applyingPreset !== null}
+          onApplyPreset={onApplyPreset}
+        />
         {/* Stall threshold */}
         <div className="space-y-2">
           <label

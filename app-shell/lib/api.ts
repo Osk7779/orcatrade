@@ -1305,7 +1305,19 @@ export interface OperatorConfigHistoryEntry {
   // the renderer is resilient to a legacy event carrying an
   // unknown knob name (renderer falls back to the raw string).
   reset: string[];
+  // Sprint 68 — preset name applied, or null for non-preset
+  // PATCHes and sprint-42..67 legacy entries. String rather
+  // than the strict union so the renderer is resilient to an
+  // unknown legacy preset name.
+  preset: string | null;
 }
+
+// Sprint 68 — SAP-GTS-style policy profile names. Strict = tight
+// SLAs / high alert volume; balanced = platform defaults;
+// tolerant = only obvious cliffs trigger. `custom` is not a
+// preset the client can APPLY — it's what the server reports
+// when the effective config doesn't match any preset.
+export type OperatorConfigPresetName = 'strict' | 'balanced' | 'tolerant';
 
 export interface OperatorConfigResponse {
   ok: boolean;
@@ -1320,6 +1332,15 @@ export interface OperatorConfigResponse {
   // identify OTHER actors — cross-user identity resolution stops
   // at the hash prefix.
   viewerEmailHash: string | null;
+  // Sprint 68 — preset definitions (canonical values keyed by
+  // preset name) so the UI can show tooltips + hover previews
+  // without a second endpoint.
+  presets: Record<OperatorConfigPresetName, OperatorConfig>;
+  // Sprint 68 — which preset the current effective config matches,
+  // or 'custom' if none do. Drives the highlighted-chip state in
+  // the panel + a "You're on: X" affordance in the collapsed
+  // summary.
+  currentPreset: OperatorConfigPresetName | 'custom';
 }
 
 // Sprint 40 — cohort #7. The second proactive signal. spikes is
