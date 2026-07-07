@@ -16,6 +16,7 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import {
   apiGet,
+  apiPost,
   AuthError,
   IMPORT_REQUEST_STATUSES,
   type ImportRequest,
@@ -26,6 +27,12 @@ import {
 } from '@/lib/api';
 
 type LoadState = 'loading' | 'auth' | 'error' | 'ready';
+
+// Sprint 74 — bulk-archive cap. Mirrors the server-side cap in
+// bulkArchiveImportRequests (lib/db/import-requests.js) so the UI
+// warns BEFORE the click instead of surfacing a 400 after it —
+// the sprint-20 queue posture.
+const BULK_ARCHIVE_CAP = 50;
 
 function eurFromCents(cents?: number | null) {
   if (cents == null || !Number.isFinite(cents)) return '—';
@@ -97,6 +104,17 @@ function ImportsView() {
   const [state, setState] = useState<LoadState>('loading');
   const [requests, setRequests] = useState<ImportRequest[]>([]);
   const [errorMsg, setErrorMsg] = useState('');
+  // Sprint 74 — bulk-archive selection. Set<string> keeps O(1)
+  // toggle + membership (the sprint-20 queue idiom). Selection is
+  // pruned (not cleared) on refetch so a filter change keeps any
+  // still-visible rows selected.
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [bulkPending, setBulkPending] = useState(false);
+  const [bulkNotice, setBulkNotice] = useState<{ tone: 'ok' | 'warn'; text: string } | null>(null);
+  // Sprint 74 — refetch trigger after a bulk archive. Archived rows
+  // fall out of the default list (archived_at IS NULL server-side),
+  // so a bump here is what makes them disappear.
+  const [refreshNonce, setRefreshNonce] = useState(0);
   // Sprint 25 — local input mirror. Two-way binding URL ↔ input;
   // typing updates `searchInput` immediately for responsiveness,
   // then a 300ms debounce commits to the URL which triggers the
@@ -147,7 +165,15 @@ function ImportsView() {
     apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(`/imports?${params.toString()}`)
       .then((d) => {
         if (cancelled) return;
-        setRequests(Array.isArray(d.importRequests) ? d.importRequests : []);
+        const rows = Array.isArray(d.importRequests) ? d.importRequests : [];
+        setRequests(rows);
+        // Sprint 74 — prune (don't clear) the selection: ids that
+        // fell out of the view (archived, filtered away) drop; rows
+        // still visible stay selected across a filter change.
+        setSelected((prev) => {
+          const visible = new Set(rows.map((r) => r.externalId));
+          return new Set([...prev].filter((id) => visible.has(id)));
+        });
         setState('ready');
       })
       .catch((err) => {
@@ -161,13 +187,73 @@ function ImportsView() {
     return () => {
       cancelled = true;
     };
-  }, [filterStatus, cohortReason, supplierPick, urlQ]);
+  }, [filterStatus, cohortReason, supplierPick, urlQ, refreshNonce]);
 
   const counts = useMemo(() => {
     const map: Partial<Record<ImportRequestStatus, number>> = {};
     for (const r of requests) map[r.status] = (map[r.status] || 0) + 1;
     return map;
   }, [requests]);
+
+  // Sprint 74 — selection handlers (sprint-20 queue idioms).
+  function toggleSelect(externalId: string) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(externalId)) next.delete(externalId);
+      else next.add(externalId);
+      return next;
+    });
+  }
+
+  function selectAllVisible() {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      const visibleIds = requests.map((r) => r.externalId);
+      // If every visible id is already selected, treat this as a
+      // "clear visible" — the same checkbox toggles both directions.
+      const allSelected = visibleIds.every((id) => next.has(id));
+      if (allSelected) {
+        for (const id of visibleIds) next.delete(id);
+      } else {
+        for (const id of visibleIds.slice(0, BULK_ARCHIVE_CAP)) next.add(id);
+      }
+      return next;
+    });
+  }
+
+  async function submitBulkArchive() {
+    if (selected.size === 0 || bulkPending) return;
+    if (!confirm(`Archive ${selected.size} import request${selected.size === 1 ? '' : 's'}? Archived requests disappear from this list but stay in the audit trail.`)) return;
+    setBulkPending(true);
+    setBulkNotice(null);
+    try {
+      type BulkArchiveFailure = { externalId: string; error: string };
+      const result = await apiPost<{
+        ok: boolean;
+        archivedCount: number;
+        unchangedCount: number;
+        failedCount: number;
+        failed: BulkArchiveFailure[];
+      }>('/imports/bulk-archive', { externalIds: [...selected] });
+      // SAP-GTS batch-log posture — report the three outcomes
+      // distinctly, never a collapsed "done".
+      const parts = [`Archived ${result.archivedCount}`];
+      if (result.unchangedCount > 0) parts.push(`${result.unchangedCount} already archived`);
+      if (result.failedCount > 0) {
+        const top = result.failed.slice(0, 3)
+          .map((f) => `${f.externalId}: ${f.error}`).join(' · ');
+        parts.push(`${result.failedCount} failed (${top})`);
+      }
+      setBulkNotice({ tone: result.failedCount > 0 ? 'warn' : 'ok', text: parts.join(' · ') });
+      setSelected(new Set());
+      setRefreshNonce((n) => n + 1);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setBulkNotice({ tone: 'warn', text: `Bulk archive failed: ${msg}` });
+    } finally {
+      setBulkPending(false);
+    }
+  }
 
   if (state === 'auth') {
     return (
@@ -378,6 +464,70 @@ function ImportsView() {
         </div>
       )}
 
+      {/* Sprint 74 — bulk-archive batch report. Persists after the
+          refetch so "Archived 8 · 2 already archived" stays readable
+          while the rows disappear from the list below. */}
+      {bulkNotice && (
+        <div
+          className={`border p-4 flex items-start justify-between gap-4 ${
+            bulkNotice.tone === 'ok'
+              ? 'border-[var(--color-aqua)]/40 bg-[var(--color-aqua-soft)]'
+              : 'border-[var(--color-warning)]/40 bg-[var(--color-warning)]/8'
+          }`}
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <p className={`text-[13px] ${bulkNotice.tone === 'ok' ? 'text-[var(--color-ivory)]' : 'text-[var(--color-warning)]'}`}>
+            {bulkNotice.text}
+          </p>
+          <button
+            type="button"
+            onClick={() => setBulkNotice(null)}
+            aria-label="Dismiss"
+            className="text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] text-[14px] px-1 transition-colors"
+          >
+            ×
+          </button>
+        </div>
+      )}
+
+      {/* Sprint 74 — bulk action bar. Appears only when at least one
+          row is selected; over-cap warning renders BEFORE the click
+          (the server enforces the same 50-row cap independently). */}
+      {state === 'ready' && selected.size > 0 && (
+        <div
+          className="bg-[var(--color-aqua-soft)] border border-[var(--color-aqua)]/40 p-4 flex items-center justify-between gap-4 flex-wrap"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <div className="text-[13.5px] text-[var(--color-ivory)]">
+            <span className="font-semibold">{selected.size} selected</span>
+            {selected.size > BULK_ARCHIVE_CAP && (
+              <span className="ml-3 text-[var(--color-critical)] font-medium text-[12.5px]">
+                ⚠ Server cap is {BULK_ARCHIVE_CAP} — drop {selected.size - BULK_ARCHIVE_CAP} before archiving.
+              </span>
+            )}
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => setSelected(new Set())}
+              disabled={bulkPending}
+              className="text-[12px] font-medium text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              Clear selection
+            </button>
+            <button
+              type="button"
+              onClick={submitBulkArchive}
+              disabled={bulkPending || selected.size > BULK_ARCHIVE_CAP}
+              className="px-4 py-2 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] disabled:opacity-40 disabled:cursor-not-allowed"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            >
+              {bulkPending ? 'Archiving…' : `Archive ${selected.size}`}
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Table or empty state */}
       {state === 'loading' && <p className="text-[var(--color-ivory-mute)] text-sm">Loading…</p>}
       {state === 'error' && (
@@ -460,6 +610,19 @@ function ImportsView() {
           <table className="w-full text-left text-[14px]">
             <thead className="bg-white/[0.02] text-[var(--color-ivory-mute)]">
               <tr>
+                {/* Sprint 74 — select-all-visible. The header
+                    checkbox toggles both directions: all visible
+                    selected → clears them. */}
+                <th className="pl-5 pr-1 py-3.5 w-8">
+                  <input
+                    type="checkbox"
+                    aria-label={`Select all ${requests.length} visible requests`}
+                    checked={requests.length > 0 && requests.every((r) => selected.has(r.externalId))}
+                    onChange={selectAllVisible}
+                    disabled={bulkPending}
+                    className="accent-[var(--color-aqua)] cursor-pointer"
+                  />
+                </th>
                 <Th>Label</Th>
                 <Th>Product</Th>
                 <Th>Route</Th>
@@ -472,8 +635,21 @@ function ImportsView() {
               {requests.map((r) => (
                 <tr
                   key={r.externalId}
-                  className="border-t border-white/[0.04] hover:bg-white/[0.025] transition-colors"
+                  className={`border-t border-white/[0.04] transition-colors ${
+                    selected.has(r.externalId) ? 'bg-[var(--color-aqua-soft)]' : 'hover:bg-white/[0.025]'
+                  }`}
                 >
+                  {/* Sprint 74 — per-row checkbox */}
+                  <td className="pl-5 pr-1 py-4 align-top w-8">
+                    <input
+                      type="checkbox"
+                      aria-label={`Select ${r.label}`}
+                      checked={selected.has(r.externalId)}
+                      onChange={() => toggleSelect(r.externalId)}
+                      disabled={bulkPending}
+                      className="accent-[var(--color-aqua)] cursor-pointer"
+                    />
+                  </td>
                   <Td>
                     <Link
                       href={`/imports/${r.externalId}`}

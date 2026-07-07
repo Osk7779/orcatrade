@@ -218,8 +218,11 @@ test('/imports list page status chips PRESERVE supplierPick on click', () => {
 test('/imports list page useEffect re-fires when supplierPick changes', () => {
   // The data useEffect dep array must include supplierPick;
   // without it, navigating between cohorts (e.g. VN → IN)
-  // wouldn't refetch.
-  assert.match(LIST_TSX, /\[filterStatus, cohortReason, supplierPick, urlQ\]/);
+  // wouldn't refetch. Sprint 74 generalised the tail: the array
+  // gained refreshNonce (bulk-archive refetch trigger), so the
+  // pin accepts the original four-dep form or additional deps
+  // after urlQ.
+  assert.match(LIST_TSX, /\[filterStatus, cohortReason, supplierPick, urlQ(?:, \w+)*\]/);
 });
 
 test('/imports list page shows a supplier-pick-specific empty state', () => {
