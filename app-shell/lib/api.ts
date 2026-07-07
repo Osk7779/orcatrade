@@ -1328,6 +1328,16 @@ export interface OperatorConfigHistoryEntry {
   at: string | null;
   actorEmailHash: string | null;
   patched: Partial<OperatorConfig>;
+  // Sprint 72 — before-values for the knobs this PATCH touched
+  // (set OR reset). The whole field is null for sprint-42..71
+  // legacy entries (predate the capture) and for PATCHes where
+  // the server's pre-mutation read failed (absence = "unknown",
+  // never a fabricated default). A per-knob null INSIDE the
+  // record means "was at platform default" — the renderer joins
+  // with the `defaults` it already holds. Record<string, …>
+  // rather than Partial<OperatorConfig> so a legacy event with
+  // an unknown knob name is representable without a cast.
+  previous: Record<string, number | null> | null;
   // Sprint 66 — optional SAP-GTS-style change reason. Null for
   // sprint-42..65 historical entries (predate the field) AND for
   // PATCHes where the actor left the reason blank. Non-null values

@@ -1559,6 +1559,20 @@ function OperatorConfigHistoryList({
           );
           const hasSet = patchedKeys.length > 0;
           const hasReset = resetKeys.length > 0;
+          // Sprint 72 — before-value suffix for a knob. Whole-field
+          // null (legacy entry / pre-read failed server-side) →
+          // no suffix at all (absence = unknown, never a guessed
+          // default). Per-knob null → the knob sat at platform
+          // default before the change.
+          const wasLabel = (k: keyof OperatorConfig): string | null => {
+            if (!entry.previous
+              || !Object.prototype.hasOwnProperty.call(entry.previous, k)) {
+              return null;
+            }
+            const prev = entry.previous[k];
+            if (prev === null) return 'was default';
+            return typeof prev === 'number' ? `was ${formatKnobValue(k, prev)}` : null;
+          };
           return (
             <li
               key={`${entry.at ?? 'unknown'}-${idx}`}
@@ -1582,6 +1596,7 @@ function OperatorConfigHistoryList({
                     {patchedKeys.map((k, i) => {
                       const raw = entry.patched[k];
                       const val = typeof raw === 'number' ? formatKnobValue(k, raw) : '—';
+                      const was = wasLabel(k);
                       return (
                         <span key={String(k)}>
                           {i > 0 && ', '}
@@ -1590,6 +1605,11 @@ function OperatorConfigHistoryList({
                           </span>
                           {'='}
                           <span className="text-[var(--color-aqua)]">{val}</span>
+                          {/* Sprint 72 — old→new at a glance. Muted
+                              so the new value stays the headline. */}
+                          {was && (
+                            <span className="text-[var(--color-ivory-mute)]"> ({was})</span>
+                          )}
                         </span>
                       );
                     })}
@@ -1599,14 +1619,24 @@ function OperatorConfigHistoryList({
                 {hasReset && (
                   <>
                     <span className="text-[var(--color-warning)]">↻ reset </span>
-                    {resetKeys.map((k, i) => (
-                      <span key={String(k)}>
-                        {i > 0 && ', '}
-                        <span className="text-[var(--color-ivory)]">
-                          {OPERATOR_CONFIG_KNOB_LABEL[k]}
+                    {resetKeys.map((k, i) => {
+                      // Sprint 72 — the value the reset walked away
+                      // from. "(was default)" is possible (resetting
+                      // an already-default knob is a valid no-op
+                      // PATCH half) and rendered truthfully.
+                      const was = wasLabel(k);
+                      return (
+                        <span key={String(k)}>
+                          {i > 0 && ', '}
+                          <span className="text-[var(--color-ivory)]">
+                            {OPERATOR_CONFIG_KNOB_LABEL[k]}
+                          </span>
+                          {was && (
+                            <span className="text-[var(--color-ivory-mute)]"> ({was})</span>
+                          )}
                         </span>
-                      </span>
-                    ))}
+                      );
+                    })}
                   </>
                 )}
               </div>
