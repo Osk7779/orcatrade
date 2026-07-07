@@ -77,7 +77,7 @@ test('aging-quotes COUNT + LIST queries filter status = quoted (case-exact, quot
 test('aging-quotes queries filter archived_at IS NULL (dead rows never populate the cohort)', () => {
   const body = DB_SRC.match(/async function aggregateOpsInsights\([\s\S]*?return failureFromDb/)[0];
   // Both queries share this predicate — sprint-38 discipline.
-  const countBlock = body.match(/agingQuoteCountRows[\s\S]*?QUOTE_FOLLOWUP_THRESHOLD_DAYS/);
+  const countBlock = body.match(/agingQuoteCountRows[\s\S]*?(QUOTE_FOLLOWUP_THRESHOLD_DAYS|effectiveQuoteFollowUpThreshold)/);
   const listBlock = body.match(/agingQuoteListRows[\s\S]*?QUOTE_FOLLOWUP_CAP\],/);
   assert.ok(countBlock, 'agingQuoteCountRows query not located');
   assert.ok(listBlock, 'agingQuoteListRows query not located');
@@ -88,15 +88,17 @@ test('aging-quotes queries filter archived_at IS NULL (dead rows never populate 
 test('aging-quotes query is window-agnostic (NOT bound by windowDays / `days` var)', () => {
   // The dashboard's `days` toggle changes the retrospective window
   // but MUST NOT stop the cohort from seeing stalls older than
-  // that window. Pin the constant name rather than a variable.
+  // that window. Sprint 71 generalisation — per-org config
+  // threading replaced the constant with `effectiveQuoteFollowUp
+  // Threshold` at the query binding. Accept either shape.
   const body = DB_SRC.match(/async function aggregateOpsInsights\([\s\S]*?return failureFromDb/)[0];
   assert.match(
     body,
-    /agingQuoteCountRows[\s\S]*?QUOTE_FOLLOWUP_THRESHOLD_DAYS/,
+    /agingQuoteCountRows[\s\S]*?(QUOTE_FOLLOWUP_THRESHOLD_DAYS|effectiveQuoteFollowUpThreshold)/,
   );
   assert.match(
     body,
-    /agingQuoteListRows[\s\S]*?QUOTE_FOLLOWUP_THRESHOLD_DAYS/,
+    /agingQuoteListRows[\s\S]*?(QUOTE_FOLLOWUP_THRESHOLD_DAYS|effectiveQuoteFollowUpThreshold)/,
   );
 });
 
@@ -121,7 +123,13 @@ test('aging-quotes items round daysPending to one decimal server-side (matches s
 
 test('aggregateOpsInsights response includes quoteFollowUp cohort', () => {
   const body = DB_SRC.match(/async function aggregateOpsInsights\([\s\S]*?return failureFromDb/)[0];
-  assert.match(body, /quoteFollowUp: \{[\s\S]*?thresholdDays: QUOTE_FOLLOWUP_THRESHOLD_DAYS/);
+  // Sprint 71 generalisation — per-org config threading replaced
+  // the constant with `effectiveQuoteFollowUpThreshold` at the
+  // response surface. Accept either shape.
+  assert.match(
+    body,
+    /quoteFollowUp: \{[\s\S]*?thresholdDays: (QUOTE_FOLLOWUP_THRESHOLD_DAYS|effectiveQuoteFollowUpThreshold)/,
+  );
   assert.match(body, /quoteFollowUp: \{[\s\S]*?count: agingQuoteCount/);
   assert.match(body, /quoteFollowUp: \{[\s\S]*?items: agingQuoteItems/);
 });

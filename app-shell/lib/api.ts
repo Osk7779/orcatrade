@@ -1304,6 +1304,13 @@ export interface OperatorConfig {
   // decimal float in [0.2, 2.0] — 0.5 default, 0.2 = strict
   // (catches drift early), 1.0+ = tolerant (only cliffs).
   ratingTrendDropThreshold: number;
+  // Sprint 71 — customer-side follow-up gate. The "no customer
+  // decision in `quoted` for > N days" threshold that drives
+  // the sprint-69 aging-quotes cohort + the sprint-70 daily
+  // alert. Integer in [1, 30] — 5 default, 1 = strict
+  // (chase every silent customer within a day), 14+ =
+  // tolerant (only long-cold quotes surface).
+  quoteFollowUpThresholdDays: number;
 }
 
 // Per-knob source — 'default' = using platform default,

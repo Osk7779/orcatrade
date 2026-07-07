@@ -168,12 +168,16 @@ export default function InsightsPage() {
           Sprint 60 — extended with the supplier-concentration
           threshold (cohort #9's sensitivity knob).
           Sprint 64 — extended with the rating-trend drop
-          threshold (cohort #10's sensitivity knob). */}
+          threshold (cohort #10's sensitivity knob).
+          Sprint 71 — extended with the aging-quotes follow-up
+          threshold (cohort #11's sensitivity knob). Five knobs
+          now cover every proactive cohort. */}
       <OperatorConfigPanel
         currentStallThreshold={data.stalledQueue.thresholdDays}
         currentSpikeMultiplier={data.declineSpike.rateMultiplier}
         currentConcentrationThreshold={data.supplierConcentration.threshold}
         currentRatingDropThreshold={data.ratingTrend.dropThreshold}
+        currentQuoteFollowUpThreshold={data.quoteFollowUp.thresholdDays}
       />
       {/* Sprint 44 — API key management. Sits next to the operator
           config card because both are admin-only settings for the
@@ -1018,11 +1022,13 @@ function OperatorConfigPanel({
   currentSpikeMultiplier,
   currentConcentrationThreshold,
   currentRatingDropThreshold,
+  currentQuoteFollowUpThreshold,
 }: {
   currentStallThreshold: number;
   currentSpikeMultiplier: number;
   currentConcentrationThreshold: number;
   currentRatingDropThreshold: number;
+  currentQuoteFollowUpThreshold: number;
 }) {
   // All currents are EFFECTIVE values the SQL just used — pulled
   // from data.{stalledQueue,declineSpike,supplierConcentration,
@@ -1032,6 +1038,7 @@ function OperatorConfigPanel({
   const [pendingSpike, setPendingSpike] = useState<number>(currentSpikeMultiplier);
   const [pendingConcentration, setPendingConcentration] = useState<number>(currentConcentrationThreshold);
   const [pendingRatingDrop, setPendingRatingDrop] = useState<number>(currentRatingDropThreshold);
+  const [pendingQuoteFollowUp, setPendingQuoteFollowUp] = useState<number>(currentQuoteFollowUpThreshold);
   // Sprint 66 — SAP-GTS-style change reason. Optional single-line
   // text that rides along on the PATCH and lands in the audit
   // event's detail.reason. Trimmed + capped server-side; client
@@ -1086,7 +1093,8 @@ function OperatorConfigPanel({
   const dirtySpike = Number(pendingSpike) !== Number(currentSpikeMultiplier);
   const dirtyConcentration = Number(pendingConcentration) !== Number(currentConcentrationThreshold);
   const dirtyRatingDrop = Number(pendingRatingDrop) !== Number(currentRatingDropThreshold);
-  const dirty = dirtyStall || dirtySpike || dirtyConcentration || dirtyRatingDrop;
+  const dirtyQuoteFollowUp = Number(pendingQuoteFollowUp) !== Number(currentQuoteFollowUpThreshold);
+  const dirty = dirtyStall || dirtySpike || dirtyConcentration || dirtyRatingDrop || dirtyQuoteFollowUp;
 
   // Sprint 68 — one-click "apply preset" for the current org.
   // Server-side expansion means the client can't drift preset
@@ -1137,12 +1145,13 @@ function OperatorConfigPanel({
     setSaving(true);
     setError(null);
     try {
-      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number; supplierConcentrationThreshold: number; ratingTrendDropThreshold: number; reason: string }>} */
+      /** @type {Partial<{ stallThresholdDays: number; declineSpikeRateMultiplier: number; supplierConcentrationThreshold: number; ratingTrendDropThreshold: number; quoteFollowUpThresholdDays: number; reason: string }>} */
       const patch: {
         stallThresholdDays?: number;
         declineSpikeRateMultiplier?: number;
         supplierConcentrationThreshold?: number;
         ratingTrendDropThreshold?: number;
+        quoteFollowUpThresholdDays?: number;
         // Sprint 66 — optional reason. Trimmed + capped server-side;
         // omitted when the actor left the input empty.
         reason?: string;
@@ -1151,6 +1160,7 @@ function OperatorConfigPanel({
       if (dirtySpike) patch.declineSpikeRateMultiplier = Number(pendingSpike);
       if (dirtyConcentration) patch.supplierConcentrationThreshold = Number(pendingConcentration);
       if (dirtyRatingDrop) patch.ratingTrendDropThreshold = Number(pendingRatingDrop);
+      if (dirtyQuoteFollowUp) patch.quoteFollowUpThresholdDays = Number(pendingQuoteFollowUp);
       const trimmedReason = pendingReason.trim();
       if (trimmedReason.length > 0) patch.reason = trimmedReason;
       await apiPatch<OperatorConfigResponse>('/api/operator-config', patch);
@@ -1196,6 +1206,11 @@ function OperatorConfigPanel({
           Drop:{' '}
           <span className="font-mono text-[var(--color-ivory)]">
             {currentRatingDropThreshold.toFixed(1)}★
+          </span>
+          {'  ·  '}
+          F/U:{' '}
+          <span className="font-mono text-[var(--color-ivory)]">
+            {currentQuoteFollowUpThreshold}d
           </span>
         </span>
         <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
@@ -1359,6 +1374,43 @@ function OperatorConfigPanel({
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 0.2–2.0, one decimal.</p>
         </div>
 
+        {/* Sprint 71 — Aging-quotes follow-up threshold */}
+        <div className="space-y-2">
+          <label
+            htmlFor="quoteFollowUpThresholdDays"
+            className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block"
+          >
+            Aging-quotes follow-up gate (days)
+          </label>
+          <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+            The "no customer decision in <span className="font-mono text-[var(--color-ivory)]">quoted</span>{' '}
+            for {'>'} N days" gate that drives the aging-quotes cohort + the daily follow-up alert.
+            Default 5; tighten for a stricter chase cadence.
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              id="quoteFollowUpThresholdDays"
+              type="number"
+              min={1}
+              max={30}
+              step={1}
+              value={pendingQuoteFollowUp}
+              onChange={(e) => setPendingQuoteFollowUp(Number(e.target.value))}
+              disabled={saving}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <OperatorConfigResetPill
+              knob="quoteFollowUpThresholdDays"
+              source={source}
+              busy={saving || resettingKnob !== null}
+              isBusy={resettingKnob === 'quoteFollowUpThresholdDays'}
+              onReset={onReset}
+            />
+          </div>
+          <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 1–30.</p>
+        </div>
+
         {/* Sprint 66 — SAP-GTS-style change reason (optional). Sits
             above Save because it's a per-PATCH annotation, not a per-
             knob one; a single reason travels with the batched change
@@ -1435,6 +1487,7 @@ const OPERATOR_CONFIG_KNOB_LABEL: Record<keyof OperatorConfig, string> = {
   declineSpikeRateMultiplier: 'Decline-spike multiplier',
   supplierConcentrationThreshold: 'Supplier-concentration threshold',
   ratingTrendDropThreshold: 'Rating-drop threshold',
+  quoteFollowUpThresholdDays: 'Aging-quotes threshold',
 };
 
 function formatKnobValue(key: keyof OperatorConfig, value: number): string {
@@ -1442,6 +1495,7 @@ function formatKnobValue(key: keyof OperatorConfig, value: number): string {
   if (key === 'declineSpikeRateMultiplier') return `${value.toFixed(1)}×`;
   if (key === 'supplierConcentrationThreshold') return `${Math.round(value * 100)}%`;
   if (key === 'ratingTrendDropThreshold') return `${value.toFixed(1)}★`;
+  if (key === 'quoteFollowUpThresholdDays') return `${value}d`;
   return String(value);
 }
 
