@@ -1069,6 +1069,10 @@ function OperatorConfigPanel({
   const [presets, setPresets] = useState<Record<OperatorConfigPresetName, OperatorConfig> | null>(null);
   const [currentPreset, setCurrentPreset] = useState<OperatorConfigPresetName | 'custom' | null>(null);
   const [applyingPreset, setApplyingPreset] = useState<OperatorConfigPresetName | null>(null);
+  // Sprint 73 — undo-in-flight flag. Only the NEWEST history entry
+  // is undoable (the server enforces the same via the `at`
+  // concurrency token), so a boolean suffices.
+  const [undoing, setUndoing] = useState(false);
 
   useEffect(() => {
     apiGet<OperatorConfigResponse>('/api/operator-config')
@@ -1113,6 +1117,31 @@ function OperatorConfigPanel({
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);
       setApplyingPreset(null);
+    }
+  }
+
+  // Sprint 73 — revert the newest history entry. The server does
+  // the expansion (previous → set/reset) so the client can never
+  // drift the restored values; the entry's `at` travels as the
+  // optimistic-concurrency token — a 409 means someone else
+  // changed the config since this panel loaded, and the reload
+  // path re-syncs. History stays append-only: the undo lands as
+  // a NEW entry (with its own before-values, so redo is free).
+  async function onUndo(entry: OperatorConfigHistoryEntry) {
+    if (!entry.at) return;
+    if (!confirm('Undo the last config change? Prior values will be restored and the reversal will be audit-logged.')) return;
+    setUndoing(true);
+    setError(null);
+    try {
+      await apiPatch<OperatorConfigResponse>('/api/operator-config', {
+        undo: { at: entry.at },
+      });
+      setSavedFlash(true);
+      setTimeout(() => { window.location.reload(); }, 600);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setUndoing(false);
     }
   }
 
@@ -1468,6 +1497,8 @@ function OperatorConfigPanel({
         <OperatorConfigHistoryList
           history={history}
           viewerEmailHash={viewerEmailHash}
+          onUndo={onUndo}
+          undoing={undoing}
         />
       </div>
     </details>
@@ -1517,9 +1548,15 @@ function formatHistoryTimestamp(at: string | null): string {
 function OperatorConfigHistoryList({
   history,
   viewerEmailHash,
+  onUndo,
+  undoing,
 }: {
   history: OperatorConfigHistoryEntry[] | null;
   viewerEmailHash: string | null;
+  // Sprint 73 — fired with the NEWEST entry only; the server
+  // re-verifies via the `at` concurrency token regardless.
+  onUndo: (entry: OperatorConfigHistoryEntry) => void;
+  undoing: boolean;
 }) {
   if (history === null) {
     return (
@@ -1559,6 +1596,12 @@ function OperatorConfigHistoryList({
           );
           const hasSet = patchedKeys.length > 0;
           const hasReset = resetKeys.length > 0;
+          // Sprint 73 — only the NEWEST entry is undoable, and only
+          // when it carries before-values (legacy entries and
+          // pre-read-failure entries refuse server-side too —
+          // truthful-refusal, never a guessed default) and an `at`
+          // token for the concurrency check.
+          const canUndo = idx === 0 && !!entry.at && entry.previous !== null;
           // Sprint 72 — before-value suffix for a knob. Whole-field
           // null (legacy entry / pre-read failed server-side) →
           // no suffix at all (absence = unknown, never a guessed
@@ -1589,6 +1632,14 @@ function OperatorConfigHistoryList({
                 {' '}
                 {!hasSet && !hasReset && (
                   <span className="italic text-[var(--color-ivory-mute)]">no fields</span>
+                )}
+                {/* Sprint 73 — reversal marker. Renders BEFORE the
+                    set/reset text so the entry reads "⎌ undid …:
+                    set X=…" — the restoration values follow. */}
+                {entry.undoOf && (
+                  <span className="text-[var(--color-ivory-mute)]">
+                    {'⎌ undid '}{formatHistoryTimestamp(entry.undoOf)}{': '}
+                  </span>
                 )}
                 {hasSet && (
                   <>
@@ -1638,6 +1689,21 @@ function OperatorConfigHistoryList({
                       );
                     })}
                   </>
+                )}
+                {/* Sprint 73 — undo pill on the newest undoable
+                    entry only. The `at` token travels with the
+                    PATCH so a concurrent change 409s instead of
+                    silently reverting the wrong entry. */}
+                {canUndo && (
+                  <button
+                    type="button"
+                    onClick={() => onUndo(entry)}
+                    disabled={undoing}
+                    className="ml-2 text-[10.5px] font-mono px-1.5 py-0.5 border border-white/15 text-[var(--color-ivory-dim)] hover:border-[var(--color-warning)] hover:text-[var(--color-warning)] disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
+                    style={{ borderRadius: 'var(--radius-button)' }}
+                  >
+                    {undoing ? 'Undoing…' : '⎌ Undo'}
+                  </button>
                 )}
               </div>
               {/* Sprint 66 — reason line, only present when the

@@ -1355,6 +1355,11 @@ export interface OperatorConfigHistoryEntry {
   // than the strict union so the renderer is resilient to an
   // unknown legacy preset name.
   preset: string | null;
+  // Sprint 73 — the `at` of the entry this PATCH reverted, or
+  // null for non-undo PATCHes and legacy entries. Drives the
+  // "⎌ undo" label so a reversal reads distinctly from a manual
+  // dial or preset switch.
+  undoOf: string | null;
 }
 
 // Sprint 68 — SAP-GTS-style policy profile names. Strict = tight

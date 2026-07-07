@@ -177,9 +177,12 @@ test('OperatorConfigPanel fetches history via apiGet inside useEffect on mount',
 
 test('OperatorConfigPanel passes viewerEmailHash + history down to the audit-surface subcomponent', () => {
   const body = INSIGHTS_TSX.match(/function OperatorConfigPanel\([\s\S]*?\n\}\n\n\/\* /)[0];
+  // Sprint 73 generalised the sprint-65 pin: the invocation gained
+  // onUndo + undoing props, so the tail now accepts either the
+  // original self-closing form or additional props before it.
   assert.match(
     body,
-    /<OperatorConfigHistoryList\s+history=\{history\}\s+viewerEmailHash=\{viewerEmailHash\}\s*\/>/,
+    /<OperatorConfigHistoryList\s+history=\{history\}\s+viewerEmailHash=\{viewerEmailHash\}[\s\S]*?\/>/,
   );
 });
 
