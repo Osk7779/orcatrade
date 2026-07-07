@@ -54,6 +54,7 @@ import {
   type OperatorConfigHistoryEntry,
   type OperatorConfigSource,
   type OperatorConfigPresetName,
+  type AlertCadence,
   type ApiKey,
   type ApiKeyScope,
   type ApiKeyListResponse,
@@ -1073,6 +1074,11 @@ function OperatorConfigPanel({
   // is undoable (the server enforces the same via the `at`
   // concurrency token), so a boolean suffices.
   const [undoing, setUndoing] = useState(false);
+  // Sprint 75 — org-level alert cadence. Null while loading (the
+  // toggle hides rather than flash a wrong state); the server is
+  // the source of truth on every GET/PATCH echo.
+  const [cadence, setCadence] = useState<AlertCadence | null>(null);
+  const [settingCadence, setSettingCadence] = useState(false);
 
   useEffect(() => {
     apiGet<OperatorConfigResponse>('/api/operator-config')
@@ -1084,6 +1090,7 @@ function OperatorConfigPanel({
         setSource(data.source ?? null);
         setPresets(data.presets ?? null);
         setCurrentPreset(data.currentPreset ?? null);
+        setCadence(data.alertCadence === 'weekly' ? 'weekly' : 'daily');
       })
       .catch(() => {
         // History is a nice-to-have; if the GET fails, leave the
@@ -1117,6 +1124,29 @@ function OperatorConfigPanel({
       const msg = e instanceof Error ? e.message : String(e);
       setError(msg);
       setApplyingPreset(null);
+    }
+  }
+
+  // Sprint 75 — org-level cadence toggle. Instant-apply like the
+  // preset chips (no Save round-trip); the idempotent case (click
+  // the already-active option) is blocked client-side because the
+  // server's no-op guard would 400 it. Audit lands as
+  // detail.alertCadence = { from, to } on the same history feed.
+  async function onSetCadence(value: AlertCadence) {
+    if (settingCadence || cadence === value) return;
+    setSettingCadence(true);
+    setError(null);
+    try {
+      const resp = await apiPatch<OperatorConfigResponse>('/api/operator-config', {
+        alertCadence: value,
+      });
+      setCadence(resp.alertCadence === 'weekly' ? 'weekly' : 'daily');
+      setSavedFlash(true);
+      setTimeout(() => { window.location.reload(); }, 600);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setError(msg);
+      setSettingCadence(false);
     }
   }
 
@@ -1257,6 +1287,44 @@ function OperatorConfigPanel({
           disabled={saving || resettingKnob !== null || applyingPreset !== null}
           onApplyPreset={onApplyPreset}
         />
+        {/* Sprint 75 — org-level alert cadence. Two-state toggle;
+            'weekly' suppresses the three daily proactive alert
+            emails org-wide (weekly digests + this cockpit are
+            unaffected). Hidden while loading to avoid flashing
+            a wrong state. */}
+        {cadence !== null && (
+          <div className="space-y-2" data-testid="operator-config-cadence">
+            <p className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              Alert cadence
+            </p>
+            <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+              Daily sends the stalled-queue, decline-spike, and aging-quotes alert emails each
+              morning. Weekly digests only silences those three org-wide — signals stay on this
+              dashboard and in the weekly digests. Per-recipient mutes still apply either way.
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {(['daily', 'weekly'] as AlertCadence[]).map((value) => {
+                const active = cadence === value;
+                return (
+                  <button
+                    key={value}
+                    type="button"
+                    onClick={() => onSetCadence(value)}
+                    disabled={settingCadence || active}
+                    className={`text-[12px] font-medium px-3 py-1.5 border transition-colors duration-150 ${
+                      active
+                        ? 'bg-[var(--color-aqua)] text-[var(--color-navy)] border-[var(--color-aqua)]'
+                        : 'border-white/15 text-[var(--color-ivory-dim)] hover:border-[var(--color-aqua)] disabled:opacity-40'
+                    }`}
+                    style={{ borderRadius: 'var(--radius-badge)' }}
+                  >
+                    {value === 'daily' ? 'Daily alerts' : 'Weekly digests only'}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
         {/* Stall threshold */}
         <div className="space-y-2">
           <label
@@ -1596,6 +1664,8 @@ function OperatorConfigHistoryList({
           );
           const hasSet = patchedKeys.length > 0;
           const hasReset = resetKeys.length > 0;
+          // Sprint 75 — cadence change rides the same history feed.
+          const hasCadence = entry.alertCadence !== null;
           // Sprint 73 — only the NEWEST entry is undoable, and only
           // when it carries before-values (legacy entries and
           // pre-read-failure entries refuse server-side too —
@@ -1630,7 +1700,7 @@ function OperatorConfigHistoryList({
                   {actorLabel}
                 </span>
                 {' '}
-                {!hasSet && !hasReset && (
+                {!hasSet && !hasReset && !hasCadence && (
                   <span className="italic text-[var(--color-ivory-mute)]">no fields</span>
                 )}
                 {/* Sprint 73 — reversal marker. Renders BEFORE the
@@ -1688,6 +1758,19 @@ function OperatorConfigHistoryList({
                         </span>
                       );
                     })}
+                  </>
+                )}
+                {/* Sprint 75 — cadence change segment. from → to
+                    reads like the knob "(was …)" suffixes: the
+                    new value is the headline, the old one is the
+                    context. */}
+                {(hasSet || hasReset) && hasCadence && '; '}
+                {hasCadence && entry.alertCadence && (
+                  <>
+                    {'cadence '}
+                    <span className="text-[var(--color-ivory-mute)]">{entry.alertCadence.from}</span>
+                    {' → '}
+                    <span className="text-[var(--color-aqua)]">{entry.alertCadence.to}</span>
                   </>
                 )}
                 {/* Sprint 73 — undo pill on the newest undoable

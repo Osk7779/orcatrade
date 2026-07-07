@@ -1360,7 +1360,20 @@ export interface OperatorConfigHistoryEntry {
   // "⎌ undo" label so a reversal reads distinctly from a manual
   // dial or preset switch.
   undoOf: string | null;
+  // Sprint 75 — org-level cadence change as { from, to }, or null
+  // for non-cadence PATCHes and legacy entries. Strings rather
+  // than the strict union so a legacy event with an unknown
+  // cadence value stays representable.
+  alertCadence: { from: string; to: string } | null;
 }
+
+// Sprint 75 — org-level alert cadence. 'daily' (default) keeps the
+// three daily proactive alert emails firing; 'weekly' suppresses
+// them org-wide (weekly digests + the live cockpit are unaffected).
+// Deliberately NOT an OperatorConfig knob — the knob machinery is
+// numeric-typed (presets, identifyPreset), so cadence travels as a
+// sibling field on the same endpoint.
+export type AlertCadence = 'daily' | 'weekly';
 
 // Sprint 68 — SAP-GTS-style policy profile names. Strict = tight
 // SLAs / high alert volume; balanced = platform defaults;
@@ -1391,6 +1404,10 @@ export interface OperatorConfigResponse {
   // the panel + a "You're on: X" affordance in the collapsed
   // summary.
   currentPreset: OperatorConfigPresetName | 'custom';
+  // Sprint 75 — org-level alert cadence. GET and PATCH both echo
+  // it so the toggle can never drift from what the cron gate
+  // actually enforces server-side.
+  alertCadence: AlertCadence;
 }
 
 // Sprint 40 — cohort #7. The second proactive signal. spikes is

@@ -192,7 +192,13 @@ test('handlePatch: rejects no-op PATCH (neither knob change nor reset)', () => {
     body,
     /Object\.keys\(knobPatch\)\.length === 0 && resetResult\.keys\.length === 0/,
   );
-  assert.match(body, /PATCH must include at least one knob change or reset/);
+  // Sprint 75 generalised the sprint-67 wording: the guard gained
+  // the cadence dimension, so the pin accepts either the original
+  // two-clause form or the three-clause one.
+  assert.match(
+    body,
+    /PATCH must include at least one knob change(?:, reset, or cadence change| or reset)/,
+  );
 });
 
 test('handlePatch: audit event carries reset conditionally (absent when empty)', () => {
