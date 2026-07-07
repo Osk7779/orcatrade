@@ -1850,6 +1850,8 @@ export type ImportRequestTimelineEventType =
   | 'import_request_updated'
   | 'import_request_status_transition'
   | 'import_request_archived'
+  // Sprint 76 — archive's mirror.
+  | 'import_request_restored'
   | 'import_request_message_posted'
   | 'import_request_evidence_attached'
   | 'import_request_supplier_picked'
@@ -1939,6 +1941,9 @@ export function activityEventSummary(e: ActivityEvent): string {
     }
     case 'import_request_archived':
       return `Import request ${entityRef} archived`;
+    // Sprint 76 — archive's mirror in the activity feed.
+    case 'import_request_restored':
+      return `Import request ${entityRef} restored from archive`;
     case 'import_request_message_posted': {
       // Detail carries { messageId, role, length } — surface the role
       // so the feed reads "Customer posted on ir_xxx" vs "Ops posted

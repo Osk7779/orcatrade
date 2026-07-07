@@ -207,8 +207,11 @@ test('bulk action bar renders only with a non-empty selection; checkboxes carry 
 });
 
 test('refreshNonce is a dependency of the list fetch effect', () => {
+  // Sprint 76 generalised the sprint-74 pin: the dep array gained
+  // showArchived, so the tail accepts additional deps after
+  // refreshNonce.
   assert.match(
     LIST_TSX,
-    /\}, \[filterStatus, cohortReason, supplierPick, urlQ, refreshNonce\]\);/,
+    /\}, \[filterStatus, cohortReason, supplierPick, urlQ, refreshNonce(?:, \w+)*\]\);/,
   );
 });

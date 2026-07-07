@@ -100,6 +100,11 @@ function ImportsView() {
       ? supplierPickRaw.toUpperCase()
       : null
   );
+  // Sprint 76 — archived view. URL-backed (?archived=1) like every
+  // other view dimension so a shared link reproduces it. The server
+  // list has includeArchived (live + archived together); the
+  // archived-ONLY cut happens client-side on r.archivedAt.
+  const showArchived = sp.get('archived') === '1';
 
   const [state, setState] = useState<LoadState>('loading');
   const [requests, setRequests] = useState<ImportRequest[]>([]);
@@ -162,10 +167,14 @@ function ImportsView() {
     if (cohortReason) params.set('declineReason', cohortReason);
     if (supplierPick) params.set('supplierPick', supplierPick);
     if (urlQ) params.set('q', urlQ);
+    // Sprint 76 — archived view pulls live + archived from the
+    // server, then keeps only the archived rows below.
+    if (showArchived) params.set('includeArchived', '1');
     apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(`/imports?${params.toString()}`)
       .then((d) => {
         if (cancelled) return;
-        const rows = Array.isArray(d.importRequests) ? d.importRequests : [];
+        const all = Array.isArray(d.importRequests) ? d.importRequests : [];
+        const rows = showArchived ? all.filter((r) => r.archivedAt) : all;
         setRequests(rows);
         // Sprint 74 — prune (don't clear) the selection: ids that
         // fell out of the view (archived, filtered away) drop; rows
@@ -187,7 +196,7 @@ function ImportsView() {
     return () => {
       cancelled = true;
     };
-  }, [filterStatus, cohortReason, supplierPick, urlQ, refreshNonce]);
+  }, [filterStatus, cohortReason, supplierPick, urlQ, refreshNonce, showArchived]);
 
   const counts = useMemo(() => {
     const map: Partial<Record<ImportRequestStatus, number>> = {};
@@ -250,6 +259,41 @@ function ImportsView() {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setBulkNotice({ tone: 'warn', text: `Bulk archive failed: ${msg}` });
+    } finally {
+      setBulkPending(false);
+    }
+  }
+
+  // Sprint 76 — archive's mirror. Same selection, same cap, same
+  // three-outcome report; POSTs bulk-restore and the refetch drops
+  // the restored rows out of the archived view.
+  async function submitBulkRestore() {
+    if (selected.size === 0 || bulkPending) return;
+    if (!confirm(`Restore ${selected.size} import request${selected.size === 1 ? '' : 's'} from the archive?`)) return;
+    setBulkPending(true);
+    setBulkNotice(null);
+    try {
+      type BulkRestoreFailure = { externalId: string; error: string };
+      const result = await apiPost<{
+        ok: boolean;
+        restoredCount: number;
+        unchangedCount: number;
+        failedCount: number;
+        failed: BulkRestoreFailure[];
+      }>('/imports/bulk-restore', { externalIds: [...selected] });
+      const parts = [`Restored ${result.restoredCount}`];
+      if (result.unchangedCount > 0) parts.push(`${result.unchangedCount} already live`);
+      if (result.failedCount > 0) {
+        const top = result.failed.slice(0, 3)
+          .map((f) => `${f.externalId}: ${f.error}`).join(' · ');
+        parts.push(`${result.failedCount} failed (${top})`);
+      }
+      setBulkNotice({ tone: result.failedCount > 0 ? 'warn' : 'ok', text: parts.join(' · ') });
+      setSelected(new Set());
+      setRefreshNonce((n) => n + 1);
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : String(e);
+      setBulkNotice({ tone: 'warn', text: `Bulk restore failed: ${msg}` });
     } finally {
       setBulkPending(false);
     }
@@ -434,6 +478,26 @@ function ImportsView() {
             />
           );
         })}
+        {/* Sprint 76 — archived-view toggle. Deliberately NOT a
+            FilterChip: the live view doesn't know the archived
+            count, and a chip showing 0 would read as "none exist".
+            Preserves every other view dimension across the flip. */}
+        <button
+          type="button"
+          onClick={() => {
+            const params = new URLSearchParams();
+            if (filterStatus) params.set('status', filterStatus);
+            if (cohortReason) params.set('declineReason', cohortReason);
+            if (supplierPick) params.set('supplierPick', supplierPick);
+            if (urlQ) params.set('q', urlQ);
+            if (!showArchived) params.set('archived', '1');
+            const qs = params.toString();
+            router.push(qs ? `/imports?${qs}` : '/imports');
+          }}
+          className="ml-auto text-[12.5px] font-medium text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] transition-colors"
+        >
+          {showArchived ? '← Back to active requests' : 'View archived →'}
+        </button>
       </nav>
 
       {/* Sprint 34 — Export CSV. Mirrors the current filtered view
@@ -442,7 +506,11 @@ function ImportsView() {
           UTF-8 BOM + RFC-4180 escaping so Excel + Numbers open it
           cleanly without diacritic-mangling. Hidden when the list
           is empty — nothing to export. */}
-      {state === 'ready' && requests.length > 0 && (
+      {/* Sprint 76 — hidden in the archived view: the CSV export's
+          server filter can't express "archived only", so offering
+          it there would download a different set than the screen
+          shows. Hiding is the truthful option. */}
+      {state === 'ready' && requests.length > 0 && !showArchived && (
         <div className="flex justify-end -mt-3">
           <a
             href={(() => {
@@ -517,12 +585,17 @@ function ImportsView() {
             </button>
             <button
               type="button"
-              onClick={submitBulkArchive}
+              onClick={showArchived ? submitBulkRestore : submitBulkArchive}
               disabled={bulkPending || selected.size > BULK_ARCHIVE_CAP}
               className="px-4 py-2 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] disabled:opacity-40 disabled:cursor-not-allowed"
               style={{ borderRadius: 'var(--radius-button)' }}
             >
-              {bulkPending ? 'Archiving…' : `Archive ${selected.size}`}
+              {/* Sprint 76 — the same bar drives both directions:
+                  archive in the live view, restore in the archived
+                  view. One selection model, two mirrored actions. */}
+              {bulkPending
+                ? (showArchived ? 'Restoring…' : 'Archiving…')
+                : (showArchived ? `Restore ${selected.size}` : `Archive ${selected.size}`)}
             </button>
           </div>
         </div>
@@ -547,7 +620,18 @@ function ImportsView() {
           {/* Sprint 25 — search-empty state takes precedence over
               cohort + default copy. A user who typed in the search
               box should see "no matches" not "submit a new request". */}
-          {urlQ ? (
+          {/* Sprint 76 — archived-empty branch outranks the others
+              (a user who flipped to the archived view should see
+              "nothing archived", not "submit a new request"). */}
+          {showArchived && !urlQ ? (
+            <>
+              <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No archived requests.</p>
+              <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
+                Requests archived from the list land here and can be restored at any time —
+                archiving is never a one-way door.
+              </p>
+            </>
+          ) : urlQ ? (
             <>
               <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No matches for "{urlQ}".</p>
               <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
