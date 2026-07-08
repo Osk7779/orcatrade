@@ -120,7 +120,17 @@ on:
     # Pref-gated via importQuoteAcceptanceAlertEmails. Healthy orgs
     # (!isDegraded) skip silently.
     - cron: '0 9 * * 3'
-    # Thursday 09:00 UTC — supplier-concentration alert (Sprint 58).
+    # Tuesday 09:00 UTC — expired-quotes alert (Sprint 78). Pairs
+    # with the sprint-77 seventh proactive cohort (#12): quotes
+    # that hit expiry undecided in the last 30 days, value-
+    # weighted. Retrospective loss report — one weekly batch of
+    # re-quote candidates beats seven drip emails about the same
+    # rows. Tuesday sits between Monday's digest batch and the
+    # Wed/Thu/Fri slow-signal slots. Pref-gated via
+    # importExpiredQuotesAlertEmails. Healthy months (count===0)
+    # skip silently.
+    - cron: '0 9 * * 2'
+    # Thursday 09:15 UTC — supplier-concentration alert (Sprint 58).
     # Pairs with the sprint-57 fourth proactive cohort: of all
     # supplier picks in the last 30d, what share went to ONE
     # dominant country? RISK signal — sits a day after the Wed
@@ -128,7 +138,13 @@ on:
     # in sequence without inbox overload. Pref-gated via
     # importSupplierConcentrationAlertEmails. Healthy orgs
     # (!isConcentrated) skip silently.
-    - cron: '0 9 * * 4'
+    #
+    # Sprint 78 FIX — was '0 9 * * 4', which COLLIDED with the
+    # monitoring-scan schedule: the router's elif chain resolves
+    # first-match, so this alert never fired by schedule. Every
+    # schedule string in this file must be unique (drift-guard
+    # enforces).
+    - cron: '15 9 * * 4'
     # Friday 09:00 UTC — rating-trend alert (Sprint 63). Pairs
     # with the sprint-62 fifth proactive cohort: is the current
     # 7-day avg rating dropping vs the prior 23-day baseline by
@@ -171,6 +187,7 @@ on:
           - import-request-decline-spike-alert
           - import-request-quote-follow-up-alert
           - import-request-quote-acceptance-alert
+          - import-request-expired-quotes-alert
           - import-request-supplier-concentration-alert
           - import-request-rating-trend-alert
           - webhook-retry-flush
@@ -218,7 +235,9 @@ jobs:
             echo "job=import-request-quote-follow-up-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 9 * * 3" ]; then
             echo "job=import-request-quote-acceptance-alert" >> "$GITHUB_OUTPUT"
-          elif [ "${{ github.event.schedule }}" = "0 9 * * 4" ]; then
+          elif [ "${{ github.event.schedule }}" = "0 9 * * 2" ]; then
+            echo "job=import-request-expired-quotes-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "15 9 * * 4" ]; then
             echo "job=import-request-supplier-concentration-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 9 * * 5" ]; then
             echo "job=import-request-rating-trend-alert" >> "$GITHUB_OUTPUT"

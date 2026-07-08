@@ -183,6 +183,10 @@ export interface Prefs {
   // cohort #11 (customer-side proactive signal). Defaults ON like
   // the rest — opt-out semantics.
   importQuoteFollowUpAlertEmails?: boolean;
+  // Sprint 78 — weekly expired-quotes alert. Matches the sprint-77
+  // cohort #12 (value-at-stake loss report). Defaults ON like the
+  // rest — opt-out semantics.
+  importExpiredQuotesAlertEmails?: boolean;
   locale?: string;
   updatedAt?: string;
 }

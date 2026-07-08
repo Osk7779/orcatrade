@@ -233,16 +233,23 @@ test('runImportRequestSupplierConcentrationAlert per-org error isolation matches
 
 // ── GitHub Actions schedule ──────────────────────────────────────
 
-test('GHA cron.yml registers the Thu 09:00 UTC schedule for the supplier-concentration alert', () => {
+test('GHA cron.yml registers the Thu 09:15 UTC schedule for the supplier-concentration alert', () => {
   // Thursday lands a day after the Wed quote-acceptance alert so
   // ops absorbs the two slow signals in sequence.
-  assert.match(CRON_YAML, /- cron: '0 9 \* \* 4'/);
+  //
+  // Sprint 78 UPDATED (not generalised) this sprint-58 pin: the
+  // original '0 9 * * 4' slot COLLIDED with monitoring-scan and
+  // the router's first-match elif meant this alert never fired by
+  // schedule. The old form was a bug — alternation would allow it
+  // to regress. Uniqueness is now separately drift-guarded in
+  // test/expired-quotes-alert.test.js.
+  assert.match(CRON_YAML, /- cron: '15 9 \* \* 4'/);
 });
 
-test('GHA cron.yml routes the Thu 09:00 schedule + workflow_dispatch to the right job', () => {
+test('GHA cron.yml routes the Thu 09:15 schedule + workflow_dispatch to the right job', () => {
   assert.match(
     CRON_YAML,
-    /elif \[ "\$\{\{ github\.event\.schedule \}\}" = "0 9 \* \* 4" \]; then\s+echo "job=import-request-supplier-concentration-alert"/,
+    /elif \[ "\$\{\{ github\.event\.schedule \}\}" = "15 9 \* \* 4" \]; then\s+echo "job=import-request-supplier-concentration-alert"/,
   );
   assert.match(CRON_YAML, /- import-request-supplier-concentration-alert/);
 });
