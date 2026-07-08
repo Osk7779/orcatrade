@@ -113,6 +113,12 @@ const handlers = {
   // window, populated by the dispatcher's instrumentation in
   // lib/slo.js. Consumed by /status/ for the live SLO display.
   slo: require('../lib/handlers/slo'),
+  // Public Quote Accuracy Ledger (sprint 80, Track B). GET
+  // /api/accuracy returns the measured quote-vs-actuals instrument
+  // (median abs error, ±bands, value-weighted bias) with honest
+  // sample-size tiers. PII-free aggregate; consumed by
+  // /trust/accuracy on the marketing shell.
+  accuracy: require('../lib/handlers/accuracy'),
   // GDPR data subject endpoints (Sprint BG-5.1). GET /api/account/export
   // returns a JSON dump of everything we hold for the signed-in user;
   // POST /api/account/delete pseudonymises events + hard-deletes plans
