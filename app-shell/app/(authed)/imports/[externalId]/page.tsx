@@ -51,6 +51,7 @@ import {
   EVIDENCE_LABEL_MAX,
   EVIDENCE_NOTES_MAX,
   type CustomerRating,
+  type ImportRequestActualOutcome,
   RATING_MIN,
   RATING_MAX,
   RATING_COMMENT_MAX,
@@ -385,6 +386,17 @@ export default function ImportRequestDetailPage() {
         <CustomerRatingPanel
           request={request}
           onRated={(updated) => setRequest(updated)}
+        />
+      )}
+
+      {/* Sprint 81 — actual landed outcome. Post-approval only (no
+          fulfilled outcome exists earlier). Feeds the public Quote
+          Accuracy Ledger; the variance vs the quote renders
+          immediately on report. */}
+      {request.status === 'customer_approved' && (
+        <ActualOutcomePanel
+          request={request}
+          onReported={(updated) => setRequest(updated)}
         />
       )}
 
@@ -2733,6 +2745,188 @@ function PastPickBadge({
         </span>
       )}
     </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  ActualOutcomePanel — sprint 81 (Track B phase 2)
+ *  After approval, the customer (or ops) reports what the shipment
+ *  ACTUALLY cost all-in. The variance vs the landed quote renders
+ *  immediately, and the row joins the public Quote Accuracy Ledger
+ *  corpus (/trust/accuracy). Two states:
+ *    • Reported → readout (actual € + Δ vs quote + revise affordance)
+ *    • Not yet  → prompt + EUR input + optional notes (≤500)
+ *  Last-write-wins; supersessions are audit-preserved.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function ActualOutcomePanel({
+  request,
+  onReported,
+}: {
+  request: ImportRequest;
+  onReported: (updated: ImportRequest) => void;
+}) {
+  const existing: ImportRequestActualOutcome | null = request.actualOutcome ?? null;
+  const [editing, setEditing] = useState(!existing);
+  const [landedEur, setLandedEur] = useState<string>(
+    existing ? String(Math.round(existing.landedCents) / 100) : '',
+  );
+  const [notes, setNotes] = useState<string>(existing?.notes ?? '');
+  const [posting, setPosting] = useState(false);
+  const [postError, setPostError] = useState('');
+
+  useEffect(() => {
+    if (existing) {
+      setLandedEur(String(Math.round(existing.landedCents) / 100));
+      setNotes(existing.notes ?? '');
+      setEditing(false);
+    } else {
+      setEditing(true);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [existing?.reportedAt]);
+
+  const parsedEur = Number(landedEur);
+  const canSubmit = Number.isFinite(parsedEur) && parsedEur > 0 && notes.length <= 500;
+  const quoteCents = request.landedQuote?.totalLandedCents ?? null;
+
+  // Display-only variance (the audit-grade figure is computed
+  // server-side and lives in the event detail — this render just
+  // shows the same arithmetic on the same integers).
+  const varianceLabel = (actualCents: number): string | null => {
+    if (quoteCents == null || !Number.isFinite(quoteCents) || quoteCents <= 0) return null;
+    const pct = Math.round(((actualCents - quoteCents) / quoteCents) * 1000) / 10;
+    return `${pct > 0 ? '+' : ''}${pct}% vs quote`;
+  };
+
+  async function submit() {
+    if (posting || !canSubmit) return;
+    setPostError('');
+    setPosting(true);
+    try {
+      const payload: Record<string, unknown> = { landedEur: parsedEur };
+      const trimmed = notes.trim();
+      if (trimmed) payload.notes = trimmed;
+      const result = await apiPost<{ ok: boolean; importRequest: ImportRequest }>(
+        `/imports/${request.externalId}/actual`,
+        payload,
+      );
+      if (result && result.importRequest) {
+        onReported(result.importRequest);
+        setEditing(false);
+      }
+    } catch (err) {
+      if (err instanceof AuthError) setPostError('Sign in to report the outcome.');
+      else if (err instanceof ApiError) setPostError(err.errors.length ? err.errors[0] : err.message);
+      else setPostError(err instanceof Error ? err.message : 'Failed to report the outcome');
+    } finally {
+      setPosting(false);
+    }
+  }
+
+  if (existing && !editing) {
+    const delta = varianceLabel(existing.landedCents);
+    return (
+      <section className="space-y-4">
+        <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+          Actual outcome
+        </h2>
+        <div
+          className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-3"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <span className="text-[20px] font-mono font-semibold text-[var(--color-ivory)]">
+              {eurFromCents(existing.landedCents)}
+            </span>
+            {delta && (
+              <span className="text-[13px] font-mono text-[var(--color-ivory-dim)]">{delta}</span>
+            )}
+            <span className="text-[12px] text-[var(--color-ivory-mute)]">
+              · reported {String(existing.reportedAt).slice(0, 10)}
+            </span>
+          </div>
+          {existing.notes && (
+            <p className="text-[13.5px] text-[var(--color-ivory-dim)] leading-relaxed">
+              “{existing.notes}”
+            </p>
+          )}
+          <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+            This outcome feeds the public Quote Accuracy Ledger — quoted vs actual, measured.
+          </p>
+          <button
+            type="button"
+            onClick={() => setEditing(true)}
+            className="text-[12px] font-medium text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] transition-colors"
+          >
+            Revise
+          </button>
+        </div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="space-y-4">
+      <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+        Actual outcome
+      </h2>
+      <div
+        className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-4"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        <p className="text-[13.5px] text-[var(--color-ivory-dim)] leading-relaxed">
+          Shipment complete? Report what it actually cost all-in. We publish quoted-vs-actual
+          accuracy on our public ledger — your report is how the number stays honest.
+        </p>
+        <div className="flex items-center gap-3 flex-wrap">
+          <label htmlFor="actualLandedEur" className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+            Actual landed total (EUR)
+          </label>
+          <input
+            id="actualLandedEur"
+            type="number"
+            min="0"
+            step="0.01"
+            value={landedEur}
+            onChange={(e) => setLandedEur(e.target.value)}
+            placeholder="e.g. 42800"
+            className="w-40 bg-white/[0.03] border border-white/[0.1] text-[var(--color-ivory)] text-[14px] font-mono px-3 py-1.5 focus:border-[var(--color-aqua)] focus:outline-none"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          />
+        </div>
+        <textarea
+          value={notes}
+          onChange={(e) => setNotes(e.target.value.slice(0, 500))}
+          placeholder="Optional context — surcharges, FX timing, carrier switch… (≤500 chars)"
+          rows={2}
+          className="w-full bg-white/[0.03] border border-white/[0.1] text-[var(--color-ivory)] text-[13.5px] px-3 py-2 focus:border-[var(--color-aqua)] focus:outline-none"
+          style={{ borderRadius: 'var(--radius-button)' }}
+        />
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={submit}
+            disabled={!canSubmit || posting}
+            className="px-4 py-1.5 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[12.5px] font-semibold disabled:opacity-40 disabled:cursor-not-allowed"
+            style={{ borderRadius: 'var(--radius-button)' }}
+          >
+            {posting ? 'Reporting…' : 'Report outcome'}
+          </button>
+          {existing && (
+            <button
+              type="button"
+              onClick={() => setEditing(false)}
+              disabled={posting}
+              className="text-[12px] text-[var(--color-ivory-mute)] hover:text-[var(--color-aqua)] transition-colors"
+            >
+              Cancel
+            </button>
+          )}
+        </div>
+        {postError && <p className="text-[12px] text-[var(--color-warning)]">{postError}</p>}
+      </div>
+    </section>
   );
 }
 

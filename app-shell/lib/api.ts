@@ -1618,6 +1618,11 @@ export interface ImportRequest {
   // Sprint 30 — customer rating (1-5 + optional comment). Recorded
   // post-approval; last-write-wins on supersession.
   customerRating?: CustomerRating | null;
+  // Sprint 81 — reported actual landed outcome (Track B phase 2).
+  // What the customer actually paid vs the landed quote. Recorded
+  // post-approval; last-write-wins with the supersession preserved
+  // in the audit chain. Feeds the public Quote Accuracy Ledger.
+  actualOutcome?: ImportRequestActualOutcome | null;
   // Sprint 21 — per-user read state on the thread. Keyed by actor's
   // email_hash; value is { lastReadAt, lastReadMessageId }. The
   // value is opaque to the UI — unread count is computed by the
@@ -1703,6 +1708,27 @@ export interface CustomerRating {
   comment: string;
   ratedByEmailHash: string;
   ratedAt: string;
+}
+
+// Sprint 81 — reported actual landed outcome. Integer euro-cents
+// (ADR-0004 posture mirrored client-side: the UI formats, never
+// computes money). notes stay on the row and are org-visible.
+export interface ImportRequestActualOutcome {
+  landedCents: number;
+  currency: string;
+  reportedAt: string;
+  byEmailHash: string;
+  notes: string;
+}
+
+// Sprint 81 — server-computed variance vs the landed quote.
+// Returned by POST /api/imports/<id>/actual; null when the row
+// carries no scoreable quote.
+export interface ImportRequestActualVariance {
+  quoteCents: number;
+  actualCents: number;
+  deltaCents: number;
+  deltaPct: number;
 }
 
 // ── Compliance evidence (sprint 27) ──────────────────────────────────
@@ -1882,6 +1908,8 @@ export type ImportRequestTimelineEventType =
   | 'import_request_archived'
   // Sprint 76 — archive's mirror.
   | 'import_request_restored'
+  // Sprint 81 — accuracy loop closed on this request.
+  | 'import_request_actual_reported'
   | 'import_request_message_posted'
   | 'import_request_evidence_attached'
   | 'import_request_supplier_picked'
@@ -1974,6 +2002,16 @@ export function activityEventSummary(e: ActivityEvent): string {
     // Sprint 76 — archive's mirror in the activity feed.
     case 'import_request_restored':
       return `Import request ${entityRef} restored from archive`;
+    // Sprint 81 — the accuracy loop closed. Surface the variance
+    // direction when the detail carries it (deterministic server
+    // numbers — the UI only renders).
+    case 'import_request_actual_reported': {
+      const v = (e.detail as { variance?: { deltaPct?: number } } | undefined)?.variance;
+      const pct = v && typeof v.deltaPct === 'number' ? v.deltaPct : null;
+      return pct === null
+        ? `Actual outcome reported on import request ${entityRef}`
+        : `Actual outcome on ${entityRef}: ${pct > 0 ? '+' : ''}${pct}% vs quote`;
+    }
     case 'import_request_message_posted': {
       // Detail carries { messageId, role, length } — surface the role
       // so the feed reads "Customer posted on ir_xxx" vs "Ops posted

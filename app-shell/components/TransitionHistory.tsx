@@ -231,6 +231,16 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         // Sprint 76 — archive's mirror on the timeline narrative.
         case 'import_request_restored':
           return 'Request restored from archive';
+        // Sprint 81 — accuracy loop closed. Deterministic server
+        // variance rendered verbatim (the UI never computes money).
+        case 'import_request_actual_reported': {
+          const d = (e.detail as { variance?: { deltaPct?: number }; isSupersession?: boolean } | undefined) || {};
+          const pct = d.variance && typeof d.variance.deltaPct === 'number' ? d.variance.deltaPct : null;
+          const base = pct === null
+            ? 'Actual outcome reported'
+            : `Actual outcome reported · ${pct > 0 ? '+' : ''}${pct}% vs quote`;
+          return d.isSupersession ? `${base} (revised)` : base;
+        }
         case 'import_request_message_posted': {
           // Sprint 18 — message on the thread. Detail carries
           // { messageId, role, length }; surface the role so the
@@ -306,6 +316,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
     tone: (t) => {
       if (t === 'import_request_archived') return 'var(--color-ivory-mute)';
       if (t === 'import_request_restored') return 'var(--color-positive)';
+      if (t === 'import_request_actual_reported') return 'var(--color-aqua)';
       if (t === 'import_request_status_transition') return 'var(--color-aqua)';
       if (t === 'import_request_updated') return 'var(--color-positive)';
       if (t === 'import_request_message_posted') return 'var(--color-aqua)';
@@ -324,6 +335,7 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         case 'import_request_status_transition': return 'State transition';
         case 'import_request_archived': return 'Archived';
         case 'import_request_restored': return 'Restored';
+        case 'import_request_actual_reported': return 'Actual';
         case 'import_request_message_posted': return 'Thread';
         case 'import_request_evidence_attached': return 'Evidence';
         case 'import_request_supplier_picked': return 'Pick';
