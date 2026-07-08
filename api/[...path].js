@@ -126,6 +126,12 @@ const handlers = {
   // /api/slo (endpoint latency percentiles — infrastructure, not
   // service commitments).
   sla: require('../lib/handlers/sla-public'),
+  // Exportable due-diligence bundle (sprint 86, Track D). GET
+  // /api/trust-pack aggregates every live trust instrument
+  // (anchors + accuracy + SLA) via the SAME computations that
+  // power their live endpoints, plus the security-doc corpus and
+  // the verification endpoints. ?download=1 saves as a dated file.
+  'trust-pack': require('../lib/handlers/trust-pack'),
   // GDPR data subject endpoints (Sprint BG-5.1). GET /api/account/export
   // returns a JSON dump of everything we hold for the signed-in user;
   // POST /api/account/delete pseudonymises events + hard-deletes plans
