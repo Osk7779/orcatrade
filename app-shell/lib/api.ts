@@ -1108,6 +1108,29 @@ export interface OpsInsightsExpiredQuotesCohort {
 // honesty gates: every headline metric is null below 10 scoreable
 // outcomes — the org's view is as incapable of flattery as the
 // public one).
+// Sprint 87 — cross-org operator triage row (Track E). Served by
+// the ADMIN-GATED /api/operator-triage; org-scoped sessions get a
+// 401 and the console renders its team-only state. Ranking is
+// done server-side in SQL (SLA risk → € at stake → review queue).
+export interface OperatorTriageRow {
+  orgId: number;
+  orgExternalId: string;
+  orgName: string;
+  awaitingReview: number;
+  inFlight: number;
+  openQuotes: number;
+  openQuoteValueCents: number;
+  slaRisk: number;
+}
+
+export interface OperatorTriageResponse {
+  ok: boolean;
+  rows: OperatorTriageRow[];
+  slaRiskThresholdHours: number;
+  slaTargetHours: number;
+  generatedAt: string;
+}
+
 // Sprint 83 — measured quote-turnaround SLA attainment (Track C).
 // 48h target over a rolling 90-day window; shared honesty gates
 // with the accuracy ledger (headline metrics null below 10

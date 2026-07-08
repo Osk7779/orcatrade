@@ -132,6 +132,11 @@ const handlers = {
   // power their live endpoints, plus the security-doc corpus and
   // the verification endpoints. ?download=1 saves as a dated file.
   'trust-pack': require('../lib/handlers/trust-pack'),
+  // Cross-org operator triage console feed (sprint 87, Track E).
+  // ADMIN-GATED (verifyAdmin) — the only reader that crosses org
+  // boundaries. One screen, the whole book of business, ranked by
+  // SLA risk → € at stake → review queue.
+  'operator-triage': require('../lib/handlers/operator-triage'),
   // GDPR data subject endpoints (Sprint BG-5.1). GET /api/account/export
   // returns a JSON dump of everything we hold for the signed-in user;
   // POST /api/account/delete pseudonymises events + hard-deletes plans
