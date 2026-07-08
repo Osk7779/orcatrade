@@ -47,6 +47,7 @@ import {
   type OpsInsightsQuoteFollowUpCohort,
   type OpsInsightsExpiredQuotesCohort,
   type OpsInsightsAccuracyLedger,
+  type OpsInsightsSlaQuoteTurnaround,
   type OpsInsightsDeclineSpikeCohort,
   type OpsInsightsQuoteAcceptanceCohort,
   type OpsInsightsSupplierConcentrationCohort,
@@ -231,6 +232,11 @@ export default function InsightsPage() {
       {data.accuracyLedger.sampleSize > 0 && (
         <OrgAccuracyCard data={data.accuracyLedger} />
       )}
+      {/* Sprint 83 — quote-turnaround SLA attainment (Track C).
+          ALWAYS rendered: at sampleSize 0 it shows the accruing
+          state — an SLA that hides when unmeasured isn't a
+          commitment. */}
+      <SlaQuoteTurnaroundCard data={data.slaQuoteTurnaround} />
       {/* Sprint 40 — decline-reason spike watch. Second proactive
           signal: which decline reasons are accelerating vs the
           30-day baseline. Renders ONLY when spikes.length > 0 so
@@ -681,6 +687,87 @@ function ExpiredQuotesCard({ data }: { data: OpsInsightsExpiredQuotesCohort }) {
           View all expired →
         </Link>
       </div>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Quote-turnaround SLA (sprint 83 — Track C phase 1). The measured
+ *  commitment: submitted → customer-visible quote, 48h target,
+ *  rolling 90-day window. ALWAYS rendered — an SLA that hides when
+ *  unmeasured isn't a commitment. Honesty gates shared with the
+ *  accuracy ledger: below 10 quoted rows the attainment figures
+ *  are withheld and the card says the sample is accruing.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function SlaQuoteTurnaroundCard({ data }: { data: OpsInsightsSlaQuoteTurnaround }) {
+  const withheld = data.tier === 'insufficient';
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      data-testid="sla-quote-turnaround-card"
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="space-y-1.5">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+            Quote-turnaround SLA
+          </h2>
+          <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+            Submitted → customer-visible quote, measured against the {data.targetHours}h target
+            over the last {data.windowDays} days. First-quote times only — a rework never launders
+            a slow first answer.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-ivory)] font-mono leading-none">
+            {withheld || data.withinTargetPct == null ? '—' : `${data.withinTargetPct}%`}
+          </p>
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] pt-1">
+            within {data.targetHours}h
+          </p>
+        </div>
+      </div>
+
+      {withheld ? (
+        <p className="text-[13px] text-[var(--color-ivory-mute)] italic">
+          {data.sampleSize === 0
+            ? 'Attainment accrues from the first quote issued after SLA measurement went live — no figures are back-filled or guessed.'
+            : `${data.sampleSize} quoted in the window — attainment figures publish at 10, exactly like the accuracy ledger.`}
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              median turnaround
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.medianHours == null ? '—' : `${data.medianHours}h`}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              p95 turnaround
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.p95Hours == null ? '—' : `${data.p95Hours}h`}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              sample
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.sampleSize.toLocaleString('en-IE')} quotes
+            </p>
+          </div>
+        </div>
+      )}
+      {data.tier === 'indicative' && (
+        <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+          Early sample — figures firm up at 50 quoted requests.
+        </p>
+      )}
     </section>
   );
 }

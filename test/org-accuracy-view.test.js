@@ -54,8 +54,10 @@ test('aggregateOpsInsights scores the org cut with THE SAME calculator as the pu
   assert.match(DB_SRC, /const accuracyLedgerCalc = require\('\.\.\/intelligence\/accuracy-ledger'\);/);
   assert.match(DB_SRC, /const orgOutcomeRows = await listActualOutcomesForLedger\(\{ orgId \}\);/);
   assert.match(DB_SRC, /const accuracyLedger = accuracyLedgerCalc\.computeAccuracyLedger\(orgOutcomeRows\);/);
-  // Surfaced on the insights response.
-  assert.match(DB_SRC, /accuracyLedger,\s*\n\s*\/\/ Sprint 40 — cohort #7\./);
+  // Surfaced on the insights response. (Sprint 83 generalised the
+  // adjacency: later trust instruments may follow it in the
+  // result object — the pin only requires the field itself.)
+  assert.match(DB_SRC, /\n        accuracyLedger,\n/);
 });
 
 test('the shared honesty gates hold for an org-sized sample (runtime equivalence)', () => {
