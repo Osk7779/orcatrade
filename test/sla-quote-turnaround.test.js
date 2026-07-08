@@ -137,8 +137,11 @@ test('SLA cut: quoted_at bounds the window; archived rows stay IN (no archived_a
   const block = DB_SRC.match(/async function listQuoteTurnaroundsForSla\([\s\S]*?\n\}/);
   assert.ok(block, 'SLA reader not found');
   const body = block[0];
-  assert.match(body, /AND quoted_at IS NOT NULL/);
-  assert.match(body, /AND quoted_at >= now\(\) - \(\$2 \|\| ' days'\)::interval/);
+  // Sprint 85 generalised the bind position: the reader went
+  // dual-scope (platform-wide when orgId omitted), so the window
+  // param may be $1 or $2.
+  assert.match(body, /quoted_at IS NOT NULL/);
+  assert.match(body, /AND quoted_at >= now\(\) - \(\$[12] \|\| ' days'\)::interval/);
   assert.ok(!/archived_at/.test(body), 'archiving a slow quote must not launder the SLA');
   // Fail-open.
   assert.match(body, /catch \(_\) \{[\s\S]*?return \[\];/);

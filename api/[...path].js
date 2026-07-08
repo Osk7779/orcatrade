@@ -119,6 +119,13 @@ const handlers = {
   // sample-size tiers. PII-free aggregate; consumed by
   // /trust/accuracy on the marketing shell.
   accuracy: require('../lib/handlers/accuracy'),
+  // Public SLA attainment (sprint 85, Track D). GET /api/sla —
+  // platform-wide measured attainment for the 48h quote-turnaround
+  // and 24h first-response commitments. PII-free aggregate;
+  // consumed by /trust/sla on the marketing shell. Distinct from
+  // /api/slo (endpoint latency percentiles — infrastructure, not
+  // service commitments).
+  sla: require('../lib/handlers/sla-public'),
   // GDPR data subject endpoints (Sprint BG-5.1). GET /api/account/export
   // returns a JSON dump of everything we hold for the signed-in user;
   // POST /api/account/delete pseudonymises events + hard-deletes plans

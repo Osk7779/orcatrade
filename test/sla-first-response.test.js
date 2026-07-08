@@ -79,8 +79,9 @@ test('first-response cut mirrors the turnaround cut (window on the stamp, archiv
   const block = DB_SRC.match(/async function listFirstResponsesForSla\([\s\S]*?\n\}/);
   assert.ok(block, 'reader not found');
   const body = block[0];
-  assert.match(body, /AND first_ops_action_at IS NOT NULL/);
-  assert.match(body, /AND first_ops_action_at >= now\(\) - \(\$2 \|\| ' days'\)::interval/);
+  // Sprint 85 generalised the bind position (dual-scope reader).
+  assert.match(body, /first_ops_action_at IS NOT NULL/);
+  assert.match(body, /AND first_ops_action_at >= now\(\) - \(\$[12] \|\| ' days'\)::interval/);
   assert.ok(!/archived_at/.test(body), 'archiving a slow response must not launder the SLA');
   assert.match(body, /catch \(_\) \{[\s\S]*?return \[\];/);
   // Mapped to the calculator's generic clock-pair shape.
