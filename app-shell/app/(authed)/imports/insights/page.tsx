@@ -45,6 +45,7 @@ import {
   type OpsInsightsRatingCohort,
   type OpsInsightsStalledQueue,
   type OpsInsightsQuoteFollowUpCohort,
+  type OpsInsightsExpiredQuotesCohort,
   type OpsInsightsDeclineSpikeCohort,
   type OpsInsightsQuoteAcceptanceCohort,
   type OpsInsightsSupplierConcentrationCohort,
@@ -213,6 +214,14 @@ export default function InsightsPage() {
           concentration, rating-trend) are aggregate/statistical. */}
       {data.quoteFollowUp.count > 0 && (
         <QuoteFollowUpCard data={data.quoteFollowUp} />
+      )}
+      {/* Sprint 77 — expired-quotes watch (cohort #12). The lost-
+          deal mirror of the aging-quotes card above: quotes that
+          hit expiry undecided in the last 30 days, value-weighted
+          so the € at stake is the headline. Renders ONLY when
+          count > 0 — a clean month shows no card. */}
+      {data.expiredQuotes.count > 0 && (
+        <ExpiredQuotesCard data={data.expiredQuotes} />
       )}
       {/* Sprint 40 — decline-reason spike watch. Second proactive
           signal: which decline reasons are accelerating vs the
@@ -574,6 +583,96 @@ function QuoteFollowUpCard({ data }: { data: OpsInsightsQuoteFollowUpCohort }) {
           a batch follow-up cadence.
         </p>
       )}
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Expired quotes (sprint 77) — cohort #12, the SEVENTH proactive
+ *  signal. The lost-deal mirror of the aging-quotes card: quotes
+ *  that hit quote_expires_at undecided in the last 30 days
+ *  (window-agnostic server-side). Value-weighted — the € at stake
+ *  is the headline; each row is a re-quote candidate, most
+ *  recently expired first ("just lost" is the most recoverable).
+ * ──────────────────────────────────────────────────────────────────── */
+
+// Sprint 77 — whole-euro rendering from integer cents. The cents
+// arrive pre-summed from Postgres (ADR-0004 — no JS float math on
+// money); this is display-only rounding to whole EUR.
+function eurFromCentsDisplay(cents: number | null): string {
+  if (cents == null || !Number.isFinite(cents)) return '—';
+  return '€' + Math.round(cents / 100).toLocaleString('en-IE');
+}
+
+function ExpiredQuotesCard({ data }: { data: OpsInsightsExpiredQuotesCohort }) {
+  const truncated = data.count > data.items.length;
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-[var(--color-critical)]/[0.35] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      data-testid="expired-quotes-card"
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="space-y-1.5">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-critical)]">
+            Expired quotes · value at stake
+          </h2>
+          <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+            Quotes that hit expiry with no customer decision in the last {data.windowDays} days.
+            Most recently expired first — the freshest are the most recoverable re-quotes.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-critical)] font-mono leading-none">
+            {eurFromCentsDisplay(data.totalLandedCents)}
+          </p>
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] pt-1">
+            {data.count.toLocaleString('en-IE')} expired unanswered
+          </p>
+        </div>
+      </div>
+
+      <ul className="divide-y divide-white/[0.06]">
+        {data.items.map((item) => (
+          <li key={item.externalId}>
+            <Link
+              href={`/imports/${item.externalId}`}
+              className="group flex items-center justify-between gap-4 py-3 hover:bg-white/[0.02] transition-colors duration-150 -mx-2 px-2"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-[14px] font-medium text-[var(--color-ivory)] truncate group-hover:text-[var(--color-aqua)]">
+                  {item.label || item.externalId}
+                </p>
+                <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono pt-0.5">
+                  {item.externalId}
+                </p>
+              </div>
+              <div className="text-right shrink-0">
+                <p className="text-[15px] font-mono font-medium text-[var(--color-critical)]">
+                  {eurFromCentsDisplay(item.landedCents)}
+                </p>
+                <p className="text-[10.5px] text-[var(--color-ivory-mute)] uppercase tracking-wider pt-0.5">
+                  expired {new Date(item.expiredAt).toISOString().slice(0, 10)}
+                </p>
+              </div>
+            </Link>
+          </li>
+        ))}
+      </ul>
+
+      <div className="flex items-center justify-between gap-3 flex-wrap pt-1">
+        {truncated ? (
+          <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+            Showing the {data.items.length} most recent of {data.count} expired quotes.
+          </p>
+        ) : <span />}
+        <Link
+          href="/imports?status=expired"
+          className="text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
+        >
+          View all expired →
+        </Link>
+      </div>
     </section>
   );
 }

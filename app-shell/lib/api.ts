@@ -1076,6 +1076,29 @@ export interface OpsInsightsQuoteFollowUpCohort {
   items: OpsInsightsAgingQuoteItem[];
 }
 
+// Sprint 77 — a single expired-quote row. landedCents is null when
+// the historical row carried no landed quote — the UI renders "—",
+// never €0 (a real zero and a missing quote are different truths).
+export interface OpsInsightsExpiredQuoteItem {
+  externalId: string;
+  label: string;
+  expiredAt: string;
+  landedCents: number | null;
+}
+
+// Sprint 77 — cohort #12. Seventh proactive signal: quotes that hit
+// quote_expires_at undecided within the last windowDays (fixed 30
+// server-side, window-agnostic). totalLandedCents is the org-wide
+// value at stake in integer cents (ADR-0004 — summed in Postgres,
+// never JS float math); items is the top N (EXPIRED_QUOTES_CAP =
+// 10) most recently expired first.
+export interface OpsInsightsExpiredQuotesCohort {
+  windowDays: number;
+  count: number;
+  totalLandedCents: number;
+  items: OpsInsightsExpiredQuoteItem[];
+}
+
 // Sprint 40 — a single decline-reason spike. ratio is null when the
 // baseline window contains 0 occurrences of this reason (first-time
 // signal); otherwise it's the multiplier of current-rate over
@@ -1518,6 +1541,9 @@ export interface OpsInsights {
   // decision. Always present; the UI gates the card render on
   // count > 0 (same posture as sprint 38's stalled-queue card).
   quoteFollowUp: OpsInsightsQuoteFollowUpCohort;
+  // Sprint 77 — cohort #12. Expired quotes (value at stake).
+  // Always present; the UI gates the card render on count > 0.
+  expiredQuotes: OpsInsightsExpiredQuotesCohort;
 }
 
 export interface OpsInsightsResponse {
