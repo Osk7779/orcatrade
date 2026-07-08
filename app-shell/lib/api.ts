@@ -1588,6 +1588,9 @@ export interface OpsInsights {
   // Sprint 83 — measured quote-turnaround SLA. Always present;
   // the UI renders the accruing state at sampleSize 0.
   slaQuoteTurnaround: OpsInsightsSlaQuoteTurnaround;
+  // Sprint 84 — first-response SLA (24h to the first HUMAN ops
+  // action). Same shape, same always-present posture.
+  slaFirstResponse: OpsInsightsSlaQuoteTurnaround;
 }
 
 export interface OpsInsightsResponse {

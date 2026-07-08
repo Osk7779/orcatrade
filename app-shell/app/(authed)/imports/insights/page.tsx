@@ -237,6 +237,10 @@ export default function InsightsPage() {
           state — an SLA that hides when unmeasured isn't a
           commitment. */}
       <SlaQuoteTurnaroundCard data={data.slaQuoteTurnaround} />
+      {/* Sprint 84 — first-response SLA. Same always-rendered
+          posture: a commitment that hides when unmeasured isn't
+          a commitment. */}
+      <SlaFirstResponseCard data={data.slaFirstResponse} />
       {/* Sprint 40 — decline-reason spike watch. Second proactive
           signal: which decline reasons are accelerating vs the
           30-day baseline. Renders ONLY when spikes.length > 0 so
@@ -766,6 +770,87 @@ function SlaQuoteTurnaroundCard({ data }: { data: OpsInsightsSlaQuoteTurnaround 
       {data.tier === 'indicative' && (
         <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
           Early sample — figures firm up at 50 quoted requests.
+        </p>
+      )}
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  First-response SLA (sprint 84 — Track C phase 2). Created →
+ *  first HUMAN ops action (review decision or ops message), 24h
+ *  target. Automated orchestrator transitions never stop the
+ *  clock — an instant machine response would make this trivially
+ *  100%. Same always-rendered posture and shared honesty gates as
+ *  the turnaround card.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function SlaFirstResponseCard({ data }: { data: OpsInsightsSlaQuoteTurnaround }) {
+  const withheld = data.tier === 'insufficient';
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      data-testid="sla-first-response-card"
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="space-y-1.5">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+            First-response SLA
+          </h2>
+          <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+            Submitted → first human action from the team (a review decision or an ops message),
+            against the {data.targetHours}h target over the last {data.windowDays} days. Automated
+            transitions never stop this clock.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-ivory)] font-mono leading-none">
+            {withheld || data.withinTargetPct == null ? '—' : `${data.withinTargetPct}%`}
+          </p>
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] pt-1">
+            within {data.targetHours}h
+          </p>
+        </div>
+      </div>
+
+      {withheld ? (
+        <p className="text-[13px] text-[var(--color-ivory-mute)] italic">
+          {data.sampleSize === 0
+            ? 'Attainment accrues from the first human response after SLA measurement went live.'
+            : `${data.sampleSize} responded in the window — figures publish at 10.`}
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              median response
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.medianHours == null ? '—' : `${data.medianHours}h`}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              p95 response
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.p95Hours == null ? '—' : `${data.p95Hours}h`}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              sample
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.sampleSize.toLocaleString('en-IE')} requests
+            </p>
+          </div>
+        </div>
+      )}
+      {data.tier === 'indicative' && (
+        <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+          Early sample — figures firm up at 50 responses.
         </p>
       )}
     </section>
