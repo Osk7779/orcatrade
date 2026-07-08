@@ -11,12 +11,13 @@
 // its team-only state — no cross-org data ever reaches a customer
 // browser.
 
-import { useEffect, useState } from 'react';
+import { Fragment, useEffect, useState } from 'react';
 import {
   apiGet,
   AuthError,
   type OperatorTriageResponse,
   type OperatorTriageRow,
+  type OperatorTriageDetailResponse,
 } from '@/lib/api';
 
 type LoadState = 'loading' | 'forbidden' | 'error' | 'ready';
@@ -33,6 +34,11 @@ export default function OperatorTriagePage() {
   const [targetHours, setTargetHours] = useState<number>(48);
   const [generatedAt, setGeneratedAt] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState('');
+  // Sprint 90 — drill-down: one expanded org at a time; fetched
+  // details cached per org so re-expanding is instant.
+  const [expandedOrg, setExpandedOrg] = useState<number | null>(null);
+  const [details, setDetails] = useState<Record<number, OperatorTriageDetailResponse>>({});
+  const [detailError, setDetailError] = useState('');
 
   useEffect(() => {
     let cancelled = false;
@@ -57,6 +63,23 @@ export default function OperatorTriagePage() {
       cancelled = true;
     };
   }, []);
+
+  async function toggleExpand(orgId: number) {
+    setDetailError('');
+    if (expandedOrg === orgId) {
+      setExpandedOrg(null);
+      return;
+    }
+    setExpandedOrg(orgId);
+    if (!details[orgId]) {
+      try {
+        const d = await apiGet<OperatorTriageDetailResponse>(`/operator-triage?org=${orgId}`);
+        setDetails((prev) => ({ ...prev, [orgId]: d }));
+      } catch (err) {
+        setDetailError(err instanceof Error ? err.message : 'Could not load the org worklist');
+      }
+    }
+  }
 
   if (state === 'forbidden') {
     return (
@@ -137,9 +160,11 @@ export default function OperatorTriagePage() {
             </thead>
             <tbody>
               {rows.map((r) => (
+                <Fragment key={r.orgExternalId || String(r.orgId)}>
                 <tr
-                  key={r.orgExternalId || String(r.orgId)}
-                  className="border-t border-white/[0.04] hover:bg-white/[0.025] transition-colors"
+                  onClick={() => toggleExpand(r.orgId)}
+                  className="border-t border-white/[0.04] hover:bg-white/[0.025] transition-colors cursor-pointer"
+                  data-testid="triage-org-row"
                 >
                   <td className="px-5 py-4">
                     <p className="text-[var(--color-ivory)] font-medium">{r.orgName || r.orgExternalId}</p>
@@ -169,6 +194,53 @@ export default function OperatorTriagePage() {
                     {eurFromCents(r.openQuoteValueCents)}
                   </td>
                 </tr>
+                {/* Sprint 90 — drill-down sub-row. One org expanded
+                    at a time; buckets are capped + urgency-ordered
+                    server-side. Read-only: acting on a row still
+                    happens inside that org's context. */}
+                {expandedOrg === r.orgId && (
+                  <tr className="border-t border-white/[0.04] bg-white/[0.015]" data-testid="triage-detail-row">
+                    <td colSpan={6} className="px-5 py-5">
+                      {detailError && (
+                        <p className="text-[12.5px] text-[var(--color-warning)]">{detailError}</p>
+                      )}
+                      {!detailError && !details[r.orgId] && (
+                        <p className="text-[12.5px] text-[var(--color-ivory-mute)]">Loading worklist…</p>
+                      )}
+                      {details[r.orgId] && (
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                          {([
+                            ['At risk (oldest first)', details[r.orgId].atRisk, 'var(--color-critical)'],
+                            ['Awaiting review (oldest first)', details[r.orgId].awaiting, 'var(--color-warning)'],
+                            ['Open quotes (value first)', details[r.orgId].quoted, 'var(--color-ivory)'],
+                          ] as const).map(([title, items, tone]) => (
+                            <div key={title} className="space-y-2">
+                              <p className="text-[10.5px] uppercase tracking-[0.08em] font-semibold" style={{ color: tone }}>
+                                {title}
+                              </p>
+                              {items.length === 0 ? (
+                                <p className="text-[12px] text-[var(--color-ivory-mute)] italic">none</p>
+                              ) : (
+                                <ul className="space-y-1.5">
+                                  {items.map((item) => (
+                                    <li key={item.externalId} className="text-[12.5px] leading-snug">
+                                      <span className="text-[var(--color-ivory)]">{item.label || item.externalId}</span>
+                                      <span className="text-[var(--color-ivory-mute)] font-mono">
+                                        {' '}· {item.externalId} · {Math.round(item.ageHours)}h
+                                        {item.landedCents != null ? ` · ${eurFromCents(item.landedCents)}` : ''}
+                                      </span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                )}
+                </Fragment>
               ))}
             </tbody>
           </table>

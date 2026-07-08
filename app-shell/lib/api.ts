@@ -1131,6 +1131,28 @@ export interface OperatorTriageResponse {
   generatedAt: string;
 }
 
+// Sprint 90 — one worklist row inside the triage drill-down.
+// landedCents null = no quote on the row yet ('—', never €0).
+export interface OperatorTriageDetailItem {
+  externalId: string;
+  label: string;
+  status: string;
+  ageHours: number;
+  landedCents: number | null;
+}
+
+// Sprint 90 — GET /api/operator-triage?org=<id>. Three capped,
+// urgency-ordered buckets for the expandable console row.
+export interface OperatorTriageDetailResponse {
+  ok: boolean;
+  orgId: number;
+  atRisk: OperatorTriageDetailItem[];
+  awaiting: OperatorTriageDetailItem[];
+  quoted: OperatorTriageDetailItem[];
+  slaRiskThresholdHours: number;
+  generatedAt: string;
+}
+
 // Sprint 83 — measured quote-turnaround SLA attainment (Track C).
 // 48h target over a rolling 90-day window; shared honesty gates
 // with the accuracy ledger (headline metrics null below 10
