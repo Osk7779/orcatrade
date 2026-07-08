@@ -1103,6 +1103,25 @@ export interface OpsInsightsExpiredQuotesCohort {
   items: OpsInsightsExpiredQuoteItem[];
 }
 
+// Sprint 82 — the org's own quote-accuracy slice. Shape mirrors the
+// public /api/accuracy ledger verbatim (same calculator, same
+// honesty gates: every headline metric is null below 10 scoreable
+// outcomes — the org's view is as incapable of flattery as the
+// public one).
+export interface OpsInsightsAccuracyLedger {
+  sampleSize: number;
+  tier: 'insufficient' | 'indicative' | 'measured';
+  within5Pct: number | null;
+  within10Pct: number | null;
+  within20Pct: number | null;
+  medianAbsErrorPct: number | null;
+  valueWeightedBiasPct: number | null;
+  totalEstimateCents: number;
+  totalActualCents: number;
+  oldestReportedAt: string | null;
+  newestReportedAt: string | null;
+}
+
 // Sprint 40 — a single decline-reason spike. ratio is null when the
 // baseline window contains 0 occurrences of this reason (first-time
 // signal); otherwise it's the multiplier of current-rate over
@@ -1548,6 +1567,9 @@ export interface OpsInsights {
   // Sprint 77 — cohort #12. Expired quotes (value at stake).
   // Always present; the UI gates the card render on count > 0.
   expiredQuotes: OpsInsightsExpiredQuotesCohort;
+  // Sprint 82 — the org's own quote-accuracy slice. Always
+  // present; the UI gates the card render on sampleSize > 0.
+  accuracyLedger: OpsInsightsAccuracyLedger;
 }
 
 export interface OpsInsightsResponse {

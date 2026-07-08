@@ -46,6 +46,7 @@ import {
   type OpsInsightsStalledQueue,
   type OpsInsightsQuoteFollowUpCohort,
   type OpsInsightsExpiredQuotesCohort,
+  type OpsInsightsAccuracyLedger,
   type OpsInsightsDeclineSpikeCohort,
   type OpsInsightsQuoteAcceptanceCohort,
   type OpsInsightsSupplierConcentrationCohort,
@@ -222,6 +223,13 @@ export default function InsightsPage() {
           count > 0 — a clean month shows no card. */}
       {data.expiredQuotes.count > 0 && (
         <ExpiredQuotesCard data={data.expiredQuotes} />
+      )}
+      {/* Sprint 82 — the org's own quote-accuracy slice (Track B
+          phase 3). Same calculator + honesty gates as the public
+          /trust/accuracy ledger; renders once the org has reported
+          at least one outcome. */}
+      {data.accuracyLedger.sampleSize > 0 && (
+        <OrgAccuracyCard data={data.accuracyLedger} />
       )}
       {/* Sprint 40 — decline-reason spike watch. Second proactive
           signal: which decline reasons are accelerating vs the
@@ -673,6 +681,98 @@ function ExpiredQuotesCard({ data }: { data: OpsInsightsExpiredQuotesCohort }) {
           View all expired →
         </Link>
       </div>
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Org quote-accuracy (sprint 82 — Track B phase 3). The org's own
+ *  slice of the public Quote Accuracy Ledger: THEIR outcomes vs
+ *  THEIR quotes, same calculator, same honesty gates. Below 10
+ *  scoreable outcomes only the count renders — the org view can't
+ *  flatter itself any more than the public one can.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function OrgAccuracyCard({ data }: { data: OpsInsightsAccuracyLedger }) {
+  const withheld = data.tier === 'insufficient';
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      data-testid="org-accuracy-card"
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="space-y-1.5">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+            Your quote accuracy
+          </h2>
+          <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+            Your reported outcomes vs the quotes we gave you — scored by the same calculator and
+            the same sample-size gates as the{' '}
+            <a href="/trust/accuracy/" className="text-[var(--color-aqua)] hover:underline">
+              public accuracy ledger
+            </a>
+            .
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-ivory)] font-mono leading-none">
+            {data.sampleSize.toLocaleString('en-IE')}
+          </p>
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] pt-1">
+            outcomes reported
+          </p>
+        </div>
+      </div>
+
+      {withheld ? (
+        <p className="text-[13px] text-[var(--color-ivory-mute)] italic">
+          Accuracy figures publish automatically at 10 reported outcomes — below that a median is
+          noise, so we withhold it here exactly as we do publicly.
+        </p>
+      ) : (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              within ±5%
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.within5Pct == null ? '—' : `${data.within5Pct}%`}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              within ±10%
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.within10Pct == null ? '—' : `${data.within10Pct}%`}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              median abs error
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.medianAbsErrorPct == null ? '—' : `${data.medianAbsErrorPct}%`}
+            </p>
+          </div>
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-[var(--color-ivory-mute)]">
+              bias (value-weighted)
+            </p>
+            <p className="text-[20px] font-mono text-[var(--color-ivory)] pt-1">
+              {data.valueWeightedBiasPct == null
+                ? '—'
+                : `${data.valueWeightedBiasPct > 0 ? '+' : ''}${data.valueWeightedBiasPct}%`}
+            </p>
+          </div>
+        </div>
+      )}
+      {data.tier === 'indicative' && (
+        <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
+          Early sample — figures firm up at 50 outcomes.
+        </p>
+      )}
     </section>
   );
 }
