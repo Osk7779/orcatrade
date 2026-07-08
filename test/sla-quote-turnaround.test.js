@@ -150,7 +150,12 @@ test('SLA cut: quoted_at bounds the window; archived rows stay IN (no archived_a
 test('aggregateOpsInsights wires the SLA calculator with its own constants (no inline numbers)', () => {
   assert.match(DB_SRC, /const slaCalc = require\('\.\.\/intelligence\/sla'\);/);
   assert.match(DB_SRC, /windowDays: slaCalc\.SLA_WINDOW_DAYS,/);
-  assert.match(DB_SRC, /targetHours: slaCalc\.SLA_QUOTE_TURNAROUND_TARGET_HOURS,/);
+  // Sprint 89 generalised this pin (the sprint-60 alternation
+  // lesson): the target is now the per-org EFFECTIVE value whose
+  // defensive re-bound falls back to the calculator constant —
+  // the constant must still anchor the expression.
+  assert.match(DB_SRC, /targetHours: (?:slaCalc\.SLA_QUOTE_TURNAROUND_TARGET_HOURS|effectiveTurnTarget),/);
+  assert.match(DB_SRC, /: slaCalc\.SLA_QUOTE_TURNAROUND_TARGET_HOURS;/);
   assert.match(DB_SRC, /\n        slaQuoteTurnaround,\n/);
 });
 

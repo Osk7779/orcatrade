@@ -91,7 +91,11 @@ test('first-response cut mirrors the turnaround cut (window on the stamp, archiv
 test('24h target constant + insights wiring through the calculator (no inline numbers)', () => {
   assert.equal(sla.SLA_FIRST_RESPONSE_TARGET_HOURS, 24);
   assert.match(DB_SRC, /const firstResponseRows = await listFirstResponsesForSla\(\{/);
-  assert.match(DB_SRC, /targetHours: slaCalc\.SLA_FIRST_RESPONSE_TARGET_HOURS,/);
+  // Sprint 89 generalised (sprint-60 alternation lesson): the
+  // target is the per-org EFFECTIVE value re-bound onto the
+  // calculator constant as fallback.
+  assert.match(DB_SRC, /targetHours: (?:slaCalc\.SLA_FIRST_RESPONSE_TARGET_HOURS|effectiveFrTarget),/);
+  assert.match(DB_SRC, /: slaCalc\.SLA_FIRST_RESPONSE_TARGET_HOURS;/);
   assert.match(DB_SRC, /\n        slaFirstResponse,\n/);
 });
 

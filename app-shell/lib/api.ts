@@ -1395,6 +1395,14 @@ export interface OperatorConfig {
   // (chase every silent customer within a day), 14+ =
   // tolerant (only long-cold quotes surface).
   quoteFollowUpThresholdDays: number;
+  // Sprint 89 — negotiated quote-turnaround SLA target (hours).
+  // Integer in [4, 168] — 48 default. Affects the org's cockpit
+  // attainment only; the public /api/sla page and the cross-org
+  // triage risk line stay on the platform targets.
+  slaQuoteTurnaroundTargetHours: number;
+  // Sprint 89 — negotiated first-response SLA target (hours).
+  // Integer in [1, 72] — 24 default. Same org-cockpit-only scope.
+  slaFirstResponseTargetHours: number;
 }
 
 // Per-knob source — 'default' = using platform default,

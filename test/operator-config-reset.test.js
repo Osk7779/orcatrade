@@ -51,7 +51,7 @@ const INSIGHTS_TSX = fs.readFileSync(
 
 // ── Layer 1: KNOB_KEYS ───────────────────────────────────────────
 
-test('operatorConfig.KNOB_KEYS is exported + covers all defaults (sprint 71 extended to 5 knobs)', () => {
+test('operatorConfig.KNOB_KEYS is exported + covers all defaults (sprint 89 extended to 7 knobs)', () => {
   assert.ok(Array.isArray(operatorConfig.KNOB_KEYS));
   assert.deepEqual(
     [...operatorConfig.KNOB_KEYS].sort(),
@@ -59,6 +59,8 @@ test('operatorConfig.KNOB_KEYS is exported + covers all defaults (sprint 71 exte
       'declineSpikeRateMultiplier',
       'quoteFollowUpThresholdDays',
       'ratingTrendDropThreshold',
+      'slaFirstResponseTargetHours',
+      'slaQuoteTurnaroundTargetHours',
       'stallThresholdDays',
       'supplierConcentrationThreshold',
     ],

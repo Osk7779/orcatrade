@@ -182,6 +182,8 @@ export default function InsightsPage() {
         currentConcentrationThreshold={data.supplierConcentration.threshold}
         currentRatingDropThreshold={data.ratingTrend.dropThreshold}
         currentQuoteFollowUpThreshold={data.quoteFollowUp.thresholdDays}
+        currentSlaTurnaroundTarget={data.slaQuoteTurnaround.targetHours}
+        currentSlaFirstResponseTarget={data.slaFirstResponse.targetHours}
       />
       {/* Sprint 44 — API key management. Sits next to the operator
           config card because both are admin-only settings for the
@@ -1395,12 +1397,16 @@ function OperatorConfigPanel({
   currentConcentrationThreshold,
   currentRatingDropThreshold,
   currentQuoteFollowUpThreshold,
+  currentSlaTurnaroundTarget,
+  currentSlaFirstResponseTarget,
 }: {
   currentStallThreshold: number;
   currentSpikeMultiplier: number;
   currentConcentrationThreshold: number;
   currentRatingDropThreshold: number;
   currentQuoteFollowUpThreshold: number;
+  currentSlaTurnaroundTarget: number;
+  currentSlaFirstResponseTarget: number;
 }) {
   // All currents are EFFECTIVE values the SQL just used — pulled
   // from data.{stalledQueue,declineSpike,supplierConcentration,
@@ -1411,6 +1417,9 @@ function OperatorConfigPanel({
   const [pendingConcentration, setPendingConcentration] = useState<number>(currentConcentrationThreshold);
   const [pendingRatingDrop, setPendingRatingDrop] = useState<number>(currentRatingDropThreshold);
   const [pendingQuoteFollowUp, setPendingQuoteFollowUp] = useState<number>(currentQuoteFollowUpThreshold);
+  // Sprint 89 — negotiated SLA targets (knobs 6 & 7).
+  const [pendingSlaTurnaround, setPendingSlaTurnaround] = useState<number>(currentSlaTurnaroundTarget);
+  const [pendingSlaFirstResponse, setPendingSlaFirstResponse] = useState<number>(currentSlaFirstResponseTarget);
   // Sprint 66 — SAP-GTS-style change reason. Optional single-line
   // text that rides along on the PATCH and lands in the audit
   // event's detail.reason. Trimmed + capped server-side; client
@@ -1476,7 +1485,9 @@ function OperatorConfigPanel({
   const dirtyConcentration = Number(pendingConcentration) !== Number(currentConcentrationThreshold);
   const dirtyRatingDrop = Number(pendingRatingDrop) !== Number(currentRatingDropThreshold);
   const dirtyQuoteFollowUp = Number(pendingQuoteFollowUp) !== Number(currentQuoteFollowUpThreshold);
-  const dirty = dirtyStall || dirtySpike || dirtyConcentration || dirtyRatingDrop || dirtyQuoteFollowUp;
+  const dirtySlaTurnaround = Number(pendingSlaTurnaround) !== Number(currentSlaTurnaroundTarget);
+  const dirtySlaFirstResponse = Number(pendingSlaFirstResponse) !== Number(currentSlaFirstResponseTarget);
+  const dirty = dirtyStall || dirtySpike || dirtyConcentration || dirtyRatingDrop || dirtyQuoteFollowUp || dirtySlaTurnaround || dirtySlaFirstResponse;
 
   // Sprint 68 — one-click "apply preset" for the current org.
   // Server-side expansion means the client can't drift preset
@@ -1582,6 +1593,8 @@ function OperatorConfigPanel({
         supplierConcentrationThreshold?: number;
         ratingTrendDropThreshold?: number;
         quoteFollowUpThresholdDays?: number;
+        slaQuoteTurnaroundTargetHours?: number;
+        slaFirstResponseTargetHours?: number;
         // Sprint 66 — optional reason. Trimmed + capped server-side;
         // omitted when the actor left the input empty.
         reason?: string;
@@ -1591,6 +1604,8 @@ function OperatorConfigPanel({
       if (dirtyConcentration) patch.supplierConcentrationThreshold = Number(pendingConcentration);
       if (dirtyRatingDrop) patch.ratingTrendDropThreshold = Number(pendingRatingDrop);
       if (dirtyQuoteFollowUp) patch.quoteFollowUpThresholdDays = Number(pendingQuoteFollowUp);
+      if (dirtySlaTurnaround) patch.slaQuoteTurnaroundTargetHours = Number(pendingSlaTurnaround);
+      if (dirtySlaFirstResponse) patch.slaFirstResponseTargetHours = Number(pendingSlaFirstResponse);
       const trimmedReason = pendingReason.trim();
       if (trimmedReason.length > 0) patch.reason = trimmedReason;
       await apiPatch<OperatorConfigResponse>('/api/operator-config', patch);
@@ -1641,6 +1656,11 @@ function OperatorConfigPanel({
           F/U:{' '}
           <span className="font-mono text-[var(--color-ivory)]">
             {currentQuoteFollowUpThreshold}d
+          </span>
+          {'  ·  '}
+          SLA:{' '}
+          <span className="font-mono text-[var(--color-ivory)]">
+            {currentSlaTurnaroundTarget}h/{currentSlaFirstResponseTarget}h
           </span>
         </span>
         <span aria-hidden className="text-[var(--color-ivory-mute)]">▾</span>
@@ -1879,6 +1899,79 @@ function OperatorConfigPanel({
           <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 1–30.</p>
         </div>
 
+        {/* Sprint 89 — negotiated quote-turnaround SLA target */}
+        <div className="space-y-2">
+          <label
+            htmlFor="slaQuoteTurnaroundTargetHours"
+            className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block"
+          >
+            Quote-turnaround SLA target (hours)
+          </label>
+          <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+            The negotiated commitment your cockpit attainment measures against — submitted →
+            customer-visible quote. Platform default 48h. The public trust page always reports
+            against the platform target; this dial changes YOUR contract view only.
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              id="slaQuoteTurnaroundTargetHours"
+              type="number"
+              min={4}
+              max={168}
+              step={1}
+              value={pendingSlaTurnaround}
+              onChange={(e) => setPendingSlaTurnaround(Number(e.target.value))}
+              disabled={saving}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <OperatorConfigResetPill
+              knob="slaQuoteTurnaroundTargetHours"
+              source={source}
+              busy={saving || resettingKnob !== null}
+              isBusy={resettingKnob === 'slaQuoteTurnaroundTargetHours'}
+              onReset={onReset}
+            />
+          </div>
+          <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 4–168.</p>
+        </div>
+
+        {/* Sprint 89 — negotiated first-response SLA target */}
+        <div className="space-y-2">
+          <label
+            htmlFor="slaFirstResponseTargetHours"
+            className="text-[12px] uppercase tracking-wider text-[var(--color-ivory-mute)] block"
+          >
+            First-response SLA target (hours)
+          </label>
+          <p className="text-[13px] text-[var(--color-ivory-dim)] leading-relaxed">
+            Submitted → first human action from the team. Platform default 24h. Same scope as
+            above: your contract view only — the published commitment stays platform-wide.
+          </p>
+          <div className="flex items-center gap-3">
+            <input
+              id="slaFirstResponseTargetHours"
+              type="number"
+              min={1}
+              max={72}
+              step={1}
+              value={pendingSlaFirstResponse}
+              onChange={(e) => setPendingSlaFirstResponse(Number(e.target.value))}
+              disabled={saving}
+              className="bg-[var(--color-navy)] border border-white/15 text-[var(--color-ivory)] font-mono px-3 py-1.5 w-24 text-[14px] focus:border-[var(--color-aqua)] focus:outline-none"
+              style={{ borderRadius: 'var(--radius-button)' }}
+            />
+            <OperatorConfigResetPill
+              knob="slaFirstResponseTargetHours"
+              source={source}
+              busy={saving || resettingKnob !== null}
+              isBusy={resettingKnob === 'slaFirstResponseTargetHours'}
+              onReset={onReset}
+            />
+          </div>
+          <p className="text-[11px] text-[var(--color-ivory-mute)] italic">Range 1–72.</p>
+        </div>
+
         {/* Sprint 66 — SAP-GTS-style change reason (optional). Sits
             above Save because it's a per-PATCH annotation, not a per-
             knob one; a single reason travels with the batched change
@@ -1958,6 +2051,8 @@ const OPERATOR_CONFIG_KNOB_LABEL: Record<keyof OperatorConfig, string> = {
   supplierConcentrationThreshold: 'Supplier-concentration threshold',
   ratingTrendDropThreshold: 'Rating-drop threshold',
   quoteFollowUpThresholdDays: 'Aging-quotes threshold',
+  slaQuoteTurnaroundTargetHours: 'Quote-SLA target',
+  slaFirstResponseTargetHours: 'Response-SLA target',
 };
 
 function formatKnobValue(key: keyof OperatorConfig, value: number): string {
@@ -1966,6 +2061,8 @@ function formatKnobValue(key: keyof OperatorConfig, value: number): string {
   if (key === 'supplierConcentrationThreshold') return `${Math.round(value * 100)}%`;
   if (key === 'ratingTrendDropThreshold') return `${value.toFixed(1)}★`;
   if (key === 'quoteFollowUpThresholdDays') return `${value}d`;
+  if (key === 'slaQuoteTurnaroundTargetHours') return `${value}h`;
+  if (key === 'slaFirstResponseTargetHours') return `${value}h`;
   return String(value);
 }
 
