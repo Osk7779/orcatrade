@@ -1153,6 +1153,31 @@ export interface OperatorTriageDetailResponse {
   generatedAt: string;
 }
 
+// Sprint 91 — cohort #13: one live request approaching (or past)
+// the org's negotiated turnaround target. hoursRemaining is
+// server-derived; NEGATIVE means already breached — the UI renders
+// the sign, it never recomputes.
+export interface OpsInsightsSlaAtRiskItem {
+  externalId: string;
+  label: string;
+  status: string;
+  ageHours: number;
+  hoursRemaining: number;
+}
+
+// Sprint 91 — cohort #13. Uses the org's NEGOTIATED target (knob
+// 6) — unlike the cross-org triage console, which stays on the
+// platform line by design. Two counts, split honestly: atRisk
+// (recoverable) vs breached (promise already broken, customer
+// still waiting). items = top 10 oldest across both.
+export interface OpsInsightsSlaAtRiskCohort {
+  riskThresholdHours: number;
+  targetHours: number;
+  atRiskCount: number;
+  breachedCount: number;
+  items: OpsInsightsSlaAtRiskItem[];
+}
+
 // Sprint 83 — measured quote-turnaround SLA attainment (Track C).
 // 48h target over a rolling 90-day window; shared honesty gates
 // with the accuracy ledger (headline metrics null below 10
@@ -1644,6 +1669,9 @@ export interface OpsInsights {
   // Sprint 84 — first-response SLA (24h to the first HUMAN ops
   // action). Same shape, same always-present posture.
   slaFirstResponse: OpsInsightsSlaQuoteTurnaround;
+  // Sprint 91 — cohort #13. SLA-at-risk worklist. The UI gates
+  // the card on atRiskCount + breachedCount > 0.
+  slaAtRisk: OpsInsightsSlaAtRiskCohort;
 }
 
 export interface OpsInsightsResponse {

@@ -48,6 +48,7 @@ import {
   type OpsInsightsExpiredQuotesCohort,
   type OpsInsightsAccuracyLedger,
   type OpsInsightsSlaQuoteTurnaround,
+  type OpsInsightsSlaAtRiskCohort,
   type OpsInsightsDeclineSpikeCohort,
   type OpsInsightsQuoteAcceptanceCohort,
   type OpsInsightsSupplierConcentrationCohort,
@@ -216,6 +217,12 @@ export default function InsightsPage() {
           externalIds needing attention. The remaining proactive
           cards (decline-spike, quote-acceptance, supplier-
           concentration, rating-trend) are aggregate/statistical. */}
+      {/* Sprint 91 — cohort #13, the most urgent signal on the
+          page: live requests approaching (or past) the negotiated
+          turnaround target. Renders first in the proactive band. */}
+      {(data.slaAtRisk.atRiskCount + data.slaAtRisk.breachedCount) > 0 && (
+        <SlaAtRiskCard data={data.slaAtRisk} />
+      )}
       {data.quoteFollowUp.count > 0 && (
         <QuoteFollowUpCard data={data.quoteFollowUp} />
       )}
@@ -772,6 +779,87 @@ function SlaQuoteTurnaroundCard({ data }: { data: OpsInsightsSlaQuoteTurnaround 
       {data.tier === 'indicative' && (
         <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic">
           Early sample — figures firm up at 50 quoted requests.
+        </p>
+      )}
+    </section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  SLA-at-risk (sprint 91 — cohort #13). Live requests approaching
+ *  or past the org's NEGOTIATED turnaround target. atRisk =
+ *  recoverable (act now); breached = the promise is already broken
+ *  and the customer is still waiting. hoursRemaining is server-
+ *  derived; this render only shows the sign.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function SlaAtRiskCard({ data }: { data: OpsInsightsSlaAtRiskCohort }) {
+  const total = data.atRiskCount + data.breachedCount;
+  const truncated = total > data.items.length;
+  return (
+    <section
+      className="bg-[var(--surface-card)] border border-[var(--color-critical)]/[0.35] p-7 space-y-5"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      data-testid="sla-at-risk-card"
+    >
+      <div className="flex items-baseline justify-between gap-3 flex-wrap">
+        <div className="space-y-1.5">
+          <h2 className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-critical)]">
+            SLA at risk · act now
+          </h2>
+          <p className="text-[15.5px] text-[var(--color-ivory-dim)] leading-relaxed max-w-2xl">
+            Unquoted requests past {data.riskThresholdHours}h of your {data.targetHours}h
+            turnaround target. Oldest first — every hour here is an hour off the promise.
+          </p>
+        </div>
+        <div className="text-right">
+          <p className="text-[34px] font-bold tracking-[-0.02em] text-[var(--color-critical)] font-mono leading-none">
+            {total.toLocaleString('en-IE')}
+          </p>
+          <p className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] pt-1">
+            {data.breachedCount > 0
+              ? `${data.atRiskCount} at risk · ${data.breachedCount} breached`
+              : 'at risk'}
+          </p>
+        </div>
+      </div>
+
+      <ul className="divide-y divide-white/[0.06]">
+        {data.items.map((item) => {
+          const breached = item.hoursRemaining < 0;
+          return (
+            <li key={item.externalId}>
+              <Link
+                href={`/imports/${item.externalId}`}
+                className="group flex items-center justify-between gap-4 py-3 hover:bg-white/[0.02] transition-colors duration-150 -mx-2 px-2"
+              >
+                <div className="min-w-0 flex-1">
+                  <p className="text-[14px] font-medium text-[var(--color-ivory)] truncate group-hover:text-[var(--color-aqua)]">
+                    {item.label || item.externalId}
+                  </p>
+                  <p className="text-[11.5px] text-[var(--color-ivory-mute)] font-mono pt-0.5">
+                    {item.externalId} · {item.status.replace(/_/g, ' ')}
+                  </p>
+                </div>
+                <div className="text-right shrink-0">
+                  <p className={`text-[15px] font-mono font-medium ${breached ? 'text-[var(--color-critical)]' : 'text-[var(--color-warning)]'}`}>
+                    {breached
+                      ? `${Math.abs(item.hoursRemaining).toFixed(1)}h over`
+                      : `${item.hoursRemaining.toFixed(1)}h left`}
+                  </p>
+                  <p className="text-[10.5px] text-[var(--color-ivory-mute)] uppercase tracking-wider pt-0.5">
+                    {breached ? 'breached' : 'to target'}
+                  </p>
+                </div>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
+
+      {truncated && (
+        <p className="text-[11.5px] text-[var(--color-ivory-mute)] italic pt-1">
+          Showing the {data.items.length} oldest of {total}.
         </p>
       )}
     </section>
