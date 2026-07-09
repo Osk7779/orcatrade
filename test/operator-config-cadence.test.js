@@ -166,6 +166,9 @@ test('all three daily runners gate on cadence (three-corners); weekly runners st
     'runImportRequestStalledQueueAlert',
     'runImportRequestQuoteFollowUpAlert',
     'runImportRequestDeclineSpikeAlert',
+    // Sprint 92 — the SLA-at-risk alert joins the daily family
+    // (four-corners now; extend when a fifth daily alert lands).
+    'runImportRequestSlaAtRiskAlert',
   ];
   for (const name of DAILY_RUNNERS) {
     const start = CRON_SRC.indexOf(`async function ${name}(`);
@@ -176,10 +179,12 @@ test('all three daily runners gate on cadence (three-corners); weekly runners st
     assert.match(body, /if \(alertCadence === 'weekly'\) \{\s*\n\s*weeklyOnlyByOrg \+= 1;\s*\n\s*continue;/, `${name} must skip weekly orgs`);
     assert.match(body, /weeklyOnlyByOrg,/, `${name} must report the skip count`);
   }
-  // Exactly three gates — the weekly digest runners must NOT gate
-  // on cadence (weekly is precisely what those orgs asked for).
+  // Exactly the DAILY runners gate — the weekly digest runners
+  // must NOT (weekly is precisely what those orgs asked for). The
+  // count derives from the enumerated list so a new daily alert
+  // extends the list rather than editing a magic number.
   const gates = CRON_SRC.match(/weeklyOnlyByOrg \+= 1;/g) || [];
-  assert.equal(gates.length, 3, 'exactly the three daily runners gate on cadence');
+  assert.equal(gates.length, DAILY_RUNNERS.length, 'every daily runner gates on cadence — and only they do');
 });
 
 test('the cadence gate runs BEFORE the per-org aggregation (one KV read, not a SQL fan-out)', () => {

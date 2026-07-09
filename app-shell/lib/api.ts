@@ -187,6 +187,10 @@ export interface Prefs {
   // cohort #12 (value-at-stake loss report). Defaults ON like the
   // rest — opt-out semantics.
   importExpiredQuotesAlertEmails?: boolean;
+  // Sprint 92 — daily SLA-at-risk alert. Matches the sprint-91
+  // cohort #13 (breach prevention against the negotiated target).
+  // Defaults ON like the rest — opt-out semantics.
+  importSlaAtRiskAlertEmails?: boolean;
   locale?: string;
   updatedAt?: string;
 }

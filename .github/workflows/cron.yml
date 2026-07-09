@@ -90,6 +90,13 @@ on:
     # taric-warm (04:15) + audit-anchor (02:00) + quote-expiry
     # (02:30) so the four daily jobs stagger.
     - cron: '0 8 * * *'
+    # Daily 08:15 UTC — SLA-at-risk alert (Sprint 92). Pairs with
+    # the sprint-91 cohort #13: unquoted requests past 75% of the
+    # org's negotiated turnaround target. Sits between the stall
+    # (08:00) and spike (08:30) alerts so the morning sweep reads
+    # stall → SLA risk → spike → aging. Pref-gated via
+    # importSlaAtRiskAlertEmails. Healthy orgs skip silently.
+    - cron: '15 8 * * *'
     # Daily 08:30 UTC — decline-spike alert (Sprint 41). Pairs with
     # the sprint-40 second proactive cohort: decline reasons whose
     # 7-day pace is ≥ 2× the 30-day baseline. 30 min after the
@@ -188,6 +195,7 @@ on:
           - import-request-quote-follow-up-alert
           - import-request-quote-acceptance-alert
           - import-request-expired-quotes-alert
+          - import-request-sla-at-risk-alert
           - import-request-supplier-concentration-alert
           - import-request-rating-trend-alert
           - webhook-retry-flush
@@ -229,6 +237,8 @@ jobs:
             echo "job=import-request-insights-digest" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 8 * * *" ]; then
             echo "job=import-request-stalled-queue-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "15 8 * * *" ]; then
+            echo "job=import-request-sla-at-risk-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "30 8 * * *" ]; then
             echo "job=import-request-decline-spike-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "45 8 * * *" ]; then
