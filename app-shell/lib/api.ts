@@ -1751,6 +1751,8 @@ export interface ImportRequest {
   // post-approval; last-write-wins with the supersession preserved
   // in the audit chain. Feeds the public Quote Accuracy Ledger.
   actualOutcome?: ImportRequestActualOutcome | null;
+  // Sprint 96 — per-request SLA commitment (detail GET only).
+  slaCommitment?: ImportRequestSlaCommitment | null;
   // Sprint 21 — per-user read state on the thread. Keyed by actor's
   // email_hash; value is { lastReadAt, lastReadMessageId }. The
   // value is opaque to the UI — unread count is computed by the
@@ -1836,6 +1838,18 @@ export interface CustomerRating {
   comment: string;
   ratedByEmailHash: string;
   ratedAt: string;
+}
+
+// Sprint 96 — the SLA commitment ON one request, server-derived
+// against the org's negotiated target. Renderers show the sign
+// only — hoursRemaining < 0 never gets recomputed client-side.
+// Null when no commitment applies (terminal without a quote).
+export interface ImportRequestSlaCommitment {
+  targetHours: number;
+  state: 'pending' | 'overdue' | 'met' | 'missed';
+  dueAt: string;
+  hoursRemaining?: number;
+  quotedInHours?: number;
 }
 
 // Sprint 81 — reported actual landed outcome. Integer euro-cents

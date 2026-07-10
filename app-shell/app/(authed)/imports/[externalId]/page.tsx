@@ -52,6 +52,7 @@ import {
   EVIDENCE_NOTES_MAX,
   type CustomerRating,
   type ImportRequestActualOutcome,
+  type ImportRequestSlaCommitment,
   RATING_MIN,
   RATING_MAX,
   RATING_COMMENT_MAX,
@@ -337,6 +338,13 @@ export default function ImportRequestDetailPage() {
           })
         }
       />
+
+      {/* Sprint 96 — the SLA commitment on THIS request: due time
+          before quoting, verdict after (honest misses included).
+          Server-derived; null when no commitment applies. */}
+      {request.slaCommitment && (
+        <SlaCommitmentBanner c={request.slaCommitment} />
+      )}
 
       {/* Failure state */}
       {request.status === 'failed' && request.failureState && (
@@ -2744,6 +2752,45 @@ function PastPickBadge({
           · last {ageLabel}
         </span>
       )}
+    </div>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  SlaCommitmentBanner — sprint 96. The promise ON this request:
+ *  due time before quoting, verdict after — INCLUDING honest
+ *  misses shown to the customer ('quoted in 52.0h — outside the
+ *  48h commitment'). All numbers server-derived; this render only
+ *  branches on the state + shows the sign.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function SlaCommitmentBanner({ c }: { c: ImportRequestSlaCommitment }) {
+  const tone =
+    c.state === 'met' ? 'var(--color-positive)'
+    : c.state === 'pending' ? 'var(--color-aqua)'
+    : 'var(--color-critical)';
+  const line =
+    c.state === 'pending'
+      ? `Quote due by ${String(c.dueAt).slice(0, 10)} ${String(c.dueAt).slice(11, 16)} UTC — ${Number(c.hoursRemaining).toFixed(1)}h remaining of the ${c.targetHours}h commitment.`
+      : c.state === 'overdue'
+        ? `Quote overdue by ${Math.abs(Number(c.hoursRemaining)).toFixed(1)}h against the ${c.targetHours}h commitment — the team has been alerted.`
+        : c.state === 'met'
+          ? `Quoted in ${Number(c.quotedInHours).toFixed(1)}h — inside the ${c.targetHours}h commitment.`
+          : `Quoted in ${Number(c.quotedInHours).toFixed(1)}h — outside the ${c.targetHours}h commitment. That miss is on us, and it counts against our published attainment.`;
+  return (
+    <div
+      className="border p-4 flex items-start gap-3"
+      style={{
+        borderRadius: 'var(--radius-card)',
+        borderColor: `color-mix(in srgb, ${tone} 40%, transparent)`,
+        background: `color-mix(in srgb, ${tone} 7%, transparent)`,
+      }}
+      data-testid="sla-commitment-banner"
+    >
+      <span aria-hidden className="inline-block w-1.5 h-1.5 mt-1.5 shrink-0" style={{ background: tone, borderRadius: '999px' }} />
+      <p className="text-[13px] leading-relaxed" style={{ color: tone }}>
+        {line}
+      </p>
     </div>
   );
 }
