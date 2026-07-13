@@ -71,10 +71,14 @@ test('handler is GET-only, KV-cached with TTL, fail-open on cache trouble', () =
 });
 
 test('handler reads both cuts in PARALLEL, platform-wide (no orgId)', () => {
+  // Sprint 98 generalised this pin: the Promise.all gained the
+  // breach-ledger count as a third parallel read.
   assert.match(
     HANDLER_SRC,
-    /const \[turnRows, frRows\] = await Promise\.all\(\[\s*\n\s*importRequests\.listQuoteTurnaroundsForSla\(\{ windowDays: slaCalc\.SLA_WINDOW_DAYS \}\),\s*\n\s*importRequests\.listFirstResponsesForSla\(\{ windowDays: slaCalc\.SLA_WINDOW_DAYS \}\),\s*\n\s*\]\);/,
+    /const \[turnRows, frRows(?:, breachCount)?\] = await Promise\.all\(\[/,
   );
+  assert.match(HANDLER_SRC, /importRequests\.listQuoteTurnaroundsForSla\(\{ windowDays: slaCalc\.SLA_WINDOW_DAYS \}\),/);
+  assert.match(HANDLER_SRC, /importRequests\.listFirstResponsesForSla\(\{ windowDays: slaCalc\.SLA_WINDOW_DAYS \}\),/);
   // Comment-stripped: comments may explain the omission; code must
   // never pass an org scope.
   const codeOnly = HANDLER_SRC

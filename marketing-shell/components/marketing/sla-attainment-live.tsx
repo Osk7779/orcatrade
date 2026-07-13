@@ -23,6 +23,10 @@ interface SlaResponse {
     windowDays: number;
     quoteTurnaround: Attainment;
     firstResponse: Attainment;
+    // Sprint 98 — the published breach ledger. count null = the
+    // ledger is unreadable right now (rendered as such — never
+    // as zero); 0 is a real, provable claim.
+    breachesRecorded?: { windowDays: number; count: number | null };
   };
   generatedAt?: string;
 }
@@ -137,6 +141,27 @@ export function SlaAttainmentLive() {
           a={data.firstResponse}
         />
       </div>
+      {/* Sprint 98 — the breach ledger, in public. Radical honesty
+          is the register: zero is a provable claim, misses are
+          counted, and an unreadable ledger says so. */}
+      {data.breachesRecorded && (
+        <p className="border border-white/[0.08] bg-white/[0.02] px-6 py-4 text-[14px] leading-[1.65] text-[var(--color-ivory-dim)]">
+          {data.breachesRecorded.count === null ? (
+            <>Breach ledger: unreadable right now — this figure recomputes from the audit-chained
+            event record and we do not substitute a zero for it.</>
+          ) : (
+            <>
+              <span className="font-mono text-[18px] text-[var(--color-ivory)]">
+                {data.breachesRecorded.count}
+              </span>{' '}
+              commitment breach{data.breachesRecorded.count === 1 ? '' : 'es'} recorded in the last{' '}
+              {data.breachesRecorded.windowDays} days — every one an audit-chained event, written by
+              an hourly sweep the moment the promise broke. We publish our misses; that is what
+              makes the rest of this page worth believing.
+            </>
+          )}
+        </p>
+      )}
       <p className="font-serif text-[12.5px] italic text-[var(--color-ivory-mute)]">
         Rolling {data.windowDays}-day window
         {generatedAt
