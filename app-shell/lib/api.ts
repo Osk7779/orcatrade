@@ -2052,6 +2052,8 @@ export type ImportRequestTimelineEventType =
   | 'import_request_restored'
   // Sprint 81 — accuracy loop closed on this request.
   | 'import_request_actual_reported'
+  // Sprint 97 — turnaround commitment breached (system-recorded).
+  | 'import_request_sla_breached'
   | 'import_request_message_posted'
   | 'import_request_evidence_attached'
   | 'import_request_supplier_picked'
@@ -2147,6 +2149,12 @@ export function activityEventSummary(e: ActivityEvent): string {
     // Sprint 81 — the accuracy loop closed. Surface the variance
     // direction when the detail carries it (deterministic server
     // numbers — the UI only renders).
+    case 'import_request_sla_breached': {
+      const d = e.detail as { targetHours?: number; ageHoursAtDetection?: number } | undefined;
+      return d && typeof d.targetHours === 'number'
+        ? `SLA breached on ${entityRef}: unquoted past ${d.targetHours}h`
+        : `SLA breached on import request ${entityRef}`;
+    }
     case 'import_request_actual_reported': {
       const v = (e.detail as { variance?: { deltaPct?: number } } | undefined)?.variance;
       const pct = v && typeof v.deltaPct === 'number' ? v.deltaPct : null;

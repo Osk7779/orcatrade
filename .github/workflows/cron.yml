@@ -161,6 +161,14 @@ on:
     # importRatingTrendAlertEmails. Healthy weeks (!isDeclining)
     # skip silently.
     - cron: '0 9 * * 5'
+    # Hourly at :20 — SLA breach sweep (Sprint 97). Records each
+    # newly-breached request (unquoted past the org's negotiated
+    # turnaround target) as exactly one audit-chained, webhook-
+    # dispatched event. Audit recording, not an email — cadence-
+    # and pref-independent. Hourly so the recorded moment lands
+    # within an hour of the crossing; the sweep is stamped-deduped
+    # so re-fires are safe.
+    - cron: '20 * * * *'
     # Every 5 minutes — webhook retry queue drain (Sprint 50).
     # Failed sprint-48 dispatches got queued with exponential
     # backoff (1m / 5m / 30m / 2h / 6h, max 5 attempts before
@@ -196,6 +204,7 @@ on:
           - import-request-quote-acceptance-alert
           - import-request-expired-quotes-alert
           - import-request-sla-at-risk-alert
+          - sla-breach-sweep
           - import-request-supplier-concentration-alert
           - import-request-rating-trend-alert
           - webhook-retry-flush
@@ -251,6 +260,8 @@ jobs:
             echo "job=import-request-supplier-concentration-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "0 9 * * 5" ]; then
             echo "job=import-request-rating-trend-alert" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "20 * * * *" ]; then
+            echo "job=sla-breach-sweep" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "*/5 * * * *" ]; then
             echo "job=webhook-retry-flush" >> "$GITHUB_OUTPUT"
           else
