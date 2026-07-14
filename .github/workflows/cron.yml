@@ -169,6 +169,12 @@ on:
     # within an hour of the crossing; the sweep is stamped-deduped
     # so re-fires are safe.
     - cron: '20 * * * *'
+    # Hourly at :40 — intake rescue sweep (Sprint 102). Orphaned
+    # 'submitted' rows (the tab died between create and process)
+    # get run through the same orchestrator the button runs,
+    # acting as the request's creator. 10-minute grace so a live
+    # slow tab is never raced; wrong-state races are tolerated.
+    - cron: '40 * * * *'
     # Every 5 minutes — webhook retry queue drain (Sprint 50).
     # Failed sprint-48 dispatches got queued with exponential
     # backoff (1m / 5m / 30m / 2h / 6h, max 5 attempts before
@@ -205,6 +211,7 @@ on:
           - import-request-expired-quotes-alert
           - import-request-sla-at-risk-alert
           - sla-breach-sweep
+          - intake-rescue-sweep
           - import-request-supplier-concentration-alert
           - import-request-rating-trend-alert
           - webhook-retry-flush
@@ -262,6 +269,8 @@ jobs:
             echo "job=import-request-rating-trend-alert" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "20 * * * *" ]; then
             echo "job=sla-breach-sweep" >> "$GITHUB_OUTPUT"
+          elif [ "${{ github.event.schedule }}" = "40 * * * *" ]; then
+            echo "job=intake-rescue-sweep" >> "$GITHUB_OUTPUT"
           elif [ "${{ github.event.schedule }}" = "*/5 * * * *" ]; then
             echo "job=webhook-retry-flush" >> "$GITHUB_OUTPUT"
           else
