@@ -120,6 +120,9 @@ function ImportsView() {
   // fall out of the default list (archived_at IS NULL server-side),
   // so a bump here is what makes them disappear.
   const [refreshNonce, setRefreshNonce] = useState(0);
+  // Sprint 104 — the true match count from the server (no silent
+  // caps: when the 200-row page truncates, the list says so).
+  const [totalMatching, setTotalMatching] = useState(0);
   // Sprint 25 — local input mirror. Two-way binding URL ↔ input;
   // typing updates `searchInput` immediately for responsiveness,
   // then a 300ms debounce commits to the URL which triggers the
@@ -172,11 +175,12 @@ function ImportsView() {
     // scale: the LIMIT ate archived rows before the client saw
     // them).
     if (showArchived) params.set('archivedOnly', '1');
-    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(`/imports?${params.toString()}`)
+    apiGet<{ ok: boolean; importRequests: ImportRequest[]; totalMatching?: number }>(`/imports?${params.toString()}`)
       .then((d) => {
         if (cancelled) return;
         const all = Array.isArray(d.importRequests) ? d.importRequests : [];
         const rows = all; // server-cut both ways since sprint 103
+        setTotalMatching(Number.isFinite(Number(d.totalMatching)) ? Number(d.totalMatching) : rows.length);
         setRequests(rows);
         // Sprint 74 — prune (don't clear) the selection: ids that
         // fell out of the view (archived, filtered away) drop; rows
@@ -786,6 +790,17 @@ function ImportsView() {
             </tbody>
           </table>
         </div>
+      )}
+
+      {/* Sprint 104 — truncation honesty on the PRIMARY list. Every
+          card and email already carries showing-X-of-N discipline;
+          the main list was the last silent cap. */}
+      {state === 'ready' && totalMatching > requests.length && (
+        <p className="text-[12px] text-[var(--color-ivory-mute)] italic">
+          Showing the {requests.length} most recently updated of {totalMatching.toLocaleString('en-IE')} matching
+          requests — narrow with search or filters to reach the rest. The CSV export carries up to
+          5,000 rows.
+        </p>
       )}
 
       {/* Footer note */}
