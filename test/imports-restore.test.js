@@ -179,10 +179,16 @@ test('restore handlers stay ungated — parity with the ungated archive (contras
 
 // ── Layer 4: list UI ──────────────────────────────────────────────
 
-test('archived view is URL-backed and cuts to archived rows client-side', () => {
+test('archived view is URL-backed and cuts SERVER-side (sprint 103 — the client cut was wrong at scale)', () => {
   assert.match(LIST_TSX, /const showArchived = sp\.get\('archived'\) === '1';/);
-  assert.match(LIST_TSX, /if \(showArchived\) params\.set\('includeArchived', '1'\);/);
-  assert.match(LIST_TSX, /const rows = showArchived \? all\.filter\(\(r\) => r\.archivedAt\) : all;/);
+  // Sprint 103 UPDATED (not generalised) this sprint-76 pin: the
+  // client-side filter over includeArchived was a bug at scale —
+  // the server LIMIT ate archived rows before the client saw
+  // them, so a busy org could see an empty archived view while
+  // archived rows existed. Alternation would let that regress.
+  assert.match(LIST_TSX, /if \(showArchived\) params\.set\('archivedOnly', '1'\);/);
+  assert.match(LIST_TSX, /const rows = all; \/\/ server-cut both ways since sprint 103/);
+  assert.ok(!/all\.filter\(\(r\) => r\.archivedAt\)/.test(LIST_TSX), 'the client-side cut must stay gone');
   // Refetch on view flip.
   assert.match(LIST_TSX, /refreshNonce, showArchived\]\);/);
 });
@@ -206,8 +212,12 @@ test('submitBulkRestore confirms, POSTs bulk-restore, reports three outcomes, re
   assert.match(body, /setRefreshNonce\(\(n\) => n \+ 1\)/);
 });
 
-test('CSV export hides in the archived view (server filter cannot express archived-only)', () => {
-  assert.match(LIST_TSX, /requests\.length > 0 && !showArchived && \(/);
+test('CSV export works in BOTH views now (sprint 103 — archivedOnly reached the export taxonomy)', () => {
+  // The sprint-76 hiding was honest-at-the-time: the server could
+  // not express archived-only, so the link would have lied. Now it
+  // can, the link renders in both views and carries the param.
+  assert.ok(!/requests\.length > 0 && !showArchived && \(/.test(LIST_TSX), 'the hiding gate must stay gone');
+  assert.match(LIST_TSX, /if \(showArchived\) params\.set\('archivedOnly', '1'\);[\s\S]*?export\.csv/);
 });
 
 test('archived-empty state outranks the default copy', () => {

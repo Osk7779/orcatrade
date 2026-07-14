@@ -167,14 +167,16 @@ function ImportsView() {
     if (cohortReason) params.set('declineReason', cohortReason);
     if (supplierPick) params.set('supplierPick', supplierPick);
     if (urlQ) params.set('q', urlQ);
-    // Sprint 76 — archived view pulls live + archived from the
-    // server, then keeps only the archived rows below.
-    if (showArchived) params.set('includeArchived', '1');
+    // Sprint 103 — archived view is a SERVER-side cut now (the
+    // old client-side filter over includeArchived was wrong at
+    // scale: the LIMIT ate archived rows before the client saw
+    // them).
+    if (showArchived) params.set('archivedOnly', '1');
     apiGet<{ ok: boolean; importRequests: ImportRequest[] }>(`/imports?${params.toString()}`)
       .then((d) => {
         if (cancelled) return;
         const all = Array.isArray(d.importRequests) ? d.importRequests : [];
-        const rows = showArchived ? all.filter((r) => r.archivedAt) : all;
+        const rows = all; // server-cut both ways since sprint 103
         setRequests(rows);
         // Sprint 74 — prune (don't clear) the selection: ids that
         // fell out of the view (archived, filtered away) drop; rows
@@ -510,7 +512,9 @@ function ImportsView() {
           server filter can't express "archived only", so offering
           it there would download a different set than the screen
           shows. Hiding is the truthful option. */}
-      {state === 'ready' && requests.length > 0 && !showArchived && (
+      {/* Sprint 103 — the export link works in the archived view
+          too, now that the server can express archived-only. */}
+      {state === 'ready' && requests.length > 0 && (
         <div className="flex justify-end -mt-3">
           <a
             href={(() => {
@@ -520,6 +524,7 @@ function ImportsView() {
               if (cohortReason) params.set('declineReason', cohortReason);
               if (supplierPick) params.set('supplierPick', supplierPick);
               if (urlQ) params.set('q', urlQ);
+              if (showArchived) params.set('archivedOnly', '1');
               const qs = params.toString();
               return qs ? `/api/imports/export.csv?${qs}` : '/api/imports/export.csv';
             })()}
