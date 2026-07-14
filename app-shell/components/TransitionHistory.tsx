@@ -235,11 +235,16 @@ const LOOKUP_BY_KIND: Record<EntityKind, {
         // variance rendered verbatim (the UI never computes money).
         case 'import_request_sla_breached': {
           // Sprint 97 — the recorded breach moment. Numbers are the
-          // sweep's own detection facts; render verbatim.
-          const d = (e.detail as { targetHours?: number; ageHoursAtDetection?: number } | undefined) || {};
-          return typeof d.targetHours === 'number' && typeof d.ageHoursAtDetection === 'number'
-            ? `Turnaround commitment breached — unquoted at ${d.ageHoursAtDetection}h against the ${d.targetHours}h target`
-            : 'Turnaround commitment breached';
+          // sweep's own detection facts; render verbatim. Sprint 100
+          // — commitment discriminator (legacy = turnaround).
+          const d = (e.detail as { commitment?: string; targetHours?: number; ageHoursAtDetection?: number } | undefined) || {};
+          const fr = d.commitment === 'firstResponse';
+          if (typeof d.targetHours === 'number' && typeof d.ageHoursAtDetection === 'number') {
+            return fr
+              ? `First-response commitment breached — no human action at ${d.ageHoursAtDetection}h against the ${d.targetHours}h target`
+              : `Turnaround commitment breached — unquoted at ${d.ageHoursAtDetection}h against the ${d.targetHours}h target`;
+          }
+          return fr ? 'First-response commitment breached' : 'Turnaround commitment breached';
         }
         case 'import_request_actual_reported': {
           const d = (e.detail as { variance?: { deltaPct?: number }; isSupersession?: boolean } | undefined) || {};

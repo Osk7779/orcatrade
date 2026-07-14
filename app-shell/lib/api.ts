@@ -2150,9 +2150,14 @@ export function activityEventSummary(e: ActivityEvent): string {
     // direction when the detail carries it (deterministic server
     // numbers — the UI only renders).
     case 'import_request_sla_breached': {
-      const d = e.detail as { targetHours?: number; ageHoursAtDetection?: number } | undefined;
+      const d = e.detail as { commitment?: string; targetHours?: number; ageHoursAtDetection?: number } | undefined;
+      // Sprint 100 — legacy events without the discriminator are
+      // turnaround (the only commitment recorded before it existed).
+      const fr = d?.commitment === 'firstResponse';
       return d && typeof d.targetHours === 'number'
-        ? `SLA breached on ${entityRef}: unquoted past ${d.targetHours}h`
+        ? (fr
+          ? `First-response SLA breached on ${entityRef}: no human action past ${d.targetHours}h`
+          : `SLA breached on ${entityRef}: unquoted past ${d.targetHours}h`)
         : `SLA breached on import request ${entityRef}`;
     }
     case 'import_request_actual_reported': {
