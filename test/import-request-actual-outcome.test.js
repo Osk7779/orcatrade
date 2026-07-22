@@ -221,10 +221,15 @@ test('rowToImportRequest projects actualOutcome with the object-shape guard', ()
   );
 });
 
-test('TS mirrors: ImportRequestActualOutcome + variance interfaces + ImportRequest field', () => {
+test('TS mirrors: ImportRequestActualOutcome + ImportRequest field (variance interface DELETED sprint 106)', () => {
   assert.match(API_TS, /export interface ImportRequestActualOutcome \{\s*\n\s*landedCents: number;/);
-  assert.match(API_TS, /export interface ImportRequestActualVariance \{\s*\n\s*quoteCents: number;/);
   assert.match(API_TS, /actualOutcome\?: ImportRequestActualOutcome \| null;/);
+  // Sprint 106 dead-code sweep: the variance interface's ONLY
+  // consumer was the pin asserting it existed — the panel derives
+  // its display client-side from the row, and the POST response's
+  // variance object has no typed consumer. No dead code applies
+  // to our own additions too.
+  assert.ok(!/ImportRequestActualVariance/.test(API_TS), 'the dead interface must stay gone');
 });
 
 test('detail page: panel gated on customer_approved, POSTs landedEur, caps notes, names the ledger', () => {

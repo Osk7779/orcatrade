@@ -1863,15 +1863,6 @@ export interface ImportRequestActualOutcome {
   notes: string;
 }
 
-// Sprint 81 — server-computed variance vs the landed quote.
-// Returned by POST /api/imports/<id>/actual; null when the row
-// carries no scoreable quote.
-export interface ImportRequestActualVariance {
-  quoteCents: number;
-  actualCents: number;
-  deltaCents: number;
-  deltaPct: number;
-}
 
 // ── Compliance evidence (sprint 27) ──────────────────────────────────
 // Append-only entries stored in import_requests.evidence_attachments
