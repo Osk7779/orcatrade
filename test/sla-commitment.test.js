@@ -95,6 +95,32 @@ test('null cases: terminal-without-quote, clock skew, garbage stamps, missing cr
   }
 });
 
+test('ARCHIVED rows: unquoted → commitment VOID (the alerted claim must not speak); quoted → verdict kept', () => {
+  // Sprint 105 — archived requests are off every worklist (cohorts,
+  // alerts, breach sweeps all exclude them), so pending/overdue —
+  // whose copy says 'the team has been alerted' — would be false.
+  assert.equal(
+    sla.computeSlaCommitment({
+      createdAt: iso(0), status: 'submitted', archivedAt: iso(1),
+      targetHours: 48, nowMs: T0 + 60 * 3_600_000,
+    }),
+    null,
+    'an archived unquoted row gets NO banner — no machinery stands behind the claim',
+  );
+  // A quoted-then-archived row keeps its verdict: the promise was
+  // settled before the withdrawal, and honest misses stay on the
+  // record.
+  const settled = sla.computeSlaCommitment({
+    createdAt: iso(0), quotedAt: iso(52), archivedAt: iso(60), targetHours: 48,
+  });
+  assert.equal(settled.state, 'missed');
+});
+
+test('handleGet threads archivedAt into the derivation', () => {
+  const block = HANDLER_SRC.match(/async function handleGet\([\s\S]*?\n\}/)[0];
+  assert.match(block, /archivedAt: r\.archivedAt,/);
+});
+
 test('negotiated target respected; garbage target falls back to the platform constant', () => {
   const tight = sla.computeSlaCommitment({ createdAt: iso(0), quotedAt: iso(30), targetHours: 24 });
   assert.equal(tight.state, 'missed', 'a 24h contract makes 30h a miss');
