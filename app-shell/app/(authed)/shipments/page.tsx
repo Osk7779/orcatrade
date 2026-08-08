@@ -131,9 +131,30 @@ function ShipmentsView() {
   if (state === 'error') return <p className="text-red-400 text-sm">{errorMsg}</p>;
 
   return (
-    <div className="max-w-5xl">
-      <h1 className="text-4xl mb-1">Shipments</h1>
-      <p className="font-mono text-xs text-white/45 mb-8">Operational system of record</p>
+    <div className="max-w-5xl space-y-12 pb-16">
+      {/* Sprint 13 — Connectis hero matching /dashboard + /imports/* */}
+      <header className="relative pt-4">
+        <div
+          aria-hidden
+          className="absolute -top-8 -right-8 w-64 h-64 pointer-events-none rounded-full"
+          style={{
+            background: 'radial-gradient(closest-side, var(--color-aqua-glow), transparent)',
+            filter: 'blur(8px)',
+          }}
+        />
+        <div className="relative space-y-4 max-w-2xl">
+          <span className="inline-block text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+            L1.6 · Operational system of record
+          </span>
+          <h1 className="text-[clamp(2.25rem,4.5vw,3.25rem)] font-bold text-[var(--color-ivory)] tracking-[-0.025em] leading-[1.05]">
+            Shipments.
+          </h1>
+          <p className="text-[var(--color-ivory-dim)] text-[15.5px] leading-relaxed">
+            Every shipment in your portfolio — status, route, value, and the exceptions that need ops attention first.
+          </p>
+        </div>
+      </header>
+
       <ExceptionQueueCard items={queue} onAcknowledged={(updated) => {
         setQueue((prev) => prev.map((q) => (q.externalId === updated.externalId ? { ...q, ...updated } : q)));
       }} />
@@ -172,18 +193,34 @@ function ExceptionQueueCard({
 
   if (openCount === 0) {
     return (
-      <section className="mb-10 border border-[var(--color-navy-line)] p-6">
-        <h2 className="font-serif text-xl mb-1">Exception queue</h2>
-        <p className="font-mono text-xs text-white/45">No open exceptions. Clean operational state.</p>
+      <section
+        className="bg-[var(--surface-card)] border border-white/[0.06] p-6 space-y-1"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        <h2 className="text-[18px] font-semibold text-[var(--color-ivory)]">Exception queue</h2>
+        <p className="text-[13px] text-[var(--color-ivory-mute)]">
+          No open exceptions. Clean operational state.
+        </p>
       </section>
     );
   }
 
   return (
-    <section className="mb-10 border border-[var(--color-navy-line)]">
-      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
-        <h2 className="font-serif text-xl">Exception queue</h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] overflow-hidden"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between gap-3 flex-wrap">
+        <h2 className="text-[18px] font-semibold text-[var(--color-ivory)]">Exception queue</h2>
+        <span
+          className="text-[11px] font-medium uppercase tracking-[0.06em] px-3 py-1 border"
+          style={{
+            color: breachedCount > 0 ? 'var(--color-critical)' : 'var(--color-warning)',
+            borderColor: breachedCount > 0 ? 'var(--color-critical)' : 'var(--color-warning)',
+            background: breachedCount > 0 ? 'rgba(239,68,68,0.08)' : 'rgba(245,158,11,0.08)',
+            borderRadius: 'var(--radius-badge)',
+          }}
+        >
           {openCount} open · {breachedCount} SLA breach
         </span>
       </div>
@@ -260,25 +297,46 @@ function ExceptionRow({
   const overLimit = note.length > NOTE_LIMIT;
 
   return (
-    <li className="px-6 py-4 border-b border-[var(--color-navy-line)] last:border-b-0">
+    <li className="px-6 py-4 border-b border-white/[0.06] last:border-b-0">
       <div className="grid gap-3 md:grid-cols-[1fr_auto_auto] items-center">
         <div>
-          <div className="font-serif text-[15px] text-white">{item.label}</div>
-          <div className="font-mono text-[11px] text-white/50 mt-1">
-            {formatRoute(item)} · age {ageLabel(item._queue.ageHours)}
+          <div className="text-[15px] font-medium text-[var(--color-ivory)]">{item.label}</div>
+          <div className="text-[12px] text-[var(--color-ivory-mute)] mt-0.5">
+            <span className="font-mono">{formatRoute(item)}</span> · age {ageLabel(item._queue.ageHours)}
             {item._queue.slaBreached && (
-              <span className="ml-2 text-[var(--color-critical)]">· SLA breach</span>
+              <span className="ml-2 font-semibold" style={{ color: 'var(--color-critical)' }}>
+                · SLA breach
+              </span>
             )}
           </div>
         </div>
-        <div className="text-right font-mono text-[11px] text-white/60">
+        <div
+          className="text-right text-[11px] font-medium uppercase tracking-[0.06em]"
+          style={{ color: acknowledged ? 'var(--color-positive)' : 'var(--color-warning)' }}
+        >
           {acknowledged ? 'Acknowledged' : 'Open'}
         </div>
         <button
           type="button"
           onClick={acknowledge}
           disabled={busy || acknowledged || overLimit}
-          className="px-3 py-1.5 border border-[var(--color-ivory)]/30 text-[11px] font-mono uppercase tracking-[0.1em] hover:border-[var(--color-ivory)] disabled:cursor-not-allowed disabled:opacity-40"
+          className="px-4 py-2 text-[12px] font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-40"
+          style={
+            acknowledged
+              ? {
+                  borderRadius: 'var(--radius-button)',
+                  border: '1px solid var(--color-positive)',
+                  color: 'var(--color-positive)',
+                  background: 'rgba(16,185,129,0.08)',
+                }
+              : {
+                  borderRadius: 'var(--radius-button)',
+                  background: 'var(--color-aqua)',
+                  color: 'var(--color-navy)',
+                  boxShadow: 'var(--shadow-cta)',
+                  fontWeight: 600,
+                }
+          }
         >
           {acknowledged ? 'Done' : busy ? 'Acknowledging…' : 'Acknowledge'}
         </button>
@@ -496,11 +554,14 @@ function ShipmentList({
   // makes sense pre-data.
   if (shipments.length === 0) {
     return (
-      <section className="border border-[var(--color-navy-line)] p-6">
-        <h2 className="font-serif text-xl mb-1">All shipments</h2>
-        <p className="font-mono text-xs text-white/45 mt-2">
+      <section
+        className="bg-[var(--surface-card)] border border-white/[0.06] p-10 text-center"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        <h2 className="text-[20px] font-semibold text-[var(--color-ivory)]">All shipments</h2>
+        <p className="text-[14px] text-[var(--color-ivory-mute)] mt-2 max-w-lg mx-auto leading-relaxed">
           No shipments yet. Promote a saved plan into a shipment from{' '}
-          <Link href="/plans" className="underline">Plans</Link>{' '}
+          <Link href="/plans" className="text-[var(--color-aqua)] hover:underline font-medium">Plans</Link>{' '}
           to start the operational record.
         </p>
       </section>
@@ -508,19 +569,23 @@ function ShipmentList({
   }
 
   return (
-    <section className="border border-[var(--color-navy-line)]">
-      <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between gap-3 flex-wrap">
-        <h2 className="font-serif text-xl">All shipments</h2>
-        <div className="flex items-center gap-4">
+    <section
+      className="bg-[var(--surface-card)] border border-white/[0.06] overflow-hidden"
+      style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+    >
+      <div className="px-6 py-4 border-b border-white/[0.06] flex items-center justify-between gap-3 flex-wrap">
+        <h2 className="text-[18px] font-semibold text-[var(--color-ivory)]">All shipments</h2>
+        <div className="flex items-center gap-4 flex-wrap">
           <label className="flex items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+            <span className="text-[11px] font-semibold tracking-[0.08em] uppercase text-[var(--color-ivory-mute)]">
               Filter
             </span>
             <select
               value={activeFilter || ''}
               onChange={(e) => setFilter(e.target.value)}
               aria-label="Filter shipments by status"
-              className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-white focus:outline-none focus:border-white/55"
+              className="bg-white/[0.025] border border-white/[0.08] px-3 py-1.5 text-[12.5px] text-[var(--color-ivory)] focus:outline-none focus:border-[var(--color-aqua)] transition-colors"
+              style={{ borderRadius: 'var(--radius-input)' }}
             >
               <option value="">All statuses ({shipments.length})</option>
               {SHIPMENT_STATUSES.map((s) => (
@@ -530,7 +595,7 @@ function ShipmentList({
               ))}
             </select>
           </label>
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+          <span className="text-[12px] text-[var(--color-ivory-mute)] tabular-nums">
             {activeFilter
               ? `${visibleShipments.length} of ${shipments.length}`
               : `${shipments.length} total`}

@@ -44,6 +44,23 @@ const handlers = {
   // GET/PATCH/DELETE /api/shipments/<externalId> +
   // POST /api/shipments/<externalId>/transition for state changes.
   shipments: require('../lib/handlers/shipments'),
+  // Import Request — L1.0 of docs/strategic-plan-2026-2031.md §4.1.2.
+  // The customer-intent primitive that PRECEDES Goods + Supplier +
+  // Shipment. The Operator wedge of the billion-dollar direction:
+  // customer describes what they want from Asia; AI generates a
+  // factory shortlist + landed-cost quote; team reviews (ADR 0015);
+  // customer approves; downstream Shipment materialises.
+  // GET/POST /api/imports + GET/DELETE /api/imports/<externalId> +
+  // POST /api/imports/<externalId>/{process,review,decide,cancel} +
+  // GET /api/imports/<externalId>/history.
+  imports: require('../lib/handlers/imports'),
+  // Org-scoped activity feed (sprint 14). GET /api/activity?limit=20
+  // → newest-first stream of org-wide lifecycle events (goods + suppliers
+  // + shipments + import-requests + documents + org-membership). Powers
+  // the live dashboard activity widget. Personal-security events
+  // (auth_*, mfa_*, password_*) are deliberately excluded — they live
+  // in /account/security only.
+  activity: require('../lib/handlers/activity'),
   // Auth (magic-link). Sub-actions resolved inside the handler from the
   // second URL segment: request / verify / me / logout.
   auth: require('../lib/handlers/auth'),
@@ -96,6 +113,30 @@ const handlers = {
   // window, populated by the dispatcher's instrumentation in
   // lib/slo.js. Consumed by /status/ for the live SLO display.
   slo: require('../lib/handlers/slo'),
+  // Public Quote Accuracy Ledger (sprint 80, Track B). GET
+  // /api/accuracy returns the measured quote-vs-actuals instrument
+  // (median abs error, ±bands, value-weighted bias) with honest
+  // sample-size tiers. PII-free aggregate; consumed by
+  // /trust/accuracy on the marketing shell.
+  accuracy: require('../lib/handlers/accuracy'),
+  // Public SLA attainment (sprint 85, Track D). GET /api/sla —
+  // platform-wide measured attainment for the 48h quote-turnaround
+  // and 24h first-response commitments. PII-free aggregate;
+  // consumed by /trust/sla on the marketing shell. Distinct from
+  // /api/slo (endpoint latency percentiles — infrastructure, not
+  // service commitments).
+  sla: require('../lib/handlers/sla-public'),
+  // Exportable due-diligence bundle (sprint 86, Track D). GET
+  // /api/trust-pack aggregates every live trust instrument
+  // (anchors + accuracy + SLA) via the SAME computations that
+  // power their live endpoints, plus the security-doc corpus and
+  // the verification endpoints. ?download=1 saves as a dated file.
+  'trust-pack': require('../lib/handlers/trust-pack'),
+  // Cross-org operator triage console feed (sprint 87, Track E).
+  // ADMIN-GATED (verifyAdmin) — the only reader that crosses org
+  // boundaries. One screen, the whole book of business, ranked by
+  // SLA risk → € at stake → review queue.
+  'operator-triage': require('../lib/handlers/operator-triage'),
   // GDPR data subject endpoints (Sprint BG-5.1). GET /api/account/export
   // returns a JSON dump of everything we hold for the signed-in user;
   // POST /api/account/delete pseudonymises events + hard-deletes plans
@@ -130,6 +171,27 @@ const handlers = {
   // view count + audits + returns ok/revoked so a bookmarked /start/
   // URL stops working once the owner hits Revoke.
   'share-check': require('../lib/handlers/share-check'),
+  // Sprint 42 — per-org operator config (v1: stallThresholdDays).
+  // GET returns the effective config (defaults + org overrides);
+  // PATCH writes a validated partial. Ops-only (requireOpsRole
+  // inside the handler).
+  'operator-config': require('../lib/handlers/operator-config'),
+  // Sprint 44 — per-org API key management. GET lists redacted
+  // keys, POST creates (raw value returned ONCE), DELETE revokes.
+  // Admin-only. Bearer-token lookup path is in lib/api-keys.js;
+  // wiring into specific GET endpoints is a follow-up sprint.
+  'api-keys': require('../lib/handlers/api-keys'),
+  // Sprint 47 — outbound webhook subscription management + test
+  // delivery. GET lists (secrets stripped), POST creates (secret
+  // returned ONCE), DELETE removes, POST /<id>/test fires a signed
+  // test payload to the URL. Admin-only.
+  webhooks: require('../lib/handlers/webhooks'),
+  // Sprint 52 — org-admin-facing cron observability. Distinct
+  // path from the platform-admin /api/cron/status: this one is
+  // session-authed at the org-admin level (admin/owner roles)
+  // so any admin can watch the cron jobs their workflow depends
+  // on. Same KV reads, no new state.
+  'cron-status': require('../lib/handlers/cron-status'),
   // Sprint wizard-step-funnel-v1 — the wizard fires fire-and-forget
   // POSTs as the user clicks Next/Back/Submit so we can compute the
   // 6-step funnel ("how many users reached step 4?") without external
