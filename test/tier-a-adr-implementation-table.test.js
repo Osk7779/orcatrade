@@ -8,7 +8,7 @@
 // calculator's surface without updating the ADR table — or that
 // silently removes a shipped surface — must fail CI.
 //
-// Mirrors the philosophy of test/tier-a-adr-reasons-drift.test.js:
+// Mirrors the philosophy of the reasons-drift guard in test/tier-a-eligibility.test.js:
 // the ADR is treated as code, not documentation. Big-corp standard:
 // promise = enforcement.
 

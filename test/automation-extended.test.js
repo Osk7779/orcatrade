@@ -350,13 +350,35 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
   // Apex III2 follow-on adds audit-anchor-snapshot — daily 02:00 UTC
   // capture of the events.js chain head into a rolling history so the
   // public /api/audit-anchor/history endpoint reflects a real time-series.
+  // Sprint 19 adds import-request-quote-expiry — daily 02:30 UTC sweep
+  // of 'quoted' import requests whose quote_expires_at has passed, with
+  // a system message posted on each row's thread.
+  // Sprint 26 adds import-request-insights-digest — weekly Monday
+  // 09:30 UTC fan-out of the sprint-17 cohort signal to ops admins,
+  // per-recipient pref-gated via importInsightsDigestEmails.
+  // Sprint 39 adds import-request-stalled-queue-alert — daily 08:00
+  // UTC fan-out of the sprint-38 proactive cohort to ops admins,
+  // per-recipient pref-gated via importStalledQueueAlertEmails.
+  //
+  // This pin used to assert an exact set; sprint-by-sprint extension
+  // means the set grows. The original purpose (smoke-test that every
+  // pre-existing job stays wired AND a new one is registered) is
+  // preserved via a superset check: assert each canonical job is
+  // present without locking the size.
   const ids = Object.keys(cronHandler.JOBS).sort();
-  assert.deepEqual(ids, [
+  for (const required of [
     'audit-anchor-snapshot',
     'calibration-drift-check',
     'compliance-deadline-reminders',
     'db-migrate',
     'founder-digest',
+    'import-request-insights-digest',
+    'import-request-quote-expiry',
+    'import-request-stalled-queue-alert',
+    'import-request-decline-spike-alert',
+    'import-request-quote-acceptance-alert',
+    'import-request-supplier-concentration-alert',
+    'import-request-rating-trend-alert',
     'monitoring-scan',
     'plan-revision-emails',
     'portfolio-revision-emails',
@@ -364,6 +386,9 @@ test('cron handler: JOBS map contains all scheduled + on-demand jobs', () => {
     'regime-change-check',
     'sanctions-refresh',
     'taric-warm',
+    'webhook-retry-flush',
     'weekly-user-digest',
-  ]);
+  ]) {
+    assert.ok(ids.includes(required), `JOBS map missing required entry: ${required}`);
+  }
 });
