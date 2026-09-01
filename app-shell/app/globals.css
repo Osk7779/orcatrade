@@ -30,6 +30,39 @@
   --color-critical: #ef4444;
   --color-info: #60a5fa;
 
+  /* ─── Sprint 7 design migration — Connectis-inspired palette ───
+   *
+   * Adds an aqua-cyan accent system + soft-shadow + rounded-corner
+   * tokens for new flagship surfaces (/imports/new first). Existing
+   * pages keep working with the editorial ivory tokens above; new
+   * pages opt into these.
+   *
+   * The aqua palette is the only meaningful brand shift: OrcaTrade =
+   * orcas + deep ocean, so navy + ivory is on-brand but lacked an
+   * accent colour. Aqua (refracted-light cyan) fits the metaphor.
+   */
+  --color-aqua: #22d3ee;        /* Tailwind cyan-400 — primary CTA */
+  --color-aqua-dim: #06b6d4;    /* Tailwind cyan-500 — hover state */
+  --color-aqua-glow: rgba(34, 211, 238, 0.18);  /* card/edge ambient */
+  --color-aqua-soft: rgba(34, 211, 238, 0.08);  /* low-saturation tint */
+
+  /* Surface elevation for the new flagship pages */
+  --surface-card: rgba(255, 255, 255, 0.02);
+  --surface-card-hover: rgba(255, 255, 255, 0.04);
+  --surface-elevated: rgba(34, 211, 238, 0.02);
+
+  /* Radius scale — rounded for the new aesthetic. Existing sharp
+     rectangles persist via inline border-class usage on legacy pages. */
+  --radius-input: 10px;
+  --radius-card: 16px;
+  --radius-button: 10px;
+  --radius-badge: 999px;
+
+  /* Soft, diffuse shadows for the new aesthetic — Connectis-style */
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, 0.4), 0 8px 24px rgba(0, 0, 0, 0.18);
+  --shadow-card-hover: 0 1px 2px rgba(0, 0, 0, 0.4), 0 16px 40px rgba(34, 211, 238, 0.08);
+  --shadow-cta: 0 8px 24px rgba(34, 211, 238, 0.25), 0 0 0 1px rgba(34, 211, 238, 0.4) inset;
+
   /* Type stacks */
   --font-sans: var(--font-inter), system-ui, -apple-system, sans-serif;
   --font-serif: var(--font-fraunces), 'Cormorant Garamond', Georgia, serif;

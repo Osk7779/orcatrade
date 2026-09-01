@@ -2,7 +2,17 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
-import { apiGet, AuthError, type Overview } from '@/lib/api';
+import {
+  apiGet,
+  AuthError,
+  type Overview,
+  type ImportRequest,
+  type ImportRequestStatus,
+  type ActivityEvent,
+  activityEventHref,
+  activityEventSummary,
+  activityKind,
+} from '@/lib/api';
 
 function eur(n?: number) {
   if (n == null || !Number.isFinite(n)) return '—';
@@ -84,11 +94,23 @@ export default function DashboardPage() {
         totalRouted={totalRouted}
       />
 
+      {/* Sprint 22 — onboarding checklist for first-time customers.
+          Renders ONLY when the user has zero import requests. The
+          ImportsWidget below detects this via the same /imports?mine=1
+          endpoint, so the checklist auto-hides the moment the customer
+          submits their first request and the next dashboard load
+          brings back items. */}
+      <OnboardingChecklist />
+
       <Bento
         planCount={planCount}
         portfolioCount={portfolioCount}
         complianceCount={complianceCount}
       />
+
+      <ImportsWidget />
+
+      <ActivityWidget />
 
       {next && <NextDeadline next={next} />}
 
@@ -104,25 +126,25 @@ export default function DashboardPage() {
  * ──────────────────────────────────────────────────────────────────── */
 
 function Eyebrow({ children }: { children: React.ReactNode }) {
+  // Sprint 11: Connectis-aligned eyebrow. Aqua semibold caption,
+  // no decorative leading line — matches the imports surface.
   return (
-    <div className="flex items-center gap-3">
-      <span className="h-px w-8 bg-[var(--color-ivory-dim)]/40" />
-      <span className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
-        {children}
-      </span>
-    </div>
+    <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
+      {children}
+    </span>
   );
 }
 
 function Headline({ children, size = 'lg' }: { children: React.ReactNode; size?: 'lg' | 'md' }) {
+  // Sprint 11: bold Inter display matching the imports hero. Inline
+  // serif italic still reads as serif (font-serif on the inner span).
   const cls =
     size === 'lg'
-      ? 'text-[clamp(2.6rem,4.2vw+0.4rem,3.8rem)] leading-[1.05]'
+      ? 'text-[clamp(2.25rem,4.5vw,3.25rem)] leading-[1.05]'
       : 'text-[clamp(1.6rem,2.4vw+0.4rem,2.2rem)] leading-[1.1]';
   return (
     <h1
-      className={`font-serif ${cls} tracking-[-0.022em] text-[var(--color-ivory)] mt-5`}
-      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
+      className={`${cls} font-bold tracking-[-0.025em] text-[var(--color-ivory)] mt-4`}
     >
       {children}
     </h1>
@@ -134,12 +156,10 @@ function Section({ children, className = '' }: { children: React.ReactNode; clas
 }
 
 function SectionHeading({ children, action }: { children: React.ReactNode; action?: React.ReactNode }) {
+  // Sprint 11: Inter semibold instead of Fraunces serif.
   return (
-    <div className="flex items-end justify-between gap-6 mb-7">
-      <h2
-        className="font-serif text-[1.6rem] tracking-[-0.018em] text-[var(--color-ivory)] leading-tight"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
-      >
+    <div className="flex items-end justify-between gap-6 mb-5">
+      <h2 className="text-[22px] font-semibold tracking-[-0.01em] text-[var(--color-ivory)]">
         {children}
       </h2>
       {action}
@@ -171,26 +191,38 @@ function Hero({
 
   return (
     <Section>
-      <Eyebrow>The cockpit · {new Date().toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'short' })}</Eyebrow>
-      <Headline>
-        {greeting()}{email ? ', ' : '.'}
-        {email && (
-          <span className="font-serif italic text-[var(--color-ivory-mute)]">
-            {email.split('@')[0]}.
-          </span>
-        )}
-      </Headline>
-      <p className="mt-6 max-w-[60ch] text-[15.5px] leading-[1.78] text-[var(--color-ivory-dim)]">
+      <div className="relative">
+        <div
+          aria-hidden
+          className="absolute -top-8 -right-8 w-64 h-64 pointer-events-none rounded-full"
+          style={{
+            background: 'radial-gradient(closest-side, var(--color-aqua-glow), transparent)',
+            filter: 'blur(8px)',
+          }}
+        />
+        <div className="relative space-y-1">
+          <Eyebrow>The cockpit · {new Date().toLocaleDateString('en-IE', { weekday: 'long', day: 'numeric', month: 'short' })}</Eyebrow>
+          <Headline>
+            {greeting()}{email ? ', ' : '.'}
+            {email && (
+              <span className="font-serif italic text-[var(--color-ivory-mute)]">
+                {email.split('@')[0]}.
+              </span>
+            )}
+          </Headline>
+        </div>
+      </div>
+      <p className="mt-5 max-w-[60ch] text-[16px] leading-relaxed text-[var(--color-ivory-dim)]">
         {summary.length
-          ? `${summary.join(' · ')}. ${totalRouted > 0 ? `${eur(totalRouted)} of landed cost across your most recent plans.` : 'Everything you’ve modelled, in one place.'}`
-          : 'Everything you’ve modelled, in one place. Build a plan to populate this view.'}
+          ? `${summary.join(' · ')}. ${totalRouted > 0 ? `${eur(totalRouted)} of landed cost across your most recent plans.` : 'Everything you have modelled, in one place.'}`
+          : 'Everything you have modelled, in one place. Build a plan to populate this view.'}
       </p>
-      <div className="mt-8 flex items-center gap-3 font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)]">
+      <div className="mt-7 flex items-center gap-3 text-[12px] text-[var(--color-ivory-mute)]">
         <span className="relative flex h-2 w-2 items-center justify-center">
-          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-positive)] opacity-60" />
-          <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-positive)]" />
+          <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[var(--color-aqua)] opacity-60" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-[var(--color-aqua)]" />
         </span>
-        <span>Calculator-grounded · live · last refresh just now</span>
+        <span className="font-serif italic">Calculator-grounded · live · last refresh just now</span>
       </div>
     </Section>
   );
@@ -209,8 +241,10 @@ function Bento({
   portfolioCount: number;
   complianceCount: number;
 }) {
+  // Sprint 11: rounded soft-shadow cards in a true grid (gap, not
+  // 1px pseudo-border). Matches the imports surface card rhythm.
   return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <Stat
         label="Saved plans"
         value={planCount}
@@ -254,24 +288,27 @@ function Stat({
   return (
     <Link
       href={href}
-      className="group relative isolate flex flex-col gap-3 bg-[var(--color-ink)] p-8 hover:bg-[var(--color-navy-soft)] transition-colors duration-500"
+      className="group relative isolate flex flex-col gap-3 bg-[var(--surface-card)] border border-white/[0.06] p-7 transition-all duration-300 hover:border-[var(--color-aqua)]/30 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-px"
+      style={{
+        borderRadius: 'var(--radius-card)',
+        boxShadow: 'var(--shadow-card)',
+      }}
     >
-      <span aria-hidden className="absolute top-0 left-0 h-[2px] w-0 bg-[var(--color-ivory)] transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-      <div className="font-mono text-[10.5px] tracking-[0.16em] uppercase text-[var(--color-ivory-mute)]">
+      <div className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-ivory-mute)]">
         {label}
       </div>
       <div
-        className="font-serif text-[clamp(3rem,4vw+0.4rem,3.8rem)] leading-none tracking-[-0.028em]"
-        style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 600, color: accent }}
+        className="text-[clamp(3rem,4vw+0.4rem,3.8rem)] font-bold leading-none tabular-nums tracking-[-0.02em]"
+        style={{ color: accent }}
       >
         {value}
       </div>
       <div className="font-serif italic text-[13px] text-[var(--color-ivory-mute)]">
         {hint}
       </div>
-      <span className="inline-flex items-center gap-1.5 mt-auto font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--color-ivory-dim)] group-hover:text-[var(--color-ivory)] transition-colors duration-300">
+      <span className="inline-flex items-center gap-1.5 mt-auto text-[12px] font-medium text-[var(--color-ivory-dim)] group-hover:text-[var(--color-aqua)] transition-colors duration-200">
         View
-        <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+        <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
       </span>
     </Link>
   );
@@ -286,35 +323,40 @@ function NextDeadline({ next }: { next: NonNullable<Overview['compliance']>['nex
   const tone = urgencyTone(next.daysUntil);
   return (
     <Section>
-      <div className="relative isolate overflow-hidden border border-[var(--color-navy-line)] bg-[var(--color-navy-soft)]/45 p-10 md:p-14">
-        {/* Aurora wash */}
+      <div
+        className="relative isolate overflow-hidden border border-white/[0.06] bg-[var(--surface-card)] p-8 md:p-12"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        {/* Aurora wash — tone-coded so the overdue / this-week states
+            read at a glance even before the chip is read. */}
         <div
           aria-hidden
           className="pointer-events-none absolute inset-0 -z-10"
           style={{
-            background: `radial-gradient(60% 80% at 0% 0%, ${tone.color}22, transparent 60%), radial-gradient(40% 60% at 100% 100%, rgba(96,165,250,0.08), transparent 60%)`,
+            background: `radial-gradient(60% 80% at 0% 0%, ${tone.color}1f, transparent 60%), radial-gradient(40% 60% at 100% 100%, var(--color-aqua-glow), transparent 60%)`,
           }}
         />
-        <div className="flex items-center gap-3">
-          <span aria-hidden className="h-px w-8 bg-[var(--color-ivory-dim)]/40" />
-          <span className="font-mono text-[10.5px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
+        <div className="flex items-center gap-3 flex-wrap">
+          <span className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
             Next deadline
           </span>
           <span
-            className="font-mono text-[10.5px] tracking-[0.12em] uppercase ml-auto px-2.5 py-1 border"
-            style={{ color: tone.color, borderColor: tone.color + '55' }}
+            className="text-[11px] font-medium uppercase ml-auto px-3 py-1 border"
+            style={{
+              color: tone.color,
+              borderColor: tone.color + '66',
+              background: tone.color + '10',
+              borderRadius: 'var(--radius-badge)',
+            }}
           >
             {tone.label}
           </span>
         </div>
-        <h3
-          className="mt-8 font-serif text-[clamp(1.9rem,3vw+0.4rem,2.8rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)] max-w-[28ch]"
-          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
-        >
+        <h3 className="mt-6 text-[clamp(1.75rem,3vw,2.5rem)] font-bold leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)] max-w-[28ch]">
           {String(next.regime || '').toUpperCase()}
-          <span className="font-serif italic text-[var(--color-ivory-mute)]"> — {next.title}</span>
+          <span className="font-serif italic font-normal text-[var(--color-ivory-mute)]"> — {next.title}</span>
         </h3>
-        <div className="mt-6 flex flex-wrap items-baseline gap-x-6 gap-y-2">
+        <div className="mt-5 flex flex-wrap items-baseline gap-x-6 gap-y-2">
           <div className="font-mono text-[14px] tracking-tight text-[var(--color-ivory)]">
             Due {next.dueDate}
           </div>
@@ -328,22 +370,494 @@ function NextDeadline({ next }: { next: NonNullable<Overview['compliance']>['nex
             </div>
           )}
         </div>
-        <div className="mt-10 flex flex-wrap gap-3">
+        <div className="mt-8 flex flex-wrap gap-3">
           <Link
             href="/calendar"
-            className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] hover:bg-white transition-colors duration-300"
+            className="group inline-flex items-center gap-2 px-6 py-3 text-[13.5px] font-semibold bg-[var(--color-aqua)] text-[var(--color-navy)] transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: 'var(--shadow-cta)',
+            }}
           >
             Open the calendar
-            <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
           </Link>
           <Link
             href="/chat"
-            className="inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-6 py-3 text-[12.5px] font-medium text-[var(--color-ivory)] hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] transition-all duration-300"
+            className="inline-flex items-center gap-2 border border-white/[0.12] px-6 py-3 text-[13.5px] font-medium text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:border-white/[0.25] hover:bg-white/[0.025] transition-all duration-200"
+            style={{ borderRadius: 'var(--radius-button)' }}
           >
             Ask the agent
           </Link>
         </div>
       </div>
+    </Section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Imports widget — sprint 12 ch 1
+ *
+ *  Fetches the customer's recent import requests via /api/imports?mine=1
+ *  and renders them inline on the dashboard so they don't need to
+ *  click through to /imports to see operational status.
+ * ──────────────────────────────────────────────────────────────────── */
+
+function importStatusTone(s: ImportRequestStatus): string {
+  if (s === 'failed' || s === 'cancelled' || s === 'customer_rejected') return 'var(--color-critical)';
+  if (s === 'customer_approved') return 'var(--color-positive)';
+  if (s === 'awaiting_review' || s === 'processing') return 'var(--color-warning)';
+  if (s === 'quoted') return 'var(--color-aqua)';
+  return 'var(--color-ivory-mute)';
+}
+
+function importStatusLabel(s: ImportRequestStatus): string {
+  return s.replace(/_/g, ' ').replace(/^\w/, (c) => c.toUpperCase());
+}
+
+function importAgeLabel(iso: string): string {
+  const ms = Date.now() - new Date(iso).getTime();
+  if (!Number.isFinite(ms) || ms < 0) return '—';
+  const days = Math.floor(ms / 86_400_000);
+  if (days >= 1) return `${days}d ago`;
+  const hours = Math.floor(ms / 3_600_000);
+  if (hours >= 1) return `${hours}h ago`;
+  const mins = Math.floor(ms / 60_000);
+  return mins >= 1 ? `${mins}m ago` : 'just now';
+}
+
+// Sprint 22 — onboarding checklist for first-time customers. Renders
+// the 3-step path from "submit your first request" → "we generate a
+// quote" → "approve to move to fulfillment" so a brand-new user
+// understands the platform shape before they click anything. Auto-
+// hides as soon as the user has at least one import request — the
+// query that powers ImportsWidget is the same signal.
+function OnboardingChecklist() {
+  type ListState = 'loading' | 'show' | 'hide';
+  const [state, setState] = useState<ListState>('loading');
+
+  useEffect(() => {
+    let cancelled = false;
+    // Use the same endpoint as ImportsWidget so a fresh deploy
+    // (DATABASE_URL not yet wired, schema not migrated) results in
+    // ImportsWidget being hidden + the checklist staying hidden too
+    // — the dashboard never breaks if /api/imports is degraded.
+    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>('/imports?mine=1&limit=1')
+      .then((d) => {
+        if (cancelled) return;
+        const has = Array.isArray(d.importRequests) && d.importRequests.length > 0;
+        setState(has ? 'hide' : 'show');
+      })
+      .catch(() => {
+        if (cancelled) return;
+        // Same fail-soft posture as ImportsWidget — a 401/503/etc.
+        // hides the checklist rather than breaking the page.
+        setState('hide');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  if (state !== 'show') return null;
+
+  return (
+    <Section>
+      <SectionHeading>Get started in 3 steps</SectionHeading>
+      <div
+        className="bg-[var(--surface-card)] border border-[var(--color-aqua)]/30 p-7 grid grid-cols-1 md:grid-cols-3 gap-5"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        <OnboardingStep
+          n={1}
+          title="Submit your first request"
+          body="Tell us what you want to import. The freer the description, the better the AI shortlists factories."
+          cta={{ label: 'New import request', href: '/imports/new' }}
+        />
+        <OnboardingStep
+          n={2}
+          title="We generate a quote in seconds"
+          body="Calculator-grounded landed-cost breakdown + supplier shortlist + compliance verdicts. The team reviews before you see it."
+        />
+        <OnboardingStep
+          n={3}
+          title="Approve to move to fulfillment"
+          body="On approval we materialise the goods + supplier + shipment records and the operations team takes it from there."
+        />
+      </div>
+    </Section>
+  );
+}
+
+function OnboardingStep({
+  n,
+  title,
+  body,
+  cta,
+}: {
+  n: number;
+  title: string;
+  body: string;
+  cta?: { label: string; href: string };
+}) {
+  return (
+    <div className="space-y-3">
+      <span
+        className="inline-flex items-center justify-center w-7 h-7 text-[12.5px] font-bold font-mono"
+        style={{
+          background: 'var(--color-aqua)',
+          color: 'var(--color-navy)',
+          borderRadius: 'var(--radius-badge)',
+        }}
+      >
+        {n}
+      </span>
+      <h3 className="text-[15.5px] font-semibold text-[var(--color-ivory)] tracking-[-0.01em]">
+        {title}
+      </h3>
+      <p className="text-[13.5px] text-[var(--color-ivory-dim)] leading-relaxed">
+        {body}
+      </p>
+      {cta && (
+        <Link
+          href={cta.href}
+          className="group inline-flex items-center gap-1.5 text-[12.5px] font-semibold text-[var(--color-aqua)] hover:underline"
+        >
+          {cta.label}
+          <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+        </Link>
+      )}
+    </div>
+  );
+}
+
+function ImportsWidget() {
+  type ListState = 'loading' | 'auth' | 'error' | 'empty' | 'ready';
+  const [state, setState] = useState<ListState>('loading');
+  const [items, setItems] = useState<ImportRequest[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    apiGet<{ ok: boolean; importRequests: ImportRequest[] }>('/imports?mine=1&limit=5')
+      .then((d) => {
+        if (cancelled) return;
+        const list = Array.isArray(d.importRequests) ? d.importRequests : [];
+        setItems(list);
+        setState(list.length === 0 ? 'empty' : 'ready');
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        // /api/imports requires Postgres (sprint 1). On a fresh deploy
+        // without the schema migration applied the endpoint returns
+        // 503; on auth failure 401. Neither should break the dashboard
+        // — silently hide the widget. The customer sees their other
+        // widgets and we don't fall back to a noisy error.
+        if (err instanceof AuthError) setState('auth');
+        else setState('error');
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  // Hide entirely on auth / error so the dashboard never breaks because
+  // /api/imports is in a degraded state (e.g. schema-012 not yet applied).
+  if (state === 'auth' || state === 'error') return null;
+
+  return (
+    <Section>
+      <SectionHeading
+        action={
+          <Link
+            href="/imports"
+            className="group inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
+          >
+            See all imports
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+          </Link>
+        }
+      >
+        Your imports
+      </SectionHeading>
+
+      {state === 'loading' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-8"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <p className="text-[var(--color-ivory-mute)] text-sm">Loading…</p>
+        </div>
+      )}
+
+      {state === 'empty' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-10 text-center"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No imports yet.</p>
+          <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
+            Tell us what you want from Asia and we will build a factory shortlist + landed-cost quote.
+          </p>
+          <Link
+            href="/imports/new"
+            className="group inline-flex items-center gap-2 mt-6 px-5 py-2.5 bg-[var(--color-aqua)] text-[var(--color-navy)] text-[13.5px] font-semibold transition-all duration-200 hover:bg-[var(--color-aqua-dim)] hover:-translate-y-px"
+            style={{
+              borderRadius: 'var(--radius-button)',
+              boxShadow: 'var(--shadow-cta)',
+            }}
+          >
+            New import request
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
+          </Link>
+        </div>
+      )}
+
+      {state === 'ready' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] overflow-hidden"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          {items.map((r, i) => {
+            const tone = importStatusTone(r.status);
+            const landed = r.landedQuote && Number.isFinite(r.landedQuote.totalLandedCents)
+              ? '€' + Math.round(r.landedQuote.totalLandedCents / 100).toLocaleString('en-IE')
+              : null;
+            return (
+              <Link
+                key={r.externalId}
+                href={`/imports/${r.externalId}`}
+                className={`group flex items-start justify-between gap-4 px-6 py-4 hover:bg-white/[0.025] transition-colors duration-200 ${
+                  i > 0 ? 'border-t border-white/[0.04]' : ''
+                }`}
+              >
+                <div className="flex flex-col gap-1 min-w-0 flex-1">
+                  <div className="flex items-baseline gap-3 flex-wrap">
+                    <span className="text-[15px] font-medium text-[var(--color-ivory)] truncate group-hover:text-[var(--color-aqua)] transition-colors">
+                      {r.label}
+                    </span>
+                    <span className="font-mono text-[11px] tracking-[0.04em] text-[var(--color-ivory-mute)]/70">
+                      {r.externalId}
+                    </span>
+                    {/* Sprint 21 — unread-message badge. Renders inline
+                        with the request label so the customer notices
+                        their thread has activity without opening it. */}
+                    {(r.unreadMessageCount ?? 0) > 0 && (
+                      <span
+                        className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1.5 text-[10px] font-semibold tracking-tight self-center"
+                        style={{
+                          background: 'var(--color-aqua)',
+                          color: 'var(--color-navy)',
+                          borderRadius: 9999,
+                        }}
+                        aria-label={`${r.unreadMessageCount} unread`}
+                      >
+                        {r.unreadMessageCount}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-[13px] text-[var(--color-ivory-dim)] line-clamp-1">
+                    {r.productDescription}
+                  </span>
+                  <div className="flex items-center gap-3 text-[11.5px] text-[var(--color-ivory-mute)]">
+                    <span className="inline-flex items-center gap-1.5" style={{ color: tone }}>
+                      <span
+                        aria-hidden
+                        className="inline-block w-1.5 h-1.5"
+                        style={{ background: tone, borderRadius: '999px' }}
+                      />
+                      {importStatusLabel(r.status)}
+                    </span>
+                    <span>·</span>
+                    <span>{importAgeLabel(r.updatedAt)}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col items-end gap-1 shrink-0">
+                  {landed && (
+                    <span className="font-mono text-[14px] tabular-nums font-medium text-[var(--color-ivory)]">
+                      {landed}
+                    </span>
+                  )}
+                  <span aria-hidden className="text-[14px] text-[var(--color-ivory-mute)] transition-transform duration-200 group-hover:translate-x-0.5">
+                    →
+                  </span>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+      )}
+    </Section>
+  );
+}
+
+/* ────────────────────────────────────────────────────────────────────
+ *  Activity feed (sprint 14)
+ * ──────────────────────────────────────────────────────────────────── */
+
+// Humanise a timestamp into "just now / 3 min ago / 2h ago / 4d ago".
+// Deterministic — purely client-side, no LLM. Cap at 7d (anything older
+// shows the absolute date). Updates only on the polling tick, so the
+// values are stable within a 30s window.
+function activityAgeLabel(iso: string): string {
+  if (!iso) return '—';
+  const ts = Date.parse(iso);
+  if (!Number.isFinite(ts)) return '—';
+  const seconds = Math.max(0, Math.floor((Date.now() - ts) / 1000));
+  if (seconds < 45) return 'just now';
+  const minutes = Math.floor(seconds / 60);
+  if (minutes < 60) return `${minutes} min ago`;
+  const hours = Math.floor(minutes / 60);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(hours / 24);
+  if (days <= 7) return `${days}d ago`;
+  return new Date(ts).toLocaleDateString('en-IE', { day: 'numeric', month: 'short' });
+}
+
+const ACTIVITY_KIND_LABELS: Record<ReturnType<typeof activityKind>, string> = {
+  import: 'IMPORT',
+  shipment: 'SHIPMENT',
+  goods: 'PRODUCT',
+  supplier: 'SUPPLIER',
+  document: 'DOCUMENT',
+  team: 'TEAM',
+};
+
+function ActivityWidget() {
+  type ListState = 'loading' | 'auth' | 'error' | 'empty' | 'ready';
+  const [state, setState] = useState<ListState>('loading');
+  const [events, setEvents] = useState<ActivityEvent[]>([]);
+
+  // Polling cadence — 30s feels live in a demo without overwhelming KV.
+  // On a real production load we'd switch to Supabase Realtime / SSE;
+  // polling is the right scaffolding to ship today.
+  const POLL_MS = 30_000;
+
+  useEffect(() => {
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout> | null = null;
+
+    function load(initial: boolean) {
+      apiGet<{ ok: boolean; events: ActivityEvent[] }>('/activity?limit=20')
+        .then((d) => {
+          if (cancelled) return;
+          const list = Array.isArray(d.events) ? d.events : [];
+          setEvents(list);
+          setState(list.length === 0 ? 'empty' : 'ready');
+        })
+        .catch((err) => {
+          if (cancelled) return;
+          if (initial) {
+            if (err instanceof AuthError) setState('auth');
+            else setState('error');
+          }
+          // A transient poll-time error MUST NOT flip a healthy widget
+          // into the error state — leave the last-known events on
+          // screen so a momentary KV blip doesn't visibly degrade the
+          // dashboard.
+        })
+        .finally(() => {
+          if (cancelled) return;
+          timer = setTimeout(() => load(false), POLL_MS);
+        });
+    }
+
+    load(true);
+    return () => {
+      cancelled = true;
+      if (timer) clearTimeout(timer);
+    };
+  }, []);
+
+  // Hide silently on auth / error so the dashboard never breaks
+  // because /api/activity is in a degraded state.
+  if (state === 'auth' || state === 'error') return null;
+
+  return (
+    <Section>
+      <SectionHeading>Recent activity</SectionHeading>
+
+      {state === 'loading' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-8"
+          style={{ borderRadius: 'var(--radius-card)' }}
+        >
+          <p className="text-[var(--color-ivory-mute)] text-sm">Loading…</p>
+        </div>
+      )}
+
+      {state === 'empty' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] p-10 text-center"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          <p className="font-serif italic text-[var(--color-ivory-dim)] text-lg">No activity yet.</p>
+          <p className="text-[var(--color-ivory-mute)] text-[14px] mt-3 max-w-md mx-auto leading-relaxed">
+            Activity in your org — new imports, shipment updates, supplier registrations — will show up here as it happens.
+          </p>
+        </div>
+      )}
+
+      {state === 'ready' && (
+        <div
+          className="border border-white/[0.06] bg-[var(--surface-card)] overflow-hidden"
+          style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+        >
+          {events.slice(0, 10).map((e, i) => {
+            const href = activityEventHref(e);
+            const kind = activityKind(e);
+            const kindLabel = ACTIVITY_KIND_LABELS[kind];
+            const summary = activityEventSummary(e);
+            const age = activityAgeLabel(e.at);
+            const body = (
+              <>
+                <div className="flex items-center gap-3 min-w-0">
+                  <span
+                    className="text-[10px] font-semibold tracking-[0.08em] uppercase shrink-0 px-2 py-0.5"
+                    style={{
+                      color: 'var(--color-aqua)',
+                      borderColor: 'var(--color-aqua)',
+                      borderWidth: 1,
+                      borderRadius: 'var(--radius-badge)',
+                      background: 'rgba(34, 211, 238, 0.06)',
+                    }}
+                  >
+                    {kindLabel}
+                  </span>
+                  <span className="text-[14px] text-[var(--color-ivory)] truncate font-medium">
+                    {summary}
+                  </span>
+                </div>
+                <span className="text-[12px] font-mono text-[var(--color-ivory-mute)] shrink-0">
+                  {age}
+                </span>
+              </>
+            );
+
+            const rowClass = `flex items-center justify-between gap-4 px-6 py-3.5 ${
+              i > 0 ? 'border-t border-white/[0.04]' : ''
+            }`;
+
+            return href ? (
+              <Link
+                key={`${e.type}-${e.at}-${i}`}
+                href={href}
+                className={`${rowClass} hover:bg-white/[0.025] transition-colors duration-200 group`}
+              >
+                {body}
+              </Link>
+            ) : (
+              <div key={`${e.type}-${e.at}-${i}`} className={rowClass}>
+                {body}
+              </div>
+            );
+          })}
+          {events.length > 10 && (
+            <div className="px-6 py-3 text-[11.5px] text-[var(--color-ivory-mute)] border-t border-white/[0.04]">
+              Showing the 10 most recent of {events.length}. Older activity stays in your audit log.
+            </div>
+          )}
+        </div>
+      )}
     </Section>
   );
 }
@@ -359,45 +873,47 @@ function RecentPlans({ plans }: { plans: NonNullable<NonNullable<Overview['plans
         action={
           <Link
             href="/plans"
-            className="group inline-flex items-center gap-2 text-[12.5px] font-medium text-[var(--color-ivory)]"
+            className="group inline-flex items-center gap-1.5 text-[12.5px] font-medium text-[var(--color-aqua)] hover:underline"
           >
-            <span className="relative">
-              See all plans
-              <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-[var(--color-ivory)]/70 transition-[width] duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-            </span>
-            <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+            See all plans
+            <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
           </Link>
         }
       >
         Recent plans
       </SectionHeading>
-      <div className="border border-[var(--color-navy-line)] divide-y divide-[var(--color-navy-line)]">
-        {plans.map((p) => (
+      <div
+        className="border border-white/[0.06] bg-[var(--surface-card)] overflow-hidden"
+        style={{ borderRadius: 'var(--radius-card)', boxShadow: 'var(--shadow-card)' }}
+      >
+        {plans.map((p, i) => (
           <Link
             key={p.id}
             href="/plans"
-            className="group flex items-center justify-between gap-4 px-6 py-5 hover:bg-[var(--color-navy-soft)]/45 transition-colors duration-300"
+            className={`group flex items-center justify-between gap-4 px-6 py-4 hover:bg-white/[0.025] transition-colors duration-200 ${
+              i > 0 ? 'border-t border-white/[0.04]' : ''
+            }`}
           >
             <div className="flex items-center gap-4 min-w-0">
-              <span aria-hidden className="font-serif text-[20px] text-[var(--color-ivory-mute)]/55 leading-none">
+              <span aria-hidden className="text-[14px] text-[var(--color-aqua)]/60 leading-none">
                 ▸
               </span>
-              <div className="flex flex-col gap-1 min-w-0">
-                <span className="font-serif text-[16.5px] text-[var(--color-ivory)] truncate">
+              <div className="flex flex-col gap-0.5 min-w-0">
+                <span className="text-[15px] font-medium text-[var(--color-ivory)] truncate group-hover:text-[var(--color-aqua)] transition-colors">
                   {p.label || p.route || p.id}
                 </span>
                 {p.route && p.label && (
-                  <span className="font-mono text-[11px] tracking-[0.08em] uppercase text-[var(--color-ivory-mute)] truncate">
+                  <span className="font-mono text-[11px] tracking-[0.05em] text-[var(--color-ivory-mute)] truncate">
                     {p.route}
                   </span>
                 )}
               </div>
             </div>
             <div className="flex items-baseline gap-4 shrink-0">
-              <span className="font-mono text-[15px] tabular-nums text-[var(--color-ivory)]">
+              <span className="font-mono text-[14px] tabular-nums font-medium text-[var(--color-ivory)]">
                 {eur(p.landedEur)}
               </span>
-              <span aria-hidden className="font-mono text-[14px] text-[var(--color-ivory-mute)] transition-transform duration-500 group-hover:translate-x-0.5">
+              <span aria-hidden className="text-[14px] text-[var(--color-ivory-mute)] transition-transform duration-200 group-hover:translate-x-0.5">
                 →
               </span>
             </div>
@@ -437,29 +953,29 @@ function QuickActions() {
   return (
     <Section>
       <SectionHeading>Quick actions</SectionHeading>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {ACTIONS.map((a) => (
           <Link
             key={a.href}
             href={a.href}
-            className="group relative isolate flex flex-col gap-3 bg-[var(--color-ink)] p-7 hover:bg-[var(--color-navy-soft)] transition-colors duration-500"
+            className="group relative isolate flex flex-col gap-3 bg-[var(--surface-card)] border border-white/[0.06] p-7 transition-all duration-300 hover:border-[var(--color-aqua)]/30 hover:shadow-[var(--shadow-card-hover)] hover:-translate-y-px"
+            style={{
+              borderRadius: 'var(--radius-card)',
+              boxShadow: 'var(--shadow-card)',
+            }}
           >
-            <span aria-hidden className="absolute top-0 left-0 h-[2px] w-0 bg-[var(--color-ivory)] transition-[width] duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:w-full" />
-            <div className="font-mono text-[10.5px] tracking-[0.16em] uppercase text-[var(--color-ivory-mute)]">
+            <div className="text-[11px] font-semibold tracking-[0.1em] uppercase text-[var(--color-aqua)]">
               {a.eyebrow}
             </div>
-            <h3
-              className="font-serif text-[1.35rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
-            >
+            <h3 className="text-[20px] font-semibold leading-tight tracking-[-0.01em] text-[var(--color-ivory)]">
               {a.title}
             </h3>
-            <p className="font-serif italic text-[14px] leading-[1.5] text-[var(--color-ivory-dim)]">
+            <p className="text-[14px] leading-relaxed text-[var(--color-ivory-dim)]">
               {a.desc}
             </p>
-            <span className="inline-flex items-center gap-1.5 mt-auto pt-3 font-mono text-[11px] tracking-[0.12em] uppercase text-[var(--color-ivory-dim)] group-hover:text-[var(--color-ivory)] transition-colors duration-300">
+            <span className="inline-flex items-center gap-1.5 mt-auto pt-3 text-[12px] font-medium text-[var(--color-ivory-dim)] group-hover:text-[var(--color-aqua)] transition-colors duration-200">
               Open
-              <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
+              <span aria-hidden className="transition-transform duration-200 group-hover:translate-x-0.5">→</span>
             </span>
           </Link>
         ))}
