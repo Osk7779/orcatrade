@@ -35,10 +35,10 @@ const EXEMPT_FILES = new Set([
 
   // TEMPORARY — wrapped in a follow-up PR once PR #8 (import-boundary +
   // relocate model-runtime to lib/ai/) merges. On main today, the file
-  // is at lib/intelligence/model-runtime.js; PR #8 moves it to
+  // is at lib/ai/model-runtime.js; PR #8 moves it to
   // lib/ai/model-runtime.js. Wrapping the wrong-path version here would
   // create a merge conflict with PR #8.
-  'lib/intelligence/model-runtime.js',
+  'lib/ai/model-runtime.js',
 ]);
 
 // The 6 handlers P0.3's plan explicitly named.

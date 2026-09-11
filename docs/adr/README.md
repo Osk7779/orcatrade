@@ -79,6 +79,7 @@ audit trail of why the decision evolved.
 | [0018](0018-eval-gate-post-merge-95pct.md) | Post-merge eval gate requires ≥95% pass rate per agent for AI-touching merges | Accepted |
 | [0019](0019-docs-staleness-floor-tests.md) | Customer-facing doc claims are floor-tested in CI | Accepted |
 | [0020](0020-tier-a-confidence-definition.md) | Tier-A confidence — deterministic eligibility for liability-bearing numbers | Accepted |
+| [0021](0021-measured-trust-instruments.md) | Measured trust instruments — honesty gates, stateless recomputation, single source of truth | Accepted |
 
 ## Background
 

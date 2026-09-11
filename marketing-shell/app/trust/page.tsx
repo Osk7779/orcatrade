@@ -281,6 +281,35 @@ export default function TrustPage() {
       >
         <DocumentsGrid items={DOC_ITEMS} />
       </EditorialSection>
+
+      {/* XII — Measured instruments + the due-diligence bundle
+          (sprint 86, Track D). Every number on these surfaces
+          recomputes statelessly from a public endpoint. */}
+      <EditorialSection
+        id="instruments"
+        numeral="XII"
+        title="Measured instruments."
+        kicker="Verify, don't trust"
+        body={[
+          'Three live surfaces publish measured evidence rather than posture: the audit-chain anchor history (the record cannot be silently rewritten), the quote accuracy ledger (our quotes vs customer-reported actual outcomes), and service-commitment attainment (48-hour quote turnaround, 24-hour first human response). Each withholds its headline figures below ten scoreable data points — an instrument that flatters itself is worse than none.',
+          'For procurement reviews, the trust pack bundles all three — plus the security-document corpus and the verification endpoints — into one dated JSON artifact. Every figure inside recomputes at a public endpoint, so the bundle can be checked against the live system at review time.',
+        ]}
+      >
+        <div className="flex flex-wrap gap-x-8 gap-y-3 text-[14px]">
+          <a href="/trust/anchors/" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">
+            Audit-chain anchors →
+          </a>
+          <a href="/trust/accuracy/" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">
+            Quote accuracy ledger →
+          </a>
+          <a href="/trust/sla/" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">
+            Service commitments →
+          </a>
+          <a href="/api/trust-pack?download=1" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">
+            Download the trust pack (JSON) ↓
+          </a>
+        </div>
+      </EditorialSection>
     </>
   );
 }

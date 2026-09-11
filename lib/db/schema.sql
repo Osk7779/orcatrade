@@ -203,6 +203,14 @@ CREATE INDEX IF NOT EXISTS events_org_created_idx
   ON events (org_id, created_at DESC)
   WHERE org_id IS NOT NULL;
 
+-- Sprint 79 — entity-tuple cut for the per-entity audit timelines
+-- (listForEntity PG promotion). Partial: analytics rows without an
+-- entityType stay out of the tree. Fresh installs get it here;
+-- existing databases via schema-021.
+CREATE INDEX IF NOT EXISTS events_entity_created_idx
+  ON events ((payload->>'entityType'), (payload->>'entityId'), created_at)
+  WHERE payload->>'entityType' IS NOT NULL;
+
 -- ── Actuals (Track 1 reality-check loop) ────────────────────────
 -- A customer's reported actual landed cost vs the calculator's estimate.
 -- Feeds the quarterly calibration script in Track 1.3.
