@@ -254,7 +254,7 @@ function GoodsList({
         <h2 className="font-serif text-xl mb-1">No goods saved yet</h2>
         <p className="font-mono text-xs text-white/45 mt-2">
           Build your import plan in the{' '}
-          <Link href="/start" className="underline">wizard</Link>{' '}
+          <a href="/start/" className="underline">wizard</a>{' '}
           with a SKU. Saved plans become inherited goods entries that
           future shipments draw classification from automatically.
         </p>
