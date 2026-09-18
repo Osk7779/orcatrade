@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { ChapterRule } from '@/components/marketing/chapter-rule';
 import { FadeUp } from '@/components/marketing/fade-up';

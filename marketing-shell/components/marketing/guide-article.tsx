@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { ChapterRule } from './chapter-rule';
 import { FadeUp } from './fade-up';
 
@@ -48,13 +48,11 @@ export function GuideArticle({
                 <div className="flex items-baseline gap-4 border-b border-[var(--color-navy-line)] pb-4">
                   <span
                     className="font-serif text-[12.5px] italic text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
                   >
-                    § {toRoman(i + 1)}
+                    {toRoman(i + 1)}
                   </span>
                   <h2
                     className="font-serif text-[clamp(1.5rem,2vw+0.4rem,2rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                   >
                     {s.title}
                   </h2>
@@ -86,7 +84,7 @@ export function GuideArticle({
       <section className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-16 md:py-24">
         <div className="mx-auto max-w-[820px] px-6">
           <FadeUp>
-            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-[1.4fr_1fr]">
+            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-[1.4fr_1fr] overflow-hidden rounded-[22px]">
               <Link
                 href={ctaHref}
                 className="group flex flex-col gap-3 bg-[var(--color-ink)] p-9 transition-colors duration-700 hover:bg-[var(--color-navy-soft)] md:p-10"
@@ -96,10 +94,6 @@ export function GuideArticle({
                 </span>
                 <h3
                   className="font-serif text-[1.5rem] leading-[1.1] tracking-[-0.016em] text-[var(--color-ivory)]"
-                  style={{
-                    fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                    fontWeight: 550,
-                  }}
                 >
                   {ctaLabel}
                 </h3>
@@ -127,10 +121,6 @@ export function GuideArticle({
                 </span>
                 <h3
                   className="font-serif text-[1.5rem] leading-[1.1] tracking-[-0.016em] text-[var(--color-ivory)]"
-                  style={{
-                    fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                    fontWeight: 550,
-                  }}
                 >
                   Have a question on this regime?
                 </h3>
@@ -157,18 +147,12 @@ export function GuideArticle({
         <section className="bg-[var(--color-ink)] py-16 md:py-24">
           <div className="mx-auto max-w-[1280px] px-6">
             <FadeUp className="mb-8 flex items-center gap-4">
-              <span
-                aria-hidden
-                className="font-serif text-[13px] text-[var(--color-ivory-dim)]/60"
-              >
-                ❦
-              </span>
               <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
                 Related guides
               </span>
             </FadeUp>
             <FadeUp delay={0.05}>
-              <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+              <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
                 {related.map((r) => (
                   <Link
                     key={r.href}
@@ -182,10 +166,6 @@ export function GuideArticle({
                     )}
                     <span
                       className="font-serif text-[1.15rem] leading-[1.15] tracking-[-0.014em] text-[var(--color-ivory)]"
-                      style={{
-                        fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                        fontWeight: 550,
-                      }}
                     >
                       {r.title}
                     </span>

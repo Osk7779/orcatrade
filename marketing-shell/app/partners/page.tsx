@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { ChapterRule } from '@/components/marketing/chapter-rule';
 import { FadeUp } from '@/components/marketing/fade-up';
@@ -99,8 +99,7 @@ export default function PartnersPage() {
       <section className="bg-[var(--color-ink)] py-14 md:py-20">
         <div className="mx-auto max-w-[860px] px-6">
           <FadeUp>
-            <h2 className="font-serif text-[clamp(1.6rem,2.2vw+0.4rem,2.1rem)] leading-[1.2] tracking-[-0.02em] text-[var(--color-ivory)]"
-                style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}>
+            <h2 className="font-serif text-[clamp(1.6rem,2.2vw+0.4rem,2.1rem)] leading-[1.2] tracking-[-0.02em] text-[var(--color-ivory)]">
               Three relationship modes.
             </h2>
             <div className="mt-7 space-y-4 text-[15px] leading-[1.65] text-[var(--color-ivory-dim)]">
@@ -120,8 +119,7 @@ export default function PartnersPage() {
       <section className="bg-[var(--color-ink)] py-14 md:py-20">
         <div className="mx-auto max-w-[760px] px-6 text-center">
           <FadeUp>
-            <h2 className="font-serif text-[clamp(1.6rem,2.4vw+0.4rem,2.2rem)] leading-[1.2] tracking-[-0.02em] text-[var(--color-ivory)]"
-                style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}>
+            <h2 className="font-serif text-[clamp(1.6rem,2.4vw+0.4rem,2.2rem)] leading-[1.2] tracking-[-0.02em] text-[var(--color-ivory)]">
               Selective by default. Earn placement through delivered quality.
             </h2>
             <p className="mt-6 text-[15px] leading-[1.7] text-[var(--color-ivory-dim)]">

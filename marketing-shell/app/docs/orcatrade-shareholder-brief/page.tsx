@@ -214,14 +214,11 @@ export default function ShareholderBriefPage() {
       <section className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-16 md:py-24">
         <div className="mx-auto max-w-[1280px] px-6">
           <FadeUp className="mb-10 flex items-baseline gap-4">
-            <span aria-hidden className="font-serif text-[13px] text-[var(--color-ivory-dim)]/60">
-              ❦
-            </span>
             <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
               Plate I &mdash; platform on record
             </span>
           </FadeUp>
-          <div className="grid grid-cols-2 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3">
+          <div className="grid grid-cols-2 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3 overflow-hidden rounded-[22px]">
             {FIGURES.map((f) => (
               <article
                 key={f.label}
@@ -229,7 +226,6 @@ export default function ShareholderBriefPage() {
               >
                 <div
                   className="font-serif text-[clamp(2.4rem,4vw,3.4rem)] leading-[0.95] tracking-[-0.026em] text-[var(--color-ivory)]"
-                  style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 550 }}
                 >
                   {f.kind === 'static' ? f.text : <NumberTicker value={f.value} />}
                 </div>

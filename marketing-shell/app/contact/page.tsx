@@ -44,7 +44,6 @@ export default function ContactPage() {
           <FadeUp>
             <h2
               className="font-serif text-[clamp(1.8rem,2.6vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.018em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               Share the details of your next order.
             </h2>
@@ -76,7 +75,7 @@ export default function ContactPage() {
                 </span>
                 <button
                   type="submit"
-                  className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+                  className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 rounded-full"
                 >
                   Send the brief
                   <span
@@ -195,7 +194,6 @@ function DirectCard({
       </span>
       <span
         className="font-serif text-[1.35rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
       >
         {label}
       </span>

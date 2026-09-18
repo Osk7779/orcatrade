@@ -1,26 +1,14 @@
 import type { Metadata } from 'next';
-import { Inter, Fraunces, IBM_Plex_Mono } from 'next/font/google';
+import { Inter, IBM_Plex_Mono } from 'next/font/google';
 import './globals.css';
 import { Header } from '@/components/marketing/header';
 import { Footer } from '@/components/marketing/footer';
-import { Colophon } from '@/components/marketing/colophon';
-import { IntroOverlay } from '@/components/marketing/intro-overlay';
 import { CookieBanner } from '@/components/marketing/cookie-banner';
-import { FloatingDock } from '@/components/marketing/floating-dock';
-import { TracingBeam } from '@/components/marketing/tracing-beam';
 
 const sans = Inter({
   subsets: ['latin'],
   weight: 'variable',
   variable: '--font-sans',
-  display: 'swap',
-});
-
-const serif = Fraunces({
-  subsets: ['latin'],
-  weight: 'variable',
-  axes: ['SOFT', 'opsz'],
-  variable: '--font-serif',
   display: 'swap',
 });
 
@@ -48,30 +36,22 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html
       lang="en"
-      className={`${sans.variable} ${serif.variable} ${mono.variable}`}
+      className={`${sans.variable} ${mono.variable}`}
     >
       <body className="min-h-screen font-sans antialiased">
         <a
           href="#main-content"
-          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:border focus:border-[var(--color-ivory-dim)] focus:bg-[var(--color-ink)] focus:px-4 focus:py-2 focus:text-[12px] focus:font-medium focus:text-[var(--color-ivory)]"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[200] focus:border focus:rounded-full focus:bg-[var(--color-accent)] focus:px-4 focus:py-2 focus:text-[12px] focus:font-medium focus:text-white"
         >
           Skip to content
         </a>
 
-        {/* Title-plate intro — once per browser session, gated by
-            sessionStorage. Subsequent navigations within the session skip
-            it entirely. */}
-        <IntroOverlay />
-
         {/* Shared chrome — every page gets it for free */}
         <Header />
-        <TracingBeam />
 
         <main id="main-content">{children}</main>
 
         <Footer />
-        <Colophon />
-        <FloatingDock />
         <CookieBanner />
       </body>
     </html>

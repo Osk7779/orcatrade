@@ -45,16 +45,11 @@ export default async function WorkedExamplePage({ params }: Params) {
             <FadeUp className="flex flex-col items-start gap-2 border-y border-[var(--color-navy-line)] py-10 md:flex-row md:items-baseline md:gap-10 md:py-12">
               <div
                 className="font-serif text-[clamp(3.6rem,7vw,5.6rem)] leading-[0.95] tracking-[-0.028em] text-[var(--color-ivory)]"
-                style={{
-                  fontVariationSettings: "'SOFT' 30, 'opsz' 144",
-                  fontWeight: 550,
-                }}
               >
                 {example.headline.value}
               </div>
               <div
                 className="max-w-[44ch] font-serif text-[1.25rem] italic leading-[1.4] text-[var(--color-ivory-dim)]"
-                style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
               >
                 {example.headline.caption}
               </div>

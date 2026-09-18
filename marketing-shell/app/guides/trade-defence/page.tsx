@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { FadeUp } from '@/components/marketing/fade-up';
 
@@ -42,7 +42,7 @@ export default function TradeDefenceHubPage() {
       <section className="bg-[var(--color-ink)] py-20 md:py-28">
         <div className="mx-auto max-w-[1280px] px-6">
           <FadeUp>
-            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 lg:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 lg:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
               {MEASURES.map((m) => (
                 <Link
                   key={m.slug}
@@ -54,7 +54,6 @@ export default function TradeDefenceHubPage() {
                   </span>
                   <h3
                     className="font-serif text-[1.2rem] leading-[1.2] tracking-[-0.014em] text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                   >
                     {m.title}
                   </h3>

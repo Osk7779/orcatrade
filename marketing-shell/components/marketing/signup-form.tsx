@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useId } from 'react';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { motion, AnimatePresence } from 'motion/react';
 import { Aurora } from './aurora';
 
