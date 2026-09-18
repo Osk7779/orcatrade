@@ -46,6 +46,17 @@ function sha256(text) {
   return crypto.createHash('sha256').update(text).digest('hex');
 }
 
+// @neondatabase/serverless changed call shape between majors: v0.x only
+// accepts the bare call `client(text, params)`; v1.x rejects it ("can now
+// be called only as a tagged-template function") and exposes
+// `client.query(text, params)`. The v1 upgrade silently broke
+// `npm run db:migrate` and the db-migrate cron. Same shim as
+// lib/db/client.js: the helpers below keep calling sql(text, params).
+function callableSql(client) {
+  return (text, params = []) =>
+    typeof client.query === 'function' ? client.query(text, params) : client(text, params);
+}
+
 async function ensureSchemaVersionsTable(sql) {
   // The first migration creates schema_versions itself; this guard
   // makes sure even an empty database can pre-check applied versions.
@@ -59,8 +70,7 @@ async function ensureSchemaVersionsTable(sql) {
 }
 
 async function alreadyApplied(sql, filename) {
-  // @neondatabase/serverless: the `sql` function itself accepts
-  // (text, params) — there is no `.query()` method.
+  // `sql` is the callableSql() shim — (text, params) on any driver version.
   const result = await sql('SELECT filename, sha256 FROM schema_versions WHERE filename = $1', [filename]);
   const rows = Array.isArray(result) ? result : (result && result.rows) || [];
   return rows.length > 0 ? rows[0] : null;
@@ -123,7 +133,7 @@ async function runMigrations(opts = {}) {
     return { ok: false, error: 'DATABASE_URL not set' };
   }
   const { neon } = require('@neondatabase/serverless');
-  const sql = neon(dbUrl());
+  const sql = callableSql(neon(dbUrl()));
 
   await ensureSchemaVersionsTable(sql);
 
@@ -189,6 +199,7 @@ async function mainCli() {
 
 module.exports = {
   runMigrations,
+  callableSql,
   applyMigration,
   findMigrationFiles,
   sha256,
