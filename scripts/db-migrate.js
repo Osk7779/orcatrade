@@ -132,7 +132,7 @@ async function runMigrations(opts = {}) {
   if (!dbUrl()) {
     return { ok: false, error: 'DATABASE_URL not set' };
   }
-  const { neon } = require('@neondatabase/serverless');
+  const { neon } = require('../lib/db/neon-driver').loadNeon();
   const sql = callableSql(neon(dbUrl()));
 
   await ensureSchemaVersionsTable(sql);
