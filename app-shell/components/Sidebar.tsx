@@ -69,7 +69,6 @@ export function Sidebar() {
         <div className="flex items-baseline gap-2">
           <span
             className="font-serif text-[1.55rem] tracking-[-0.022em] text-[var(--color-ivory)] leading-none"
-            style={{ fontVariationSettings: "'SOFT' 28, 'opsz' 144", fontWeight: 600 }}
           >
             OrcaTrade
           </span>
@@ -86,9 +85,6 @@ export function Sidebar() {
         {SECTIONS.map((section) => (
           <div key={section.heading} className="flex flex-col gap-1">
             <div className="flex items-center gap-2 px-3 mb-1.5">
-              <span aria-hidden className="font-serif text-[11px] text-[var(--color-ivory-mute)]/55">
-                ❦
-              </span>
               <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[var(--color-ivory-mute)]">
                 {section.heading}
               </span>

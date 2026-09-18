@@ -92,7 +92,7 @@ export default function PlansPage() {
     [plans, tokens],
   );
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading your plans…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading your plans…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -112,7 +112,7 @@ export default function PlansPage() {
       </div>
 
       {!plans.length ? (
-        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-white/60">
+        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-fg/60">
           <p className="mb-4">You haven’t saved any import plans yet.</p>
           <a href="/start/" className="text-[var(--color-accent)] underline">Build your first plan →</a>
         </div>
@@ -129,17 +129,17 @@ export default function PlansPage() {
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Filter by label, category, HS code, country…"
                 aria-label="Filter saved plans"
-                className="block w-full bg-[var(--color-ink)] border border-[var(--color-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/35 focus:outline-none focus:border-white/45"
+                className="block w-full bg-[var(--color-ink)] border border-[var(--color-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/35 focus:outline-none focus:border-fg/45"
               />
             </label>
             {query.trim() !== '' && (
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45 shrink-0">
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45 shrink-0">
                 {filteredPlans.length} of {plans.length}
               </span>
             )}
           </div>
           {filteredPlans.length === 0 ? (
-            <div className="border border-dashed border-[var(--color-line)] px-6 py-8 text-center font-mono text-xs text-white/55">
+            <div className="border border-dashed border-[var(--color-line)] px-6 py-8 text-center font-mono text-xs text-fg/55">
               No plans match “{query.trim()}”. Try fewer or different keywords.
             </div>
           ) : (
@@ -148,22 +148,22 @@ export default function PlansPage() {
             const landed = p.current?.perShipmentLandedTotal ?? p.snapshot?.perShipmentLandedTotal;
             const inp = p.inputs || {};
             return (
-              <Link key={p.id} href={`/plans/${p.id}`} className="flex items-center justify-between px-5 py-4 hover:bg-white/[0.03]">
+              <Link key={p.id} href={`/plans/${p.id}`} className="flex items-center justify-between px-5 py-4 hover:bg-fg/[0.03]">
                 <div className="min-w-0">
                   <div className="flex items-center gap-3">
                     <span className="font-serif text-lg text-ivory truncate">{p.label || inp.productCategory || p.id}</span>
                     <DriftBadge delta={p.delta} />
                     <ReproBadge p={p} />
                   </div>
-                  <div className="font-mono text-xs text-white/45 mt-1">
+                  <div className="font-mono text-xs text-fg/45 mt-1">
                     {(inp.originCountry || '?')}→{(inp.destinationCountry || '?')}
                     {inp.hsCode ? ` · HS ${inp.hsCode}` : ''}
                     {p.savedAt ? ` · saved ${String(p.savedAt).slice(0, 10)}` : ''}
                   </div>
                 </div>
                 <div className="text-right shrink-0 pl-4">
-                  <div className="font-mono text-sm text-white/85">{eur(landed)}</div>
-                  <div className="text-[0.66rem] uppercase tracking-wider text-white/40">landed / shipment</div>
+                  <div className="font-mono text-sm text-fg/85">{eur(landed)}</div>
+                  <div className="text-[0.66rem] uppercase tracking-wider text-fg/40">landed / shipment</div>
                 </div>
               </Link>
             );
@@ -173,7 +173,7 @@ export default function PlansPage() {
         </>
       )}
 
-      <p className="text-white/40 text-xs mt-6">
+      <p className="text-fg/40 text-xs mt-6">
         Figures recompute against today’s tariff, freight and FX data. A ▲/▼ badge marks plans whose landed cost has moved ≥5% since you saved them; ✓ / ◆ marks reproducibility against the stored data snapshot.
       </p>
     </div>

@@ -58,7 +58,7 @@ function readCbamFilter(raw: string | null): CbamFilter | null {
 // precedent on the shipments page).
 export default function GoodsListPage() {
   return (
-    <Suspense fallback={<p className="text-white/50 text-sm">Loading goods…</p>}>
+    <Suspense fallback={<p className="text-fg/50 text-sm">Loading goods…</p>}>
       <GoodsListView />
     </Suspense>
   );
@@ -82,7 +82,7 @@ function GoodsListView() {
     return () => { cancelled = true; };
   }, []);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading goods…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading goods…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -96,7 +96,7 @@ function GoodsListView() {
   return (
     <div className="max-w-5xl">
       <h1 className="text-4xl mb-1">Goods</h1>
-      <p className="font-mono text-xs text-white/45 mb-8">Per-SKU master records · L1.1</p>
+      <p className="font-mono text-xs text-fg/45 mb-8">Per-SKU master records · L1.1</p>
       <GoodsList
         goods={goods}
         onArchived={(externalIds) => {
@@ -252,7 +252,7 @@ function GoodsList({
     return (
       <section className="border border-[var(--color-navy-line)] p-6">
         <h2 className="font-serif text-xl mb-1">No goods saved yet</h2>
-        <p className="font-mono text-xs text-white/45 mt-2">
+        <p className="font-mono text-xs text-fg/45 mt-2">
           Build your import plan in the{' '}
           <a href="/start/" className="underline">wizard</a>{' '}
           with a SKU. Saved plans become inherited goods entries that
@@ -268,21 +268,21 @@ function GoodsList({
         <h2 className="font-serif text-xl">All goods</h2>
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/50">
               Filter
             </span>
             <select
               value={activeFilter || ''}
               onChange={(e) => setFilter(e.target.value)}
               aria-label="Filter goods by CBAM scope"
-              className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-white focus:outline-none focus:border-white/55"
+              className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-fg focus:outline-none focus:border-fg/55"
             >
               <option value="">All ({goods.length})</option>
               <option value="in_scope">CBAM in scope ({cbamInCount})</option>
               <option value="out_of_scope">CBAM out of scope ({cbamOutCount})</option>
             </select>
           </label>
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/60">
             {activeFilter
               ? `${visibleGoods.length} of ${goods.length}`
               : `${goods.length} total · ${cbamInCount} CBAM-in-scope`}
@@ -305,12 +305,12 @@ function GoodsList({
       )}
 
       {visibleGoods.length === 0 ? (
-        <p className="px-6 py-8 font-mono text-xs text-white/45">
+        <p className="px-6 py-8 font-mono text-xs text-fg/45">
           No goods matching this filter.{' '}
           <button
             type="button"
             onClick={() => setFilter('')}
-            className="underline hover:text-white"
+            className="underline hover:text-fg"
           >
             Clear filter
           </button>
@@ -318,7 +318,7 @@ function GoodsList({
       ) : (
         <table className="w-full">
           <thead>
-            <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+            <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-fg/50">
               <th className="px-4 py-3 font-normal w-[44px]">
                 <input
                   type="checkbox"
@@ -351,7 +351,7 @@ function GoodsList({
                 <tr
                   key={g.externalId}
                   className="border-t border-[var(--color-navy-line)] hover:bg-[var(--color-navy-soft)]/30 transition-colors"
-                  style={isSelected ? { backgroundColor: 'rgba(255,255,255,0.04)' } : undefined}
+                  style={isSelected ? { backgroundColor: 'rgba(0,113,227,0.06)' } : undefined}
                 >
                   <td className="px-4 py-4 w-[44px]">
                     <input
@@ -363,14 +363,14 @@ function GoodsList({
                       className="h-4 w-4"
                     />
                   </td>
-                  <td className="px-6 py-4 font-mono text-[12px] text-white">
+                  <td className="px-6 py-4 font-mono text-[12px] text-fg">
                     <Link href={`/goods/${encodeURIComponent(g.externalId)}`} className="hover:underline">
                       {g.sku}
                     </Link>
                   </td>
-                  <td className="px-2 py-4 font-serif text-[14px] text-white">{g.displayName}</td>
-                  <td className="px-2 py-4 font-mono text-[12px] text-white/70">{g.hsCode}</td>
-                  <td className="px-2 py-4 font-mono text-[12px] text-white/70">{g.originCountry || '—'}</td>
+                  <td className="px-2 py-4 font-serif text-[14px] text-fg">{g.displayName}</td>
+                  <td className="px-2 py-4 font-mono text-[12px] text-fg/70">{g.hsCode}</td>
+                  <td className="px-2 py-4 font-mono text-[12px] text-fg/70">{g.originCountry || '—'}</td>
                   <td className="px-2 py-4">
                     {g.cbamInScope && (
                       <span
@@ -381,7 +381,7 @@ function GoodsList({
                       </span>
                     )}
                   </td>
-                  <td className="px-6 py-4 font-mono text-[12px] text-white/70 text-right">
+                  <td className="px-6 py-4 font-mono text-[12px] text-fg/70 text-right">
                     {eurFromCents(g.typicalUnitValueCents)}
                     {failure && (
                       <div
