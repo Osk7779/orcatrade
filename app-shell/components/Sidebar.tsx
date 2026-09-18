@@ -6,44 +6,44 @@ import { useEffect, useState } from 'react';
 
 // Cockpit navigation: a sidebar on desktop, a top bar + full-height menu
 // on mobile, both rendering the same sections. Every item is an in-app
-// route (resolved under the /app basePath by next/link).
+// route (inApp: resolved under the /app basePath by next/link).
 
-type NavItem = { label: string; href: string };
+type NavItem = { label: string; href: string; inApp: true };
 
 const SECTIONS: { heading: string; items: NavItem[] }[] = [
   {
     heading: 'Workspace',
     items: [
-      { label: 'Dashboard', href: '/dashboard' },
-      { label: 'Operations', href: '/operations' },
-      { label: 'Ask the agent', href: '/chat' },
+      { label: 'Dashboard', href: '/dashboard', inApp: true },
+      { label: 'Operations', href: '/operations', inApp: true },
+      { label: 'Ask the agent', href: '/chat', inApp: true },
     ],
   },
   {
     heading: 'Trade',
     items: [
-      { label: 'Plans', href: '/plans' },
-      { label: 'Goods', href: '/goods' },
-      { label: 'Suppliers', href: '/suppliers' },
-      { label: 'Shipments', href: '/shipments' },
-      { label: 'Portfolios', href: '/portfolios' },
-      { label: 'Documents', href: '/documents' },
-      { label: 'Drafts', href: '/drafts' },
+      { label: 'Plans', href: '/plans', inApp: true },
+      { label: 'Goods', href: '/goods', inApp: true },
+      { label: 'Suppliers', href: '/suppliers', inApp: true },
+      { label: 'Shipments', href: '/shipments', inApp: true },
+      { label: 'Portfolios', href: '/portfolios', inApp: true },
+      { label: 'Documents', href: '/documents', inApp: true },
+      { label: 'Drafts', href: '/drafts', inApp: true },
     ],
   },
   {
     heading: 'Watch',
     items: [
-      { label: 'Monitoring alerts', href: '/alerts' },
-      { label: 'Compliance calendar', href: '/calendar' },
-      { label: 'Screening', href: '/screening' },
+      { label: 'Monitoring alerts', href: '/alerts', inApp: true },
+      { label: 'Compliance calendar', href: '/calendar', inApp: true },
+      { label: 'Screening', href: '/screening', inApp: true },
     ],
   },
   {
     heading: 'Account',
     items: [
-      { label: 'Team', href: '/team' },
-      { label: 'Preferences', href: '/preferences' },
+      { label: 'Team', href: '/team', inApp: true },
+      { label: 'Preferences', href: '/preferences', inApp: true },
     ],
   },
 ];
