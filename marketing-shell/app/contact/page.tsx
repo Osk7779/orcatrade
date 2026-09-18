@@ -102,16 +102,11 @@ export default function ContactPage() {
       >
         <div className="mx-auto max-w-[820px] px-6">
           <FadeUp>
-            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2">
+            <div className="border border-[var(--color-navy-line)]">
               <DirectCard
-                kicker="Operations"
-                label="hello@orcatradegroup.com"
-                detail="The fastest way to start a brief if you already know what you need."
-              />
-              <DirectCard
-                kicker="Investors & partnerships"
-                label="oskar@orcatradegroup.com"
-                detail="Founder direct. Pilot programme, capital, distribution conversations."
+                kicker="Email"
+                label="orcatrade@orcatradegroup.com"
+                detail="One inbox for everything: import briefs, partnerships, press, privacy and security. A person replies within one business day."
               />
             </div>
           </FadeUp>

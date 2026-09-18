@@ -13,7 +13,7 @@ Last updated: 2026-06-01.
 
 ## Reporting a vulnerability
 
-**Preferred:** send a report to `security@orcatrade.pl`. Use the subject
+**Preferred:** send a report to `orcatrade@orcatradegroup.com`. Use the subject
 line `SECURITY:` followed by a one-line summary. PGP key is published at
 [https://orcatrade.pl/.well-known/security/pgp-key.txt](https://orcatrade.pl/.well-known/security/pgp-key.txt)
 (coming in a follow-up — until then, plain email is fine; we will not

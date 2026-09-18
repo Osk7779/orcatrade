@@ -188,10 +188,10 @@ const BRIEF: LongFormSection[] = [
         <p>
           Founder direct line:{' '}
           <a
-            href="mailto:oskar@orcatradegroup.com"
+            href="mailto:orcatrade@orcatradegroup.com"
             className="text-[var(--color-ivory)] underline-offset-4 hover:underline"
           >
-            oskar@orcatradegroup.com
+            orcatrade@orcatradegroup.com
           </a>
           .
         </p>

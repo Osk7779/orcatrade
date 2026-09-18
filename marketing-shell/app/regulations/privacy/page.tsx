@@ -23,10 +23,10 @@ const SECTIONS: LongFormSection[] = [
         <p>
           You can reach us about privacy at{' '}
           <a
-            href="mailto:privacy@orcatradegroup.com"
+            href="mailto:orcatrade@orcatradegroup.com"
             className="text-[var(--color-ivory)] underline-offset-4 hover:underline"
           >
-            privacy@orcatradegroup.com
+            orcatrade@orcatradegroup.com
           </a>
           .
         </p>
@@ -246,7 +246,7 @@ const SECTIONS: LongFormSection[] = [
         <p>
           HSTS, CSP, strict referrer policy, encrypted database connections,
           rotated secrets, audit-chained mutations. Responsible-disclosure
-          contact: security@orcatradegroup.com. Acknowledged within one
+          contact: orcatrade@orcatradegroup.com. Acknowledged within one
           business day, triaged within three.
         </p>
       </>

@@ -68,7 +68,7 @@ const SECTIONS_LATE = [
     title: 'Responsible disclosure.',
     kicker: 'security.txt',
     body: [
-      'Found a vulnerability? Send the details to security@orcatradegroup.com. We acknowledge within one business day, triage within three, and credit the reporter when the fix lands.',
+      'Found a vulnerability? Send the details to orcatrade@orcatradegroup.com. We acknowledge within one business day, triage within three, and credit the reporter when the fix lands.',
       'We will not pursue good-faith research that respects the disclosure timeline. There is no bug bounty programme today; if that changes, the terms will be published here first.',
     ],
   },

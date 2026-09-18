@@ -155,7 +155,7 @@ export default function FoundingPage() {
               </span>
             </Link>
             <a
-              href="mailto:oskar@orcatradegroup.com"
+              href="mailto:orcatrade@orcatradegroup.com"
               className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
             >
               Email a founder

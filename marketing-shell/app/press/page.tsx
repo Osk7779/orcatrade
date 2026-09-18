@@ -75,8 +75,8 @@ export default function PressPage() {
               {[
                 { name: 'Brand guidelines (PDF)', desc: 'Logo lockups, palette, type stack, do-not.', href: '#' },
                 { name: 'Open Graph image', desc: '1200×630 share card, navy + ivory.', href: 'https://orcatrade.pl/og-1200x630.png' },
-                { name: 'Founder photo', desc: 'On request via press contact.', href: 'mailto:press@orcatrade.pl' },
-                { name: 'Logo (SVG, PNG)', desc: 'On request via press contact.', href: 'mailto:press@orcatrade.pl' },
+                { name: 'Founder photo', desc: 'On request via press contact.', href: 'mailto:orcatrade@orcatradegroup.com' },
+                { name: 'Logo (SVG, PNG)', desc: 'On request via press contact.', href: 'mailto:orcatrade@orcatradegroup.com' },
               ].map((asset) => (
                 <Link
                   key={asset.name}
@@ -93,11 +93,11 @@ export default function PressPage() {
             <div className="mt-12 border-t border-[var(--color-navy-line)] pt-10 text-[15px] leading-[1.7] text-[var(--color-ivory-dim)]">
               <p>
                 <strong className="text-[var(--color-ivory)]">Press contact:</strong>{' '}
-                <a href="mailto:press@orcatrade.pl" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">press@orcatrade.pl</a>
+                <a href="mailto:orcatrade@orcatradegroup.com" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">orcatrade@orcatradegroup.com</a>
               </p>
               <p className="mt-2">
                 <strong className="text-[var(--color-ivory)]">Security:</strong>{' '}
-                <a href="mailto:security@orcatrade.pl" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">security@orcatrade.pl</a> — see <Link href="/trust" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">/trust</Link> for disclosure policy.
+                <a href="mailto:orcatrade@orcatradegroup.com" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">orcatrade@orcatradegroup.com</a> — see <Link href="/trust" className="text-[var(--color-ivory)] underline-offset-2 hover:underline">/trust</Link> for disclosure policy.
               </p>
               <p className="mt-2">
                 <strong className="text-[var(--color-ivory)]">General:</strong>{' '}

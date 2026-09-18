@@ -4,7 +4,7 @@
 
 This is the standard DPA OrcaTrade signs with customers who process personal data through the platform. It is drafted in line with GDPR Article 28 and is intended as a starting point — bespoke amendments are negotiable for enterprise customers, but the template covers ~95% of EU SME procurement requirements.
 
-To execute: contact `orca@orcatrade.pl` with subject "DPA request — <company name>". Typical turnaround: 3 business days for a signed PDF.
+To execute: contact `orcatrade@orcatradegroup.com` with subject "DPA request — <company name>". Typical turnaround: 3 business days for a signed PDF.
 
 This document is a template only. The signed version controls.
 
