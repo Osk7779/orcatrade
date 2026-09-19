@@ -174,7 +174,7 @@ code-verifiable on claim review.
   - [`eligibility.js`](../../lib/intelligence/tier-a/eligibility.js)
     — the five-precondition check + the closed `REASONS` constant
     (drift-guarded against this ADR's failure-reason table; see
-    `test/tier-a-adr-reasons-drift.test.js`)
+    `test/tier-a-eligibility.test.js`)
   - [`coverage.js`](../../lib/intelligence/tier-a/coverage.js) —
     TA-5 coverage-envelope checking
   - [`green-state.js`](../../lib/intelligence/tier-a/green-state.js)
@@ -209,7 +209,7 @@ code-verifiable on claim review.
     sourcing,routing,finance,warehouse}-tier-a-pill.test.js` pin
     conditional rendering, tooltip wording, aria-labels,
     `StartResponse` type shape, and pill render order.
-  - **Cross-stack drift guard** (`test/tier-a-adr-reasons-drift.test.js`)
+  - **Cross-stack drift guard** (`test/tier-a-eligibility.test.js`)
     asserts every value in `REASONS` appears verbatim in this ADR's
     failure-reason table — preventing silent drift between code and
     contract.

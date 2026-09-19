@@ -117,6 +117,69 @@ const probes = [
   ['app-shell operations', '/app/operations', ({ status }) => status === 200
     ? { ok: true, note: 'route resolves' }
     : { ok: false, reason: `expected 200, got ${status}` }],
+
+  // ── Sprint 99 — the trust surfaces join the deploy gate ─────────
+  // These endpoints are designed to NEVER 5xx (they degrade to
+  // truthful reduced states), so the probes assert the 200 + the
+  // SHAPE that every consumer (marketing pages, trust pack,
+  // agents) depends on — a deploy that breaks the shape fails the
+  // gate even though the status code looks healthy.
+
+  ['accuracy ledger shaped', '/api/accuracy', ({ status, text }) => {
+    if (status !== 200) return { ok: false, reason: `expected 200, got ${status}` };
+    try {
+      const body = JSON.parse(text);
+      if (!body.ledger || typeof body.ledger.tier !== 'string') {
+        return { ok: false, reason: 'ledger.tier missing — consumers would break' };
+      }
+      return { ok: true, note: `tier=${body.ledger.tier} n=${body.ledger.sampleSize}` };
+    } catch (_) { return { ok: false, reason: 'response is not JSON' }; }
+  }],
+
+  ['sla attainment shaped', '/api/sla', ({ status, text }) => {
+    if (status !== 200) return { ok: false, reason: `expected 200, got ${status}` };
+    try {
+      const body = JSON.parse(text);
+      const t = body.sla && body.sla.quoteTurnaround;
+      if (!t || typeof t.tier !== 'string') return { ok: false, reason: 'sla.quoteTurnaround.tier missing' };
+      if (!body.sla.breachesRecorded) return { ok: false, reason: 'breachesRecorded missing (sprint-98 ledger)' };
+      return { ok: true, note: `turnaround tier=${t.tier}, breach ledger present` };
+    } catch (_) { return { ok: false, reason: 'response is not JSON' }; }
+  }],
+
+  ['trust pack shaped', '/api/trust-pack', ({ status, text }) => {
+    if (status !== 200) return { ok: false, reason: `expected 200, got ${status}` };
+    try {
+      const body = JSON.parse(text);
+      const pack = body.pack || {};
+      // The STATIC sections survive even the degrade path — their
+      // absence means the handler itself is broken.
+      if (!pack.verification) return { ok: false, reason: 'pack.verification missing' };
+      if (!pack.security || !Array.isArray(pack.security.documents) || pack.security.documents.length === 0) {
+        return { ok: false, reason: 'pack.security.documents missing/empty' };
+      }
+      return { ok: true, note: `${pack.security.documents.length} security docs, verification present` };
+    } catch (_) { return { ok: false, reason: 'response is not JSON' }; }
+  }],
+
+  ['operator triage staff-gated', '/api/operator-triage', ({ status }) =>
+    status === 401 || status === 503
+      ? { ok: true, note: `gated (${status})` }
+      : { ok: false, reason: `expected 401/503, got ${status} — cross-org feed must never be open` }],
+
+  ['trust/accuracy page', '/trust/accuracy/', ({ status, text }) => {
+    if (status !== 200) return { ok: false, reason: `expected 200, got ${status}` };
+    return /Accuracy|accuracy/.test(text)
+      ? { ok: true, note: 'page rendered' }
+      : { ok: false, reason: 'expected accuracy content not found' };
+  }],
+
+  ['trust/sla page', '/trust/sla/', ({ status, text }) => {
+    if (status !== 200) return { ok: false, reason: `expected 200, got ${status}` };
+    return /commitment|SLA|attainment/i.test(text)
+      ? { ok: true, note: 'page rendered' }
+      : { ok: false, reason: 'expected SLA content not found' };
+  }],
 ];
 
 // Only run the probe loop when invoked directly (node scripts/smoke.js).

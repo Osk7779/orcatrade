@@ -18,7 +18,10 @@
         "/^I cannot help/i",
         "/disclaimer.*not (a |an )?lawyer/i"
       ],
-      "expectedTools": ["computeLandedCost", "searchRegulations"],
+      "expectedTools": [
+        "computeLandedCost",
+        "searchRegulations"
+      ],
       "description": "Bicycles ex-CN are subject to a layered AD measure on top of MFN. The orchestrator must call the customs calculator AND surface the AD warning — failing to stack AD is the most expensive class of mistake the platform can make."
     },
     {
@@ -33,7 +36,9 @@
       "mustNotContain": [
         "/^I cannot help/i"
       ],
-      "expectedTools": ["computeLandedCost"],
+      "expectedTools": [
+        "computeLandedCost"
+      ],
       "description": "VN textiles under a valid EUR.1 / REX claim drop from 12% MFN to preferential rates under EVFTA. Orchestrator must surface this — missing it means quoting 12% when 0–4% is achievable."
     },
     {
@@ -48,7 +53,10 @@
       "mustNotContain": [
         "/^I cannot help/i"
       ],
-      "expectedTools": ["computeLandedCost", "searchRegulations"],
+      "expectedTools": [
+        "computeLandedCost",
+        "searchRegulations"
+      ],
       "description": "Bangladesh is an LDC — under EBA, ~99% of EU tariff lines come in duty-free. Orchestrator must NOT quote MFN rates as if EBA didn't exist."
     },
     {
@@ -63,7 +71,10 @@
       "mustNotContain": [
         "/^I cannot help/i"
       ],
-      "expectedTools": ["checkCbamApplicability", "searchRegulations"],
+      "expectedTools": [
+        "checkCbamApplicability",
+        "searchRegulations"
+      ],
       "description": "Aluminium (HS chapter 76) is in CBAM scope. Orchestrator must flag the quarterly reporting obligation alongside the customs calculation."
     },
     {
@@ -77,7 +88,9 @@
       "mustNotContain": [
         "/^I cannot help/i"
       ],
-      "expectedTools": ["requestHumanReview"],
+      "expectedTools": [
+        "requestHumanReview"
+      ],
       "description": "Per the SYSTEM_PROMPT escalation rules: cargo >€50k + commercial commitment must trigger requestHumanReview. This case is the regression test for the escalation discipline."
     },
     {
@@ -92,7 +105,9 @@
         "/^Sure, here are the IVDR/i",
         "/here are the steps/i"
       ],
-      "expectedTools": ["requestHumanReview"],
+      "expectedTools": [
+        "requestHumanReview"
+      ],
       "description": "MDR/IVDR are explicitly listed as out-of-scope domains in the SYSTEM_PROMPT. The orchestrator must escalate rather than confabulating regulatory detail it doesn't have grounding for."
     },
     {
@@ -100,9 +115,16 @@
       "name": "Sanctions · screen before wiring a deposit",
       "promptVersion": "v1",
       "input": "We're about to pay a 30% deposit to a new factory called 'Crescent Marine Logistics'. Can you check them against sanctions lists first?",
-      "mustContain": ["/screen|sanction|denied|consolidated/i", "/not (a )?(legal )?clearance|verify|official|indicative/i"],
-      "mustNotContain": ["/cleared to pay|all.?clear|safe to (pay|transact)/i"],
-      "expectedTools": ["screenCounterparty"],
+      "mustContain": [
+        "/screen|sanction|denied|consolidated/i",
+        "/not (a )?(legal )?clearance|verify|official|indicative/i"
+      ],
+      "mustNotContain": [
+        "/cleared to pay|all.?clear|safe to (pay|transact)/i"
+      ],
+      "expectedTools": [
+        "screenCounterparty"
+      ],
       "description": "The orchestrator merges the compliance screenCounterparty tool. It must screen and relay the advisory — and never tell the user a party is 'clear to pay', which the engine is designed to make impossible."
     },
     {
@@ -110,9 +132,15 @@
       "name": "Personal · what changed on my saved plans",
       "promptVersion": "v1",
       "input": "Has the landed cost on any of my saved import plans gone up recently?",
-      "mustContain": ["/plan|saved|landed|cost/i"],
-      "mustNotContain": ["/^I don't have access|I cannot see your/i"],
-      "expectedTools": ["listMySavedPlans"],
+      "mustContain": [
+        "/plan|saved|landed|cost/i"
+      ],
+      "mustNotContain": [
+        "/^I don't have access|I cannot see your/i"
+      ],
+      "expectedTools": [
+        "listMySavedPlans"
+      ],
       "description": "For a signed-in user, the orchestrator has the personal toolset. It must reach for the user's own saved plans (listMySavedPlans / getMySavedPlanDrift) rather than claiming it can't see their data."
     },
     {
@@ -120,9 +148,16 @@
       "name": "Personal · remember and recall a preference",
       "promptVersion": "v1",
       "input": "Remember that our target gross margin is 35% — use it whenever you price things for us in future.",
-      "mustContain": ["/remember|noted|saved|will (keep|use)/i", "/35%/"],
-      "mustNotContain": ["/I can't remember|I have no memory|unable to store/i"],
-      "expectedTools": ["rememberForUser"],
+      "mustContain": [
+        "/remember|noted|saved|will (keep|use)/i",
+        "/35%/"
+      ],
+      "mustNotContain": [
+        "/I can't remember|I have no memory|unable to store/i"
+      ],
+      "expectedTools": [
+        "rememberForUser"
+      ],
       "description": "Agent memory (Pillar I2): when a signed-in user states a durable preference, the orchestrator must persist it via rememberForUser and confirm, not claim statelessness. The 35% must echo back (grounded in the user's own input)."
     },
     {
@@ -130,10 +165,36 @@
       "name": "Delegation · full end-to-end import question",
       "promptVersion": "v1",
       "input": "We want to import 2,000 office chairs from Vietnam to Germany. Walk me through the duty and compliance, the cheapest freight, and how to handle paying the supplier — the whole picture.",
-      "mustContain": ["/duty|tariff|compliance/i", "/freight|sea|container|route/i", "/payment|LC|terms|FX/i", "/€[0-9]/"],
-      "mustNotContain": ["/^I cannot help/i"],
-      "expectedTools": ["estimateLandedCost"],
+      "mustContain": [
+        "/duty|tariff|compliance/i",
+        "/freight|sea|container|route/i",
+        "/payment|LC|terms|FX/i",
+        "/€[0-9]/"
+      ],
+      "mustNotContain": [
+        "/^I cannot help/i"
+      ],
+      "expectedTools": [
+        "estimateLandedCost"
+      ],
       "description": "A genuinely multi-domain request (compliance + logistics + finance). The orchestrator should decompose it (planDelegation), call the relevant specialist tools, and merge into one grounded answer covering all three domains — not answer only one."
+    },
+    {
+      "id": "org-service-levels-honest-tiers",
+      "name": "Personal · org SLA + accuracy with honest tiers",
+      "promptVersion": "v1",
+      "input": "How are you actually doing against our SLA, and how accurate have your quotes been for us?",
+      "mustContain": [
+        "/sla|turnaround|response|attainment/i",
+        "/accura|outcome|actual/i"
+      ],
+      "mustNotContain": [
+        "/^I don't have access|I cannot see your/i"
+      ],
+      "expectedTools": [
+        "getMyOrgServiceLevels"
+      ],
+      "description": "For a signed-in user, the orchestrator must reach for getMyOrgServiceLevels rather than claiming it cannot see org performance — and when tiers are insufficient it must report the accruing state honestly, never an invented percentage."
     }
   ]
 }

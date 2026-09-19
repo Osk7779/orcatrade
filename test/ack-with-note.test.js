@@ -140,9 +140,17 @@ test('TransitionHistory falls back to "Exception acknowledged" when no note (no 
 // ── Regression guards on previously-shipped behaviour ────────────────
 
 test('SLA breach indicator still renders on flagged rows (no regression on PR #125)', () => {
-  // The new note input wires up below the row's main grid;
-  // ensure the SLA breach badge inside the main grid is untouched.
-  assert.match(PAGE_SRC, /item\._queue\.slaBreached && \(\s*<span className="ml-2 text-\[var\(--color-critical\)\]">· SLA breach<\/span>/);
+  // The new note input wires up below the row's main grid; ensure
+  // the SLA breach badge inside the main grid is untouched. Sprint 13
+  // chunk 1's Connectis cascade restyled the badge (Tailwind class →
+  // inline style); the test pins the structural intent (slaBreached
+  // gates a span carrying the "· SLA breach" text in the critical
+  // token) rather than the exact className chain, so future style
+  // tweaks don't false-positive.
+  assert.match(
+    PAGE_SRC,
+    /item\._queue\.slaBreached && \(\s*<span[\s\S]*?var\(--color-critical\)[\s\S]*?· SLA breach\s*<\/span>/,
+  );
 });
 
 test('Acknowledge button label cycle preserved (Open → Acknowledging… → Done)', () => {

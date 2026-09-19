@@ -32,12 +32,14 @@ const portfolioSnapshot = {
 // ── Tool schemas ────────────────────────────────────────
 
 const EXPECTED_PERSONAL_TOOLS = [
-  'forgetForUser', 'getMyComplianceDeadlines', 'getMyPortfolioDrift', 'getMySavedPlanDrift',
-  'listMyPortfolios', 'listMySavedPlans', 'recallMemory', 'rememberForUser',
+  // Sprint 95 extended the family to nine: getMyOrgServiceLevels
+  // (org SLA attainment + accuracy + at-risk, honesty-tier aware).
+  'forgetForUser', 'getMyComplianceDeadlines', 'getMyOrgServiceLevels', 'getMyPortfolioDrift',
+  'getMySavedPlanDrift', 'listMyPortfolios', 'listMySavedPlans', 'recallMemory', 'rememberForUser',
 ];
 
-test('personalTools: eight read-only/memory tools; the list tools take no input', () => {
-  assert.equal(personal.personalTools.length, 8);
+test('personalTools: nine read-only/memory tools; the no-input tools take no input', () => {
+  assert.equal(personal.personalTools.length, 9);
   const names = personal.personalTools.map((t) => t.name).sort();
   assert.deepEqual(names, EXPECTED_PERSONAL_TOOLS);
   for (const t of personal.personalTools) {
@@ -48,7 +50,7 @@ test('personalTools: eight read-only/memory tools; the list tools take no input'
     else if (t.name === 'rememberForUser') assert.deepEqual(t.input_schema.required, ['key', 'value']);
     else if (t.name === 'forgetForUser') assert.deepEqual(t.input_schema.required, ['key']);
     else if (t.name === 'recallMemory') assert.deepEqual(Object.keys(t.input_schema.properties), ['key']);
-    else assert.deepEqual(Object.keys(t.input_schema.properties), []); // the two list tools
+    else assert.deepEqual(Object.keys(t.input_schema.properties), []); // the list + org-service-level tools
   }
 });
 

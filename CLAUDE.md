@@ -45,7 +45,7 @@ strategy in [docs/strategic-plan-2026-2031.md](docs/strategic-plan-2026-2031.md)
 
 **For policy**, not direction, the binding source is
 [docs/adr/](docs/adr/) — the Architecture Decision Records catalogue.
-ADRs 0001-0020 cover every load-bearing rule (calculator-grounding,
+ADRs 0001-0021 cover every load-bearing rule (calculator-grounding,
 SDK boundary, money discipline, audit-log-before-success, circuit
 breakers, API-version stability, email pseudonymisation, conventional
 commits, incremental TypeScript, security scanning, branch protection,
