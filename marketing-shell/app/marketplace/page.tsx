@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { ChapterRule } from '@/components/marketing/chapter-rule';
 import { FadeUp } from '@/components/marketing/fade-up';
@@ -112,7 +112,6 @@ export default function MarketplacePage() {
           <FadeUp>
             <h2
               className="font-serif text-[clamp(1.6rem,2.2vw+0.4rem,2.1rem)] leading-[1.2] tracking-[-0.02em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               Full directory access on the Starter tier and above.
             </h2>

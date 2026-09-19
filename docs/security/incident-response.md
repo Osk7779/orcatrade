@@ -27,7 +27,7 @@ Today (single-founder phase):
 
 1. **GHA uptime workflow** ([`.github/workflows/uptime.yml`](../../.github/workflows/uptime.yml)) hits `/api/health` every 5 minutes. HTTP 503 fails the run; GitHub emails Oskar.
 2. **GHA cron workflow** failures (nightly TARIC warm, Monday founder digest, etc.) also email Oskar.
-3. **Public status page** at `/status/` polls health every 30 s and visibly degrades — customers see issues sometimes before we do, and contact `orca@orcatrade.pl`.
+3. **Public status page** at `/status/` polls health every 30 s and visibly degrades — customers see issues sometimes before we do, and contact `orcatrade@orcatradegroup.com`.
 4. **Vercel deploy emails** for any failed deploy or surge in 5xx.
 
 Planned escalations (Track 4.2 of [`backend-grade-plan.md`](../backend-grade-plan.md)):
@@ -42,7 +42,7 @@ Planned escalations (Track 4.2 of [`backend-grade-plan.md`](../backend-grade-pla
 | Audience | Channel | Triggered by |
 |---|---|---|
 | **Customers — public** | `/status/` page (auto from `/api/health`) | Any non-ok health probe |
-| **Customers — direct** | Email from `orca@orcatrade.pl` (manual) | SEV-0 or SEV-1, scoped to affected accounts |
+| **Customers — direct** | Email from `orcatrade@orcatradegroup.com` (manual) | SEV-0 or SEV-1, scoped to affected accounts |
 | **Founder** | GitHub Actions email + Vercel emails | All severities |
 | **Supervisory authority** (UODO) | Email + the UODO web form | SEV-0 (confirmed breach), within 72 h per GDPR Art 33 |
 | **Subprocessors** | Their published incident channels (Vercel status, Upstash status, Stripe status, Anthropic status) | When the root cause is upstream |

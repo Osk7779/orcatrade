@@ -68,8 +68,11 @@ jobs:
           for attempt in $(seq 1 $MAX_ATTEMPTS); do
             # Find a Vercel deployment for this SHA in the Preview env.
             # Vercel labels the environment "Preview" or "Preview – <branch>".
-            DEPLOY_ID=$(gh api "repos/$REPO/commits/$SHA/deployments" \
-              --jq '[.[] | select(.environment | startswith("Preview"))][0].id // empty')
+            # List deployments by sha (there is no commits/<sha>/deployments
+            # endpoint — that path 422'd and failed every PR since it landed).
+            # Pick the root project's preview, not the app-shell's.
+            DEPLOY_ID=$(gh api "repos/$REPO/deployments?sha=$SHA" \
+              --jq '[.[] | select(.environment == "Preview – orcatrade")][0].id // empty')
 
             if [ -n "$DEPLOY_ID" ]; then
               URL=$(gh api "repos/$REPO/deployments/$DEPLOY_ID/statuses" \
@@ -93,5 +96,13 @@ jobs:
           exit 1
 
       - name: Smoke against preview URL
+        env:
+          # Previews are behind Vercel Deployment Protection; without this
+          # secret every probe sees a 302 to the Vercel login.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
+          if [ -z "$VERCEL_AUTOMATION_BYPASS_SECRET" ]; then
+            echo "::error::Repo secret VERCEL_AUTOMATION_BYPASS_SECRET is not set — previews are protected, so the smoke cannot reach them. See scripts/smoke.js."
+            exit 1
+          fi
           node scripts/smoke.js --base "${{ steps.vercel.outputs.url }}"

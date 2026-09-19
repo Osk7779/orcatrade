@@ -47,7 +47,6 @@ export default function StartPage() {
           </div>
           <h1
             className="mt-7 max-w-[24ch] font-serif text-[clamp(2.6rem,4.4vw+0.4rem,4.4rem)] leading-[1.04] tracking-[-0.024em] text-[var(--color-ivory)]"
-            style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
           >
             Tell us what you&rsquo;re importing.{' '}
             <SparklesText count={6}>We&rsquo;ll compose the plan.</SparklesText>
@@ -59,9 +58,6 @@ export default function StartPage() {
           </p>
           <div className="mt-8 flex items-center gap-3.5">
             <span className="h-px w-8 bg-[var(--color-ivory-mute)]/40" />
-            <span aria-hidden className="font-serif text-[14px] text-[var(--color-ivory-dim)]/60">
-              ❦
-            </span>
             <span className="font-serif text-[14px] italic text-[var(--color-ivory-mute)]">
               No payment to apply · calculator-grounded, with citations
             </span>
@@ -71,12 +67,11 @@ export default function StartPage() {
 
       {/* ── LIVE STATS STRIP ─────────────────────────────── */}
       <section className="border-y border-[var(--color-navy-line)] bg-[var(--color-ink)] py-10">
-        <div className="mx-auto max-w-[1100px] grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border-x border-[var(--color-navy-line)]">
+        <div className="mx-auto max-w-[1100px] grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border-x border-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
           {STATS.map((s) => (
             <div key={s.label} className="bg-[var(--color-ink)] px-6 py-7 text-center">
               <div
                 className="font-serif text-[clamp(2rem,3vw+0.4rem,2.6rem)] leading-none tracking-[-0.022em] text-[var(--color-ivory)]"
-                style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 600 }}
               >
                 <NumberTicker value={s.value} prefix={s.prefix || ''} suffix={s.suffix || ''} />
               </div>

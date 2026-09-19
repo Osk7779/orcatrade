@@ -11,7 +11,7 @@
       cbam: "Request received. We'll reply with next steps for a CBAM readiness call.",
       sent: "Message sent. We'll reply within one business day.",
       sentShort: 'Sent',
-      error: 'Could not send — please email us directly at orca@orcatrade.pl',
+      error: 'Could not send — please email us directly at orcatrade@orcatradegroup.com',
     },
     de: {
       sending: 'Wird gesendet…',
@@ -20,7 +20,7 @@
       cbam: 'Anfrage erhalten. Wir antworten mit den nächsten Schritten für ein CBAM-Bereitschaftsgespräch.',
       sent: 'Nachricht gesendet. Wir antworten innerhalb eines Werktages.',
       sentShort: 'Gesendet',
-      error: 'Senden fehlgeschlagen — bitte schreiben Sie uns direkt an orca@orcatrade.pl',
+      error: 'Senden fehlgeschlagen — bitte schreiben Sie uns direkt an orcatrade@orcatradegroup.com',
     },
     pl: {
       sending: 'Wysyłanie…',
@@ -29,7 +29,7 @@
       cbam: 'Prośba odebrana. Odpowiemy z kolejnymi krokami dotyczącymi rozmowy o gotowości CBAM.',
       sent: 'Wiadomość wysłana. Odpowiemy w ciągu jednego dnia roboczego.',
       sentShort: 'Wysłano',
-      error: 'Nie udało się wysłać — napisz bezpośrednio na orca@orcatrade.pl',
+      error: 'Nie udało się wysłać — napisz bezpośrednio na orcatrade@orcatradegroup.com',
     },
   };
   const t = COPY[LANG] || COPY.en;

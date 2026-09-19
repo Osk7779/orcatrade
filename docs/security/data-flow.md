@@ -59,7 +59,7 @@ Retention: magic token max 15 min; session cookie up to 30 days from issuance.
 
 ### Founding 10 application · `POST /api/founding`
 
-What's stored: a `founding_applied` event with name, company, role, email, locale, optional message, optional monthlyValueEur. Sent to `orca@orcatrade.pl` via Resend, plus an applicant-confirmation email.
+What's stored: a `founding_applied` event with name, company, role, email, locale, optional message, optional monthlyValueEur. Sent to `orcatrade@orcatradegroup.com` via Resend, plus an applicant-confirmation email.
 
 Retention: 365 days (events:log retention, then aged out by the 5,000-event cap).
 
@@ -122,7 +122,7 @@ All EU-region storage. No data leaves the EU under normal operation. The two exc
 | **Art 15 — Access** | `GET /api/account/export` |
 | **Art 16 — Rectification** | Self-service via the wizard (re-submit) + future profile-edit UI |
 | **Art 17 — Erasure** | `POST /api/account/delete` (pseudonymises events, hard-deletes plans, clears session) |
-| **Art 18 — Restriction** | Manual hold via `orca@orcatrade.pl` — flag the email, we won't include in any cron job or aggregation |
+| **Art 18 — Restriction** | Manual hold via `orcatrade@orcatradegroup.com` — flag the email, we won't include in any cron job or aggregation |
 | **Art 20 — Portability** | `GET /api/account/export` — JSON file with `format:"orcatrade-gdpr-export-v1"` |
 | **Art 21 — Objection** | Cookie banner v2 ([`/js/cookie-consent.js`](../../js/cookie-consent.js)) gives granular analytics opt-out; opt-out of marketing via reply to any email |
 | **Art 22 — Automated decisions** | The wizard produces non-binding cost estimates; no automated profiling that produces legal or significant effects |

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { ChapterRule } from '@/components/marketing/chapter-rule';
 import { FadeUp } from '@/components/marketing/fade-up';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 
 export const metadata: Metadata = {
   title: 'The process — Five stages, one platform — OrcaTrade Group',
@@ -88,10 +88,6 @@ export default function ProcessPage() {
                     </div>
                     <div
                       className="mt-3 font-serif text-[clamp(3rem,5vw,4.4rem)] leading-none tracking-[-0.022em] text-[var(--color-ivory)]"
-                      style={{
-                        fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                        fontWeight: 550,
-                      }}
                     >
                       {s.verb}.
                     </div>
@@ -99,10 +95,6 @@ export default function ProcessPage() {
                   <div>
                     <h2
                       className="font-serif text-[clamp(1.8rem,2.6vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.018em] text-[var(--color-ivory)]"
-                      style={{
-                        fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                        fontWeight: 550,
-                      }}
                     >
                       {s.title}
                     </h2>

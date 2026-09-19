@@ -79,7 +79,7 @@ function matchesFilter(s: Supplier, filter: SanctionsFilter): boolean {
 
 export default function SuppliersListPage() {
   return (
-    <Suspense fallback={<p className="text-white/50 text-sm">Loading suppliers…</p>}>
+    <Suspense fallback={<p className="text-fg/50 text-sm">Loading suppliers…</p>}>
       <SuppliersListView />
     </Suspense>
   );
@@ -103,7 +103,7 @@ function SuppliersListView() {
     return () => { cancelled = true; };
   }, []);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading suppliers…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading suppliers…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -117,7 +117,7 @@ function SuppliersListView() {
   return (
     <div className="max-w-5xl">
       <h1 className="text-4xl mb-1">Suppliers</h1>
-      <p className="font-mono text-xs text-white/45 mb-8">Per-entity master records · L1.2</p>
+      <p className="font-mono text-xs text-fg/45 mb-8">Per-entity master records · L1.2</p>
       <SuppliersList
         suppliers={suppliers}
         onArchived={(externalIds) => {
@@ -281,8 +281,8 @@ function SuppliersList({
     return (
       <section className="border border-[var(--color-navy-line)] p-6">
         <h2 className="font-serif text-xl mb-1">No suppliers saved yet</h2>
-        <p className="font-mono text-xs text-white/45 mt-2">
-          Suppliers are created via POST <code className="text-white/80">/api/suppliers</code>
+        <p className="font-mono text-xs text-fg/45 mt-2">
+          Suppliers are created via POST <code className="text-fg/80">/api/suppliers</code>
           {' '}with entity name, HQ country, and optional registration number. Once a
           supplier exists, sanctions screening runs nightly and the trust score is
           recomputed as audits, history, and EUDR DDS evidence land.
@@ -297,14 +297,14 @@ function SuppliersList({
         <h2 className="font-serif text-xl">All suppliers</h2>
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/50">
               Filter
             </span>
             <select
               value={activeFilter || ''}
               onChange={(e) => setFilter(e.target.value)}
               aria-label="Filter suppliers by sanctions status"
-              className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-white focus:outline-none focus:border-white/55"
+              className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-fg focus:outline-none focus:border-fg/55"
             >
               <option value="">All ({suppliers.length})</option>
               {SUPPLIER_SANCTIONS_STATUSES.map((s) => (
@@ -317,7 +317,7 @@ function SuppliersList({
               </option>
             </select>
           </label>
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/60">
             {activeFilter
               ? `${visibleSuppliers.length} of ${suppliers.length}`
               : (
@@ -345,12 +345,12 @@ function SuppliersList({
       )}
 
       {visibleSuppliers.length === 0 ? (
-        <p className="px-6 py-8 font-mono text-xs text-white/45">
+        <p className="px-6 py-8 font-mono text-xs text-fg/45">
           No suppliers matching this filter.{' '}
           <button
             type="button"
             onClick={() => setFilter('')}
-            className="underline hover:text-white"
+            className="underline hover:text-fg"
           >
             Clear filter
           </button>
@@ -358,7 +358,7 @@ function SuppliersList({
       ) : (
         <table className="w-full">
           <thead>
-            <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+            <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-fg/50">
               <th className="px-4 py-3 font-normal w-[44px]">
                 <input
                   type="checkbox"
@@ -388,7 +388,7 @@ function SuppliersList({
                 <tr
                   key={s.externalId}
                   className="border-t border-[var(--color-navy-line)] hover:bg-[var(--color-navy-soft)]/30 transition-colors"
-                  style={isSelected ? { backgroundColor: 'rgba(255,255,255,0.04)' } : undefined}
+                  style={isSelected ? { backgroundColor: 'rgba(0,113,227,0.06)' } : undefined}
                 >
                   <td className="px-4 py-4 w-[44px]">
                     <input
@@ -400,13 +400,13 @@ function SuppliersList({
                       className="h-4 w-4"
                     />
                   </td>
-                  <td className="px-6 py-4 font-serif text-[14px] text-white">
+                  <td className="px-6 py-4 font-serif text-[14px] text-fg">
                     <Link href={`/suppliers/${encodeURIComponent(s.externalId)}`} className="hover:underline">
                       {s.entityName}
                     </Link>
                   </td>
-                  <td className="px-2 py-4 font-mono text-[12px] text-white/70">{s.hqCountry}</td>
-                  <td className="px-2 py-4 font-mono text-[11px] text-white/60 uppercase">{s.legalForm || '—'}</td>
+                  <td className="px-2 py-4 font-mono text-[12px] text-fg/70">{s.hqCountry}</td>
+                  <td className="px-2 py-4 font-mono text-[11px] text-fg/60 uppercase">{s.legalForm || '—'}</td>
                   <td className="px-2 py-4">
                     <span
                       className="font-mono text-[10px] uppercase tracking-[0.12em] px-2 py-0.5 border"
