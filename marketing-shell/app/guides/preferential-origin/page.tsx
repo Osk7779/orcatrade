@@ -84,15 +84,12 @@ export default function PreferentialOriginHubPage() {
       <section className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-28">
         <div className="mx-auto max-w-[1280px] px-6">
           <FadeUp className="mb-8 flex items-center gap-4">
-            <span aria-hidden className="font-serif text-[13px] text-[var(--color-ivory-dim)]/60">
-              ❦
-            </span>
             <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
               By framework
             </span>
           </FadeUp>
           <FadeUp delay={0.05}>
-            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 lg:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 lg:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
               {FRAMEWORKS.map((f) => (
                 <HubCard key={f.href} {...f} />
               ))}
@@ -104,15 +101,12 @@ export default function PreferentialOriginHubPage() {
       <section className="bg-[var(--color-ink)] py-20 md:py-28">
         <div className="mx-auto max-w-[1280px] px-6">
           <FadeUp className="mb-8 flex items-center gap-4">
-            <span aria-hidden className="font-serif text-[13px] text-[var(--color-ivory-dim)]/60">
-              ❦
-            </span>
             <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
               By origin
             </span>
           </FadeUp>
           <FadeUp delay={0.05}>
-            <div className="grid grid-cols-2 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-4 lg:grid-cols-7">
+            <div className="grid grid-cols-2 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-4 lg:grid-cols-7 overflow-hidden rounded-[22px]">
               {ORIGINS.map((o) => (
                 <a
                   key={o.slug}

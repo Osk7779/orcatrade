@@ -95,7 +95,7 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
     return () => { cancelled = true; };
   }, [externalId]);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading supplier…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading supplier…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -107,9 +107,9 @@ export default function SupplierDetailPage({ params }: { params: Promise<{ exter
   if (state === 'notFound') {
     return (
       <div className="max-w-xl">
-        <Link href="/suppliers" className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/45 hover:text-white">← All suppliers</Link>
+        <Link href="/suppliers" className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/45 hover:text-fg">← All suppliers</Link>
         <h1 className="text-4xl mt-3 mb-1">Not found</h1>
-        <p className="font-mono text-xs text-white/45">This supplier doesn't exist in your organisation, or it has been archived.</p>
+        <p className="font-mono text-xs text-fg/45">This supplier doesn't exist in your organisation, or it has been archived.</p>
       </div>
     );
   }
@@ -197,13 +197,13 @@ function Header({
 }) {
   return (
     <header className="mb-8">
-      <Link href="/suppliers" className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/45 hover:text-white">
+      <Link href="/suppliers" className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/45 hover:text-fg">
         ← All suppliers
       </Link>
       <div className="mt-4 flex items-start justify-between gap-6">
         <div>
-          <h1 className="text-4xl text-white">{supplier.entityName}</h1>
-          <p className="font-mono text-[12px] text-white/55 mt-2">
+          <h1 className="text-4xl text-fg">{supplier.entityName}</h1>
+          <p className="font-mono text-[12px] text-fg/55 mt-2">
             HQ {supplier.hqCountry}
             {supplier.legalForm && ` · ${supplier.legalForm.toUpperCase()}`}
             {' · '}{supplier.externalId}
@@ -223,7 +223,7 @@ function Header({
             <button
               type="button"
               onClick={onEdit}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
             >
               Edit
             </button>
@@ -348,7 +348,7 @@ function EditForm({
     <form onSubmit={submit} className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]">
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
         <h2 className="font-serif text-xl">Edit supplier record</h2>
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           {supplier.externalId} · sanctions/trust read-only
         </span>
       </div>
@@ -421,14 +421,14 @@ function EditForm({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save changes'}
         </button>
@@ -459,9 +459,9 @@ function EditField({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
         {label}
-        {required && <span className="ml-1 text-white/60">*</span>}
+        {required && <span className="ml-1 text-fg/60">*</span>}
       </span>
       <input
         type="text"
@@ -469,10 +469,10 @@ function EditField({
         onChange={(e) => onChange(e.target.value)}
         required={required}
         maxLength={maxLength}
-        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-2 font-mono text-[13px] text-white focus:outline-none focus:border-white/55"
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-2 font-mono text-[13px] text-fg focus:outline-none focus:border-fg/55"
       />
       {hint && (
-        <span className="block mt-1 font-mono text-[10px] text-white/40">{hint}</span>
+        <span className="block mt-1 font-mono text-[10px] text-fg/40">{hint}</span>
       )}
     </label>
   );
@@ -497,11 +497,11 @@ function EditSelectField({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{label}</span>
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-2 font-mono text-[13px] text-white focus:outline-none focus:border-white/55"
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-2 font-mono text-[13px] text-fg focus:outline-none focus:border-fg/55"
       >
         <option value="">—</option>
         {options.map((o) => (
@@ -511,7 +511,7 @@ function EditSelectField({
         ))}
       </select>
       {hint && (
-        <span className="block mt-1 font-mono text-[10px] text-white/40">{hint}</span>
+        <span className="block mt-1 font-mono text-[10px] text-fg/40">{hint}</span>
       )}
     </label>
   );
@@ -535,8 +535,8 @@ function FactsGrid({ supplier }: { supplier: Supplier }) {
     <section className="mb-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
       {facts.map((f) => (
         <div key={f.label} className="bg-[var(--color-ink)] px-4 py-4">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{f.label}</div>
-          <div className="font-mono text-[13px] text-white mt-1.5 break-words">{f.value}</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">{f.label}</div>
+          <div className="font-mono text-[13px] text-fg mt-1.5 break-words">{f.value}</div>
         </div>
       ))}
     </section>
@@ -613,7 +613,7 @@ function SanctionsPanel({
               type="button"
               onClick={runRescreen}
               disabled={rescreening}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
             >
               {rescreening ? 'Re-screening…' : 'Re-screen'}
             </button>
@@ -624,10 +624,10 @@ function SanctionsPanel({
         <Field label="Last screened" value={fmtDateTime(supplier.sanctionsLastScreenedAt)} />
         {flagged && supplier.sanctionsLastMatchSummary && Object.keys(supplier.sanctionsLastMatchSummary).length > 0 && (
           <details className="md:col-span-2">
-            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-fg/65 hover:text-fg">
               Match summary
             </summary>
-            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">
+            <pre className="mt-3 font-mono text-[11px] text-fg/70 overflow-x-auto whitespace-pre">
               {JSON.stringify(supplier.sanctionsLastMatchSummary, null, 2)}
             </pre>
           </details>
@@ -716,7 +716,7 @@ function AuditCertsReadPanel({
         <h2 className="font-serif text-xl">Audit certifications</h2>
         <div className="flex items-center gap-3">
           {hasCerts && (
-            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/60">
               {certs.length} on file
             </span>
           )}
@@ -724,7 +724,7 @@ function AuditCertsReadPanel({
             <button
               type="button"
               onClick={onEditClick}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
             >
               Edit
             </button>
@@ -739,10 +739,10 @@ function AuditCertsReadPanel({
               className="px-6 py-4 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6"
             >
               <div>
-                <div className="font-serif text-[14px] text-white">
+                <div className="font-serif text-[14px] text-fg">
                   {(c.standard || 'Unnamed').toUpperCase()}
                 </div>
-                <div className="font-mono text-[11px] text-white/55 mt-1">
+                <div className="font-mono text-[11px] text-fg/55 mt-1">
                   {c.issuer && `Issued by ${c.issuer}`}
                   {c.certNumber && ` · #${c.certNumber}`}
                   {c.issuedAt && ` · issued ${fmtDate(c.issuedAt)}`}
@@ -761,7 +761,7 @@ function AuditCertsReadPanel({
           ))}
         </ul>
       ) : (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No audit certifications on file yet.{' '}
           {!archived && 'Click Edit to add the first entry.'}
         </p>
@@ -991,7 +991,7 @@ function AuditCertsEditorPanel({
     >
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
         <h2 className="font-serif text-xl">Edit audit certifications</h2>
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           {drafts.length} {drafts.length === 1 ? 'row' : 'rows'}
         </span>
       </div>
@@ -1011,7 +1011,7 @@ function AuditCertsEditorPanel({
           type="button"
           onClick={addRow}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
         >
           + Add certification
         </button>
@@ -1039,14 +1039,14 @@ function AuditCertsEditorPanel({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save certifications'}
         </button>
@@ -1072,7 +1072,7 @@ function AuditCertEditRow({
   return (
     <div className="border border-[var(--color-navy-line)] px-3 py-3 space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           Certification {rowNumber}
         </span>
         <button
@@ -1080,7 +1080,7 @@ function AuditCertEditRow({
           onClick={onRemove}
           disabled={disabled}
           aria-label={`Remove certification row ${rowNumber}`}
-          className="font-mono text-[11px] px-3 py-1 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] px-3 py-1 border border-fg/25 text-fg/70 hover:text-fg hover:border-fg/45 disabled:opacity-50 transition-colors"
         >
           ×
         </button>
@@ -1159,9 +1159,9 @@ function AuditCertField({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
         {label}
-        {required && <span className="ml-1 text-white/60">*</span>}
+        {required && <span className="ml-1 text-fg/60">*</span>}
       </span>
       <input
         type={type || 'text'}
@@ -1171,7 +1171,7 @@ function AuditCertField({
         placeholder={placeholder}
         maxLength={maxLength}
         required={required}
-        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
       />
     </label>
   );
@@ -1246,7 +1246,7 @@ function FactoryLocationsReadPanel({
         <h2 className="font-serif text-xl">Factory locations</h2>
         <div className="flex items-center gap-3">
           {hasLocs && (
-            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/60">
               {locs.length} site{locs.length === 1 ? '' : 's'}
             </span>
           )}
@@ -1254,7 +1254,7 @@ function FactoryLocationsReadPanel({
             <button
               type="button"
               onClick={onEditClick}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
             >
               Edit
             </button>
@@ -1269,11 +1269,11 @@ function FactoryLocationsReadPanel({
               className="px-6 py-4 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6"
             >
               <div>
-                <div className="font-serif text-[14px] text-white">
+                <div className="font-serif text-[14px] text-fg">
                   {l.city || '—'}
                   {l.countryCode ? `, ${l.countryCode}` : ''}
                 </div>
-                <div className="font-mono text-[11px] text-white/55 mt-1">
+                <div className="font-mono text-[11px] text-fg/55 mt-1">
                   {l.role || '—'}
                   {l.floorAreaSqm != null && ` · ${l.floorAreaSqm.toLocaleString('en-IE')} m²`}
                 </div>
@@ -1282,7 +1282,7 @@ function FactoryLocationsReadPanel({
           ))}
         </ul>
       ) : (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No factory locations on file yet.{' '}
           {!archived && 'Click Edit to add the first entry. (Required for EUDR Article 9 due diligence.)'}
         </p>
@@ -1470,7 +1470,7 @@ function FactoryLocationsEditorPanel({
     >
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
         <h2 className="font-serif text-xl">Edit factory locations</h2>
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           {drafts.length} {drafts.length === 1 ? 'site' : 'sites'}
         </span>
       </div>
@@ -1490,7 +1490,7 @@ function FactoryLocationsEditorPanel({
           type="button"
           onClick={addRow}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
         >
           + Add factory location
         </button>
@@ -1518,14 +1518,14 @@ function FactoryLocationsEditorPanel({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save locations'}
         </button>
@@ -1551,7 +1551,7 @@ function FactoryLocationEditRow({
   return (
     <div className="border border-[var(--color-navy-line)] px-3 py-3 space-y-3">
       <div className="flex items-center justify-between gap-3">
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           Site {rowNumber}
         </span>
         <button
@@ -1559,7 +1559,7 @@ function FactoryLocationEditRow({
           onClick={onRemove}
           disabled={disabled}
           aria-label={`Remove factory location row ${rowNumber}`}
-          className="font-mono text-[11px] px-3 py-1 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] px-3 py-1 border border-fg/25 text-fg/70 hover:text-fg hover:border-fg/45 disabled:opacity-50 transition-colors"
         >
           ×
         </button>
@@ -1624,9 +1624,9 @@ function FactoryLocationField({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
         {label}
-        {required && <span className="ml-1 text-white/60">*</span>}
+        {required && <span className="ml-1 text-fg/60">*</span>}
       </span>
       <input
         type="text"
@@ -1637,7 +1637,7 @@ function FactoryLocationField({
         maxLength={maxLength}
         inputMode={inputMode}
         required={required}
-        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
       />
     </label>
   );
@@ -1720,7 +1720,7 @@ function EudrEvidenceReadPanel({
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-start justify-between gap-3">
         <div>
           <h2 className="font-serif text-xl">EUDR Due Diligence Statement evidence</h2>
-          <p className="font-mono text-[11px] text-white/45 mt-1">
+          <p className="font-mono text-[11px] text-fg/45 mt-1">
             Evidence trail for EU Deforestation Regulation Article 8 compliance.
           </p>
         </div>
@@ -1728,7 +1728,7 @@ function EudrEvidenceReadPanel({
           <button
             type="button"
             onClick={onEditClick}
-            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
           >
             Edit
           </button>
@@ -1742,22 +1742,22 @@ function EudrEvidenceReadPanel({
                 key={k}
                 className="grid gap-3 md:grid-cols-[200px_1fr] items-start font-mono text-[12px]"
               >
-                <span className="text-white/55 break-words">{k}</span>
-                <span className="text-white/85 break-words whitespace-pre-wrap">
+                <span className="text-fg/55 break-words">{k}</span>
+                <span className="text-fg/85 break-words whitespace-pre-wrap">
                   {typeof v === 'string' ? v : JSON.stringify(v)}
                 </span>
               </li>
             ))}
           </ul>
           <details className="m-6">
-            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-fg/65 hover:text-fg">
               Raw JSON
             </summary>
-            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+            <pre className="mt-3 font-mono text-[11px] text-fg/70 overflow-x-auto whitespace-pre">{json}</pre>
           </details>
         </>
       ) : (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No EUDR evidence on file yet.{' '}
           {!archived && 'Click Edit to add the first entry. (Required for EUDR Article 8 due diligence.)'}
         </p>
@@ -1956,11 +1956,11 @@ function EudrEvidenceEditorPanel({
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
         <div className="flex items-start justify-between gap-3">
           <h2 className="font-serif text-xl">Edit EUDR DDS evidence</h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
             {drafts.length} {drafts.length === 1 ? 'entry' : 'entries'}
           </span>
         </div>
-        <p className="font-mono text-[11px] text-white/45 mt-2">
+        <p className="font-mono text-[11px] text-fg/45 mt-2">
           Free-form key/value evidence. Common keys: country_of_production,
           geolocation_coordinates, dds_pdf_url, last_audit_date.
         </p>
@@ -1981,7 +1981,7 @@ function EudrEvidenceEditorPanel({
           type="button"
           onClick={addRow}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
         >
           + Add evidence entry
         </button>
@@ -2009,14 +2009,14 @@ function EudrEvidenceEditorPanel({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save evidence'}
         </button>
@@ -2050,7 +2050,7 @@ function EudrEvidenceEditRow({
           disabled={disabled}
           placeholder="key"
           maxLength={120}
-          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <label className="block">
@@ -2062,7 +2062,7 @@ function EudrEvidenceEditRow({
           disabled={disabled}
           placeholder="value"
           maxLength={500}
-          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <button
@@ -2070,7 +2070,7 @@ function EudrEvidenceEditRow({
         onClick={onRemove}
         disabled={disabled}
         aria-label={`Remove EUDR evidence row ${rowNumber}`}
-        className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+        className="font-mono text-[11px] px-3 py-1.5 border border-fg/25 text-fg/70 hover:text-fg hover:border-fg/45 disabled:opacity-50 transition-colors"
       >
         ×
       </button>
@@ -2146,7 +2146,7 @@ function SupplierMetadataReadPanel({
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-start justify-between gap-3">
         <div>
           <h2 className="font-serif text-xl">Operator metadata</h2>
-          <p className="font-mono text-[11px] text-white/45 mt-1">
+          <p className="font-mono text-[11px] text-fg/45 mt-1">
             Freeform key/value notes — internal references, integration handles, custom tags.
           </p>
         </div>
@@ -2154,7 +2154,7 @@ function SupplierMetadataReadPanel({
           <button
             type="button"
             onClick={onEditClick}
-            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
           >
             Edit
           </button>
@@ -2168,22 +2168,22 @@ function SupplierMetadataReadPanel({
                 key={k}
                 className="grid gap-3 md:grid-cols-[200px_1fr] items-start font-mono text-[12px]"
               >
-                <span className="text-white/55 break-words">{k}</span>
-                <span className="text-white/85 break-words whitespace-pre-wrap">
+                <span className="text-fg/55 break-words">{k}</span>
+                <span className="text-fg/85 break-words whitespace-pre-wrap">
                   {typeof v === 'string' ? v : JSON.stringify(v)}
                 </span>
               </li>
             ))}
           </ul>
           <details className="m-6">
-            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-fg/65 hover:text-fg">
               Raw JSON
             </summary>
-            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+            <pre className="mt-3 font-mono text-[11px] text-fg/70 overflow-x-auto whitespace-pre">{json}</pre>
           </details>
         </>
       ) : (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No metadata recorded.{' '}
           {!archived && 'Click Edit to add the first entry.'}
         </p>
@@ -2355,11 +2355,11 @@ function SupplierMetadataEditorPanel({
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
         <div className="flex items-start justify-between gap-3">
           <h2 className="font-serif text-xl">Edit operator metadata</h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
             {drafts.length} {drafts.length === 1 ? 'entry' : 'entries'}
           </span>
         </div>
-        <p className="font-mono text-[11px] text-white/45 mt-2">
+        <p className="font-mono text-[11px] text-fg/45 mt-2">
           Freeform key/value. Common keys: crm_account_id, internal_owner, integration_handle.
         </p>
       </div>
@@ -2379,7 +2379,7 @@ function SupplierMetadataEditorPanel({
           type="button"
           onClick={addRow}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
         >
           + Add metadata entry
         </button>
@@ -2407,14 +2407,14 @@ function SupplierMetadataEditorPanel({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save metadata'}
         </button>
@@ -2448,7 +2448,7 @@ function SupplierMetadataEditRow({
           disabled={disabled}
           placeholder="key"
           maxLength={120}
-          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <label className="block">
@@ -2460,7 +2460,7 @@ function SupplierMetadataEditRow({
           disabled={disabled}
           placeholder="value"
           maxLength={500}
-          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <button
@@ -2468,7 +2468,7 @@ function SupplierMetadataEditRow({
         onClick={onRemove}
         disabled={disabled}
         aria-label={`Remove metadata row ${rowNumber}`}
-        className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+        className="font-mono text-[11px] px-3 py-1.5 border border-fg/25 text-fg/70 hover:text-fg hover:border-fg/45 disabled:opacity-50 transition-colors"
       >
         ×
       </button>
@@ -2483,7 +2483,7 @@ function TrustComponentsPanel({ supplier }: { supplier: Supplier }) {
     <section className="mb-10 border border-[var(--color-navy-line)]">
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
         <h2 className="font-serif text-xl">Trust score components</h2>
-        <p className="font-mono text-[11px] text-white/45 mt-1">
+        <p className="font-mono text-[11px] text-fg/45 mt-1">
           Per-component breakdown so the {supplier.trustScore ?? '—'}-point score is auditable.
         </p>
       </div>
@@ -2499,8 +2499,8 @@ function TrustComponentsPanel({ supplier }: { supplier: Supplier }) {
 function Field({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
   return (
     <div>
-      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{label}</div>
-      <div className={`mt-1 ${mono ? 'font-mono text-[12px]' : 'text-[14px]'} text-white break-words`}>{value}</div>
+      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">{label}</div>
+      <div className={`mt-1 ${mono ? 'font-mono text-[12px]' : 'text-[14px]'} text-fg break-words`}>{value}</div>
     </div>
   );
 }

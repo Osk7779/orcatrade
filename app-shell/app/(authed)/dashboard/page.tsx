@@ -122,7 +122,6 @@ function Headline({ children, size = 'lg' }: { children: React.ReactNode; size?:
   return (
     <h1
       className={`font-serif ${cls} tracking-[-0.022em] text-[var(--color-ivory)] mt-5`}
-      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
     >
       {children}
     </h1>
@@ -138,7 +137,6 @@ function SectionHeading({ children, action }: { children: React.ReactNode; actio
     <div className="flex items-end justify-between gap-6 mb-7">
       <h2
         className="font-serif text-[1.6rem] tracking-[-0.018em] text-[var(--color-ivory)] leading-tight"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
       >
         {children}
       </h2>
@@ -309,7 +307,6 @@ function NextDeadline({ next }: { next: NonNullable<Overview['compliance']>['nex
         </div>
         <h3
           className="mt-8 font-serif text-[clamp(1.9rem,3vw+0.4rem,2.8rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)] max-w-[28ch]"
-          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
         >
           {String(next.regime || '').toUpperCase()}
           <span className="font-serif italic text-[var(--color-ivory-mute)]"> — {next.title}</span>
@@ -331,7 +328,7 @@ function NextDeadline({ next }: { next: NonNullable<Overview['compliance']>['nex
         <div className="mt-10 flex flex-wrap gap-3">
           <Link
             href="/calendar"
-            className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] hover:bg-white transition-colors duration-300"
+            className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] hover:bg-fg transition-colors duration-300"
           >
             Open the calendar
             <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
@@ -450,7 +447,6 @@ function QuickActions() {
             </div>
             <h3
               className="font-serif text-[1.35rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               {a.title}
             </h3>
@@ -499,7 +495,6 @@ function Activation({ email }: { email?: string }) {
           >
             <span
               className="font-serif text-[2rem] leading-none text-[var(--color-ivory-mute)] tabular-nums shrink-0"
-              style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 500 }}
             >
               {s.n}
             </span>
@@ -540,19 +535,21 @@ function AuthGate() {
         nothing is created until you click the email.
       </p>
       <div className="mt-10 flex flex-wrap items-center gap-3">
-        <Link
+        {/* Plain anchors: /signin and /signup live outside the /app basePath,
+            so next/link would prefix them to a 404. */}
+        <a
           href="/signin?return=%2Fapp%2Fdashboard"
-          className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] hover:bg-white transition-colors duration-300"
+          className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] hover:bg-fg transition-colors duration-300"
         >
           Sign in
           <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
-        </Link>
-        <Link
+        </a>
+        <a
           href="/signup?return=%2Fapp%2Fdashboard"
           className="group inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] transition-all duration-300"
         >
           Create an account
-        </Link>
+        </a>
       </div>
     </Section>
   );

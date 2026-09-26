@@ -56,12 +56,21 @@ function emitGhaError({ name, url, reason }) {
   console.log(`::error file=scripts/smoke.js,title=${title}::${msg}`);
 }
 
+// Vercel preview deployments sit behind Deployment Protection (302 to the
+// Vercel login). With VERCEL_AUTOMATION_BYPASS_SECRET set (Vercel → project
+// → Settings → Deployment Protection → Protection Bypass for Automation,
+// mirrored into the GitHub repo secrets), probes carry the bypass header.
+function bypassHeaders() {
+  const secret = process.env.VERCEL_AUTOMATION_BYPASS_SECRET;
+  return secret ? { 'x-vercel-protection-bypass': secret } : {};
+}
+
 async function probe(name, path, check) {
   const url = base + path;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(url, { signal: ctrl.signal, redirect: 'manual' });
+    const res = await fetch(url, { signal: ctrl.signal, redirect: 'manual', headers: bypassHeaders() });
     const text = await res.text();
     const verdict = check({ status: res.status, text, headers: res.headers });
     if (verdict.ok) {

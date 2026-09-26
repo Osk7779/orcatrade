@@ -6,7 +6,7 @@ import { apiPost, type ScreenResult } from '@/lib/api';
 const STATUS_COPY: Record<string, { label: string; cls: string }> = {
   potential_match: { label: 'Potential match — escalate', cls: 'text-red-400 border-l-red-500' },
   no_match: { label: 'No match on the loaded lists', cls: 'text-emerald-300 border-l-emerald-500' },
-  no_sample_match: { label: 'No match on the sample list', cls: 'text-white/70 border-l-white/30' },
+  no_sample_match: { label: 'No match on the sample list', cls: 'text-fg/70 border-l-fg/30' },
   invalid: { label: 'Not screenable', cls: 'text-amber-400 border-l-amber-500' },
 };
 
@@ -35,7 +35,7 @@ export default function ScreeningPage() {
     <div className="max-w-2xl">
       <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Screening</div>
       <h1 className="text-4xl mb-2">Denied-party screening</h1>
-      <p className="text-white/60 text-sm mb-7 leading-relaxed">
+      <p className="text-fg/60 text-sm mb-7 leading-relaxed">
         Check a supplier, buyer or vessel name against the consolidated sanctions lists (OFAC · UK OFSI · UN · EU).
         Indicative only — it can flag a potential match, but never returns an all-clear.
       </p>
@@ -45,7 +45,7 @@ export default function ScreeningPage() {
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Volcano Trading Company"
-          className="flex-1 bg-white/[0.04] border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm focus:outline-none focus:border-white/30"
+          className="flex-1 bg-fg/[0.04] border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm focus:outline-none focus:border-fg/30"
         />
         <button disabled={busy || !name.trim()} className="px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40">
           {busy ? 'Screening…' : 'Screen'}
@@ -57,7 +57,7 @@ export default function ScreeningPage() {
       {result && sc && (
         <div className={`border border-[var(--color-line)] border-l-2 ${sc.cls} px-5 py-4`}>
           <div className={`font-mono text-[0.7rem] uppercase tracking-wider mb-1 ${sc.cls.split(' ')[0]}`}>{sc.label}</div>
-          <div className="text-sm text-white/70 mb-3">
+          <div className="text-sm text-fg/70 mb-3">
             Screened “{result.query}” against {result.authoritative ? 'the loaded consolidated lists' : 'the illustrative sample'}
             {typeof result.matchCount === 'number' ? ` · ${result.matchCount} match${result.matchCount === 1 ? '' : 'es'}` : ''}.
           </div>
@@ -65,13 +65,13 @@ export default function ScreeningPage() {
             <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)] mb-3">
               {result.matches.map((m, i) => (
                 <div key={i} className="px-3 py-2 flex justify-between items-center text-sm">
-                  <span className="text-ivory">{m.name}{m.programme ? <span className="text-white/45"> · {m.programme}</span> : null}</span>
-                  <span className="font-mono text-xs text-white/55">{m.listSource} · {Math.round((m.score ?? 0) * 100)}%</span>
+                  <span className="text-ivory">{m.name}{m.programme ? <span className="text-fg/45"> · {m.programme}</span> : null}</span>
+                  <span className="font-mono text-xs text-fg/55">{m.listSource} · {Math.round((m.score ?? 0) * 100)}%</span>
                 </div>
               ))}
             </div>
           )}
-          {result.advisory && <p className="text-white/50 text-xs leading-relaxed">{result.advisory}</p>}
+          {result.advisory && <p className="text-fg/50 text-xs leading-relaxed">{result.advisory}</p>}
         </div>
       )}
     </div>

@@ -53,7 +53,7 @@ export function BulkArchiveToolbar({
   return (
     <div className="border-b border-[var(--color-navy-line)] bg-[var(--color-navy-soft)]/20">
       <div className="px-6 py-3 flex items-center justify-between gap-3 flex-wrap">
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/85">
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/85">
           {selectedCount} selected
         </span>
         <div className="flex items-center gap-2">
@@ -62,7 +62,7 @@ export function BulkArchiveToolbar({
               type="button"
               onClick={onArchiveClick}
               disabled={archiving}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
               style={hasErrors ? { borderColor: 'var(--color-critical)', color: 'var(--color-critical)' } : undefined}
             >
               {archiving
@@ -74,7 +74,7 @@ export function BulkArchiveToolbar({
           )}
           {confirming && (
             <>
-              <span className="font-mono text-[11px] text-white/75">
+              <span className="font-mono text-[11px] text-fg/75">
                 Archive {selectedCount}? This is irreversible.
               </span>
               <button
@@ -91,7 +91,7 @@ export function BulkArchiveToolbar({
               <button
                 type="button"
                 onClick={onCancel}
-                className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white"
+                className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg"
               >
                 Cancel
               </button>
@@ -102,7 +102,7 @@ export function BulkArchiveToolbar({
               type="button"
               onClick={onClear}
               disabled={archiving}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/25 text-white/65 hover:text-white disabled:opacity-50"
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/25 text-fg/65 hover:text-fg disabled:opacity-50"
             >
               Clear
             </button>

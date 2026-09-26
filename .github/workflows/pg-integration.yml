@@ -46,6 +46,16 @@ jobs:
           --health-interval 5s
           --health-timeout 3s
           --health-retries 10
+      # The app talks to Postgres through @neondatabase/serverless, which
+      # speaks Neon's SQL-over-HTTP protocol — it cannot reach a plain
+      # Postgres. This sidecar translates HTTP → Postgres wire protocol.
+      # (Without it the job had never passed: "fetch failed".)
+      neon-proxy:
+        image: ghcr.io/timowilhelm/local-neon-http-proxy:main
+        env:
+          PG_CONNECTION_STRING: postgres://orcatrade_ci:orcatrade_ci_local@postgres:5432/orcatrade_ci
+        ports:
+          - 4444:4444
 
     env:
       # Connection URL pointing at the service container. UNPOOLED ==
@@ -56,6 +66,7 @@ jobs:
       ORCATRADE_AUTH_SECRET: ci-pg-integration-secret-do-not-use-in-prod
       ORCATRADE_DISABLE_LIVE_TARIC: '1'
       ORCATRADE_INTEGRATION_TESTS: '1'
+      NEON_LOCAL_HTTP_PROXY: http://localhost:4444/sql
 
     steps:
       - uses: actions/checkout@v6

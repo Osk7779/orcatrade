@@ -32,9 +32,9 @@ export default function PlanDetailPage({ params }: { params: Promise<{ id: strin
     apiGet<Reproduction>(`/plans/${id}/reproduce`).then(setRepro).catch(() => {});
   }, [id]);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading plan…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading plan…</p>;
   if (state === 'auth') return <div className="max-w-md"><h1 className="text-3xl mb-3">Sign in to view this plan</h1><a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a></div>;
-  if (state === 'missing') return <div><Link href="/plans" className="text-[var(--color-accent)] text-sm">← Plans</Link><p className="text-white/60 mt-4">Plan not found.</p></div>;
+  if (state === 'missing') return <div><Link href="/plans" className="text-[var(--color-accent)] text-sm">← Plans</Link><p className="text-fg/60 mt-4">Plan not found.</p></div>;
   if (state === 'error' || !plan) return <p className="text-red-400 text-sm">Couldn’t load this plan.</p>;
 
   const inp = plan.inputs || {};
@@ -51,14 +51,14 @@ export default function PlanDetailPage({ params }: { params: Promise<{ id: strin
     <div className="max-w-2xl">
       <Link href="/plans" className="text-[var(--color-accent)] text-sm">← Plans</Link>
       <h1 className="text-4xl mt-3 mb-1">{plan.label || inp.productCategory || plan.id}</h1>
-      <div className="font-mono text-xs text-white/45 mb-8">
+      <div className="font-mono text-xs text-fg/45 mb-8">
         {(inp.originCountry || '?')}→{(inp.destinationCountry || '?')}
         {inp.hsCode ? ` · HS ${inp.hsCode}` : ''}
         {plan.savedAt ? ` · saved ${String(plan.savedAt).slice(0, 10)}` : ''}
       </div>
 
       <div className="border border-[var(--color-line)] border-t-2 border-t-[var(--color-accent)] px-5 py-5 mb-6">
-        <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-1">Landed cost / shipment (today)</div>
+        <div className="text-[0.7rem] uppercase tracking-wider text-fg/50 mb-1">Landed cost / shipment (today)</div>
         <div className="font-serif text-4xl text-ivory">{eur(cur.perShipmentLandedTotal)}</div>
         {d && d.significant && d.landedDeltaPct != null && (
           <div className={`mt-2 text-sm ${d.landedDeltaPct >= 0 ? 'text-red-300' : 'text-emerald-300'}`}>
@@ -73,13 +73,13 @@ export default function PlanDetailPage({ params }: { params: Promise<{ id: strin
       <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)] mb-6">
         {rows.map(([k, v]) => (
           <div key={k} className="flex justify-between px-5 py-3 text-sm">
-            <span className="text-white/65">{k}</span>
-            <span className="font-mono text-white/90">{v}</span>
+            <span className="text-fg/65">{k}</span>
+            <span className="font-mono text-fg/90">{v}</span>
           </div>
         ))}
         <div className="flex justify-between px-5 py-3 text-sm">
           <span className="text-ivory">Customs value</span>
-          <span className="font-mono text-white/90">{eur(inp.customsValueEur)}</span>
+          <span className="font-mono text-fg/90">{eur(inp.customsValueEur)}</span>
         </div>
       </div>
 
@@ -87,7 +87,7 @@ export default function PlanDetailPage({ params }: { params: Promise<{ id: strin
 
       {repro && <ReproPanel r={repro} />}
 
-      <p className="text-white/40 text-xs">
+      <p className="text-fg/40 text-xs">
         Recomputed against today’s tariff, freight and FX data. Manage or re-run this plan on the{' '}
         <a className="underline" href="/account/plans/">classic plans page</a>.
       </p>
@@ -109,22 +109,22 @@ function ReproPanel({ r }: { r: Reproduction }) {
       className="border border-[var(--color-line)] px-5 py-5 mb-6"
       style={{ borderTopWidth: 2, borderTopColor: accent }}
     >
-      <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-1">Reproducibility</div>
+      <div className="text-[0.7rem] uppercase tracking-wider text-fg/50 mb-1">Reproducibility</div>
       <div className="flex items-center gap-2 mb-2">
         <span style={{ color: accent }} className="text-lg leading-none">{unchanged ? '✓' : drifted ? '◆' : '•'}</span>
         <span className="text-ivory text-sm font-medium">{label}</span>
       </div>
-      {r.message && <p className="text-white/55 text-xs mb-3">{r.message}</p>}
+      {r.message && <p className="text-fg/55 text-xs mb-3">{r.message}</p>}
 
       {/* The headline payoff: the ORIGINAL landed total, recomputed from the stored snapshot. */}
       {drifted && r.landedReproduction && (
         <div className="grid grid-cols-2 gap-px bg-[var(--color-line)] border border-[var(--color-line)] mb-3">
           <div className="bg-[var(--color-ink)] px-4 py-3">
-            <div className="text-[0.65rem] uppercase tracking-wider text-white/45 mb-1">Original (as saved)</div>
+            <div className="text-[0.65rem] uppercase tracking-wider text-fg/45 mb-1">Original (as saved)</div>
             <div className="font-serif text-2xl text-ivory">{eur(r.landedReproduction.original.perShipmentLandedTotal)}</div>
           </div>
           <div className="bg-[var(--color-ink)] px-4 py-3">
-            <div className="text-[0.65rem] uppercase tracking-wider text-white/45 mb-1">Recomputed today</div>
+            <div className="text-[0.65rem] uppercase tracking-wider text-fg/45 mb-1">Recomputed today</div>
             <div className="font-serif text-2xl text-ivory">{eur(r.landedReproduction.current?.perShipmentLandedTotal)}</div>
           </div>
         </div>
@@ -135,16 +135,16 @@ function ReproPanel({ r }: { r: Reproduction }) {
         <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)] mb-3">
           {r.drift.slice(0, 8).map((c) => (
             <div key={c.field} className="flex justify-between gap-3 px-4 py-2 text-xs">
-              <span className="text-white/60">{c.label || c.field}</span>
-              <span className="font-mono text-white/85 whitespace-nowrap">{fmtVal(c.from)} → {fmtVal(c.to)}</span>
+              <span className="text-fg/60">{c.label || c.field}</span>
+              <span className="font-mono text-fg/85 whitespace-nowrap">{fmtVal(c.from)} → {fmtVal(c.to)}</span>
             </div>
           ))}
-          {r.drift.length > 8 && <div className="px-4 py-2 text-xs text-white/40">+{r.drift.length - 8} more</div>}
+          {r.drift.length > 8 && <div className="px-4 py-2 text-xs text-fg/40">+{r.drift.length - 8} more</div>}
         </div>
       )}
 
       {r.storedSnapshotId && (
-        <div className="font-mono text-[0.65rem] text-white/35">
+        <div className="font-mono text-[0.65rem] text-fg/35">
           snapshot {r.storedSnapshotId}{r.currentSnapshotId && r.currentSnapshotId !== r.storedSnapshotId ? ` → ${r.currentSnapshotId}` : ''}
         </div>
       )}
@@ -172,7 +172,7 @@ function RevisionDiff({
   return (
     <section className="border border-[var(--color-line)] px-5 py-5 mb-6"
       style={{ borderTopWidth: 2, borderTopColor: '#F59E0B' }}>
-      <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-3">What changed since you saved</div>
+      <div className="text-[0.7rem] uppercase tracking-wider text-fg/50 mb-3">What changed since you saved</div>
       <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)] mb-3">
         {movedKeys.map((k) => {
           const s = saved?.[k];
@@ -181,9 +181,9 @@ function RevisionDiff({
           const up = diff >= 0;
           return (
             <div key={k} className="grid grid-cols-4 gap-2 px-4 py-2 text-xs items-center">
-              <span className="text-white/65">{COMPONENT_LABELS[k]}</span>
-              <span className="font-mono text-white/55 text-right">{eur(s)}</span>
-              <span className="font-mono text-white/85 text-right">{eur(c)}</span>
+              <span className="text-fg/65">{COMPONENT_LABELS[k]}</span>
+              <span className="font-mono text-fg/55 text-right">{eur(s)}</span>
+              <span className="font-mono text-fg/85 text-right">{eur(c)}</span>
               <span className={`font-mono text-right ${up ? 'text-red-300' : 'text-emerald-300'}`}>
                 {up ? '+' : ''}{eur(diff)}
               </span>
@@ -192,7 +192,7 @@ function RevisionDiff({
         })}
       </div>
       {typeof delta.dutyRateDelta === 'number' && Math.abs(delta.dutyRateDelta) >= 0.1 && (
-        <p className="text-white/55 text-xs">
+        <p className="text-fg/55 text-xs">
           Duty rate moved <b className={delta.dutyRateDelta >= 0 ? 'text-red-300' : 'text-emerald-300'}>
             {delta.dutyRateDelta >= 0 ? '+' : ''}{delta.dutyRateDelta.toFixed(1)}pp
           </b>{delta.primaryDriver ? <> (driver: {delta.primaryDriver})</> : null}.

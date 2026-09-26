@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from './editorial-header';
 import { ChapterRule } from './chapter-rule';
 import { FadeUp } from './fade-up';
@@ -129,7 +129,6 @@ export function DomainLanding({ hero, steps, scenarios, closer }: DomainLandingP
                         />
                         <div
                           className="font-serif text-[34px] leading-none tracking-[-0.024em] text-[var(--color-ivory)]"
-                          style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 600 }}
                         >
                           {String(i + 1).padStart(2, '0')}
                         </div>
@@ -184,7 +183,6 @@ export function DomainLanding({ hero, steps, scenarios, closer }: DomainLandingP
                         </span>
                         <h3
                           className="mt-4 font-serif text-[18px] leading-[1.25] tracking-[-0.012em] text-[var(--color-ivory)]"
-                          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 600 }}
                         >
                           {sc.title}
                         </h3>
@@ -218,7 +216,6 @@ export function DomainLanding({ hero, steps, scenarios, closer }: DomainLandingP
               <FadeUp>
                 <h2
                   className="font-serif text-[clamp(1.8rem,2.8vw+0.4rem,2.6rem)] leading-[1.15] tracking-[-0.022em] text-[var(--color-ivory)]"
-                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                 >
                   {closer.title}
                 </h2>
