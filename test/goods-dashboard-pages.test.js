@@ -55,7 +55,10 @@ test('list page empty-state cross-links to the /start wizard (the place goods ge
   // Discoverability: a user with no goods needs to know where to go
   // to create one. Goods are inherited from the wizard via PR #94.
   assert.match(LIST_SRC, /No goods saved yet/);
-  assert.match(LIST_SRC, /<Link href="\/start"/);
+  // Plain anchor, not next/link: /start lives outside the /app basePath,
+  // and next/link would rewrite it to /app/start (404).
+  assert.match(LIST_SRC, /<a href="\/start\/"/);
+  assert.doesNotMatch(LIST_SRC, /<Link href="\/start/);
 });
 
 // ── Detail page wiring ────────────────────────────────────────────────

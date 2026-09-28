@@ -36,7 +36,7 @@ test('/press/ has noindex robots tag absent (we want press kit indexed)', () => 
 
 test('/press/ provides press contact route', () => {
   const html = readFile('press/legacy/index.html');
-  assert.match(html, /press@orcatrade\.pl/);
+  assert.match(html, /orcatrade@orcatradegroup\.com/);
   assert.match(html, /\?intent=press/);
 });
 

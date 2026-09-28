@@ -158,7 +158,7 @@
       </div>
 
       <div class="footer-note">
-        Questions about your data: <a href="mailto:orca@orcatrade.pl">orca@orcatrade.pl</a> ·
+        Questions about your data: <a href="mailto:orcatrade@orcatradegroup.com">orcatrade@orcatradegroup.com</a> ·
         Back to <a href="/account/">your account</a>.
       </div>
     </div>
@@ -208,7 +208,7 @@
         URL.revokeObjectURL(url);
         showMsg('exportMsg', 'Downloaded. Open the file in any JSON viewer to read your data.', 'ok');
       } catch (err) {
-        showMsg('exportMsg', `Export failed: ${err.message}. Please try again or email orca@orcatrade.pl.`, 'err');
+        showMsg('exportMsg', `Export failed: ${err.message}. Please try again or email orcatrade@orcatradegroup.com.`, 'err');
       } finally {
         btn.disabled = false;
       }
@@ -239,7 +239,7 @@
         showMsg('deleteMsg', `Deleted. ${body.deleted.plans} plan(s) removed, ${body.deleted.eventsScrubbed} event entr(ies) pseudonymised. You will be redirected in 3 seconds.`, 'ok');
         setTimeout(() => { window.location.href = '/'; }, 3000);
       } catch (err) {
-        showMsg('deleteMsg', `Delete failed: ${err.message}. Please try again or email orca@orcatrade.pl.`, 'err');
+        showMsg('deleteMsg', `Delete failed: ${err.message}. Please try again or email orcatrade@orcatradegroup.com.`, 'err');
         btn.disabled = false;
       }
     });

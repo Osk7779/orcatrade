@@ -309,10 +309,24 @@ test('lib/db/client.js supports both v0.x bare-call and v1.x .query() Neon shape
     'v0.x bare-call path must be present (fallback)');
 });
 
-test('scripts/db-migrate.js calls sql(text, params), not sql.query()', () => {
+test('scripts/db-migrate.js routes through the v0/v1 shim (regression: v1 broke db:migrate)', () => {
   const text = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'db-migrate.js'), 'utf8');
-  assert.doesNotMatch(text, /sql\.query\(/, 'scripts/db-migrate.js should not use sql.query()');
-  // It MUST call sql(text, params) for the parametrised reads/writes.
+  // Helpers call sql(text, params); the driver client is wrapped so that
+  // resolves to client.query() on v1.x and the bare call on v0.x.
+  assert.match(text, /const sql = callableSql\(neon\(/);
+  assert.match(text, /client\.query\(text, params\)/);
   assert.match(text, /await sql\(['"]SELECT filename/);
   assert.match(text, /await sql\(\s*\n?\s*['"]INSERT INTO schema_versions/);
+});
+
+test('callableSql prefers .query() (v1.x) and falls back to the bare call (v0.x)', async () => {
+  const { callableSql } = require('../scripts/db-migrate');
+  const calls = [];
+  const v1 = Object.assign(() => { throw new Error('tagged-template only'); }, {
+    query: async (t, p) => { calls.push(['query', t, p]); return []; },
+  });
+  await callableSql(v1)('SELECT $1', [1]);
+  const v0 = async (t, p) => { calls.push(['bare', t, p]); return []; };
+  await callableSql(v0)('SELECT 1');
+  assert.deepEqual(calls, [['query', 'SELECT $1', [1]], ['bare', 'SELECT 1', []]]);
 });

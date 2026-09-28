@@ -4,9 +4,8 @@ import { useEffect, useRef } from 'react';
 import createGlobe, { type COBEOptions } from 'cobe';
 import { cn } from '@/lib/utils';
 
-// Tuned for a publication-plate feel, not a tech demo: deep inky sphere,
-// finer dot density, slower rotation. No frame around it — just the
-// sphere sitting in atmosphere.
+// Light globe for the light surface: pale sphere, soft grey land dots and
+// the accent blue on the Asia and Europe hubs.
 const GLOBE_CONFIG: COBEOptions = {
   width: 800,
   height: 800,
@@ -14,16 +13,13 @@ const GLOBE_CONFIG: COBEOptions = {
   devicePixelRatio: 2,
   phi: 0,
   theta: 0.24,
-  dark: 1,
-  diffuse: 0.6,
-  // Denser land sampling + cobe's default brightness restored — continents
-  // read as defined ivory mass instead of barely-visible specks. Cities
-  // (markers) sit on top as slightly heavier accents.
-  mapSamples: 32000,
-  mapBrightness: 6.5,
-  baseColor: [0.025, 0.05, 0.11],
-  markerColor: [0.98, 0.98, 0.97],
-  glowColor: [0.07, 0.12, 0.22],
+  dark: 0,
+  diffuse: 0.4,
+  mapSamples: 24000,
+  mapBrightness: 1.2,
+  baseColor: [1, 1, 1],
+  markerColor: [0, 0.443, 0.89],
+  glowColor: [0.94, 0.94, 0.96],
   markers: [
     { location: [31.2304, 121.4737], size: 0.05 }, // Shanghai
     { location: [22.3193, 114.1694], size: 0.04 }, // Hong Kong
@@ -42,7 +38,8 @@ const GLOBE_CONFIG: COBEOptions = {
 
 export function Globe({ className }: { className?: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const phiRef = useRef(0);
+  // Start with the Europe–Asia hemisphere facing the viewer.
+  const phiRef = useRef(3.4);
   const pointerInteractingRef = useRef<number | null>(null);
   const pointerMovementRef = useRef(0);
 
@@ -84,24 +81,6 @@ export function Globe({ className }: { className?: string }) {
 
   return (
     <div className={cn('relative aspect-square w-full max-w-[720px]', className)}>
-      {/* Outer atmospheric haze — gives the sphere its weight without framing it */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-[-12%] -z-10"
-        style={{
-          background:
-            'radial-gradient(circle at center, rgba(22, 44, 90, 0.55), transparent 58%)',
-          filter: 'blur(36px)',
-        }}
-      />
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-[-4%] -z-10"
-        style={{
-          background:
-            'radial-gradient(circle at center, rgba(40, 70, 130, 0.18), transparent 65%)',
-        }}
-      />
       <canvas
         ref={canvasRef}
         onPointerDown={(e) => {

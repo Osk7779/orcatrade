@@ -178,7 +178,7 @@
 
     } catch {
       typingEl.remove();
-      appendMsg('assistant', 'Sorry, something went wrong. Please try again or reach us at orca@orcatrade.pl.');
+      appendMsg('assistant', 'Sorry, something went wrong. Please try again or reach us at orcatrade@orcatradegroup.com.');
     } finally {
       setLoading(false);
       input.focus();

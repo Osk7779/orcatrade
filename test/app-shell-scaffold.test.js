@@ -184,9 +184,18 @@ test('Plans list shows the per-row reproducibility badge (no extra fetch)', () =
   assert.match(read('lib/api.ts'), /reproducible\?:/);
 });
 
-test('the accent colour is ivory white, not gold (user preference, locked in)', () => {
+// 2026-09-18: the ivory-on-navy accent was superseded by the Apple-style
+// light redesign the user asked for (one action blue, shared with
+// marketing-shell). The "never gold" half of the preference still holds.
+test('the accent colour is the shared action blue, never gold', () => {
   const css = read('app/globals.css');
-  assert.match(css, /--color-accent:\s*#fafaf7/i);
+  assert.match(css, /--color-accent:\s*#0071e3/i);
+  assert.equal(
+    css.match(/--color-accent:\s*(#[0-9a-f]{6})/i)[1].toLowerCase(),
+    fs.readFileSync(path.join(__dirname, '..', 'marketing-shell', 'app', 'globals.css'), 'utf8')
+      .match(/--color-accent:\s*(#[0-9a-f]{6})/i)[1].toLowerCase(),
+    'cockpit and marketing site must share one accent',
+  );
   // No component should reference a gold token any more.
   for (const f of [
     'components/Sidebar.tsx',

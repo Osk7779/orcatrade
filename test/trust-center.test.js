@@ -36,5 +36,5 @@ test('trust center is publicly indexable (no noindex) and canonical-tagged', () 
 });
 
 test('trust center gives a security contact', () => {
-  assert.match(html, /security@orcatrade\.pl/);
+  assert.match(html, /orcatrade@orcatradegroup\.com/);
 });

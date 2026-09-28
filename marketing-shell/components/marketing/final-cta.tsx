@@ -1,59 +1,29 @@
-import Link from 'next/link';
-import { Aurora } from './aurora';
-import { Lamp } from './lamp';
+import Link from '@/components/marketing/smart-link';
 import { FadeUp } from './fade-up';
 import { EN_COPY, type HomepageCopy } from '@/lib/i18n/homepage-copy';
 
 export function FinalCta({ copy = EN_COPY.finalCta }: { copy?: HomepageCopy['finalCta'] }) {
   return (
-    <section className="relative isolate overflow-hidden bg-[var(--color-ink)] py-24 md:py-44">
-      <Aurora />
-      <Lamp />
-
-      {/* Hairline rule above the closing — implies "end of the publication" */}
-      <div className="relative mx-auto max-w-[1280px] px-6">
-        <span aria-hidden className="mx-auto block h-px w-32 bg-[var(--color-ivory-dim)]/40" />
-      </div>
-
-      <FadeUp className="relative mx-auto mt-14 max-w-[900px] px-6 text-center">
-        <span className="font-serif text-[14px] italic text-[var(--color-ivory-dim)]">
-          {copy.eyebrow}
-        </span>
-        <h2
-          className="mx-auto mt-6 max-w-[22ch] font-serif text-[clamp(2.8rem,5.6vw+0.4rem,4.6rem)] leading-[1.02] tracking-[-0.024em] text-[var(--color-ivory)]"
-          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
-        >
+    <section className="bg-[var(--color-navy)] py-20 md:py-28">
+      <FadeUp className="mx-auto max-w-[820px] px-6 text-center">
+        <p className="eyebrow">{copy.eyebrow}</p>
+        <h2 className="mx-auto mt-4 max-w-[20ch] text-[clamp(2.2rem,5vw,3.8rem)] leading-[1.06] tracking-[-0.035em]">
           {copy.title}
         </h2>
-        <p className="mx-auto mt-7 max-w-[58ch] text-[15.5px] leading-[1.78] text-[var(--color-ivory-dim)]">
+        <p className="mx-auto mt-6 max-w-[56ch] text-[clamp(1rem,1.3vw,1.2rem)] leading-[1.55] text-[var(--color-ivory-mute)]">
           {copy.body}
         </p>
-
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-3">
-          <Link
-            href="/start"
-            className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-8 py-4 text-[12.5px] font-semibold text-[var(--color-ink)] transition-all duration-500 hover:bg-white"
-          >
+        <div className="mt-10 flex flex-col items-center justify-center gap-4 sm:flex-row sm:gap-7">
+          <a href="/start/" className="btn-primary">
             {copy.ctaPrimary}
-            <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">
-              →
-            </span>
-          </Link>
-          <Link
-            href="/contact.html"
-            className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-8 py-4 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
-          >
-            {copy.ctaSecondary}
+          </a>
+          <Link href="/contact/" className="link-arrow">
+            {copy.ctaSecondary} <span aria-hidden>›</span>
           </Link>
         </div>
-
-        <div className="mt-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3 font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
-          <span>{copy.footer[0]}</span>
-          <span aria-hidden className="hidden md:inline">·</span>
-          <span>{copy.footer[1]}</span>
-          <span aria-hidden className="hidden md:inline">·</span>
-          <span>{copy.footer[2]}</span>
-        </div>
+        <p className="mt-10 text-[13px] text-[var(--color-ivory-mute)]">
+          {copy.footer.join(' · ')}
+        </p>
       </FadeUp>
     </section>
   );

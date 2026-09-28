@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { ChapterRule } from '@/components/marketing/chapter-rule';
 import { FadeUp } from '@/components/marketing/fade-up';
@@ -94,7 +94,7 @@ export default function FoundingPage() {
         className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-32"
       >
         <div className="mx-auto max-w-[1100px] px-6">
-          <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+          <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
             {WHAT_YOU_GET.map((p, i) => (
               <Bullet key={p.title} {...p} numeral={`${i + 1}`} />
             ))}
@@ -111,7 +111,7 @@ export default function FoundingPage() {
         className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-32"
       >
         <div className="mx-auto max-w-[1100px] px-6">
-          <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+          <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
             {WHAT_WE_ASK.map((p, i) => (
               <Bullet key={p.title} {...p} numeral={`${i + 1}`} />
             ))}
@@ -131,7 +131,6 @@ export default function FoundingPage() {
           <FadeUp>
             <h2
               className="font-serif text-[clamp(2rem,3.4vw+0.4rem,3rem)] leading-[1.06] tracking-[-0.02em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               Apply for a Founding 10 spot.
             </h2>
@@ -144,7 +143,7 @@ export default function FoundingPage() {
           <FadeUp delay={0.1} className="mt-10 flex flex-wrap items-center justify-center gap-3">
             <Link
               href="/contact"
-              className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+              className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 rounded-full"
             >
               Tell us about your next import
               <span
@@ -155,8 +154,8 @@ export default function FoundingPage() {
               </span>
             </Link>
             <a
-              href="mailto:oskar@orcatradegroup.com"
-              className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
+              href="mailto:orcatrade@orcatradegroup.com"
+              className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] rounded-full"
             >
               Email a founder
             </a>
@@ -173,12 +172,11 @@ export default function FoundingPage() {
         className="bg-[var(--color-ink)] py-20 md:py-32"
       >
         <div className="mx-auto max-w-[820px] px-6">
-          <div className="flex flex-col gap-px bg-[var(--color-navy-line)]">
+          <div className="flex flex-col gap-px bg-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
             {FAQ.map((item) => (
               <FadeUp key={item.q} className="bg-[var(--color-ink)] py-8">
                 <h3
                   className="font-serif text-[1.3rem] leading-[1.2] tracking-[-0.016em] text-[var(--color-ivory)]"
-                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                 >
                   {item.q}
                 </h3>
@@ -210,7 +208,6 @@ function Bullet({
       </span>
       <h3
         className="font-serif text-[1.4rem] leading-[1.15] tracking-[-0.016em] text-[var(--color-ivory)]"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
       >
         {title}
       </h3>

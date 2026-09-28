@@ -34,7 +34,7 @@ test('SECURITY.md exposes a reporting address', () => {
   // The reporting address must be findable without ambiguity. We pin the
   // mailto channel; if the team adopts a different one, update both the
   // doc and this assertion in the same commit.
-  assert.match(body, /security@orcatrade\.pl/, 'security@orcatrade.pl reporting mailbox listed');
+  assert.match(body, /orcatrade@orcatradegroup\.com/, 'orcatrade@orcatradegroup.com reporting mailbox listed');
 });
 
 test('SECURITY.md publishes response-time SLAs', () => {

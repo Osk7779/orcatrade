@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
@@ -61,7 +61,6 @@ export function HubCard({
 
       <h3
         className="relative z-[2] font-serif text-[clamp(1.2rem,1.6vw+0.4rem,1.55rem)] leading-[1.15] tracking-[-0.014em] text-[var(--color-ivory)]"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
       >
         {title}
       </h3>

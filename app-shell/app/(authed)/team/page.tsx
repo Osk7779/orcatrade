@@ -49,7 +49,7 @@ export default function TeamPage() {
     }
   }
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading team…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading team…</p>;
   if (state === 'auth') return (
     <div className="max-w-md"><h1 className="text-3xl mb-3">Sign in to manage your team</h1>
       <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a></div>
@@ -60,10 +60,10 @@ export default function TeamPage() {
     return (
       <div className="max-w-md">
         <h1 className="text-4xl mb-2">Team</h1>
-        <p className="text-white/60 text-sm mb-6">You’re not part of an organisation yet. Create one to invite colleagues and assign roles.</p>
+        <p className="text-fg/60 text-sm mb-6">You’re not part of an organisation yet. Create one to invite colleagues and assign roles.</p>
         <div className="flex gap-2">
           <input value={newOrgName} onChange={(e) => setNewOrgName(e.target.value)} placeholder="Organisation name"
-            className="flex-1 bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-white" />
+            className="flex-1 bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-fg" />
           <button
             disabled={busy || newOrgName.trim().length < 2}
             onClick={async () => {
@@ -86,7 +86,7 @@ export default function TeamPage() {
   return (
     <div className="max-w-2xl">
       <h1 className="text-4xl mb-1">{org.name}</h1>
-      <div className="font-mono text-xs text-white/45 mb-8">
+      <div className="font-mono text-xs text-fg/45 mb-8">
         {members.length} member{members.length === 1 ? '' : 's'} · your role: {roleLabel(myRole)}
         {org.planTier ? ` · ${org.planTier} plan` : ''}
       </div>
@@ -98,7 +98,7 @@ export default function TeamPage() {
           const isOwner = m.role === 'owner';
           return (
             <div key={m.email} className="flex items-center justify-between gap-3 px-5 py-3 text-sm">
-              <span className="text-white/85 truncate">{m.email}{m.joinedAt ? '' : ' (invited)'}</span>
+              <span className="text-fg/85 truncate">{m.email}{m.joinedAt ? '' : ' (invited)'}</span>
               <div className="flex items-center gap-2 shrink-0">
                 {canManageMembers && !isOwner ? (
                   <>
@@ -106,7 +106,7 @@ export default function TeamPage() {
                       value={m.role}
                       disabled={busy}
                       onChange={(e) => mutate(() => apiPost(`/orgs/${org.id}/role`, { email: m.email, role: e.target.value }))}
-                      className="bg-[var(--color-ink)] border border-[var(--color-line)] text-white/85 text-xs px-2 py-1 rounded-sm"
+                      className="bg-[var(--color-ink)] border border-[var(--color-line)] text-fg/85 text-xs px-2 py-1 rounded-sm"
                     >
                       {/* Keep the current role selectable even if it's the legacy 'member'. */}
                       {[...new Set([m.role, ...assignableRoles])].map((r) => (
@@ -120,7 +120,7 @@ export default function TeamPage() {
                     >Remove</button>
                   </>
                 ) : (
-                  <span className="font-mono text-xs text-white/55">{roleLabel(m.role)}</span>
+                  <span className="font-mono text-xs text-fg/55">{roleLabel(m.role)}</span>
                 )}
               </div>
             </div>
@@ -130,15 +130,15 @@ export default function TeamPage() {
 
       {canManageMembers && (
         <section className="border border-[var(--color-line)] px-5 py-5">
-          <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-3">Invite a colleague</div>
+          <div className="text-[0.7rem] uppercase tracking-wider text-fg/50 mb-3">Invite a colleague</div>
           <div className="flex gap-2">
             <input
               value={inviteEmail} onChange={(e) => setInviteEmail(e.target.value)} placeholder="colleague@company.com" type="email"
-              className="flex-1 bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-white"
+              className="flex-1 bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-fg"
             />
             <select
               value={inviteRole} onChange={(e) => setInviteRole(e.target.value)}
-              className="bg-[var(--color-ink)] border border-[var(--color-line)] text-white/85 text-sm px-2 rounded-sm"
+              className="bg-[var(--color-ink)] border border-[var(--color-line)] text-fg/85 text-sm px-2 rounded-sm"
             >
               {assignableRoles.map((r) => <option key={r} value={r}>{roleLabel(r)}</option>)}
             </select>
@@ -151,7 +151,7 @@ export default function TeamPage() {
               className="px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40"
             >Invite</button>
           </div>
-          <p className="text-white/40 text-xs mt-3">
+          <p className="text-fg/40 text-xs mt-3">
             Roles set what a colleague can do. Only owners and admins can manage members; ownership transfers separately.
           </p>
         </section>
@@ -190,13 +190,13 @@ function ScimPanel({ orgId }: { orgId: string }) {
 
   return (
     <section className="border border-[var(--color-line)] px-5 py-5 mt-6">
-      <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-1">Automated provisioning (SCIM / SSO)</div>
-      <p className="text-white/55 text-xs mb-3">
+      <div className="text-[0.7rem] uppercase tracking-wider text-fg/50 mb-1">Automated provisioning (SCIM / SSO)</div>
+      <p className="text-fg/55 text-xs mb-3">
         Connect your identity provider (Okta, Entra ID) to auto-provision members and map IdP groups to roles.
       </p>
 
       <div className="flex items-center justify-between gap-3 text-sm mb-3">
-        <span className="text-white/70">
+        <span className="text-fg/70">
           {status?.configured
             ? <>SCIM token active{status.lastUsedAt ? ` · last used ${String(status.lastUsedAt).slice(0, 10)}` : ' · not yet used'}</>
             : 'No SCIM token yet'}
@@ -213,14 +213,14 @@ function ScimPanel({ orgId }: { orgId: string }) {
       </div>
 
       {minted && (
-        <div className="border border-[var(--color-accent)]/40 bg-white/[0.03] px-4 py-3 mb-3">
+        <div className="border border-[var(--color-accent)]/40 bg-fg/[0.03] px-4 py-3 mb-3">
           <div className="text-[0.65rem] uppercase tracking-wider text-[var(--color-accent-soft)] mb-1">Copy now — shown once</div>
-          <code className="block font-mono text-xs text-white/90 break-all">{minted}</code>
+          <code className="block font-mono text-xs text-fg/90 break-all">{minted}</code>
         </div>
       )}
 
       {status?.endpoint && (
-        <div className="font-mono text-[0.7rem] text-white/45">
+        <div className="font-mono text-[0.7rem] text-fg/45">
           SCIM base URL: {status.endpoint} · Bearer auth
         </div>
       )}

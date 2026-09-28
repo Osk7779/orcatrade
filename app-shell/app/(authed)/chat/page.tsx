@@ -84,22 +84,22 @@ export default function ChatPage() {
   return (
     <div className="max-w-2xl flex flex-col h-[calc(100vh-6rem)]">
       <h1 className="text-4xl mb-1">Ask the agent</h1>
-      <p className="font-mono text-xs text-white/45 mb-6">
+      <p className="font-mono text-xs text-fg/45 mb-6">
         Calculator-grounded across customs, logistics, sourcing &amp; finance — every number cites its tool.
       </p>
 
       <div ref={scrollRef} className="flex-1 overflow-y-auto space-y-4 pr-1">
         {messages.length === 0 && (
-          <div className="text-white/50 text-sm border border-[var(--color-line)] px-5 py-4">
-            Ask anything about your imports — e.g. <span className="text-white/75">“What’s the landed cost of 5,000 cotton t-shirts from Vietnam to Poland, and does EVFTA cut my duty?”</span>
+          <div className="text-fg/50 text-sm border border-[var(--color-line)] px-5 py-4">
+            Ask anything about your imports — e.g. <span className="text-fg/75">“What’s the landed cost of 5,000 cotton t-shirts from Vietnam to Poland, and does EVFTA cut my duty?”</span>
           </div>
         )}
         {messages.map((m, i) => (
           <div key={i} className={m.role === 'user' ? 'text-right' : ''}>
             <div className={`inline-block max-w-[90%] px-4 py-2.5 text-sm whitespace-pre-wrap text-left rounded-sm ${
-              m.role === 'user' ? 'bg-[var(--color-accent)] text-[var(--color-ink)]' : 'border border-[var(--color-line)] text-white/85'
+              m.role === 'user' ? 'bg-[var(--color-accent)] text-[var(--color-ink)]' : 'border border-[var(--color-line)] text-fg/85'
             }`}>
-              {m.content || (busy && i === messages.length - 1 ? <span className="text-white/40">…</span> : '')}
+              {m.content || (busy && i === messages.length - 1 ? <span className="text-fg/40">…</span> : '')}
             </div>
           </div>
         ))}
@@ -114,7 +114,7 @@ export default function ChatPage() {
           onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); } }}
           rows={1}
           placeholder="Ask about duty, routing, sourcing, FX, compliance…"
-          className="flex-1 resize-none bg-transparent border border-[var(--color-line)] px-3 py-2.5 text-sm rounded-sm text-white"
+          className="flex-1 resize-none bg-transparent border border-[var(--color-line)] px-3 py-2.5 text-sm rounded-sm text-fg"
         />
         <button
           disabled={busy || !input.trim()}

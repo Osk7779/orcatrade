@@ -54,7 +54,7 @@ export default function GoodsDetailPage({ params }: { params: Promise<{ external
     return () => { cancelled = true; };
   }, [externalId]);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading goods…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading goods…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -66,9 +66,9 @@ export default function GoodsDetailPage({ params }: { params: Promise<{ external
   if (state === 'notFound') {
     return (
       <div className="max-w-xl">
-        <Link href="/goods" className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/45 hover:text-white">← All goods</Link>
+        <Link href="/goods" className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/45 hover:text-fg">← All goods</Link>
         <h1 className="text-4xl mt-3 mb-1">Not found</h1>
-        <p className="font-mono text-xs text-white/45">This good doesn't exist in your organisation, or it has been archived.</p>
+        <p className="font-mono text-xs text-fg/45">This good doesn't exist in your organisation, or it has been archived.</p>
       </div>
     );
   }
@@ -140,13 +140,13 @@ function Header({
 }) {
   return (
     <header className="mb-8">
-      <Link href="/goods" className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/45 hover:text-white">
+      <Link href="/goods" className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/45 hover:text-fg">
         ← All goods
       </Link>
       <div className="mt-4 flex items-start justify-between gap-6">
         <div>
-          <h1 className="text-4xl text-white">{goods.displayName}</h1>
-          <p className="font-mono text-[12px] text-white/55 mt-2">
+          <h1 className="text-4xl text-fg">{goods.displayName}</h1>
+          <p className="font-mono text-[12px] text-fg/55 mt-2">
             SKU {goods.sku} · {goods.externalId}
           </p>
         </div>
@@ -163,7 +163,7 @@ function Header({
             <button
               type="button"
               onClick={onEdit}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
             >
               Edit
             </button>
@@ -288,7 +288,7 @@ function EditForm({
     <form onSubmit={submit} className="mb-10 border border-[var(--color-navy-line)] bg-[var(--color-ink)]">
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
         <h2 className="font-serif text-xl">Edit goods record</h2>
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           SKU {goods.sku} · immutable
         </span>
       </div>
@@ -331,7 +331,7 @@ function EditForm({
             onChange={(e) => setCbamInScope(e.target.checked)}
             className="h-4 w-4"
           />
-          <span className="font-mono text-[12px] text-white/85">CBAM in scope</span>
+          <span className="font-mono text-[12px] text-fg/85">CBAM in scope</span>
         </label>
       </div>
 
@@ -357,14 +357,14 @@ function EditForm({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save changes'}
         </button>
@@ -394,9 +394,9 @@ function Field({
 }) {
   return (
     <label className="block">
-      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+      <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
         {label}
-        {required && <span className="ml-1 text-white/60">*</span>}
+        {required && <span className="ml-1 text-fg/60">*</span>}
       </span>
       <input
         type="text"
@@ -406,10 +406,10 @@ function Field({
         maxLength={maxLength}
         inputMode={inputMode}
         pattern={pattern}
-        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-2 font-mono text-[13px] text-white focus:outline-none focus:border-white/55"
+        className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-2 font-mono text-[13px] text-fg focus:outline-none focus:border-fg/55"
       />
       {hint && (
-        <span className="block mt-1 font-mono text-[10px] text-white/40">{hint}</span>
+        <span className="block mt-1 font-mono text-[10px] text-fg/40">{hint}</span>
       )}
     </label>
   );
@@ -430,8 +430,8 @@ function FactsGrid({ goods }: { goods: Goods }) {
     <section className="mb-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
       {facts.map((f) => (
         <div key={f.label} className="bg-[var(--color-ink)] px-4 py-4">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{f.label}</div>
-          <div className="font-mono text-[13px] text-white mt-1.5">{f.value}</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">{f.label}</div>
+          <div className="font-mono text-[13px] text-fg mt-1.5">{f.value}</div>
         </div>
       ))}
     </section>
@@ -529,7 +529,7 @@ function ReadModePanel({
             <button
               type="button"
               onClick={onEditClick}
-              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+              className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
             >
               Edit
             </button>
@@ -544,10 +544,10 @@ function ReadModePanel({
               className="px-6 py-3 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-6"
             >
               <div>
-                <div className="font-serif text-[14px] text-white">
+                <div className="font-serif text-[14px] text-fg">
                   {f.name || f.cas || 'Unnamed SVHC'}
                 </div>
-                <div className="font-mono text-[11px] text-white/55 mt-1">
+                <div className="font-mono text-[11px] text-fg/55 mt-1">
                   {f.cas ? `CAS ${f.cas}` : ''}
                   {f.threshold_pct != null ? ` · threshold ${f.threshold_pct}%` : ''}
                 </div>
@@ -556,7 +556,7 @@ function ReadModePanel({
           ))}
         </ul>
       ) : (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No SVHCs declared yet. {!archived && 'Click Edit to add the first entry.'}
         </p>
       )}
@@ -734,7 +734,7 @@ function SvhcEditorPanel({
         <h2 className="font-serif text-xl" style={{ color: 'var(--color-warning)' }}>
           Edit REACH SVHC flags
         </h2>
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           {drafts.length} {drafts.length === 1 ? 'row' : 'rows'}
         </span>
       </div>
@@ -754,7 +754,7 @@ function SvhcEditorPanel({
           type="button"
           onClick={addRow}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
         >
           + Add SVHC
         </button>
@@ -782,14 +782,14 @@ function SvhcEditorPanel({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save SVHC list'}
         </button>
@@ -815,8 +815,8 @@ function SvhcEditRow({
   return (
     <div className="grid gap-3 md:grid-cols-[1fr_180px_120px_auto] items-start border border-[var(--color-navy-line)] px-3 py-3">
       <label className="block">
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
-          Name <span className="text-white/35">(row {rowNumber})</span>
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
+          Name <span className="text-fg/35">(row {rowNumber})</span>
         </span>
         <input
           type="text"
@@ -825,11 +825,11 @@ function SvhcEditRow({
           disabled={disabled}
           maxLength={200}
           placeholder="e.g. Bisphenol A"
-          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <label className="block">
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           CAS number
         </span>
         <input
@@ -839,11 +839,11 @@ function SvhcEditRow({
           disabled={disabled}
           maxLength={32}
           placeholder="80-05-7"
-          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <label className="block">
-        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+        <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
           Threshold %
         </span>
         <input
@@ -853,7 +853,7 @@ function SvhcEditRow({
           disabled={disabled}
           inputMode="decimal"
           placeholder="0.1"
-          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="mt-1.5 block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <button
@@ -861,7 +861,7 @@ function SvhcEditRow({
         onClick={onRemove}
         disabled={disabled}
         aria-label={`Remove SVHC row ${rowNumber}`}
-        className="self-end font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+        className="self-end font-mono text-[11px] px-3 py-1.5 border border-fg/25 text-fg/70 hover:text-fg hover:border-fg/45 disabled:opacity-50 transition-colors"
       >
         ×
       </button>
@@ -932,7 +932,7 @@ function RestrictedSubstancesReadPanel({
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-start justify-between gap-3">
         <div>
           <h2 className="font-serif text-xl">Restricted substances</h2>
-          <p className="font-mono text-[11px] text-white/45 mt-1">
+          <p className="font-mono text-[11px] text-fg/45 mt-1">
             Per-jurisdiction notes. Feeds customs declarations + UKCA / CE marking documentation.
           </p>
         </div>
@@ -940,7 +940,7 @@ function RestrictedSubstancesReadPanel({
           <button
             type="button"
             onClick={onEditClick}
-            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
           >
             Edit
           </button>
@@ -954,22 +954,22 @@ function RestrictedSubstancesReadPanel({
                 key={k}
                 className="grid gap-3 md:grid-cols-[200px_1fr] items-start font-mono text-[12px]"
               >
-                <span className="text-white/55 break-words">{k}</span>
-                <span className="text-white/85 break-words whitespace-pre-wrap">
+                <span className="text-fg/55 break-words">{k}</span>
+                <span className="text-fg/85 break-words whitespace-pre-wrap">
                   {typeof v === 'string' ? v : JSON.stringify(v)}
                 </span>
               </li>
             ))}
           </ul>
           <details className="m-6">
-            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-fg/65 hover:text-fg">
               Raw JSON
             </summary>
-            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+            <pre className="mt-3 font-mono text-[11px] text-fg/70 overflow-x-auto whitespace-pre">{json}</pre>
           </details>
         </>
       ) : (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No restricted-substance notes on file.{' '}
           {!archived && 'Click Edit to add the first jurisdiction. (Required for any goods bearing UKCA / CE marks or shipping to REACH / RoHS jurisdictions.)'}
         </p>
@@ -1142,11 +1142,11 @@ function RestrictedSubstancesEditorPanel({
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
         <div className="flex items-start justify-between gap-3">
           <h2 className="font-serif text-xl">Edit restricted substances</h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
             {drafts.length} {drafts.length === 1 ? 'jurisdiction' : 'jurisdictions'}
           </span>
         </div>
-        <p className="font-mono text-[11px] text-white/45 mt-2">
+        <p className="font-mono text-[11px] text-fg/45 mt-2">
           Jurisdiction code (e.g. UK_REACH, EU_RoHS, CA_Prop65) → notes / status / cross-reference.
         </p>
       </div>
@@ -1166,7 +1166,7 @@ function RestrictedSubstancesEditorPanel({
           type="button"
           onClick={addRow}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
         >
           + Add jurisdiction
         </button>
@@ -1194,14 +1194,14 @@ function RestrictedSubstancesEditorPanel({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save restricted substances'}
         </button>
@@ -1235,7 +1235,7 @@ function RestrictedSubstancesEditRow({
           disabled={disabled}
           placeholder="jurisdiction"
           maxLength={120}
-          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <label className="block">
@@ -1247,7 +1247,7 @@ function RestrictedSubstancesEditRow({
           disabled={disabled}
           placeholder="notes / status / cross-reference"
           maxLength={500}
-          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <button
@@ -1255,7 +1255,7 @@ function RestrictedSubstancesEditRow({
         onClick={onRemove}
         disabled={disabled}
         aria-label={`Remove restricted-substance row ${rowNumber}`}
-        className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+        className="font-mono text-[11px] px-3 py-1.5 border border-fg/25 text-fg/70 hover:text-fg hover:border-fg/45 disabled:opacity-50 transition-colors"
       >
         ×
       </button>
@@ -1324,7 +1324,7 @@ function GoodsMetadataReadPanel({
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-start justify-between gap-3">
         <div>
           <h2 className="font-serif text-xl">Operator metadata</h2>
-          <p className="font-mono text-[11px] text-white/45 mt-1">
+          <p className="font-mono text-[11px] text-fg/45 mt-1">
             Freeform key/value notes — internal SKU references, integration handles, custom tags.
           </p>
         </div>
@@ -1332,7 +1332,7 @@ function GoodsMetadataReadPanel({
           <button
             type="button"
             onClick={onEditClick}
-            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 transition-colors"
+            className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 transition-colors"
           >
             Edit
           </button>
@@ -1346,22 +1346,22 @@ function GoodsMetadataReadPanel({
                 key={k}
                 className="grid gap-3 md:grid-cols-[200px_1fr] items-start font-mono text-[12px]"
               >
-                <span className="text-white/55 break-words">{k}</span>
-                <span className="text-white/85 break-words whitespace-pre-wrap">
+                <span className="text-fg/55 break-words">{k}</span>
+                <span className="text-fg/85 break-words whitespace-pre-wrap">
                   {typeof v === 'string' ? v : JSON.stringify(v)}
                 </span>
               </li>
             ))}
           </ul>
           <details className="m-6">
-            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+            <summary className="cursor-pointer font-mono text-[11px] uppercase tracking-[0.12em] text-fg/65 hover:text-fg">
               Raw JSON
             </summary>
-            <pre className="mt-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+            <pre className="mt-3 font-mono text-[11px] text-fg/70 overflow-x-auto whitespace-pre">{json}</pre>
           </details>
         </>
       ) : (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No metadata recorded.{' '}
           {!archived && 'Click Edit to add the first entry.'}
         </p>
@@ -1535,11 +1535,11 @@ function GoodsMetadataEditorPanel({
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
         <div className="flex items-start justify-between gap-3">
           <h2 className="font-serif text-xl">Edit operator metadata</h2>
-          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">
+          <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">
             {drafts.length} {drafts.length === 1 ? 'entry' : 'entries'}
           </span>
         </div>
-        <p className="font-mono text-[11px] text-white/45 mt-2">
+        <p className="font-mono text-[11px] text-fg/45 mt-2">
           Freeform key/value. Common keys: internal_sku, erp_id, supplier_part_no, merch_tag.
         </p>
       </div>
@@ -1559,7 +1559,7 @@ function GoodsMetadataEditorPanel({
           type="button"
           onClick={addRow}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/35 text-white hover:bg-white/10 disabled:opacity-50 transition-colors"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/35 text-fg hover:bg-fg/10 disabled:opacity-50 transition-colors"
         >
           + Add metadata entry
         </button>
@@ -1587,14 +1587,14 @@ function GoodsMetadataEditorPanel({
           type="button"
           onClick={onCancel}
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-white/30 text-white/85 hover:text-white disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 border border-fg/30 text-fg/85 hover:text-fg disabled:opacity-50"
         >
           Cancel
         </button>
         <button
           type="submit"
           disabled={saving}
-          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-white text-[var(--color-ink)] hover:bg-white/90 disabled:opacity-50"
+          className="font-mono text-[11px] uppercase tracking-[0.12em] px-3 py-1.5 bg-fg text-[var(--color-ink)] hover:bg-fg/90 disabled:opacity-50"
         >
           {saving ? 'Saving…' : 'Save metadata'}
         </button>
@@ -1628,7 +1628,7 @@ function GoodsMetadataEditRow({
           disabled={disabled}
           placeholder="key"
           maxLength={120}
-          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <label className="block">
@@ -1640,7 +1640,7 @@ function GoodsMetadataEditRow({
           disabled={disabled}
           placeholder="value"
           maxLength={500}
-          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+          className="block w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
         />
       </label>
       <button
@@ -1648,7 +1648,7 @@ function GoodsMetadataEditRow({
         onClick={onRemove}
         disabled={disabled}
         aria-label={`Remove metadata row ${rowNumber}`}
-        className="font-mono text-[11px] px-3 py-1.5 border border-white/25 text-white/70 hover:text-white hover:border-white/45 disabled:opacity-50 transition-colors"
+        className="font-mono text-[11px] px-3 py-1.5 border border-fg/25 text-fg/70 hover:text-fg hover:border-fg/45 disabled:opacity-50 transition-colors"
       >
         ×
       </button>

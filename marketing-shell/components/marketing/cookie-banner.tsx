@@ -45,6 +45,7 @@ function writeDecision(analytics: boolean) {
 export function CookieBanner() {
   const [needed, setNeeded] = useState(false);
   const [analyticsOn, setAnalyticsOn] = useState(true);
+  const [customising, setCustomising] = useState(false);
 
   useEffect(() => {
     const t = window.setTimeout(() => {
@@ -61,6 +62,7 @@ export function CookieBanner() {
     const onOpen = () => {
       const prior = readDecision();
       setAnalyticsOn(prior?.categories.analytics ?? true);
+      setCustomising(true);
       setNeeded(true);
     };
     window.addEventListener('orcatrade:open-cookie-banner', onOpen);
@@ -83,48 +85,21 @@ export function CookieBanner() {
       role="dialog"
       aria-modal="false"
       aria-label="Cookies and analytics"
-      className="fixed inset-x-3 bottom-3 z-[80] mx-auto md:bottom-5"
-      style={{ maxWidth: '720px' }}
+      className="fixed inset-x-3 bottom-3 z-[80] mx-auto max-w-[680px] rounded-2xl border border-[var(--color-navy-line)] bg-white/95 p-5 shadow-[0_12px_40px_-8px_rgba(0,0,0,0.18)] backdrop-blur-xl md:bottom-5 md:p-6"
     >
-      <div className="relative border border-[var(--color-navy-line)] bg-[var(--color-ink)]/96 p-6 shadow-[0_22px_60px_rgba(0,0,0,0.55)] backdrop-blur-2xl md:p-8">
-        {/* Title row + close */}
-        <div className="flex items-baseline justify-between gap-4">
-          <div className="flex items-baseline gap-3">
-            <span aria-hidden className="font-serif text-[15px] text-[var(--color-ivory-dim)]/65">
-              ❦
-            </span>
-            <h3
-              className="font-serif text-[1.2rem] italic leading-tight text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 500 }}
-            >
-              Cookies &amp; analytics
-            </h3>
-          </div>
-          <button
-            type="button"
-            onClick={() => setNeeded(false)}
-            aria-label="Close"
-            className="grid size-8 shrink-0 place-items-center text-[var(--color-ivory-mute)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
-          >
-            <svg viewBox="0 0 16 16" className="size-3.5" aria-hidden>
-              <line x1="2" y1="2" x2="14" y2="14" stroke="currentColor" strokeWidth="1.25" />
-              <line x1="14" y1="2" x2="2" y2="14" stroke="currentColor" strokeWidth="1.25" />
-            </svg>
-          </button>
-        </div>
+      <p className="text-[13.5px] leading-[1.5] text-[var(--color-ivory-dim)]">
+        We use essential cookies for sign-in and preferences. With your consent we also count anonymous
+        page views with Vercel Analytics — no behavioural tracking.{' '}
+        <a href="/regulations/privacy/" className="text-[var(--color-link)] hover:underline">
+          Privacy policy
+        </a>
+      </p>
 
-        <p className="mt-4 max-w-[58ch] text-[13.5px] leading-[1.6] text-[var(--color-ivory-dim)]">
-          OrcaTrade uses essential cookies for sign-in and to remember your
-          preferences. With your consent, we also use Vercel Analytics to
-          measure which pages people read &mdash; anonymous page-view counts
-          only, no behavioural tracking.
-        </p>
-
-        {/* Categories — always visible, matches the original layout */}
-        <div className="mt-6 grid gap-4 border-t border-[var(--color-navy-line)] pt-5 sm:gap-5">
+      {customising && (
+        <div className="mt-4 grid gap-3 border-t border-[var(--color-navy-line)] pt-4">
           <CategoryRow
             title="Essential"
-            description="Required for sign-in, sessions, and cache preferences."
+            description="Sign-in, sessions and cache preferences. Always on."
             locked
             checked
           />
@@ -135,47 +110,36 @@ export function CookieBanner() {
             onChange={setAnalyticsOn}
           />
         </div>
+      )}
 
-        {/* Three actions — Reject / Save / Accept. Accept is the primary
-            (ivory fill); Save matches the user's current toggle state;
-            Reject is the safe outline. */}
-        <div className="mt-7 flex flex-wrap items-center justify-end gap-2.5 border-t border-[var(--color-navy-line)] pt-6">
-          <button
-            type="button"
-            onClick={() => decide(false)}
-            className="inline-flex items-center border border-[var(--color-navy-line)] px-5 py-2.5 text-[12px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
-          >
-            Reject optional
-          </button>
+      <div className="mt-4 flex flex-wrap items-center justify-end gap-2">
+        {customising ? (
           <button
             type="button"
             onClick={() => decide(analyticsOn)}
-            className="inline-flex items-center border border-[var(--color-ivory-dim)]/60 px-5 py-2.5 text-[12px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]"
+            className="btn-secondary !px-4 !py-1.5 !text-[13px]"
           >
-            Save my choice
+            Save choices
           </button>
+        ) : (
           <button
             type="button"
-            onClick={() => decide(true)}
-            className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-5 py-2.5 text-[12px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+            onClick={() => setCustomising(true)}
+            className="mr-auto text-[13px] text-[var(--color-link)] hover:underline"
           >
-            Accept all
-            <span
-              aria-hidden
-              className="transition-transform duration-500 group-hover:translate-x-0.5"
-            >
-              →
-            </span>
+            Customise
           </button>
-        </div>
-
-        <a
-          href="/regulations/privacy.html"
-          className="mt-5 inline-flex items-center gap-1.5 font-serif text-[12.5px] italic text-[var(--color-ivory-mute)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
+        )}
+        <button
+          type="button"
+          onClick={() => decide(false)}
+          className="btn-secondary !px-4 !py-1.5 !text-[13px]"
         >
-          Read our privacy policy
-          <span aria-hidden>→</span>
-        </a>
+          Reject optional
+        </button>
+        <button type="button" onClick={() => decide(true)} className="btn-primary !px-4 !py-1.5 !text-[13px]">
+          Accept all
+        </button>
       </div>
     </div>
   );
@@ -195,35 +159,15 @@ function CategoryRow({
   onChange?: (next: boolean) => void;
 }) {
   return (
-    <label
-      className={`flex items-start justify-between gap-6 ${
-        locked ? 'cursor-default' : 'cursor-pointer'
-      }`}
-    >
-      <span className="flex flex-col gap-1">
-        <span className="flex items-baseline gap-2">
-          <span
-            className="font-serif text-[14.5px] italic text-[var(--color-ivory)]"
-            style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 500 }}
-          >
-            {title}
-          </span>
-          {locked && (
-            <span className="font-serif text-[11.5px] italic text-[var(--color-ivory-mute)]">
-              · always on
-            </span>
-          )}
-        </span>
-        <span className="max-w-[44ch] text-[12.5px] leading-[1.55] text-[var(--color-ivory-dim)]">
-          {description}
-        </span>
+    <label className={`flex items-center justify-between gap-6 ${locked ? 'cursor-default' : 'cursor-pointer'}`}>
+      <span>
+        <span className="block text-[13.5px] font-semibold text-[var(--color-ivory)]">{title}</span>
+        <span className="block text-[12.5px] text-[var(--color-ivory-mute)]">{description}</span>
       </span>
       <span
-        className={`relative inline-flex h-[22px] w-[38px] shrink-0 items-center border transition-colors duration-300 ${
-          checked
-            ? 'border-[var(--color-ivory)]/60 bg-[var(--color-ivory)]/15'
-            : 'border-[var(--color-navy-line)] bg-[var(--color-ink)]'
-        } ${locked ? 'opacity-90' : ''}`}
+        className={`relative inline-flex h-[26px] w-[44px] shrink-0 items-center rounded-full transition-colors duration-200 ${
+          checked ? 'bg-[#34c759]' : 'bg-[#e9e9eb]'
+        } ${locked ? 'opacity-60' : ''}`}
       >
         <input
           type="checkbox"
@@ -234,10 +178,8 @@ function CategoryRow({
         />
         <span
           aria-hidden
-          className={`absolute top-1/2 size-[14px] -translate-y-1/2 transition-all duration-300 ${
-            checked
-              ? 'left-[20px] bg-[var(--color-ivory)]'
-              : 'left-[3px] bg-[var(--color-ivory-dim)]'
+          className={`absolute top-[2px] size-[22px] rounded-full bg-white shadow transition-all duration-200 ${
+            checked ? 'left-[20px]' : 'left-[2px]'
           }`}
         />
       </span>
