@@ -96,5 +96,9 @@ jobs:
           exit 1
 
       - name: Smoke against preview URL
+        env:
+          # Vercel → Project → Settings → Deployment Protection →
+          # "Protection Bypass for Automation". Without it every probe 302s.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           node scripts/smoke.js --base "${{ steps.vercel.outputs.url }}"
