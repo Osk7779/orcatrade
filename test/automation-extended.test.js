@@ -110,7 +110,9 @@ test('rotator: idempotent on today\'s dates (no-op)', () => {
 test('rotator: GHA workflow registered at .github/workflows/rotate-dates.yml', () => {
   const yml = fs.readFileSync(path.join(ROOT, '.github/workflows/rotate-dates.yml'), 'utf8');
   assert.match(yml, /scripts\/rotate-content-dates\.js/);
-  assert.match(yml, /'0 3 \* \* \*'/);
+  // The daily cron was removed on purpose (fake freshness signal); keep it off.
+  assert.doesNotMatch(yml, /schedule:/, 'rotator must not run on a schedule');
+  assert.match(yml, /workflow_dispatch:/);
   assert.match(yml, /permissions:\s*\n\s*contents: write/);
 });
 
