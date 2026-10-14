@@ -67,8 +67,14 @@ function ensureDir(p) {
   fs.mkdirSync(p, { recursive: true });
 }
 
+// Where generated files land. Defaults to the repo; tests point it at a
+// temp dir so `npm test` never rewrites ~300 committed pages with today's date.
+function outRoot() {
+  return process.env.ORCATRADE_GENERATE_OUT_DIR || ROOT;
+}
+
 function writePage(relativePath, html) {
-  const dir = path.join(ROOT, relativePath);
+  const dir = path.join(outRoot(), relativePath);
   ensureDir(dir);
   fs.writeFileSync(path.join(dir, 'index.html'), html);
 }
@@ -2724,7 +2730,7 @@ ${urls.map(u => `  <url>
   </url>`).join('\n')}
 </urlset>
 `;
-  fs.writeFileSync(path.join(ROOT, 'sitemap-guides.xml'), xml);
+  fs.writeFileSync(path.join(outRoot(), 'sitemap-guides.xml'), xml);
 }
 
 function generateMasterSitemap(generatedGuides) {
@@ -2822,7 +2828,7 @@ ${all.map(u => `  <url>
   </url>`).join('\n')}
 </urlset>
 `;
-  fs.writeFileSync(path.join(ROOT, 'sitemap.xml'), xml);
+  fs.writeFileSync(path.join(outRoot(), 'sitemap.xml'), xml);
   return all.length;
 }
 
