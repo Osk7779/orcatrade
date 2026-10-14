@@ -27,15 +27,17 @@ const DETAIL_TSX = fs.readFileSync(
 
 // ── buildFormFromRequest helper is exported ──────────────────────────
 
-test('buildFormFromRequest is exported so it is reachable for the form initialiser', () => {
-  assert.match(NEW_FORM_TSX, /export function buildFormFromRequest\(/);
+test('buildFormFromRequest is a module-local helper (Next.js pages may only export page fields)', () => {
+  assert.match(NEW_FORM_TSX, /function buildFormFromRequest\(/);
+  // Exporting it broke `next build` ("not a valid Page export field").
+  assert.doesNotMatch(NEW_FORM_TSX, /export function buildFormFromRequest\(/);
 });
 
 // ── Drift-guard: every load-bearing intent field appears in the body ──
 
 test('buildFormFromRequest carries every load-bearing intent field from the persisted request', () => {
   const block = NEW_FORM_TSX.match(
-    /export function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/,
+    /function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/,
   );
   assert.ok(block, 'buildFormFromRequest body not located');
   const body = block[1];
@@ -67,7 +69,7 @@ test('buildFormFromRequest carries every load-bearing intent field from the pers
 
 test('buildFormFromRequest deliberately resets targetDeliveryDate (a duplicate is for a NEW order)', () => {
   const block = NEW_FORM_TSX.match(
-    /export function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/,
+    /function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/,
   );
   assert.ok(block);
   // targetDeliveryDate should NOT carry over from the source — the
@@ -79,7 +81,7 @@ test('buildFormFromRequest deliberately resets targetDeliveryDate (a duplicate i
 
 test('buildFormFromRequest re-derives label as "<original> (copy)"', () => {
   const block = NEW_FORM_TSX.match(
-    /export function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/,
+    /function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/,
   );
   assert.ok(block);
   // The duplicate row needs a visually distinct label so the customer
@@ -90,7 +92,7 @@ test('buildFormFromRequest re-derives label as "<original> (copy)"', () => {
 
 test('buildFormFromRequest converts targetUnitPriceCents (integer cents, ADR 0004) back to EUR for the form', () => {
   const block = NEW_FORM_TSX.match(
-    /export function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/,
+    /function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/,
   );
   assert.ok(block);
   // The form holds EUR as a decimal string; the persisted request

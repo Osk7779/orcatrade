@@ -278,7 +278,7 @@ test('NewImportRequestForm carries revisedFromExternalId on submit (revise mode 
 test('buildFormFromRequest uses "(revised)" suffix in revise mode, "(copy)" in duplicate mode', () => {
   // The label suffix is how customers distinguish their revision from
   // an unrelated duplicate. Pin both branches.
-  const block = NEW_TSX.match(/export function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/);
+  const block = NEW_TSX.match(/function buildFormFromRequest\([\s\S]*?\): FormState \{([\s\S]*?)\n\}/);
   assert.ok(block);
   assert.match(block[1], /'revise' \?\s*'\(revised\)'\s*:\s*'\(copy\)'/);
 });

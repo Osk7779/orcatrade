@@ -125,7 +125,7 @@ const EMPTY_FORM: FormState = {
 //
 // All other intent fields (productDescription, HS guess, quantity,
 // unit price, origin, destination, certifications) carry over as-is.
-export function buildFormFromRequest(
+function buildFormFromRequest(
   request: ImportRequest,
   mode: 'duplicate' | 'revise' = 'duplicate',
 ): FormState {
