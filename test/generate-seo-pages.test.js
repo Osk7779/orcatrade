@@ -166,8 +166,20 @@ test('robots.txt declares both sitemaps and disallows /api/', () => {
 
 test('Re-running the generator does not error', async () => {
   const { run } = require('../scripts/generate-seo-pages');
-  // Should be safe to re-run (idempotent overwrite)
-  await run();
+  // Write into a temp dir: running against the repo stamped today's date
+  // into ~300 committed pages on every `npm test`.
+  const os = require('node:os');
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'seo-gen-'));
+  const prev = process.env.ORCATRADE_GENERATE_OUT_DIR;
+  process.env.ORCATRADE_GENERATE_OUT_DIR = tmp;
+  try {
+    await run();
+    assert.ok(fs.existsSync(path.join(tmp, 'sitemap-guides.xml')), 'generator wrote to the temp dir');
+  } finally {
+    if (prev === undefined) delete process.env.ORCATRADE_GENERATE_OUT_DIR;
+    else process.env.ORCATRADE_GENERATE_OUT_DIR = prev;
+    fs.rmSync(tmp, { recursive: true, force: true });
+  }
 });
 
 // ── Page count check ───────────────────────────────────
