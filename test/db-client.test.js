@@ -309,10 +309,25 @@ test('lib/db/client.js supports both v0.x bare-call and v1.x .query() Neon shape
     'v0.x bare-call path must be present (fallback)');
 });
 
-test('scripts/db-migrate.js calls sql(text, params), not sql.query()', () => {
-  const text = fs.readFileSync(path.join(__dirname, '..', 'scripts', 'db-migrate.js'), 'utf8');
-  assert.doesNotMatch(text, /sql\.query\(/, 'scripts/db-migrate.js should not use sql.query()');
-  // It MUST call sql(text, params) for the parametrised reads/writes.
-  assert.match(text, /await sql\(['"]SELECT filename/);
-  assert.match(text, /await sql\(\s*\n?\s*['"]INSERT INTO schema_versions/);
+// ── Regression: @neondatabase/serverless ≥1.0 driver contract ─────────
+// Calling `sql(text, params)` directly throws in driver v1; the migrator
+// silently broke (CI live-PG + the db-migrate cron) until 2026-10-14.
+// This fake mimics v1: direct calls throw unless tagged-template.
+
+test('db-migrate: uses sql.query(), never a conventional sql(text) call', async () => {
+  const calls = [];
+  const sql = (strings) => {
+    if (!Array.isArray(strings) || !strings.raw) {
+      throw new Error('This function can now be called only as a tagged-template function');
+    }
+    return Promise.resolve([]);
+  };
+  sql.query = async (text, params) => { calls.push({ text, params }); return []; };
+
+  await migrator.ensureSchemaVersionsTable(sql);
+  const first = migrator.findMigrationFiles()[0];
+  const r = await migrator.applyMigration(sql, first);
+  assert.equal(r.status, 'applied');
+  assert.ok(calls.some(c => /schema_versions/.test(c.text) && Array.isArray(c.params)),
+    'alreadyApplied/recordApplied go through sql.query with params');
 });
