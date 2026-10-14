@@ -32,7 +32,8 @@ jobs:
     # job exit. No data persists between runs.
     services:
       postgres:
-        image: postgres:15
+        # pgvector build of PG 15 — schema-003-rag.sql needs `CREATE EXTENSION vector`.
+        image: pgvector/pgvector:pg15
         env:
           POSTGRES_USER: orcatrade_ci
           POSTGRES_PASSWORD: orcatrade_ci_local
