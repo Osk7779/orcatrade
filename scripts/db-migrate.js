@@ -82,6 +82,31 @@ async function recordApplied(sql, filename, hash) {
   );
 }
 
+// The Neon HTTP driver doesn't support multi-statement strings in a
+// single .query() call, so split a file into statements: on a `;` that
+// ends a line, but never inside a dollar-quoted body (`DO $$ … $$`,
+// function bodies) — those contain their own `;`-terminated lines.
+// Line comments are stripped first.
+function splitStatements(content) {
+  const statements = [];
+  let current = [];
+  let inDollar = false;
+  for (const line of content.split('\n')) {
+    if (line.trim().startsWith('--')) continue;
+    current.push(line);
+    // Each `$$` toggles in/out of a dollar-quoted body.
+    const dollars = (line.match(/\$\$/g) || []).length;
+    if (dollars % 2 === 1) inDollar = !inDollar;
+    if (!inDollar && /;\s*$/.test(line)) {
+      statements.push(current.join('\n').replace(/;\s*$/, '').trim());
+      current = [];
+    }
+  }
+  const tail = current.join('\n').trim();
+  if (tail) statements.push(tail);
+  return statements.filter(s => s.length > 0);
+}
+
 // Run a single migration file. Returns one of: 'applied' | 'skipped' | 'drift'.
 async function applyMigration(sql, filename, opts = {}) {
   const filePath = path.join(SCHEMA_DIR, filename);
@@ -100,18 +125,7 @@ async function applyMigration(sql, filename, opts = {}) {
     return { status: 'would-apply', filename };
   }
 
-  // The Neon HTTP driver doesn't support multi-statement strings in a
-  // single .query() call. Split on the `;` at end-of-statement (naive
-  // but works for our schema — no embedded semicolons in our SQL).
-  // Strip line comments first.
-  const cleaned = content
-    .split('\n')
-    .filter(line => !line.trim().startsWith('--'))
-    .join('\n');
-  const statements = cleaned
-    .split(/;\s*$/m)
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
+  const statements = splitStatements(content);
 
   for (const stmt of statements) {
     try {
@@ -205,6 +219,7 @@ async function mainCli() {
 module.exports = {
   runMigrations,
   applyMigration,
+  splitStatements,
   findMigrationFiles,
   sha256,
   ensureSchemaVersionsTable,

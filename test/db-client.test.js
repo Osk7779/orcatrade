@@ -333,3 +333,36 @@ test('db-migrate: uses sql.query(), never a conventional sql(text) call', async 
   assert.ok(calls.some(c => /schema_versions/.test(c.text) && Array.isArray(c.params)),
     'alreadyApplied/recordApplied go through sql.query with params');
 });
+
+// ── splitStatements: dollar-quoted bodies stay whole ─────────
+// schema-014 has a `DO $$ … END $$;` block whose inner lines end in `;`.
+// The old naive split cut it apart ("unterminated dollar-quoted string"),
+// so a fresh migrate halted at 014. Found by the live-PG job.
+
+test('splitStatements keeps a DO $$ … $$ block as one statement', () => {
+  const sqlText = [
+    '-- comment',
+    'ALTER TABLE t ADD COLUMN IF NOT EXISTS m jsonb;',
+    'DO $$',
+    'BEGIN',
+    '  ALTER TABLE t ADD CONSTRAINT c CHECK (true);',
+    'EXCEPTION',
+    '  WHEN duplicate_object THEN NULL;',
+    'END $$;',
+    'CREATE INDEX IF NOT EXISTS i ON t (m);',
+  ].join('\n');
+  const out = migrator.splitStatements(sqlText);
+  assert.equal(out.length, 3);
+  assert.match(out[1], /^DO \$\$[\s\S]*END \$\$$/);
+  assert.match(out[1], /WHEN duplicate_object THEN NULL;/);
+});
+
+test('splitStatements: every shipped migration splits with balanced $$', () => {
+  for (const f of migrator.findMigrationFiles()) {
+    const text = fs.readFileSync(path.join(migrator.SCHEMA_DIR, f), 'utf8');
+    for (const stmt of migrator.splitStatements(text)) {
+      const n = (stmt.match(/\$\$/g) || []).length;
+      assert.equal(n % 2, 0, `${f}: unbalanced $$ in "${stmt.slice(0, 60)}…"`);
+    }
+  }
+});
