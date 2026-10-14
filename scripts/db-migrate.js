@@ -49,7 +49,7 @@ function sha256(text) {
 async function ensureSchemaVersionsTable(sql) {
   // The first migration creates schema_versions itself; this guard
   // makes sure even an empty database can pre-check applied versions.
-  await sql(`
+  await sql.query(`
     CREATE TABLE IF NOT EXISTS schema_versions (
       filename   text PRIMARY KEY,
       applied_at timestamptz NOT NULL DEFAULT now(),
@@ -59,15 +59,16 @@ async function ensureSchemaVersionsTable(sql) {
 }
 
 async function alreadyApplied(sql, filename) {
-  // @neondatabase/serverless: the `sql` function itself accepts
-  // (text, params) — there is no `.query()` method.
-  const result = await sql('SELECT filename, sha256 FROM schema_versions WHERE filename = $1', [filename]);
+  // @neondatabase/serverless ≥1.0 only accepts the tagged-template form when
+  // `sql` is called directly; conventional (text, params) calls must go
+  // through `sql.query()`. Calling `sql(text, params)` throws at runtime.
+  const result = await sql.query('SELECT filename, sha256 FROM schema_versions WHERE filename = $1', [filename]);
   const rows = Array.isArray(result) ? result : (result && result.rows) || [];
   return rows.length > 0 ? rows[0] : null;
 }
 
 async function recordApplied(sql, filename, hash) {
-  await sql(
+  await sql.query(
     'INSERT INTO schema_versions (filename, sha256) VALUES ($1, $2) ON CONFLICT (filename) DO NOTHING',
     [filename, hash],
   );
@@ -106,7 +107,7 @@ async function applyMigration(sql, filename, opts = {}) {
 
   for (const stmt of statements) {
     try {
-      await sql(stmt);
+      await sql.query(stmt);
     } catch (err) {
       // Re-throw with context so the caller can see WHICH statement broke.
       const preview = stmt.replace(/\s+/g, ' ').slice(0, 120);

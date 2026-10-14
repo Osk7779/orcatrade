@@ -56,12 +56,19 @@ function emitGhaError({ name, url, reason }) {
   console.log(`::error file=scripts/smoke.js,title=${title}::${msg}`);
 }
 
+// Vercel Deployment Protection 302s every preview request to a login page.
+// With "Protection Bypass for Automation" enabled, this header lets the probe
+// through. Unset (prod / local) → no header, behaviour unchanged.
+const BYPASS_HEADERS = process.env.VERCEL_AUTOMATION_BYPASS_SECRET
+  ? { 'x-vercel-protection-bypass': process.env.VERCEL_AUTOMATION_BYPASS_SECRET }
+  : {};
+
 async function probe(name, path, check) {
   const url = base + path;
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), TIMEOUT_MS);
   try {
-    const res = await fetch(url, { signal: ctrl.signal, redirect: 'manual' });
+    const res = await fetch(url, { signal: ctrl.signal, redirect: 'manual', headers: BYPASS_HEADERS });
     const text = await res.text();
     const verdict = check({ status: res.status, text, headers: res.headers });
     if (verdict.ok) {
