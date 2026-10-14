@@ -123,7 +123,13 @@ async function runMigrations(opts = {}) {
   if (!dbUrl()) {
     return { ok: false, error: 'DATABASE_URL not set' };
   }
-  const { neon } = require('@neondatabase/serverless');
+  const { neon, neonConfig } = require('@neondatabase/serverless');
+  // CI only: the Neon HTTP driver can't talk to plain Postgres, so the
+  // live-PG job runs Neon's local HTTP proxy and points us at it. Unset in
+  // every real environment.
+  if (process.env.NEON_LOCAL_FETCH_ENDPOINT) {
+    neonConfig.fetchEndpoint = process.env.NEON_LOCAL_FETCH_ENDPOINT;
+  }
   const sql = neon(dbUrl());
 
   await ensureSchemaVersionsTable(sql);
