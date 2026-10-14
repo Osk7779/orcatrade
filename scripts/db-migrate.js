@@ -37,9 +37,17 @@ function color(text, c) {
 
 function findMigrationFiles() {
   if (!fs.existsSync(SCHEMA_DIR)) return [];
-  return fs.readdirSync(SCHEMA_DIR)
+  // Base schema.sql MUST run first: every schema-NNN-*.sql builds on its
+  // tables. A plain .sort() put it LAST ('-' < '.'), which only worked on
+  // prod because the base was applied by hand first — a fresh database
+  // (new env, DR restore) failed at schema-006. Already-applied files are
+  // tracked by name, so this reorder is a no-op on existing databases.
+  const files = fs.readdirSync(SCHEMA_DIR)
     .filter(f => /^schema(-[a-z0-9-]+)?\.sql$/i.test(f))
     .sort();
+  return files.includes('schema.sql')
+    ? ['schema.sql', ...files.filter(f => f !== 'schema.sql')]
+    : files;
 }
 
 function sha256(text) {
