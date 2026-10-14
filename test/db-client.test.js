@@ -216,9 +216,11 @@ test('findMigrationFiles discovers schema*.sql in lib/db', () => {
   const files = migrator.findMigrationFiles();
   assert.ok(files.length >= 1, 'at least schema.sql found');
   assert.ok(files.includes('schema.sql'), 'schema.sql in list');
-  // Output is alphabetically sorted.
-  const sorted = [...files].sort();
-  assert.deepEqual(files, sorted, 'files are sorted alphabetically');
+  // Base schema first (later migrations ALTER its tables), then the
+  // numbered migrations in order.
+  assert.equal(files[0], 'schema.sql', 'base schema runs first');
+  const rest = files.slice(1);
+  assert.deepEqual(rest, [...rest].sort(), 'numbered migrations in order');
 });
 
 test('findMigrationFiles ignores non-schema files in lib/db/', () => {

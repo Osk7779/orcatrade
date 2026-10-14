@@ -37,9 +37,17 @@ function color(text, c) {
 
 function findMigrationFiles() {
   if (!fs.existsSync(SCHEMA_DIR)) return [];
-  return fs.readdirSync(SCHEMA_DIR)
+  // Base schema.sql MUST run first: every schema-NNN-*.sql builds on its
+  // tables. A plain .sort() put it LAST ('-' < '.'), which only worked on
+  // prod because the base was applied by hand first — a fresh database
+  // (new env, DR restore) failed at schema-006. Already-applied files are
+  // tracked by name, so this reorder is a no-op on existing databases.
+  const files = fs.readdirSync(SCHEMA_DIR)
     .filter(f => /^schema(-[a-z0-9-]+)?\.sql$/i.test(f))
     .sort();
+  return files.includes('schema.sql')
+    ? ['schema.sql', ...files.filter(f => f !== 'schema.sql')]
+    : files;
 }
 
 function sha256(text) {
@@ -123,7 +131,13 @@ async function runMigrations(opts = {}) {
   if (!dbUrl()) {
     return { ok: false, error: 'DATABASE_URL not set' };
   }
-  const { neon } = require('@neondatabase/serverless');
+  const { neon, neonConfig } = require('@neondatabase/serverless');
+  // CI only: the Neon HTTP driver can't talk to plain Postgres, so the
+  // live-PG job runs Neon's local HTTP proxy and points us at it. Unset in
+  // every real environment.
+  if (process.env.NEON_LOCAL_FETCH_ENDPOINT) {
+    neonConfig.fetchEndpoint = process.env.NEON_LOCAL_FETCH_ENDPOINT;
+  }
   const sql = neon(dbUrl());
 
   await ensureSchemaVersionsTable(sql);
