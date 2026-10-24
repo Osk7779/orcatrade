@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { useState } from 'react';
 import { EditorialHeader } from './editorial-header';
 import { Aurora } from './aurora';
@@ -81,16 +81,12 @@ export function ToolPage(props: ToolPageProps) {
           {state === 'sent' ? (
             <div className="border border-[var(--color-navy-line)] bg-[var(--color-ink)] p-8 text-center md:p-10">
               <div className="flex items-center justify-center gap-3">
-                <span aria-hidden className="font-serif text-[14px] text-[var(--color-ivory-dim)]/65">
-                  ❦
-                </span>
                 <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
                   Brief received
                 </span>
               </div>
               <h2
                 className="mx-auto mt-6 max-w-[24ch] font-serif text-[clamp(1.8rem,3vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-                style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
               >
                 A founder will come back within one business day.
               </h2>
@@ -100,7 +96,7 @@ export function ToolPage(props: ToolPageProps) {
               </p>
               <Link
                 href="/start"
-                className="mt-8 inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+                className="mt-8 inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 rounded-full"
               >
                 Build a full import plan while you wait
                 <span aria-hidden>→</span>
@@ -134,7 +130,7 @@ export function ToolPage(props: ToolPageProps) {
                   <button
                     type="submit"
                     disabled={state === 'submitting' || !value.trim()}
-                    className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                    className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40 rounded-full"
                   >
                     {state === 'submitting' ? 'Sending the brief…' : submitLabel}
                     {state !== 'submitting' && (
@@ -168,7 +164,6 @@ export function ToolPage(props: ToolPageProps) {
           <FadeUp>
             <p
               className="font-serif text-[clamp(1.4rem,2vw+0.4rem,1.8rem)] italic leading-[1.4] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
             >
               {why}
             </p>
@@ -181,7 +176,7 @@ export function ToolPage(props: ToolPageProps) {
           <ChapterRule numeral="§" label="How it goes" />
           <section className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-28">
             <div className="mx-auto max-w-[1100px] px-6">
-              <ol className="flex flex-col gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)]">
+              <ol className="flex flex-col gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
                 {steps.map((s, i) => (
                   <li
                     key={i}
@@ -189,17 +184,12 @@ export function ToolPage(props: ToolPageProps) {
                   >
                     <span
                       className="font-serif text-[1.4rem] italic text-[var(--color-ivory)] md:w-[60px]"
-                      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
                     >
                       № {String(i + 1).padStart(2, '0')}
                     </span>
                     <div className="flex-1">
                       <h3
                         className="font-serif text-[1.2rem] leading-[1.15] tracking-[-0.016em] text-[var(--color-ivory)]"
-                        style={{
-                          fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                          fontWeight: 550,
-                        }}
                       >
                         {s.title}
                       </h3>
@@ -224,7 +214,6 @@ export function ToolPage(props: ToolPageProps) {
             </span>
             <h2
               className="mx-auto mt-6 max-w-[22ch] font-serif text-[clamp(2.4rem,5vw+0.4rem,3.8rem)] leading-[1.05] tracking-[-0.024em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               {closingTitle}
             </h2>
@@ -234,7 +223,7 @@ export function ToolPage(props: ToolPageProps) {
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/start"
-                className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+                className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 rounded-full"
               >
                 Build my import plan
                 <span
@@ -246,7 +235,7 @@ export function ToolPage(props: ToolPageProps) {
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
+                className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] rounded-full"
               >
                 Talk to a person
               </Link>

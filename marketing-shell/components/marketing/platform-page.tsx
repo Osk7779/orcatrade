@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { forwardRef, useRef } from 'react';
 import { motion } from 'motion/react';
 import { AnimatedBeam } from './animated-beam';
@@ -149,12 +149,11 @@ export function PlatformPage() {
 
       {/* ── LIVE STATS (count-up on scroll) ─────────────── */}
       <section className="border-y border-[var(--color-navy-line)] bg-[var(--color-ink)] py-10">
-        <div className="mx-auto max-w-[1280px] grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border-x border-[var(--color-navy-line)]">
+        <div className="mx-auto max-w-[1280px] grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border-x border-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
           {STATS.map((s) => (
             <div key={s.label} className="bg-[var(--color-ink)] px-6 py-7 text-center">
               <div
                 className="font-serif text-[clamp(2rem,3.4vw+0.4rem,3rem)] leading-none tracking-[-0.022em] text-[var(--color-ivory)]"
-                style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 600 }}
               >
                 <NumberTicker value={s.value} />
               </div>
@@ -173,7 +172,6 @@ export function PlatformPage() {
           <FadeUp className="mx-auto max-w-[760px] text-center">
             <h2
               className="font-serif text-[clamp(2rem,3.4vw+0.4rem,2.8rem)] leading-[1.1] tracking-[-0.022em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               One platform. Five live agents. One operations hub.
             </h2>
@@ -208,7 +206,6 @@ export function PlatformPage() {
                     </div>
                     <h3
                       className="mt-3 font-serif text-[1.6rem] leading-[1.15] tracking-[-0.018em] text-[var(--color-ivory)]"
-                      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                     >
                       {s.title}
                     </h3>
@@ -243,7 +240,6 @@ export function PlatformPage() {
                 <CursorSpotlight className="h-full">
                   <div className="h-full border border-[var(--color-navy-line)] bg-[var(--color-navy-soft)]/30 p-6 transition-colors hover:border-[var(--color-ivory)]/30">
                     <div className="font-serif text-[17px] leading-[1.25] tracking-[-0.012em] text-[var(--color-ivory)]"
-                      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 600 }}
                     >
                       {m.title}
                     </div>
@@ -294,7 +290,6 @@ export function PlatformPage() {
                   </div>
                   <h3
                     className="mt-3 font-serif text-[clamp(1.6rem,2vw+0.4rem,2rem)] leading-[1.15] tracking-[-0.018em] text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                   >
                     {c.title}
                   </h3>
@@ -303,7 +298,7 @@ export function PlatformPage() {
                   </p>
                   <Link
                     href={c.href}
-                    className="group mt-6 inline-flex w-fit items-center gap-2 border border-[var(--color-ivory)] bg-[var(--color-ivory)] px-6 py-3 font-mono text-[12px] uppercase tracking-[0.14em] text-[var(--color-ink)] transition-colors hover:bg-white"
+                    className="group mt-6 inline-flex w-fit items-center gap-2 border border-[var(--color-ivory)] bg-[var(--color-ivory)] px-6 py-3 font-mono text-[12px] uppercase tracking-[0.14em] text-[var(--color-ink)] transition-colors hover:opacity-85 rounded-full"
                   >
                     {c.cta}
                     <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>

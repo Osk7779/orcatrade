@@ -98,4 +98,4 @@ For Anthropic specifically, we explicitly **disable model training on customer d
 
 ## How to ask about a subprocessor
 
-If you're a prospect or customer evaluating OrcaTrade and need more detail on any of these — DPA signing, sub-DPA passthrough, data residency assertions, audit reports — email `orca@orcatrade.pl` with "subprocessor question: <provider>" in the subject. Response SLA: 5 business days.
+If you're a prospect or customer evaluating OrcaTrade and need more detail on any of these — DPA signing, sub-DPA passthrough, data residency assertions, audit reports — email `orcatrade@orcatradegroup.com` with "subprocessor question: <provider>" in the subject. Response SLA: 5 business days.

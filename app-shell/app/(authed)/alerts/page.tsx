@@ -6,15 +6,15 @@ import { apiGet, apiPost, AuthError, type Alert, type Severity } from '@/lib/api
 const SEV_CLASS: Record<Severity, string> = {
   critical: 'border-l-red-500',
   high: 'border-l-amber-500',
-  medium: 'border-l-white/40',
-  low: 'border-l-white/15',
+  medium: 'border-l-fg/40',
+  low: 'border-l-fg/15',
   info: 'border-l-sky-500/60',
 };
 const SEV_TEXT: Record<Severity, string> = {
   critical: 'text-red-400',
   high: 'text-amber-400',
-  medium: 'text-white/70',
-  low: 'text-white/55',
+  medium: 'text-fg/70',
+  low: 'text-fg/55',
   info: 'text-sky-400',
 };
 const TYPE_LABEL: Record<string, string> = {
@@ -42,7 +42,7 @@ export default function AlertsPage() {
     try { await apiPost('/account/alerts', { action, id }); load(); } catch { /* keep UI; reload will resync */ }
   }
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading your alerts…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading your alerts…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -59,33 +59,33 @@ export default function AlertsPage() {
       <div className="flex items-end justify-between mb-8">
         <h1 className="text-4xl">Monitoring alerts</h1>
         {openCount > 0 && (
-          <button onClick={() => act('markAllRead')} className="text-xs font-mono px-3 py-2 border border-[var(--color-line)] hover:bg-white/5">
+          <button onClick={() => act('markAllRead')} className="text-xs font-mono px-3 py-2 border border-[var(--color-line)] hover:bg-fg/5">
             Mark all read ({openCount})
           </button>
         )}
       </div>
 
       {!alerts.length ? (
-        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-white/60">
+        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-fg/60">
           Nothing flagged on your saved plans right now. The monitoring agent checks weekly for cost drift, FX exposure, deadlines and sanctions changes.
         </div>
       ) : (
         <div className="flex flex-col gap-3">
           {alerts.map((a) => (
-            <div key={a.id} className={`border border-[var(--color-line)] border-l-2 ${SEV_CLASS[a.severity] || 'border-l-white/20'} ${a.status !== 'open' ? 'opacity-55' : ''} px-5 py-4`}>
+            <div key={a.id} className={`border border-[var(--color-line)] border-l-2 ${SEV_CLASS[a.severity] || 'border-l-fg/20'} ${a.status !== 'open' ? 'opacity-55' : ''} px-5 py-4`}>
               <div className="flex items-start justify-between gap-4">
                 <div className="min-w-0">
-                  <div className="font-mono text-[0.62rem] uppercase tracking-wider text-white/45 mb-1">{TYPE_LABEL[a.type] || a.type}</div>
+                  <div className="font-mono text-[0.62rem] uppercase tracking-wider text-fg/45 mb-1">{TYPE_LABEL[a.type] || a.type}</div>
                   <div className="font-serif text-lg text-ivory">{a.title}</div>
-                  {a.body && <p className="text-sm text-white/65 mt-1 leading-relaxed">{a.body}</p>}
+                  {a.body && <p className="text-sm text-fg/65 mt-1 leading-relaxed">{a.body}</p>}
                 </div>
-                <span className={`font-mono text-[0.62rem] uppercase shrink-0 ${SEV_TEXT[a.severity] || 'text-white/50'}`}>{a.severity}</span>
+                <span className={`font-mono text-[0.62rem] uppercase shrink-0 ${SEV_TEXT[a.severity] || 'text-fg/50'}`}>{a.severity}</span>
               </div>
               <div className="flex gap-2 mt-3">
                 {a.status === 'open' && (
-                  <button onClick={() => act('markRead', a.id)} className="text-[0.7rem] font-mono px-2.5 py-1 border border-[var(--color-line)] hover:bg-white/5">Mark read</button>
+                  <button onClick={() => act('markRead', a.id)} className="text-[0.7rem] font-mono px-2.5 py-1 border border-[var(--color-line)] hover:bg-fg/5">Mark read</button>
                 )}
-                <button onClick={() => act('dismiss', a.id)} className="text-[0.7rem] font-mono px-2.5 py-1 border border-[var(--color-line)] hover:bg-white/5">Dismiss</button>
+                <button onClick={() => act('dismiss', a.id)} className="text-[0.7rem] font-mono px-2.5 py-1 border border-[var(--color-line)] hover:bg-fg/5">Dismiss</button>
               </div>
             </div>
           ))}

@@ -81,16 +81,16 @@ export function RelatedShipments({ filter, limit = 10 }: { filter: Filter; limit
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
         <h2 className="font-serif text-xl">Related shipments</h2>
         {state === 'ready' && (
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/60">
             {shipments.length} found
           </span>
         )}
       </div>
       {state === 'loading' && (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">Loading…</p>
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">Loading…</p>
       )}
       {state === 'auth' && (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">Sign in to view related shipments.</p>
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">Sign in to view related shipments.</p>
       )}
       {state === 'error' && (
         <p className="px-6 py-5 font-mono text-xs" style={{ color: 'var(--color-critical)' }}>
@@ -98,7 +98,7 @@ export function RelatedShipments({ filter, limit = 10 }: { filter: Filter; limit
         </p>
       )}
       {state === 'empty' && (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">{emptyMessage(filter)}</p>
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">{emptyMessage(filter)}</p>
       )}
       {state === 'ready' && (
         <ul>
@@ -110,11 +110,11 @@ export function RelatedShipments({ filter, limit = 10 }: { filter: Filter; limit
               <div className="min-w-0 flex-1">
                 <Link
                   href={`/shipments/${encodeURIComponent(s.externalId)}`}
-                  className="font-serif text-[14px] text-white hover:underline truncate block"
+                  className="font-serif text-[14px] text-fg hover:underline truncate block"
                 >
                   {s.label}
                 </Link>
-                <div className="font-mono text-[11px] text-white/50 mt-1">
+                <div className="font-mono text-[11px] text-fg/50 mt-1">
                   {(s.originCountry || '?')}→{(s.destinationCountry || '?')}
                   {' · '}
                   {eurFromCents(s.customsValueCents)}

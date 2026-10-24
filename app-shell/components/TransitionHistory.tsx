@@ -351,14 +351,14 @@ export function TransitionHistory({
         <div className="flex items-center gap-3">
           {showFilter && (
             <label className="flex items-center gap-2">
-              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+              <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/50">
                 Filter
               </span>
               <select
                 value={filterType}
                 onChange={(e) => setFilterType(e.target.value)}
                 aria-label="Filter audit events by type"
-                className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-white focus:outline-none focus:border-white/55"
+                className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-fg focus:outline-none focus:border-fg/55"
               >
                 <option value="">All types ({list.length})</option>
                 {[...typeCounts.entries()]
@@ -372,7 +372,7 @@ export function TransitionHistory({
             </label>
           )}
           {state === 'ready' && (
-            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+            <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/60">
               {filterType
                 ? `${visible.length} of ${list.length}`
                 : `${list.length} event${list.length === 1 ? '' : 's'}`}
@@ -381,16 +381,16 @@ export function TransitionHistory({
         </div>
       </div>
       {state === 'loading' && (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">Loading timeline…</p>
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">Loading timeline…</p>
       )}
       {state === 'auth' && (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">Sign in to view the audit timeline.</p>
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">Sign in to view the audit timeline.</p>
       )}
       {state === 'error' && (
         <p className="px-6 py-5 font-mono text-xs" style={{ color: 'var(--color-critical)' }}>{errorMsg}</p>
       )}
       {state === 'empty' && (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No audit events yet. New transitions will appear here.
         </p>
       )}
@@ -399,13 +399,13 @@ export function TransitionHistory({
           // Filtered-empty (data-empty handled above). The Clear-
           // filter affordance restores the full list with one click —
           // operators recover without editing state by hand.
-          <p className="px-6 py-5 font-mono text-xs text-white/45">
+          <p className="px-6 py-5 font-mono text-xs text-fg/45">
             No events of type &ldquo;{cfg.typeLabel(filterType as AuditTimelineEventType)}&rdquo;
             in this timeline.{' '}
             <button
               type="button"
               onClick={() => setFilterType('')}
-              className="underline hover:text-white"
+              className="underline hover:text-fg"
             >
               Clear filter
             </button>
@@ -464,13 +464,13 @@ function BatchedTimelineRow({
         style={{ backgroundColor: tone }}
       />
       <div>
-        <div className="font-serif text-[14px] text-white">
+        <div className="font-serif text-[14px] text-fg">
           {batch.events.length} × {typeLabel}{' '}
-          <span className="font-mono text-[12px] text-white/55">
+          <span className="font-mono text-[12px] text-fg/55">
             ({actorChip})
           </span>
         </div>
-        <div className="font-mono text-[11px] text-white/50 mt-1">
+        <div className="font-mono text-[11px] text-fg/50 mt-1">
           {sameInstant ? (
             <>at {fmtDateTime(batch.from)}</>
           ) : (
@@ -480,7 +480,7 @@ function BatchedTimelineRow({
           )}
         </div>
         <details className="mt-2 border border-[var(--color-navy-line)] inline-block">
-          <summary className="cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-white/55 hover:text-white">
+          <summary className="cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-fg/55 hover:text-fg">
             Show {batch.events.length} events
           </summary>
           <ol className="px-3 py-2 space-y-3">
@@ -516,19 +516,19 @@ function TimelineRow({
         style={{ backgroundColor: tone }}
       />
       <div>
-        <div className="font-serif text-[14px] text-white">{headline}</div>
-        <div className="font-mono text-[11px] text-white/50 mt-1">
+        <div className="font-serif text-[14px] text-fg">{headline}</div>
+        <div className="font-mono text-[11px] text-fg/50 mt-1">
           {fmtDateTime(event.at)}
           {event.actorEmailHash && (
-            <span className="ml-2 text-white/35">· actor {event.actorEmailHash.slice(0, 8)}</span>
+            <span className="ml-2 text-fg/35">· actor {event.actorEmailHash.slice(0, 8)}</span>
           )}
         </div>
         {event.detail && Object.keys(event.detail).length > 0 && (
           <details className="mt-2 border border-[var(--color-navy-line)] inline-block">
-            <summary className="cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-white/55 hover:text-white">
+            <summary className="cursor-pointer px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.12em] text-fg/55 hover:text-fg">
               Detail
             </summary>
-            <pre className="px-3 py-2 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">
+            <pre className="px-3 py-2 font-mono text-[11px] text-fg/70 overflow-x-auto whitespace-pre">
               {JSON.stringify(event.detail, null, 2)}
             </pre>
           </details>

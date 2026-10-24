@@ -16,13 +16,12 @@ const Node = forwardRef<
   <div
     ref={ref}
     className={cn(
-      'z-10 grid place-items-center border border-[var(--color-navy-line)] bg-[var(--color-navy-soft)] text-[10px] font-medium tracking-tight text-[var(--color-ivory)] shadow-[0_4px_24px_rgba(0,0,0,0.45)] sm:text-[11px]',
+      'z-10 grid place-items-center rounded-full bg-white text-[11px] font-semibold text-[var(--color-ivory)] shadow-[0_2px_12px_rgba(0,0,0,0.08)] ring-1 ring-[var(--color-navy-line)] sm:text-[12px]',
       primary
-        ? 'size-12 bg-[var(--color-ivory)] font-serif text-[var(--color-ink)] sm:size-16 sm:text-base'
-        : 'size-9 sm:size-11',
+        ? 'size-14 bg-[var(--color-accent)] text-[15px] text-white ring-0 sm:size-16'
+        : 'size-10 sm:size-12',
       className,
     )}
-    style={primary ? { fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 700 } : undefined}
   >
     {children}
   </div>
@@ -38,18 +37,15 @@ export function StoryBeam({ copy = EN_COPY.storyBeam }: { copy?: HomepageCopy['s
   return (
     <section
       id="platform"
-      className="relative border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-32"
+      className="relative bg-[var(--color-navy)] py-20 md:py-24"
     >
-      <div className="mx-auto max-w-[1280px] px-6">
+      <div className="mx-auto max-w-[1080px] px-6">
         <FadeUp className="mx-auto max-w-[760px] text-center">
-          <h2
-            className="font-serif text-[clamp(2.2rem,3.8vw+0.4rem,3.4rem)] leading-[1.08] tracking-[-0.022em] text-[var(--color-ivory)]"
-            style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
-          >
+          <h2 className="text-[clamp(2rem,4vw,3rem)] leading-[1.1]">
             {copy.title[0]}
             <br className="hidden md:block" /> {copy.title[1]}
           </h2>
-          <p className="mx-auto mt-6 max-w-[58ch] text-[15.5px] leading-[1.78] text-[var(--color-ivory-dim)]">
+          <p className="mx-auto mt-5 max-w-[56ch] text-[17px] leading-[1.5] text-[var(--color-ivory-mute)]">
             {copy.body}
           </p>
         </FadeUp>

@@ -104,9 +104,9 @@ export const EN_COPY: HomepageCopy = {
     body:
       'OrcaTrade is the import operations team available 24/7 for European businesses sourcing from Asia. Search, sourcing, compliance, logistics and finance — on one calculator-grounded platform, with citations on every recommendation.',
     ctaPrimary: 'Build my import plan',
-    ctaSecondary: 'Read the prospectus',
+    ctaSecondary: 'Explore the platform',
     footer: 'Operating across the EU, the UK and Asia.',
-    globeCaption: 'Lanes observed between Asia and Europe — live.',
+    globeCaption: 'Built for the lanes between Asia and Europe.',
     globeSubCaption: 'From Shanghai and Ho Chi Minh to Warsaw, Berlin and Amsterdam.',
   },
   manifesto: {
@@ -270,9 +270,9 @@ export const PL_COPY: HomepageCopy = {
     body:
       'OrcaTrade to zespół operacji importowych dostępny 24/7 dla europejskich firm sprowadzających z Azji. Wyszukiwanie, sourcing, compliance, logistyka i finansowanie — na jednej platformie opartej na kalkulatorach, z cytowaniami przy każdej rekomendacji.',
     ctaPrimary: 'Zbuduj mój plan importu',
-    ctaSecondary: 'Przeczytaj prospekt',
+    ctaSecondary: 'Poznaj platformę',
     footer: 'Działamy w UE, Wielkiej Brytanii i Azji.',
-    globeCaption: 'Trasy obserwowane między Azją a Europą — na żywo.',
+    globeCaption: 'Stworzone dla tras między Azją a Europą.',
     globeSubCaption: 'Z Szanghaju i Ho Chi Minh do Warszawy, Berlina i Amsterdamu.',
   },
   manifesto: {
@@ -436,9 +436,9 @@ export const DE_COPY: HomepageCopy = {
     body:
       'OrcaTrade ist das 24/7-Importteam für europäische Unternehmen, die aus Asien beziehen. Suche, Beschaffung, Compliance, Logistik und Finanzierung — auf einer kalkulator-fundierten Plattform, mit Quellenangaben bei jeder Empfehlung.',
     ctaPrimary: 'Meinen Importplan erstellen',
-    ctaSecondary: 'Prospekt lesen',
+    ctaSecondary: 'Plattform entdecken',
     footer: 'Tätig in der EU, im Vereinigten Königreich und in Asien.',
-    globeCaption: 'Routen zwischen Asien und Europa — live beobachtet.',
+    globeCaption: 'Gebaut für die Routen zwischen Asien und Europa.',
     globeSubCaption: 'Von Shanghai und Ho-Chi-Minh nach Warschau, Berlin und Amsterdam.',
   },
   manifesto: {

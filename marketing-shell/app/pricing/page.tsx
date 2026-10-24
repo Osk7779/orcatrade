@@ -217,12 +217,10 @@ export default function PricingPage() {
         <div className="mx-auto max-w-[1100px] px-6">
           <FadeUp>
             <div className="flex items-center gap-3">
-              <span aria-hidden className="font-serif text-[13px] text-[var(--color-ivory-dim)]/55">❦</span>
               <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">Stack on top of any tier</span>
             </div>
             <h2
               className="mt-5 font-serif text-[clamp(1.8rem,2.8vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               High-value capabilities that don&rsquo;t belong inside core tiers.
             </h2>
@@ -253,12 +251,10 @@ export default function PricingPage() {
         <div className="mx-auto max-w-[1100px] px-6">
           <FadeUp>
             <div className="flex items-center gap-3">
-              <span aria-hidden className="font-serif text-[13px] text-[var(--color-ivory-dim)]/55">❦</span>
               <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">Two revenue streams, one bill</span>
             </div>
             <h2
               className="mt-5 font-serif text-[clamp(1.8rem,2.8vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               Subscriptions buy access. Per-shipment costs run separately.
             </h2>
@@ -299,7 +295,6 @@ export default function PricingPage() {
           <FadeUp>
             <h2
               className="font-serif text-[clamp(1.8rem,2.8vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               Common questions before you commit.
             </h2>

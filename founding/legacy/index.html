@@ -311,7 +311,7 @@
         }).then(function (out) {
           btn.disabled = false;
           if (out.status !== 200) {
-            showStatus('err', (out.json && out.json.error) || 'Something went wrong. Email orca@orcatrade.pl directly?');
+            showStatus('err', (out.json && out.json.error) || 'Something went wrong. Email orcatrade@orcatradegroup.com directly?');
             return;
           }
           if (out.json.waitlist) {
@@ -328,7 +328,7 @@
           }).catch(function () { /* silent */ });
         }).catch(function () {
           btn.disabled = false;
-          showStatus('err', 'Network error. Try again or email orca@orcatrade.pl.');
+          showStatus('err', 'Network error. Try again or email orcatrade@orcatradegroup.com.');
         });
       });
     })();

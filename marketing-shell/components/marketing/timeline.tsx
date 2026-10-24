@@ -13,7 +13,7 @@ export interface TimelineEntry {
 
 export function Timeline({ entries }: { entries: TimelineEntry[] }) {
   return (
-    <ol className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+    <ol className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
       {entries.map((e, i) => (
         <li
           key={i}
@@ -34,7 +34,6 @@ export function Timeline({ entries }: { entries: TimelineEntry[] }) {
               <div className="flex flex-col gap-4">
                 <h2
                   className="font-serif text-[clamp(1.5rem,2vw+0.4rem,2rem)] leading-[1.1] tracking-[-0.018em] text-[var(--color-ivory)]"
-                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                 >
                   {e.title}
                 </h2>

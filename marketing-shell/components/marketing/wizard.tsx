@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, type ReactNode } from 'react';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { AnimatePresence, motion } from 'motion/react';
 import { cn } from '@/lib/utils';
 import { BorderBeam } from './border-beam';
@@ -475,11 +475,10 @@ function StepHeader({ number, label }: { number: number; label: string }) {
   return (
     <>
       <span className="font-serif text-[12.5px] italic text-[var(--color-ivory-mute)]">
-        § {toRoman(number)} · Step {number} of 6
+        Step {number} of 6
       </span>
       <h2
         className="mt-3 font-serif text-[clamp(1.8rem,2.8vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
       >
         {label}
       </h2>
@@ -632,7 +631,7 @@ function Navigation({
           type="button"
           onClick={onNext}
           disabled={!canAdvance}
-          className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+          className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40 rounded-full"
         >
           Continue
           <span
@@ -646,7 +645,7 @@ function Navigation({
         <button
           type="submit"
           disabled={!canAdvance || status === 'submitting'}
-          className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+          className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40 rounded-full"
         >
           {status === 'submitting' ? 'Composing the plan…' : 'Build my plan'}
           <span
@@ -691,12 +690,6 @@ function PlanResult({ data, planResponse }: { data: FormData; planResponse: Star
           className="flex items-center gap-4"
         >
           <span className="h-px w-10 bg-[var(--color-ivory-dim)]/50" />
-          <span
-            aria-hidden
-            className="font-serif text-[13px] text-[var(--color-ivory-dim)]/60"
-          >
-            ❦
-          </span>
           <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
             Plan composed
           </span>
@@ -707,7 +700,6 @@ function PlanResult({ data, planResponse }: { data: FormData; planResponse: Star
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.9, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
           className="mt-10 font-serif text-[clamp(2rem,3.4vw+0.4rem,3rem)] leading-[1.06] tracking-[-0.02em] text-[var(--color-ivory)]"
-          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
         >
           The plan is on its way to {data.email}.
         </motion.h2>
@@ -830,7 +822,7 @@ function PlanResult({ data, planResponse }: { data: FormData; planResponse: Star
           </div>
         )}
 
-        <div className="mt-12 grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3">
+        <div className="mt-12 grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-3 overflow-hidden rounded-[22px]">
           <Summary
             kicker="Origin"
             value={
@@ -861,7 +853,7 @@ function PlanResult({ data, planResponse }: { data: FormData; planResponse: Star
         <div className="mt-10 flex flex-wrap items-center gap-3">
           <Link
             href="/"
-            className="group inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-6 py-3 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
+            className="group inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-6 py-3 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] rounded-full"
           >
             Return to the homepage
           </Link>
@@ -885,15 +877,9 @@ function Summary({ kicker, value }: { kicker: string; value: ReactNode }) {
       </span>
       <span
         className="font-serif text-[1.35rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
       >
         {value}
       </span>
     </div>
   );
-}
-
-function toRoman(n: number): string {
-  const map = ['', 'I', 'II', 'III', 'IV', 'V', 'VI'];
-  return map[n] ?? String(n);
 }

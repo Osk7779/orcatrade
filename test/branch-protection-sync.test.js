@@ -130,7 +130,10 @@ test('pr-smoke workflow invokes scripts/smoke.js against the resolved preview UR
 test('pr-smoke workflow polls GitHub Deployments API for Vercel preview success status', () => {
   const src = read('.github/workflows/pr-smoke.yml');
   // Two anchors: the deployments-listing endpoint and the success-state filter.
-  assert.match(src, /commits\/\$SHA\/deployments/, 'must query the commit-deployments endpoint');
+  // repos/<repo>/deployments?sha=<sha> — the previously pinned
+  // commits/<sha>/deployments path does not exist (422) and failed every PR.
+  assert.match(src, /deployments\?sha=\$SHA/, 'must list deployments filtered by sha');
+  assert.doesNotMatch(src, /commits\/\$SHA\/deployments/, 'commits/<sha>/deployments is not a GitHub endpoint');
   assert.match(src, /select\(\.state == "success"\)/, 'must filter for state=success statuses');
 });
 

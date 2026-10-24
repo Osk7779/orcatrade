@@ -4,12 +4,11 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 
-// Sidebar organised in editorial sections. Section labels are small caps
-// in IBM Plex Mono — same treatment as the marketing-shell's Tools mega-
-// menu. Active link gets an ivory left-rail accent + ivory text, hover
-// uses the navy-soft surface.
+// Cockpit navigation: a sidebar on desktop, a top bar + full-height menu
+// on mobile, both rendering the same sections. Every item is an in-app
+// route (inApp: resolved under the /app basePath by next/link).
 
-type NavItem = { label: string; href: string; inApp?: boolean };
+type NavItem = { label: string; href: string; inApp: true };
 
 const SECTIONS: { heading: string; items: NavItem[] }[] = [
   {
@@ -49,9 +48,68 @@ const SECTIONS: { heading: string; items: NavItem[] }[] = [
   },
 ];
 
+function NavSections({ pathname, openAlerts, onNavigate }: { pathname: string; openAlerts: number | null; onNavigate?: () => void }) {
+  return (
+    <nav className="flex flex-1 flex-col gap-6 px-4 py-6">
+      {SECTIONS.map((section) => (
+        <div key={section.heading} className="flex flex-col gap-0.5">
+          <div className="mb-1 px-3 text-[12px] text-[var(--color-ivory-mute)]">{section.heading}</div>
+          {section.items.map((item) => {
+            const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+            const badge =
+              item.href === '/alerts' && openAlerts && openAlerts > 0 ? (
+                <span
+                  className="ml-auto rounded-full bg-[var(--color-critical)] px-1.5 py-px text-[11px] font-semibold text-white"
+                  title={`${openAlerts} open monitoring alert${openAlerts === 1 ? '' : 's'}`}
+                >
+                  {openAlerts > 99 ? '99+' : openAlerts}
+                </span>
+              ) : null;
+            const cls = `flex items-center gap-2 rounded-lg px-3 py-2 text-[14px] transition-colors duration-200 ${
+              isActive
+                ? 'bg-[var(--color-accent-soft)] font-medium text-[var(--color-accent)]'
+                : 'text-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] hover:text-[var(--color-ivory)]'
+            }`;
+            return (
+              <Link key={item.href} href={item.href} className={cls} onClick={onNavigate}>
+                <span className="truncate">{item.label}</span>
+                {badge}
+              </Link>
+            );
+          })}
+        </div>
+      ))}
+    </nav>
+  );
+}
+
+function SidebarFooter() {
+  return (
+    <div className="flex flex-col gap-1.5 border-t border-[var(--color-navy-line)] px-7 py-5 text-[13px]">
+      {/* Plain anchors: these live outside the /app basePath. */}
+      <a href="/" className="text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)]">
+        ← orcatrade.pl
+      </a>
+      <a href="/account/" className="text-[var(--color-link)] hover:underline">
+        Account &amp; sign out
+      </a>
+    </div>
+  );
+}
+
+function Wordmark() {
+  return (
+    <Link href="/dashboard" className="flex items-baseline gap-1.5 text-[17px] font-semibold tracking-[-0.02em] text-[var(--color-ivory)]">
+      OrcaTrade
+      <span className="font-normal text-[var(--color-ivory-mute)]">Operations</span>
+    </Link>
+  );
+}
+
 export function Sidebar() {
   const pathname = usePathname() || '';
   const [openAlerts, setOpenAlerts] = useState<number | null>(null);
+  const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -62,94 +120,39 @@ export function Sidebar() {
     return () => { cancelled = true; };
   }, []);
 
+  useEffect(() => setMobileOpen(false), [pathname]);
+
   return (
-    <aside className="hidden md:flex w-64 shrink-0 flex-col border-r border-[var(--color-navy-line)] min-h-screen sticky top-0 max-h-screen overflow-y-auto">
-      {/* Brand wordmark — matches marketing-shell Header */}
-      <Link href="/dashboard" className="block px-7 py-7 border-b border-[var(--color-navy-line)] group">
-        <div className="flex items-baseline gap-2">
-          <span
-            className="font-serif text-[1.55rem] tracking-[-0.022em] text-[var(--color-ivory)] leading-none"
-            style={{ fontVariationSettings: "'SOFT' 28, 'opsz' 144", fontWeight: 600 }}
-          >
-            OrcaTrade
-          </span>
-          <span className="font-serif italic text-[1rem] text-[var(--color-ivory-mute)] leading-none">
-            Operations
-          </span>
-        </div>
-        <span className="block mt-2 font-mono text-[10px] tracking-[0.18em] uppercase text-[var(--color-ivory-mute)]">
-          The cockpit
-        </span>
-      </Link>
-
-      <nav className="flex-1 flex flex-col gap-7 px-5 py-6">
-        {SECTIONS.map((section) => (
-          <div key={section.heading} className="flex flex-col gap-1">
-            <div className="flex items-center gap-2 px-3 mb-1.5">
-              <span aria-hidden className="font-serif text-[11px] text-[var(--color-ivory-mute)]/55">
-                ❦
-              </span>
-              <span className="font-mono text-[10px] tracking-[0.16em] uppercase text-[var(--color-ivory-mute)]">
-                {section.heading}
-              </span>
-            </div>
-            {section.items.map((item) => {
-              const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
-              const isAlerts = item.href === '/alerts';
-              const badge = isAlerts && openAlerts && openAlerts > 0 ? (
-                <span
-                  className="ml-auto font-mono text-[10px] px-1.5 py-0.5 bg-[var(--color-critical)]/15 text-[var(--color-critical)] border border-[var(--color-critical)]/35"
-                  title={`${openAlerts} open monitoring alert${openAlerts === 1 ? '' : 's'}`}
-                >
-                  {openAlerts > 99 ? '99+' : openAlerts}
-                </span>
-              ) : null;
-
-              const baseCls =
-                'group/item relative flex items-center gap-2 px-3 py-2 text-[13.5px] transition-colors duration-300';
-              const stateCls = isActive
-                ? 'text-[var(--color-ivory)] bg-[var(--color-navy-soft)]/60'
-                : 'text-[var(--color-ivory-dim)] hover:text-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]/40';
-
-              const inner = (
-                <>
-                  {isActive && (
-                    <span
-                      aria-hidden
-                      className="absolute left-0 top-1/2 -translate-y-1/2 h-5 w-[2px] bg-[var(--color-ivory)]"
-                    />
-                  )}
-                  <span className="truncate">{item.label}</span>
-                  {badge}
-                </>
-              );
-
-              return item.inApp ? (
-                <Link key={item.href} href={item.href} className={`${baseCls} ${stateCls}`}>
-                  {inner}
-                </Link>
-              ) : (
-                <a key={item.href} href={item.href} className={`${baseCls} ${stateCls}`}>
-                  {inner}
-                </a>
-              );
-            })}
-          </div>
-        ))}
-      </nav>
-
-      {/* Footer colophon */}
-      <div className="px-7 py-5 border-t border-[var(--color-navy-line)]">
-        <a
-          href="/account/"
-          className="font-mono text-[10px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)] transition-colors"
+    <>
+      {/* Mobile: slim top bar + full-height menu (the sidebar is desktop-only). */}
+      <div className="fixed inset-x-0 top-0 z-40 flex h-12 items-center justify-between border-b border-[var(--color-navy-line)] bg-white/85 px-4 backdrop-blur-xl md:hidden">
+        <Wordmark />
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-expanded={mobileOpen}
+          aria-label={mobileOpen ? 'Close menu' : 'Open menu'}
+          className="flex size-9 flex-col items-center justify-center gap-[6px]"
         >
-          Sign out ↗
-        </a>
-        <div className="mt-2 font-serif italic text-[12px] text-[var(--color-ivory-mute)]/70">
-          OrcaTrade Group · MMXXVI
-        </div>
+          <span className={`block h-[1.5px] w-[18px] bg-[var(--color-ivory)] transition-transform ${mobileOpen ? 'translate-y-[3.75px] rotate-45' : ''}`} />
+          <span className={`block h-[1.5px] w-[18px] bg-[var(--color-ivory)] transition-transform ${mobileOpen ? '-translate-y-[3.75px] -rotate-45' : ''}`} />
+        </button>
       </div>
-    </aside>
+      <div className="h-12 w-full shrink-0 md:hidden" aria-hidden />
+      {mobileOpen && (
+        <div className="fixed inset-x-0 bottom-0 top-12 z-40 flex flex-col overflow-y-auto bg-white md:hidden">
+          <NavSections pathname={pathname} openAlerts={openAlerts} onNavigate={() => setMobileOpen(false)} />
+          <SidebarFooter />
+        </div>
+      )}
+
+      <aside className="sticky top-0 hidden max-h-screen min-h-screen w-64 shrink-0 flex-col overflow-y-auto border-r border-[var(--color-navy-line)] bg-[var(--color-navy)] md:flex">
+        <div className="border-b border-[var(--color-navy-line)] px-7 py-6">
+          <Wordmark />
+        </div>
+        <NavSections pathname={pathname} openAlerts={openAlerts} />
+        <SidebarFooter />
+      </aside>
+    </>
   );
 }

@@ -5,7 +5,7 @@ import type { ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
 const variants: Variants = {
-  hidden: { opacity: 0, y: 20 },
+  hidden: { opacity: 0, y: 12 },
   visible: { opacity: 1, y: 0 },
 };
 
@@ -27,9 +27,9 @@ export function FadeUp({
     <motion.div
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, margin: '-80px' }}
+      viewport={{ once: true, margin: '0px 0px -8% 0px' }}
       variants={variants}
-      transition={{ duration: 0.95, ease: [0.16, 1, 0.3, 1], delay }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay }}
       className={cn(className)}
     >
       <Tag>{children}</Tag>

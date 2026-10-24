@@ -1,6 +1,5 @@
 'use client';
 
-import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 
 // AccountWidget — mirrors the upgrade pattern from js/site-nav.js.
@@ -129,18 +128,12 @@ export function AccountWidget() {
   // know the user is signed in, swap to the dropdown.
   if (!hydrated || !user) {
     return (
-      <Link
+      <a
         href="/signin"
-        className="group inline-flex items-center gap-1.5 text-[13px] font-medium text-[var(--color-ivory-dim)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
+        className="text-[12.5px] text-[var(--color-ivory)]/80 transition-colors duration-200 hover:text-[var(--color-ivory)]"
       >
         Sign in
-        <span
-          aria-hidden
-          className="text-[var(--color-ivory-mute)] transition-colors duration-300 group-hover:text-[var(--color-ivory)]"
-        >
-          ↗
-        </span>
-      </Link>
+      </a>
     );
   }
 
@@ -154,15 +147,15 @@ export function AccountWidget() {
         onClick={() => setOpen((v) => !v)}
         aria-expanded={open}
         aria-haspopup="menu"
-        className="group flex items-center gap-2 border border-[var(--color-navy-line)] px-3 py-2 text-[13px] text-[var(--color-ivory)] hover:border-[var(--color-ivory-dim)]/45 hover:bg-[var(--color-navy-soft)]/60 transition-colors duration-300"
+        className="group flex items-center gap-2 rounded-full px-1.5 py-1 text-[12.5px] text-[var(--color-ivory)] transition-colors duration-200 hover:bg-[var(--color-navy-soft)]"
       >
         <span
           aria-hidden
-          className="grid size-6 place-items-center border border-[var(--color-ivory-dim)]/35 bg-[var(--color-navy-soft)] font-mono text-[10.5px] font-medium text-[var(--color-ivory)]"
+          className="grid size-6 place-items-center rounded-full bg-[var(--color-ivory)] text-[11px] font-semibold text-white"
         >
           {initial}
         </span>
-        <span className="font-medium truncate max-w-[180px]">{label}</span>
+        <span className="hidden max-w-[160px] truncate lg:inline">{label}</span>
         <span
           aria-hidden
           className={`text-[10px] text-[var(--color-ivory-mute)] transition-transform duration-300 ${open ? 'rotate-180' : ''}`}
@@ -174,56 +167,56 @@ export function AccountWidget() {
       {open && (
         <div
           role="menu"
-          className="absolute right-0 top-[calc(100%+8px)] z-50 w-[280px] border border-[var(--color-navy-line)] bg-[var(--color-ink)]/96 backdrop-blur-xl shadow-[0_24px_60px_-30px_rgba(0,0,0,0.7)]"
+          className="absolute right-0 top-[calc(100%+10px)] z-50 w-[260px] overflow-hidden rounded-2xl border border-[var(--color-navy-line)] bg-white/95 shadow-[0_18px_50px_-12px_rgba(0,0,0,0.18)] backdrop-blur-xl"
         >
           <div
-            className="px-4 py-3 border-b border-[var(--color-navy-line)] font-mono text-[12px] text-[var(--color-ivory-dim)] truncate"
+            className="px-4 py-3 border-b border-[var(--color-navy-line)] text-[12.5px] text-[var(--color-ivory-mute)] truncate"
             title={user.email}
           >
             {user.email}
           </div>
           <nav className="flex flex-col py-1">
-            <Link
+            <a
               role="menuitem"
               href="/app/dashboard"
               onClick={() => setOpen(false)}
               className="px-4 py-2.5 text-[13.5px] text-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]/60 transition-colors"
             >
-              <span className="font-serif">Dashboard</span>
-              <span className="block font-serif italic text-[12px] text-[var(--color-ivory-mute)] mt-0.5">
+              <span>Dashboard</span>
+              <span className="mt-0.5 block text-[12px] text-[var(--color-ivory-mute)]">
                 Your cockpit
               </span>
-            </Link>
-            <Link
+            </a>
+            <a
               role="menuitem"
               href="/app/plans"
               onClick={() => setOpen(false)}
               className="px-4 py-2.5 text-[13.5px] text-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]/60 transition-colors"
             >
-              <span className="font-serif">Saved plans</span>
-            </Link>
-            <Link
+              <span>Saved plans</span>
+            </a>
+            <a
               role="menuitem"
               href="/app/portfolios"
               onClick={() => setOpen(false)}
               className="px-4 py-2.5 text-[13.5px] text-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]/60 transition-colors"
             >
-              <span className="font-serif">Portfolios</span>
-            </Link>
-            <Link
+              <span>Portfolios</span>
+            </a>
+            <a
               role="menuitem"
               href="/app/preferences"
               onClick={() => setOpen(false)}
               className="px-4 py-2.5 text-[13.5px] text-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]/60 transition-colors"
             >
-              <span className="font-serif">Settings</span>
-            </Link>
+              <span>Settings</span>
+            </a>
           </nav>
           <button
             type="button"
             role="menuitem"
             onClick={signOut}
-            className="w-full text-left px-4 py-3 border-t border-[var(--color-navy-line)] font-mono text-[11px] tracking-[0.14em] uppercase text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]/60 transition-colors"
+            className="w-full text-left px-4 py-3 border-t border-[var(--color-navy-line)] text-[13px] text-[var(--color-link)] hover:text-[var(--color-ivory)] hover:bg-[var(--color-navy-soft)]/60 transition-colors"
           >
             Sign out
           </button>
