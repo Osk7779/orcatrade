@@ -37,9 +37,17 @@ function color(text, c) {
 
 function findMigrationFiles() {
   if (!fs.existsSync(SCHEMA_DIR)) return [];
-  return fs.readdirSync(SCHEMA_DIR)
+  // Base schema.sql MUST run first: every schema-NNN-*.sql builds on its
+  // tables. A plain .sort() put it LAST ('-' < '.'), which only worked on
+  // prod because the base was applied by hand first — a fresh database
+  // (new env, DR restore) failed at schema-006. Already-applied files are
+  // tracked by name, so this reorder is a no-op on existing databases.
+  const files = fs.readdirSync(SCHEMA_DIR)
     .filter(f => /^schema(-[a-z0-9-]+)?\.sql$/i.test(f))
     .sort();
+  return files.includes('schema.sql')
+    ? ['schema.sql', ...files.filter(f => f !== 'schema.sql')]
+    : files;
 }
 
 function sha256(text) {
@@ -49,7 +57,7 @@ function sha256(text) {
 async function ensureSchemaVersionsTable(sql) {
   // The first migration creates schema_versions itself; this guard
   // makes sure even an empty database can pre-check applied versions.
-  await sql(`
+  await sql.query(`
     CREATE TABLE IF NOT EXISTS schema_versions (
       filename   text PRIMARY KEY,
       applied_at timestamptz NOT NULL DEFAULT now(),
@@ -59,18 +67,44 @@ async function ensureSchemaVersionsTable(sql) {
 }
 
 async function alreadyApplied(sql, filename) {
-  // @neondatabase/serverless: the `sql` function itself accepts
-  // (text, params) — there is no `.query()` method.
-  const result = await sql('SELECT filename, sha256 FROM schema_versions WHERE filename = $1', [filename]);
+  // @neondatabase/serverless ≥1.0 only accepts the tagged-template form when
+  // `sql` is called directly; conventional (text, params) calls must go
+  // through `sql.query()`. Calling `sql(text, params)` throws at runtime.
+  const result = await sql.query('SELECT filename, sha256 FROM schema_versions WHERE filename = $1', [filename]);
   const rows = Array.isArray(result) ? result : (result && result.rows) || [];
   return rows.length > 0 ? rows[0] : null;
 }
 
 async function recordApplied(sql, filename, hash) {
-  await sql(
+  await sql.query(
     'INSERT INTO schema_versions (filename, sha256) VALUES ($1, $2) ON CONFLICT (filename) DO NOTHING',
     [filename, hash],
   );
+}
+
+// The Neon HTTP driver doesn't support multi-statement strings in a
+// single .query() call, so split a file into statements: on a `;` that
+// ends a line, but never inside a dollar-quoted body (`DO $$ … $$`,
+// function bodies) — those contain their own `;`-terminated lines.
+// Line comments are stripped first.
+function splitStatements(content) {
+  const statements = [];
+  let current = [];
+  let inDollar = false;
+  for (const line of content.split('\n')) {
+    if (line.trim().startsWith('--')) continue;
+    current.push(line);
+    // Each `$$` toggles in/out of a dollar-quoted body.
+    const dollars = (line.match(/\$\$/g) || []).length;
+    if (dollars % 2 === 1) inDollar = !inDollar;
+    if (!inDollar && /;\s*$/.test(line)) {
+      statements.push(current.join('\n').replace(/;\s*$/, '').trim());
+      current = [];
+    }
+  }
+  const tail = current.join('\n').trim();
+  if (tail) statements.push(tail);
+  return statements.filter(s => s.length > 0);
 }
 
 // Run a single migration file. Returns one of: 'applied' | 'skipped' | 'drift'.
@@ -91,22 +125,11 @@ async function applyMigration(sql, filename, opts = {}) {
     return { status: 'would-apply', filename };
   }
 
-  // The Neon HTTP driver doesn't support multi-statement strings in a
-  // single .query() call. Split on the `;` at end-of-statement (naive
-  // but works for our schema — no embedded semicolons in our SQL).
-  // Strip line comments first.
-  const cleaned = content
-    .split('\n')
-    .filter(line => !line.trim().startsWith('--'))
-    .join('\n');
-  const statements = cleaned
-    .split(/;\s*$/m)
-    .map(s => s.trim())
-    .filter(s => s.length > 0);
+  const statements = splitStatements(content);
 
   for (const stmt of statements) {
     try {
-      await sql(stmt);
+      await sql.query(stmt);
     } catch (err) {
       // Re-throw with context so the caller can see WHICH statement broke.
       const preview = stmt.replace(/\s+/g, ' ').slice(0, 120);
@@ -122,7 +145,13 @@ async function runMigrations(opts = {}) {
   if (!dbUrl()) {
     return { ok: false, error: 'DATABASE_URL not set' };
   }
-  const { neon } = require('@neondatabase/serverless');
+  const { neon, neonConfig } = require('@neondatabase/serverless');
+  // CI only: the Neon HTTP driver can't talk to plain Postgres, so the
+  // live-PG job runs Neon's local HTTP proxy and points us at it. Unset in
+  // every real environment.
+  if (process.env.NEON_LOCAL_FETCH_ENDPOINT) {
+    neonConfig.fetchEndpoint = process.env.NEON_LOCAL_FETCH_ENDPOINT;
+  }
   const sql = neon(dbUrl());
 
   await ensureSchemaVersionsTable(sql);
@@ -190,6 +219,7 @@ async function mainCli() {
 module.exports = {
   runMigrations,
   applyMigration,
+  splitStatements,
   findMigrationFiles,
   sha256,
   ensureSchemaVersionsTable,
