@@ -16,6 +16,8 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const ROOT = path.join(__dirname, '..');
+// Output root — tests redirect it so `npm test` never rewrites committed pages.
+const outRoot = () => process.env.ORCATRADE_GENERATE_OUT_DIR || ROOT;
 const SITE_URL = 'https://orcatrade.pl';
 const TODAY = new Date().toISOString().slice(0, 10);
 
@@ -522,15 +524,15 @@ function build() {
   for (const locale of ['en', 'pl', 'de']) {
     // Index
     const idx = generateIndexPage(locale);
-    fs.mkdirSync(path.dirname(path.join(ROOT, idx.relPath)), { recursive: true });
-    fs.writeFileSync(path.join(ROOT, idx.relPath), idx.html, 'utf8');
+    fs.mkdirSync(path.dirname(path.join(outRoot(), idx.relPath)), { recursive: true });
+    fs.writeFileSync(path.join(outRoot(), idx.relPath), idx.html, 'utf8');
     generated.push(idx);
 
     // Detail pages
     for (const measure of tradeDefence.MEASURES) {
       const page = generateDetailPage(measure, locale);
-      fs.mkdirSync(path.dirname(path.join(ROOT, page.relPath)), { recursive: true });
-      fs.writeFileSync(path.join(ROOT, page.relPath), page.html, 'utf8');
+      fs.mkdirSync(path.dirname(path.join(outRoot(), page.relPath)), { recursive: true });
+      fs.writeFileSync(path.join(outRoot(), page.relPath), page.html, 'utf8');
       generated.push(page);
     }
   }
