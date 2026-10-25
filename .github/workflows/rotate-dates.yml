@@ -23,7 +23,7 @@ jobs:
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           # Token with push rights — GITHUB_TOKEN ships with this scope
           # under `permissions.contents: write` above.
