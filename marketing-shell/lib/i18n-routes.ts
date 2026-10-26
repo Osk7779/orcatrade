@@ -1,8 +1,24 @@
 // Locale-aware href mapping. Mirrors js/site-nav.js so the marketing-shell
 // header's EN/PL/DE switcher lands on the right slug for the user's
 // current page, not just the locale homepage.
+//
+// Resolution order: (1) the generated hreflang map (translated guide
+// slugs — scripts/generate-locale-alternates.js), (2) SLUG_OVERRIDES,
+// (3) EN-only routes stay EN, (4) the locale homepage. We never guess a
+// `/pl/<en-path>` URL: guessed paths were 404ing for every guide.
+
+import ALTERNATES from './locale-alternates.json';
 
 export type Locale = 'EN' | 'PL' | 'DE';
+
+const ALT = ALTERNATES as Record<string, { pl?: string; de?: string }>;
+
+// Reverse index: localized path → EN canonical path.
+const TO_EN: Record<string, string> = {};
+for (const [en, alt] of Object.entries(ALT)) {
+  if (alt.pl) TO_EN[alt.pl] = en;
+  if (alt.de) TO_EN[alt.de] = en;
+}
 
 const SLUG_OVERRIDES: Record<Exclude<Locale, 'EN'>, Record<string, string>> = {
   PL: {
@@ -62,11 +78,19 @@ export function detectLocale(path: string): Locale {
   return 'EN';
 }
 
-// Strip /pl/ or /de/ prefix to recover the EN-canonical href.
+// Recover the EN-canonical href for a (possibly localized) path.
 export function toEnCanonical(path: string): string {
-  if (path.startsWith('/pl/')) return path.slice(3) || '/';
-  if (path.startsWith('/de/')) return path.slice(3) || '/';
-  return path || '/';
+  if (!path || path === '/pl' || path === '/de' || path === '/pl/' || path === '/de/') return '/';
+  const slashed = withTrailingSlash(path);
+  if (TO_EN[slashed]) return TO_EN[slashed];
+  for (const [locale, overrides] of Object.entries(SLUG_OVERRIDES)) {
+    void locale;
+    for (const [en, localized] of Object.entries(overrides)) {
+      if (localized === path || localized === slashed) return en;
+    }
+  }
+  if (path.startsWith('/pl/') || path.startsWith('/de/')) return path.slice(3) || '/';
+  return path;
 }
 
 // Normalize so /pricing and /pricing/ are treated identically — Next.js'
@@ -83,10 +107,13 @@ export function localizeHref(enHref: string, locale: Locale): string {
   if (isAppRoute(enHref)) return enHref;
   if (enHref === '/') return '/' + locale.toLowerCase() + '/';
   const enWithSlash = withTrailingSlash(enHref);
-  if (EN_ONLY.has(enWithSlash)) return enHref; // graceful: keep EN
+  const alt = ALT[enWithSlash]?.[locale === 'PL' ? 'pl' : 'de'];
+  if (alt) return alt;
   const overrides = SLUG_OVERRIDES[locale];
   if (overrides[enWithSlash]) return overrides[enWithSlash];
-  return '/' + locale.toLowerCase() + enWithSlash;
+  if (EN_ONLY.has(enWithSlash)) return enHref; // graceful: keep EN
+  // No known translation: land on the locale homepage, never a guessed URL.
+  return '/' + locale.toLowerCase() + '/';
 }
 
 // For the header lang switcher: given the user's current path, return

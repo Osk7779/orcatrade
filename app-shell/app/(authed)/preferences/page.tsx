@@ -37,7 +37,7 @@ export default function PreferencesPage() {
     }
   }
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading your preferences…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading your preferences…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -61,14 +61,14 @@ export default function PreferencesPage() {
             <div key={t.key} className="flex items-center justify-between gap-6 px-5 py-4">
               <div>
                 <div className="text-ivory">{t.label}</div>
-                <div className="text-white/55 text-sm mt-0.5">{t.desc}</div>
+                <div className="text-fg/55 text-sm mt-0.5">{t.desc}</div>
               </div>
               <button
                 role="switch"
                 aria-checked={on}
                 disabled={saving === t.key}
                 onClick={() => update({ [t.key]: !on } as Partial<Prefs>, t.key)}
-                className={`relative w-11 h-6 rounded-full shrink-0 transition-colors ${on ? 'bg-[var(--color-accent)]' : 'bg-white/15'} disabled:opacity-50`}
+                className={`relative w-11 h-6 rounded-full shrink-0 transition-colors ${on ? 'bg-[var(--color-accent)]' : 'bg-fg/15'} disabled:opacity-50`}
               >
                 <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-[var(--color-ink)] transition-all ${on ? 'left-[1.4rem]' : 'left-0.5'}`} />
               </button>
@@ -82,13 +82,13 @@ export default function PreferencesPage() {
         value={prefs.locale || 'en'}
         disabled={saving === 'locale'}
         onChange={(e) => update({ locale: e.target.value }, 'locale')}
-        className="bg-white/[0.04] border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm"
+        className="bg-fg/[0.04] border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm"
       >
         {LOCALES.map((l) => <option key={l.v} value={l.v}>{l.l}</option>)}
       </select>
-      <p className="text-white/40 text-xs mt-3">Sets the language of your transactional emails.</p>
+      <p className="text-fg/40 text-xs mt-3">Sets the language of your transactional emails.</p>
 
-      <p className="text-white/40 text-xs mt-10 pt-6 border-t border-[var(--color-line)]">
+      <p className="text-fg/40 text-xs mt-10 pt-6 border-t border-[var(--color-line)]">
         Manage your data (export or delete) on the <a className="underline" href="/account/privacy/">Privacy &amp; data</a> page.
       </p>
     </div>

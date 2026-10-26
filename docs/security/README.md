@@ -31,7 +31,7 @@ roadmap, see [`../backend-grade-plan.md`](../backend-grade-plan.md) Track 5.
 
 Every file in this folder is dated + signed by the owner. When something changes, we update the date and the file content — not by adding marketing-shine, but by removing claims that are no longer accurate or adding gaps we've discovered. The point of this folder is to be useful in a real procurement conversation. That requires being honest about what's not done yet.
 
-If you spot a claim in here that doesn't match how the platform actually behaves, that's a bug — email `orca@orcatrade.pl` with subject "security docs drift" and we'll fix it within 5 business days.
+If you spot a claim in here that doesn't match how the platform actually behaves, that's a bug — email `orcatrade@orcatradegroup.com` with subject "security docs drift" and we'll fix it within 5 business days.
 
 ---
 
@@ -50,4 +50,4 @@ If you spot a claim in here that doesn't match how the platform actually behaves
 - GDPR endpoints: `GET /api/account/export` (Art 20), `POST /api/account/delete` (Art 17)
 - Health probe: `GET /api/health`
 - Public privacy policy: [`/regulations/privacy.html`](https://orcatrade.pl/regulations/privacy.html)
-- Contact for security issues: [`orca@orcatrade.pl`](mailto:orca@orcatrade.pl) (subject prefix: "security:")
+- Contact for security issues: [`orcatrade@orcatradegroup.com`](mailto:orcatrade@orcatradegroup.com) (subject prefix: "security:")

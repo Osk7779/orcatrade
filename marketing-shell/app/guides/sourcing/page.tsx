@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { FadeUp } from '@/components/marketing/fade-up';
 
@@ -41,7 +41,7 @@ export default function SourcingHubPage() {
       <section className="bg-[var(--color-ink)] py-20 md:py-28">
         <div className="mx-auto max-w-[1280px] px-6">
           <FadeUp>
-            <div className="flex flex-col gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
+            <div className="flex flex-col gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
               {COMMODITIES.map((c) => (
                 <article
                   key={c.slug}
@@ -49,11 +49,10 @@ export default function SourcingHubPage() {
                 >
                   <h2
                     className="mb-5 font-serif text-[1.55rem] leading-[1.1] tracking-[-0.016em] text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                   >
                     {c.title}
                   </h2>
-                  <div className="grid grid-cols-2 gap-px bg-[var(--color-navy-line)] sm:grid-cols-3 md:grid-cols-5">
+                  <div className="grid grid-cols-2 gap-px bg-[var(--color-navy-line)] sm:grid-cols-3 md:grid-cols-5 overflow-hidden rounded-[22px]">
                     {ORIGINS.map((o) => (
                       <Link
                         key={o.code}

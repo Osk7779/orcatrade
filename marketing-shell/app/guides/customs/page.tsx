@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { FadeUp } from '@/components/marketing/fade-up';
 
@@ -64,7 +64,7 @@ export default function CustomsHubPage() {
       <section className="bg-[var(--color-ink)] py-20 md:py-28">
         <div className="mx-auto max-w-[1280px] px-6">
           <FadeUp>
-            <div className="flex flex-col gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
+            <div className="flex flex-col gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
               {COMMODITIES.map((commodity) => (
                 <article
                   key={commodity.slug}
@@ -73,7 +73,6 @@ export default function CustomsHubPage() {
                   <div className="flex flex-col gap-1">
                     <h2
                       className="font-serif text-[1.55rem] leading-[1.1] tracking-[-0.016em] text-[var(--color-ivory)]"
-                      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                     >
                       {commodity.title}
                     </h2>
@@ -81,7 +80,7 @@ export default function CustomsHubPage() {
                       {commodity.detail}
                     </span>
                   </div>
-                  <div className="grid grid-cols-2 gap-px bg-[var(--color-navy-line)] sm:grid-cols-3 lg:grid-cols-6">
+                  <div className="grid grid-cols-2 gap-px bg-[var(--color-navy-line)] sm:grid-cols-3 lg:grid-cols-6 overflow-hidden rounded-[22px]">
                     {DESTINATIONS.map((dest) => (
                       <Link
                         key={dest.code}

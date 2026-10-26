@@ -11,7 +11,7 @@ export function CookiePreferencesLink() {
       onClick={() =>
         window.dispatchEvent(new CustomEvent('orcatrade:open-cookie-banner'))
       }
-      className="font-serif italic text-[var(--color-ivory-mute)] transition-colors duration-300 hover:text-[var(--color-ivory)]"
+      className="text-[var(--color-ivory-mute)] hover:text-[var(--color-ivory)] hover:underline"
     >
       Cookie preferences
     </button>

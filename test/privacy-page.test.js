@@ -52,7 +52,7 @@ test('privacy page cites Articles 17 and 20', () => {
 });
 
 test('privacy page has an incident contact link', () => {
-  assert.match(html, /orca@orcatrade\.pl/);
+  assert.match(html, /orcatrade@orcatradegroup\.com/);
 });
 
 test('/account/ links to /account/privacy/ in the signed-in quick links', () => {

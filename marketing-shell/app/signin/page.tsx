@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { Aurora } from '@/components/marketing/aurora';
 
@@ -86,7 +86,7 @@ export default function SignInPage() {
                 <button
                   type="submit"
                   disabled={state === 'sending' || !email.trim()}
-                  className="group inline-flex items-center justify-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+                  className="group inline-flex items-center justify-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40 rounded-full"
                 >
                   {state === 'sending' ? 'Sending the link…' : 'Send me a sign-in link'}
                   {state !== 'sending' && (
@@ -148,16 +148,12 @@ function SentNotice({ email, onReset }: { email: string; onReset: () => void }) 
   return (
     <div className="border border-[var(--color-navy-line)] bg-[var(--color-ink)] p-8 text-center md:p-10">
       <div className="flex items-center justify-center gap-3">
-        <span aria-hidden className="font-serif text-[14px] text-[var(--color-ivory-dim)]/65">
-          ❦
-        </span>
         <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
           Link on its way
         </span>
       </div>
       <h2
         className="mx-auto mt-6 max-w-[24ch] font-serif text-[clamp(1.8rem,3vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-        style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
       >
         Check your inbox.
       </h2>
@@ -170,7 +166,7 @@ function SentNotice({ email, onReset }: { email: string; onReset: () => void }) 
         <button
           type="button"
           onClick={onReset}
-          className="inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-5 py-2.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
+          className="inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-5 py-2.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] rounded-full"
         >
           Use a different email
         </button>

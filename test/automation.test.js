@@ -133,14 +133,16 @@ test('cron: constant-time token compare rejects length mismatch', async () => {
 
 // ── Job: founder digest ──────────────────────────────
 
-test('founder-digest: returns ok:false when ORCATRADE_FOUNDER_INBOXES unset', async () => {
+test('founder-digest: falls back to the team inbox when ORCATRADE_FOUNDER_INBOXES unset', async () => {
   kv._resetMemoryStore();
   const saved = process.env.ORCATRADE_FOUNDER_INBOXES;
+  const savedKey = process.env.RESEND_API_KEY;
   delete process.env.ORCATRADE_FOUNDER_INBOXES;
+  delete process.env.RESEND_API_KEY; // force soft-fail on send
   const r = await cronHandler.runFounderDigest();
-  assert.equal(r.ok, false);
-  assert.match(r.reason, /ORCATRADE_FOUNDER_INBOXES/);
+  assert.equal(r.recipients, 1);
   if (saved !== undefined) process.env.ORCATRADE_FOUNDER_INBOXES = saved;
+  if (savedKey !== undefined) process.env.RESEND_API_KEY = savedKey;
 });
 
 test('founder-digest: aggregates events from the last N days', async () => {

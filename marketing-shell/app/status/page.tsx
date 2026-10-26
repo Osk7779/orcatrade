@@ -40,16 +40,12 @@ export default function StatusPage() {
         <div className="mx-auto max-w-[860px] px-6">
           <FadeUp>
             <div className="flex items-center gap-3">
-              <span aria-hidden className="font-serif text-[13px] text-[var(--color-ivory-dim)]/55">
-                ❦
-              </span>
               <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
                 Last 90 days
               </span>
             </div>
             <h2
               className="mt-5 font-serif text-[clamp(1.6rem,2.4vw+0.4rem,2.2rem)] leading-[1.15] tracking-[-0.02em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               No incidents recorded.
             </h2>
@@ -75,16 +71,12 @@ export default function StatusPage() {
         <div className="mx-auto max-w-[860px] px-6">
           <FadeUp>
             <div className="flex items-center gap-3">
-              <span aria-hidden className="font-serif text-[13px] text-[var(--color-ivory-dim)]/55">
-                ❦
-              </span>
               <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
                 Public receipt
               </span>
             </div>
             <h2
               className="mt-5 font-serif text-[clamp(1.6rem,2.4vw+0.4rem,2.2rem)] leading-[1.15] tracking-[-0.02em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               Cross-visitor proof of continuous operation.
             </h2>

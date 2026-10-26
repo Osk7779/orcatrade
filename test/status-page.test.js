@@ -48,5 +48,5 @@ test('status page auto-refreshes (otherwise it is just a snapshot)', () => {
 });
 
 test('status page has a visible contact link for incidents', () => {
-  assert.match(html, /orca@orcatrade\.pl/);
+  assert.match(html, /orcatrade@orcatradegroup\.com/);
 });

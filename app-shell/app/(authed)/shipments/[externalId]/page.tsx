@@ -74,7 +74,7 @@ export default function ShipmentDetailPage({ params }: { params: Promise<{ exter
     return () => { cancelled = true; };
   }, [externalId]);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading shipment…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading shipment…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -86,9 +86,9 @@ export default function ShipmentDetailPage({ params }: { params: Promise<{ exter
   if (state === 'notFound') {
     return (
       <div className="max-w-xl">
-        <Link href="/shipments" className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/45 hover:text-white">← All shipments</Link>
+        <Link href="/shipments" className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/45 hover:text-fg">← All shipments</Link>
         <h1 className="text-4xl mt-3 mb-1">Not found</h1>
-        <p className="font-mono text-xs text-white/45">This shipment doesn't exist in your organisation, or it has been archived.</p>
+        <p className="font-mono text-xs text-fg/45">This shipment doesn't exist in your organisation, or it has been archived.</p>
       </div>
     );
   }
@@ -119,13 +119,13 @@ function Header({ shipment }: { shipment: Shipment }) {
   const d = shipment.destinationCountry || '?';
   return (
     <header className="mb-8">
-      <Link href="/shipments" className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/45 hover:text-white">
+      <Link href="/shipments" className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/45 hover:text-fg">
         ← All shipments
       </Link>
       <div className="mt-4 flex items-start justify-between gap-6">
         <div>
-          <h1 className="text-4xl text-white">{shipment.label}</h1>
-          <p className="font-mono text-[12px] text-white/55 mt-2">
+          <h1 className="text-4xl text-fg">{shipment.label}</h1>
+          <p className="font-mono text-[12px] text-fg/55 mt-2">
             {o} → {d} · {shipment.externalId}
           </p>
         </div>
@@ -159,8 +159,8 @@ function FactsGrid({ shipment }: { shipment: Shipment }) {
     <section className="mb-10 grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border border-[var(--color-navy-line)]">
       {facts.map((f) => (
         <div key={f.label} className="bg-[var(--color-ink)] px-4 py-4">
-          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{f.label}</div>
-          <div className="font-mono text-[13px] text-white mt-1.5">{f.value}</div>
+          <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">{f.label}</div>
+          <div className="font-mono text-[13px] text-fg mt-1.5">{f.value}</div>
         </div>
       ))}
     </section>
@@ -199,8 +199,8 @@ function TransitionControls({
     return (
       <section className="mb-10 border border-[var(--color-navy-line)] p-6">
         <h2 className="font-serif text-xl mb-1">State machine</h2>
-        <p className="font-mono text-xs text-white/45">
-          Status <span className="text-white">{statusLabel(shipment.status)}</span> is terminal. No further transitions available.
+        <p className="font-mono text-xs text-fg/45">
+          Status <span className="text-fg">{statusLabel(shipment.status)}</span> is terminal. No further transitions available.
         </p>
       </section>
     );
@@ -210,7 +210,7 @@ function TransitionControls({
     <section className="mb-10 border border-[var(--color-navy-line)]">
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
         <h2 className="font-serif text-xl">State machine</h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/55">
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/55">
           Current: {statusLabel(shipment.status)}
         </span>
       </div>
@@ -277,12 +277,12 @@ function DocumentVaultPanel({ shipment }: { shipment: Shipment }) {
     <section className="mb-10 border border-[var(--color-navy-line)]">
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
         <h2 className="font-serif text-xl">Document vault</h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/55">
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/55">
           {docs.length} attached
         </span>
       </div>
       {docs.length === 0 ? (
-        <p className="px-6 py-5 font-mono text-xs text-white/45">
+        <p className="px-6 py-5 font-mono text-xs text-fg/45">
           No documents attached yet. Document upload + filing ships with L1.4.
         </p>
       ) : (
@@ -290,13 +290,13 @@ function DocumentVaultPanel({ shipment }: { shipment: Shipment }) {
           {docs.map((d, i) => (
             <li key={d.externalId || `${d.docType}-${i}`} className="px-6 py-3 border-t border-[var(--color-navy-line)] flex items-center justify-between gap-4">
               <div>
-                <div className="font-serif text-[14px] text-white">{d.name || d.docType || 'Untitled document'}</div>
-                <div className="font-mono text-[11px] text-white/45 mt-1">
+                <div className="font-serif text-[14px] text-fg">{d.name || d.docType || 'Untitled document'}</div>
+                <div className="font-mono text-[11px] text-fg/45 mt-1">
                   {d.docType || '—'} · attached {fmtDateTime(d.attachedAt)}
                 </div>
               </div>
               {d.url && (
-                <a href={d.url} target="_blank" rel="noreferrer" className="font-mono text-[11px] uppercase tracking-[0.1em] text-white/60 hover:text-white">
+                <a href={d.url} target="_blank" rel="noreferrer" className="font-mono text-[11px] uppercase tracking-[0.1em] text-fg/60 hover:text-fg">
                   Open →
                 </a>
               )}
@@ -316,7 +316,7 @@ function SnapshotsPanel({ shipment }: { shipment: Shipment }) {
     <section className="mb-10 border border-[var(--color-navy-line)]">
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)]">
         <h2 className="font-serif text-xl">Reproducibility snapshots</h2>
-        <p className="font-mono text-[11px] text-white/45 mt-1">
+        <p className="font-mono text-[11px] text-fg/45 mt-1">
           The frozen inputs + quote behind this shipment. Used for audit + recompute.
         </p>
       </div>
@@ -332,10 +332,10 @@ function SnapshotBlock({ label, value }: { label: string; value: Record<string, 
   const json = useMemo(() => JSON.stringify(value, null, 2), [value]);
   return (
     <details className="border border-[var(--color-navy-line)]">
-      <summary className="cursor-pointer px-4 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-white/65 hover:text-white">
+      <summary className="cursor-pointer px-4 py-3 font-mono text-[11px] uppercase tracking-[0.12em] text-fg/65 hover:text-fg">
         {label}
       </summary>
-      <pre className="px-4 py-3 font-mono text-[11px] text-white/70 overflow-x-auto whitespace-pre">{json}</pre>
+      <pre className="px-4 py-3 font-mono text-[11px] text-fg/70 overflow-x-auto whitespace-pre">{json}</pre>
     </details>
   );
 }
@@ -343,8 +343,8 @@ function SnapshotBlock({ label, value }: { label: string; value: Record<string, 
 function Field({ label, value, mono, fullWidth }: { label: string; value: string; mono?: boolean; fullWidth?: boolean }) {
   return (
     <div className={fullWidth ? 'md:col-span-2' : ''}>
-      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/45">{label}</div>
-      <div className={`mt-1 ${mono ? 'font-mono text-[12px]' : 'text-[14px]'} text-white`}>{value}</div>
+      <div className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/45">{label}</div>
+      <div className={`mt-1 ${mono ? 'font-mono text-[12px]' : 'text-[14px]'} text-fg`}>{value}</div>
     </div>
   );
 }

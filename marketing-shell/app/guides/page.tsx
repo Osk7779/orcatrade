@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { Aurora } from '@/components/marketing/aurora';
 import { AmbientParticles } from '@/components/marketing/ambient-particles';
 import { ChapterRule } from '@/components/marketing/chapter-rule';
@@ -109,7 +109,6 @@ export default function GuidesHubPage() {
           </div>
           <h1
             className="mt-7 max-w-[26ch] font-serif text-[clamp(2.4rem,4.2vw+0.4rem,4.2rem)] leading-[1.04] tracking-[-0.024em] text-[var(--color-ivory)]"
-            style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
           >
             Calculator-grounded guides{' '}
             <SparklesText count={5}>for Asia–Europe trade.</SparklesText>
@@ -121,9 +120,6 @@ export default function GuidesHubPage() {
           </p>
           <div className="mt-8 flex items-center gap-3.5">
             <span className="h-px w-8 bg-[var(--color-ivory-mute)]/40" />
-            <span aria-hidden className="font-serif text-[14px] text-[var(--color-ivory-dim)]/60">
-              ❦
-            </span>
             <span className="font-serif text-[14px] italic text-[var(--color-ivory-mute)]">
               No paywall · no email gate · no behavioural tracking
             </span>
@@ -133,12 +129,11 @@ export default function GuidesHubPage() {
 
       {/* ── LIVE STATS STRIP ─────────────────────────── */}
       <section className="border-y border-[var(--color-navy-line)] bg-[var(--color-ink)] py-10">
-        <div className="mx-auto max-w-[1280px] grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border-x border-[var(--color-navy-line)]">
+        <div className="mx-auto max-w-[1280px] grid grid-cols-2 md:grid-cols-4 gap-px bg-[var(--color-navy-line)] border-x border-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
           {STATS.map((s) => (
             <div key={s.label} className="bg-[var(--color-ink)] px-6 py-7 text-center">
               <div
                 className="font-serif text-[clamp(2rem,3vw+0.4rem,2.6rem)] leading-none tracking-[-0.022em] text-[var(--color-ivory)]"
-                style={{ fontVariationSettings: "'SOFT' 30, 'opsz' 144", fontWeight: 600 }}
               >
                 <NumberTicker value={s.value} />
               </div>
@@ -173,7 +168,7 @@ export default function GuidesHubPage() {
       <section className="bg-[var(--color-ink)] py-14 md:py-20">
         <div className="mx-auto max-w-[1280px] px-6">
           <FadeUp>
-            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 lg:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+            <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 lg:grid-cols-3 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
               {HUBS.map((h) => (
                 <HubCard key={h.href} {...h} />
               ))}
@@ -211,7 +206,6 @@ export default function GuidesHubPage() {
                     </div>
                     <h3
                       className="mt-4 font-serif text-[1.2rem] leading-[1.2] tracking-[-0.014em] text-[var(--color-ivory)]"
-                      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                     >
                       {g.title}
                     </h3>
@@ -236,7 +230,6 @@ export default function GuidesHubPage() {
             </span>
             <h2
               className="mx-auto mt-6 max-w-[22ch] font-serif text-[clamp(1.8rem,2.8vw+0.4rem,2.6rem)] leading-[1.15] tracking-[-0.022em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               Open the wizard. Compose your plan.
             </h2>
@@ -247,14 +240,14 @@ export default function GuidesHubPage() {
             <div className="mt-10 flex flex-wrap justify-center gap-3">
               <Link
                 href="/start"
-                className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] hover:bg-white transition-colors duration-300"
+                className="group inline-flex items-center gap-2 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] hover:opacity-85 transition-colors duration-300 rounded-full"
               >
                 Build my import plan
                 <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
               </Link>
               <Link
                 href="/intelligence"
-                className="inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] transition-all duration-300"
+                className="inline-flex items-center gap-2 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] transition-all duration-300 rounded-full"
               >
                 Open Intelligence
               </Link>

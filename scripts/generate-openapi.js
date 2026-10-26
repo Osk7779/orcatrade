@@ -141,7 +141,7 @@ function buildOpenApiDoc() {
       contact: {
         name: 'OrcaTrade',
         url: 'https://orcatrade.pl',
-        email: 'security@orcatrade.pl',
+        email: 'orcatrade@orcatradegroup.com',
       },
       license: {
         name: 'Proprietary',
