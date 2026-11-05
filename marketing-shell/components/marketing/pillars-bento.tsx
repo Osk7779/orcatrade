@@ -1,30 +1,61 @@
-import { BentoGrid, BentoCard } from './bento-grid';
+import Link from '@/components/marketing/smart-link';
 import { FadeUp } from './fade-up';
 import { EN_COPY, type HomepageCopy } from '@/lib/i18n/homepage-copy';
 
-// Five stages of an import — matches the live OrcaTrade.pl framing
-// (Find it · Source it · Verify it · Ship it · Finance it). Verify it
-// (Intelligence) is the flagship; it spans 2 cells and carries the
-// border beam. Bento layout below — flagship sits top-left.
+// The five domains as Apple-style tiles. Intelligence (compliance) is the
+// flagship and spans the full width on top; the other four sit beneath.
+type Pillar = { kicker: string; title: string; description: string; cta: string };
 
-const FlagshipVisual = () => (
-  <div className="absolute inset-0">
-    <div className="absolute right-[-10%] top-[-20%] size-[60%] rounded-full bg-[radial-gradient(circle,rgba(22,44,90,0.55),transparent_70%)] blur-2xl" />
-    <div className="absolute bottom-[10%] left-[-10%] size-[50%] rounded-full bg-[radial-gradient(circle,rgba(34,60,108,0.4),transparent_70%)] blur-3xl" />
-  </div>
-);
-
-const GridVisual = () => (
-  <div
-    className="absolute inset-0 opacity-60"
-    style={{
-      backgroundImage:
-        'linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)',
-      backgroundSize: '24px 24px',
-      maskImage: 'radial-gradient(ellipse at center, black 30%, transparent 75%)',
-    }}
-  />
-);
+function Tile({
+  pillar,
+  href,
+  status,
+  flagship = false,
+}: {
+  pillar: Pillar;
+  href: string;
+  status: 'live' | 'beta';
+  flagship?: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      className={`tile group flex flex-col justify-between gap-8 p-8 transition-transform duration-300 hover:scale-[1.01] md:p-10 ${
+        flagship ? 'md:col-span-2 md:min-h-[320px] bg-[var(--color-ivory)]! text-white' : 'min-h-[260px]'
+      }`}
+    >
+      <div>
+        <div
+          className={`flex items-center gap-2 text-[12px] ${flagship ? 'text-white/60' : 'text-[var(--color-ivory-mute)]'}`}
+        >
+          <span>{pillar.kicker}</span>
+          {status === 'beta' && (
+            <span className="rounded-full border border-current px-2 py-px text-[11px]">Beta</span>
+          )}
+        </div>
+        <h3
+          className={`mt-3 text-[clamp(1.6rem,2.6vw,2.4rem)] leading-[1.1] tracking-[-0.03em] ${
+            flagship ? 'text-white' : 'text-[var(--color-ivory)]'
+          }`}
+        >
+          {pillar.title}
+        </h3>
+        <p
+          className={`mt-4 max-w-[52ch] text-[16px] leading-[1.5] ${
+            flagship ? 'text-white/75' : 'text-[var(--color-ivory-dim)]'
+          }`}
+        >
+          {pillar.description}
+        </p>
+      </div>
+      <span
+        className={`text-[15px] group-hover:underline ${flagship ? 'text-[#2997ff]' : 'text-[var(--color-link)]'}`}
+      >
+        {pillar.cta} ›
+      </span>
+    </Link>
+  );
+}
 
 export function PillarsBento({
   copy = EN_COPY.pillarsSection,
@@ -32,64 +63,18 @@ export function PillarsBento({
   copy?: HomepageCopy['pillarsSection'];
 }) {
   return (
-    <section
-      id="pillars"
-      className="border-b border-[var(--color-navy-line)] bg-[var(--color-ink)] py-20 md:py-32"
-    >
-      <div className="mx-auto max-w-[1280px] px-6">
-        <FadeUp className="mx-auto mb-16 max-w-[760px] text-center">
-          <h2
-            className="font-serif text-[clamp(2.2rem,3.8vw+0.4rem,3.4rem)] leading-[1.08] tracking-[-0.022em] text-[var(--color-ivory)]"
-            style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
-          >
-            {copy.title}
-          </h2>
+    <section id="pillars" className="bg-[var(--color-ink)] py-20 md:py-24">
+      <div className="mx-auto max-w-[1080px] px-6">
+        <FadeUp className="mb-12 text-center">
+          <h2 className="mx-auto max-w-[22ch] text-[clamp(2rem,4vw,3rem)] leading-[1.1]">{copy.title}</h2>
         </FadeUp>
-
-        <BentoGrid className="border border-[var(--color-navy-line)]">
-          <BentoCard
-            span={2}
-            flagship
-            kicker={copy.intelligence.kicker}
-            status="live"
-            title={copy.intelligence.title}
-            description={copy.intelligence.description}
-            cta={{ label: copy.intelligence.cta, href: '/intelligence' }}
-            visual={<FlagshipVisual />}
-          />
-          <BentoCard
-            kicker={copy.search.kicker}
-            status="live"
-            title={copy.search.title}
-            description={copy.search.description}
-            cta={{ label: copy.search.cta, href: '/search' }}
-            visual={<GridVisual />}
-          />
-          <BentoCard
-            kicker={copy.sourcing.kicker}
-            status="live"
-            title={copy.sourcing.title}
-            description={copy.sourcing.description}
-            cta={{ label: copy.sourcing.cta, href: '/sourcing' }}
-            visual={<GridVisual />}
-          />
-          <BentoCard
-            kicker={copy.logistics.kicker}
-            status="live"
-            title={copy.logistics.title}
-            description={copy.logistics.description}
-            cta={{ label: copy.logistics.cta, href: '/logistics' }}
-            visual={<GridVisual />}
-          />
-          <BentoCard
-            kicker={copy.finance.kicker}
-            status="beta"
-            title={copy.finance.title}
-            description={copy.finance.description}
-            cta={{ label: copy.finance.cta, href: '/finance' }}
-            visual={<GridVisual />}
-          />
-        </BentoGrid>
+        <div className="grid grid-cols-1 gap-5 md:grid-cols-2">
+          <Tile pillar={copy.intelligence} href="/intelligence/" status="live" flagship />
+          <Tile pillar={copy.search} href="/search/" status="live" />
+          <Tile pillar={copy.sourcing} href="/sourcing/" status="live" />
+          <Tile pillar={copy.logistics} href="/logistics/" status="live" />
+          <Tile pillar={copy.finance} href="/finance/" status="beta" />
+        </div>
       </div>
     </section>
   );

@@ -19,7 +19,7 @@ export default function OperationsPage() {
       .catch((e) => setState(e instanceof AuthError ? 'auth' : 'error'));
   }, []);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading operations…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading operations…</p>;
   if (state === 'auth') return (
     <div className="max-w-md"><h1 className="text-3xl mb-3">Sign in to see your operations</h1>
       <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a></div>
@@ -47,7 +47,7 @@ export default function OperationsPage() {
   return (
     <div className="max-w-3xl">
       <h1 className="text-4xl mb-1">Operations</h1>
-      <p className="font-mono text-xs text-white/45 mb-8">
+      <p className="font-mono text-xs text-fg/45 mb-8">
         Live exposure across your saved plans, recomputed against today’s tariff, freight &amp; FX.
       </p>
 
@@ -59,14 +59,14 @@ export default function OperationsPage() {
           ['Savings captured', eur(captured)],
         ].map(([k, v]) => (
           <div key={k} className="bg-[var(--color-ink)] px-4 py-4">
-            <div className="text-[0.65rem] uppercase tracking-wider text-white/45 mb-1">{k}</div>
+            <div className="text-[0.65rem] uppercase tracking-wider text-fg/45 mb-1">{k}</div>
             <div className="font-serif text-2xl text-ivory">{v}</div>
           </div>
         ))}
       </div>
 
       {withCost.length === 0 ? (
-        <p className="text-white/55 text-sm">No saved plans yet. Build one in the <a className="underline" href="/start/">Import Plan Builder</a>.</p>
+        <p className="text-fg/55 text-sm">No saved plans yet. Build one in the <a className="underline" href="/start/">Import Plan Builder</a>.</p>
       ) : (
         <>
           <h2 className="text-xl mb-3">Exposure by plan</h2>
@@ -79,30 +79,30 @@ export default function OperationsPage() {
                 return (
                   <Link key={p.id} href={`/plans/${p.id}`} className="block group">
                     <div className="flex justify-between text-xs mb-1">
-                      <span className="text-white/70 group-hover:text-white">{label(p)}</span>
-                      <span className="font-mono text-white/85">{eur(v)}</span>
+                      <span className="text-fg/70 group-hover:text-fg">{label(p)}</span>
+                      <span className="font-mono text-fg/85">{eur(v)}</span>
                     </div>
-                    <div className="h-2 bg-white/[0.04]">
+                    <div className="h-2 bg-fg/[0.04]">
                       <div className="h-full" style={{ width: `${Math.max(3, (v / maxLanded) * 100)}%`, background: barColor(p) }} />
                     </div>
                   </Link>
                 );
               })}
           </div>
-          <p className="text-white/35 text-[0.7rem] mb-9">Bars are coloured by drift since you saved: red = cost up, green = down, neutral = stable.</p>
+          <p className="text-fg/35 text-[0.7rem] mb-9">Bars are coloured by drift since you saved: red = cost up, green = down, neutral = stable.</p>
         </>
       )}
 
       <h2 className="text-xl mb-3">Drift ledger</h2>
       {drifted.length === 0 ? (
-        <p className="text-white/55 text-sm">No material moves since you saved these plans.</p>
+        <p className="text-fg/55 text-sm">No material moves since you saved these plans.</p>
       ) : (
         <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)]">
           {drifted.map((p) => {
             const up = (p.delta!.landedDeltaPct || 0) >= 0;
             return (
-              <Link key={p.id} href={`/plans/${p.id}`} className="flex justify-between gap-3 px-5 py-3 text-sm hover:bg-white/[0.02]">
-                <span className="text-white/75">{label(p)}{p.delta!.primaryDriver ? <span className="text-white/40"> · {p.delta!.primaryDriver}</span> : null}</span>
+              <Link key={p.id} href={`/plans/${p.id}`} className="flex justify-between gap-3 px-5 py-3 text-sm hover:bg-fg/[0.02]">
+                <span className="text-fg/75">{label(p)}{p.delta!.primaryDriver ? <span className="text-fg/40"> · {p.delta!.primaryDriver}</span> : null}</span>
                 <span className={`font-mono ${up ? 'text-red-300' : 'text-emerald-300'}`}>
                   {up ? '▲' : '▼'} {eur(Math.abs(p.delta!.landedDeltaEur || 0))} ({Math.abs(p.delta!.landedDeltaPct || 0)}%)
                 </span>

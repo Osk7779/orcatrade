@@ -32,11 +32,11 @@ export function AnimatedBeam({
   reverse = false,
   duration = 5,
   delay = 0,
-  pathColor = 'rgba(255,255,255,0.10)',
+  pathColor = 'rgba(0,0,0,0.10)',
   pathOpacity = 1,
   pathWidth = 1.5,
-  gradientStartColor = 'rgba(250,250,247,0)',
-  gradientStopColor = 'rgba(250,250,247,0.95)',
+  gradientStartColor = 'rgba(0,113,227,0)',
+  gradientStopColor = 'rgba(0,113,227,0.9)',
 }: AnimatedBeamProps) {
   const id = useId();
   const [pathD, setPathD] = useState('');

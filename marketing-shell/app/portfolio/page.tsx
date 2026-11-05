@@ -16,7 +16,7 @@ export default function PortfolioPage() {
         lead: "Real importers run a basket — half a dozen to a hundred SKUs from two or three origins through one or two lanes. Pricing them individually misses the lane-consolidation saving, the blended duty rate that determines tier pricing, and the FX exposure that compounds across the basket. The portfolio planner takes per-SKU inputs and returns a single quote that reflects the basket, not the line item.",
         meta: 'Multi-SKU · blended duty · lane consolidation · single FX exposure',
         ctas: [
-          { label: 'Build a portfolio', href: '/app/portfolio' },
+          { label: 'Build a portfolio', href: '/app/portfolios' },
           { label: 'How reproducibility works', href: '/trust#reproducibility', variant: 'ghost' },
         ],
       }}
@@ -33,7 +33,7 @@ export default function PortfolioPage() {
         label: 'Run a portfolio quote',
         title: 'The portfolio total beats the sum of per-SKU totals.',
         body: 'Once you have three or more SKUs in scope, the consolidation and blended math start mattering. The planner takes the inputs once.',
-        ctas: [{ label: 'Open the planner', href: '/app/portfolio' }],
+        ctas: [{ label: 'Open the planner', href: '/app/portfolios' }],
       }}
     />
   );

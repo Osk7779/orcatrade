@@ -32,13 +32,11 @@ export function LongForm({
               <div className="flex items-baseline gap-4 border-b border-[var(--color-navy-line)] pb-4">
                 <span
                   className="font-serif text-[12.5px] italic text-[var(--color-ivory)]"
-                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
                 >
-                  § {s.numeral}
+                  {s.numeral}
                 </span>
                 <h2
                   className="font-serif text-[clamp(1.5rem,2vw+0.4rem,2rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                 >
                   {s.title}
                 </h2>

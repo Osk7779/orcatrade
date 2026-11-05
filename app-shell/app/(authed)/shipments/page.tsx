@@ -76,7 +76,7 @@ type LoadState = 'loading' | 'auth' | 'error' | 'ready';
 // existing 'loading' state to avoid a UI flash during hydration.
 export default function ShipmentsPage() {
   return (
-    <Suspense fallback={<p className="text-white/50 text-sm">Loading shipments…</p>}>
+    <Suspense fallback={<p className="text-fg/50 text-sm">Loading shipments…</p>}>
       <ShipmentsView />
     </Suspense>
   );
@@ -114,7 +114,7 @@ function ShipmentsView() {
     return () => { cancelled = true; };
   }, []);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading shipments…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading shipments…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -133,7 +133,7 @@ function ShipmentsView() {
   return (
     <div className="max-w-5xl">
       <h1 className="text-4xl mb-1">Shipments</h1>
-      <p className="font-mono text-xs text-white/45 mb-8">Operational system of record</p>
+      <p className="font-mono text-xs text-fg/45 mb-8">Operational system of record</p>
       <ExceptionQueueCard items={queue} onAcknowledged={(updated) => {
         setQueue((prev) => prev.map((q) => (q.externalId === updated.externalId ? { ...q, ...updated } : q)));
       }} />
@@ -174,7 +174,7 @@ function ExceptionQueueCard({
     return (
       <section className="mb-10 border border-[var(--color-navy-line)] p-6">
         <h2 className="font-serif text-xl mb-1">Exception queue</h2>
-        <p className="font-mono text-xs text-white/45">No open exceptions. Clean operational state.</p>
+        <p className="font-mono text-xs text-fg/45">No open exceptions. Clean operational state.</p>
       </section>
     );
   }
@@ -183,7 +183,7 @@ function ExceptionQueueCard({
     <section className="mb-10 border border-[var(--color-navy-line)]">
       <div className="px-6 py-4 border-b border-[var(--color-navy-line)] flex items-center justify-between">
         <h2 className="font-serif text-xl">Exception queue</h2>
-        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+        <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/60">
           {openCount} open · {breachedCount} SLA breach
         </span>
       </div>
@@ -193,7 +193,7 @@ function ExceptionQueueCard({
         ))}
       </ul>
       {items.length > 10 && (
-        <div className="px-6 py-3 text-[12px] text-white/45 border-t border-[var(--color-navy-line)]">
+        <div className="px-6 py-3 text-[12px] text-fg/45 border-t border-[var(--color-navy-line)]">
           Showing top 10 of {items.length} open exceptions.
         </div>
       )}
@@ -263,15 +263,15 @@ function ExceptionRow({
     <li className="px-6 py-4 border-b border-[var(--color-navy-line)] last:border-b-0">
       <div className="grid gap-3 md:grid-cols-[1fr_auto_auto] items-center">
         <div>
-          <div className="font-serif text-[15px] text-white">{item.label}</div>
-          <div className="font-mono text-[11px] text-white/50 mt-1">
+          <div className="font-serif text-[15px] text-fg">{item.label}</div>
+          <div className="font-mono text-[11px] text-fg/50 mt-1">
             {formatRoute(item)} · age {ageLabel(item._queue.ageHours)}
             {item._queue.slaBreached && (
               <span className="ml-2 text-[var(--color-critical)]">· SLA breach</span>
             )}
           </div>
         </div>
-        <div className="text-right font-mono text-[11px] text-white/60">
+        <div className="text-right font-mono text-[11px] text-fg/60">
           {acknowledged ? 'Acknowledged' : 'Open'}
         </div>
         <button
@@ -299,10 +299,10 @@ function ExceptionRow({
               placeholder="Add a note (optional) — e.g. 'broker waiting on VAT recovery'"
               maxLength={NOTE_LIMIT + 50}
               disabled={busy}
-              className="w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-white placeholder:text-white/30 focus:outline-none focus:border-white/45 disabled:opacity-50"
+              className="w-full bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-3 py-1.5 font-mono text-[12px] text-fg placeholder:text-fg/30 focus:outline-none focus:border-fg/45 disabled:opacity-50"
             />
           </label>
-          <div className="font-mono text-[10px] text-right md:text-left text-white/40 pt-1.5 min-w-[64px]">
+          <div className="font-mono text-[10px] text-right md:text-left text-fg/40 pt-1.5 min-w-[64px]">
             {overLimit ? (
               <span style={{ color: 'var(--color-critical)' }}>
                 {note.length}/{NOTE_LIMIT}
@@ -498,7 +498,7 @@ function ShipmentList({
     return (
       <section className="border border-[var(--color-navy-line)] p-6">
         <h2 className="font-serif text-xl mb-1">All shipments</h2>
-        <p className="font-mono text-xs text-white/45 mt-2">
+        <p className="font-mono text-xs text-fg/45 mt-2">
           No shipments yet. Promote a saved plan into a shipment from{' '}
           <Link href="/plans" className="underline">Plans</Link>{' '}
           to start the operational record.
@@ -513,14 +513,14 @@ function ShipmentList({
         <h2 className="font-serif text-xl">All shipments</h2>
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2">
-            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+            <span className="font-mono text-[10px] uppercase tracking-[0.12em] text-fg/50">
               Filter
             </span>
             <select
               value={activeFilter || ''}
               onChange={(e) => setFilter(e.target.value)}
               aria-label="Filter shipments by status"
-              className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-white focus:outline-none focus:border-white/55"
+              className="bg-[var(--color-ink)] border border-[var(--color-navy-line)] px-2 py-1 font-mono text-[11px] uppercase tracking-[0.1em] text-fg focus:outline-none focus:border-fg/55"
             >
               <option value="">All statuses ({shipments.length})</option>
               {SHIPMENT_STATUSES.map((s) => (
@@ -530,7 +530,7 @@ function ShipmentList({
               ))}
             </select>
           </label>
-          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-white/60">
+          <span className="font-mono text-[11px] uppercase tracking-[0.12em] text-fg/60">
             {activeFilter
               ? `${visibleShipments.length} of ${shipments.length}`
               : `${shipments.length} total`}
@@ -552,12 +552,12 @@ function ShipmentList({
       )}
 
       {visibleShipments.length === 0 ? (
-        <p className="px-6 py-8 font-mono text-xs text-white/45">
+        <p className="px-6 py-8 font-mono text-xs text-fg/45">
           No shipments with status &ldquo;{statusLabel(activeFilter as ShipmentStatus)}&rdquo;.{' '}
           <button
             type="button"
             onClick={() => setFilter('')}
-            className="underline hover:text-white"
+            className="underline hover:text-fg"
           >
             Clear filter
           </button>
@@ -565,7 +565,7 @@ function ShipmentList({
       ) : (
         <table className="w-full">
           <thead>
-            <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-white/50">
+            <tr className="text-left font-mono text-[10px] uppercase tracking-[0.12em] text-fg/50">
               <th className="px-4 py-3 font-normal w-[44px]">
                 <input
                   type="checkbox"
@@ -595,7 +595,7 @@ function ShipmentList({
               <tr
                 key={s.externalId}
                 className="border-t border-[var(--color-navy-line)] hover:bg-[var(--color-navy-soft)]/30 transition-colors"
-                style={isSelected ? { backgroundColor: 'rgba(255,255,255,0.04)' } : undefined}
+                style={isSelected ? { backgroundColor: 'rgba(0,113,227,0.06)' } : undefined}
               >
                 <td className="px-4 py-4 w-[44px]">
                   <input
@@ -607,7 +607,7 @@ function ShipmentList({
                     className="h-4 w-4"
                   />
                 </td>
-                <td className="px-6 py-4 font-serif text-[14px] text-white">
+                <td className="px-6 py-4 font-serif text-[14px] text-fg">
                   <Link href={`/shipments/${encodeURIComponent(s.externalId)}`} className="hover:underline">
                     {s.label}
                   </Link>
@@ -620,11 +620,11 @@ function ShipmentList({
                     {statusLabel(s.status)}
                   </span>
                 </td>
-                <td className="px-2 py-4 font-mono text-[12px] text-white/70">{formatRoute(s)}</td>
-                <td className="px-2 py-4 font-mono text-[12px] text-white/70 text-right">
+                <td className="px-2 py-4 font-mono text-[12px] text-fg/70">{formatRoute(s)}</td>
+                <td className="px-2 py-4 font-mono text-[12px] text-fg/70 text-right">
                   {eurFromCents(s.customsValueCents)}
                 </td>
-                <td className="px-6 py-4 font-mono text-[11px] text-white/50">
+                <td className="px-6 py-4 font-mono text-[11px] text-fg/50">
                   {s.updatedAt ? new Date(s.updatedAt).toLocaleDateString('en-IE') : '—'}
                   {failure && (
                     <div

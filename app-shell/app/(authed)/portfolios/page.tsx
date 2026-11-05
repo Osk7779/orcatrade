@@ -18,7 +18,7 @@ export default function PortfoliosPage() {
       .catch((e) => setState(e instanceof AuthError ? 'auth' : 'error'));
   }, []);
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading your portfolios…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading your portfolios…</p>;
   if (state === 'auth') {
     return (
       <div className="max-w-md">
@@ -38,7 +38,7 @@ export default function PortfoliosPage() {
       </div>
 
       {!items.length ? (
-        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-white/60">
+        <div className="border border-dashed border-[var(--color-line)] px-6 py-10 text-center text-fg/60">
           <p className="mb-4">No saved portfolios yet — bundle several SKUs into one landed-cost view.</p>
           <a href="/start/" className="text-[var(--color-accent)] underline">Build a portfolio →</a>
         </div>
@@ -49,7 +49,7 @@ export default function PortfoliosPage() {
             return (
               <div key={p.id} className="border border-[var(--color-line)] p-5">
                 <div className="font-serif text-lg text-ivory mb-1">{p.label || p.id}</div>
-                <div className="font-mono text-xs text-white/45 mb-4">
+                <div className="font-mono text-xs text-fg/45 mb-4">
                   {p.lineCount ?? 0} SKU{(p.lineCount ?? 0) === 1 ? '' : 's'}
                   {p.savedAt ? ` · saved ${String(p.savedAt).slice(0, 10)}` : ''}
                 </div>
@@ -70,8 +70,8 @@ export default function PortfoliosPage() {
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="font-mono text-white/85">{value}</div>
-      <div className="text-[0.62rem] uppercase tracking-wider text-white/40 mt-0.5">{label}</div>
+      <div className="font-mono text-fg/85">{value}</div>
+      <div className="text-[0.62rem] uppercase tracking-wider text-fg/40 mt-0.5">{label}</div>
     </div>
   );
 }

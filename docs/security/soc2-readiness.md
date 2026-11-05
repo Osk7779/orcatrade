@@ -31,7 +31,7 @@ For the pre-funding posture we lean heavily on "controls demonstrated by automat
 |---|---|---|---|
 | CC2.1 | Internal info quality | ✅ | Architectural decisions captured as numbered ADRs in [`docs/adr/`](../adr/) (18 records, each with a binding enforcement test in its `## Confirmation` section). Roadmap + sprint history in [`docs/backend-grade-plan.md`](../backend-grade-plan.md), [`docs/dev-plan.md`](../dev-plan.md), [`docs/billion-dollar-plan.md`](../billion-dollar-plan.md). |
 | CC2.2 | Internal communication | ✅ | Single founder + contractors via async; no team Slack needed yet |
-| CC2.3 | External communication | ✅ | `/regulations/privacy.html`, `/status/`, `orca@orcatrade.pl` for customer/regulator comms |
+| CC2.3 | External communication | ✅ | `/regulations/privacy.html`, `/status/`, `orcatrade@orcatradegroup.com` for customer/regulator comms |
 
 ### CC3 — Risk assessment
 
@@ -161,4 +161,4 @@ We don't need every 🟡 to close before Type I, but the five above are the audi
 - **Tier 2 (signed NDA, pre-contract):** share the full folder including [`dpa-template.md`](dpa-template.md) + [`incident-response.md`](incident-response.md)
 - **Tier 3 (enterprise contract):** answer specific questionnaire items in writing; offer a quarterly security review meeting
 
-For everything else: `orca@orcatrade.pl`.
+For everything else: `orcatrade@orcatradegroup.com`.

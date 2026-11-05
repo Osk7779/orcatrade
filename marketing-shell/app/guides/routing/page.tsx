@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { FadeUp } from '@/components/marketing/fade-up';
 
@@ -39,7 +39,7 @@ export default function RoutingHubPage() {
       <section className="bg-[var(--color-ink)] py-20 md:py-28">
         <div className="mx-auto max-w-[1280px] px-6">
           <FadeUp>
-            <div className="flex flex-col gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)]">
+            <div className="flex flex-col gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
               {ORIGINS.map((o) => (
                 <article
                   key={o.code}
@@ -47,11 +47,10 @@ export default function RoutingHubPage() {
                 >
                   <h2
                     className="mb-5 font-serif text-[1.55rem] leading-[1.1] tracking-[-0.016em] text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                   >
                     From {o.name}
                   </h2>
-                  <div className="grid grid-cols-2 gap-px bg-[var(--color-navy-line)] sm:grid-cols-3 md:grid-cols-6">
+                  <div className="grid grid-cols-2 gap-px bg-[var(--color-navy-line)] sm:grid-cols-3 md:grid-cols-6 overflow-hidden rounded-[22px]">
                     {DESTINATIONS.map((d) => (
                       <Link
                         key={d.code}

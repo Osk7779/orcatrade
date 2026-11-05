@@ -89,7 +89,7 @@ export default function DraftsPage() {
     } finally { setBusy(false); }
   }
 
-  if (state === 'loading') return <p className="text-white/50 text-sm">Loading drafts…</p>;
+  if (state === 'loading') return <p className="text-fg/50 text-sm">Loading drafts…</p>;
   if (state === 'auth') return (
     <div className="max-w-md"><h1 className="text-3xl mb-3">Sign in to draft documents</h1>
       <a href="/account/" className="inline-block px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm">Sign in →</a></div>
@@ -100,30 +100,30 @@ export default function DraftsPage() {
     <div className="max-w-4xl">
       <div className="font-mono text-[0.7rem] tracking-[0.22em] uppercase text-[var(--color-accent-soft)] mb-2">Drafts</div>
       <h1 className="text-4xl mb-2">Draft &amp; approve</h1>
-      <p className="text-white/60 text-sm mb-8">
+      <p className="text-fg/60 text-sm mb-8">
         Pre-fill an artifact from one of your saved plans, preview it, and click approve or reject. The platform never sends, files, or wire-transfers on your behalf — this records the human decision.
       </p>
 
       {err && <p className="text-red-400 text-sm mb-4">{err}</p>}
 
       <section className="border border-[var(--color-line)] px-5 py-5 mb-6">
-        <div className="text-[0.7rem] uppercase tracking-wider text-white/50 mb-3">New draft</div>
+        <div className="text-[0.7rem] uppercase tracking-wider text-fg/50 mb-3">New draft</div>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
           <label className="block">
-            <span className="block text-xs text-white/55 mb-1">Document type</span>
+            <span className="block text-xs text-fg/55 mb-1">Document type</span>
             <select value={picked.type || ''} onChange={(e) => setPicked((c) => ({ ...c, type: e.target.value || undefined }))}
-              className="w-full bg-[var(--color-ink)] border border-[var(--color-line)] text-white/85 text-sm px-3 py-2 rounded-sm">
+              className="w-full bg-[var(--color-ink)] border border-[var(--color-line)] text-fg/85 text-sm px-3 py-2 rounded-sm">
               <option value="">— select a type —</option>
               {types.map((t) => <option key={t.id} value={t.id}>{t.label}</option>)}
             </select>
             {picked.type && (
-              <span className="block mt-1.5 text-[0.7rem] text-white/45">{types.find((t) => t.id === picked.type)?.description}</span>
+              <span className="block mt-1.5 text-[0.7rem] text-fg/45">{types.find((t) => t.id === picked.type)?.description}</span>
             )}
           </label>
           <label className="block">
-            <span className="block text-xs text-white/55 mb-1">From saved plan</span>
+            <span className="block text-xs text-fg/55 mb-1">From saved plan</span>
             <select value={picked.planId || ''} onChange={(e) => setPicked((c) => ({ ...c, planId: e.target.value || undefined }))}
-              className="w-full bg-[var(--color-ink)] border border-[var(--color-line)] text-white/85 text-sm px-3 py-2 rounded-sm">
+              className="w-full bg-[var(--color-ink)] border border-[var(--color-line)] text-fg/85 text-sm px-3 py-2 rounded-sm">
               <option value="">— select a plan —</option>
               {plans.map((p) => (
                 <option key={p.id} value={p.id}>
@@ -132,14 +132,14 @@ export default function DraftsPage() {
               ))}
             </select>
             {!plans.length && (
-              <span className="block mt-1.5 text-[0.7rem] text-white/45">No saved plans yet — <a href="/start/" className="underline">build one</a> first.</span>
+              <span className="block mt-1.5 text-[0.7rem] text-fg/45">No saved plans yet — <a href="/start/" className="underline">build one</a> first.</span>
             )}
           </label>
         </div>
         <div className="flex gap-2">
           <input value={picked.label} onChange={(e) => setPicked((c) => ({ ...c, label: e.target.value }))}
             placeholder="Label (optional, e.g. 'CI for Q3 cotton order')"
-            className="flex-1 bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-white" />
+            className="flex-1 bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-fg" />
           <button disabled={busy || !picked.type || !picked.planId} onClick={draftIt}
             className="px-4 py-2 text-sm font-medium bg-[var(--color-accent)] text-[var(--color-ink)] rounded-sm disabled:opacity-40">
             Draft
@@ -151,23 +151,23 @@ export default function DraftsPage() {
         <section className="border border-[var(--color-line)] px-5 py-5 mb-6">
           <div className="flex items-center justify-between gap-3 mb-3">
             <div className="flex items-center gap-3 min-w-0">
-              <span className="text-[0.7rem] uppercase tracking-wider text-white/50">Preview</span>
-              <span className="text-white/85 text-sm truncate">{current.draft.label || current.draft.type}</span>
+              <span className="text-[0.7rem] uppercase tracking-wider text-fg/50">Preview</span>
+              <span className="text-fg/85 text-sm truncate">{current.draft.label || current.draft.type}</span>
               <StatusPill status={current.draft.status} />
             </div>
-            <div className="font-mono text-[0.65rem] text-white/35">{current.draft.id}</div>
+            <div className="font-mono text-[0.65rem] text-fg/35">{current.draft.id}</div>
           </div>
           <iframe
             title="document preview"
             srcDoc={current.html}
-            className="w-full h-[60vh] border border-[var(--color-line)] bg-white"
+            className="w-full h-[60vh] border border-[var(--color-line)] bg-fg"
           />
           {current.draft.status === 'pending_approval' ? (
             <div className="mt-3">
               <textarea
                 value={decisionNotes} onChange={(e) => setDecisionNotes(e.target.value)}
                 rows={2} placeholder="Decision notes (optional)"
-                className="w-full bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-white"
+                className="w-full bg-transparent border border-[var(--color-line)] px-3 py-2 text-sm rounded-sm text-fg"
               />
               <div className="flex gap-2 mt-2">
                 <button disabled={busy} onClick={() => decide('approve')}
@@ -178,11 +178,11 @@ export default function DraftsPage() {
                   className="px-4 py-2 text-sm font-medium bg-red-500/15 text-red-200 border border-red-500/40 rounded-sm hover:bg-red-500/25 disabled:opacity-40">
                   Reject
                 </button>
-                <span className="self-center text-white/40 text-xs">The click is the record — the human still does the send / file / wire.</span>
+                <span className="self-center text-fg/40 text-xs">The click is the record — the human still does the send / file / wire.</span>
               </div>
             </div>
           ) : (
-            <p className="text-white/55 text-xs mt-3">
+            <p className="text-fg/55 text-xs mt-3">
               Decision: <b>{current.draft.status}</b>
               {current.draft.decidedAt ? ` · ${String(current.draft.decidedAt).slice(0, 10)}` : ''}
               {current.draft.decisionNotes ? ` · “${current.draft.decisionNotes}”` : ''}
@@ -193,20 +193,20 @@ export default function DraftsPage() {
 
       <h2 className="text-xl mb-3">Recent drafts</h2>
       {!drafts.length ? (
-        <p className="text-white/55 text-sm">No drafts yet.</p>
+        <p className="text-fg/55 text-sm">No drafts yet.</p>
       ) : (
         <div className="border border-[var(--color-line)] divide-y divide-[var(--color-line)]">
           {drafts.map((d) => (
             <button key={d.id} onClick={() => openDraft(d.id)}
-              className="w-full text-left flex items-center justify-between gap-3 px-5 py-3 text-sm hover:bg-white/[0.02]">
+              className="w-full text-left flex items-center justify-between gap-3 px-5 py-3 text-sm hover:bg-fg/[0.02]">
               <div className="min-w-0">
                 <div className="flex items-center gap-2">
                   <span className="text-ivory truncate">{d.label || d.type}</span>
                   <StatusPill status={d.status} />
                 </div>
-                <div className="font-mono text-[0.65rem] text-white/35 mt-0.5">{d.type} · {String(d.createdAt).slice(0, 10)}</div>
+                <div className="font-mono text-[0.65rem] text-fg/35 mt-0.5">{d.type} · {String(d.createdAt).slice(0, 10)}</div>
               </div>
-              <span className="font-mono text-[0.65rem] text-white/30 shrink-0">{d.id}</span>
+              <span className="font-mono text-[0.65rem] text-fg/30 shrink-0">{d.id}</span>
             </button>
           ))}
         </div>

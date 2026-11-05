@@ -1,7 +1,7 @@
 'use client';
 
 import { useRef, useState } from 'react';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { cn } from '@/lib/utils';
 
 // Quote Studio. Internal team tool — supplier PDF in, OrcaTrade-branded
@@ -109,14 +109,12 @@ export function QuoteStudio() {
         <div className="mx-auto max-w-[680px] px-6">
           <div className="border border-[var(--color-navy-line)] bg-[var(--color-ink)]/60 p-8 md:p-12">
             <div className="flex items-center gap-4">
-              <span aria-hidden className="font-serif text-[14px] text-[var(--color-ivory-dim)]/60">❦</span>
               <span className="font-serif text-[13px] italic text-[var(--color-ivory-mute)]">
                 Team-only tool
               </span>
             </div>
             <h2
               className="mt-6 font-serif text-[clamp(1.6rem,2.2vw+0.4rem,2rem)] leading-[1.1] tracking-[-0.018em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               Gated to the operations team.
             </h2>
@@ -153,7 +151,7 @@ export function QuoteStudio() {
                 </span>
                 <button
                   type="submit"
-                  className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+                  className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-6 py-3 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 rounded-full"
                 >
                   Enter the studio
                   <span aria-hidden className="transition-transform duration-500 group-hover:translate-x-0.5">→</span>
@@ -190,10 +188,8 @@ export function QuoteStudio() {
                 : 'border-[var(--color-navy-line)] hover:border-[var(--color-ivory-dim)]/60 hover:bg-[var(--color-navy-soft)]',
             )}
           >
-            <span aria-hidden className="font-serif text-[2rem] text-[var(--color-ivory-dim)]/60">❦</span>
             <span
               className="font-serif text-[1.2rem] italic leading-[1.2] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
             >
               Drop a supplier PDF here
             </span>
@@ -243,7 +239,7 @@ export function QuoteStudio() {
             </p>
           ) : (
             <div className="border border-[var(--color-navy-line)]">
-              <div className="grid grid-cols-[1fr_80px_80px_120px_120px_40px] gap-px bg-[var(--color-navy-line)]">
+              <div className="grid grid-cols-[1fr_80px_80px_120px_120px_40px] gap-px bg-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
                 <div className="bg-[var(--color-ink)] px-4 py-3 font-mono text-[11px] uppercase tracking-tight text-[var(--color-ivory-mute)]">Description</div>
                 <div className="bg-[var(--color-ink)] px-4 py-3 font-mono text-[11px] uppercase tracking-tight text-[var(--color-ivory-mute)]">Qty</div>
                 <div className="bg-[var(--color-ink)] px-4 py-3 font-mono text-[11px] uppercase tracking-tight text-[var(--color-ivory-mute)]">Unit</div>
@@ -265,7 +261,7 @@ export function QuoteStudio() {
           title="Fold the margin."
           active={lines.length > 0}
         >
-          <div className="grid grid-cols-2 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] sm:grid-cols-5">
+          <div className="grid grid-cols-2 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] sm:grid-cols-5 overflow-hidden rounded-[22px]">
             {MARGIN_OPTIONS.map((opt) => (
               <button
                 key={opt.value}
@@ -280,10 +276,6 @@ export function QuoteStudio() {
               >
                 <span
                   className="font-serif text-[1.6rem] leading-tight tracking-[-0.018em]"
-                  style={{
-                    fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                    fontWeight: margin === opt.value ? 600 : 500,
-                  }}
                 >
                   {opt.label}
                 </span>
@@ -319,7 +311,7 @@ export function QuoteStudio() {
             type="button"
             onClick={generate}
             disabled={lines.length === 0 || status === 'generating'}
-            className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white disabled:cursor-not-allowed disabled:opacity-40"
+            className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 disabled:cursor-not-allowed disabled:opacity-40 rounded-full"
           >
             {status === 'generating' ? 'Generating the PDF…' : status === 'done' ? 'Generate again' : 'Generate the OrcaTrade quote'}
             <span
@@ -379,11 +371,10 @@ function Panel({
     >
       <div className="flex items-baseline gap-3">
         <span className="font-serif text-[12.5px] italic text-[var(--color-ivory)]">
-          § {numeral}
+          {numeral}
         </span>
         <h3
           className="font-serif text-[1.35rem] leading-tight tracking-[-0.016em] text-[var(--color-ivory)]"
-          style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
         >
           {title}
         </h3>
