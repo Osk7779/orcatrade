@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from './editorial-header';
 import { ChapterRule } from './chapter-rule';
 import { FadeUp } from './fade-up';
@@ -81,13 +81,12 @@ export function PillarPage({
           <FadeUp className="mx-auto mb-14 max-w-[760px] text-center">
             <p
               className="font-serif text-[clamp(1.4rem,2vw+0.4rem,1.8rem)] italic leading-[1.4] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
             >
               {whatItDoesIntro}
             </p>
           </FadeUp>
 
-          <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+          <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
             {features.map((f, i) => (
               <article
                 key={f.title}
@@ -98,7 +97,6 @@ export function PillarPage({
                 </span>
                 <h3
                   className="font-serif text-[1.4rem] leading-[1.15] tracking-[-0.016em] text-[var(--color-ivory)]"
-                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                 >
                   {f.title}
                 </h3>
@@ -125,14 +123,13 @@ export function PillarPage({
                 <FadeUp className="mx-auto mb-14 max-w-[760px] text-center">
                   <p
                     className="font-serif text-[clamp(1.4rem,2vw+0.4rem,1.8rem)] italic leading-[1.4] text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
                   >
                     {workflowIntro}
                   </p>
                 </FadeUp>
               )}
 
-              <ol className="flex flex-col gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)]">
+              <ol className="flex flex-col gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] overflow-hidden rounded-[22px]">
                 {steps.map((s) => (
                   <li
                     key={s.numeral}
@@ -140,17 +137,12 @@ export function PillarPage({
                   >
                     <span
                       className="shrink-0 font-serif text-[1.6rem] italic leading-none text-[var(--color-ivory)] md:w-[60px]"
-                      style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
                     >
-                      § {s.numeral}
+                      {s.numeral}
                     </span>
                     <div className="flex-1">
                       <h3
                         className="font-serif text-[1.3rem] leading-[1.15] tracking-[-0.016em] text-[var(--color-ivory)]"
-                        style={{
-                          fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                          fontWeight: 550,
-                        }}
                       >
                         {s.title}
                       </h3>
@@ -174,7 +166,6 @@ export function PillarPage({
               <FadeUp className="mb-12 text-center">
                 <h2
                   className="font-serif text-[clamp(1.8rem,3vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.018em] text-[var(--color-ivory)]"
-                  style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                 >
                   {toolsTitle}
                 </h2>
@@ -198,7 +189,6 @@ export function PillarPage({
                   )}
                   <h3
                     className="font-serif text-[1.35rem] leading-tight tracking-[-0.014em] text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
                   >
                     {t.title}
                   </h3>
@@ -226,10 +216,6 @@ export function PillarPage({
             </span>
             <h2
               className="mx-auto mt-6 max-w-[22ch] font-serif text-[clamp(2.4rem,5vw+0.4rem,3.8rem)] leading-[1.05] tracking-[-0.024em] text-[var(--color-ivory)]"
-              style={{
-                fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                fontWeight: 550,
-              }}
             >
               {closingTitle}
             </h2>
@@ -239,7 +225,7 @@ export function PillarPage({
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/start"
-                className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+                className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 rounded-full"
               >
                 Build my import plan
                 <span
@@ -251,7 +237,7 @@ export function PillarPage({
               </Link>
               <Link
                 href="/contact"
-                className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
+                className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] rounded-full"
               >
                 Talk to a person
               </Link>

@@ -49,7 +49,7 @@ work, honest about what we know and what we don't.
 
 ## Reporting
 
-- **Conduct concerns:** email `conduct@orcatrade.pl`. Reports go
+- **Conduct concerns:** email `orcatrade@orcatradegroup.com`. Reports go
   directly to the founder (currently the only senior-most non-conflicted
   contact). Reports are treated as confidential; we will not retaliate
   against good-faith reporters.

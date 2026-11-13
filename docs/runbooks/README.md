@@ -35,6 +35,7 @@ and are reviewable through the standard PR flow.
 | [kv-outage.md](kv-outage.md) | Upstash Redis down or degraded; sessions vanishing; rate-limit counters resetting; mutations refusing (post-P0.4) |
 | [pg-outage.md](pg-outage.md) | Neon Postgres down or slow; dual-write arm failing; (post-P1.4) customer reads broken; lock contention; migration partial-apply |
 | [repo-settings-branch-protection.md](repo-settings-branch-protection.md) | Apply (or re-apply) the branch-protection policy on `main` per ADR 0012 |
+| [team-mailbox-and-email-delivery.md](team-mailbox-and-email-delivery.md) | Internal emails (inquiries, digests, alerts) not arriving; bounced/suppressed in Resend; team-mailbox DNS setup |
 
 ## Adding a new runbook
 

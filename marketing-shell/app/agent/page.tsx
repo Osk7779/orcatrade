@@ -16,7 +16,7 @@ export default function AgentPage() {
         lead: "The orchestrator merges the four specialist agents' tools and — when you're signed in — adds tools that reason over your saved plans, your portfolios, your actuals, your compliance deadlines. Every monetary number it surfaces comes from a calculator output, every regulatory claim ends in a citation, every irreversible action routes through requestHumanReview first. The platform never files.",
         meta: 'Calculator-grounded · cites every claim · human-approved before any filing',
         ctas: [
-          { label: 'Open the agent', href: '/app/agent' },
+          { label: 'Open the agent', href: '/app/chat' },
           { label: 'Read the model cards', href: 'https://github.com/Osk7779/orcatrade/blob/main/docs/ai/model-cards/README.md', variant: 'ghost' },
         ],
       }}

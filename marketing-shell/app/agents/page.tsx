@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/marketing/smart-link';
 import { EditorialHeader } from '@/components/marketing/editorial-header';
 import { ChapterRule } from '@/components/marketing/chapter-rule';
 import { FadeUp } from '@/components/marketing/fade-up';
@@ -92,14 +92,13 @@ export default function AgentsPage() {
           <FadeUp className="mx-auto mb-14 max-w-[760px] text-center">
             <p
               className="font-serif text-[clamp(1.4rem,2vw+0.4rem,1.8rem)] italic leading-[1.4] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
             >
               Each agent is a tool-use loop, not a sampling machine. The tools do the
               math; the agent writes the explanation.
             </p>
           </FadeUp>
 
-          <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45">
+          <div className="grid grid-cols-1 gap-px border border-[var(--color-navy-line)] bg-[var(--color-navy-line)] md:grid-cols-2 [&>*]:transition-opacity [&>*]:duration-700 [&:has(>*:hover)>*:not(:hover)]:opacity-45 overflow-hidden rounded-[22px]">
             {AGENTS.map((a) => (
               <article
                 key={a.numeral}
@@ -108,16 +107,11 @@ export default function AgentsPage() {
                 <div className="flex items-baseline gap-3">
                   <span
                     className="font-serif text-[1.6rem] italic leading-none text-[var(--color-ivory)]"
-                    style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144" }}
                   >
-                    § {a.numeral}
+                    {a.numeral}
                   </span>
                   <h2
                     className="font-serif text-[1.6rem] leading-[1.1] tracking-[-0.018em] text-[var(--color-ivory)]"
-                    style={{
-                      fontVariationSettings: "'SOFT' 35, 'opsz' 144",
-                      fontWeight: 550,
-                    }}
                   >
                     {a.name}
                   </h2>
@@ -155,7 +149,6 @@ export default function AgentsPage() {
           <FadeUp>
             <h2
               className="font-serif text-[clamp(1.8rem,2.6vw+0.4rem,2.4rem)] leading-[1.1] tracking-[-0.02em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               The discipline that makes the agents safe.
             </h2>
@@ -191,7 +184,6 @@ export default function AgentsPage() {
             </span>
             <h2
               className="mx-auto mt-6 max-w-[22ch] font-serif text-[clamp(2.4rem,5vw+0.4rem,3.8rem)] leading-[1.05] tracking-[-0.024em] text-[var(--color-ivory)]"
-              style={{ fontVariationSettings: "'SOFT' 35, 'opsz' 144", fontWeight: 550 }}
             >
               The agent is in the cockpit.
             </h2>
@@ -203,7 +195,7 @@ export default function AgentsPage() {
             <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
               <Link
                 href="/app/chat"
-                className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:bg-white"
+                className="group inline-flex items-center gap-3 bg-[var(--color-ivory)] px-7 py-3.5 text-[12.5px] font-semibold text-[var(--color-ink)] transition-colors duration-500 hover:opacity-85 rounded-full"
               >
                 Open Ask the agent
                 <span
@@ -215,7 +207,7 @@ export default function AgentsPage() {
               </Link>
               <Link
                 href="/intelligence"
-                className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)]"
+                className="inline-flex items-center gap-3 border border-[var(--color-navy-line)] px-7 py-3.5 text-[12.5px] font-medium text-[var(--color-ivory)] transition-all duration-500 hover:border-[var(--color-ivory-dim)] hover:bg-[var(--color-navy-soft)] rounded-full"
               >
                 Read about the flagship
               </Link>

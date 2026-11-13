@@ -32,9 +32,9 @@ test('every privacyHref resolves to a real, substantial file (no 404)', () => {
 
 test('each privacy policy covers the required substance', () => {
   const checks = [
-    { file: 'regulations/privacy.html', rights: /Article 17|Article 20|erasure|portability/i, cookies: /cookie/i, controller: /data controller/i, contact: /privacy@orcatrade\.pl/ },
-    { file: 'pl/regulations/privacy.html', rights: /art\.\s*1[57]|usuni|przenosz/i, cookies: /cookie/i, controller: /administrator/i, contact: /privacy@orcatrade\.pl/ },
-    { file: 'de/regulations/privacy.html', rights: /Art\.\s*1[57]|Löschung|Übertragbarkeit/i, cookies: /Cookie/i, controller: /Verantwortliche/i, contact: /privacy@orcatrade\.pl/ },
+    { file: 'regulations/privacy.html', rights: /Article 17|Article 20|erasure|portability/i, cookies: /cookie/i, controller: /data controller/i, contact: /orcatrade@orcatradegroup\.com/ },
+    { file: 'pl/regulations/privacy.html', rights: /art\.\s*1[57]|usuni|przenosz/i, cookies: /cookie/i, controller: /administrator/i, contact: /orcatrade@orcatradegroup\.com/ },
+    { file: 'de/regulations/privacy.html', rights: /Art\.\s*1[57]|Löschung|Übertragbarkeit/i, cookies: /Cookie/i, controller: /Verantwortliche/i, contact: /orcatrade@orcatradegroup\.com/ },
   ];
   for (const c of checks) {
     const html = fs.readFileSync(path.join(ROOT, c.file), 'utf8');

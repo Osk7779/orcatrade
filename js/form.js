@@ -8,21 +8,21 @@ document.addEventListener('DOMContentLoaded', function () {
       sending: 'Sending…',
       success: "Message sent. We'll reply within one business day.",
       sent: 'Sent',
-      error: 'Could not send — please email us directly at orca@orcatrade.pl',
+      error: 'Could not send — please email us directly at orcatrade@orcatradegroup.com',
     },
     de: {
       missing: 'Bitte füllen Sie Namen und E-Mail aus.',
       sending: 'Wird gesendet…',
       success: 'Nachricht gesendet. Wir antworten innerhalb eines Werktages.',
       sent: 'Gesendet',
-      error: 'Senden fehlgeschlagen — bitte schreiben Sie uns direkt an orca@orcatrade.pl',
+      error: 'Senden fehlgeschlagen — bitte schreiben Sie uns direkt an orcatrade@orcatradegroup.com',
     },
     pl: {
       missing: 'Uzupełnij imię i nazwisko oraz e-mail.',
       sending: 'Wysyłanie…',
       success: 'Wiadomość wysłana. Odpowiemy w ciągu jednego dnia roboczego.',
       sent: 'Wysłano',
-      error: 'Nie udało się wysłać — napisz bezpośrednio na orca@orcatrade.pl',
+      error: 'Nie udało się wysłać — napisz bezpośrednio na orcatrade@orcatradegroup.com',
     },
   };
   const t = copy[lang] || copy.en;
