@@ -1,6 +1,6 @@
 name: rotate-content-dates
 
-# Daily content-freshness rotation. Replaces yesterday's rotation-pattern
+# Content date rotation (manual only — see `on:` below). Replaces yesterday's rotation-pattern
 # dates (JSON-LD datePublished/dateModified, sitemap <lastmod>, footer
 # "Snapshot reviewed on" lines) with today's date across all guide,
 # example, and sitemap files. Commits + pushes if anything changed.
@@ -10,11 +10,12 @@ name: rotate-content-dates
 # regulation effective-dates and historical citations stay untouched.
 
 on:
-  schedule:
-    # 03:00 UTC daily — early enough that Google sees fresh <lastmod>
-    # values on its morning crawl, late enough not to overlap with other
-    # crons (06:30 founder digest, 08:00 plan-revision).
-    - cron: '0 3 * * *'
+  # Daily schedule REMOVED 2026-10-14. Rewriting datePublished/dateModified,
+  # <lastmod> and "Snapshot reviewed on" to today on ~560 unchanged pages is
+  # a false freshness claim — to readers and to search engines (which treat
+  # fabricated lastmod as a spam signal and then ignore the sitemap's dates).
+  # Dates should move only when content is actually regenerated or reviewed.
+  # Kept as manual-dispatch only; test/automation-extended.test.js pins that.
   workflow_dispatch:
 
 jobs:
