@@ -68,8 +68,11 @@ jobs:
           for attempt in $(seq 1 $MAX_ATTEMPTS); do
             # Find a Vercel deployment for this SHA in the Preview env.
             # Vercel labels the environment "Preview" or "Preview – <branch>".
-            DEPLOY_ID=$(gh api "repos/$REPO/commits/$SHA/deployments" \
-              --jq '[.[] | select(.environment | startswith("Preview"))][0].id // empty')
+            # `repos/{repo}/deployments?sha=` is the REST endpoint; the old
+            # `commits/{sha}/deployments` path 422'd and, under `set -e`,
+            # failed the gate on the first attempt for every PR.
+            DEPLOY_ID=$(gh api "repos/$REPO/deployments?sha=$SHA" \
+              --jq '[.[] | select(.environment | startswith("Preview"))][0].id // empty' || true)
 
             if [ -n "$DEPLOY_ID" ]; then
               URL=$(gh api "repos/$REPO/deployments/$DEPLOY_ID/statuses" \
@@ -93,5 +96,9 @@ jobs:
           exit 1
 
       - name: Smoke against preview URL
+        env:
+          # Vercel → Project → Settings → Deployment Protection →
+          # "Protection Bypass for Automation". Without it every probe 302s.
+          VERCEL_AUTOMATION_BYPASS_SECRET: ${{ secrets.VERCEL_AUTOMATION_BYPASS_SECRET }}
         run: |
           node scripts/smoke.js --base "${{ steps.vercel.outputs.url }}"
